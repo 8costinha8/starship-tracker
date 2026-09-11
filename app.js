@@ -4,6 +4,16 @@
    Everything else (order, days between, countdown) is computed.
    outcome: "success" | "partial" | "failure"
    status (next flight): "confirmed" | "net" | "tbc"
+
+   PHOTOS — optional. Add real SpaceX photos to any flight by adding
+   a "photo" field to that flight's object, e.g. for flight 10:
+     photo: {
+       thumb: "images/f10-thumb.jpg",       // small card image
+       gallery: ["images/f10-a.jpg", "images/f10-b.jpg"],  // expanded view, up to 2
+     }
+   Drop the actual image files into an "images" folder in this repo
+   (same one this file lives in). Flights with no "photo" field just
+   keep the placeholder — nothing breaks either way.
    ───────────────────────────────────────────────────────────── */
 
 const FLIGHTS = [
@@ -36,6 +46,7 @@ const FLIGHTS = [
     story: "Booster 14 became the first Super Heavy to fly twice, testing a steep descent before being lost over the Gulf. Ship 35 reached its planned trajectory, but its payload door stayed shut and a leak sent it spinning. It broke up during re-entry over the Indian Ocean." },
   { n: 10, date: "2025-08-26T23:30:00Z", pad: "Pad 1", block: "Block 2", booster: "B16", ship: "S37", outcome: "success",
     headline: "Back on track",
+    photo: { thumb: "images/f10-thumb.jpg", gallery: ["images/f10-a.jpg", "images/f10-b.jpg"] },
     story: "Delayed after the ship first assigned to it was lost in ground testing, Flight 10 ticked off almost every goal. The ship deployed eight Starlink simulators, relit an engine in space and splashed down within metres of its target, despite visible damage around its engine bay." },
   { n: 11, date: "2025-10-13T23:23:00Z", pad: "Pad 1", block: "Block 2", booster: "B15-2", ship: "S38", outcome: "success",
     headline: "Block 2 signs off",
@@ -101,7 +112,15 @@ function RocketMark() {
   );
 }
 
-function PhotoSlot({ size }) {
+function PhotoSlot({ size, src, alt }) {
+  if (src) {
+    return (
+      <div className={`photo photo-${size} has-img`}>
+        <img src={src} alt={alt || ""} loading="lazy" />
+        <span className="photo-credit">SpaceX</span>
+      </div>
+    );
+  }
   return (
     <div className={`photo photo-${size}`} role="img" aria-label="Photo placeholder">
       <RocketMark />
@@ -173,7 +192,7 @@ function FlightCard({ f, open, onTap, register }) {
   return (
     <article ref={(el) => register(f.n, el)} className={`card${open ? " is-open" : ""}`}>
       <div className="card-head" role="button" tabIndex={0} aria-expanded={open} onClick={() => onTap(f.n)} onKeyDown={onKey}>
-        <PhotoSlot size="thumb" />
+        <PhotoSlot size="thumb" src={f.photo?.thumb} alt={`Starship Flight ${f.n}`} />
         <div className="info">
           <div className="info-top">
             <div className="title"><span className="t-word">Starship Flight</span><span className="t-num">{f.n}</span></div>
@@ -192,7 +211,10 @@ function FlightCard({ f, open, onTap, register }) {
           <div className="more-pad">
             <h3 className="headline">{f.headline}</h3>
             <p className="story">{f.story}</p>
-            <div className="gallery"><PhotoSlot size="wide" /><PhotoSlot size="wide" /></div>
+            <div className="gallery">
+              <PhotoSlot size="wide" src={f.photo?.gallery?.[0]} alt={`${f.headline} \u2014 photo 1`} />
+              <PhotoSlot size="wide" src={f.photo?.gallery?.[1]} alt={`${f.headline} \u2014 photo 2`} />
+            </div>
           </div>
         </div>
       </div>
@@ -432,6 +454,18 @@ html, body, .st { overflow-anchor: none; } /* we handle scroll position ourselve
 .photo-wide { aspect-ratio: 4 / 3; }
 .photo-wide svg { height: 48%; }
 .photo-cap { position: absolute; left: 9px; bottom: 7px; font-size: 10.5px; color: rgba(220,228,245,.55); }
+.photo.has-img img {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+  filter: saturate(88%) contrast(104%) brightness(92%);
+}
+.photo.has-img::after {
+  content: ""; position: absolute; inset: 0;
+  background:
+    linear-gradient(180deg, rgba(26,34,54,0) 55%, rgba(26,34,54,.85) 100%),
+    linear-gradient(200deg, rgba(59,72,120,.35) 0%, rgba(26,34,54,0) 55%);
+}
+.photo-credit { position: absolute; right: 8px; bottom: 6px; font-size: 9.5px; letter-spacing: .02em; color: rgba(228,234,246,.65); z-index: 1; }
+.photo-thumb .photo-credit { display: none; } /* keep the small thumbnail clean; credit shows on the bigger gallery images */
 .info { min-width: 0; padding-top: 2px; }
 .info-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
 .title { display: flex; align-items: baseline; gap: 6px; }
