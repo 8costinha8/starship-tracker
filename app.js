@@ -71,14 +71,15 @@ const FLIGHTS = [
     story: "The first flight to release working Starlink V3 satellites, 20 of them, on a path that let them burn up afterwards as planned. The booster lost engines during its landing burn. The ship made its best re-entry yet and survived tipping over after splashdown, so SpaceX could recover it and study the heat shield." },
 ];
 
-const NEXT_FLIGHT = {
-  n: 14,
-  status: "net",
-  date: "2026-09-15T00:00:00Z",
+// Vehicle details + your own commentary — edit these by hand, same as flight stories.
+const NEXT_FLIGHT_MANUAL = {
   pad: "Pad 2", block: "V3", booster: "B21", ship: "S41",
   headline: "First attempt to reach orbit",
   note: "Carrying around 20 working Starlink V3 satellites. The ship is expected to splash down in the Indian Ocean; catching it with the tower is planned for a later flight.",
 };
+
+// Used only if the live fetch below fails or hasn't loaded yet.
+const NEXT_FLIGHT_FALLBACK = { n: 14, status: "net", date: "2026-09-15T00:00:00Z" };
 
 const DATA_CHECKED = "11 Sep 2026";
 
@@ -111,6 +112,45 @@ function useNow(fast) {
     return () => clearInterval(id);
   }, [fast]);
   return now;
+}
+
+// Fetches the next Starship flight's date/status from Launch Library 2.
+// Caches for an hour (well under LL2's 15 requests/hour free limit) and
+// silently falls back to NEXT_FLIGHT_FALLBACK if the fetch fails.
+const LL2_ENDPOINT = "https://ll.thespacedevs.com/2.3.0/launches/upcoming/?search=Starship&limit=1&mode=list";
+const CACHE_KEY = "starship-next-flight-cache";
+const CACHE_MS = 60 * 60 * 1000;
+
+function mapLL2Status(abbrev) {
+  if (abbrev === "Go") return "confirmed";
+  if (abbrev === "TBC") return "net";
+  return "tbc"; // TBD or unknown: no reliable date yet
+}
+
+function useNextFlight() {
+  const [live, setLive] = React.useState(null);
+  React.useEffect(() => {
+    try {
+      const cached = JSON.parse(localStorage.getItem(CACHE_KEY));
+      if (cached && Date.now() - cached.fetchedAt < CACHE_MS) { setLive(cached.data); return; }
+    } catch {}
+    fetch(LL2_ENDPOINT)
+      .then((r) => r.json())
+      .then((json) => {
+        const launch = json.results?.[0];
+        if (!launch) return;
+        const match = launch.name.match(/Flight (\d+)/);
+        const data = {
+          n: match ? Number(match[1]) : NEXT_FLIGHT_FALLBACK.n,
+          status: mapLL2Status(launch.status?.abbrev),
+          date: launch.net,
+        };
+        setLive(data);
+        localStorage.setItem(CACHE_KEY, JSON.stringify({ data, fetchedAt: Date.now() }));
+      })
+      .catch(() => {});
+  }, []);
+  return live;
 }
 
 /* ───────────── pieces ───────────── */
@@ -270,6 +310,8 @@ function StarshipTracker() {
   const cardEls = React.useRef({});
   const pending = React.useRef(null);
   const now = useNow(false);
+  const liveNext = useNextFlight();
+  const nextFlight = { ...NEXT_FLIGHT_MANUAL, ...(liveNext || NEXT_FLIGHT_FALLBACK) };
 
   const flights = [...FLIGHTS].sort((a, b) => b.n - a.n);
   const latest = flights[0];
@@ -379,7 +421,7 @@ function StarshipTracker() {
           <span />
         </header>
 
-        <NextFlightCard f={NEXT_FLIGHT} />
+        <NextFlightCard f={nextFlight} />
         <Connector dashed label={`${daysSinceLatest} days since the last flight`} />
 
         {flights.map((f, i) => (
