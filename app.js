@@ -455,7 +455,7 @@ const css = `
 html, body, .st { overflow-anchor: none; } /* we handle scroll position ourselves */
 .title { flex-wrap: wrap; row-gap: 2px; }
 .t-word { white-space: nowrap; }
-.st-wrap { max-width: 440px; margin: 0 auto; padding: 18px 18px 72px; }
+.st-wrap { max-width: 440px; margin: 0 auto; padding: calc(18px + env(safe-area-inset-top)) 18px 72px; }
 
 /* header */
 .top { display: grid; grid-template-columns: 40px 1fr 40px; align-items: center; margin-bottom: 22px; }
