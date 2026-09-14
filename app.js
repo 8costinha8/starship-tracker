@@ -164,10 +164,10 @@ function RocketMark() {
   );
 }
 
-function PhotoSlot({ size, src, alt }) {
+function PhotoSlot({ size, src, alt, onClick }) {
   if (src) {
     return (
-      <div className={`photo photo-${size} has-img`}>
+      <div className={`photo photo-${size} has-img${onClick ? " tappable" : ""}`} onClick={onClick}>
         <img src={src} alt={alt || ""} loading="lazy" />
         <span className="photo-credit">SpaceX</span>
       </div>
@@ -195,21 +195,16 @@ function Connector({ label, dashed }) {
 }
 
 function Countdown({ flight }) {
-  const now = useNow(flight.status === "confirmed");
-  if (flight.status === "tbc") return <div className="cd"><span className="cd-val cd-tbc">Date to be confirmed</span></div>;
-  if (flight.status === "net") {
-    return (
-      <div className="cd" aria-label={`No earlier than ${fmt(flight.date, { day: "numeric", month: "long" })}`}>
-        <span className="cd-tag">NET</span>
-        <span className="cd-val">{fmt(flight.date, { day: "numeric", month: "short" })}</span>
-      </div>
-    );
-  }
+  const ticking = flight.status !== "tbc"; // "net" (estimated) and "confirmed" both count down; "tbc" has no date to count to
+  const now = useNow(ticking);
+  if (!ticking) return <div className="cd"><span className="cd-val cd-tbc">Date to be confirmed</span></div>;
+
   const diff = Math.max(0, new Date(flight.date).getTime() - now);
   const d = Math.floor(diff / DAY), h = Math.floor(diff / 3600000) % 24, m = Math.floor(diff / 60000) % 60, s = Math.floor(diff / 1000) % 60;
+  const isNet = flight.status === "net";
   return (
-    <div className="cd">
-      <span className="cd-tag">T–</span>
+    <div className="cd" aria-label={isNet ? `Estimated countdown, no earlier than ${fmt(flight.date, { day: "numeric", month: "long" })}` : undefined}>
+      <span className="cd-tag">{isNet ? "NET" : "T–"}</span>
       <span className="cd-val">{diff === 0 ? "Launching" : `${d}d ${pad2(h)}:${pad2(m)}:${pad2(s)}`}</span>
     </div>
   );
@@ -238,13 +233,19 @@ function NextFlightCard({ f }) {
   );
 }
 
-function FlightCard({ f, open, onTap, register }) {
+function FlightCard({ f, open, onTap, onPhotoTap, register }) {
   const onKey = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onTap(f.n); } };
+  // While closed, tapping the thumb should expand the card like the rest of the header.
+  // Once open, tapping the thumb opens the lightbox instead — so it needs to stop
+  // the click from also bubbling up to the header's collapse handler.
+  const thumbTap = open && f.photo?.thumb
+    ? (e) => { e.stopPropagation(); onPhotoTap(f.photo.thumb, `Starship Flight ${f.n}`); }
+    : undefined;
 
   return (
     <article ref={(el) => register(f.n, el)} className={`card${open ? " is-open" : ""}`}>
       <div className="card-head" role="button" tabIndex={0} aria-expanded={open} onClick={() => onTap(f.n)} onKeyDown={onKey}>
-        <PhotoSlot size="thumb" src={f.photo?.thumb} alt={`Starship Flight ${f.n}`} />
+        <PhotoSlot size="thumb" src={f.photo?.thumb} alt={`Starship Flight ${f.n}`} onClick={thumbTap} />
         <div className="info">
           <div className="info-top">
             <div className="title"><span className="t-word">Starship Flight</span><span className="t-num">{f.n}</span></div>
@@ -264,8 +265,14 @@ function FlightCard({ f, open, onTap, register }) {
             <h3 className="headline">{f.headline}</h3>
             <p className="story">{f.story}</p>
             <div className="gallery">
-              <PhotoSlot size="wide" src={f.photo?.gallery?.[0]} alt={`${f.headline} \u2014 photo 1`} />
-              <PhotoSlot size="wide" src={f.photo?.gallery?.[1]} alt={`${f.headline} \u2014 photo 2`} />
+              <PhotoSlot
+                size="wide" src={f.photo?.gallery?.[0]} alt={`${f.headline} \u2014 photo 1`}
+                onClick={f.photo?.gallery?.[0] ? () => onPhotoTap(f.photo.gallery[0], `${f.headline} \u2014 photo 1`) : undefined}
+              />
+              <PhotoSlot
+                size="wide" src={f.photo?.gallery?.[1]} alt={`${f.headline} \u2014 photo 2`}
+                onClick={f.photo?.gallery?.[1] ? () => onPhotoTap(f.photo.gallery[1], `${f.headline} \u2014 photo 2`) : undefined}
+              />
             </div>
           </div>
         </div>
@@ -294,11 +301,28 @@ function AboutPanel({ open, onClose }) {
         <dl>
           <dt>Photos</dt><dd>All photos by SpaceX, credited on each image.</dd>
           <dt>Flight data</dt><dd>SpaceX flight updates and Wikipedia's list of Starship launches. Last checked {DATA_CHECKED}.</dd>
-          <dt>Next flight</dt><dd>Launch dates move often. NET means no earlier than that date. A live countdown appears once SpaceX confirms the time.</dd>
+          <dt>Next flight</dt><dd>Launch dates move often. The countdown runs off the best known date and is tagged NET (estimated) until SpaceX confirms the exact time.</dd>
         </dl>
-        <p className="about-foot">Version 1.3</p>
+        <p className="about-foot">Version 1.4</p>
       </aside>
     </>
+  );
+}
+
+function Lightbox({ src, alt, onClose }) {
+  const [shown, setShown] = React.useState(null); // keeps the image visible while the overlay fades out
+  React.useEffect(() => { if (src) setShown({ src, alt }); }, [src, alt]);
+  React.useEffect(() => {
+    if (!src) return;
+    const onEsc = (e) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onEsc);
+    return () => window.removeEventListener("keydown", onEsc);
+  }, [src]);
+
+  return (
+    <div className={`lightbox${src ? " show" : ""}`} onClick={onClose} role={src ? "dialog" : undefined} aria-modal={src ? "true" : undefined} aria-label={shown?.alt}>
+      {shown && <img src={shown.src} alt={shown.alt || ""} />}
+    </div>
   );
 }
 
@@ -307,6 +331,7 @@ function AboutPanel({ open, onClose }) {
 function StarshipTracker() {
   const [openId, setOpenId] = React.useState(null);
   const [aboutOpen, setAboutOpen] = React.useState(false);
+  const [lightbox, setLightbox] = React.useState(null); // { src, alt } | null
   const cardEls = React.useRef({});
   const pending = React.useRef(null);
   const now = useNow(false);
@@ -426,7 +451,7 @@ function StarshipTracker() {
 
         {flights.map((f, i) => (
           <div key={f.n}>
-            <FlightCard f={f} open={openId === f.n} onTap={handleTap} register={register} />
+            <FlightCard f={f} open={openId === f.n} onTap={handleTap} onPhotoTap={(src, alt) => setLightbox({ src, alt })} register={register} />
             {i < flights.length - 1 && <Connector label={`${daysBetween(flights[i + 1].date, f.date)} days`} />}
           </div>
         ))}
@@ -434,6 +459,7 @@ function StarshipTracker() {
         <p className="end">That's every flight so far.</p>
       </div>
       <AboutPanel open={aboutOpen} onClose={() => setAboutOpen(false)} />
+      <Lightbox src={lightbox?.src} alt={lightbox?.alt} onClose={() => setLightbox(null)} />
     </div>
   );
 }
@@ -520,6 +546,16 @@ html, body, .st { overflow-anchor: none; } /* we handle scroll position ourselve
 }
 .photo-credit { position: absolute; right: 8px; bottom: 6px; font-size: 9.5px; letter-spacing: .02em; color: rgba(228,234,246,.65); z-index: 1; }
 .photo-thumb .photo-credit { display: none; } /* keep the small thumbnail clean; credit shows on the bigger gallery images */
+.photo.tappable { cursor: pointer; }
+
+/* lightbox */
+.lightbox {
+  position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; padding: 24px;
+  background: rgba(8,12,24,0); opacity: 0; pointer-events: none;
+  transition: opacity .25s, background-color .25s;
+}
+.lightbox.show { opacity: 1; pointer-events: auto; background: rgba(8,12,24,.9); }
+.lightbox img { max-width: 100%; max-height: 100%; border-radius: 12px; box-shadow: 0 30px 60px -20px rgba(0,0,0,.7); }
 .info { min-width: 0; padding-top: 2px; }
 .info-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
 .title { display: flex; align-items: baseline; gap: 6px; }
