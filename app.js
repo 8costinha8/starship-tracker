@@ -94,6 +94,14 @@ const DAY = 86400000;
 const utcDay = (iso) => { const d = new Date(iso); return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()); };
 const daysBetween = (a, b) => Math.round((utcDay(b) - utcDay(a)) / DAY);
 const fmt = (iso, opts) => new Date(iso).toLocaleDateString("en-GB", { timeZone: "UTC", ...opts });
+// For the next-flight card specifically: date AND local launch time together,
+// in the UK's own timezone (auto-adjusts BST/GMT), so there's no ambiguity.
+const fmtDateTimeLondon = (iso) => {
+  const d = new Date(iso);
+  const date = d.toLocaleDateString("en-GB", { timeZone: "Europe/London", day: "numeric", month: "long", year: "numeric" });
+  const time = d.toLocaleTimeString("en-GB", { timeZone: "Europe/London", hour: "2-digit", minute: "2-digit", timeZoneName: "short" });
+  return `${date} | ${time}`;
+};
 const pad2 = (x) => String(x).padStart(2, "0");
 const EXPAND_MS = 450; // how long a card takes to open or close
 const OUTCOME_LABEL = { success: "Success", partial: "Partial", failure: "Failure" };
@@ -240,10 +248,8 @@ function WatchLiveBadge({ flight, now }) {
 }
 
 function NextFlightCard({ f, now }) {
-  const dateText =
-    f.status === "tbc" ? "To be confirmed"
-    : f.status === "net" ? `No earlier than ${fmt(f.date, { day: "numeric", month: "long", year: "numeric" })}`
-    : fmt(f.date, { day: "numeric", month: "long", year: "numeric" });
+  const dateLabel = f.status === "net" ? "NET date" : "Date";
+  const dateText = f.status === "tbc" ? "To be confirmed" : fmtDateTimeLondon(f.date);
   return (
     <section className="next" aria-label={`Next flight: Flight ${f.n}`}>
       <div className="next-top">
@@ -253,7 +259,7 @@ function NextFlightCard({ f, now }) {
       <div className="next-title"><span className="t-word">Starship Flight</span><span className="t-num">{f.n}</span></div>
       <p className="next-head">{f.headline}</p>
       <dl className="facts">
-        <dt>Date</dt><dd>{dateText}</dd>
+        <dt>{dateLabel}</dt><dd>{dateText}</dd>
         <dt>Site</dt><dd>{f.pad}, {siteLabel(f)}</dd>
         <dt>Vehicle</dt><dd>{f.block}, Booster {f.booster.replace("B", "")}, Ship {f.ship.replace("S", "")}</dd>
       </dl>
