@@ -116,13 +116,9 @@ const daysBetween = (a, b) => Math.round((utcDay(b) - utcDay(a)) / DAY);
 const fmt = (iso, opts) => new Date(iso).toLocaleDateString("en-GB", { timeZone: "UTC", ...opts });
 // For the next-flight card specifically: local launch time and date together,
 // in the UK's own timezone (auto-adjusts BST/GMT), so there's no ambiguity.
-const ordinal = (n) => {
-  if (n % 100 >= 11 && n % 100 <= 13) return `${n}th`;
-  return `${n}${["th", "st", "nd", "rd"][n % 10] || "th"}`;
-};
 const fmtDateTimeLondon = (iso) => {
   const d = new Date(iso);
-  const day = ordinal(Number(d.toLocaleDateString("en-GB", { timeZone: "Europe/London", day: "numeric" })));
+  const day = d.toLocaleDateString("en-GB", { timeZone: "Europe/London", day: "numeric" });
   const month = d.toLocaleDateString("en-GB", { timeZone: "Europe/London", month: "long" });
   const year = d.toLocaleDateString("en-GB", { timeZone: "Europe/London", year: "numeric" });
   const time = d.toLocaleTimeString("en-GB", { timeZone: "Europe/London", hour: "2-digit", minute: "2-digit" });
