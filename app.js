@@ -79,9 +79,9 @@ const NEXT_FLIGHT_MANUAL = {
 };
 
 // Used only if the live fetch below fails or hasn't loaded yet.
-const NEXT_FLIGHT_FALLBACK = { n: 14, status: "net", date: "2026-09-15T00:00:00Z" };
+const NEXT_FLIGHT_FALLBACK = { n: 14, status: "net", date: "2026-09-18T12:15:00Z" };
 
-const DATA_CHECKED = "11 Sep 2026";
+const DATA_CHECKED = "14 Sep 2026";
 
 // All flights so far launch from Starbase, Texas. If SpaceX ever flies Starship
 // from a different site, add a "site" field to that flight object (or to
@@ -102,8 +102,10 @@ const siteLabel = (f) => f.site || DEFAULT_SITE;
 // "Watch live" badge on the next-flight card: no free API can tell us whether
 // SpaceX's stream is actually running, so this is time-based — it goes from a
 // plain badge to a clickable button once we're within this window of the
-// scheduled launch time (only for dates we have at all, confirmed or NET).
-const WATCH_LIVE_LEAD_MS = 60 * 60 * 1000; // 60 min before scheduled launch
+// scheduled launch time (only for dates we have at all, confirmed or NET), and
+// closes back to gray after the trailing window in case the date is stale.
+const WATCH_LIVE_LEAD_MS = 60 * 60 * 1000; // opens 60 min before scheduled launch
+const WATCH_LIVE_TRAIL_MS = 4 * 60 * 60 * 1000; // closes 4 hours after, well past a normal launch + stream
 const WATCH_LIVE_URL = "https://www.youtube.com/@SpaceX/live";
 
 const reduceMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -225,12 +227,15 @@ function Countdown({ flight }) {
 
 function WatchLiveBadge({ flight, now }) {
   if (flight.status === "tbc") return null; // no date yet to time it against
-  const active = now >= new Date(flight.date).getTime() - WATCH_LIVE_LEAD_MS;
-  if (!active) return <span className="watch-badge">Watch live</span>;
+  const t = new Date(flight.date).getTime();
+  const active = now >= t - WATCH_LIVE_LEAD_MS && now <= t + WATCH_LIVE_TRAIL_MS;
+  const Tag = active ? "a" : "span";
+  const linkProps = active ? { href: WATCH_LIVE_URL, target: "_blank", rel: "noopener noreferrer" } : {};
   return (
-    <a className="watch-badge watch-badge-live" href={WATCH_LIVE_URL} target="_blank" rel="noopener noreferrer">
+    <Tag className={`watch-badge${active ? " watch-badge-live" : ""}`} {...linkProps}>
+      <span className="watch-dot" />
       Watch live
-    </a>
+    </Tag>
   );
 }
 
@@ -243,10 +248,7 @@ function NextFlightCard({ f, now }) {
     <section className="next" aria-label={`Next flight: Flight ${f.n}`}>
       <div className="next-top">
         <Countdown flight={f} />
-        <div className="next-top-right">
-          <WatchLiveBadge flight={f} now={now} />
-          <span className="next-kicker">Next flight</span>
-        </div>
+        <WatchLiveBadge flight={f} now={now} />
       </div>
       <div className="next-title"><span className="t-word">Starship Flight</span><span className="t-num">{f.n}</span></div>
       <p className="next-head">{f.headline}</p>
@@ -528,24 +530,20 @@ html, body, .st { overflow-anchor: none; } /* we handle scroll position ourselve
   box-shadow: 0 24px 48px -28px rgba(8,12,28,.9);
 }
 .next-top { display: flex; justify-content: space-between; align-items: flex-start; }
-.next-top-right { display: flex; flex-direction: column; align-items: flex-end; gap: 7px; }
-.next-kicker { font-size: 12px; color: #C3CDEA; }
 .watch-badge {
-  display: inline-flex; align-items: center; gap: 5px;
-  font-size: 11px; font-weight: 700; letter-spacing: .03em; text-transform: uppercase;
-  padding: 5px 9px; border-radius: 999px; white-space: nowrap;
-  color: var(--red); border: 1px solid rgba(238,107,110,.45); background: rgba(238,107,110,.1);
+  display: inline-flex; align-items: center; gap: 7px;
+  border-radius: 10px; padding: 6px 10px; font-size: 13px; font-weight: 600;
+  white-space: nowrap; text-decoration: none;
+  color: rgba(255,255,255,.45); background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.1);
 }
+.watch-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex: none; }
 a.watch-badge-live {
-  color: #fff; background: var(--red); border-color: var(--red); text-decoration: none; cursor: pointer;
+  color: #fff; background: var(--red); border-color: var(--red); cursor: pointer;
   box-shadow: 0 10px 22px -10px rgba(238,107,110,.8);
 }
 a.watch-badge-live:active { transform: scale(.96); }
-.watch-badge-live::before {
-  content: ""; width: 6px; height: 6px; border-radius: 50%; background: #fff;
-  animation: watch-pulse 1.4s ease-in-out infinite;
-}
-@keyframes watch-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
+.watch-badge-live .watch-dot { background: #fff; animation: watch-pulse 1.1s ease-in-out infinite; }
+@keyframes watch-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .2; } }
 .cd { display: inline-flex; border-radius: 10px; overflow: hidden; font-size: 13px; font-weight: 600; }
 .cd-tag { background: var(--red); color: #fff; padding: 6px 9px; }
 .cd-val { background: #F4F6FB; color: #1D2540; padding: 6px 10px; font-variant-numeric: tabular-nums; }
