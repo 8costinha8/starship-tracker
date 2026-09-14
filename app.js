@@ -83,6 +83,11 @@ const NEXT_FLIGHT_FALLBACK = { n: 14, status: "net", date: "2026-09-15T00:00:00Z
 
 const DATA_CHECKED = "11 Sep 2026";
 
+// All flights so far launch from Starbase, Texas. If SpaceX ever flies Starship
+// from a different site, add a "site" field to that flight object (or to
+// NEXT_FLIGHT_MANUAL), e.g. site: "Cape Canaveral, Florida" — it overrides this default.
+const DEFAULT_SITE = "Starbase, Texas";
+
 /* ───────────── helpers ───────────── */
 
 const DAY = 86400000;
@@ -92,6 +97,7 @@ const fmt = (iso, opts) => new Date(iso).toLocaleDateString("en-GB", { timeZone:
 const pad2 = (x) => String(x).padStart(2, "0");
 const EXPAND_MS = 450; // how long a card takes to open or close
 const OUTCOME_LABEL = { success: "Success", partial: "Partial", failure: "Failure" };
+const siteLabel = (f) => f.site || DEFAULT_SITE;
 
 const reduceMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -225,7 +231,7 @@ function NextFlightCard({ f }) {
       <p className="next-head">{f.headline}</p>
       <dl className="facts">
         <dt>Date</dt><dd>{dateText}</dd>
-        <dt>Site</dt><dd>Starbase, {f.pad}</dd>
+        <dt>Site</dt><dd>{f.pad}, {siteLabel(f)}</dd>
         <dt>Vehicle</dt><dd>{f.block}, Booster {f.booster.replace("B", "")}, Ship {f.ship.replace("S", "")}</dd>
       </dl>
       <p className="next-note">{f.note}</p>
@@ -252,7 +258,7 @@ function FlightCard({ f, open, onTap, onPhotoTap, register }) {
             <Pill outcome={f.outcome} />
           </div>
           <div className="date">{fmt(f.date, { day: "numeric", month: "short", year: "numeric" })}</div>
-          <div className="sub">Starbase, {f.pad}</div>
+          <div className="sub">{f.pad}, {siteLabel(f)}</div>
           <div className="sub">{f.block} · {f.booster} / {f.ship}</div>
         </div>
         <svg className="chev" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
