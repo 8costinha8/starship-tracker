@@ -14,36 +14,50 @@
    Drop the actual image files into an "images" folder in this repo
    (same one this file lives in). Flights with no "photo" field just
    keep the placeholder — nothing breaks either way.
+
+   HIGHLIGHTS — optional. Add a "highlights" field with a YouTube URL
+   to show a "Watch the flight highlights" link at the bottom of that
+   flight's card, e.g. highlights: "https://www.youtube.com/watch?v=XXXXXXXXXXX".
+   Use SpaceX's own recap video (titled "Starship's Nth Flight Test" on
+   their channel), not a livestream replay. Flights with no "highlights"
+   field just don't show the link.
    ───────────────────────────────────────────────────────────── */
 
 const FLIGHTS = [
   { n: 1, date: "2023-04-20T13:33:09Z", pad: "Pad 1", block: "V1", booster: "B7", ship: "S24", outcome: "failure",
     headline: "The first time the full stack flew",
     photo: { thumb: "images/f1-thumb.jpg", gallery: ["images/f1-a.jpg", "images/f1-b.jpg"] },
+    highlights: "https://www.youtube.com/watch?v=_krgcofiM6M",
     story: "Booster 7 and Ship 24 lifted off together for the first time, but several engines were already out. The rocket began to tumble before the stages could separate, and the flight termination system ended it about four minutes in. The blast also dug a crater under the pad, forcing a rebuild with a water-cooled steel plate." },
   { n: 2, date: "2023-11-18T13:02:50Z", pad: "Pad 1", block: "V1", booster: "B9", ship: "S25", outcome: "failure",
     headline: "Hot staging works",
     photo: { thumb: "images/f2-thumb.jpg", gallery: ["images/f2-a.jpg", "images/f2-b.jpg"] },
+    highlights: "https://www.youtube.com/watch?v=C3iHAgwIYtI",
     story: "All 33 booster engines ran the full ascent, and the new hot-staging separation, where the ship lights its engines while still attached, worked first time. The booster broke apart during its boostback burn soon after. The ship climbed to the edge of space before it was lost late in its engine burn." },
   { n: 3, date: "2024-03-14T13:25:00Z", pad: "Pad 1", block: "V1", booster: "B10", ship: "S28", outcome: "partial",
     headline: "First trip to space",
     photo: { thumb: "images/f3-thumb.jpg", gallery: ["images/f3-a.jpg", "images/f3-b.jpg"] },
+    highlights: "https://www.youtube.com/watch?v=ApMrILhTulI",
     story: "Ship 28 completed its full engine burn and coasted through space for the first time, testing a propellant transfer and opening its payload door. The planned engine relight was skipped after the ship began to roll. It was lost during re-entry, but not before streaming live views of the glowing plasma around it." },
   { n: 4, date: "2024-06-06T12:50:00Z", pad: "Pad 1", block: "V1", booster: "B11", ship: "S29", outcome: "success",
     headline: "Both stages come home",
     photo: { thumb: "images/f4-thumb.jpg", gallery: ["images/f4-a.jpg", "images/f4-b.jpg"] },
+    highlights: "https://www.youtube.com/watch?v=j2BdNDTlWbo",
     story: "For the first time both stages made a controlled splashdown: the booster in the Gulf of Mexico, the ship in the Indian Ocean. On the way down one of the ship's flaps visibly burned through on camera, yet it kept steering and landed near its target. It was the dress rehearsal for catching the booster." },
   { n: 5, date: "2024-10-13T12:25:00Z", pad: "Pad 1", block: "V1", booster: "B12", ship: "S30", outcome: "success",
     headline: "The chopsticks catch",
     photo: { thumb: "images/f5-thumb.jpg", gallery: ["images/f5-a.jpg", "images/f5-b.jpg"] },
+    highlights: "https://www.youtube.com/watch?v=hI9HQfCAw64",
     story: "Booster 12 flew back to Starbase and was caught mid-air by the launch tower's arms, a world first. Ship 30 then flew a clean re-entry and splashed down on target in the Indian Ocean. It was also the first flight with no engine failures." },
   { n: 6, date: "2024-11-19T22:00:00Z", pad: "Pad 1", block: "V1", booster: "B13", ship: "S31", outcome: "success",
     headline: "A banana goes to space",
     photo: { thumb: "images/f6-thumb.jpg", gallery: ["images/f6-a.jpg", "images/f6-b.jpg"] },
+    highlights: "https://www.youtube.com/watch?v=CMGiNKcVSek",
     story: "The catch was called off after tower sensors were damaged at liftoff, so the booster splashed down in the Gulf instead. The ship relit a Raptor engine in space for the first time and made Starship's first daylight splashdown, carrying a plush banana as its zero-g indicator. The last V1 ship." },
   { n: 7, date: "2025-01-16T22:37:00Z", pad: "Pad 1", block: "V2", booster: "B14", ship: "S33", outcome: "failure",
     headline: "New ship, second catch",
     photo: { thumb: "images/f7-thumb.jpg", gallery: ["images/f7-a.jpg", "images/f7-b.jpg"] },
+    highlights: "https://www.youtube.com/watch?v=Pn6e1O5bEyA",
     story: "The first V2 ship debuted with upgraded structure and avionics. Booster 14 came back and was caught by the tower for the second time. Ship 33 was lost minutes into flight when a propellant leak caused engine shutdowns and a fire, with debris seen over the Caribbean." },
   { n: 8, date: "2025-03-06T23:31:02Z", pad: "Pad 1", block: "V2", booster: "B15", ship: "S34", outcome: "failure",
     headline: "A repeat of Flight 7",
@@ -56,6 +70,7 @@ const FLIGHTS = [
   { n: 10, date: "2025-08-26T23:30:00Z", pad: "Pad 1", block: "V2", booster: "B16", ship: "S37", outcome: "success",
     headline: "Back on track",
     photo: { thumb: "images/f10-thumb.jpg", gallery: ["images/f10-a.jpg", "images/f10-b.jpg"] },
+    highlights: "https://www.youtube.com/watch?v=rcd_SQZDlnk",
     story: "Delayed after the ship first assigned to it was lost in ground testing, Flight 10 ticked off almost every goal. The ship deployed eight Starlink simulators, relit an engine in space and splashed down within metres of its target, despite visible damage around its engine bay." },
   { n: 11, date: "2025-10-13T23:23:00Z", pad: "Pad 1", block: "V2", booster: "B15-2", ship: "S38", outcome: "success",
     headline: "V2 signs off",
@@ -315,6 +330,12 @@ function FlightCard({ f, open, onTap, onPhotoTap, register }) {
                 onClick={f.photo?.gallery?.[1] ? () => onPhotoTap(f.photo.gallery[1], `${f.headline} \u2014 photo 2`) : undefined}
               />
             </div>
+            {f.highlights && (
+              <a className="highlights-link" href={f.highlights} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
+                <svg width="13" height="13" viewBox="0 0 13 13" aria-hidden="true"><path d="M4 2.5l7 4-7 4z" fill="currentColor" /></svg>
+                Watch the flight highlights
+              </a>
+            )}
           </div>
         </div>
       </div>
@@ -633,6 +654,14 @@ a.watch-badge-live:active { transform: scale(.96); }
 .headline { font-size: 16px; font-weight: 600; margin: 6px 0 8px; }
 .story { font-size: 14px; line-height: 1.62; color: #C9D2E6; margin: 0 0 14px; }
 .gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.highlights-link {
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  margin-top: 12px; padding: 9px 14px; border-radius: 11px;
+  background: rgba(150,165,235,.12); border: 1px solid rgba(170,190,245,.32);
+  color: #C9D3F5; font-size: 12.5px; font-weight: 600; text-decoration: none;
+}
+.highlights-link:active { background: rgba(150,165,235,.2); }
+.highlights-link svg { flex: none; }
 .end { text-align: center; color: var(--faint); font-size: 12px; margin-top: 28px; }
 
 /* about panel */
