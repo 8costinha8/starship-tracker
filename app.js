@@ -99,6 +99,13 @@ const EXPAND_MS = 450; // how long a card takes to open or close
 const OUTCOME_LABEL = { success: "Success", partial: "Partial", failure: "Failure" };
 const siteLabel = (f) => f.site || DEFAULT_SITE;
 
+// "Watch live" badge on the next-flight card: no free API can tell us whether
+// SpaceX's stream is actually running, so this is time-based — it goes from a
+// plain badge to a clickable button once we're within this window of the
+// scheduled launch time (only for dates we have at all, confirmed or NET).
+const WATCH_LIVE_LEAD_MS = 60 * 60 * 1000; // 60 min before scheduled launch
+const WATCH_LIVE_URL = "https://www.youtube.com/@SpaceX/live";
+
 const reduceMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 // Scroll just enough to show the whole card (extra = height it is about to grow by)
@@ -216,7 +223,18 @@ function Countdown({ flight }) {
   );
 }
 
-function NextFlightCard({ f }) {
+function WatchLiveBadge({ flight, now }) {
+  if (flight.status === "tbc") return null; // no date yet to time it against
+  const active = now >= new Date(flight.date).getTime() - WATCH_LIVE_LEAD_MS;
+  if (!active) return <span className="watch-badge">Watch live</span>;
+  return (
+    <a className="watch-badge watch-badge-live" href={WATCH_LIVE_URL} target="_blank" rel="noopener noreferrer">
+      Watch live
+    </a>
+  );
+}
+
+function NextFlightCard({ f, now }) {
   const dateText =
     f.status === "tbc" ? "To be confirmed"
     : f.status === "net" ? `No earlier than ${fmt(f.date, { day: "numeric", month: "long", year: "numeric" })}`
@@ -225,7 +243,10 @@ function NextFlightCard({ f }) {
     <section className="next" aria-label={`Next flight: Flight ${f.n}`}>
       <div className="next-top">
         <Countdown flight={f} />
-        <span className="next-kicker">Next flight</span>
+        <div className="next-top-right">
+          <WatchLiveBadge flight={f} now={now} />
+          <span className="next-kicker">Next flight</span>
+        </div>
       </div>
       <div className="next-title"><span className="t-word">Starship Flight</span><span className="t-num">{f.n}</span></div>
       <p className="next-head">{f.headline}</p>
@@ -452,7 +473,7 @@ function StarshipTracker() {
           <span />
         </header>
 
-        <NextFlightCard f={nextFlight} />
+        <NextFlightCard f={nextFlight} now={now} />
         <Connector dashed label={`${daysSinceLatest} days since the last flight`} />
 
         {flights.map((f, i) => (
@@ -506,8 +527,25 @@ html, body, .st { overflow-anchor: none; } /* we handle scroll position ourselve
   border: 1px solid rgba(170,190,245,.25);
   box-shadow: 0 24px 48px -28px rgba(8,12,28,.9);
 }
-.next-top { display: flex; justify-content: space-between; align-items: center; }
+.next-top { display: flex; justify-content: space-between; align-items: flex-start; }
+.next-top-right { display: flex; flex-direction: column; align-items: flex-end; gap: 7px; }
 .next-kicker { font-size: 12px; color: #C3CDEA; }
+.watch-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 700; letter-spacing: .03em; text-transform: uppercase;
+  padding: 5px 9px; border-radius: 999px; white-space: nowrap;
+  color: var(--red); border: 1px solid rgba(238,107,110,.45); background: rgba(238,107,110,.1);
+}
+a.watch-badge-live {
+  color: #fff; background: var(--red); border-color: var(--red); text-decoration: none; cursor: pointer;
+  box-shadow: 0 10px 22px -10px rgba(238,107,110,.8);
+}
+a.watch-badge-live:active { transform: scale(.96); }
+.watch-badge-live::before {
+  content: ""; width: 6px; height: 6px; border-radius: 50%; background: #fff;
+  animation: watch-pulse 1.4s ease-in-out infinite;
+}
+@keyframes watch-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
 .cd { display: inline-flex; border-radius: 10px; overflow: hidden; font-size: 13px; font-weight: 600; }
 .cd-tag { background: var(--red); color: #fff; padding: 6px 9px; }
 .cd-val { background: #F4F6FB; color: #1D2540; padding: 6px 10px; font-variant-numeric: tabular-nums; }
@@ -605,7 +643,7 @@ html, body, .st { overflow-anchor: none; } /* we handle scroll position ourselve
 .about .about-foot { margin-top: 32px; font-size: 12px; color: var(--faint); }
 
 @media (prefers-reduced-motion: reduce) {
-  .st *, .st *::before, .st *::after { transition: none !important; }
+  .st *, .st *::before, .st *::after { transition: none !important; animation: none !important; }
 }
 `;
 
