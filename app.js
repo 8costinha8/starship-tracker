@@ -94,13 +94,19 @@ const DAY = 86400000;
 const utcDay = (iso) => { const d = new Date(iso); return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()); };
 const daysBetween = (a, b) => Math.round((utcDay(b) - utcDay(a)) / DAY);
 const fmt = (iso, opts) => new Date(iso).toLocaleDateString("en-GB", { timeZone: "UTC", ...opts });
-// For the next-flight card specifically: date AND local launch time together,
+// For the next-flight card specifically: local launch time and date together,
 // in the UK's own timezone (auto-adjusts BST/GMT), so there's no ambiguity.
+const ordinal = (n) => {
+  if (n % 100 >= 11 && n % 100 <= 13) return `${n}th`;
+  return `${n}${["th", "st", "nd", "rd"][n % 10] || "th"}`;
+};
 const fmtDateTimeLondon = (iso) => {
   const d = new Date(iso);
-  const date = d.toLocaleDateString("en-GB", { timeZone: "Europe/London", day: "numeric", month: "long", year: "numeric" });
-  const time = d.toLocaleTimeString("en-GB", { timeZone: "Europe/London", hour: "2-digit", minute: "2-digit", timeZoneName: "short" });
-  return `${date} | ${time}`;
+  const day = ordinal(Number(d.toLocaleDateString("en-GB", { timeZone: "Europe/London", day: "numeric" })));
+  const month = d.toLocaleDateString("en-GB", { timeZone: "Europe/London", month: "long" });
+  const year = d.toLocaleDateString("en-GB", { timeZone: "Europe/London", year: "numeric" });
+  const time = d.toLocaleTimeString("en-GB", { timeZone: "Europe/London", hour: "2-digit", minute: "2-digit" });
+  return `${time} | ${day} ${month} ${year}`;
 };
 const pad2 = (x) => String(x).padStart(2, "0");
 const EXPAND_MS = 450; // how long a card takes to open or close
