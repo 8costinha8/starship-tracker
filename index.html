@@ -25,12 +25,13 @@
 <!-- Babel lets the browser understand JSX directly, so you can edit app.js as plain JSX -->
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-<script type="text/babel" src="app.js"></script>
-
-<!-- Firebase: powers the push notification button below -->
+<!-- Firebase + notification logic: must load BEFORE app.js, since app.js
+     checks window.STNotify as soon as it starts up -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="notifications.js"></script>
+
+<script type="text/babel" src="app.js"></script>
 </body>
 </html>

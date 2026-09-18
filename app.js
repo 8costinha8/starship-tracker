@@ -344,7 +344,7 @@ function FlightCard({ f, open, onTap, onPhotoTap, register }) {
   );
 }
 
-function AboutPanel({ open, onClose }) {
+function AboutPanel({ open, onClose, onManageNotifications }) {
   React.useEffect(() => {
     if (!open) return;
     const onEsc = (e) => e.key === "Escape" && onClose();
@@ -365,9 +365,73 @@ function AboutPanel({ open, onClose }) {
           <dt>Photos</dt><dd>All photos by SpaceX, credited on each image.</dd>
           <dt>Flight data</dt><dd>SpaceX flight updates and Wikipedia's list of Starship launches. Last checked {DATA_CHECKED}.</dd>
           <dt>Next flight</dt><dd>Launch dates move often. The countdown runs off the best known date and is tagged NET (estimated) until SpaceX confirms the exact time.</dd>
+          <dt>Notifications</dt><dd><button className="notify-manage-btn" onClick={onManageNotifications}>Manage notifications</button></dd>
         </dl>
         <p className="about-foot">Version 1.4</p>
       </aside>
+    </>
+  );
+}
+
+function NotifyModal({ open, onClose }) {
+  const [status, setStatus] = React.useState("off");
+  const [busy, setBusy] = React.useState(false);
+
+  React.useEffect(() => {
+    if (open) setStatus(window.STNotify?.getStatus() || "off");
+  }, [open]);
+
+  React.useEffect(() => {
+    if (!open) return;
+    const onEsc = (e) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onEsc);
+    return () => window.removeEventListener("keydown", onEsc);
+  }, [open]);
+
+  if (!open) return null;
+
+  const handleEnable = async () => {
+    setBusy(true);
+    const res = await window.STNotify.subscribe();
+    setBusy(false);
+    if (res.ok) onClose();
+    else alert("Couldn't turn on notifications — check you allowed the permission prompt, then try again from the About menu.");
+  };
+  const handleDisable = async () => {
+    setBusy(true);
+    await window.STNotify.unsubscribe();
+    setBusy(false);
+    onClose();
+  };
+  const handleDismiss = () => {
+    window.STNotify?.dismiss();
+    onClose();
+  };
+
+  return (
+    <>
+      <div className="scrim show" onClick={onClose} />
+      <div className="notify-modal" role="dialog" aria-modal="true">
+        {status === "on" ? (
+          <>
+            <h2>Notifications are on</h2>
+            <p>You'll get an alert when flight details change.</p>
+            <div className="notify-actions">
+              <button className="notify-btn notify-btn-quiet" onClick={handleDisable} disabled={busy}>Turn off</button>
+              <button className="notify-btn notify-btn-primary" onClick={onClose} disabled={busy}>Close</button>
+            </div>
+          </>
+        ) : (
+          <>
+            <h2>Get notified about flight changes?</h2>
+            <p>Hear about launch date and status changes as soon as they happen.</p>
+            <div className="notify-actions">
+              <button className="notify-btn notify-btn-quiet" onClick={handleDismiss} disabled={busy}>Maybe later</button>
+              <button className="notify-btn notify-btn-primary" onClick={handleEnable} disabled={busy}>Enable</button>
+            </div>
+          </>
+        )}
+      </div>
     </>
   );
 }
@@ -395,6 +459,17 @@ function StarshipTracker() {
   const [openId, setOpenId] = React.useState(null);
   const [aboutOpen, setAboutOpen] = React.useState(false);
   const [lightbox, setLightbox] = React.useState(null); // { src, alt } | null
+  const [notifyModalOpen, setNotifyModalOpen] = React.useState(false);
+
+  // First visit: ask about notifications once, before any decision is stored.
+  React.useEffect(() => {
+    if (window.STNotify && !window.STNotify.hasDecided()) setNotifyModalOpen(true);
+  }, []);
+
+  // Block background scroll while the notifications modal is open.
+  React.useEffect(() => {
+    document.body.style.overflow = notifyModalOpen ? "hidden" : "";
+  }, [notifyModalOpen]);
   const cardEls = React.useRef({});
   const pending = React.useRef(null);
   const now = useNow(false);
@@ -521,7 +596,12 @@ function StarshipTracker() {
 
         <p className="end">That's every flight so far.</p>
       </div>
-      <AboutPanel open={aboutOpen} onClose={() => setAboutOpen(false)} />
+      <AboutPanel
+        open={aboutOpen}
+        onClose={() => setAboutOpen(false)}
+        onManageNotifications={() => { setAboutOpen(false); setNotifyModalOpen(true); }}
+      />
+      <NotifyModal open={notifyModalOpen} onClose={() => setNotifyModalOpen(false)} />
       <Lightbox src={lightbox?.src} alt={lightbox?.alt} onClose={() => setLightbox(null)} />
     </div>
   );
@@ -681,6 +761,27 @@ a.watch-badge-live:active { transform: scale(.96); }
 .about dt { font-size: 12.5px; color: var(--faint); margin-top: 18px; }
 .about dd { margin: 4px 0 0; font-size: 14px; line-height: 1.55; }
 .about .about-foot { margin-top: 32px; font-size: 12px; color: var(--faint); }
+
+/* notifications: manage button (in About) + the enable/disable modal */
+.notify-manage-btn {
+  font-size: 13px; font-weight: 600; color: #C9D3F5; cursor: pointer;
+  background: rgba(150,165,235,.12); border: 1px solid rgba(170,190,245,.32);
+  border-radius: 10px; padding: 7px 12px;
+}
+.notify-manage-btn:active { background: rgba(150,165,235,.2); }
+.notify-modal {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  z-index: 25; width: min(86vw, 340px);
+  background: #202A42; border-radius: 18px; padding: 22px 22px 20px;
+  border: 1px solid rgba(255,255,255,.06); box-shadow: 0 30px 60px -20px rgba(0,0,0,.7);
+}
+.notify-modal h2 { font-size: 18px; font-weight: 600; margin: 0 0 8px; }
+.notify-modal p { font-size: 14px; line-height: 1.55; color: #C9D2E6; margin: 0 0 18px; }
+.notify-actions { display: flex; justify-content: flex-end; gap: 10px; }
+.notify-btn { font-size: 13.5px; font-weight: 600; padding: 8px 14px; border-radius: 10px; border: none; cursor: pointer; }
+.notify-btn-quiet { background: transparent; color: #AAB6D6; }
+.notify-btn-primary { background: #4A63A8; color: white; }
+.notify-btn:disabled { opacity: .6; }
 
 @media (prefers-reduced-motion: reduce) {
   .st *, .st *::before, .st *::after { transition: none !important; animation: none !important; }
