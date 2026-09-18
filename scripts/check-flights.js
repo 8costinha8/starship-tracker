@@ -20,14 +20,13 @@ function mapLL2Status(abbrev) {
   return "tbc";
 }
 
-// e.g. "28 Sep 13:15" — same short style used across the app
+// e.g. "28 Sep 13:15" — in London time, auto-adjusting for BST/GMT
 function fmtDateTime(iso) {
   const d = new Date(iso);
-  const day = d.getUTCDate();
-  const month = d.toLocaleString("en-GB", { month: "short", timeZone: "UTC" });
-  const hh = String(d.getUTCHours()).padStart(2, "0");
-  const mm = String(d.getUTCMinutes()).padStart(2, "0");
-  return `${day} ${month} ${hh}:${mm}`;
+  const day = Number(d.toLocaleString("en-GB", { day: "numeric", timeZone: "Europe/London" }));
+  const month = d.toLocaleString("en-GB", { month: "short", timeZone: "Europe/London" });
+  const time = d.toLocaleString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "Europe/London" });
+  return `${day} ${month} ${time}`;
 }
 
 async function main() {
