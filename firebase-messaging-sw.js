@@ -10,17 +10,9 @@ firebase.initializeApp({
   appId: "1:625303440602:web:0f14fe66e72e864354a9e3"
 });
 
-const messaging = firebase.messaging();
-
-// Handles a notification that arrives while the app is closed or in the background.
-// The automated checker sends "data-only" messages (so this code alone decides
-// what's shown — no duplicate banners). Manual tests from Firebase Console send
-// "notification" messages instead — both are handled here.
-messaging.onBackgroundMessage((payload) => {
-  const title = payload.data?.title || payload.notification?.title || "🚀 Flight update";
-  const options = {
-    body: payload.data?.body || payload.notification?.body || "",
-    icon: "icons/icon-192.png"
-  };
-  self.registration.showNotification(title, options);
-});
+// Just initializing this is enough. Firebase already auto-displays any
+// "notification"-type push on its own (title + body, correctly) — we do
+// NOT also call showNotification() ourselves here. Doing both was exactly
+// why notifications were showing twice: Firebase's own display, plus ours,
+// stacked on top of each other.
+firebase.messaging();
