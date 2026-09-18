@@ -94,7 +94,7 @@ async function main() {
     if (tokens.length) {
       const resp = await admin.messaging().sendEachForMulticast({
         tokens,
-        data: { title: notification.title, body: notification.body },
+        notification: { title: notification.title, body: notification.body },
       });
       console.log(`Sent "${notification.title}" to ${resp.successCount}/${tokens.length} device(s).`);
 
