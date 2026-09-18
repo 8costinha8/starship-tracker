@@ -13,10 +13,10 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 
 // Handles a notification that arrives while the app is closed or in the background.
-// No fallback title here on purpose: Safari already shows the site name in bold
-// above every push notification, so any title we add just repeats it.
+// Always give it a real, distinct title — a blank one gets silently replaced
+// by the app's own name, which then collides with the OS's own attribution line.
 messaging.onBackgroundMessage((payload) => {
-  const title = payload.notification?.title || "";
+  const title = payload.notification?.title || "🚀 Flight update";
   const options = {
     body: payload.notification?.body || "",
     icon: "icons/icon-192.png"
