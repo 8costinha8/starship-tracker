@@ -13,12 +13,13 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 
 // Handles a notification that arrives while the app is closed or in the background.
-// Always give it a real, distinct title — a blank one gets silently replaced
-// by the app's own name, which then collides with the OS's own attribution line.
+// The automated checker sends "data-only" messages (so this code alone decides
+// what's shown — no duplicate banners). Manual tests from Firebase Console send
+// "notification" messages instead — both are handled here.
 messaging.onBackgroundMessage((payload) => {
-  const title = payload.notification?.title || "🚀 Flight update";
+  const title = payload.data?.title || payload.notification?.title || "🚀 Flight update";
   const options = {
-    body: payload.notification?.body || "",
+    body: payload.data?.body || payload.notification?.body || "",
     icon: "icons/icon-192.png"
   };
   self.registration.showNotification(title, options);
