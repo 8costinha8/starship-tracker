@@ -100,7 +100,7 @@ Reply with ONLY valid JSON, nothing else, in this exact shape:
   if (json.error) {
     throw new Error(`Anthropic API error (${json.error.type}): ${json.error.message}`);
   }
-  const text = json.content?.[0]?.text;
+  const text = json.content?.find((b) => b.type === "text")?.text;
   if (!text) {
     throw new Error(`Anthropic API returned no text. Raw response: ${JSON.stringify(json)}`);
   }
