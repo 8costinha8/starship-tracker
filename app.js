@@ -91,21 +91,19 @@ const FLIGHTS = [
     story: "The first flight to release working Starlink V3 satellites, 20 of them, on a path that let them burn up afterwards as planned. The booster lost engines during its landing burn. The ship made its best re-entry yet and survived tipping over after splashdown, so SpaceX could recover it and study the heat shield." },
 ];
 
-// Vehicle details + your own commentary — edit these by hand, same as flight stories.
-const NEXT_FLIGHT_MANUAL = {
-  pad: "Pad 2", block: "V3", booster: "B21", ship: "S41",
-  headline: "First attempt to reach orbit",
-  note: "Carrying around 20 working Starlink V3 satellites. The ship is expected to splash down in the Indian Ocean; catching it with the tower is planned for a later flight.",
+// Used only if the live fetch below fails or hasn't loaded yet, or while nothing
+// has come back for the very first paint.
+const NEXT_FLIGHT_FALLBACK = {
+  n: null, status: "tbc", date: null,
+  pad: "", block: "", booster: "", ship: "",
+  headline: "", note: "Details to be announced.",
 };
-
-// Used only if the live fetch below fails or hasn't loaded yet.
-const NEXT_FLIGHT_FALLBACK = { n: 14, status: "net", date: "2026-09-18T12:15:00Z" };
 
 const DATA_CHECKED = "14 Sep 2026";
 
 // All flights so far launch from Starbase, Texas. If SpaceX ever flies Starship
-// from a different site, add a "site" field to that flight object (or to
-// NEXT_FLIGHT_MANUAL), e.g. site: "Cape Canaveral, Florida" — it overrides this default.
+// from a different site, add a "site" field to that flight object, e.g.
+// site: "Cape Canaveral, Florida" — it overrides this default.
 const DEFAULT_SITE = "Starbase, Texas";
 
 /* ───────────── helpers ───────────── */
@@ -166,10 +164,22 @@ const LL2_ENDPOINT = "https://ll.thespacedevs.com/2.3.0/launches/upcoming/?searc
 const CACHE_KEY = "starship-next-flight-cache";
 const CACHE_MS = 60 * 60 * 1000;
 
+// "Go"/"TBC" etc are pre-launch. Once a flight has actually happened, LL2 marks
+// it Success / Failure / Partial Failure — but usually a few hours after liftoff,
+// not instantly. In between, it's just "In Flight" or similar: we treat anything
+// we don't recognise as still pending, and the card shows "Result pending".
 function mapLL2Status(abbrev) {
   if (abbrev === "Go") return "confirmed";
   if (abbrev === "TBC") return "net";
-  return "tbc"; // TBD or unknown: no reliable date yet
+  if (abbrev === "Success" || abbrev === "Failure" || abbrev === "Partial Failure") return "done";
+  return "tbc"; // TBD, In Flight, Hold, or unknown: no reliable date, or result not in yet
+}
+
+// "Booster 21" -> "Booster 21" (already fine); ship serial_number is already "S41".
+// Pad name like "Orbital Launch Pad 2" -> "Pad 2", matching the FLIGHTS style.
+function shortPad(padName) {
+  const m = padName?.match(/Pad\s*(\d+)/i);
+  return m ? `Pad ${m[1]}` : padName || "";
 }
 
 function useNextFlight() {
@@ -179,16 +189,32 @@ function useNextFlight() {
       const cached = JSON.parse(localStorage.getItem(CACHE_KEY));
       if (cached && Date.now() - cached.fetchedAt < CACHE_MS) { setLive(cached.data); return; }
     } catch {}
+    // Step 1: find which launch is next.
     fetch(LL2_ENDPOINT)
       .then((r) => r.json())
       .then((json) => {
         const launch = json.results?.[0];
-        if (!launch) return;
-        const match = launch.name.match(/Flight (\d+)/);
+        if (!launch?.url) return null;
+        // Step 2: fetch that launch's full detail — this is where pad, vehicle
+        // serials and the mission description actually live.
+        return fetch(launch.url).then((r) => r.json());
+      })
+      .then((full) => {
+        if (!full) return;
+        const match = full.name.match(/Flight (\d+)/);
+        const boosterSerial = full.rocket?.launcher_stage?.[0]?.launcher?.serial_number || "";
+        const shipSerial = full.rocket?.spacecraft_stage?.[0]?.spacecraft?.serial_number || "";
+        const description = (full.mission?.description || "").split(/\r?\n\r?\n/)[0]; // first paragraph only
         const data = {
-          n: match ? Number(match[1]) : NEXT_FLIGHT_FALLBACK.n,
-          status: mapLL2Status(launch.status?.abbrev),
-          date: launch.net,
+          n: match ? Number(match[1]) : null,
+          status: mapLL2Status(full.status?.abbrev),
+          date: full.net,
+          pad: shortPad(full.pad?.name),
+          block: full.rocket?.configuration?.variant || "",
+          booster: boosterSerial.replace(/^Booster\s*/i, "B"),
+          ship: shipSerial,
+          headline: full.mission?.type ? `${full.mission.type} mission` : "",
+          note: description || "Details to be announced.",
         };
         setLive(data);
         localStorage.setItem(CACHE_KEY, JSON.stringify({ data, fetchedAt: Date.now() }));
@@ -239,12 +265,20 @@ function Connector({ label, dashed }) {
   );
 }
 
+// How long after the scheduled time we keep showing "Launching" before switching
+// to "Result pending" — covers a real launch window plus flight duration.
+const RESULT_PENDING_AFTER_MS = 4 * 60 * 60 * 1000;
+
 function Countdown({ flight }) {
   const ticking = flight.status !== "tbc"; // "net" (estimated) and "confirmed" both count down; "tbc" has no date to count to
   const now = useNow(ticking);
   if (!ticking) return <div className="cd"><span className="cd-val cd-tbc">Date to be confirmed</span></div>;
 
-  const diff = Math.max(0, new Date(flight.date).getTime() - now);
+  const rawDiff = new Date(flight.date).getTime() - now;
+  if (rawDiff < -RESULT_PENDING_AFTER_MS) {
+    return <div className="cd"><span className="cd-val cd-tbc">Result pending</span></div>;
+  }
+  const diff = Math.max(0, rawDiff);
   const d = Math.floor(diff / DAY), h = Math.floor(diff / 3600000) % 24, m = Math.floor(diff / 60000) % 60, s = Math.floor(diff / 1000) % 60;
   const isNet = flight.status === "net";
   return (
@@ -474,7 +508,7 @@ function StarshipTracker() {
   const pending = React.useRef(null);
   const now = useNow(false);
   const liveNext = useNextFlight();
-  const nextFlight = { ...NEXT_FLIGHT_MANUAL, ...(liveNext || NEXT_FLIGHT_FALLBACK) };
+  const nextFlight = liveNext || NEXT_FLIGHT_FALLBACK;
 
   const flights = [...FLIGHTS].sort((a, b) => b.n - a.n);
   const latest = flights[0];

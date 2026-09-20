@@ -3,7 +3,15 @@ name: Flight change checker
 on:
   schedule:
     - cron: "*/15 * * * *"   # every 15 minutes
-  workflow_dispatch: {}       # adds a "Run workflow" button for manual testing
+  workflow_dispatch:          # adds a "Run workflow" button for manual testing
+    inputs:
+      test_mode:
+        description: "Dry-run the story writer (no commit, no push, no notifications sent)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write   # needed so the checker can commit + push app.js when a flight completes
 
 jobs:
   check:
@@ -17,3 +25,5 @@ jobs:
       - run: node scripts/check-flights.js
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          TEST_MODE: ${{ inputs.test_mode }}
