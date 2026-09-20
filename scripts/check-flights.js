@@ -92,14 +92,24 @@ Reply with ONLY valid JSON, nothing else, in this exact shape:
     },
     body: JSON.stringify({
       model: ANTHROPIC_MODEL,
-      max_tokens: 500,
+      max_tokens: 1024,
       messages: [{ role: "user", content: prompt }],
     }),
   });
   const json = await res.json();
-  const text = json.content?.[0]?.text || "";
+  if (json.error) {
+    throw new Error(`Anthropic API error (${json.error.type}): ${json.error.message}`);
+  }
+  const text = json.content?.[0]?.text;
+  if (!text) {
+    throw new Error(`Anthropic API returned no text. Raw response: ${JSON.stringify(json)}`);
+  }
   const cleaned = text.replace(/```json|```/g, "").trim();
-  return JSON.parse(cleaned);
+  try {
+    return JSON.parse(cleaned);
+  } catch {
+    throw new Error(`Claude's reply wasn't valid JSON. Raw text: ${cleaned}`);
+  }
 }
 
 // Inserts the new flight object right before FLIGHTS's closing "];",
