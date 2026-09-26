@@ -2,8 +2,10 @@
    Notification logic only — no buttons or popups here.
    The UI (first-visit prompt + "Manage notifications" in the
    About menu) lives in app.js and calls the functions below via
-   window.STNotify. Keeping this file logic-only means a UI
-   change never risks breaking the Firebase wiring, and vice versa.
+   window.STNotify. It also saves notes from the "What would you
+   add?" box (sendFeedback, at the bottom). Keeping this file
+   logic-only means a UI change never risks breaking the Firebase
+   wiring, and vice versa.
    ───────────────────────────────────────────────────────────── */
 
 // Firebase config — these are identifiers, not secrets, safe to be public
@@ -78,4 +80,29 @@ function hasDecided() {
   return localStorage.getItem(STATUS_KEY) !== null;
 }
 
-window.STNotify = { subscribe, unsubscribe, dismiss, getStatus, hasDecided };
+// Saves a note from the "What would you add?" box to the Firestore
+// "feedback" collection. Anyone can add one, but nobody can read, change or
+// delete them from the website: you read them in the Firebase console
+// (Firestore Database > feedback). Never throws, just returns { ok }.
+async function sendFeedback(text, handle) {
+  const clean = String(text || "").trim().slice(0, 1000);
+  if (!clean) return { ok: false, reason: "empty" };
+  try {
+    const save = db.collection("feedback").add({
+      text: clean,
+      handle: String(handle || "").trim().slice(0, 50),
+      createdAt: new Date().toISOString(),
+      page: location.href.slice(0, 500),
+      userAgent: navigator.userAgent.slice(0, 200)
+    });
+    // With no signal, Firestore just waits quietly forever, so give up after
+    // 15 seconds and let the box show its "Try again" message instead.
+    const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("timeout")), 15000));
+    await Promise.race([save, timeout]);
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, reason: e.code || e.message || "error" };
+  }
+}
+
+window.STNotify = { subscribe, unsubscribe, dismiss, getStatus, hasDecided, sendFeedback };

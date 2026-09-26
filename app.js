@@ -378,7 +378,7 @@ function FlightCard({ f, open, onTap, onPhotoTap, register }) {
   );
 }
 
-function AboutPanel({ open, onClose, onManageNotifications }) {
+function AboutPanel({ open, onClose, onManageNotifications, onFeedback }) {
   React.useEffect(() => {
     if (!open) return;
     const onEsc = (e) => e.key === "Escape" && onClose();
@@ -400,8 +400,9 @@ function AboutPanel({ open, onClose, onManageNotifications }) {
           <dt>Flight data</dt><dd>SpaceX flight updates and Wikipedia's list of Starship launches. Last checked {DATA_CHECKED}.</dd>
           <dt>Next flight</dt><dd>Launch dates move often. The countdown runs off the best known date and is tagged NET (estimated) until SpaceX confirms the exact time.</dd>
           <dt>Notifications</dt><dd><button className="notify-manage-btn" onClick={onManageNotifications}>Manage notifications</button></dd>
+          <dt>Feedback</dt><dd><button className="notify-manage-btn" onClick={onFeedback}>What would you add?</button></dd>
         </dl>
-        <p className="about-foot">Version 1.4</p>
+        <p className="about-foot">Version 1.5</p>
       </aside>
     </>
   );
@@ -470,6 +471,87 @@ function NotifyModal({ open, onClose }) {
   );
 }
 
+// The "What would you add?" box, opened from the About menu. It sends a short
+// note straight to Firestore via window.STNotify.sendFeedback (in notifications.js).
+// If you close it by accident, your draft is still there when you reopen it;
+// it only gets cleared once it has actually been sent.
+function FeedbackModal({ open, onClose }) {
+  const [text, setText] = React.useState("");
+  const [handle, setHandle] = React.useState("");
+  const [state, setState] = React.useState("idle"); // "idle" | "sending" | "sent" | "error"
+  const sending = state === "sending";
+
+  // Closing after a successful send wipes the box, ready for the next idea.
+  const close = () => {
+    if (state === "sent") { setText(""); setHandle(""); setState("idle"); }
+    onClose();
+  };
+
+  React.useEffect(() => {
+    if (!open) return;
+    const onEsc = (e) => e.key === "Escape" && close();
+    window.addEventListener("keydown", onEsc);
+    return () => window.removeEventListener("keydown", onEsc);
+  }, [open, state]);
+
+  if (!open) return null;
+
+  const handleSend = async () => {
+    if (!text.trim() || sending) return;
+    setState("sending");
+    let res = { ok: false };
+    try {
+      // If an old cached notifications.js is still loaded, the function won't
+      // exist yet: treat that like any other failure so the retry shows.
+      if (window.STNotify?.sendFeedback) res = await window.STNotify.sendFeedback(text, handle);
+    } catch (e) { /* shown as the error message below */ }
+    setState(res.ok ? "sent" : "error");
+  };
+
+  return (
+    <>
+      <div className="scrim show" onClick={close} />
+      <div className="notify-modal feedback-modal" role="dialog" aria-modal="true" aria-labelledby="feedback-title">
+        {state === "sent" ? (
+          <>
+            <h2 id="feedback-title">Thanks! Got it. 🚀</h2>
+            <p>Your note is on its way to me.</p>
+            <div className="notify-actions">
+              <button className="notify-btn notify-btn-primary" onClick={close}>Close</button>
+            </div>
+          </>
+        ) : (
+          <>
+            <h2 id="feedback-title">What would you add?</h2>
+            <p>Ideas, missing features, anything that bugs you. I read every one.</p>
+            <textarea
+              className="feedback-field" rows={5} maxLength={1000} placeholder="I'd love to see…"
+              aria-label="Your idea" value={text} disabled={sending}
+              onChange={(e) => setText(e.target.value)}
+            />
+            {text.length >= 800 && <div className="feedback-count">{text.length}/1000</div>}
+            <input
+              className="feedback-field feedback-handle" type="text" maxLength={50}
+              placeholder="Your X or Reddit name (optional)" aria-label="Your X or Reddit name (optional)"
+              autoComplete="off" autoCapitalize="none" autoCorrect="off" spellCheck={false}
+              value={handle} disabled={sending} onChange={(e) => setHandle(e.target.value)}
+            />
+            {state === "error" && (
+              <p className="feedback-error" role="alert">Couldn't send that. Check your connection, then tap Try again.</p>
+            )}
+            <div className="notify-actions">
+              <button className="notify-btn notify-btn-quiet" onClick={close} disabled={sending}>Cancel</button>
+              <button className="notify-btn notify-btn-primary" onClick={handleSend} disabled={!text.trim() || sending}>
+                {sending ? "Sending…" : state === "error" ? "Try again" : "Send"}
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    </>
+  );
+}
+
 function Lightbox({ src, alt, onClose }) {
   const [shown, setShown] = React.useState(null); // keeps the image visible while the overlay fades out
   React.useEffect(() => { if (src) setShown({ src, alt }); }, [src, alt]);
@@ -494,16 +576,17 @@ function StarshipTracker() {
   const [aboutOpen, setAboutOpen] = React.useState(false);
   const [lightbox, setLightbox] = React.useState(null); // { src, alt } | null
   const [notifyModalOpen, setNotifyModalOpen] = React.useState(false);
+  const [feedbackOpen, setFeedbackOpen] = React.useState(false);
 
   // First visit: ask about notifications once, before any decision is stored.
   React.useEffect(() => {
     if (window.STNotify && !window.STNotify.hasDecided()) setNotifyModalOpen(true);
   }, []);
 
-  // Block background scroll while the notifications modal is open.
+  // Block background scroll while the notifications or feedback modal is open.
   React.useEffect(() => {
-    document.body.style.overflow = notifyModalOpen ? "hidden" : "";
-  }, [notifyModalOpen]);
+    document.body.style.overflow = notifyModalOpen || feedbackOpen ? "hidden" : "";
+  }, [notifyModalOpen, feedbackOpen]);
   const cardEls = React.useRef({});
   const pending = React.useRef(null);
   const now = useNow(false);
@@ -634,8 +717,10 @@ function StarshipTracker() {
         open={aboutOpen}
         onClose={() => setAboutOpen(false)}
         onManageNotifications={() => { setAboutOpen(false); setNotifyModalOpen(true); }}
+        onFeedback={() => { setAboutOpen(false); setFeedbackOpen(true); }}
       />
       <NotifyModal open={notifyModalOpen} onClose={() => setNotifyModalOpen(false)} />
+      <FeedbackModal open={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
       <Lightbox src={lightbox?.src} alt={lightbox?.alt} onClose={() => setLightbox(null)} />
     </div>
   );
@@ -816,6 +901,33 @@ a.watch-badge-live:active { transform: scale(.96); }
 .notify-btn-quiet { background: transparent; color: #AAB6D6; }
 .notify-btn-primary { background: #4A63A8; color: white; }
 .notify-btn:disabled { opacity: .6; }
+
+/* feedback: the "What would you add?" box (same look as the notifications modal).
+   On phones it sits near the top rather than dead centre, so the keyboard
+   doesn't cover the text box, and it never runs past the notch or home bar. */
+.feedback-modal {
+  top: calc(env(safe-area-inset-top) + 7vh); transform: translateX(-50%);
+  width: min(calc(100vw - 32px - env(safe-area-inset-left) - env(safe-area-inset-right)), 380px);
+  max-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 7vh - 16px); overflow-y: auto;
+}
+@media (min-width: 600px) and (min-height: 600px) {
+  .feedback-modal { top: 50%; transform: translate(-50%, -50%); }
+}
+.feedback-field {
+  display: block; width: 100%; margin: 0;
+  font: inherit; font-size: 16px; line-height: 1.5; color: var(--text); /* 16px+ stops iPhone zooming in on tap */
+  background: rgba(255,255,255,.04); border: 1px solid rgba(170,190,245,.25); border-radius: 12px;
+  padding: 11px 13px; -webkit-appearance: none; appearance: none;
+}
+textarea.feedback-field { resize: none; min-height: 132px; }
+.feedback-field::placeholder { color: var(--faint); opacity: 1; }
+.feedback-field:focus { outline: none; border-color: #A9BDF0; box-shadow: 0 0 0 3px rgba(169,189,240,.16); }
+.feedback-field:disabled { opacity: .6; }
+.feedback-handle { margin-top: 10px; font-size: 16px; padding: 9px 13px; }
+.feedback-count { text-align: right; font-size: 11.5px; color: var(--faint); margin-top: 5px; font-variant-numeric: tabular-nums; }
+.notify-modal .feedback-error { font-size: 13px; color: #F2A2A2; margin: 12px 0 0; }
+.feedback-modal .notify-actions { margin-top: 18px; }
+.feedback-modal .notify-btn-primary:disabled { opacity: .4; cursor: default; }
 
 @media (prefers-reduced-motion: reduce) {
   .st *, .st *::before, .st *::after { transition: none !important; animation: none !important; }
