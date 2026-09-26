@@ -378,7 +378,7 @@ function FlightCard({ f, open, onTap, onPhotoTap, register }) {
   );
 }
 
-function AboutPanel({ open, onClose, onManageNotifications, onFeedback }) {
+function AboutPanel({ open, onClose, onManageNotifications }) {
   React.useEffect(() => {
     if (!open) return;
     const onEsc = (e) => e.key === "Escape" && onClose();
@@ -399,10 +399,13 @@ function AboutPanel({ open, onClose, onManageNotifications, onFeedback }) {
           <dt>Photos</dt><dd>All photos by SpaceX, credited on each image.</dd>
           <dt>Flight data</dt><dd>SpaceX flight updates and Wikipedia's list of Starship launches. Last checked {DATA_CHECKED}.</dd>
           <dt>Next flight</dt><dd>Launch dates move often. The countdown runs off the best known date and is tagged NET (estimated) until SpaceX confirms the exact time.</dd>
-          <dt>Notifications</dt><dd><button className="notify-manage-btn" onClick={onManageNotifications}>Manage notifications</button></dd>
-          <dt>Feedback</dt><dd><button className="notify-manage-btn" onClick={onFeedback}>What would you add?</button></dd>
         </dl>
-        <p className="about-foot">Version 1.5</p>
+        <FeedbackForm />
+        {/* Notifications sit at the very bottom, under the feedback box (same look as the rows above) */}
+        <dl>
+          <dt>Notifications</dt><dd><button className="notify-manage-btn" onClick={onManageNotifications}>Manage notifications</button></dd>
+        </dl>
+        <p className="about-foot">Version 1.6</p>
       </aside>
     </>
   );
@@ -471,30 +474,44 @@ function NotifyModal({ open, onClose }) {
   );
 }
 
-// The "What would you add?" box, opened from the About menu. It sends a short
-// note straight to Firestore via window.STNotify.sendFeedback (in notifications.js).
-// If you close it by accident, your draft is still there when you reopen it;
-// it only gets cleared once it has actually been sent.
-function FeedbackModal({ open, onClose }) {
+// The "What would you add?" box at the bottom of the About menu: the text box
+// is right there, ready to type into, no extra tap. It sends a short note
+// straight to Firestore via window.STNotify.sendFeedback (in notifications.js).
+// The About menu never really unmounts, so a half-written draft is still there
+// next time you open it; it only gets cleared once it has actually been sent.
+// No auto-focus on purpose: on iPhone that would pop the keyboard up the
+// moment the menu opens.
+function FeedbackForm() {
   const [text, setText] = React.useState("");
   const [handle, setHandle] = React.useState("");
   const [state, setState] = React.useState("idle"); // "idle" | "sending" | "sent" | "error"
+  const [typing, setTyping] = React.useState(false); // a field has focus (so the keyboard is probably up)
+  const boxRef = React.useRef(null);
+  const blurTimer = React.useRef(0);
   const sending = state === "sending";
 
-  // Closing after a successful send wipes the box, ready for the next idea.
-  const close = () => {
-    if (state === "sent") { setText(""); setHandle(""); setState("idle"); }
-    onClose();
+  // On iPhone the keyboard covers the bottom of the screen but doesn't shrink
+  // the menu, so while you're typing we add some empty room under the box and
+  // scroll the menu just enough to keep the box and Send above the keyboard.
+  const keepInView = () => {
+    const box = boxRef.current, panel = box?.closest(".about");
+    if (!box || !panel) return;
+    const vv = window.visualViewport;
+    const visibleBottom = vv ? vv.offsetTop + vv.height : window.innerHeight;
+    const r = box.getBoundingClientRect();
+    const d = Math.min(r.bottom + 12 - visibleBottom, r.top - 12); // never push the box's top off screen
+    if (d > 1) panel.scrollBy({ top: d, behavior: reduceMotion() ? "auto" : "smooth" });
   };
-
   React.useEffect(() => {
-    if (!open) return;
-    const onEsc = (e) => e.key === "Escape" && close();
-    window.addEventListener("keydown", onEsc);
-    return () => window.removeEventListener("keydown", onEsc);
-  }, [open, state]);
-
-  if (!open) return null;
+    if (!typing) return;
+    const t = setTimeout(keepInView, 350); // give the keyboard time to slide up
+    window.visualViewport?.addEventListener("resize", keepInView);
+    return () => { clearTimeout(t); window.visualViewport?.removeEventListener("resize", keepInView); };
+  }, [typing]);
+  // The short delay on blur stops the layout shifting under your finger
+  // in the moment between leaving the text box and tapping Send.
+  const onFocus = () => { clearTimeout(blurTimer.current); setTyping(true); };
+  const onBlur = () => { blurTimer.current = setTimeout(() => setTyping(false), 300); };
 
   const handleSend = async () => {
     if (!text.trim() || sending) return;
@@ -505,50 +522,43 @@ function FeedbackModal({ open, onClose }) {
       // exist yet: treat that like any other failure so the retry shows.
       if (window.STNotify?.sendFeedback) res = await window.STNotify.sendFeedback(text, handle);
     } catch (e) { /* shown as the error message below */ }
+    if (res.ok) { setText(""); setHandle(""); }
     setState(res.ok ? "sent" : "error");
   };
 
   return (
-    <>
-      <div className="scrim show" onClick={close} />
-      <div className="notify-modal feedback-modal" role="dialog" aria-modal="true" aria-labelledby="feedback-title">
-        {state === "sent" ? (
-          <>
-            <h2 id="feedback-title">Thanks! Got it. 🚀</h2>
-            <p>Your note is on its way to me.</p>
-            <div className="notify-actions">
-              <button className="notify-btn notify-btn-primary" onClick={close}>Close</button>
-            </div>
-          </>
-        ) : (
-          <>
-            <h2 id="feedback-title">What would you add?</h2>
-            <p>Ideas, missing features, anything that bugs you. I read every one.</p>
-            <textarea
-              className="feedback-field" rows={5} maxLength={1000} placeholder="I'd love to see…"
-              aria-label="Your idea" value={text} disabled={sending}
-              onChange={(e) => setText(e.target.value)}
-            />
-            {text.length >= 800 && <div className="feedback-count">{text.length}/1000</div>}
-            <input
-              className="feedback-field feedback-handle" type="text" maxLength={50}
-              placeholder="Your X or Reddit name (optional)" aria-label="Your X or Reddit name (optional)"
-              autoComplete="off" autoCapitalize="none" autoCorrect="off" spellCheck={false}
-              value={handle} disabled={sending} onChange={(e) => setHandle(e.target.value)}
-            />
-            {state === "error" && (
-              <p className="feedback-error" role="alert">Couldn't send that. Check your connection, then tap Try again.</p>
-            )}
-            <div className="notify-actions">
-              <button className="notify-btn notify-btn-quiet" onClick={close} disabled={sending}>Cancel</button>
-              <button className="notify-btn notify-btn-primary" onClick={handleSend} disabled={!text.trim() || sending}>
-                {sending ? "Sending…" : state === "error" ? "Try again" : "Send"}
-              </button>
-            </div>
-          </>
-        )}
-      </div>
-    </>
+    <section ref={boxRef} className={`feedback-box${typing ? " typing" : ""}`} aria-labelledby="feedback-title" onFocus={onFocus} onBlur={onBlur}>
+      {state === "sent" ? (
+        <>
+          <h3 id="feedback-title">Thanks! Got it. 🚀</h3>
+          <p>Your note is on its way to me.</p>
+          <button className="feedback-again" onClick={() => setState("idle")}>Send another</button>
+        </>
+      ) : (
+        <>
+          <h3 id="feedback-title">What would you add?</h3>
+          <p>Ideas, missing features, anything that bugs you. I read every one.</p>
+          <textarea
+            className="feedback-field" rows={4} maxLength={1000} placeholder="I'd love to see…"
+            aria-label="Your idea" value={text} disabled={sending}
+            onChange={(e) => setText(e.target.value)}
+          />
+          {text.length >= 800 && <div className="feedback-count">{text.length}/1000</div>}
+          <input
+            className="feedback-field feedback-handle" type="text" maxLength={50}
+            placeholder="X or Reddit name (optional)" aria-label="Your X or Reddit name (optional)"
+            autoComplete="off" autoCapitalize="none" autoCorrect="off" spellCheck={false}
+            value={handle} disabled={sending} onChange={(e) => setHandle(e.target.value)}
+          />
+          {state === "error" && (
+            <p className="feedback-error" role="alert">Couldn't send that. Check your connection, then tap Try again.</p>
+          )}
+          <button className="notify-btn notify-btn-primary feedback-send" onClick={handleSend} disabled={!text.trim() || sending}>
+            {sending ? "Sending…" : state === "error" ? "Try again" : "Send"}
+          </button>
+        </>
+      )}
+    </section>
   );
 }
 
@@ -576,17 +586,16 @@ function StarshipTracker() {
   const [aboutOpen, setAboutOpen] = React.useState(false);
   const [lightbox, setLightbox] = React.useState(null); // { src, alt } | null
   const [notifyModalOpen, setNotifyModalOpen] = React.useState(false);
-  const [feedbackOpen, setFeedbackOpen] = React.useState(false);
 
   // First visit: ask about notifications once, before any decision is stored.
   React.useEffect(() => {
     if (window.STNotify && !window.STNotify.hasDecided()) setNotifyModalOpen(true);
   }, []);
 
-  // Block background scroll while the notifications or feedback modal is open.
+  // Block background scroll while the notifications modal is open.
   React.useEffect(() => {
-    document.body.style.overflow = notifyModalOpen || feedbackOpen ? "hidden" : "";
-  }, [notifyModalOpen, feedbackOpen]);
+    document.body.style.overflow = notifyModalOpen ? "hidden" : "";
+  }, [notifyModalOpen]);
   const cardEls = React.useRef({});
   const pending = React.useRef(null);
   const now = useNow(false);
@@ -717,10 +726,8 @@ function StarshipTracker() {
         open={aboutOpen}
         onClose={() => setAboutOpen(false)}
         onManageNotifications={() => { setAboutOpen(false); setNotifyModalOpen(true); }}
-        onFeedback={() => { setAboutOpen(false); setFeedbackOpen(true); }}
       />
       <NotifyModal open={notifyModalOpen} onClose={() => setNotifyModalOpen(false)} />
-      <FeedbackModal open={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
       <Lightbox src={lightbox?.src} alt={lightbox?.alt} onClose={() => setLightbox(null)} />
     </div>
   );
@@ -869,7 +876,8 @@ a.watch-badge-live:active { transform: scale(.96); }
 .scrim.show { opacity: 1; pointer-events: auto; }
 .about {
   position: fixed; top: 0; bottom: 0; left: 0; z-index: 21; width: min(84vw, 340px); overflow-y: auto;
-  padding: 18px 22px 28px; background: #202A42; border-right: 1px solid rgba(255,255,255,.06);
+  padding: 18px 22px calc(28px + env(safe-area-inset-bottom)); background: #202A42; border-right: 1px solid rgba(255,255,255,.06);
+  overscroll-behavior: contain; /* scrolling to the end of the menu doesn't scroll the page behind it */
   transform: translateX(-102%); visibility: hidden;
   transition: transform .4s cubic-bezier(.2,.75,.2,1), visibility 0s .4s;
 }
@@ -902,32 +910,33 @@ a.watch-badge-live:active { transform: scale(.96); }
 .notify-btn-primary { background: #4A63A8; color: white; }
 .notify-btn:disabled { opacity: .6; }
 
-/* feedback: the "What would you add?" box (same look as the notifications modal).
-   On phones it sits near the top rather than dead centre, so the keyboard
-   doesn't cover the text box, and it never runs past the notch or home bar. */
-.feedback-modal {
-  top: calc(env(safe-area-inset-top) + 7vh); transform: translateX(-50%);
-  width: min(calc(100vw - 32px - env(safe-area-inset-left) - env(safe-area-inset-right)), 380px);
-  max-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 7vh - 16px); overflow-y: auto;
+/* feedback: the "What would you add?" box at the bottom of the About menu */
+.feedback-box {
+  margin-top: 28px; padding: 16px 16px 16px; border-radius: 16px;
+  background: rgba(150,165,235,.08); border: 1px solid rgba(170,190,245,.22);
 }
-@media (min-width: 600px) and (min-height: 600px) {
-  .feedback-modal { top: 50%; transform: translate(-50%, -50%); }
-}
+.feedback-box.typing { margin-bottom: 45vh; } /* room to scroll above the iPhone keyboard */
+.feedback-box h3 { font-size: 16px; font-weight: 600; margin: 0 0 6px; }
+.about .feedback-box p { font-size: 13.5px; line-height: 1.55; color: #C9D2E6; margin: 0 0 12px; }
 .feedback-field {
   display: block; width: 100%; margin: 0;
   font: inherit; font-size: 16px; line-height: 1.5; color: var(--text); /* 16px+ stops iPhone zooming in on tap */
-  background: rgba(255,255,255,.04); border: 1px solid rgba(170,190,245,.25); border-radius: 12px;
-  padding: 11px 13px; -webkit-appearance: none; appearance: none;
+  background: rgba(255,255,255,.05); border: 1px solid rgba(170,190,245,.28); border-radius: 12px;
+  padding: 10px 12px; -webkit-appearance: none; appearance: none;
 }
-textarea.feedback-field { resize: none; min-height: 132px; }
+textarea.feedback-field { resize: none; min-height: 112px; }
 .feedback-field::placeholder { color: var(--faint); opacity: 1; }
 .feedback-field:focus { outline: none; border-color: #A9BDF0; box-shadow: 0 0 0 3px rgba(169,189,240,.16); }
 .feedback-field:disabled { opacity: .6; }
-.feedback-handle { margin-top: 10px; font-size: 16px; padding: 9px 13px; }
+.feedback-handle { margin-top: 8px; padding: 8px 12px; }
 .feedback-count { text-align: right; font-size: 11.5px; color: var(--faint); margin-top: 5px; font-variant-numeric: tabular-nums; }
-.notify-modal .feedback-error { font-size: 13px; color: #F2A2A2; margin: 12px 0 0; }
-.feedback-modal .notify-actions { margin-top: 18px; }
-.feedback-modal .notify-btn-primary:disabled { opacity: .4; cursor: default; }
+.about .feedback-box .feedback-error { font-size: 13px; color: #F2A2A2; margin: 10px 0 0; }
+.feedback-send { display: block; width: 100%; margin-top: 12px; padding: 11px 14px; font-size: 14px; }
+.feedback-send:disabled { opacity: .4; cursor: default; }
+.feedback-again {
+  font: inherit; font-size: 13.5px; font-weight: 600; color: #C9D3F5; cursor: pointer;
+  background: none; border: none; padding: 0; text-decoration: underline; text-underline-offset: 3px;
+}
 
 @media (prefers-reduced-motion: reduce) {
   .st *, .st *::before, .st *::after { transition: none !important; animation: none !important; }
