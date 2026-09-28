@@ -3,7 +3,7 @@
    DATA — the only part you edit when a new flight happens.
    Everything else (order, days between, countdown) is computed.
    outcome: "success" | "partial" | "failure"
-   status (next flight): "confirmed" | "net" | "tbc"
+   status (next flight): "confirmed" | "net" | "tbc" | "inflight" | "done"
 
    PHOTOS — optional. Add real SpaceX photos to any flight by adding
    a "photo" field to that flight's object, e.g. for flight 10:
@@ -122,6 +122,12 @@ const fmtDateTimeLondon = (iso) => {
   const time = d.toLocaleTimeString("en-GB", { timeZone: "Europe/London", hour: "2-digit", minute: "2-digit" });
   return `${time} | ${day} ${month} ${year}`;
 };
+// Short "Launched 13:48" line for the next-flight card while a mission is underway
+// or just finished — London time, matching the rest of the card.
+const fmtLaunchedLondon = (iso) => {
+  const time = new Date(iso).toLocaleTimeString("en-GB", { timeZone: "Europe/London", hour: "2-digit", minute: "2-digit" });
+  return `Launched ${time}`;
+};
 const pad2 = (x) => String(x).padStart(2, "0");
 const EXPAND_MS = 450; // how long a card takes to open or close
 const OUTCOME_LABEL = { success: "Success", partial: "Partial", failure: "Failure" };
@@ -164,15 +170,75 @@ const LL2_ENDPOINT = "https://ll.thespacedevs.com/2.3.0/launches/upcoming/?searc
 const CACHE_KEY = "starship-next-flight-cache";
 const CACHE_MS = 60 * 60 * 1000;
 
-// "Go"/"TBC" etc are pre-launch. Once a flight has actually happened, LL2 marks
-// it Success / Failure / Partial Failure — but usually a few hours after liftoff,
-// not instantly. In between, it's just "In Flight" or similar: we treat anything
-// we don't recognise as still pending, and the card shows "Result pending".
+// "Go"/"TBC"/"TBD" are pre-launch. Mid-mission LL2 uses "In Flight" and, once
+// the payload is away, "Deployed" (common on long orbital Starship flights) —
+// both mean the mission is still going. Final results arrive later as Success /
+// Failure / Partial Failure. Anything unknown with no usable date stays "tbc".
 function mapLL2Status(abbrev) {
   if (abbrev === "Go") return "confirmed";
   if (abbrev === "TBC") return "net";
+  if (abbrev === "TBD") return "tbc";
+  if (abbrev === "Hold") return "confirmed"; // still a dated countdown; hold is temporary
+  if (abbrev === "In Flight" || abbrev === "Deployed") return "inflight";
   if (abbrev === "Success" || abbrev === "Failure" || abbrev === "Partial Failure") return "done";
-  return "tbc"; // TBD, In Flight, Hold, or unknown: no reliable date, or result not in yet
+  return "tbc";
+}
+
+function mapLL2Outcome(abbrev) {
+  if (abbrev === "Success") return "success";
+  if (abbrev === "Failure") return "failure";
+  if (abbrev === "Partial Failure") return "partial";
+  return null;
+}
+
+// If LL2's status is still a pre-launch label but the clock is past T-0, treat
+// the flight as in progress for a couple of hours (covers short gaps where the
+// API hasn't flipped to "In Flight" yet). Recognising statuses win over this.
+const IN_FLIGHT_FALLBACK_MS = 2 * 60 * 60 * 1000;
+function effectiveStatus(flight, now = Date.now()) {
+  if (!flight) return "tbc";
+  const s = flight.status;
+  if (s === "inflight" || s === "done" || s === "tbc") return s;
+  if (!flight.date) return s;
+  const t0 = new Date(flight.date).getTime();
+  if (Number.isFinite(t0) && now >= t0 && now <= t0 + IN_FLIGHT_FALLBACK_MS) return "inflight";
+  return s;
+}
+
+// Dev-only overrides so we can screenshot states without waiting on a launch.
+// Harmless in production: ignored unless ?mock= is present. Values:
+//   inflight | done-success | done-failure | done-partial | tbc
+function applyMockOverride(data) {
+  let mock = "";
+  try { mock = new URLSearchParams(window.location.search).get("mock") || ""; } catch {}
+  if (!mock) return data;
+  const base = data || { ...NEXT_FLIGHT_FALLBACK, n: 14, pad: "Pad 2", block: "V3", booster: "B21", ship: "S41", headline: "Orbital test flight", note: "Mocked for local testing." };
+  if (mock === "inflight") {
+    return { ...base, status: "inflight", outcome: null, date: new Date(Date.now() - 35 * 60 * 1000).toISOString() };
+  }
+  if (mock === "done-success" || mock === "done-failure" || mock === "done-partial") {
+    const outcome = mock.replace("done-", "");
+    return { ...base, status: "done", outcome, date: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString() };
+  }
+  if (mock === "tbc") {
+    return { ...NEXT_FLIGHT_FALLBACK, n: base.n || 15 };
+  }
+  return data;
+}
+
+// Build "V3, Booster 21, Ship 41" without empty ", Booster , Ship" holes when
+// a fetch fails or LL2 hasn't filled serials yet.
+function vehicleLine(f) {
+  const parts = [];
+  if (f.block) parts.push(f.block);
+  if (f.booster) parts.push(`Booster ${String(f.booster).replace(/^B/i, "")}`);
+  if (f.ship) parts.push(`Ship ${String(f.ship).replace(/^S/i, "")}`);
+  return parts.length ? parts.join(", ") : "To be announced";
+}
+
+function siteLine(f) {
+  const site = siteLabel(f);
+  return f.pad ? `${f.pad}, ${site}` : site;
 }
 
 // "Booster 21" -> "Booster 21" (already fine); ship serial_number is already "S41".
@@ -187,7 +253,8 @@ function useNextFlight() {
   React.useEffect(() => {
     try {
       const cached = JSON.parse(localStorage.getItem(CACHE_KEY));
-      if (cached && Date.now() - cached.fetchedAt < CACHE_MS) { setLive(cached.data); return; }
+      const ttl = cached?.ttl || CACHE_MS;
+      if (cached && Date.now() - cached.fetchedAt < ttl) { setLive(cached.data); return; }
     } catch {}
     // Step 1: find which launch is next.
     fetch(LL2_ENDPOINT)
@@ -205,9 +272,11 @@ function useNextFlight() {
         const boosterSerial = full.rocket?.launcher_stage?.[0]?.launcher?.serial_number || "";
         const shipSerial = full.rocket?.spacecraft_stage?.[0]?.spacecraft?.serial_number || "";
         const description = (full.mission?.description || "").split(/\r?\n\r?\n/)[0]; // first paragraph only
+        const abbrev = full.status?.abbrev;
         const data = {
           n: match ? Number(match[1]) : null,
-          status: mapLL2Status(full.status?.abbrev),
+          status: mapLL2Status(abbrev),
+          outcome: mapLL2Outcome(abbrev),
           date: full.net,
           pad: shortPad(full.pad?.name),
           block: full.rocket?.configuration?.variant || "",
@@ -217,11 +286,15 @@ function useNextFlight() {
           note: description || "Details to be announced.",
         };
         setLive(data);
-        localStorage.setItem(CACHE_KEY, JSON.stringify({ data, fetchedAt: Date.now() }));
+        // Cache for less time while a flight is underway so the card can flip
+        // to Success/Failure once LL2 posts the result (still well under the
+        // free-tier budget of ~15 requests/hour).
+        const ttl = data.status === "inflight" ? 5 * 60 * 1000 : CACHE_MS;
+        localStorage.setItem(CACHE_KEY, JSON.stringify({ data, fetchedAt: Date.now(), ttl }));
       })
       .catch(() => {});
   }, []);
-  return live;
+  return applyMockOverride(live);
 }
 
 /* ───────────── pieces ───────────── */
@@ -265,14 +338,34 @@ function Connector({ label, dashed }) {
   );
 }
 
-// How long after the scheduled time we keep showing "Launching" before switching
-// to "Result pending" — covers a real launch window plus flight duration.
+// How long after T-0 we keep a post-liftoff UI before falling back to
+// "Result pending" when LL2 still hasn't posted Success/Failure.
 const RESULT_PENDING_AFTER_MS = 4 * 60 * 60 * 1000;
 
 function Countdown({ flight }) {
-  const ticking = flight.status !== "tbc"; // "net" (estimated) and "confirmed" both count down; "tbc" has no date to count to
-  const now = useNow(ticking);
-  if (!ticking) return <div className="cd"><span className="cd-val cd-tbc">Date to be confirmed</span></div>;
+  const now = useNow(true);
+  const status = effectiveStatus(flight, now);
+
+  if (status === "tbc") {
+    return <div className="cd"><span className="cd-val cd-tbc">Date to be confirmed</span></div>;
+  }
+  if (status === "inflight") {
+    return (
+      <div className="cd cd-inflight" aria-label="Mission in progress">
+        <span className="cd-tag cd-tag-live">● In flight</span>
+        <span className="cd-val">Mission in progress</span>
+      </div>
+    );
+  }
+  if (status === "done") {
+    const label = OUTCOME_LABEL[flight.outcome] || "Result in";
+    return (
+      <div className="cd" aria-label={`Flight result: ${label}`}>
+        <span className={`cd-tag cd-tag-outcome cd-tag-${flight.outcome || "pending"}`}>{label}</span>
+        <span className="cd-val">Flight complete</span>
+      </div>
+    );
+  }
 
   const rawDiff = new Date(flight.date).getTime() - now;
   if (rawDiff < -RESULT_PENDING_AFTER_MS) {
@@ -280,7 +373,7 @@ function Countdown({ flight }) {
   }
   const diff = Math.max(0, rawDiff);
   const d = Math.floor(diff / DAY), h = Math.floor(diff / 3600000) % 24, m = Math.floor(diff / 60000) % 60, s = Math.floor(diff / 1000) % 60;
-  const isNet = flight.status === "net";
+  const isNet = status === "net";
   return (
     <div className="cd" aria-label={isNet ? `Estimated countdown, no earlier than ${fmt(flight.date, { day: "numeric", month: "long" })}` : undefined}>
       <span className="cd-tag">{isNet ? "NET" : "T–"}</span>
@@ -290,9 +383,15 @@ function Countdown({ flight }) {
 }
 
 function WatchLiveBadge({ flight, now }) {
-  if (flight.status === "tbc") return null; // no date yet to time it against
-  const t = new Date(flight.date).getTime();
-  const active = now >= t - WATCH_LIVE_LEAD_MS && now <= t + WATCH_LIVE_TRAIL_MS;
+  const status = effectiveStatus(flight, now);
+  if (status === "tbc") return null; // no date yet to time it against
+  // Stay clickable for the whole in-flight window; otherwise use the usual
+  // lead/trail timing around the scheduled T-0.
+  let active = status === "inflight";
+  if (!active && flight.date) {
+    const t = new Date(flight.date).getTime();
+    active = now >= t - WATCH_LIVE_LEAD_MS && now <= t + WATCH_LIVE_TRAIL_MS;
+  }
   const Tag = active ? "a" : "span";
   const linkProps = active ? { href: WATCH_LIVE_URL, target: "_blank", rel: "noopener noreferrer" } : {};
   return (
@@ -304,20 +403,23 @@ function WatchLiveBadge({ flight, now }) {
 }
 
 function NextFlightCard({ f, now }) {
-  const dateLabel = f.status === "net" ? "NET date" : "Date";
-  const dateText = f.status === "tbc" ? "To be confirmed" : fmtDateTimeLondon(f.date);
+  const status = effectiveStatus(f, now);
+  const dateLabel = status === "net" ? "NET date" : status === "inflight" || status === "done" ? "Liftoff" : "Date";
+  let dateText = "To be confirmed";
+  if (status === "inflight" || status === "done") dateText = f.date ? fmtLaunchedLondon(f.date) : dateText;
+  else if (status !== "tbc" && f.date) dateText = fmtDateTimeLondon(f.date);
   return (
-    <section className="next" aria-label={`Next flight: Flight ${f.n}`}>
+    <section className="next" aria-label={`${status === "inflight" ? "Current" : status === "done" ? "Latest" : "Next"} flight: Flight ${f.n}`}>
       <div className="next-top">
         <Countdown flight={f} />
         <WatchLiveBadge flight={f} now={now} />
       </div>
-      <div className="next-title"><span className="t-word">Starship Flight</span><span className="t-num">{f.n}</span></div>
+      <div className="next-title"><span className="t-word">Starship Flight</span><span className="t-num">{f.n || "—"}</span></div>
       <p className="next-head">{f.headline}</p>
       <dl className="facts">
         <dt>{dateLabel}</dt><dd>{dateText}</dd>
-        <dt>Site</dt><dd>{f.pad}, {siteLabel(f)}</dd>
-        <dt>Vehicle</dt><dd>{f.block}, Booster {f.booster.replace("B", "")}, Ship {f.ship.replace("S", "")}</dd>
+        <dt>Site</dt><dd>{siteLine(f)}</dd>
+        <dt>Vehicle</dt><dd>{vehicleLine(f)}</dd>
       </dl>
       <p className="next-note">{f.note}</p>
     </section>
@@ -788,6 +890,18 @@ a.watch-badge-live:active { transform: scale(.96); }
 .cd-tag { background: var(--red); color: #fff; padding: 6px 9px; }
 .cd-val { background: #F4F6FB; color: #1D2540; padding: 6px 10px; font-variant-numeric: tabular-nums; }
 .cd-tbc { background: rgba(255,255,255,.1); color: #fff; }
+.cd-inflight .cd-tag-live {
+  background: linear-gradient(135deg, #EE6B6E 0%, #F0A05A 100%);
+  animation: inflight-pulse 1.4s ease-in-out infinite;
+}
+.cd-tag-outcome.cd-tag-success { background: #3E8F6A; }
+.cd-tag-outcome.cd-tag-partial { background: #A8893A; }
+.cd-tag-outcome.cd-tag-failure { background: #C45656; }
+.cd-tag-outcome.cd-tag-pending { background: rgba(255,255,255,.18); }
+@keyframes inflight-pulse {
+  0%, 100% { filter: brightness(1); box-shadow: 0 0 0 0 rgba(238,107,110,.45); }
+  50% { filter: brightness(1.12); box-shadow: 0 0 0 6px rgba(238,107,110,0); }
+}
 .next-title { display: flex; align-items: baseline; gap: 8px; margin: 22px 0 0; }
 .next-title .t-word { font-size: 18px; font-weight: 500; color: #D3DBF0; }
 .next-title .t-num { font-size: 40px; font-weight: 400; line-height: .9; letter-spacing: -.015em; }
