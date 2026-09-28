@@ -12,8 +12,9 @@
        gallery: ["images/f10-a.jpg", "images/f10-b.jpg"],  // expanded view, up to 2
      }
    Drop the actual image files into an "images" folder in this repo
-   (same one this file lives in). Flights with no "photo" field just
-   keep the placeholder — nothing breaks either way.
+   (same one this file lives in). Flights with no "photo" field use
+   images/f<N>-thumb.jpg, -a.jpg, -b.jpg automatically; missing files
+   just show the placeholder — nothing breaks either way.
 
    HIGHLIGHTS — optional. Add a "highlights" field with a YouTube URL
    to show a "Watch the flight highlights" link at the bottom of that
@@ -93,6 +94,13 @@ const FLIGHTS = [
     headline: "First Starlink satellites reach stable orbit",
     story: "Flight 14 launched from Pad 2, the third outing for Starship V3. The booster lost some engines on the way back but still made a controlled splashdown in the Gulf. Despite one of its six engines shutting down during ascent, Ship 41 became the first Starship to reach orbit and released all 26 Starlink V3 satellites. SpaceX then cut the planned six-orbit, ten-hour mission short, and the ship splashed down in the northern Pacific about three hours after liftoff before tipping over and exploding." },
 ];
+
+// Photos work automatically: any flight without a "photo" field uses
+// images/f<N>-thumb.jpg, images/f<N>-a.jpg and images/f<N>-b.jpg.
+// Just upload files with those names; if one is missing, the placeholder shows.
+FLIGHTS.forEach((f) => {
+  if (!f.photo) f.photo = { thumb: `images/f${f.n}-thumb.jpg`, gallery: [`images/f${f.n}-a.jpg`, `images/f${f.n}-b.jpg`] };
+});
 
 // Used only if the live fetch below fails or hasn't loaded yet, or while nothing
 // has come back for the very first paint.
@@ -432,10 +440,12 @@ function RocketMark() {
 }
 
 function PhotoSlot({ size, src, alt, onClick }) {
-  if (src) {
+  const [failed, setFailed] = React.useState(false);
+  React.useEffect(() => setFailed(false), [src]);
+  if (src && !failed) {
     return (
       <div className={`photo photo-${size} has-img${onClick ? " tappable" : ""}`} onClick={onClick}>
-        <img src={src} alt={alt || ""} loading="lazy" />
+        <img src={src} alt={alt || ""} loading="lazy" onError={() => setFailed(true)} />
         <span className="photo-credit">SpaceX</span>
       </div>
     );
