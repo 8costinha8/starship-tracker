@@ -3,7 +3,7 @@
    DATA — the only part you edit when a new flight happens.
    Everything else (order, days between, countdown) is computed.
    outcome: "success" | "partial" | "failure"
-   status (next flight): "confirmed" | "net" | "tbc"
+   status (next flight): "confirmed" | "net" | "tbc" | "inflight" | "done"
 
    PHOTOS — optional. Add real SpaceX photos to any flight by adding
    a "photo" field to that flight's object, e.g. for flight 10:
@@ -89,6 +89,9 @@ const FLIGHTS = [
     photo: { thumb: "images/f13-thumb.jpg", gallery: ["images/f13-a.jpg", "images/f13-b.jpg"] },
     highlights: "https://www.youtube.com/watch?v=MWi_0_0vKDQ",
     story: "The first flight to release working Starlink V3 satellites, 20 of them, on a path that let them burn up afterwards as planned. The booster lost engines during its landing burn. The ship made its best re-entry yet and survived tipping over after splashdown, so SpaceX could recover it and study the heat shield." },
+  { n: 14, date: "2026-09-28T12:48:59Z", pad: "Pad 2", block: "V3", booster: "B21", ship: "S41", outcome: "success",
+    headline: "First Starlink satellites reach stable orbit",
+    story: "Flight 14 launched from Pad 2, the third outing for Starship V3. The booster lost some engines on the way back but still made a controlled splashdown in the Gulf. Despite one of its six engines shutting down during ascent, Ship 41 became the first Starship to reach orbit and released all 26 Starlink V3 satellites. SpaceX then cut the planned six-orbit, ten-hour mission short, and the ship splashed down in the northern Pacific about three hours after liftoff before tipping over and exploding." },
 ];
 
 // Used only if the live fetch below fails or hasn't loaded yet, or while nothing
@@ -99,7 +102,7 @@ const NEXT_FLIGHT_FALLBACK = {
   headline: "", note: "Details to be announced.",
 };
 
-const DATA_CHECKED = "14 Sep 2026";
+const DATA_CHECKED = "28 Sept 2026";
 
 // All flights so far launch from Starbase, Texas. If SpaceX ever flies Starship
 // from a different site, add a "site" field to that flight object, e.g.
@@ -122,6 +125,12 @@ const fmtDateTimeLondon = (iso) => {
   const time = d.toLocaleTimeString("en-GB", { timeZone: "Europe/London", hour: "2-digit", minute: "2-digit" });
   return `${time} | ${day} ${month} ${year}`;
 };
+// Short "Launched 13:48" line for the next-flight card while a mission is underway
+// or just finished — London time, matching the rest of the card.
+const fmtLaunchedLondon = (iso) => {
+  const time = new Date(iso).toLocaleTimeString("en-GB", { timeZone: "Europe/London", hour: "2-digit", minute: "2-digit" });
+  return `Launched ${time}`;
+};
 const pad2 = (x) => String(x).padStart(2, "0");
 const EXPAND_MS = 450; // how long a card takes to open or close
 const OUTCOME_LABEL = { success: "Success", partial: "Partial", failure: "Failure" };
@@ -134,7 +143,7 @@ const siteLabel = (f) => f.site || DEFAULT_SITE;
 // closes back to gray after the trailing window in case the date is stale.
 const WATCH_LIVE_LEAD_MS = 60 * 60 * 1000; // opens 60 min before scheduled launch
 const WATCH_LIVE_TRAIL_MS = 4 * 60 * 60 * 1000; // closes 4 hours after, well past a normal launch + stream
-const WATCH_LIVE_URL = "https://www.youtube.com/@SpaceX/live";
+const WATCH_LIVE_URL = "https://x.com/SpaceX";
 
 const reduceMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -160,19 +169,155 @@ function useNow(fast) {
 // Fetches the next Starship flight's date/status from Launch Library 2.
 // Caches for an hour (well under LL2's 15 requests/hour free limit) and
 // silently falls back to NEXT_FLIGHT_FALLBACK if the fetch fails.
-const LL2_ENDPOINT = "https://ll.thespacedevs.com/2.3.0/launches/upcoming/?search=Starship&limit=1&mode=list";
-const CACHE_KEY = "starship-next-flight-cache";
+// Asks for several upcoming launches (not just 1): LL2 keeps a finished flight
+// in "upcoming" for a while after it lands, and also lists non-test Starship
+// missions (HLS demo, customer satellites), so we pick the right one below.
+const LL2_ENDPOINT = "https://ll.thespacedevs.com/2.3.0/launches/upcoming/?search=Starship&limit=10&mode=list";
+const CACHE_KEY = "starship-next-flight-cache-v2";
 const CACHE_MS = 60 * 60 * 1000;
 
-// "Go"/"TBC" etc are pre-launch. Once a flight has actually happened, LL2 marks
-// it Success / Failure / Partial Failure — but usually a few hours after liftoff,
-// not instantly. In between, it's just "In Flight" or similar: we treat anything
-// we don't recognise as still pending, and the card shows "Result pending".
+// Newest flight already in the log above (FLIGHTS). Once a flight is in the
+// log, the top card moves on to the next one — no manual edit needed.
+const LAST_LOGGED_N = Math.max(...FLIGHTS.map((f) => f.n));
+// After liftoff the top card keeps showing that flight for at least this long
+// (in flight, or its result), then moves on as soon as the flight is in the log.
+const DONE_GRACE_MS = 2 * 60 * 60 * 1000;
+// Safety net if the log never gets the flight: a finished flight stops showing
+// on the top card this long after liftoff anyway.
+const DONE_MAX_MS = 24 * 60 * 60 * 1000;
+
+// "Starship | Starlink Group 31-1 (Starship Flight 14)" -> 14, "Starship | Flight 15" -> 15
+function flightNumber(name) {
+  const m = (name || "").match(/Flight\s*(\d+)/i);
+  return m ? Number(m[1]) : null;
+}
+
+// True once a launch no longer belongs on the top card: it is already in the
+// log (or older than the newest logged flight), or LL2 says it finished more
+// than a day ago. Never true during the short grace period after liftoff.
+function isFinishedLaunch(n, status, date, now = Date.now()) {
+  const t0 = date ? new Date(date).getTime() : NaN;
+  const since = Number.isFinite(t0) ? now - t0 : null;
+  if (since != null && since >= 0 && since < DONE_GRACE_MS) return false;
+  if (n != null && n <= LAST_LOGGED_N && (since == null || since >= 0)) return true;
+  if (status === "done" && since != null && since > DONE_MAX_MS) return true;
+  return false;
+}
+
+// Picks the launch for the top card from LL2's upcoming list: numbered Starship
+// flights only, skipping any that already happened. null = nothing suitable.
+function pickNextLaunch(results, now = Date.now()) {
+  const numbered = (results || []).filter((l) => l?.url && flightNumber(l.name) != null);
+  return numbered.find((l) => !isFinishedLaunch(flightNumber(l.name), mapLL2Status(l.status?.abbrev), l.net, now)) || null;
+}
+
+// Temporary card when LL2 has no next numbered flight yet.
+function placeholderFlight(n) {
+  return { ...NEXT_FLIGHT_FALLBACK, n, placeholder: true };
+}
+
+// "Go"/"TBC"/"TBD" are pre-launch. Mid-mission LL2 uses "In Flight" and, once
+// the payload is away, "Deployed" (common on long orbital Starship flights) —
+// both mean the mission is still going. Final results arrive later as Success /
+// Failure / Partial Failure. Anything unknown with no usable date stays "tbc".
 function mapLL2Status(abbrev) {
   if (abbrev === "Go") return "confirmed";
   if (abbrev === "TBC") return "net";
+  if (abbrev === "TBD") return "tbc";
+  if (abbrev === "Hold") return "confirmed"; // still a dated countdown; hold is temporary
+  if (abbrev === "In Flight" || abbrev === "Deployed") return "inflight";
   if (abbrev === "Success" || abbrev === "Failure" || abbrev === "Partial Failure") return "done";
-  return "tbc"; // TBD, In Flight, Hold, or unknown: no reliable date, or result not in yet
+  return "tbc";
+}
+
+function mapLL2Outcome(abbrev) {
+  if (abbrev === "Success") return "success";
+  if (abbrev === "Failure") return "failure";
+  if (abbrev === "Partial Failure") return "partial";
+  return null;
+}
+
+// If LL2's status is still a pre-launch label but the clock is past T-0, treat
+// the flight as in progress for a couple of hours (covers short gaps where the
+// API hasn't flipped to "In Flight" yet). Recognising statuses win over this.
+const IN_FLIGHT_FALLBACK_MS = 2 * 60 * 60 * 1000;
+function effectiveStatus(flight, now = Date.now()) {
+  if (!flight) return "tbc";
+  const s = flight.status;
+  if (s === "inflight" || s === "done" || s === "tbc") return s;
+  if (!flight.date) return s;
+  const t0 = new Date(flight.date).getTime();
+  if (Number.isFinite(t0) && now >= t0 && now <= t0 + IN_FLIGHT_FALLBACK_MS) return "inflight";
+  return s;
+}
+
+// Dev-only overrides so we can screenshot states without waiting on a launch.
+// Harmless in production: ignored unless ?mock= is present. Values:
+//   inflight | done-success | done-failure | done-partial | tbc
+//   next  -> fake LL2 list: newest logged flight finished + the next one announced
+//   none  -> fake LL2 list: newest logged flight finished, no next flight listed
+function getMock() {
+  try { return new URLSearchParams(window.location.search).get("mock") || ""; } catch { return ""; }
+}
+
+// Fake LL2 responses for ?mock=next / ?mock=none, shaped like the real API so
+// they run through exactly the same picking logic as live data.
+function mockLL2(url) {
+  const mock = getMock();
+  const hour = 3600000;
+  const last = {
+    name: `Starship | Flight ${LAST_LOGGED_N}`, url: "mock://last", net: new Date(Date.now() - 8 * hour).toISOString(),
+    status: { abbrev: "Success" }, net_precision: { abbrev: "SEC" },
+    pad: { name: "Orbital Launch Pad 2" }, rocket: { configuration: { variant: "V3" } },
+    mission: { type: "Test Flight", description: "Mock finished flight." },
+  };
+  const next = {
+    name: `Starship | Flight ${LAST_LOGGED_N + 1}`, url: "mock://next", net: `${new Date().getUTCFullYear()}-12-31T00:00:00Z`,
+    status: { abbrev: "TBD" }, net_precision: { abbrev: "Q4" },
+    pad: { name: "Orbital Launch Pad 2" }, rocket: { configuration: { variant: "V3" } },
+    mission: { type: "Test Flight", description: `Mock: flight ${LAST_LOGGED_N + 1} of the Starship launch vehicle.` },
+  };
+  const other = { name: "Starship | SpaceX HLS LEO Demo", url: "mock://hls", net: "2027-06-30T00:00:00Z", status: { abbrev: "TBD" } };
+  if (url === LL2_ENDPOINT) return { results: mock === "next" ? [last, next, other] : [last, other] };
+  return url === "mock://next" ? next : last;
+}
+function ll2Json(url) {
+  const mock = getMock();
+  if (mock === "next" || mock === "none") return Promise.resolve(mockLL2(url));
+  return fetch(url).then((r) => r.json());
+}
+
+function applyMockOverride(data) {
+  const mock = getMock();
+  if (!mock || mock === "next" || mock === "none") return data;
+  const base = data || { ...NEXT_FLIGHT_FALLBACK, n: LAST_LOGGED_N + 1, pad: "Pad 2", block: "V3", booster: "B99", ship: "S99", headline: "Orbital test flight", note: "Mocked for local testing." };
+  if (mock === "inflight") {
+    return { ...base, status: "inflight", outcome: null, date: new Date(Date.now() - 35 * 60 * 1000).toISOString() };
+  }
+  if (mock === "done-success" || mock === "done-failure" || mock === "done-partial") {
+    const outcome = mock.replace("done-", "");
+    return { ...base, status: "done", outcome, date: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString() };
+  }
+  if (mock === "tbc") {
+    return { ...NEXT_FLIGHT_FALLBACK, n: base.n || 15 };
+  }
+  return data;
+}
+
+// Build "V3, Booster 21, Ship 41" without empty ", Booster , Ship" holes when
+// a fetch fails or LL2 hasn't filled serials yet.
+function vehicleLine(f) {
+  const parts = [];
+  if (f.block) parts.push(f.block);
+  if (f.booster) parts.push(`Booster ${String(f.booster).replace(/^B/i, "")}`);
+  if (f.ship) parts.push(`Ship ${String(f.ship).replace(/^S/i, "")}`);
+  return parts.length ? parts.join(", ") : "To be announced";
+}
+
+function siteLine(f) {
+  if (f.placeholder) return "To be announced";
+  const site = siteLabel(f);
+  return f.pad ? `${f.pad}, ${site}` : site;
 }
 
 // "Booster 21" -> "Booster 21" (already fine); ship serial_number is already "S41".
@@ -182,46 +327,97 @@ function shortPad(padName) {
   return m ? `Pad ${m[1]}` : padName || "";
 }
 
+// LL2 often gives a far-off flight a placeholder date with a rough precision
+// (e.g. net 31 Dec + precision "Q4"). Turn that into "Q4 2026" etc.
+function roughDate(f) {
+  const p = f.netPrecision;
+  if (!f.date || !p) return "";
+  const d = new Date(f.date);
+  if (!Number.isFinite(d.getTime())) return "";
+  const y = d.getUTCFullYear();
+  if (/^(Q[1-4]|H[12])$/.test(p)) return `${p} ${y}`;
+  if (p === "M") return d.toLocaleDateString("en-GB", { timeZone: "UTC", month: "long", year: "numeric" });
+  if (p === "Y") return String(y);
+  return "";
+}
+
 function useNextFlight() {
   const [live, setLive] = React.useState(null);
   React.useEffect(() => {
-    try {
-      const cached = JSON.parse(localStorage.getItem(CACHE_KEY));
-      if (cached && Date.now() - cached.fetchedAt < CACHE_MS) { setLive(cached.data); return; }
-    } catch {}
-    // Step 1: find which launch is next.
-    fetch(LL2_ENDPOINT)
-      .then((r) => r.json())
-      .then((json) => {
-        const launch = json.results?.[0];
-        if (!launch?.url) return null;
-        // Step 2: fetch that launch's full detail — this is where pad, vehicle
-        // serials and the mission description actually live.
-        return fetch(launch.url).then((r) => r.json());
-      })
-      .then((full) => {
-        if (!full) return;
-        const match = full.name.match(/Flight (\d+)/);
-        const boosterSerial = full.rocket?.launcher_stage?.[0]?.launcher?.serial_number || "";
-        const shipSerial = full.rocket?.spacecraft_stage?.[0]?.spacecraft?.serial_number || "";
-        const description = (full.mission?.description || "").split(/\r?\n\r?\n/)[0]; // first paragraph only
-        const data = {
-          n: match ? Number(match[1]) : null,
-          status: mapLL2Status(full.status?.abbrev),
-          date: full.net,
-          pad: shortPad(full.pad?.name),
-          block: full.rocket?.configuration?.variant || "",
-          booster: boosterSerial.replace(/^Booster\s*/i, "B"),
-          ship: shipSerial,
-          headline: full.mission?.type ? `${full.mission.type} mission` : "",
-          note: description || "Details to be announced.",
-        };
-        setLive(data);
-        localStorage.setItem(CACHE_KEY, JSON.stringify({ data, fetchedAt: Date.now() }));
-      })
-      .catch(() => {});
+    const useCache = !getMock();
+    let busy = false;
+    const load = () => {
+      if (busy) return;
+      if (useCache) {
+        try {
+          const cached = JSON.parse(localStorage.getItem(CACHE_KEY));
+          const ttl = cached?.ttl || CACHE_MS;
+          const d = cached?.data;
+          // Reuse the cache unless it's stale, or it's a flight that has since
+          // been added to the log (then go and find the next one).
+          if (d && Date.now() - cached.fetchedAt < ttl && !(d.n != null && !d.placeholder && isFinishedLaunch(d.n, d.status, d.date))) {
+            setLive(d);
+            return;
+          }
+        } catch {}
+      }
+      busy = true;
+      let seenMax = LAST_LOGGED_N;
+      // Step 1: find which launch is next.
+      ll2Json(LL2_ENDPOINT)
+        .then((json) => {
+          if (!Array.isArray(json?.results)) return null; // throttled / error: keep what we have
+          json.results.forEach((l) => { const n = flightNumber(l.name); if (n != null) seenMax = Math.max(seenMax, n); });
+          const launch = pickNextLaunch(json.results);
+          if (!launch) return "none";
+          // Step 2: fetch that launch's full detail — this is where pad, vehicle
+          // serials and the mission description actually live.
+          return ll2Json(launch.url);
+        })
+        .then((full) => {
+          if (!full) return;
+          let data;
+          if (full === "none" || !full.name) {
+            // Nothing listed yet after the newest flight: temporary placeholder.
+            data = placeholderFlight(seenMax + 1);
+          } else {
+            const boosterSerial = full.rocket?.launcher_stage?.[0]?.launcher?.serial_number || "";
+            const shipSerial = full.rocket?.spacecraft_stage?.[0]?.spacecraft?.serial_number || "";
+            const description = (full.mission?.description || "").split(/\r?\n\r?\n/)[0]; // first paragraph only
+            const abbrev = full.status?.abbrev;
+            data = {
+              n: flightNumber(full.name),
+              status: mapLL2Status(abbrev),
+              outcome: mapLL2Outcome(abbrev),
+              date: full.net,
+              netPrecision: full.net_precision?.abbrev || "",
+              pad: shortPad(full.pad?.name),
+              block: full.rocket?.configuration?.variant || "",
+              booster: boosterSerial.replace(/^Booster\s*/i, "B"),
+              ship: shipSerial,
+              headline: full.mission?.type ? `${full.mission.type} mission` : "",
+              note: description || "Details to be announced.",
+            };
+          }
+          setLive(data);
+          if (!useCache) return;
+          // Check more often while a flight is underway or just finished, so the
+          // card flips to the result and then on to the next flight promptly
+          // (still well under LL2's free limit of ~15 requests/hour).
+          const ttl = data.status === "inflight" || data.status === "done" ? 5 * 60 * 1000 : CACHE_MS;
+          localStorage.setItem(CACHE_KEY, JSON.stringify({ data, fetchedAt: Date.now(), ttl }));
+        })
+        .catch(() => {})
+        .finally(() => { busy = false; });
+    };
+    load();
+    // Phones keep the app open in the background for hours: re-check (cache
+    // permitting) whenever it comes back to the front.
+    const onVisible = () => { if (document.visibilityState === "visible") load(); };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
   }, []);
-  return live;
+  return applyMockOverride(live);
 }
 
 /* ───────────── pieces ───────────── */
@@ -265,14 +461,34 @@ function Connector({ label, dashed }) {
   );
 }
 
-// How long after the scheduled time we keep showing "Launching" before switching
-// to "Result pending" — covers a real launch window plus flight duration.
+// How long after T-0 we keep a post-liftoff UI before falling back to
+// "Result pending" when LL2 still hasn't posted Success/Failure.
 const RESULT_PENDING_AFTER_MS = 4 * 60 * 60 * 1000;
 
 function Countdown({ flight }) {
-  const ticking = flight.status !== "tbc"; // "net" (estimated) and "confirmed" both count down; "tbc" has no date to count to
-  const now = useNow(ticking);
-  if (!ticking) return <div className="cd"><span className="cd-val cd-tbc">Date to be confirmed</span></div>;
+  const now = useNow(true);
+  const status = effectiveStatus(flight, now);
+
+  if (status === "tbc") {
+    return <div className="cd"><span className="cd-val cd-tbc">Date to be confirmed</span></div>;
+  }
+  if (status === "inflight") {
+    return (
+      <div className="cd cd-inflight" aria-label="Mission in progress">
+        <span className="cd-tag cd-tag-live">● In flight</span>
+        <span className="cd-val">Mission in progress</span>
+      </div>
+    );
+  }
+  if (status === "done") {
+    const label = OUTCOME_LABEL[flight.outcome] || "Result in";
+    return (
+      <div className="cd" aria-label={`Flight result: ${label}`}>
+        <span className={`cd-tag cd-tag-outcome cd-tag-${flight.outcome || "pending"}`}>{label}</span>
+        <span className="cd-val">Flight complete</span>
+      </div>
+    );
+  }
 
   const rawDiff = new Date(flight.date).getTime() - now;
   if (rawDiff < -RESULT_PENDING_AFTER_MS) {
@@ -280,7 +496,7 @@ function Countdown({ flight }) {
   }
   const diff = Math.max(0, rawDiff);
   const d = Math.floor(diff / DAY), h = Math.floor(diff / 3600000) % 24, m = Math.floor(diff / 60000) % 60, s = Math.floor(diff / 1000) % 60;
-  const isNet = flight.status === "net";
+  const isNet = status === "net";
   return (
     <div className="cd" aria-label={isNet ? `Estimated countdown, no earlier than ${fmt(flight.date, { day: "numeric", month: "long" })}` : undefined}>
       <span className="cd-tag">{isNet ? "NET" : "T–"}</span>
@@ -290,9 +506,15 @@ function Countdown({ flight }) {
 }
 
 function WatchLiveBadge({ flight, now }) {
-  if (flight.status === "tbc") return null; // no date yet to time it against
-  const t = new Date(flight.date).getTime();
-  const active = now >= t - WATCH_LIVE_LEAD_MS && now <= t + WATCH_LIVE_TRAIL_MS;
+  const status = effectiveStatus(flight, now);
+  // No date yet (status "tbc"): still show the badge, just gray and not clickable.
+  // Stay clickable for the whole in-flight window; otherwise use the usual
+  // lead/trail timing around the scheduled T-0.
+  let active = status === "inflight";
+  if (!active && status !== "tbc" && flight.date) {
+    const t = new Date(flight.date).getTime();
+    active = now >= t - WATCH_LIVE_LEAD_MS && now <= t + WATCH_LIVE_TRAIL_MS;
+  }
   const Tag = active ? "a" : "span";
   const linkProps = active ? { href: WATCH_LIVE_URL, target: "_blank", rel: "noopener noreferrer" } : {};
   return (
@@ -304,20 +526,24 @@ function WatchLiveBadge({ flight, now }) {
 }
 
 function NextFlightCard({ f, now }) {
-  const dateLabel = f.status === "net" ? "NET date" : "Date";
-  const dateText = f.status === "tbc" ? "To be confirmed" : fmtDateTimeLondon(f.date);
+  const status = effectiveStatus(f, now);
+  const dateLabel = status === "net" ? "NET date" : status === "inflight" || status === "done" ? "Liftoff" : "Date";
+  let dateText = "To be confirmed";
+  if (status === "inflight" || status === "done") dateText = f.date ? fmtLaunchedLondon(f.date) : dateText;
+  else if (status !== "tbc" && f.date) dateText = fmtDateTimeLondon(f.date);
+  else if (status === "tbc" && roughDate(f)) dateText = `Estimated ${roughDate(f)}`;
   return (
-    <section className="next" aria-label={`Next flight: Flight ${f.n}`}>
+    <section className="next" aria-label={`${status === "inflight" ? "Current" : status === "done" ? "Latest" : "Next"} flight: Flight ${f.n}`}>
       <div className="next-top">
         <Countdown flight={f} />
         <WatchLiveBadge flight={f} now={now} />
       </div>
-      <div className="next-title"><span className="t-word">Starship Flight</span><span className="t-num">{f.n}</span></div>
+      <div className="next-title"><span className="t-word">Starship Flight</span><span className="t-num">{f.n || "—"}</span></div>
       <p className="next-head">{f.headline}</p>
       <dl className="facts">
         <dt>{dateLabel}</dt><dd>{dateText}</dd>
-        <dt>Site</dt><dd>{f.pad}, {siteLabel(f)}</dd>
-        <dt>Vehicle</dt><dd>{f.block}, Booster {f.booster.replace("B", "")}, Ship {f.ship.replace("S", "")}</dd>
+        <dt>Site</dt><dd>{siteLine(f)}</dd>
+        <dt>Vehicle</dt><dd>{vehicleLine(f)}</dd>
       </dl>
       <p className="next-note">{f.note}</p>
     </section>
@@ -600,7 +826,7 @@ function StarshipTracker() {
   const pending = React.useRef(null);
   const now = useNow(false);
   const liveNext = useNextFlight();
-  const nextFlight = liveNext || NEXT_FLIGHT_FALLBACK;
+  const nextFlight = liveNext || placeholderFlight(LAST_LOGGED_N + 1);
 
   const flights = [...FLIGHTS].sort((a, b) => b.n - a.n);
   const latest = flights[0];
@@ -788,6 +1014,18 @@ a.watch-badge-live:active { transform: scale(.96); }
 .cd-tag { background: var(--red); color: #fff; padding: 6px 9px; }
 .cd-val { background: #F4F6FB; color: #1D2540; padding: 6px 10px; font-variant-numeric: tabular-nums; }
 .cd-tbc { background: rgba(255,255,255,.1); color: #fff; }
+.cd-inflight .cd-tag-live {
+  background: linear-gradient(135deg, #EE6B6E 0%, #F0A05A 100%);
+  animation: inflight-pulse 1.4s ease-in-out infinite;
+}
+.cd-tag-outcome.cd-tag-success { background: #3E8F6A; }
+.cd-tag-outcome.cd-tag-partial { background: #A8893A; }
+.cd-tag-outcome.cd-tag-failure { background: #C45656; }
+.cd-tag-outcome.cd-tag-pending { background: rgba(255,255,255,.18); }
+@keyframes inflight-pulse {
+  0%, 100% { filter: brightness(1); box-shadow: 0 0 0 0 rgba(238,107,110,.45); }
+  50% { filter: brightness(1.12); box-shadow: 0 0 0 6px rgba(238,107,110,0); }
+}
 .next-title { display: flex; align-items: baseline; gap: 8px; margin: 22px 0 0; }
 .next-title .t-word { font-size: 18px; font-weight: 500; color: #D3DBF0; }
 .next-title .t-num { font-size: 40px; font-weight: 400; line-height: .9; letter-spacing: -.015em; }

@@ -75,7 +75,9 @@ Facts:
 - Date: ${date}
 - Pad: ${pad}
 - Vehicle: ${block}, Booster ${booster}, Ship ${ship}
-- Official mission description: ${missionDescription || "(none available)"}
+- Pre-launch mission plan (written BEFORE the flight): ${missionDescription || "(none available)"}
+
+IMPORTANT: the mission plan above describes what SpaceX INTENDED to do, not what actually happened. Flights are often cut short or changed mid-mission. Do NOT state any planned detail (number of orbits, flight duration, splashdown location, etc.) as if it happened. Only state as fact the outcome and vehicle details listed above. If you are unsure whether something happened, leave it out and keep the recap short and general.
 
 Match this exact voice — plain, factual, past tense, 2–4 sentences, no hype or marketing language, no emoji. Here are the two most recent entries as a style reference:
 ${styleExamples.map((s, i) => `Example ${i + 1}: ${s}`).join("\n")}
