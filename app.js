@@ -134,7 +134,7 @@ const siteLabel = (f) => f.site || DEFAULT_SITE;
 // closes back to gray after the trailing window in case the date is stale.
 const WATCH_LIVE_LEAD_MS = 60 * 60 * 1000; // opens 60 min before scheduled launch
 const WATCH_LIVE_TRAIL_MS = 4 * 60 * 60 * 1000; // closes 4 hours after, well past a normal launch + stream
-const WATCH_LIVE_URL = "https://www.youtube.com/@SpaceX/live";
+const WATCH_LIVE_URL = "https://x.com/SpaceX";
 
 const reduceMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
