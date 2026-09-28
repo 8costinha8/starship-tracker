@@ -89,6 +89,9 @@ const FLIGHTS = [
     photo: { thumb: "images/f13-thumb.jpg", gallery: ["images/f13-a.jpg", "images/f13-b.jpg"] },
     highlights: "https://www.youtube.com/watch?v=MWi_0_0vKDQ",
     story: "The first flight to release working Starlink V3 satellites, 20 of them, on a path that let them burn up afterwards as planned. The booster lost engines during its landing burn. The ship made its best re-entry yet and survived tipping over after splashdown, so SpaceX could recover it and study the heat shield." },
+  { n: 14, date: "2026-09-28T12:48:59Z", pad: "Pad 2", block: "V3", booster: "B21", ship: "S41", outcome: "success",
+    headline: "First Starlink satellites reach stable orbit",
+    story: "Flight 14 launched from Pad 2, the third outing for Starship V3. Booster B21 completed its boostback and landing burn at the offshore point in the Gulf. Ship S41 reached its planned orbit and released 26 Starlink V3 satellites, the first time Starship placed satellites into stable orbit, before completing about six orbits and splashing down in the Pacific west of Chile roughly ten hours after liftoff." },
 ];
 
 // Used only if the live fetch below fails or hasn't loaded yet, or while nothing
@@ -99,7 +102,7 @@ const NEXT_FLIGHT_FALLBACK = {
   headline: "", note: "Details to be announced.",
 };
 
-const DATA_CHECKED = "14 Sep 2026";
+const DATA_CHECKED = "28 Sept 2026";
 
 // All flights so far launch from Starbase, Texas. If SpaceX ever flies Starship
 // from a different site, add a "site" field to that flight object, e.g.
