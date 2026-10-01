@@ -140,6 +140,25 @@ function commitAndPush(flightN, label) {
   execSync(`git push`);
 }
 
+
+// Fetch with a 20s timeout and up to 3 tries, so one slow or
+// rate-limited reply from the free launch API doesn't fail the run.
+async function fetchJson(url) {
+  let lastErr;
+  for (let i = 1; i <= 3; i++) {
+    try {
+      const r = await fetch(url, { signal: AbortSignal.timeout(20000) });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return await r.json();
+    } catch (err) {
+      lastErr = err;
+      console.log(`Try ${i} failed for ${url}: ${err.message}`);
+      if (i < 3) await new Promise((ok) => setTimeout(ok, 5000 * i));
+    }
+  }
+  throw lastErr;
+}
+
 async function main() {
   // Dry run: proves the API key works and shows what the story would look
   // like, WITHOUT touching app.js, git, Firebase, or sending any notification.
@@ -171,8 +190,13 @@ async function main() {
   const db = admin.firestore();
 
   // 1. Get the real, current next-flight data (same source app.js uses)
-  const res = await fetch(LL2_ENDPOINT);
-  const json = await res.json();
+  let json;
+  try {
+    json = await fetchJson(LL2_ENDPOINT);
+  } catch (err) {
+    console.log("Launch data unavailable right now — skipping this run, will retry in 15 min.");
+    return;
+  }
   const launch = json.results?.[0];
   if (!launch) { console.log("No upcoming launch found — nothing to check."); return; }
 
@@ -203,8 +227,7 @@ async function main() {
   if (current.outcome && prev.storyWrittenFor !== current.n) {
     console.log(`Flight ${current.n} result confirmed (${current.outcome}) — writing its story.`);
     try {
-      const detailRes = await fetch(launch.url);
-      const full = await detailRes.json();
+      const full = await fetchJson(launch.url);
       const flightData = {
         n: current.n,
         outcome: current.outcome,
