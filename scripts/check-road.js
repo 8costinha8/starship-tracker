@@ -271,13 +271,18 @@ const SOURCES = [
     name: "SpaceX launches page",
     async fetch(road) {
       const tiles = await fetchJson("https://content.spacex.com/api/spacex-website/launches-page-tiles/upcoming");
-      return (tiles || [])
-        .filter((t) => /starship/i.test(`${t.vehicle} ${t.title}`) && t.launchDate)
-        .filter((t) => { const n = (`${t.title}`.match(/flight\s*(\d+)/i) || [])[1]; return !n || Number(n) === road.flight; })
+      // the date can sit in launchDate or only in override.text ("October 8, 2026 00:54 PT").
+      // Titles are "Starship Flight 14" or "Starship's Thirteenth Flight Test", so read
+      // the flight number from the link ("starship-flight-15") first.
+      const when = (t) => t.launchDate ? `${t.launchDate}${t.launchTime ? ` at ${t.launchTime} UTC` : ""}` : (t.override && t.override.text) || "";
+      const flightNo = (t) => Number((`${t.link} ${t.title}`.match(/flight[-\s]*(\d+)/i) || [])[1]) || null;
+      return (Array.isArray(tiles) ? tiles : [])
+        .filter((t) => /starship/i.test(`${t.vehicle} ${t.missionType} ${t.title}`) && when(t))
+        .filter((t) => { const n = flightNo(t); return !n || n === road.flight; })
         .map((t) => ({
-          key: `spacex-tile:${t.id}:${t.launchDate}:${t.launchTime || ""}`,
+          key: `spacex-tile:${t.id}:${when(t)}`,
           title: `SpaceX launches page: ${t.title}`,
-          text: `SpaceX's own launches page lists "${t.title}" (${t.vehicle}) on ${t.launchDate}${t.launchTime ? ` at ${t.launchTime} UTC` : ""} from ${t.launchSite || "Starbase"}.`,
+          text: `SpaceX's own launches page lists "${t.title}" (${t.vehicle}) on ${when(t)} from ${t.launchSite || "Starbase"}.`,
           url: `https://www.spacex.com/launches/${t.link}`, publishedAt: new Date().toISOString(), ...DOMAINS["spacex.com"],
         }));
     },
@@ -577,7 +582,11 @@ async function run(opts = {}) {
   items.push(...(state.pending || []));
 
   // 3. Drop stale, seen, duplicate and off-topic posts
-  const cutoff = Math.max(Date.now() - LIMITS.staleHours * 3600000, firstRun ? new Date(road.updatedAt || 0).getTime() : 0);
+  // ROAD_STALE_HOURS (preview only): look back N hours and ignore road.updatedAt, for practice runs
+  const practiceHours = mode === "preview" ? Number(process.env.ROAD_STALE_HOURS) : 0;
+  const cutoff = practiceHours > 0
+    ? Date.now() - practiceHours * 3600000
+    : Math.max(Date.now() - LIMITS.staleHours * 3600000, firstRun ? new Date(road.updatedAt || 0).getTime() : 0);
   const knownUrls = new Set(road.categories.flatMap((c) => (c.history || []).map((h) => h.url).filter(Boolean)));
   const urlsThisRun = new Set();
   const counts = { stale: 0, seen: 0, dupe: 0, offTopic: 0 };

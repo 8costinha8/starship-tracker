@@ -9,6 +9,10 @@ on:
         description: "Dry-run both checkers (real sources + Claude, but no commit, no push, no notifications sent)"
         type: boolean
         default: false
+      stale_hours:
+        description: "Test mode only: how many hours back the road checker looks (blank = normal 72h + last road.json update)"
+        type: string
+        default: ""
 
 permissions:
   contents: write   # needed so the checkers can commit + push app.js / road.json
@@ -41,3 +45,4 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           X_BEARER_TOKEN: ${{ secrets.X_BEARER_TOKEN }}   # optional: leave unset to skip X
           TEST_MODE: ${{ inputs.test_mode }}
+          ROAD_STALE_HOURS: ${{ inputs.stale_hours }}

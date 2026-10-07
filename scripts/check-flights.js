@@ -82,9 +82,14 @@ function fmtEstimate(iso, precision) {
 // Pulls the last N `story:` blocks out of app.js as-is, just to give
 // Claude a feel for the voice — not a full parse, doesn't need to be.
 function recentStories(appJsText, count) {
-  const re = /story:\s*"((?:[^"\\]|\\.)*)"/g;
-  const matches = [...appJsText.matchAll(re)];
-  return matches.slice(-count).map((m) => m[1]);
+  // only look inside the FLIGHTS list, and accept "…", '…' or `…`
+  const start = appJsText.indexOf("const FLIGHTS = [");
+  const end = appJsText.indexOf("\n];", start);
+  const block = start >= 0 && end > start ? appJsText.slice(start, end) : appJsText;
+  const re = /\bstory:\s*(["'`])((?:(?!\1)[^\\]|\\.)*)\1/g;
+  const out = [...block.matchAll(re)].slice(-count).map((m) => m[2]);
+  if (!out.length) console.warn("⚠️ No story: fields found in app.js FLIGHTS — the story writer gets no style examples.");
+  return out;
 }
 
 // Writes Flight N's headline + story using Claude, in the same voice
@@ -197,7 +202,8 @@ async function main() {
     };
     const appJsText = fs.readFileSync(APP_JS_PATH, "utf8");
     const styleExamples = recentStories(appJsText, 2);
-    console.log("Style reference pulled from app.js:", styleExamples);
+    console.log(`Style reference pulled from app.js: ${styleExamples.length} example(s)`);
+    styleExamples.forEach((st, i) => console.log(`  ${i + 1}. ${st.slice(0, 120)}…`));
 
     const { headline, story } = await writeStory({ ...testFacts, styleExamples });
     console.log("\nGenerated headline:", headline);
