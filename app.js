@@ -653,11 +653,8 @@ function AboutPanel({ open, onClose, onManageNotifications }) {
 
   return (
     <>
-      <div className={`scrim${open ? " show" : ""}`} onClick={onClose} />
+      <div className={`scrim${open ? " show" : ""}`} onClick={onClose} role="button" aria-label="Close menu" />
       <aside className={`about${open ? " show" : ""}`} aria-label="About">
-        <button className="round-btn" onClick={onClose} aria-label="Close about">
-          <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
-        </button>
         <h2>About</h2>
         <p>A personal log of every Starship flight. No ads, no tracking.</p>
         <dl>
@@ -670,7 +667,7 @@ function AboutPanel({ open, onClose, onManageNotifications }) {
         <dl>
           <dt>Notifications</dt><dd><button className="notify-manage-btn" onClick={onManageNotifications}>Manage notifications</button></dd>
         </dl>
-        <p className="about-foot">Version 1.6</p>
+        <p className="about-foot">Version 2</p>
       </aside>
     </>
   );
@@ -847,6 +844,7 @@ function Lightbox({ src, alt, onClose }) {
 /* ───────────── app ───────────── */
 
 // ---- Road to Flight 15 (PROTOTYPE, hand-typed data, checked 7 Oct 2026 17:33 London) ----
+// status: "none" (Not started, dotted) | "pending" / "progress" (outline) | "done" (filled; label is doneText, e.g. "Confirmed", else "Done")
 const ROAD_F15 = [
   { id: "cryo", icon: "❄️", name: "Cryo tests", color: "#BFE6FF", status: "done", statusText: "Done",
     latest: "Both B22 and S42 have passed cryo testing",
@@ -868,18 +866,20 @@ const ROAD_F15 = [
       { date: "7 Oct", text: "Still no static fire reported.", src: "Tracker check" },
       { date: "30 Sep", text: "B22 ready for static fire within ~2 weeks, S42 within 2–3 weeks. Estimate, not a SpaceX schedule.", src: "NSF" },
     ] },
+  { id: "pad", icon: "🏗️", name: "Pad activity", color: "#A88BFF", status: "progress", statusText: "In progress",
+    latest: "Pad 2 being serviced after Flight 14, no F15 rollout yet",
+    history: [
+      { date: "7 Oct", text: "No rollout or stacking of B22/S42 reported yet.", src: "Tracker check" },
+      { date: "30 Sep", text: "Pad 2 clear after Flight 14. New servicing structure going in for hold-down clamp work.", src: "NSF" },
+      { date: "11–12 Sep", text: "S42 lifted by Pad 2 chopsticks in a catch position. SQD arm connect tests.", src: "NSF" },
+    ] },
   { id: "faa", icon: "📜", name: "FAA licence", color: "#2FD3B0", status: "pending", statusText: "Pending",
     latest: "26 Sep licence covers Flight 14 only, no F15 change yet",
     history: [
       { date: "7 Oct", text: "No Flight 15 licence modification reported.", src: "Tracker check" },
       { date: "26 Sep", text: "FAA licence issued for Flight 14 only. F15 needs a modification.", src: "FAA via NSF" },
     ] },
-  { id: "rollout", icon: "🏗️", name: "Rollout & stacking", color: "#A88BFF", status: "none", statusText: "Not started",
-    latest: "No update yet",
-    history: [
-      { date: "7 Oct", text: "No rollout to Pad 2 or stacking reported.", src: "Tracker check" },
-    ] },
-  { id: "date", icon: "🗓️", name: "Launch date", color: "#FFC93D", status: "pending", statusText: "Pending",
+  { id: "date", icon: "🗓️", name: "Launch date", color: "#FFC93D", status: "pending", statusText: "Pending", doneText: "Confirmed",
     latest: "No SpaceX date. NET 19 Oct is only a provisional figure",
     history: [
       { date: "7 Oct", text: "SpaceX has still not announced a date.", src: "Tracker check" },
@@ -891,13 +891,14 @@ const ROAD_F15 = [
 function RoadToF15() {
   const [main, setMain] = React.useState(false);
   const [open, setOpen] = React.useState(null);
-  const done = ROAD_F15.filter((m) => m.status === "done").length;
+  const done = ROAD_F15.filter((m) => m.status === "done").length; // Done + Confirmed
+  const label = (m) => (m.status === "done" ? m.doneText || "Done" : m.statusText);
   return (
     <section className={"road" + (main ? " main-open" : "")} aria-label="Road to Flight 15">
       <button className="road-head" aria-expanded={main} onClick={() => { setMain(!main); setOpen(null); }}>
         <span className="road-title"><h2>Road to Flight 15</h2><span className="road-upd">Updated 7 Oct</span></span>
         <span className="road-sum">
-          <span className="road-dots">{ROAD_F15.map((m) => <i key={m.id} className={"dot dot-" + m.status} style={{ "--c": m.color }} title={m.name + ": " + m.statusText} />)}</span>
+          <span className="road-dots">{ROAD_F15.map((m) => <i key={m.id} className={"dot dot-" + m.status} style={{ "--c": m.color }} title={m.name + ": " + label(m)} aria-label={m.name + ": " + label(m)} role="img" />)}</span>
           <span className="road-count">{done} of {ROAD_F15.length} done</span>
           <svg className="road-chev" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5l4 4 4-4" stroke="currentColor" strokeWidth="1.6" fill="none" strokeLinecap="round" /></svg>
         </span>
@@ -913,7 +914,7 @@ function RoadToF15() {
                 <span className="callout-name">{m.name}</span>
                 <span className="callout-latest">{m.latest}</span>
               </span>
-              <span className={"badge badge-" + m.status}>{m.statusText}</span>
+              <span className={"badge badge-" + m.status}>{label(m)}</span>
             </button>
             <div className="callout-hist"><div className="callout-hist-inner">
               {m.history.map((h, i) => (
@@ -1237,7 +1238,7 @@ a.watch-badge-live:active { transform: scale(.96); }
 
 /* about panel */
 .scrim { position: fixed; inset: 0; z-index: 20; background: rgba(8,12,24,.55); opacity: 0; pointer-events: none; transition: opacity .3s; }
-.scrim.show { opacity: 1; pointer-events: auto; }
+.scrim.show { opacity: 1; pointer-events: auto; cursor: pointer; touch-action: none; -webkit-tap-highlight-color: transparent; } /* cursor:pointer makes iOS Safari fire the tap */
 .about {
   position: fixed; top: 0; bottom: 0; left: 0; z-index: 21; width: min(84vw, 340px); overflow-y: auto;
   padding: 18px 22px calc(28px + env(safe-area-inset-bottom)); background: #202A42; border-right: 1px solid rgba(255,255,255,.06);
@@ -1246,7 +1247,7 @@ a.watch-badge-live:active { transform: scale(.96); }
   transition: transform .4s cubic-bezier(.2,.75,.2,1), visibility 0s .4s;
 }
 .about.show { transform: none; visibility: visible; transition: transform .4s cubic-bezier(.2,.75,.2,1); }
-.about h2 { font-size: 20px; font-weight: 600; margin: 26px 0 8px; }
+.about h2 { font-size: 20px; font-weight: 600; margin: 14px 0 8px; }
 .about p { font-size: 14px; line-height: 1.6; color: #C9D2E6; margin: 0; }
 .about dl { margin: 8px 0 0; }
 .about dt { font-size: 12.5px; color: var(--faint); margin-top: 18px; }
@@ -1317,11 +1318,9 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .road-upd { font-size: 12px; color: var(--faint); }
 .road-sum { display: flex; align-items: center; gap: 10px; margin-top: 10px; color: var(--muted); font-size: 13px; }
 .road-dots { display: flex; gap: 6px; }
-.dot { width: 10px; height: 10px; border-radius: 50%; display: block; border: 1.5px solid var(--c); }
-.dot-done, .dot-progress { background: var(--c); }
-.dot-progress { opacity: .75; }
-.dot-pending { background: color-mix(in srgb, var(--c) 25%, transparent); }
-.dot-none { border-style: dashed; opacity: .7; }
+.dot { width: 11px; height: 11px; border-radius: 50%; display: block; border: 1.5px solid var(--c); background: transparent; } /* outline = pending / in progress */
+.dot-none { border: 2px dotted var(--c); } /* dotted = not started */
+.dot-done { background: var(--c); } /* filled = done / confirmed */
 .road-count { flex: 1; }
 .road-chev { transition: transform .35s; }
 .main-open .road-chev { transform: rotate(180deg); }
@@ -1345,10 +1344,9 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .callout-name { display: block; font-weight: 700; font-size: 15px; color: var(--c); }
 .callout-latest { display: block; font-size: 13px; color: var(--text); opacity: .85; margin-top: 3px; line-height: 1.35; }
 .badge { font-size: 11px; font-weight: 700; padding: 4px 9px; border-radius: 999px; white-space: nowrap; letter-spacing: .02em; }
-.badge-done { background: rgba(80,220,140,.18); color: #7DF0AE; border: 1px solid rgba(80,220,140,.35); }
-.badge-progress { background: color-mix(in srgb, var(--c) 22%, transparent); color: var(--c); border: 1px solid color-mix(in srgb, var(--c) 45%, transparent); }
-.badge-pending { background: rgba(255,255,255,.08); color: #D5DCEB; border: 1px solid rgba(255,255,255,.18); }
-.badge-none { background: transparent; color: var(--muted); border: 1px dashed rgba(255,255,255,.25); }
+.badge-done { background: var(--c); color: #141B2D; border: 1px solid var(--c); } /* filled = done / confirmed */
+.badge-progress, .badge-pending { background: transparent; color: var(--c); border: 1px solid color-mix(in srgb, var(--c) 70%, transparent); } /* outline */
+.badge-none { background: transparent; color: var(--c); border: 1.5px dotted var(--c); opacity: .9; } /* dotted = not started */
 .callout-hist { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .45s cubic-bezier(.2,.8,.2,1); }
 .callout.open .callout-hist { grid-template-rows: 1fr; }
 .callout-hist-inner { overflow: hidden; padding: 0 14px 0 30px; position: relative; }
