@@ -10,8 +10,9 @@
         recent flights in app.js as a style reference)
      2. Adds the new flight into app.js's FLIGHTS list itself
      3. Commits and pushes that change straight to the repo
-   Photo and highlight-video stay untouched — Bernardo adds those by
-   hand later. Once the "next flight" the live feed reports moves on
+   Photos are picked up by filename; the highlights field is added
+   empty (the card shows "Highlights coming soon") — Bernardo pastes
+   the video link in by hand later. Once the "next flight" the live feed reports moves on
    to the new number, the existing notification logic below already
    announces that on its own — no extra code needed for that part.
 
@@ -56,6 +57,28 @@ function fmtDateTime(iso) {
   return `${day} ${month} ${time}`;
 }
 
+// LL2 only counts a time as real when its precision is second, minute or hour.
+// Anything rougher (day, week, month, quarter, year...) is still an estimate.
+function isExactTime(precision) {
+  return precision === "SEC" || precision === "MIN" || precision === "HR";
+}
+
+// e.g. "19 Oct" for a day estimate, "Oct 2026" for a month/quarter/year one
+function fmtEstimate(iso, precision) {
+  if (isExactTime(precision)) return fmtDateTime(iso);
+  const d = new Date(iso);
+  if (!precision || precision === "DAY" || precision === "AM" || precision === "PM" || precision === "WK") {
+    const day = Number(d.toLocaleString("en-GB", { day: "numeric", timeZone: "UTC" }));
+    const month = d.toLocaleString("en-GB", { month: "short", timeZone: "UTC" });
+    return `${day} ${month}`;
+  }
+  let m = d.getUTCMonth();
+  if (/^Q[1-4]$/.test(precision || "")) m = (Number(precision[1]) - 1) * 3;
+  else if (precision === "H1" || precision === "Y") m = 0;
+  else if (precision === "H2") m = 6;
+  return new Date(Date.UTC(d.getUTCFullYear(), m, 1)).toLocaleString("en-GB", { month: "short", year: "numeric", timeZone: "UTC" });
+}
+
 // Pulls the last N `story:` blocks out of app.js as-is, just to give
 // Claude a feel for the voice — not a full parse, doesn't need to be.
 function recentStories(appJsText, count) {
@@ -78,6 +101,8 @@ Facts:
 - Pre-launch mission plan (written BEFORE the flight): ${missionDescription || "(none available)"}
 
 IMPORTANT: the mission plan above describes what SpaceX INTENDED to do, not what actually happened. Flights are often cut short or changed mid-mission. Do NOT state any planned detail (number of orbits, flight duration, splashdown location, etc.) as if it happened. Only state as fact the outcome and vehicle details listed above. If you are unsure whether something happened, leave it out and keep the recap short and general.
+
+Wording rule: satellites and other payloads are always "deployed" (e.g. "deployed all 26 Starlink V3 satellites"), never "released".
 
 Match this exact voice — plain, factual, past tense, 2–4 sentences, no hype or marketing language, no emoji. Here are the two most recent entries as a style reference:
 ${styleExamples.map((s, i) => `Example ${i + 1}: ${s}`).join("\n")}
@@ -121,6 +146,7 @@ function addFlightToAppJs(appJsText, flight) {
     `  { n: ${flight.n}, date: "${flight.date}", pad: "${flight.pad}", block: "${flight.block}", ` +
     `booster: "${flight.booster}", ship: "${flight.ship}", outcome: "${flight.outcome}",\n` +
     `    headline: "${flight.headline.replace(/"/g, '\\"')}",\n` +
+    `    highlights: "",\n` +
     `    story: "${flight.story.replace(/"/g, '\\"')}" },\n`;
 
   const startIdx = appJsText.indexOf("const FLIGHTS = [");
@@ -138,6 +164,25 @@ function commitAndPush(flightN, label) {
   execSync(`git add app.js`);
   execSync(`git commit -m "Auto: log Flight ${flightN} (${label})"`);
   execSync(`git push`);
+}
+
+
+// Fetch with a 20s timeout and up to 3 tries, so one slow or
+// rate-limited reply from the free launch API doesn't fail the run.
+async function fetchJson(url) {
+  let lastErr;
+  for (let i = 1; i <= 3; i++) {
+    try {
+      const r = await fetch(url, { signal: AbortSignal.timeout(20000) });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return await r.json();
+    } catch (err) {
+      lastErr = err;
+      console.log(`Try ${i} failed for ${url}: ${err.message}`);
+      if (i < 3) await new Promise((ok) => setTimeout(ok, 5000 * i));
+    }
+  }
+  throw lastErr;
 }
 
 async function main() {
@@ -171,8 +216,13 @@ async function main() {
   const db = admin.firestore();
 
   // 1. Get the real, current next-flight data (same source app.js uses)
-  const res = await fetch(LL2_ENDPOINT);
-  const json = await res.json();
+  let json;
+  try {
+    json = await fetchJson(LL2_ENDPOINT);
+  } catch (err) {
+    console.log("Launch data unavailable right now — skipping this run, will retry in 15 min.");
+    return;
+  }
   const launch = json.results?.[0];
   if (!launch) { console.log("No upcoming launch found — nothing to check."); return; }
 
@@ -181,6 +231,7 @@ async function main() {
     n: match ? Number(match[1]) : null,
     status: mapLL2Status(launch.status?.abbrev),
     date: launch.net,
+    precision: launch.net_precision?.abbrev || "",
     outcome: mapOutcome(launch.status?.abbrev),
   };
 
@@ -203,8 +254,7 @@ async function main() {
   if (current.outcome && prev.storyWrittenFor !== current.n) {
     console.log(`Flight ${current.n} result confirmed (${current.outcome}) — writing its story.`);
     try {
-      const detailRes = await fetch(launch.url);
-      const full = await detailRes.json();
+      const full = await fetchJson(launch.url);
       const flightData = {
         n: current.n,
         outcome: current.outcome,
@@ -242,9 +292,13 @@ async function main() {
   if (!notification) {
     if (prev.date !== current.date) {
       const delayed = new Date(current.date) > new Date(prev.date);
+      // Earlier date: only say "confirmed" when LL2 has an exact time.
+      // A rough date (e.g. NET 19 Oct, no time yet) is just a new estimate.
       notification = delayed
         ? { title: "🚧 Launch delayed", body: `Now ${fmtDateTime(current.date)}` }
-        : { title: "✅ Launch time confirmed", body: fmtDateTime(current.date) };
+        : isExactTime(current.precision)
+          ? { title: "✅ Launch time confirmed", body: fmtDateTime(current.date) }
+          : { title: "📅 New estimated date", body: `NET ${fmtEstimate(current.date, current.precision)}` };
     } else if (prev.status !== current.status && current.status === "confirmed") {
       notification = { title: "✅ Launch time confirmed", body: fmtDateTime(current.date) };
     } else if (prev.status !== current.status) {
