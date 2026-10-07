@@ -6,12 +6,17 @@ on:
   workflow_dispatch:          # adds a "Run workflow" button for manual testing
     inputs:
       test_mode:
-        description: "Dry-run the story writer (no commit, no push, no notifications sent)"
+        description: "Dry-run both checkers (real sources + Claude, but no commit, no push, no notifications sent)"
         type: boolean
         default: false
 
 permissions:
-  contents: write   # needed so the checker can commit + push app.js when a flight completes
+  contents: write   # needed so the checkers can commit + push app.js / road.json
+
+# never let two runs overlap (both could try to push at once)
+concurrency:
+  group: flight-checker
+  cancel-in-progress: false
 
 jobs:
   check:
@@ -26,4 +31,13 @@ jobs:
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          TEST_MODE: ${{ inputs.test_mode }}
+      # Road to Flight N card. Runs even if the step above failed.
+      # TEMP: only on manual test runs until Bernardo OKs going live (then drop "&& inputs.test_mode").
+      - run: node scripts/check-road.js
+        if: ${{ !cancelled() && inputs.test_mode }}
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          X_BEARER_TOKEN: ${{ secrets.X_BEARER_TOKEN }}   # optional: leave unset to skip X
           TEST_MODE: ${{ inputs.test_mode }}
