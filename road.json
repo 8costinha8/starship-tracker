@@ -1,0 +1,60 @@
+{
+  "flight": 15,
+  "vehicles": ["B22", "S42"],
+  "updated": "7 Oct",
+  "updatedAt": "2026-10-07T16:33:00Z",
+  "categories": [
+    {
+      "id": "cryo", "icon": "❄️", "name": "Cryo tests", "color": "#BFE6FF", "status": "done",
+      "latest": "Both B22 and S42 have passed cryo testing",
+      "history": [
+        { "date": "9–10 Sep", "text": "Booster 22 cryo tests at Massey's.", "src": "Next Spaceflight", "source": "next-spaceflight", "trust": "trusted" },
+        { "date": "9 Sep", "text": "Ship 42 heads back to Massey's for further cryo testing.", "src": "NSF (secondary)", "source": "nsf", "trust": "trusted" },
+        { "date": "3–4 Sep", "text": "Ship 42 completes two cryo proof tests at Massey's.", "src": "Next Spaceflight", "source": "next-spaceflight", "trust": "trusted" }
+      ]
+    },
+    {
+      "id": "raptor", "icon": "🔥", "name": "Raptor engines", "color": "#FF9A3D", "status": "progress",
+      "latest": "Engines still being fitted, no report of completion yet",
+      "history": [
+        { "date": "7 Oct", "text": "No report yet of Raptor installs finishing.", "src": "Tracker check", "source": "manual-check", "trust": "trusted" },
+        { "date": "30 Sep", "text": "B22 in Mega Bay 1, S42 in Mega Bay 2, both being fitted with Raptors.", "src": "NSF", "source": "nsf", "trust": "trusted" },
+        { "date": "12–13 Sep", "text": "Both vehicles back to the Mega Bays for Raptor installation.", "src": "NSF", "source": "nsf", "trust": "trusted" }
+      ]
+    },
+    {
+      "id": "static", "icon": "💥", "name": "Static fires", "color": "#FF5A36", "status": "pending",
+      "latest": "No static fire reported for B22 or S42",
+      "history": [
+        { "date": "7 Oct", "text": "Still no static fire reported.", "src": "Tracker check", "source": "manual-check", "trust": "trusted" },
+        { "date": "30 Sep", "text": "B22 ready for static fire within ~2 weeks, S42 within 2–3 weeks. Estimate, not a SpaceX schedule.", "src": "NSF", "source": "nsf", "trust": "trusted" }
+      ]
+    },
+    {
+      "id": "pad", "icon": "🏗️", "name": "Pad activity", "color": "#A88BFF", "status": "progress",
+      "latest": "Pad 2 being serviced after Flight 14, no F15 rollout yet",
+      "history": [
+        { "date": "7 Oct", "text": "No rollout or stacking of B22/S42 reported yet.", "src": "Tracker check", "source": "manual-check", "trust": "trusted" },
+        { "date": "30 Sep", "text": "Pad 2 clear after Flight 14. New servicing structure going in for hold-down clamp work.", "src": "NSF", "source": "nsf", "trust": "trusted" },
+        { "date": "11–12 Sep", "text": "S42 lifted by Pad 2 chopsticks in a catch position. SQD arm connect tests.", "src": "NSF", "source": "nsf", "trust": "trusted" }
+      ]
+    },
+    {
+      "id": "faa", "icon": "📜", "name": "FAA licence", "color": "#2FD3B0", "status": "pending",
+      "latest": "26 Sep licence covers Flight 14 only, no F15 change yet",
+      "history": [
+        { "date": "7 Oct", "text": "No Flight 15 licence modification reported.", "src": "Tracker check", "source": "manual-check", "trust": "trusted" },
+        { "date": "26 Sep", "text": "FAA licence issued for Flight 14 only. F15 needs a modification.", "src": "FAA via NSF", "source": "faa-via-nsf", "trust": "trusted" }
+      ]
+    },
+    {
+      "id": "date", "icon": "🗓️", "name": "Launch date", "color": "#FFC93D", "status": "pending", "doneText": "Confirmed",
+      "latest": "No SpaceX date. NET 19 Oct is only a provisional figure",
+      "history": [
+        { "date": "7 Oct", "text": "SpaceX has still not announced a date.", "src": "Tracker check", "source": "manual-check", "trust": "trusted" },
+        { "date": "30 Sep", "text": "B22 and S42 could be flight-ready by end of October.", "src": "NSF estimate", "source": "nsf", "trust": "trusted" },
+        { "date": "24 Sep", "text": "Air-traffic slide shows NET 19 Oct, labelled \"super provisional\".", "src": "NSF (unofficial)", "source": "nsf", "trust": "trusted" }
+      ]
+    }
+  ]
+}

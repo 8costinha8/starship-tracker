@@ -843,68 +843,57 @@ function Lightbox({ src, alt, onClose }) {
 
 /* ───────────── app ───────────── */
 
-// ---- Road to Flight 15 (PROTOTYPE, hand-typed data, checked 7 Oct 2026 17:33 London) ----
+// ---- Road to Flight N ----
+// The data lives in road.json (same folder). scripts/check-road.js keeps it up
+// to date on its own; this card just shows whatever is in that file.
 // status: "none" (Not started, dotted) | "pending" / "progress" (outline) | "done" (filled; label is doneText, e.g. "Confirmed", else "Done")
-const ROAD_F15 = [
-  { id: "cryo", icon: "❄️", name: "Cryo tests", color: "#BFE6FF", status: "done", statusText: "Done",
-    latest: "Both B22 and S42 have passed cryo testing",
-    history: [
-      { date: "9–10 Sep", text: "Booster 22 cryo tests at Massey's.", src: "Next Spaceflight" },
-      { date: "9 Sep", text: "Ship 42 heads back to Massey's for further cryo testing.", src: "NSF (secondary)" },
-      { date: "3–4 Sep", text: "Ship 42 completes two cryo proof tests at Massey's.", src: "Next Spaceflight" },
-    ] },
-  { id: "raptor", icon: "🔥", name: "Raptor engines", color: "#FF9A3D", status: "progress", statusText: "In progress",
-    latest: "Engines still being fitted, no report of completion yet",
-    history: [
-      { date: "7 Oct", text: "No report yet of Raptor installs finishing.", src: "Tracker check" },
-      { date: "30 Sep", text: "B22 in Mega Bay 1, S42 in Mega Bay 2, both being fitted with Raptors.", src: "NSF" },
-      { date: "12–13 Sep", text: "Both vehicles back to the Mega Bays for Raptor installation.", src: "NSF" },
-    ] },
-  { id: "static", icon: "💥", name: "Static fires", color: "#FF5A36", status: "pending", statusText: "Pending",
-    latest: "No static fire reported for B22 or S42",
-    history: [
-      { date: "7 Oct", text: "Still no static fire reported.", src: "Tracker check" },
-      { date: "30 Sep", text: "B22 ready for static fire within ~2 weeks, S42 within 2–3 weeks. Estimate, not a SpaceX schedule.", src: "NSF" },
-    ] },
-  { id: "pad", icon: "🏗️", name: "Pad activity", color: "#A88BFF", status: "progress", statusText: "In progress",
-    latest: "Pad 2 being serviced after Flight 14, no F15 rollout yet",
-    history: [
-      { date: "7 Oct", text: "No rollout or stacking of B22/S42 reported yet.", src: "Tracker check" },
-      { date: "30 Sep", text: "Pad 2 clear after Flight 14. New servicing structure going in for hold-down clamp work.", src: "NSF" },
-      { date: "11–12 Sep", text: "S42 lifted by Pad 2 chopsticks in a catch position. SQD arm connect tests.", src: "NSF" },
-    ] },
-  { id: "faa", icon: "📜", name: "FAA licence", color: "#2FD3B0", status: "pending", statusText: "Pending",
-    latest: "26 Sep licence covers Flight 14 only, no F15 change yet",
-    history: [
-      { date: "7 Oct", text: "No Flight 15 licence modification reported.", src: "Tracker check" },
-      { date: "26 Sep", text: "FAA licence issued for Flight 14 only. F15 needs a modification.", src: "FAA via NSF" },
-    ] },
-  { id: "date", icon: "🗓️", name: "Launch date", color: "#FFC93D", status: "pending", statusText: "Pending", doneText: "Confirmed",
-    latest: "No SpaceX date. NET 19 Oct is only a provisional figure",
-    history: [
-      { date: "7 Oct", text: "SpaceX has still not announced a date.", src: "Tracker check" },
-      { date: "30 Sep", text: "B22 and S42 could be flight-ready by end of October.", src: "NSF estimate" },
-      { date: "24 Sep", text: "Air-traffic slide shows NET 19 Oct, labelled \"super provisional\".", src: "NSF (unofficial)" },
-    ] },
-];
+// An entry with trust: "unconfirmed" gets a small "Unconfirmed" tag.
+const ROAD_URL = "road.json";
+const ROAD_CACHE_KEY = "starship-road-cache-v1";
+const ROAD_STATUS_TEXT = { none: "Not started", pending: "Pending", progress: "In progress", done: "Done" };
 
-function RoadToF15() {
+// Shows the last copy we saw straight away (no flicker on reopen), then
+// fetches a fresh one, skipping the browser cache, and swaps it in.
+function useRoad() {
+  const [road, setRoad] = React.useState(() => {
+    try { return JSON.parse(localStorage.getItem(ROAD_CACHE_KEY)) || null; } catch { return null; }
+  });
+  React.useEffect(() => {
+    let alive = true;
+    fetch(`${ROAD_URL}?t=${Date.now()}`, { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (!alive || !data || !Array.isArray(data.categories)) return;
+        setRoad(data);
+        try { localStorage.setItem(ROAD_CACHE_KEY, JSON.stringify(data)); } catch {}
+      })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, []);
+  return road;
+}
+
+function RoadCard() {
+  const road = useRoad();
   const [main, setMain] = React.useState(false);
   const [open, setOpen] = React.useState(null);
-  const done = ROAD_F15.filter((m) => m.status === "done").length; // Done + Confirmed
-  const label = (m) => (m.status === "done" ? m.doneText || "Done" : m.statusText);
+  if (!road || !road.categories.length) return null;
+  const items = road.categories;
+  const title = `Road to Flight ${road.flight}`;
+  const done = items.filter((m) => m.status === "done").length; // Done + Confirmed
+  const label = (m) => (m.status === "done" ? m.doneText || "Done" : ROAD_STATUS_TEXT[m.status] || m.status);
   return (
-    <section className={"road" + (main ? " main-open" : "")} aria-label="Road to Flight 15">
+    <section className={"road" + (main ? " main-open" : "")} aria-label={title}>
       <button className="road-head" aria-expanded={main} onClick={() => { setMain(!main); setOpen(null); }}>
-        <span className="road-title"><h2>Road to Flight 15</h2><span className="road-upd">Updated 7 Oct</span></span>
+        <span className="road-title"><h2>{title}</h2>{road.updated && <span className="road-upd">{`Updated ${road.updated}`}</span>}</span>
         <span className="road-sum">
-          <span className="road-dots">{ROAD_F15.map((m) => <i key={m.id} className={"dot dot-" + m.status} style={{ "--c": m.color }} title={m.name + ": " + label(m)} aria-label={m.name + ": " + label(m)} role="img" />)}</span>
-          <span className="road-count">{done} of {ROAD_F15.length} done</span>
+          <span className="road-dots">{items.map((m) => <i key={m.id} className={"dot dot-" + m.status} style={{ "--c": m.color }} title={m.name + ": " + label(m)} aria-label={m.name + ": " + label(m)} role="img" />)}</span>
+          <span className="road-count">{done} of {items.length} done</span>
           <svg className="road-chev" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5l4 4 4-4" stroke="currentColor" strokeWidth="1.6" fill="none" strokeLinecap="round" /></svg>
         </span>
       </button>
       <div className="road-list"><div className="road-list-inner">
-      {ROAD_F15.map((m) => {
+      {items.map((m) => {
         const isOpen = open === m.id;
         return (
           <div key={m.id} className={"callout" + (isOpen ? " open" : "")} style={{ "--c": m.color }} data-id={m.id}>
@@ -917,9 +906,12 @@ function RoadToF15() {
               <span className={"badge badge-" + m.status}>{label(m)}</span>
             </button>
             <div className="callout-hist"><div className="callout-hist-inner">
-              {m.history.map((h, i) => (
+              {(m.history || []).map((h, i) => (
                 <div className="mini" key={i}>
-                  <div className="mini-top"><span className="mini-date">{h.date}</span><span className="mini-src">{h.src}</span></div>
+                  <div className="mini-top">
+                    <span className="mini-date">{h.date}{h.trust === "unconfirmed" && <span className="mini-unc">Unconfirmed</span>}</span>
+                    <span className="mini-src">{h.src}</span>
+                  </div>
                   <p>{h.text}</p>
                 </div>
               ))}
@@ -1062,7 +1054,7 @@ function StarshipTracker() {
         </header>
 
         <NextFlightCard f={nextFlight} now={now} />
-        <RoadToF15 />
+        <RoadCard />
         <Connector dashed label={`${daysSinceLatest} days since the last flight`} />
 
         {flights.map((f, i) => (
@@ -1306,7 +1298,7 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 @media (prefers-reduced-motion: reduce) {
   .st *, .st *::before, .st *::after { transition: none !important; animation: none !important; }
 }
-/* road to flight 15 (prototype) */
+/* road to flight N (data in road.json) */
 .road {
   margin: 18px 0 6px; border-radius: 22px; background: var(--card); border: 1px solid rgba(170,190,245,.14);
   box-shadow: 0 18px 40px -28px rgba(8,12,28,.9);
@@ -1358,6 +1350,7 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .mini-date { font-size: 12px; font-weight: 700; color: var(--c); }
 .mini-src { font-size: 10.5px; color: var(--muted); background: rgba(255,255,255,.07); padding: 2px 7px; border-radius: 6px; }
 .mini p { margin: 4px 0 0; font-size: 13px; line-height: 1.4; }
+.mini-unc { margin-left: 7px; font-size: 10px; font-weight: 700; letter-spacing: .02em; color: #FFC93D; border: 1px dashed rgba(255,201,61,.65); padding: 1px 6px; border-radius: 6px; vertical-align: 1px; } /* single smaller source: never shown as fact */
 `;
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
