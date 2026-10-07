@@ -179,6 +179,32 @@ const box = (r, id) => r.categories.find((c) => c.id === id);
   let threw = false; try { road.validateRoad({ flight: 15, categories: [] }); } catch { threw = true; }
   check(threw, "a broken road.json is refused before saving");
 
+  // video chapters: timestamps dropped, chapter titles kept, boilerplate still cut
+  const desc = "Ship 43 continues preparations. ⚡ Become a member of NSF's channel. Timestamps: 0:00 Starbase Summary 0:37 Pad 2 Dancefloor Installed 1:28 Pad 2 Chopstick Actuator Removed 6:22 Ship 43 in Mega Bay 2 LDAPAABJRG2UMCU3";
+  const strip = road.stripBoilerplate(desc);
+  check(/Chapter: Pad 2 Dancefloor Installed\./.test(strip) && /Chapter: Starbase Summary\./.test(strip) && /Chapter: Ship 43 in Mega Bay 2\./.test(strip) && !/\d:\d\d|Become a member|LDAPA/.test(strip), "video chapters kept without timestamps, boilerplate cut");
+  check(road.stripBoilerplate("Booster 22 rolled out at 10:30 today.") === "Booster 22 rolled out at 10:30 today.", "a lone time in normal text is left alone");
+
+  // history: newest first by date (incl. "9–10 Sep" ranges), stable on ties
+  const now = new Date("2026-10-07T18:00:00Z");
+  const hist = road.sortHistory([
+    { date: "5 Oct", text: "a", at: "2026-10-05T00:32:46Z" }, { date: "7 Oct", text: "b" }, { date: "9–10 Sep", text: "c" },
+    { date: "30 Sep", text: "d" }, { date: "7 Oct", text: "e", at: "2026-10-07T09:00:00Z" }, { date: "28 Dec", text: "f" }, { date: "??", text: "g" },
+  ], now).map((h) => h.text).join("");
+  check(hist === "beadcfg", `history sorted newest first, ties keep order, "28 Dec" = last year, undated last (got ${hist})`);
+
+  // headline: kept unless Claude says it supersedes, or the status moves
+  const hr = road.freshRoad(15);
+  const hpad = hr.categories.find((c) => c.id === "pad");
+  hpad.status = "progress"; hpad.latest = "Pad 2 being serviced";
+  const items = [1, 2, 3].map((n) => ({ key: `k${n}`, title: `t${n}`, src: "NSF", source: "nsf", tier: "trusted", publishedAt: ago(n) }));
+  road.applyUpdates(hr, items, [{ item: 1, box: "pad", line: "Flight 15 will launch from Starbase.", short: "Flight 15 from Starbase", status: null, supersedes: false }], () => {}, 5);
+  check(hpad.latest === "Pad 2 being serviced", "new fact without supersedes → headline kept");
+  road.applyUpdates(hr, items, [{ item: 2, box: "pad", line: "Pad 2 servicing finished.", short: "Pad 2 servicing finished", status: null, supersedes: true }], () => {}, 5);
+  check(hpad.latest === "Pad 2 servicing finished", "supersedes: true → headline replaced");
+  road.applyUpdates(hr, items, [{ item: 3, box: "pad", line: "Ship 42 rolled to Pad 2.", short: "S42 at Pad 2", status: "done" }], () => {}, 5);
+  check(hpad.latest === "S42 at Pad 2" && hpad.status === "done", "status change → headline replaced");
+
   console.log(`\nClaude called ${calls.claude}x, X search called ${calls.x}x (all fake).`);
   console.log(failed ? `\n❌ ${failed} check(s) failed` : "\n✅ All checks passed. (Dry run only — nothing real was saved, committed or sent.)");
   process.exit(failed ? 1 : 0);

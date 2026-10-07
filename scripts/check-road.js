@@ -174,12 +174,29 @@ function toIso(s) {
 
 // Drops YouTube/RSS boilerplate (links, hashtags, licensing, sponsor lists)
 // so it can't make an off-topic post look like Starship news.
+// YouTube chapter lists ("0:37 Pad 2 Dancefloor Installed 1:07 ...") become
+// "Chapter: Pad 2 Dancefloor Installed." sentences, timestamps dropped.
+const TS = /(?:^|\s)\d{1,2}:\d{2}(?::\d{2})?(?=\s)/g;
+function videoChapters(text) {
+  const t = String(text || "");
+  const start = t.search(/(?:Timestamps|Chapters)\s*:|(?:^|\s)0:00\s/i);
+  if (start < 0) return "";
+  let seg = t.slice(start).replace(/^\s*(?:Timestamps|Chapters)\s*:/i, " ");
+  const end = seg.search(/LDAPAABJRG2UMCU3|Licensed via|If you are interested in using footage|All content copyright|https?:\/\//i);
+  if (end >= 0) seg = seg.slice(0, end);
+  if ((seg.match(TS) || []).length < 2) return "";
+  return seg.split(TS).slice(1).map((c) => c.replace(/\s+/g, " ").trim()).filter((c) => c && c.length <= 80).slice(0, 25)
+    .map((c) => `Chapter: ${c.replace(/[.\s]+$/, "")}.`).join(" ");
+}
+
 function stripBoilerplate(text) {
+  const chapters = videoChapters(text);
   let t = String(text || "")
     .replace(/The post .{0,200}? appeared first on [^.]*\.?/gi, " ")
     .replace(/See Also .{0,300}?Click here to Join L2/gi, " ");
   const cut = t.search(/Licensed via|LDAPAABJRG2UMCU3|If you are interested in using footage|All content copyright|All images are explicitly owned|If you would like to get involved|Join L2 and support|Timestamps:|Support us on Patreon|Become a member of|NSF Store:|Thanks for watching/i);
   if (cut >= 0) t = t.slice(0, cut);
+  if (chapters) t = `${t} ${chapters}`;
   return t.replace(/https?:\/\/\S+/g, "").replace(/(^|\s)#\w+/g, " ").replace(/🔗|⚡|🔍|🎵/g, "").replace(/\s+/g, " ").trim();
 }
 
@@ -360,12 +377,12 @@ const SOURCES = [
 function buildPrompt(road, items) {
   const v = road.vehicles && road.vehicles.length ? road.vehicles.join(" and ") : "not yet known";
   const hint = { date: " (done = SpaceX has announced the date)", pad: " (also launch site and pad assignment, and vehicle moves and locations: rollouts, rollbacks, stacking/destacking, which booster or ship is where)" };
-  const boxes = road.categories.map((c) => `- ${c.id} (${c.name}): ${c.status}${hint[c.id] || ""}`).join("\n");
+  const boxes = road.categories.map((c) => `- ${c.id} (${c.name}): ${c.status}${hint[c.id] || ""}. Headline: "${c.latest}"`).join("\n");
   const recent = road.categories.flatMap((c) => (c.history || []).slice(0, 3).map((h) => `- [${c.id}] ${h.date}: ${h.text}`)).join("\n");
   const list = items.map((it, i) => `${i + 1}. [${it.src}, ${fmtDay(it.publishedAt)}] ${it.title} — ${it.text}`).join("\n");
   return `You simplify Starship news into one-line updates for a small box in a tracker app called "Road to Flight ${road.flight}" (vehicles: ${v}).
 
-Boxes and current status (none, pending, progress, done):
+Boxes, current status (none, pending, progress, done) and headline:
 ${boxes}
 
 Already in the boxes (don't repeat):
@@ -373,13 +390,14 @@ ${recent}
 
 For each item below, decide if it reports something concrete about Flight ${road.flight}'s vehicles, pad work, launch site, FAA licence or launch date. Most items won't; skip those.
 
-"line": simplify what the item says into one short plain sentence, max 100 characters. Only reword and shorten. Don't add facts, guesses, totals or numbers the item doesn't give, and no hype. British English. Payloads are "deployed", never "released".
+"line": simplify what the item says into one short plain sentence, max 100 characters. Only reword and shorten. No facts, framing or contrasts the item doesn't state (e.g. not "…, not Florida" when it only says a later flight may go there), no guesses, totals or numbers it doesn't give, and no hype. British English. Payloads are "deployed", never "released".
 "short": the same in 4-9 words, no full stop.
 "status": the status this item shows for that box, or null if it doesn't change it.
+"supersedes": true only if this clearly replaces the box's current headline (e.g. a later step of the same thing), otherwise false.
 "reason": why, in max 12 words. For each item you skip, add {"item": n, "skip": true, "reason": "..."}.${road.vehicles && road.vehicles.length ? "" : `
 If an item says which booster and ship will fly Flight ${road.flight}, also add {"item": n, "vehicles": ["B23", "S43"]}.`}
 
-Reply with ONLY a JSON array, one or more entries per item, e.g. [{"item": 1, "box": "static", "line": "...", "short": "...", "status": "progress", "reason": "..."}, {"item": 2, "skip": true, "reason": "about Flight 14, not ${road.flight}"}].
+Reply with ONLY a JSON array, one or more entries per item, e.g. [{"item": 1, "box": "static", "line": "...", "short": "...", "status": "progress", "supersedes": false, "reason": "..."}, {"item": 2, "skip": true, "reason": "about Flight 14, not ${road.flight}"}].
 
 Items:
 ${list}`;
@@ -493,14 +511,43 @@ function applyUpdates(road, items, updates, log, limit) {
         else if (box.id === "date" && want === "done" && it.tier !== "official") log(`BLOCKED [date] → Confirmed from ${it.src}: only SpaceX/FAA can confirm the date`);
         else { change.to = want; box.status = want; }
       }
+      // headline: keep it unless Claude says this supersedes it, the status moved, or it's still the placeholder
       const short = cleanLine(u.short, { fullStop: false });
-      if (short) box.latest = short;
-      log(`ADDED [${box.id}] ${line} (${it.src}, ${it.tier})${change.to !== change.from ? ` — status ${change.from} → ${change.to}` : ""}`);
+      const replace = u.supersedes === true || change.to !== change.from || !box.latest || box.latest === "Nothing reported yet";
+      if (short && replace) { box.latest = short; change.headline = "replaced"; } else change.headline = "kept";
+      log(`ADDED [${box.id}] ${line} (${it.src}, ${it.tier})${change.to !== change.from ? ` — status ${change.from} → ${change.to}` : ""} — headline ${change.headline}`);
     }
-    box.history = [entry, ...(box.history || [])].slice(0, LIMITS.historyPerBox);
+    box.history = sortHistory([entry, ...(box.history || [])]).slice(0, LIMITS.historyPerBox);
     changes.push(change);
   }
   return changes;
+}
+
+// Newest first. Uses "at" when there is one, else the "date" text road.json uses
+// ("7 Oct", "9–10 Sep", "30 Sep–2 Oct": the last day counts). Same London day:
+// both have "at" → by time; otherwise the current order is kept (stable sort).
+const MONTHS = { jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11 };
+function londonDayKey(d) {
+  const p = Object.fromEntries(new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/London", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(d).map((x) => [x.type, x.value]));
+  return Number(`${p.year}${p.month}${p.day}`);
+}
+function historyDayKey(h, now = new Date()) {
+  if (h.at && Number.isFinite(new Date(h.at).getTime())) return londonDayKey(new Date(h.at));
+  const m = [...String(h.date || "").matchAll(/(\d{1,2})\s*([A-Za-z]{3})[a-z]*\.?(?:\s+(\d{4}))?/g)].pop();
+  if (!m || MONTHS[m[2].toLowerCase()] === undefined) return null;
+  const month = MONTHS[m[2].toLowerCase()], day = Number(m[1]);
+  let year = m[3] ? Number(m[3]) : now.getUTCFullYear();
+  if (!m[3] && Date.UTC(year, month, day) > now.getTime() + 7 * 86400000) year -= 1; // "28 Dec" seen in January
+  return year * 10000 + (month + 1) * 100 + day;
+}
+function sortHistory(list, now = new Date()) {
+  return list.map((h, i) => ({ h, i, k: historyDayKey(h, now) }))
+    .sort((a, b) => {
+      if (a.k !== b.k) return a.k === null ? 1 : b.k === null ? -1 : b.k - a.k; // undated go last
+      if (a.h.at && b.h.at && a.h.at !== b.h.at) return String(b.h.at).localeCompare(String(a.h.at));
+      return a.i - b.i;
+    })
+    .map((x) => x.h);
 }
 
 function notificationFor(road, ch) {
@@ -642,7 +689,7 @@ async function run(opts = {}) {
             const box = road.categories.find((c) => c.id === u.box);
             const ch = changes.find((c) => c.item === it && c.box === box);
             if (u.vehicles) log(`DECISION ${head} → vehicles ${JSON.stringify(u.vehicles)}${why(u)}`);
-            else if (ch) log(`DECISION ${head} → accepted: ${box.name}, status ${ch.from} → ${ch.to}${u.status && u.status !== ch.to ? ` (Claude suggested ${u.status})` : ""}, ${ch.entry.trust}: "${ch.entry.text}"${why(u)}`);
+            else if (ch) log(`DECISION ${head} → accepted: ${box.name}, status ${ch.from} → ${ch.to}${u.status && u.status !== ch.to ? ` (Claude suggested ${u.status})` : ""}, ${ch.entry.trust}, headline ${ch.headline || "kept"}: "${ch.entry.text}"${why(u)}`);
             else log(`DECISION ${head} → Claude accepted for ${box ? box.name : u.box} but not applied (duplicate, malformed or cap — see above)${why(u)}`);
           }
         });
@@ -683,7 +730,7 @@ async function run(opts = {}) {
   return { road, changes, notifications, state };
 }
 
-module.exports = { run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, LIMITS, SOURCES };
+module.exports = { run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, LIMITS, SOURCES };
 
 if (require.main === module) {
   run().catch((err) => {
