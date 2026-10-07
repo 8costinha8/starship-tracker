@@ -359,7 +359,8 @@ const SOURCES = [
 
 function buildPrompt(road, items) {
   const v = road.vehicles && road.vehicles.length ? road.vehicles.join(" and ") : "not yet known";
-  const boxes = road.categories.map((c) => `- ${c.id} (${c.name}): ${c.status}${c.id === "date" ? " (done = SpaceX has announced the date)" : ""}`).join("\n");
+  const hint = { date: " (done = SpaceX has announced the date)", pad: " (also launch site and pad assignment, and vehicle moves and locations: rollouts, rollbacks, stacking/destacking, which booster or ship is where)" };
+  const boxes = road.categories.map((c) => `- ${c.id} (${c.name}): ${c.status}${hint[c.id] || ""}`).join("\n");
   const recent = road.categories.flatMap((c) => (c.history || []).slice(0, 3).map((h) => `- [${c.id}] ${h.date}: ${h.text}`)).join("\n");
   const list = items.map((it, i) => `${i + 1}. [${it.src}, ${fmtDay(it.publishedAt)}] ${it.title} — ${it.text}`).join("\n");
   return `You simplify Starship news into one-line updates for a small box in a tracker app called "Road to Flight ${road.flight}" (vehicles: ${v}).
@@ -370,14 +371,15 @@ ${boxes}
 Already in the boxes (don't repeat):
 ${recent}
 
-For each item below, decide if it reports something concrete about Flight ${road.flight}'s vehicles, pad work, FAA licence or launch date. Most items won't; skip those.
+For each item below, decide if it reports something concrete about Flight ${road.flight}'s vehicles, pad work, launch site, FAA licence or launch date. Most items won't; skip those.
 
 "line": simplify what the item says into one short plain sentence, max 100 characters. Only reword and shorten. Don't add facts, guesses, totals or numbers the item doesn't give, and no hype. British English. Payloads are "deployed", never "released".
 "short": the same in 4-9 words, no full stop.
-"status": the status this item shows for that box, or null if it doesn't change it.${road.vehicles && road.vehicles.length ? "" : `
+"status": the status this item shows for that box, or null if it doesn't change it.
+"reason": why, in max 12 words. For each item you skip, add {"item": n, "skip": true, "reason": "..."}.${road.vehicles && road.vehicles.length ? "" : `
 If an item says which booster and ship will fly Flight ${road.flight}, also add {"item": n, "vehicles": ["B23", "S43"]}.`}
 
-Reply with ONLY a JSON array, e.g. [{"item": 1, "box": "static", "line": "...", "short": "...", "status": "progress"}], or [] if nothing is relevant.
+Reply with ONLY a JSON array, one or more entries per item, e.g. [{"item": 1, "box": "static", "line": "...", "short": "...", "status": "progress", "reason": "..."}, {"item": 2, "skip": true, "reason": "about Flight 14, not ${road.flight}"}].
 
 Items:
 ${list}`;
@@ -396,8 +398,12 @@ async function askClaude(prompt) {
   const cleaned = text.replace(/```json|```/g, "").trim();
   const parsed = JSON.parse(cleaned.slice(cleaned.indexOf("["), cleaned.lastIndexOf("]") + 1));
   if (!Array.isArray(parsed)) throw new Error("Claude's reply wasn't a JSON array");
+  Object.defineProperty(parsed, "raw", { value: text, enumerable: false }); // logged in preview only
   return parsed;
 }
+
+// {"item": n, "skip": true, "reason": "..."} only explains a skip. "reason" is never stored.
+const isSkip = (u) => !!u && typeof u === "object" && (u.skip === true || (u.box == null && u.line == null && u.vehicles == null));
 
 // Tidy one line for the box. Returns null if it's unusable.
 function cleanLine(s, { fullStop }) {
@@ -615,15 +621,34 @@ async function run(opts = {}) {
     let updates = null;
     try {
       updates = await (opts.askClaude || askClaude)(buildPrompt(road, batch));
-      log(`Claude returned ${updates.length} update(s) for ${batch.length} item(s)`);
+      log(`Claude returned ${updates.filter((u) => !isSkip(u)).length} update(s) and ${updates.filter(isSkip).length} skip(s) for ${batch.length} item(s)`);
     } catch (err) {
       log(`Claude failed (${err.message}) — nothing changed, these posts will be retried next run`);
     }
     if (updates) {
-      changes = applyUpdates(road, batch, updates, log, LIMITS.changesPerRun - notifications.length);
+      const accepted = updates.filter((u) => !isSkip(u));
+      if (mode === "preview") console.log(`\n--- Claude raw reply ---\n${updates.raw || JSON.stringify(updates)}\n--- end raw reply ---`);
+      changes = applyUpdates(road, batch, accepted, log, LIMITS.changesPerRun - notifications.length);
       for (const it of batch) if (!it.deferred) seen.add(it.key);
-      const used = new Set(updates.map((u) => u.item));
-      batch.forEach((it, i) => { if (!used.has(i + 1)) log(`not relevant: "${it.title}" (${it.src})`); });
+      const used = new Set(accepted.map((u) => u.item));
+      if (mode === "preview") {
+        batch.forEach((it, i) => {
+          const mine = updates.filter((u) => u && u.item === i + 1);
+          const why = (u) => (u && u.reason ? ` — reason: ${String(u.reason).slice(0, 160)}` : " — no reason given");
+          const head = `item ${i + 1} [${it.src}, ${isTrusted(it.tier) ? "trusted" : "Unconfirmed"}] "${it.title}"`;
+          const acc = mine.filter((u) => !isSkip(u));
+          if (!acc.length) return log(`DECISION ${head} → skipped${why(mine[0])}`);
+          for (const u of acc) {
+            const box = road.categories.find((c) => c.id === u.box);
+            const ch = changes.find((c) => c.item === it && c.box === box);
+            if (u.vehicles) log(`DECISION ${head} → vehicles ${JSON.stringify(u.vehicles)}${why(u)}`);
+            else if (ch) log(`DECISION ${head} → accepted: ${box.name}, status ${ch.from} → ${ch.to}${u.status && u.status !== ch.to ? ` (Claude suggested ${u.status})` : ""}, ${ch.entry.trust}: "${ch.entry.text}"${why(u)}`);
+            else log(`DECISION ${head} → Claude accepted for ${box ? box.name : u.box} but not applied (duplicate, malformed or cap — see above)${why(u)}`);
+          }
+        });
+      } else {
+        batch.forEach((it, i) => { if (!used.has(i + 1)) log(`not relevant: "${it.title}" (${it.src})`); });
+      }
     }
   }
   for (const ch of changes) notifications.push(notificationFor(road, ch));
