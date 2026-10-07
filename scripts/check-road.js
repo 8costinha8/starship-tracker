@@ -38,7 +38,9 @@ const ANTHROPIC_MODEL = "claude-sonnet-5"; // same model as check-flights.js
 const LIMITS = {
   itemsToClaude: 12,     // most posts sent to Claude in one run
   changesPerRun: 5,      // most card changes (and so pushes) per run; the rest wait for the next run
-  updatesPerItem: 2,     // one long article can feed at most 2 boxes
+  updatesPerItem: 3,     // one item can give at most 3 separate facts
+  claudeMaxTokens: 16000, // hard cap on thinking + answer (Sonnet 5 thinks adaptively, no fixed budget)
+  claudeRetryMs: 3000,   // wait before retrying an empty/unparseable reply
   historyPerBox: 12,     // older mini-cards drop off the bottom
   staleHours: 72,        // ignore anything published longer ago than this
   seenKeep: 800,         // how many seen-post keys we remember
@@ -388,9 +390,9 @@ ${boxes}
 Already in the boxes (don't repeat):
 ${recent}
 
-For each item below, decide if it reports something concrete about Flight ${road.flight}'s vehicles, pad work, launch site, FAA licence or launch date. Most items won't; skip those.
+For each item below, decide if it reports something concrete about Flight ${road.flight}'s vehicles, pad work, launch site, FAA licence or launch date. Most items won't; skip those. An item can give up to 3 separate facts: add one entry per fact, each with its own box, line and reason.
 
-"line": simplify what the item says into one short plain sentence, max 100 characters. Only reword and shorten. No facts, framing or contrasts the item doesn't state (e.g. not "…, not Florida" when it only says a later flight may go there), no guesses, totals or numbers it doesn't give, and no hype. British English. Payloads are "deployed", never "released".
+"line": simplify what the item says into one short plain sentence, max 100 characters. Only reword and shorten. No facts, framing or contrasts the item doesn't state (e.g. not "…, not Florida" when it only says a later flight may go there), no guesses, totals or numbers it doesn't give, and no hype. Keep every hedge: if the item says potentially, may, might, could, expected, planned (when hedged) or reportedly, the line keeps that hedge; never turn it into certainty. British English. Payloads are "deployed", never "released".
 "short": the same in 4-9 words, no full stop.
 "status": the status this item shows for that box, or null if it doesn't change it.
 "supersedes": true only if this clearly replaces the box's current headline (e.g. a later step of the same thing), otherwise false.
@@ -403,21 +405,38 @@ Items:
 ${list}`;
 }
 
-async function askClaude(prompt) {
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: { "x-api-key": process.env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-    body: JSON.stringify({ model: ANTHROPIC_MODEL, max_tokens: 1500, messages: [{ role: "user", content: prompt }] }),
-  });
-  const json = await res.json();
-  if (json.error) throw new Error(`Anthropic API error (${json.error.type}): ${json.error.message}`);
-  const text = json.content?.find((b) => b.type === "text")?.text;
-  if (!text) throw new Error(`Anthropic API returned no text: ${JSON.stringify(json).slice(0, 300)}`);
-  const cleaned = text.replace(/```json|```/g, "").trim();
-  const parsed = JSON.parse(cleaned.slice(cleaned.indexOf("["), cleaned.lastIndexOf("]") + 1));
-  if (!Array.isArray(parsed)) throw new Error("Claude's reply wasn't a JSON array");
-  Object.defineProperty(parsed, "raw", { value: text, enumerable: false }); // logged in preview only
-  return parsed;
+// Sonnet 5 thinks adaptively (no budget_tokens; that's a 400). max_tokens covers
+// thinking + answer, so it's set well above what this small task needs.
+// An empty or unparseable reply is retried once; then err.empty = true.
+async function askClaude(prompt, log = console.log) {
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "x-api-key": process.env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json" },
+      body: JSON.stringify({ model: ANTHROPIC_MODEL, max_tokens: LIMITS.claudeMaxTokens, messages: [{ role: "user", content: prompt }] }),
+    });
+    const json = await res.json();
+    if (json.error) throw new Error(`Anthropic API error (${json.error.type}): ${String(json.error.message).slice(0, 2000)}`);
+    const blocks = (json.content || []).map((b) => b.type).join(",") || "none";
+    log(`Claude stop_reason: ${json.stop_reason} (attempt ${attempt}, blocks: ${blocks}, output tokens: ${json.usage?.output_tokens ?? "?"})`);
+    const text = json.content?.find((b) => b.type === "text")?.text;
+    let problem;
+    if (!text || !text.trim()) problem = "no text in the reply";
+    else {
+      try {
+        const cleaned = text.replace(/```json|```/g, "").trim();
+        const parsed = JSON.parse(cleaned.slice(cleaned.indexOf("["), cleaned.lastIndexOf("]") + 1));
+        if (!Array.isArray(parsed)) throw new Error("not a JSON array");
+        Object.defineProperty(parsed, "raw", { value: text, enumerable: false }); // logged in preview only
+        return parsed;
+      } catch (err) { problem = `unparseable reply (${err.message})`; }
+    }
+    // thinking signatures are long base64; show their size instead
+    const body = JSON.stringify({ ...json, content: (json.content || []).map((b) => (b.signature ? { ...b, signature: `[${b.signature.length} chars]` } : b)) });
+    log(`Claude reply problem: ${problem}${attempt < 2 ? " — retrying once" : ""}. Body: ${body.slice(0, 2000)}`);
+    if (attempt < 2) await new Promise((ok) => setTimeout(ok, LIMITS.claudeRetryMs));
+    else { const err = new Error(`${problem}, twice`); err.empty = true; throw err; }
+  }
 }
 
 // {"item": n, "skip": true, "reason": "..."} only explains a skip. "reason" is never stored.
@@ -469,6 +488,8 @@ function applyUpdates(road, items, updates, log, limit) {
   // 1. keep only usable, new updates
   const perItem = {};
   const valid = [];
+  const linesThisRun = new Set();
+  const appliedKeys = new Set(road.categories.flatMap((c) => (c.history || []).map((h) => h.key).filter(Boolean)));
   for (const u of updates) {
     if (!u || !Number.isInteger(u.item) || !items[u.item - 1]) { log(`skipped malformed update ${JSON.stringify(u)}`); continue; }
     const it = items[u.item - 1];
@@ -481,18 +502,29 @@ function applyUpdates(road, items, updates, log, limit) {
     const box = road.categories.find((c) => c.id === u.box);
     const line = cleanLine(u.line, { fullStop: true });
     if (!box || !line) { log(`skipped malformed update ${JSON.stringify(u)}`); continue; }
+    if (appliedKeys.has(it.key)) { log(`skipped: "${it.title}" was already applied in an earlier run`); continue; }
+    const dupeKey = `${box.id}|${line.toLowerCase()}`;
+    if ((box.history || []).some((h) => h.text.toLowerCase() === line.toLowerCase()) || linesThisRun.has(dupeKey)) { log(`duplicate line skipped: ${line}`); continue; }
     perItem[u.item] = (perItem[u.item] || 0) + 1;
-    if (perItem[u.item] > LIMITS.updatesPerItem) { log(`skipped extra update from item ${u.item} (max ${LIMITS.updatesPerItem} per item)`); continue; }
-    if ((box.history || []).some((h) => h.text.toLowerCase() === line.toLowerCase())) { log(`duplicate line skipped: ${line}`); continue; }
+    if (perItem[u.item] > LIMITS.updatesPerItem) { log(`skipped extra fact from item ${u.item} (max ${LIMITS.updatesPerItem} per item): ${line}`); continue; }
+    linesThisRun.add(dupeKey);
     valid.push({ u, it, box, line });
   }
 
-  // 2. over the cap? keep official first, then trusted, then newest; the rest wait
+  // 2. over the cap? keep official first, then trusted, then newest; the rest wait.
+  //    An item's facts go in together or wait together (a half-applied item would
+  //    later be dropped as a duplicate link and lose its other facts).
   const tierRank = { official: 0, trusted: 1 };
-  const keep = new Set([...valid]
-    .sort((a, b) => (tierRank[a.it.tier] ?? 2) - (tierRank[b.it.tier] ?? 2) || (b.it.publishedAt || "").localeCompare(a.it.publishedAt || ""))
-    .slice(0, Math.max(0, limit)));
-  for (const v of valid) if (!keep.has(v)) { v.it.deferred = true; log(`cap reached (${limit} changes) — "${v.it.title}" (${v.it.src}) waits for the next run`); }
+  const groups = new Map();
+  for (const v of valid) groups.set(v.it, [...(groups.get(v.it) || []), v]);
+  const keep = new Set();
+  let room = Math.max(0, limit);
+  [...groups.entries()]
+    .sort(([a], [b]) => (tierRank[a.tier] ?? 2) - (tierRank[b.tier] ?? 2) || (b.publishedAt || "").localeCompare(a.publishedAt || ""))
+    .forEach(([it, g]) => {
+      if (g.length <= room || (!keep.size && room > 0)) { g.forEach((v) => keep.add(v)); room -= g.length; }
+      else { it.deferred = true; log(`cap reached (${limit} changes) — "${it.title}" (${it.src}, ${g.length} fact(s)) waits for the next run`); }
+    });
 
   // 3. apply oldest first, so the newest ends up on top of each box's history
   const changes = [];
@@ -500,7 +532,7 @@ function applyUpdates(road, items, updates, log, limit) {
   for (const { u, it, box, line } of toApply) {
     const trust = isTrusted(it.tier) ? "trusted" : "unconfirmed";
     const entry = { date: fmtDay(it.publishedAt), text: line, src: it.src, source: it.source, trust, url: it.url || undefined, at: it.publishedAt || new Date().toISOString(), key: it.key };
-    const change = { box, entry, from: box.status, to: box.status, item: it };
+    const change = { box, entry, from: box.status, to: box.status, item: it, u, headline: "kept" };
     const want = STATUSES.includes(u.status) ? u.status : null;
     if (trust === "unconfirmed") {
       log(`UNCONFIRMED [${box.id}] ${line} (${it.src}) — added with tag; status/headline left alone${want && want !== box.status ? ` (it suggested ${want})` : ""}`);
@@ -667,10 +699,13 @@ async function run(opts = {}) {
   if (batch.length) {
     let updates = null;
     try {
-      updates = await (opts.askClaude || askClaude)(buildPrompt(road, batch));
+      updates = await (opts.askClaude || askClaude)(buildPrompt(road, batch), log);
       log(`Claude returned ${updates.filter((u) => !isSkip(u)).length} update(s) and ${updates.filter(isSkip).length} skip(s) for ${batch.length} item(s)`);
     } catch (err) {
-      log(`Claude failed (${err.message}) — nothing changed, these posts will be retried next run`);
+      if (err.empty) {
+        log(`‼️ CLAUDE EMPTY REPLY — items NOT marked seen (${batch.length} will be retried next run): ${err.message}`);
+        if (process.env.GITHUB_ACTIONS) console.log(`::error::CLAUDE EMPTY REPLY — items NOT marked seen (${err.message})`);
+      } else log(`Claude failed (${err.message}) — nothing changed, these posts will be retried next run`);
     }
     if (updates) {
       const accepted = updates.filter((u) => !isSkip(u));
@@ -687,7 +722,7 @@ async function run(opts = {}) {
           if (!acc.length) return log(`DECISION ${head} → skipped${why(mine[0])}`);
           for (const u of acc) {
             const box = road.categories.find((c) => c.id === u.box);
-            const ch = changes.find((c) => c.item === it && c.box === box);
+            const ch = changes.find((c) => c.u === u);
             if (u.vehicles) log(`DECISION ${head} → vehicles ${JSON.stringify(u.vehicles)}${why(u)}`);
             else if (ch) log(`DECISION ${head} → accepted: ${box.name}, status ${ch.from} → ${ch.to}${u.status && u.status !== ch.to ? ` (Claude suggested ${u.status})` : ""}, ${ch.entry.trust}, headline ${ch.headline || "kept"}: "${ch.entry.text}"${why(u)}`);
             else log(`DECISION ${head} → Claude accepted for ${box ? box.name : u.box} but not applied (duplicate, malformed or cap — see above)${why(u)}`);

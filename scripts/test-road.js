@@ -54,6 +54,7 @@ const X_POSTS = [
 
 let calls = { claude: 0, x: 0 };
 let claudeDown = false;
+let claudeScript = []; // canned replies used first (RUN 6)
 
 // Fake Claude: reads the numbered items in the real prompt and answers like Claude would.
 const CANNED = [
@@ -67,6 +68,7 @@ const CANNED = [
 ];
 function fakeClaude(prompt) {
   calls.claude++;
+  if (claudeScript.length) return claudeScript.shift();
   if (claudeDown) return { error: { type: "overloaded_error", message: "fake outage" } };
   const lines = prompt.split("Items:\n")[1].split("\n");
   const out = [];
@@ -204,6 +206,74 @@ const box = (r, id) => r.categories.find((c) => c.id === id);
   check(hpad.latest === "Pad 2 servicing finished", "supersedes: true → headline replaced");
   road.applyUpdates(hr, items, [{ item: 3, box: "pad", line: "Ship 42 rolled to Pad 2.", short: "S42 at Pad 2", status: "done" }], () => {}, 5);
   check(hpad.latest === "S42 at Pad 2" && hpad.status === "done", "status change → headline replaced");
+
+  console.log("\n────────── RUN 6: several facts from one item, empty Claude replies ──────────");
+  road.LIMITS.claudeRetryMs = 0;
+  const tmp2 = fs.mkdtempSync(path.join(os.tmpdir(), "road-test6-"));
+  fs.copyFileSync(path.join(ROOT, "road.json"), path.join(tmp2, "road.json"));
+  fs.copyFileSync(path.join(ROOT, "app.js"), path.join(tmp2, "app.js"));
+  let state6 = { seen: [] };
+  let feed6 = [];
+  const opts6 = {
+    mode: "dry-run", roadPath: path.join(tmp2, "road.json"), appJsPath: path.join(tmp2, "app.js"), commit: () => {},
+    sources: [{ name: "fake", fetch: async () => feed6 }],
+    deps: { loadState: async () => JSON.parse(JSON.stringify(state6)), saveState: async (st) => { state6 = JSON.parse(JSON.stringify(st)); }, push: async () => {} },
+  };
+  const textReply = (arr) => ({ content: [{ type: "text", text: JSON.stringify(arr) }], stop_reason: "end_turn", usage: { output_tokens: 300 } });
+  const thinkingOnly = { content: [{ type: "thinking", thinking: "", signature: "x".repeat(900) }], stop_reason: "max_tokens", usage: { output_tokens: 16000 } };
+  const item6 = (key, title) => ({ key: `rss:${key}`, title, text: title, url: `https://www.nasaspaceflight.com/2026/10/${key}/`, publishedAt: ago(1), src: "NSF", source: "nsf", tier: "trusted" });
+  const r6 = () => JSON.parse(fs.readFileSync(opts6.roadPath, "utf8"));
+
+  // a) one item, several facts: 3 kept, a duplicate and a 4th fact dropped
+  feed6 = [item6("multi", "Ship 42 rolls to Pad 2 as Booster 22 static fire nears")];
+  claudeScript = [textReply([
+    { item: 1, box: "pad", line: "Ship 42 rolled to Pad 2.", short: "S42 at Pad 2", status: null, reason: "vehicle move" },
+    { item: 1, box: "static", line: "Booster 22 may static fire next week.", short: "B22 static fire may come next week", status: null, reason: "hedged plan" },
+    { item: 1, box: "pad", line: "Ship 42 rolled to Pad 2.", short: "dup", status: null, reason: "same fact again" },
+    { item: 1, box: "faa", line: "The FAA could reportedly modify the licence soon.", short: "FAA change reportedly soon", status: null, reason: "hedged" },
+    { item: 1, box: "date", line: "A fourth fact that must be dropped.", short: "fourth", status: null, reason: "over the limit" },
+  ])];
+  res = await road.run(opts6);
+  r = r6();
+  const fromMulti = r.categories.flatMap((c) => c.history.filter((h) => h.key === "rss:multi").map((h) => ({ box: c.id, ...h })));
+  check(res.changes.length === 3 && fromMulti.length === 3 && fromMulti.map((h) => h.box).sort().join() === "faa,pad,static", `one item → 3 facts in 3 boxes (${fromMulti.map((h) => h.box).join(", ")}), duplicate and 4th fact dropped`);
+  check(fromMulti.every((h) => h.src === "NSF" && h.trust === "trusted" && h.source === "nsf" && /multi/.test(h.url)), "each fact keeps the item's source, trust and link");
+  check(state6.seen.includes("rss:multi"), "the multi-fact item is marked seen");
+
+  // b) cap: an item's facts go in together or wait together
+  const capRoad = JSON.parse(fs.readFileSync(path.join(ROOT, "road.json"), "utf8"));
+  const capItems = [{ ...item6("off", "SpaceX update"), tier: "official", src: "SpaceX" }, item6("three", "Three facts")];
+  const capCh = road.applyUpdates(capRoad, capItems, [
+    { item: 1, box: "date", line: "SpaceX says the launch date is coming soon.", short: "Date soon", status: null },
+    { item: 2, box: "pad", line: "Fact one about the pad here.", short: "one", status: null },
+    { item: 2, box: "raptor", line: "Fact two about the engines here.", short: "two", status: null },
+    { item: 2, box: "cryo", line: "Fact three about cryo testing here.", short: "three", status: null },
+  ], () => {}, 2);
+  check(capCh.length === 1 && capCh[0].item === capItems[0] && capItems[1].deferred === true, "cap 2: official fact in, the 3-fact item waits as a whole");
+
+  // c) empty reply, then the retry works
+  feed6 = [item6("e1", "Ship 42 Raptor installs finished")];
+  let before6 = calls.claude;
+  claudeScript = [thinkingOnly, textReply([{ item: 1, box: "raptor", line: "Ship 42 has finished Raptor installs.", short: "S42 Raptors installed", status: null, reason: "engines" }])];
+  res = await road.run(opts6);
+  check(calls.claude - before6 === 2 && res.changes.length === 1 && state6.seen.includes("rss:e1"), "empty reply → retried once → applied and marked seen");
+
+  // d) empty twice: loud error, items NOT marked seen, kept for next run
+  feed6 = [item6("e2", "Booster 22 rolls to Massey's")];
+  before6 = calls.claude;
+  claudeScript = [thinkingOnly, thinkingOnly];
+  const logs6 = [];
+  const realLog = console.log;
+  console.log = (...a) => { logs6.push(a.join(" ")); realLog(...a); };
+  res = await road.run(opts6);
+  console.log = realLog;
+  check(calls.claude - before6 === 2 && res.changes.length === 0, "empty reply twice → 2 calls, no change");
+  check(logs6.some((l) => l.includes("CLAUDE EMPTY REPLY — items NOT marked seen")) && logs6.some((l) => /stop_reason: max_tokens/.test(l)), "loud CLAUDE EMPTY REPLY error and stop_reason logged");
+  check(!state6.seen.includes("rss:e2") && state6.pending.some((p) => p.key === "rss:e2"), "the item is NOT marked seen and waits in pending");
+  feed6 = [];
+  claudeScript = [textReply([{ item: 1, box: "pad", line: "Booster 22 rolled to Massey's.", short: "B22 at Massey's", status: null, reason: "move" }])];
+  res = await road.run(opts6);
+  check(res.changes.length === 1 && state6.seen.includes("rss:e2"), "next run: the waiting item is processed");
 
   console.log(`\nClaude called ${calls.claude}x, X search called ${calls.x}x (all fake).`);
   console.log(failed ? `\n❌ ${failed} check(s) failed` : "\n✅ All checks passed. (Dry run only — nothing real was saved, committed or sent.)");
