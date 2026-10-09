@@ -142,6 +142,8 @@ const fmtLaunchedLondon = (iso) => {
   return `Launched ${time}`;
 };
 const pad2 = (x) => String(x).padStart(2, "0");
+const hms = (ms) => { const t = Math.floor(Math.max(0, ms) / 1000); return `${pad2(Math.floor(t / 3600))}:${pad2(Math.floor(t / 60) % 60)}:${pad2(t % 60)}`; };
+const fmtTimeLondon = (iso) => new Date(iso).toLocaleTimeString("en-GB", { timeZone: "Europe/London", hour: "2-digit", minute: "2-digit" });
 const EXPAND_MS = 450; // how long a card takes to open or close
 const OUTCOME_LABEL = { success: "Success", partial: "Partial", failure: "Failure" };
 const siteLabel = (f) => f.site || DEFAULT_SITE;
@@ -154,6 +156,14 @@ const siteLabel = (f) => f.site || DEFAULT_SITE;
 const WATCH_LIVE_LEAD_MS = 60 * 60 * 1000; // opens 60 min before scheduled launch
 const WATCH_LIVE_TRAIL_MS = 4 * 60 * 60 * 1000; // closes 4 hours after, well past a normal launch + stream
 const WATCH_LIVE_URL = "https://x.com/SpaceX";
+// "Where to watch" links on launch day (plain links; nothing is fetched from them).
+// The YouTube channel ids are the same ones scripts/check-road.js reads.
+const WATCH_LINKS = [
+  { label: "SpaceX on X", href: "https://x.com/SpaceX" },
+  { label: "SpaceX website", href: "https://www.spacex.com/launches/" },
+  { label: "NASASpaceflight", href: "https://www.youtube.com/channel/UCSUu1lih2RifWkKtDOJdsBA/live" },
+  { label: "LabPadre", href: "https://www.youtube.com/channel/UCFwMITSkc1Fms6PoJoh1OUQ/live" },
+];
 
 const reduceMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -167,10 +177,14 @@ function ensureVisible(el, extra = 0) {
   if (d > 1) window.scrollBy({ top: d, behavior: reduceMotion() ? "auto" : "smooth" });
 }
 
+// The clock everything time-based uses. Always the real Date.now(), except in
+// the dev-only ?mock=launchday demo, which swaps in a fake clock (see LD below).
+const nowMs = () => (LD ? LD.now() : Date.now());
+
 function useNow(fast) {
-  const [now, setNow] = React.useState(Date.now());
+  const [now, setNow] = React.useState(nowMs());
   React.useEffect(() => {
-    const id = setInterval(() => setNow(Date.now()), fast ? 1000 : 60000);
+    const id = setInterval(() => setNow(nowMs()), fast || LD ? 1000 : 60000);
     return () => clearInterval(id);
   }, [fast]);
   return now;
@@ -185,16 +199,58 @@ function useNow(fast) {
 const LL2_ENDPOINT = "https://ll.thespacedevs.com/2.3.0/launches/upcoming/?search=Starship&limit=10&mode=list";
 const CACHE_KEY = "starship-next-flight-cache-v2";
 const CACHE_MS = 60 * 60 * 1000;
+// Launch day: while a flight is in the air, within an hour of a confirmed T-0,
+// or just finished, re-check every 5 minutes while the app is open.
+const HOT_TTL_MS = 5 * 60 * 1000;
+const HOT_LEAD_MS = 60 * 60 * 1000;
+// In that mode only the launch's own detail is re-fetched (1 call). The
+// upcoming list (the 2nd call) is re-read at most once an hour, so the worst
+// case is 12 detail + 1 list = 13 calls/hour, under LL2's free ~15/hour/IP.
+const LIST_EVERY_MS = 60 * 60 * 1000;
+// Hard cap shared by every open tab (logged in localStorage): never more than
+// this many LL2 calls in any rolling hour. Over it, the refresh just waits.
+const LL2_HOURLY_BUDGET = 14;
+const LL2_LOG_KEY = "starship-ll2-calls-v1";
+const RETRY_AFTER_FAIL_MS = 2 * 60 * 1000;
 
 // Newest flight already in the log above (FLIGHTS). Once a flight is in the
 // log, the top card moves on to the next one — no manual edit needed.
-const LAST_LOGGED_N = Math.max(...FLIGHTS.map((f) => f.n));
+let LAST_LOGGED_N = Math.max(...FLIGHTS.map((f) => f.n)); // "let" only so the launchday demo can log a mock flight
 // After liftoff the top card keeps showing that flight for at least this long
 // (in flight, or its result), then moves on as soon as the flight is in the log.
 const DONE_GRACE_MS = 2 * 60 * 60 * 1000;
 // Safety net if the log never gets the flight: a finished flight stops showing
 // on the top card this long after liftoff anyway.
 const DONE_MAX_MS = 24 * 60 * 60 * 1000;
+
+// True when the card should refresh every 5 minutes (see HOT_TTL_MS).
+function isHot(d, now = nowMs()) {
+  if (!d || d.placeholder) return false;
+  if (d.status === "inflight" || d.status === "done") return true;
+  const t0 = new Date(d.date).getTime();
+  if (d.status !== "confirmed" || !Number.isFinite(t0)) return false;
+  return t0 - now <= HOT_LEAD_MS && now - t0 <= IN_FLIGHT_FALLBACK_MS;
+}
+
+// Rolling one-hour log of LL2 calls, shared by all tabs (memory only in mocks).
+let ll2MemLog = [];
+function ll2Spend(n) {
+  const now = nowMs();
+  let log = ll2MemLog;
+  if (!getMock()) { try { log = JSON.parse(localStorage.getItem(LL2_LOG_KEY)) || []; } catch { log = []; } }
+  log = log.filter((t) => now - t < 3600000 && t <= now);
+  if (log.length + n > LL2_HOURLY_BUDGET) return false;
+  for (let i = 0; i < n; i++) log.push(now);
+  if (getMock()) ll2MemLog = log; else { try { localStorage.setItem(LL2_LOG_KEY, JSON.stringify(log)); } catch {} }
+  return true;
+}
+
+// LL2 counts a time as exact only at second/minute/hour precision.
+function exactTime(f) {
+  if (!f || !f.date || !Number.isFinite(new Date(f.date).getTime())) return false;
+  const p = f.netPrecision || "";
+  return p ? /^(SEC|MIN|HR)$/.test(p) : !looksLikePlaceholder(new Date(f.date));
+}
 
 // "Starship | Starlink Group 31-1 (Starship Flight 14)" -> 14, "Starship | Flight 15" -> 15
 function flightNumber(name) {
@@ -205,7 +261,7 @@ function flightNumber(name) {
 // True once a launch no longer belongs on the top card: it is already in the
 // log (or older than the newest logged flight), or LL2 says it finished more
 // than a day ago. Never true during the short grace period after liftoff.
-function isFinishedLaunch(n, status, date, now = Date.now()) {
+function isFinishedLaunch(n, status, date, now = nowMs()) {
   const t0 = date ? new Date(date).getTime() : NaN;
   const since = Number.isFinite(t0) ? now - t0 : null;
   if (since != null && since >= 0 && since < DONE_GRACE_MS) return false;
@@ -216,7 +272,7 @@ function isFinishedLaunch(n, status, date, now = Date.now()) {
 
 // Picks the launch for the top card from LL2's upcoming list: numbered Starship
 // flights only, skipping any that already happened. null = nothing suitable.
-function pickNextLaunch(results, now = Date.now()) {
+function pickNextLaunch(results, now = nowMs()) {
   const numbered = (results || []).filter((l) => l?.url && flightNumber(l.name) != null);
   return numbered.find((l) => !isFinishedLaunch(flightNumber(l.name), mapLL2Status(l.status?.abbrev), l.net, now)) || null;
 }
@@ -251,7 +307,7 @@ function mapLL2Outcome(abbrev) {
 // the flight as in progress for a couple of hours (covers short gaps where the
 // API hasn't flipped to "In Flight" yet). Recognising statuses win over this.
 const IN_FLIGHT_FALLBACK_MS = 2 * 60 * 60 * 1000;
-function effectiveStatus(flight, now = Date.now()) {
+function effectiveStatus(flight, now = nowMs()) {
   if (!flight) return "tbc";
   const s = flight.status;
   if (s === "inflight" || s === "done" || s === "tbc") return s;
@@ -267,8 +323,67 @@ function effectiveStatus(flight, now = Date.now()) {
 //   inflight | done-success | done-failure | done-partial | tbc
 //   next  -> fake LL2 list: newest logged flight finished + the next one announced
 //   none  -> fake LL2 list: newest logged flight finished, no next flight listed
+//   launchday -> fake LL2 + fake clock for a whole launch day (see LD below)
 function getMock() {
   try { return new URLSearchParams(window.location.search).get("mock") || ""; } catch { return ""; }
+}
+
+// ?mock=launchday: fake clock + fake LL2 that walk through a launch day:
+// NET unconfirmed -> Go with a time -> window opens -> liftoff -> in flight ->
+// Success -> the story gets logged (a MOCK entry added to FLIGHTS in memory)
+// -> the card moves on to the next flight. Plays itself in under a minute;
+// &warp=manual stops the autoplay and window.__ld.jump(ms, rate) drives it.
+// Completely inert without ?mock=launchday (LD is null, nowMs is Date.now).
+const LD_T0 = Date.parse("2026-10-13T22:00:00Z"); // mock liftoff: 23:00 UK time
+const LD = getMock() === "launchday" ? makeLaunchdayMock() : null;
+function makeLaunchdayMock() {
+  let base = LD_T0 - 5 * DAY, anchor = Date.now(), rate = 1;
+  const api = {
+    T0: LD_T0,
+    now: () => base + (Date.now() - anchor) * rate,
+    jump(v, r = rate) { base = v; anchor = Date.now(); rate = r; },
+    rate(r) { base = api.now(); anchor = Date.now(); rate = r; },
+  };
+  window.__ld = api;
+  const M = 60000;
+  // autoplay: [real seconds, virtual time, clock rate]
+  const script = [
+    [0, LD_T0 - 5 * DAY, 1], [5, LD_T0 - 2 * DAY, 1], [10, LD_T0 - 60 * M - 3000, 1], [15, LD_T0 - 30 * M - 3000, 1],
+    [20, LD_T0 - 8000, 1], [30, LD_T0 + 9 * M, 60], [42, LD_T0 + 70 * M, 1], [47, LD_T0 + 76 * M, 1], [52, LD_T0 + 121 * M, 1],
+  ];
+  let warp = "";
+  try { warp = new URLSearchParams(window.location.search).get("warp") || ""; } catch {}
+  if (warp !== "manual") script.forEach(([sec, v, r]) => setTimeout(() => api.jump(v, r), sec * 1000));
+  // The story writer (scripts/check-flights.js) adds the flight to FLIGHTS once LL2
+  // posts the result; mock that ~10 min after the result, in memory only.
+  setInterval(() => {
+    if (api.now() < LD_T0 + 75 * M || FLIGHTS.some((f) => f.n === 15)) return;
+    FLIGHTS.push({ n: 15, date: new Date(LD_T0).toISOString(), pad: "Pad 2", block: "V3", booster: "B22", ship: "S42", outcome: "success",
+      headline: "MOCK (not real): auto-logged by the story writer", highlights: "",
+      story: "MOCK (not real): this entry was added by the launch-day demo to show where the story writer logs a flight once Launch Library posts its result.",
+      photo: { thumb: "images/f15-thumb.jpg", gallery: [] } });
+    LAST_LOGGED_N = Math.max(...FLIGHTS.map((f) => f.n));
+  }, 500);
+  return api;
+}
+function ldLL2(url) {
+  const v = nowMs(), M = 60000;
+  const status = v < LD_T0 - 3 * DAY ? ["TBC", "M"] : v < LD_T0 ? ["Go", "SEC"] : v < LD_T0 + 66 * M ? ["In Flight", "SEC"] : ["Success", "SEC"];
+  const f15 = {
+    name: "Starship | Flight 15", url: "mock://f15", net: new Date(LD_T0).toISOString(),
+    window_start: new Date(LD_T0 - 30 * M).toISOString(), window_end: new Date(LD_T0 + 90 * M).toISOString(),
+    status: { abbrev: status[0] }, net_precision: { abbrev: status[1] },
+    pad: { name: "Orbital Launch Pad 2" },
+    rocket: { configuration: { variant: "V3" }, launcher_stage: [{ launcher: { serial_number: "Booster 22" } }], spacecraft_stage: [{ spacecraft: { serial_number: "S42" } }] },
+    mission: { type: "Test Flight", description: "Mock: 15th test flight of the two-stage Starship launch vehicle." },
+  };
+  const f16 = {
+    name: "Starship | Flight 16", url: "mock://f16", net: "2026-12-31T00:00:00Z", status: { abbrev: "TBD" }, net_precision: { abbrev: "Q4" },
+    pad: { name: "Orbital Launch Pad 2" }, rocket: { configuration: { variant: "V3" } },
+    mission: { type: "Test Flight", description: "Mock: 16th test flight of the two-stage Starship launch vehicle." },
+  };
+  if (url === LL2_ENDPOINT) return { results: [f15, f16] };
+  return url === "mock://f16" ? f16 : f15;
 }
 
 // Fake LL2 responses for ?mock=next / ?mock=none, shaped like the real API so
@@ -294,13 +409,14 @@ function mockLL2(url) {
 }
 function ll2Json(url) {
   const mock = getMock();
+  if (mock === "launchday") return Promise.resolve(ldLL2(url));
   if (mock === "next" || mock === "none") return Promise.resolve(mockLL2(url));
   return fetch(url).then((r) => r.json());
 }
 
 function applyMockOverride(data) {
   const mock = getMock();
-  if (!mock || mock === "next" || mock === "none") return data;
+  if (!mock || mock === "next" || mock === "none" || mock === "launchday") return data;
   const base = data || { ...NEXT_FLIGHT_FALLBACK, n: LAST_LOGGED_N + 1, pad: "Pad 2", block: "V3", booster: "B99", ship: "S99", headline: "Orbital test flight", note: "Mocked for local testing." };
   if (mock === "inflight") {
     return { ...base, status: "inflight", outcome: null, date: new Date(Date.now() - 35 * 60 * 1000).toISOString() };
@@ -348,7 +464,7 @@ function looksLikePlaceholder(d) {
   const next = new Date(d.getTime() + DAY);
   return d.getUTCHours() === 0 && d.getUTCMinutes() === 0 && d.getUTCSeconds() === 0 && next.getUTCDate() === 1;
 }
-function roughNet(f, now = Date.now()) {
+function roughNet(f, now = nowMs()) {
   if (!f || !f.date) return null;
   const d = new Date(f.date);
   if (!Number.isFinite(d.getTime())) return null;
@@ -373,83 +489,94 @@ function roughNet(f, now = Date.now()) {
   return { label: `NET ${when} · unconfirmed` };
 }
 
+// Turns LL2's launch detail into the card's data.
+function flightFromLL2(full) {
+  const boosterSerial = full.rocket?.launcher_stage?.[0]?.launcher?.serial_number || "";
+  const shipSerial = full.rocket?.spacecraft_stage?.[0]?.spacecraft?.serial_number || "";
+  const description = (full.mission?.description || "").split(/\r?\n\r?\n/)[0]; // first paragraph only
+  const abbrev = full.status?.abbrev;
+  return {
+    n: flightNumber(full.name),
+    status: mapLL2Status(abbrev),
+    outcome: mapLL2Outcome(abbrev),
+    date: full.net,
+    netPrecision: full.net_precision?.abbrev || "",
+    windowStart: full.window_start || null,
+    windowEnd: full.window_end || null,
+    pad: shortPad(full.pad?.name),
+    block: full.rocket?.configuration?.variant || "",
+    booster: boosterSerial.replace(/^Booster\s*/i, "B"),
+    ship: shipSerial,
+    headline: full.mission?.type ? `${full.mission.type} mission` : "",
+    note: description || "Details to be announced.",
+  };
+}
+
+// Keeps the next-flight data fresh while the app is open: every hour normally,
+// every 5 minutes on launch day (isHot), paused while the tab is hidden, and
+// re-checked on return if stale. Every LL2 call goes through ll2Spend's
+// hourly budget. Returns { flight, checkedAt }.
 function useNextFlight() {
   const [live, setLive] = React.useState(null);
+  const [checkedAt, setCheckedAt] = React.useState(null);
   React.useEffect(() => {
-    const useCache = !getMock();
+    const persist = !getMock();
+    let meta = { data: null, fetchedAt: 0, ttl: 0, url: null, listAt: 0, failedAt: 0 };
+    const readCache = () => {
+      if (!persist) return;
+      try {
+        const c = JSON.parse(localStorage.getItem(CACHE_KEY));
+        if (c?.data && c.fetchedAt > meta.fetchedAt) { // includes a fresher copy saved by another tab
+          meta = { ...meta, url: null, listAt: 0, ttl: CACHE_MS, ...c };
+          setLive(c.data); setCheckedAt(c.fetchedAt);
+        }
+      } catch {}
+    };
+    const finished = (d) => d && d.n != null && !d.placeholder && isFinishedLaunch(d.n, d.status, d.date);
     let busy = false;
     const load = () => {
-      if (busy) return;
-      if (useCache) {
-        try {
-          const cached = JSON.parse(localStorage.getItem(CACHE_KEY));
-          const ttl = cached?.ttl || CACHE_MS;
-          const d = cached?.data;
-          // Reuse the cache unless it's stale, or it's a flight that has since
-          // been added to the log (then go and find the next one).
-          if (d && Date.now() - cached.fetchedAt < ttl && !(d.n != null && !d.placeholder && isFinishedLaunch(d.n, d.status, d.date))) {
-            setLive(d);
-            return;
-          }
-        } catch {}
-      }
+      if (busy || document.visibilityState === "hidden") return; // paused in the background
+      readCache();
+      const now = nowMs();
+      const d = meta.data;
+      if (d && !finished(d) && now - meta.fetchedAt < meta.ttl) return; // still fresh
+      if (now - meta.failedAt < RETRY_AFTER_FAIL_MS) return;
+      const detailOnly = !!(d && meta.url && !finished(d) && isHot(d, now) && now - meta.listAt < LIST_EVERY_MS);
+      if (!ll2Spend(detailOnly ? 1 : 2)) return; // over the hourly LL2 budget: a later tick tries again
       busy = true;
       let seenMax = LAST_LOGGED_N;
-      // Step 1: find which launch is next.
-      ll2Json(LL2_ENDPOINT)
-        .then((json) => {
-          if (!Array.isArray(json?.results)) return null; // throttled / error: keep what we have
-          json.results.forEach((l) => { const n = flightNumber(l.name); if (n != null) seenMax = Math.max(seenMax, n); });
-          const launch = pickNextLaunch(json.results);
-          if (!launch) return "none";
-          // Step 2: fetch that launch's full detail — this is where pad, vehicle
-          // serials and the mission description actually live.
-          return ll2Json(launch.url);
+      let listAt = meta.listAt;
+      // Step 1: find which launch is next (skipped on launch day if the list was read in the last hour).
+      const step1 = detailOnly ? Promise.resolve(meta.url) : ll2Json(LL2_ENDPOINT).then((json) => {
+        if (!Array.isArray(json?.results)) return null; // throttled / error: keep what we have
+        listAt = nowMs();
+        json.results.forEach((l) => { const n = flightNumber(l.name); if (n != null) seenMax = Math.max(seenMax, n); });
+        const launch = pickNextLaunch(json.results);
+        return launch ? launch.url : "none";
+      });
+      // Step 2: that launch's full detail (pad, vehicle serials, window, mission).
+      step1
+        .then((url) => (!url ? null : url === "none" ? { url: null, full: "none" } : ll2Json(url).then((full) => ({ url, full }))))
+        .then((res) => {
+          if (!res) { meta.failedAt = nowMs(); return; }
+          const data = res.full === "none" || !res.full?.name ? placeholderFlight(seenMax + 1) : flightFromLL2(res.full);
+          const at = nowMs();
+          meta = { data, fetchedAt: at, ttl: isHot(data, at) ? HOT_TTL_MS : CACHE_MS, url: res.url, listAt, failedAt: 0 };
+          setLive(data); setCheckedAt(at);
+          if (persist) { try { localStorage.setItem(CACHE_KEY, JSON.stringify(meta)); } catch {} }
         })
-        .then((full) => {
-          if (!full) return;
-          let data;
-          if (full === "none" || !full.name) {
-            // Nothing listed yet after the newest flight: temporary placeholder.
-            data = placeholderFlight(seenMax + 1);
-          } else {
-            const boosterSerial = full.rocket?.launcher_stage?.[0]?.launcher?.serial_number || "";
-            const shipSerial = full.rocket?.spacecraft_stage?.[0]?.spacecraft?.serial_number || "";
-            const description = (full.mission?.description || "").split(/\r?\n\r?\n/)[0]; // first paragraph only
-            const abbrev = full.status?.abbrev;
-            data = {
-              n: flightNumber(full.name),
-              status: mapLL2Status(abbrev),
-              outcome: mapLL2Outcome(abbrev),
-              date: full.net,
-              netPrecision: full.net_precision?.abbrev || "",
-              pad: shortPad(full.pad?.name),
-              block: full.rocket?.configuration?.variant || "",
-              booster: boosterSerial.replace(/^Booster\s*/i, "B"),
-              ship: shipSerial,
-              headline: full.mission?.type ? `${full.mission.type} mission` : "",
-              note: description || "Details to be announced.",
-            };
-          }
-          setLive(data);
-          if (!useCache) return;
-          // Check more often while a flight is underway or just finished, so the
-          // card flips to the result and then on to the next flight promptly
-          // (still well under LL2's free limit of ~15 requests/hour).
-          const ttl = data.status === "inflight" || data.status === "done" ? 5 * 60 * 1000 : CACHE_MS;
-          localStorage.setItem(CACHE_KEY, JSON.stringify({ data, fetchedAt: Date.now(), ttl }));
-        })
-        .catch(() => {})
+        .catch(() => { meta.failedAt = nowMs(); })
         .finally(() => { busy = false; });
     };
     load();
-    // Phones keep the app open in the background for hours: re-check (cache
-    // permitting) whenever it comes back to the front.
+    // Cheap local tick (no network unless due); the demo's fake clock needs a fast one.
+    const id = setInterval(load, LD ? 1000 : 15000);
+    // Phones keep the app open in the background for hours: re-check (if stale) on return.
     const onVisible = () => { if (document.visibilityState === "visible") load(); };
     document.addEventListener("visibilitychange", onVisible);
-    return () => document.removeEventListener("visibilitychange", onVisible);
+    return () => { clearInterval(id); document.removeEventListener("visibilitychange", onVisible); };
   }, []);
-  return applyMockOverride(live);
+  return { flight: applyMockOverride(live), checkedAt };
 }
 
 /* ───────────── pieces ───────────── */
@@ -507,6 +634,15 @@ function Countdown({ flight }) {
     return <div className="cd"><span className="cd-val cd-tbc">Date to be confirmed</span></div>;
   }
   if (status === "inflight") {
+    const since = now - new Date(flight.date).getTime();
+    if (exactTime(flight) && since >= 0) { // live T+ from liftoff
+      return (
+        <div className="cd cd-inflight" aria-label={`In flight, T plus ${hms(since)}`}>
+          <span className="cd-tag cd-tag-live">● T+</span>
+          <span className="cd-val">{hms(since)}</span>
+        </div>
+      );
+    }
     return (
       <div className="cd cd-inflight" aria-label="Mission in progress">
         <span className="cd-tag cd-tag-live">● In flight</span>
@@ -534,7 +670,7 @@ function Countdown({ flight }) {
   return (
     <div className="cd" aria-label={isNet ? `Estimated countdown, no earlier than ${fmt(flight.date, { day: "numeric", month: "long" })}` : undefined}>
       <span className="cd-tag">{isNet ? "NET" : "T–"}</span>
-      <span className="cd-val">{diff === 0 ? "Launching" : `${d}d ${pad2(h)}:${pad2(m)}:${pad2(s)}`}</span>
+      <span className="cd-val">{diff === 0 ? "Launching" : d > 0 ? `${d}d ${pad2(h)}:${pad2(m)}:${pad2(s)}` : hms(diff)}</span>
     </div>
   );
 }
@@ -559,8 +695,21 @@ function WatchLiveBadge({ flight, now }) {
   );
 }
 
-function NextFlightCard({ f, now }) {
+// "Opens 22:30 · Closes 00:30 (UK)" / "Open now · Closes 00:30 (UK)", from LL2's window.
+function windowText(f, now) {
+  const ws = new Date(f.windowStart).getTime(), we = new Date(f.windowEnd).getTime();
+  if (!Number.isFinite(ws) || !Number.isFinite(we) || we < ws) return null;
+  if (now > we) return null;
+  if (ws === we) return `${fmtTimeLondon(f.windowStart)} only (UK)`;
+  return now >= ws ? `Open now · Closes ${fmtTimeLondon(f.windowEnd)} (UK)` : `Opens ${fmtTimeLondon(f.windowStart)} · Closes ${fmtTimeLondon(f.windowEnd)} (UK)`;
+}
+
+function NextFlightCard({ f, checkedAt }) {
+  const now = useNow(true);
   const status = effectiveStatus(f, now);
+  const confirmed = status === "confirmed" && exactTime(f);
+  const win = confirmed && f.windowStart ? windowText(f, now) : null;
+  const showWatch = confirmed || status === "inflight";
   const dateLabel = status === "net" ? "NET date" : status === "inflight" || status === "done" ? "Liftoff" : "Date";
   let dateText = "To be confirmed";
   if (status === "inflight" || status === "done") dateText = f.date ? fmtLaunchedLondon(f.date) : dateText;
@@ -576,10 +725,18 @@ function NextFlightCard({ f, now }) {
       <div className="next-title"><span className="t-word">Starship Flight</span><span className="t-num">{f.n || "—"}</span></div>
       <dl className="facts">
         <dt>{dateLabel}</dt><dd>{dateText}</dd>
+        {win && <><dt>Window</dt><dd>{win}</dd></>}
         <dt>Site</dt><dd>{siteLine(f)}</dd>
         <dt>Vehicle</dt><dd>{vehicleLine(f)}</dd>
       </dl>
       <p className="next-note">{f.note}</p>
+      {showWatch && (
+        <div className="watch-where">
+          <span className="watch-where-h">Where to watch</span>
+          <ul>{WATCH_LINKS.map((l) => <li key={l.href}><a href={l.href} target="_blank" rel="noopener noreferrer">{l.label}</a></li>)}</ul>
+        </div>
+      )}
+      {status === "inflight" && checkedAt && <p className="auto-note">Auto-updating · last checked {fmtTimeLondon(checkedAt)}</p>}
     </section>
   );
 }
@@ -1067,7 +1224,7 @@ function StarshipTracker() {
   const cardEls = React.useRef({});
   const pending = React.useRef(null);
   const now = useNow(false);
-  const liveNext = useNextFlight();
+  const { flight: liveNext, checkedAt } = useNextFlight();
   const nextFlight = liveNext || placeholderFlight(LAST_LOGGED_N + 1);
 
   const flights = [...FLIGHTS].sort((a, b) => b.n - a.n);
@@ -1262,7 +1419,7 @@ function StarshipTracker() {
             : <span />}
         </header>
 
-        <NextFlightCard f={nextFlight} now={now} />
+        <NextFlightCard f={nextFlight} checkedAt={checkedAt} />
         <RoadCard road={road} onEntryTap={jumpToPost} />
         <Connector dashed label={`${daysSinceLatest} days since the last flight`} />
 
@@ -1363,6 +1520,12 @@ a.watch-badge-live:active { transform: scale(.96); }
 .facts dt { color: #AAB6D6; }
 .facts dd { margin: 0; }
 .next-note { font-size: 13.5px; line-height: 1.55; color: #CDD6EE; margin: 0; }
+.watch-where { margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(170,190,245,.16); }
+.watch-where-h { display: block; font-size: 12px; color: #AAB6D6; margin-bottom: 8px; }
+.watch-where ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.watch-where a { display: inline-block; font-size: 12.5px; font-weight: 600; color: var(--text); text-decoration: none; padding: 5px 10px; border-radius: 9px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.1); }
+.watch-where a:active { transform: scale(.96); }
+.auto-note { margin: 12px 0 0; font-size: 11.5px; color: var(--muted); opacity: .8; font-variant-numeric: tabular-nums; }
 
 /* connector between cards */
 .gap { position: relative; height: 46px; }

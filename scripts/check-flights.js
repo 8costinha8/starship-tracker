@@ -12,9 +12,15 @@
      3. Commits and pushes that change straight to the repo
    Photos are picked up by filename; the highlights field is added
    empty (the card shows "Highlights coming soon") — Bernardo pastes
-   the video link in by hand later. Once the "next flight" the live feed reports moves on
-   to the new number, the existing notification logic below already
-   announces that on its own — no extra code needed for that part.
+   the video link in by hand later. When the live feed's next flight moves
+   on to a new number, the tracked flight is switched silently (no push):
+   check-road.js sends "🚀 Road to Flight N" at 09:00 the next morning.
+
+   Liftoff: when LL2 says "In Flight" (or "Deployed"), it sends
+   "🚀 Liftoff!" once per flight. Date/status pushes are only ever about
+   the same flight, and never show raw status codes.
+
+   Offline test: node scripts/test-flights.js
 
    First-ever run: there's no "last time" yet, so it just saves
    today's data as the starting point. No notification fires on
@@ -22,7 +28,6 @@
    push the moment this goes live, even though nothing changed.
    ───────────────────────────────────────────────────────────── */
 
-const admin = require("firebase-admin");
 const fs = require("fs");
 const path = require("path");
 const { execSync } = require("child_process");
@@ -34,8 +39,13 @@ const ANTHROPIC_MODEL = "claude-sonnet-5";
 function mapLL2Status(abbrev) {
   if (abbrev === "Go") return "confirmed";
   if (abbrev === "TBC") return "net";
+  if (abbrev === "Hold") return "confirmed"; // a hold keeps the countdown's date (same as app.js)
+  if (abbrev === "In Flight" || abbrev === "Deployed") return "inflight"; // liftoff happened, mission under way
+  if (abbrev === "Success" || abbrev === "Failure" || abbrev === "Partial Failure") return "done";
   return "tbc";
 }
+// Words for the generic "Flight update" push: never a raw code.
+const STATUS_WORDS = { confirmed: "Go for launch", net: "Estimated date only", tbc: "Date to be confirmed" };
 
 // Only true once LL2 has an official final result — usually a few hours
 // after liftoff, not instantly.
@@ -217,20 +227,52 @@ async function main() {
     return;
   }
 
+  await run(liveDeps());
+}
+
+// Real Firebase + git. firebase-admin is only loaded here, so the offline test needs no install.
+function liveDeps() {
+  const admin = require("firebase-admin");
   const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
   admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
   const db = admin.firestore();
+  const stateRef = db.collection("app-state").doc("next-flight");
+  return {
+    fetchJson,
+    async loadState() { const snap = await stateRef.get(); return snap.exists ? snap.data() : null; },
+    async saveState(st) { await stateRef.set(st); },
+    readAppJs: () => fs.readFileSync(APP_JS_PATH, "utf8"),
+    writeAppJs: (text) => fs.writeFileSync(APP_JS_PATH, text),
+    commitAndPush,
+    writeStory,
+    // data-only message, so our own service worker decides exactly what to show
+    // (one banner, our exact wording, tap opens the app)
+    async push(notification) {
+      const subs = await db.collection("subscribers").get();
+      const tokens = subs.docs.map((d) => d.id);
+      if (!tokens.length) { console.log(`Would have sent "${notification.title}" — but there are no subscribers yet.`); return; }
+      const resp = await admin.messaging().sendEachForMulticast({ tokens, notification: { title: notification.title, body: notification.body } });
+      console.log(`Sent "${notification.title}" to ${resp.successCount}/${tokens.length} device(s).`);
+      // quietly remove any tokens that failed (phone uninstalled the app, etc.)
+      resp.responses.forEach((r, i) => { if (!r.success) db.collection("subscribers").doc(tokens[i]).delete().catch(() => {}); });
+    },
+  };
+}
 
+// One check: compare LL2 with last time, maybe log a finished flight, maybe push.
+// Returns { notification, current } (used by scripts/test-flights.js).
+async function run(deps) {
+  const now = deps.now || (() => Date.now());
   // 1. Get the real, current next-flight data (same source app.js uses)
   let json;
   try {
-    json = await fetchJson(LL2_ENDPOINT);
+    json = await deps.fetchJson(LL2_ENDPOINT);
   } catch (err) {
     console.log("Launch data unavailable right now — skipping this run, will retry in 15 min.");
-    return;
+    return { notification: null };
   }
   const launch = json.results?.[0];
-  if (!launch) { console.log("No upcoming launch found — nothing to check."); return; }
+  if (!launch) { console.log("No upcoming launch found — nothing to check."); return { notification: null }; }
 
   const match = launch.name.match(/Flight (\d+)/);
   const current = {
@@ -242,17 +284,16 @@ async function main() {
   };
 
   // 2. Load what we saw last time we ran
-  const stateRef = db.collection("app-state").doc("next-flight");
-  const stateSnap = await stateRef.get();
-  const prev = stateSnap.exists ? stateSnap.data() : null;
+  const prev = await deps.loadState();
 
   if (!prev) {
     console.log("First run — no previous data to compare against. Saving today's data as the baseline.");
-    await stateRef.set(current);
-    return;
+    await deps.saveState(current);
+    return { notification: null, current };
   }
 
   let notification = null;
+  const sameFlight = prev.n === current.n;
 
   // 3. Has this flight's final result just come in, and have we not
   //    already handled it? If so, write the story and commit it —
@@ -260,7 +301,7 @@ async function main() {
   if (current.outcome && prev.storyWrittenFor !== current.n) {
     console.log(`Flight ${current.n} result confirmed (${current.outcome}) — writing its story.`);
     try {
-      const full = await fetchJson(launch.url);
+      const full = await deps.fetchJson(launch.url);
       const flightData = {
         n: current.n,
         outcome: current.outcome,
@@ -272,13 +313,13 @@ async function main() {
         missionDescription: full.mission?.description || "",
       };
 
-      const appJsText = fs.readFileSync(APP_JS_PATH, "utf8");
+      const appJsText = deps.readAppJs();
       const styleExamples = recentStories(appJsText, 2);
-      const { headline, story } = await writeStory({ ...flightData, styleExamples });
+      const { headline, story } = await deps.writeStory({ ...flightData, styleExamples });
 
       const updatedAppJs = addFlightToAppJs(appJsText, { ...flightData, headline, story });
-      fs.writeFileSync(APP_JS_PATH, updatedAppJs);
-      commitAndPush(current.n, OUTCOME_LABEL[current.outcome]);
+      deps.writeAppJs(updatedAppJs);
+      deps.commitAndPush(current.n, OUTCOME_LABEL[current.outcome]);
 
       current.storyWrittenFor = current.n;
       notification = { title: `🏁 Flight ${current.n} — ${OUTCOME_LABEL[current.outcome]}`, body: "The story's up in the app." };
@@ -292,11 +333,25 @@ async function main() {
   } else if (prev.storyWrittenFor) {
     current.storyWrittenFor = prev.storyWrittenFor; // carry forward until it changes
   }
+  if (prev.liftoffNotifiedFor != null && current.liftoffNotifiedFor == null) current.liftoffNotifiedFor = prev.liftoffNotifiedFor;
 
   // 4. Work out what changed, if anything, and pick the right message
   //    (skipped if we already have a completion notification above)
   if (!notification) {
-    if (prev.date !== current.date) {
+    if (!sameFlight) {
+      // A different flight is now first in LL2's list: switch silently.
+      // (check-road.js sends "🚀 Road to Flight N" at 09:00 the next morning.)
+      console.log(`Now tracking Flight ${current.n} (was ${prev.n}) — no push for the switch.`);
+    } else if (current.status === "inflight") {
+      // Liftoff: one push per flight. No date/status pushes while in the air
+      // (LL2 usually moves "net" to the real liftoff time at this point).
+      if (current.liftoffNotifiedFor !== current.n) {
+        notification = { title: "🚀 Liftoff!", body: `Flight ${current.n} is in the air · Watch now` };
+        current.liftoffNotifiedFor = current.n;
+      }
+    } else if (current.status === "done") {
+      // the result push is the 🏁 one above
+    } else if (prev.date !== current.date) {
       const delayed = new Date(current.date) > new Date(prev.date);
       // Earlier date: only say "confirmed" when LL2 has an exact time.
       // A rough date (e.g. NET 19 Oct, no time yet) is just a new estimate.
@@ -307,52 +362,33 @@ async function main() {
           : { title: "📅 New estimated date", body: `NET ${fmtEstimate(current.date, current.precision)}` };
     } else if (prev.status !== current.status && current.status === "confirmed") {
       notification = { title: "✅ Launch time confirmed", body: fmtDateTime(current.date) };
-    } else if (prev.status !== current.status) {
-      notification = { title: "⚠️ Flight update", body: `Status changed to ${current.status}` };
-    } else if (prev.n !== current.n) {
-      notification = { title: "⚠️ Flight update", body: `Now tracking Flight ${current.n}` };
+    } else if (prev.status !== current.status && STATUS_WORDS[current.status] && prev.status !== "inflight" && prev.status !== "done") {
+      notification = { title: "⚠️ Flight update", body: `Now: ${STATUS_WORDS[current.status]}` };
     }
   }
 
   // 5. Livestream reminder — fires once, 60 minutes before liftoff
-  const msUntilLaunch = new Date(current.date).getTime() - Date.now();
+  const msUntilLaunch = new Date(current.date).getTime() - now();
   const alreadyNotifiedStream = prev.livestreamNotifiedFor === current.date;
-  if (!notification && !alreadyNotifiedStream && msUntilLaunch > 0 && msUntilLaunch <= 60 * 60 * 1000) {
+  if (!notification && !alreadyNotifiedStream && current.status !== "inflight" && current.status !== "done" && msUntilLaunch > 0 && msUntilLaunch <= 60 * 60 * 1000) {
     notification = { title: "📡 Livestream ready", body: "Liftoff in 60 min - tap to watch" };
     current.livestreamNotifiedFor = current.date;
   } else if (prev.livestreamNotifiedFor) {
     current.livestreamNotifiedFor = prev.livestreamNotifiedFor; // carry it forward until the date changes
   }
 
-  // 6. Send it — data-only message, so our own service worker decides
-  //    exactly what to show (one banner, our exact wording, no duplicates)
-  if (notification) {
-    const subs = await db.collection("subscribers").get();
-    const tokens = subs.docs.map((d) => d.id);
-
-    if (tokens.length) {
-      const resp = await admin.messaging().sendEachForMulticast({
-        tokens,
-        notification: { title: notification.title, body: notification.body },
-      });
-      console.log(`Sent "${notification.title}" to ${resp.successCount}/${tokens.length} device(s).`);
-
-      // quietly remove any tokens that failed (phone uninstalled the app, etc.)
-      resp.responses.forEach((r, i) => {
-        if (!r.success) db.collection("subscribers").doc(tokens[i]).delete().catch(() => {});
-      });
-    } else {
-      console.log(`Would have sent "${notification.title}" — but there are no subscribers yet.`);
-    }
-  } else {
-    console.log("Checked — no change since last run.");
-  }
+  // 6. Send it
+  if (notification) await deps.push(notification);
+  else console.log("Checked — no change since last run.");
 
   // 7. Save today's data as the new "last known state" for next time
-  await stateRef.set(current);
+  await deps.saveState(current);
+  return { notification, current };
 }
 
-main().catch((err) => {
+module.exports = { run, mapLL2Status, fmtDateTime, addFlightToAppJs };
+
+if (require.main === module) main().catch((err) => {
   console.error("Checker failed:", err);
   process.exit(1);
 });

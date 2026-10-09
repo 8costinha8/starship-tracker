@@ -48,11 +48,11 @@ const FIX = {
   ] }] }),
 };
 const X_POSTS = [
-  { id: "500", author_id: "1", text: "Starship Flight 15 is targeting 21 October. A 2-hour launch window opens at 23:00 UTC", created_at: ago(0.5) },
-  { id: "400", author_id: "2", text: "Ship 42 static fire at Massey's this evening, all six engines lit", created_at: ago(1) },
+  { id: "500", author_id: "34743251", text: "Starship Flight 15 is targeting 21 October. A 2-hour launch window opens at 23:00 UTC", created_at: ago(0.5) },
+  { id: "400", author_id: "21292523", text: "Ship 42 static fire at Massey's this evening, all six engines lit", created_at: ago(1) },
 ];
 
-let calls = { claude: 0, x: 0 };
+let calls = { claude: 0, x: 0, xUsers: 0 };
 let claudeDown = false;
 let claudeScript = []; // canned replies used first (RUN 6)
 
@@ -85,6 +85,7 @@ global.fetch = async (url, opts = {}) => {
   url = String(url);
   const reply = (body, status = 200) => ({ ok: status < 400, status, text: async () => body, json: async () => JSON.parse(body) });
   if (url.startsWith("https://api.anthropic.com/")) return reply(JSON.stringify(fakeClaude(JSON.parse(opts.body).messages[0].content)));
+  if (url.startsWith("https://api.x.com/2/users/by")) calls.xUsers++;
   if (url.startsWith("https://api.x.com/2/users/by")) return reply(JSON.stringify({ data: [{ id: "1", username: "SpaceX" }, { id: "2", username: "NASASpaceflight" }] }));
   if (url.startsWith("https://api.x.com/2/tweets/search/recent")) {
     calls.x++;
@@ -178,7 +179,23 @@ const box = (r, id) => r.categories.find((c) => c.id === id);
   res = await road.run(opts);
   r = JSON.parse(fs.readFileSync(roadPath, "utf8"));
   check(r.flight === 16 && r.categories.every((c) => c.status === "none" && c.history.length === 0), "rolled over to Road to Flight 16 with empty boxes");
-  check(sent.length === 1 && sent[0].title === "🚀 Road to Flight 16", `rollover push sent (${sent[0] && sent[0].title})`);
+  check(sent.length === 0, "rollover: no push at the moment of rollover");
+  check(stored.pendingPush && stored.pendingPush.title === "🚀 Road to Flight 16" && stored.pendingPush.sendAfter === "2026-10-23T08:00:00.000Z",
+    `"🚀 Road to Flight 16" scheduled for 09:00 London the morning after the launch day (launch 00:00 London 22 Oct → ${stored.pendingPush && stored.pendingPush.sendAfter})`);
+
+  console.log("\n────────── RUN 5b: the scheduled Road push ──────────");
+  const at = (iso) => ({ ...opts, now: () => Date.parse(iso) });
+  res = await road.run({ ...at("2026-10-23T07:59:59Z"), mode: "preview" });
+  check(sent.length === 0 && stored.pendingPush, "test mode (even when due): not sent, still pending");
+  res = await road.run(at("2026-10-23T07:59:00Z"));
+  check(sent.length === 0 && stored.pendingPush && !res.scheduledSent, "08:59 London: not sent yet");
+  res = await road.run(at("2026-10-23T08:00:00Z"));
+  check(sent.length === 1 && sent[0].title === "🚀 Road to Flight 16" && sent[0].body === "Flight 15 is in the log. Now tracking the road to Flight 16." && !stored.pendingPush, `09:00 London: sent once ("${sent[0] && sent[0].title}"), then cleared`);
+  res = await road.run(at("2026-10-23T08:15:00Z"));
+  res = await road.run(at("2026-10-24T12:00:00Z"));
+  check(sent.length === 1, "later runs: no duplicate");
+  check(road.nineAmLondonDayAfter("2026-12-14T23:30:00Z") === "2026-12-15T09:00:00.000Z" && road.nineAmLondonDayAfter("2026-10-13T22:00:00Z") === "2026-10-14T08:00:00.000Z" && road.nineAmLondonDayAfter("2026-10-24T23:30:00Z") === "2026-10-26T09:00:00.000Z",
+    "09:00 London handles GMT, BST, and the clocks-go-back weekend (launch 00:30 BST 25 Oct → 09:00 GMT 26 Oct)");
 
   console.log("\n────────── unit checks ──────────");
   check(road.trustForUrl("https://x.com/NASASpaceflight/status/1").tier === "trusted" && road.trustForUrl("https://x.com/rando/status/1").tier === "unconfirmed" && road.trustForUrl("https://www.spacex.com/launches/x").tier === "official", "trust lookup by link");
@@ -382,6 +399,15 @@ const box = (r, id) => r.categories.find((c) => c.id === id);
   const st8 = JSON.parse(fs.readFileSync(opts8.roadPath, "utf8")).categories.find((c) => c.id === "static");
   check(st8.history[0].key === "rss:r8" && !st8.history.some((h) => h.kind === "check") && sent8.length === 1, "real news lands → on top with its true date, the box's no-news line is deleted, one push");
 
+  check(calls.x > 0 && calls.xUsers === 0, `X: all 10 user ids hard-coded → no users/by lookup (${calls.xUsers} lookups, ${calls.x} searches)`);
+  { // fallback: an account without a hard-coded id is still looked up once
+    const xSrc = road.SOURCES.find((s) => s.name === "X");
+    const saved = road.X_ACCOUNTS.SpaceX.id; delete road.X_ACCOUNTS.SpaceX.id;
+    const st = {}; const before = calls.xUsers;
+    await xSrc.fetch(JSON.parse(fs.readFileSync(path.join(__dirname, "..", "road.json"), "utf8")), st);
+    road.X_ACCOUNTS.SpaceX.id = saved;
+    check(calls.xUsers === before + 1 && st.xUserIds.SpaceX === "1" && st.xUserIds.NASASpaceflight === "21292523", "X: a missing id falls back to one users/by lookup; known ids are kept");
+  }
   console.log(`\nClaude called ${calls.claude}x, X search called ${calls.x}x (all fake).`);
   console.log(failed ? `\n❌ ${failed} check(s) failed` : "\n✅ All checks passed. (Dry run only — nothing real was saved, committed or sent.)");
   process.exit(failed ? 1 : 0);

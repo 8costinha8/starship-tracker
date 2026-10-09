@@ -28,7 +28,9 @@
    The Launch date box is not shown in the app but is still tracked and pushed.
    When the flight it is tracking appears in app.js's FLIGHTS list (that's
    check-flights.js logging the result), it starts a fresh Road to the next
-   flight on its own.
+   flight on its own. Its "🚀 Road to Flight N" push is not sent then: it is
+   stored as state.pendingPush and sent by the first live run at or after
+   09:00 London time the morning after the launch day, then cleared.
 
    Modes:
      node scripts/check-road.js            live (used by the workflow)
@@ -104,17 +106,19 @@ const DOMAINS = {
   "labpadre.com": { src: "LabPadre", source: "labpadre", tier: "trusted" },
 };
 // X accounts we read (if X_BEARER_TOKEN is set) and how far we trust them.
+// id = the account's X user id (checked with the X API users/by lookup, 9 Oct 2026),
+// so no paid user lookup is needed. An account without an id is looked up once as before.
 const X_ACCOUNTS = {
-  SpaceX: { src: "SpaceX", tier: "official" },
-  FAANews: { src: "FAA", tier: "official" },
-  NASASpaceflight: { src: "NSF", tier: "trusted" },
-  BocaChicaGal: { src: "NSF", tier: "trusted" },
-  StarbaseWatcher: { src: "Starbase Watcher", tier: "trusted" },
-  LabPadre: { src: "LabPadre", tier: "trusted" },
-  RGVaerialphotos: { src: "RGV Aerial", tier: "trusted" },
-  SpaceflightNow: { src: "Spaceflight Now", tier: "trusted" },
-  SpaceNews_Inc: { src: "SpaceNews", tier: "trusted" },
-  thesheetztweetz: { src: "CNBC", tier: "trusted" },
+  SpaceX: { src: "SpaceX", tier: "official", id: "34743251" },
+  FAANews: { src: "FAA", tier: "official", id: "160946337" },
+  NASASpaceflight: { src: "NSF", tier: "trusted", id: "21292523" },
+  BocaChicaGal: { src: "NSF", tier: "trusted", id: "1077756486997168128" },
+  StarbaseWatcher: { src: "Starbase Watcher", tier: "trusted", id: "1416984433979138051" },
+  LabPadre: { src: "LabPadre", tier: "trusted", id: "1110905864578363394" },
+  RGVaerialphotos: { src: "RGV Aerial", tier: "trusted", id: "752724282925412352" },
+  SpaceflightNow: { src: "Spaceflight Now", tier: "trusted", id: "17217640" },
+  SpaceNews_Inc: { src: "SpaceNews", tier: "trusted", id: "31098756" },
+  thesheetztweetz: { src: "CNBC", tier: "trusted", id: "1231406720" },
 };
 // Spaceflight News API "news_site" names we trust (others come in unconfirmed).
 const SNAPI_TRUSTED = {
@@ -367,12 +371,13 @@ const SOURCES = [
       const auth = { headers: { authorization: `Bearer ${token}` } };
       // 1. handle -> user id, looked up once and remembered (user reads cost extra)
       state.xUserIds = state.xUserIds || {};
+      for (const [h, a] of Object.entries(X_ACCOUNTS)) if (a.id) state.xUserIds[h] = a.id; // hard-coded ids win
       const missing = Object.keys(X_ACCOUNTS).filter((h) => !state.xUserIds[h]);
       if (missing.length) {
         const u = await fetchJson(`https://api.x.com/2/users/by?usernames=${missing.join(",")}`, auth);
         for (const user of u.data || []) {
           const h = Object.keys(X_ACCOUNTS).find((k) => k.toLowerCase() === user.username.toLowerCase());
-          if (h) state.xUserIds[h] = user.id;
+          if (h && missing.includes(h)) state.xUserIds[h] = user.id;
         }
         for (const h of missing) if (!state.xUserIds[h]) state.xUserIds[h] = "none"; // doesn't exist; don't look up again
       }
@@ -499,6 +504,20 @@ function validateRoad(road) {
       if (h.trust !== "trusted" && h.trust !== "unconfirmed") throw new Error(`entry without trust in ${c.id}`);
     }
   }
+}
+
+// Liftoff time of flight n as logged in app.js's FLIGHTS ({ n: 15, date: "…" }), or null.
+function loggedFlightDate(appJsText, n) {
+  const m = appJsText.match(new RegExp(`\\{\\s*n:\\s*${n},\\s*date:\\s*"([^"]+)"`));
+  return m && Number.isFinite(new Date(m[1]).getTime()) ? m[1] : null;
+}
+
+// 09:00 Europe/London on the London day after `iso`'s London day, as an ISO string.
+function nineAmLondonDayAfter(iso) {
+  const p = Object.fromEntries(new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/London", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(new Date(iso)).map((x) => [x.type, x.value]));
+  const guess = Date.UTC(Number(p.year), Number(p.month) - 1, Number(p.day) + 1, 9); // 09:00 UTC that day
+  const londonHour = Number(new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/London", hour: "2-digit", hour12: false }).format(new Date(guess)));
+  return new Date(guess - (londonHour - 9) * 3600000).toISOString(); // BST: 09:00 London = 08:00 UTC
 }
 
 // Highest flight number already logged in app.js (check-flights.js adds it).
@@ -716,14 +735,40 @@ async function run(opts = {}) {
   const seen = new Set(state.seen || []);
   const notifications = [];
   let changed = false;
+  const clock = opts.now || (() => Date.now());
+
+  // 0. A push scheduled by an earlier run (the next-morning "Road to Flight N"):
+  //    send it once it is due. The cleared state is saved BEFORE sending, so a
+  //    crash can at worst lose it, never send it twice. Never sent in test mode.
+  let scheduledSent = null;
+  if (state.pendingPush) {
+    const pp = state.pendingPush;
+    const due = clock() >= new Date(pp.sendAfter).getTime();
+    if (!save) log(`scheduled push "${pp.title}" ${due ? "is due" : `waits until ${pp.sendAfter}`} — not sent (test mode)`);
+    else if (due) {
+      delete state.pendingPush;
+      await deps.saveState(state);
+      await deps.push({ title: pp.title, body: pp.body });
+      scheduledSent = pp;
+      log(`sent scheduled push "${pp.title}" (due ${pp.sendAfter})`);
+    } else log(`scheduled push "${pp.title}" waits until ${pp.sendAfter}`);
+  }
 
   // 1. Has the tracked flight flown and been logged? Then start the next Road.
-  const lastN = lastLoggedFlight(fs.readFileSync(appJsPath, "utf8"));
+  const appJsText = fs.readFileSync(appJsPath, "utf8");
+  const lastN = lastLoggedFlight(appJsText);
+  let rolledOver = false;
   if (lastN && road.flight <= lastN) {
     log(`Flight ${road.flight} is now in the flight log — starting Road to Flight ${lastN + 1}`);
     road = freshRoad(lastN + 1);
-    changed = true;
-    notifications.push({ title: `🚀 Road to Flight ${road.flight}`, body: `Flight ${lastN} is in the log. Now tracking the road to Flight ${road.flight}.` });
+    changed = rolledOver = true;
+    // The push waits for 09:00 London the morning after the launch day.
+    const launchedAt = loggedFlightDate(appJsText, lastN) || new Date(clock()).toISOString();
+    state.pendingPush = {
+      sendAfter: nineAmLondonDayAfter(launchedAt), flight: road.flight,
+      title: `🚀 Road to Flight ${road.flight}`, body: `Flight ${lastN} is in the log. Now tracking the road to Flight ${road.flight}.`,
+    };
+    log(`"${state.pendingPush.title}" push scheduled for ${state.pendingPush.sendAfter} (09:00 London, morning after the launch day)`);
   }
 
   // 2. Collect posts from every source (one failing source never stops the run)
@@ -826,10 +871,10 @@ async function run(opts = {}) {
     const json = JSON.stringify(road, null, 2) + "\n";
     if (save) {
       fs.writeFileSync(roadPath, json);
-      const what = [notifications.length ? `${notifications.length} update(s)` : "", refreshed.length ? `no-news lines tidied (${road.updated})` : ""].filter(Boolean).join(", ");
+      const what = [rolledOver ? "new Road" : "", notifications.length ? `${notifications.length} update(s)` : "", refreshed.length ? `no-news lines tidied (${road.updated})` : ""].filter(Boolean).join(", ");
       commit("road.json", `Auto: Road to Flight ${road.flight} — ${what}`);
     } else console.log(`(not committed) Auto: Road to Flight ${road.flight} — ${notifications.length} update(s)${refreshed.length ? `, ${refreshed.length} no-news line change(s) (${road.updated})` : ""}`);
-    if (!notifications.length) log("date-only refresh — no push notification");
+    if (!notifications.length && !rolledOver) log("date-only refresh — no push notification");
     for (const n of notifications) {
       if (save) await deps.push(n);
       else console.log(`(not sent) push: ${n.title} — ${n.body}`);
@@ -846,10 +891,10 @@ async function run(opts = {}) {
   state.seen = [...seen].slice(-LIMITS.seenKeep);
   state.lastRun = new Date().toISOString();
   if (save) await deps.saveState(state);
-  return { road, changes, notifications, refreshed, state };
+  return { road, changes, notifications, refreshed, state, scheduledSent };
 }
 
-module.exports = { run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, fmtDay, CHECK_TEXT, LIMITS, SOURCES };
+module.exports = { run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
 
 if (require.main === module) {
   run().catch((err) => {
