@@ -59,12 +59,12 @@ let claudeScript = []; // canned replies used first (RUN 6)
 // Fake Claude: reads the numbered items in the real prompt and answers like Claude would.
 const CANNED = [
   [/Booster 22 completes static fire/, { box: "static", line: "Booster 22 completed a static fire at Massey's.", short: "B22 static fire done, S42 still to go", status: "progress" }],
-  [/FAA approves/, { box: "faa", line: "FAA has modified the licence to cover Flight 15.", short: "Licence now covers Flight 15", status: "done" }],
+  [/FAA approves/, { box: "faa", line: "FAA has modified the licence to cover Flight 15.", short: "Licence now covers Flight 15", status: "complete" }],
   [/could roll to Pad 2/, { box: "pad", line: "Ship 42 may roll to Pad 2 this weekend, per unnamed sources.", short: "S42 may roll to Pad 2", status: "progress" }],
   [/returns to Massey's for more cryo/, { box: "cryo", line: "Booster 22 back at Massey's for more cryo testing.", short: "B22 back at Massey's for more cryo", status: "progress" }],
   [/cryo test may have failed/, { box: "cryo", line: "A post asks if S42's cryo test failed. Not confirmed.", short: "x", status: "pending" }],
   [/targeting 21 October/, { box: "date", line: "SpaceX is targeting 21 Oct, window opens 23:00 UTC.", short: "SpaceX targeting 21 Oct", status: "done" }],
-  [/Ship 42 static fire at Massey's/, { box: "static", line: "Ship 42 completed a static fire at Massey's.", short: "S42 static fire done", status: "done" }],
+  [/Ship 42 static fire at Massey's/, { box: "static", line: "Ship 42 completed a static fire at Massey's.", short: "S42 static fire done", status: "complete" }],
 ];
 function fakeClaude(prompt) {
   calls.claude++;
@@ -120,6 +120,11 @@ const box = (r, id) => r.categories.find((c) => c.id === id);
   const appJsPath = path.join(tmp, "app.js");
   fs.copyFileSync(path.join(ROOT, "road.json"), roadPath);
   fs.copyFileSync(path.join(ROOT, "app.js"), appJsPath);
+  { // start with Cryo finished, so RUN 1 can show a trusted source re-opening it
+    const start = JSON.parse(fs.readFileSync(roadPath, "utf8"));
+    start.categories.find((c) => c.id === "cryo").status = "done";
+    fs.writeFileSync(roadPath, JSON.stringify(start, null, 2) + "\n");
+  }
   const opts = { mode: "dry-run", roadPath, appJsPath, deps, commit: (f, m) => { commits.push(m); console.log(`(fake commit) ${m}`); } };
 
   console.log("\n────────── RUN 1: normal run with a mix of posts ──────────");
@@ -128,11 +133,12 @@ const box = (r, id) => r.categories.find((c) => c.id === id);
   check(res.changes.length === 5, `capped at 5 changes this run (got ${res.changes.length})`);
   check(sent.length === 5 && commits.length === 1, `one push per change (${sent.length}) and one commit (${commits.length})`);
   check(box(r, "date").status === "done" && box(r, "date").history[0].src === "SpaceX", "SpaceX post on X → Launch date Confirmed (official source)");
-  check(box(r, "faa").status === "done" && box(r, "faa").history[0].src === "SpaceNews", "SpaceNews (trusted) → FAA licence Done");
+  check(box(r, "faa").status === "complete" && box(r, "faa").latest === "Done" && box(r, "faa").history[0].src === "SpaceNews" && box(r, "faa").history[0].complete === true && box(r, "faa").history.slice(1).every((h) => !h.complete), "SpaceNews (trusted) says licence modified → FAA licence complete, headline \"Done\", only that entry flagged complete");
+  check(r.categories.every((c) => c.history.filter((h) => h.kind === "check").length === 0 || !c.history.some((h) => h.key)), "every box that got real news lost its \"no news yet\" line");
   const st = box(r, "static");
-  check(st.status === "done" && st.history[0].text.startsWith("Ship 42") && st.history[1].text.startsWith("Booster 22") && st.latest === "S42 static fire done", "B22 then S42 static fires → Static fires Done, newest first, headline updated");
+  check(st.status === "complete" && st.history[0].text.startsWith("Ship 42") && st.history[1].text.startsWith("Booster 22") && st.latest === "Done" && st.history[0].complete === true && !st.history[1].complete, "B22 then S42 static fires → Static fires complete, newest first, headline \"Done\", S42 entry flagged");
   const cryo = box(r, "cryo");
-  check(cryo.status === "done" && cryo.history[0].src === "NSF", "NSF says B22 back for cryo → entry added but Done NOT downgraded (needs SpaceX/FAA)");
+  check(cryo.status === "progress" && cryo.history[0].src === "NSF" && cryo.latest === "B22 back at Massey's for more cryo" && cryo.history.length === JSON.parse(fs.readFileSync(path.join(ROOT, "road.json"), "utf8")).categories.find((c) => c.id === "cryo").history.length + 1, "NSF says B22 back for cryo → finished stage re-opened (In progress), new entry on top, older kept");
   check(!r.categories.some((c) => c.history.some((h) => /Flight 14 recap|Falcon 9|Starbase Live|Ship 42 to Pad 2/i.test(h.text))), "stale, off-topic, irrelevant and already-seen posts ignored");
   check(r.categories.every((c) => c.history.filter((h) => /b22-static-fire/.test(h.url || "")).length <= 1), "same NSF article from two sources added once");
   check(stored.pending.length === 2 && stored.pending.every((p) => p.tier === "unconfirmed"), `cap keeps official/trusted first; ${stored.pending.length} unconfirmed post(s) wait for the next run`);
@@ -152,7 +158,7 @@ const box = (r, id) => r.categories.find((c) => c.id === id);
   r = JSON.parse(fs.readFileSync(roadPath, "utf8"));
   const pad = box(r, "pad");
   check(pad.history[0].trust === "unconfirmed" && pad.history[0].src === "Teslarati" && pad.latest.startsWith("Pad 2 being serviced"), "Teslarati rumour → added with Unconfirmed tag, headline untouched");
-  check(box(r, "cryo").status === "done" && box(r, "cryo").history[0].trust === "unconfirmed", "unconfirmed X post suggesting a cryo failure → tagged, status stays Done");
+  check(box(r, "cryo").status === "progress" && box(r, "cryo").history[0].trust === "unconfirmed", "unconfirmed X post suggesting a cryo failure → tagged, status unchanged");
   check(sent.length === 2 && sent.every((n) => /\(unconfirmed\)$/.test(n.title)), `pushes say (unconfirmed): ${sent.map((n) => n.title).join(" | ")}`);
 
   fs.copyFileSync(roadPath, path.join(os.tmpdir(), "road-dryrun-run3.json")); // for a screenshot of the tags
@@ -199,13 +205,16 @@ const box = (r, id) => r.categories.find((c) => c.id === id);
   const hr = road.freshRoad(15);
   const hpad = hr.categories.find((c) => c.id === "pad");
   hpad.status = "progress"; hpad.latest = "Pad 2 being serviced";
-  const items = [1, 2, 3].map((n) => ({ key: `k${n}`, title: `t${n}`, src: "NSF", source: "nsf", tier: "trusted", publishedAt: ago(n) }));
+  const items = [1, 2, 3, 4].map((n) => ({ key: `k${n}`, title: `t${n}`, src: "NSF", source: "nsf", tier: "trusted", publishedAt: ago(n) }));
   road.applyUpdates(hr, items, [{ item: 1, box: "pad", line: "Flight 15 will launch from Starbase.", short: "Flight 15 from Starbase", status: null, supersedes: false }], () => {}, 5);
   check(hpad.latest === "Pad 2 being serviced", "new fact without supersedes → headline kept");
   road.applyUpdates(hr, items, [{ item: 2, box: "pad", line: "Pad 2 servicing finished.", short: "Pad 2 servicing finished", status: null, supersedes: true }], () => {}, 5);
   check(hpad.latest === "Pad 2 servicing finished", "supersedes: true → headline replaced");
-  road.applyUpdates(hr, items, [{ item: 3, box: "pad", line: "Ship 42 rolled to Pad 2.", short: "S42 at Pad 2", status: "done" }], () => {}, 5);
-  check(hpad.latest === "S42 at Pad 2" && hpad.status === "done", "status change → headline replaced");
+  road.applyUpdates(hr, items, [{ item: 3, box: "pad", line: "Ship 42 rolled to Pad 2.", short: "S42 at Pad 2", status: "progress" }], () => {}, 5);
+  check(hpad.latest === "Pad 2 servicing finished" && hpad.status === "progress", "same status → headline kept");
+  hpad.status = "pending";
+  road.applyUpdates(hr, items, [{ item: 4, box: "pad", line: "Ship 42 rolled to Pad 2 again.", short: "S42 at Pad 2", status: "progress" }], () => {}, 5);
+  check(hpad.latest === "S42 at Pad 2" && hpad.status === "progress", "status change → headline replaced");
 
   console.log("\n────────── RUN 6: several facts from one item, empty Claude replies ──────────");
   road.LIMITS.claudeRetryMs = 0;
@@ -275,69 +284,103 @@ const box = (r, id) => r.categories.find((c) => c.id === id);
   res = await road.run(opts6);
   check(res.changes.length === 1 && state6.seen.includes("rss:e2"), "next run: the waiting item is processed");
 
-  console.log("\n────────── RUN 7: daily refresh of \"no news yet\" dates ──────────");
-  // unit: only kind:"check" lines move, real news keeps its date, London day, same day = no-op
+  console.log("\n────────── RUN 7: Complete (green) status ──────────");
+  const cr = road.freshRoad(15);
+  const ccryo = cr.categories.find((c) => c.id === "cryo");
+  ccryo.status = "progress"; ccryo.latest = "B22 cryo testing under way";
+  ccryo.history = [{ date: "1 Oct", text: "No new cryo testing news since the last update.", src: "Tracker check", source: "manual-check", trust: "trusted", kind: "check" },
+    { date: "28 Sep", text: "B22 at Massey's for cryo testing.", src: "NSF", source: "nsf", trust: "trusted" }];
+  const citem = (n, tier = "trusted", src = "NSF") => ({ key: `c${n}`, title: `c${n}`, src, source: src.toLowerCase(), tier, url: `https://example.com/c${n}`, publishedAt: new Date(Date.now() - (10 - n) * 60000).toISOString() });
+  const cItems = [1, 2, 3, 4, 5, 6].map((n) => citem(n));
+  cItems[3] = citem(4, "unconfirmed", "@fan");
+  let cch = road.applyUpdates(cr, cItems, [{ item: 1, box: "cryo", line: "Both B22 and S42 have completed cryo testing.", short: "Cryo testing complete", status: "complete" }], () => {}, 5);
+  check(ccryo.status === "complete" && ccryo.latest === "Done" && cch[0].to === "complete" && ccryo.history[0].complete === true && !ccryo.history.slice(1).some((h) => h.complete), "source says the stage is done → status complete, headline \"Done\", that entry flagged complete: true");
+  check(!ccryo.history.some((h) => h.kind === "check") && ccryo.history[0].key === "c1", "real news landed → the box's \"no news yet\" line is deleted");
+  check(cch.length === 1 && /Cryo tests: Done$/.test(road.notificationFor(cr, cch[0]).title), "push title says Done");
+  cch = road.applyUpdates(cr, cItems, [{ item: 2, box: "cryo", line: "Booster 22 is back at Massey's for more cryo testing.", short: "B22 back for more cryo", status: "progress" }], () => {}, 5);
+  check(ccryo.status === "progress" && ccryo.latest === "B22 back for more cryo" && ccryo.history[0].key === "c2" && ccryo.history[1].key === "c1", "trusted source re-opens it → In progress, new entry on top, the Complete entry stays below");
+  cch = road.applyUpdates(cr, cItems, [{ item: 4, box: "cryo", line: "A fan says Booster 22 finished cryo again.", short: "x", status: "complete" }], () => {}, 5);
+  check(ccryo.status === "progress" && ccryo.history[0].trust === "unconfirmed", "unconfirmed source can't mark it complete");
+  cch = road.applyUpdates(cr, cItems, [{ item: 3, box: "cryo", line: "Booster 22 has completed its extra cryo testing.", short: "B22 extra cryo done", status: "complete" }], () => {}, 5);
+  check(ccryo.status === "complete" && ccryo.latest === "Done" && ccryo.history.filter((h) => h.complete).map((h) => h.key).sort().join() === "c1,c3", "completed again → \"Done\" again, new completion entry flagged, re-open and unconfirmed entries not");
+  check(ccryo.history.length === 5 && ccryo.history.every((h) => h.src), `full timeline kept, every entry with its source (${ccryo.history.map((h) => `${h.src}`).join(", ")})`);
+  const cdate = cr.categories.find((c) => c.id === "date"), cfaa = cr.categories.find((c) => c.id === "faa");
+  road.applyUpdates(cr, cItems, [{ item: 5, box: "date", line: "NSF says the launch date is set for 21 October.", short: "21 Oct", status: "complete" }, { item: 6, box: "faa", line: "FAA modification is reportedly done for Flight 15.", short: "y", status: "done" }], () => {}, 5);
+  check(cdate.status === "none" && cfaa.status === "none", "\"complete\" ignored for Launch date, \"done\" ignored for the other boxes");
+  const lr = road.freshRoad(15);
+  const lItems = [{ ...citem(7), tier: "official", src: "SpaceX", source: "spacex" }];
+  const lch = road.applyUpdates(lr, lItems, [{ item: 1, box: "date", line: "SpaceX is targeting 21 Oct for Flight 15.", short: "SpaceX targeting 21 Oct", status: "done" }], () => {}, 5);
+  const ldate = lr.categories.find((c) => c.id === "date");
+  check(ldate.status === "done" && lch.length === 1 && road.notificationFor(lr, lch[0]).title === "🗓️ Launch date: Confirmed" && !ldate.history[0].complete, "Launch date box (hidden in the app) still processed: SpaceX date → Confirmed, push \"🗓️ Launch date: Confirmed\"");
+  let threw2 = false; try { road.validateRoad({ ...cr, categories: cr.categories.map((c) => (c.id === "date" ? { ...c, status: "complete" } : c)) }); } catch { threw2 = true; }
+  check(threw2, "validateRoad refuses a Complete Launch date");
+
+  console.log("\n────────── RUN 8: \"no news yet\" lines are placeholders ──────────");
   const today = road.fmtDay();
+  const nr = (h) => ({ date: h[0], text: h[1], src: h[2] || "NSF", source: "nsf", trust: "trusted", ...(h[3] || {}) });
+  const ck = (date, text) => ({ date, text, src: "Tracker check", source: "manual-check", trust: "trusted", kind: "check" });
   const mk = () => ({ flight: 15, vehicles: [], categories: [
-    { id: "raptor", history: [
-      { date: "7 Oct", text: "No report yet of Raptor installs finishing.", src: "Tracker check", source: "manual-check", trust: "trusted", kind: "check" },
-      { date: "30 Sep", text: "Both being fitted with Raptors.", src: "NSF", source: "nsf", trust: "trusted" } ] },
-    { id: "pad", history: [
-      { date: "9 Oct", text: "Pad 2's chopsticks are undergoing maintenance.", src: "NSF", source: "nsf", trust: "trusted", at: "2026-10-08T23:00:08.000Z" },
-      { date: "7 Oct", text: "No rollout reported yet.", src: "Tracker check", source: "manual-check", trust: "trusted", kind: "check" } ] },
-    { id: "cryo", history: [{ date: "6 Oct", text: "Real news with no check line.", src: "NSF", source: "nsf", trust: "trusted" }] },
+    { id: "raptor", status: "progress", history: [ck("7 Oct", "No report yet of Raptor installs finishing."), nr(["30 Sep", "Both being fitted with Raptors."])] },
+    { id: "pad", status: "progress", history: [nr(["9 Oct", "Pad 2's chopsticks are undergoing maintenance.", "NSF", { at: "2026-10-08T23:00:08.000Z" }]), ck("7 Oct", "No rollout reported yet.")] },
+    { id: "cryo", status: "done", history: [nr(["6 Oct", "Both vehicles passed cryo."])] },
+    { id: "static", status: "pending", history: [nr(["30 Sep", "B22 static fire in ~2 weeks."])] },
+    { id: "faa", status: "pending", history: [ck("8 Oct", "No FAA news A."), ck("7 Oct", "No FAA news B."), nr(["26 Sep", "Licence for Flight 14 only."])] },
+    { id: "date", status: "pending", history: [] },
   ] });
   const u = mk();
-  const nowBst = new Date("2026-10-09T23:30:00Z"); // 00:30 on 10 Oct in London
-  const moved = road.refreshCheckDates(u, nowBst);
   const ub = (id) => u.categories.find((c) => c.id === id);
-  check(moved.length === 2 && ub("raptor").history[0].date === "10 Oct" && ub("pad").history[0].date === "10 Oct", `check lines moved to the London date (10 Oct at 23:30 UTC on 9 Oct): ${moved.map((m) => `${m.box.id} ${m.from}→${m.to}`).join(", ")}`);
-  check(ub("raptor").history[1].date === "30 Sep" && ub("pad").history[1].date === "9 Oct" && ub("cryo").history[0].date === "6 Oct", "real news entries keep their true dates");
-  check(ub("pad").history[0].kind === "check" && ub("pad").history[1].src === "NSF", "history stays newest first (check line now newest in Pad)");
-  check(road.refreshCheckDates(u, new Date("2026-10-10T15:00:00Z")).length === 0, "second refresh on the same London day → no-op");
-  const same = mk();
-  same.categories[1].history[1].date = "9 Oct";
-  road.refreshCheckDates(same, new Date("2026-10-09T12:00:00Z"));
-  check(same.categories[1].history[0].kind !== "check" && same.categories[1].history[1].kind === "check", "same day as real news → the real entry stays on top");
+  const realOf = (rd) => JSON.stringify(rd.categories.map((c) => c.history.filter((h) => h.kind !== "check")));
+  const realU = realOf(u);
+  const day9 = new Date("2026-10-09T12:00:00Z");
+  const ch9 = road.refreshCheckDates(u, day9);
+  check(ub("raptor").history[0].kind === "check" && ub("raptor").history[0].date === "9 Oct" && ub("raptor").history[0].text === "No report yet of Raptor installs finishing.", "standing line keeps its wording, date rolls to today (7 Oct → 9 Oct)");
+  check(!ub("pad").history.some((h) => h.kind === "check"), "real news on 9 Oct → no check line on 9 Oct (removed)");
+  check(!ub("cryo").history.some((h) => h.kind === "check") && !ub("date").history.length, "finished box and empty box → no check line");
+  check(ub("static").history[0].kind === "check" && ub("static").history[0].date === "9 Oct" && ub("static").history[0].text === road.CHECK_TEXT.static, `quiet box without one gets the default line: "${road.CHECK_TEXT.static}"`);
+  check(ub("faa").history.filter((h) => h.kind === "check").length === 1 && ub("faa").history[0].text === "No FAA news A.", "never more than one check line per box");
+  check(realOf(u) === realU, "real entries untouched (dates, text, order)");
+  check(road.refreshCheckDates(u, new Date("2026-10-09T22:59:00Z")).length === 0, "again the same London day → no-op");
+  const ch10 = road.refreshCheckDates(u, new Date("2026-10-09T23:30:00Z")); // 00:30 on 10 Oct in London
+  check(ub("pad").history[0].kind === "check" && ub("pad").history[0].date === "10 Oct" && ub("pad").history[0].text === road.CHECK_TEXT.pad && ub("pad").history[1].date === "9 Oct", "next London day (10 Oct) → Pad's check line re-appears on top, real 9 Oct entry below");
+  check(ub("raptor").history[0].date === "10 Oct" && ub("static").history[0].date === "10 Oct" && realOf(u) === realU, "standing lines roll to 10 Oct, real entries untouched");
+  const ch11 = road.refreshCheckDates(u, new Date("2026-10-11T08:00:00Z"));
+  check(ch11.length === 4 && ch11.every((m) => m.action === "moved" && m.to === "11 Oct"), "and roll again on 11 Oct");
 
-  // full runs: date-only refresh is committed once, never pushed; next run same day is a no-op
-  const tmp7 = fs.mkdtempSync(path.join(os.tmpdir(), "road-test7-"));
-  const road7 = JSON.parse(fs.readFileSync(path.join(ROOT, "road.json"), "utf8"));
-  for (const c of road7.categories) for (const h of c.history) if (h.kind === "check") h.date = "1 Oct";
-  road7.updated = "1 Oct"; road7.updatedAt = "2026-10-01T10:00:00Z";
-  fs.writeFileSync(path.join(tmp7, "road.json"), JSON.stringify(road7, null, 2) + "\n");
-  fs.copyFileSync(path.join(ROOT, "app.js"), path.join(tmp7, "app.js"));
-  const realBefore = JSON.stringify(road7.categories.map((c) => c.history.filter((h) => h.kind !== "check")));
-  const sent7 = [], commits7 = [];
-  let state7 = { seen: [] };
-  const opts7 = {
-    mode: "dry-run", roadPath: path.join(tmp7, "road.json"), appJsPath: path.join(tmp7, "app.js"),
-    commit: (f, m) => commits7.push(m), sources: [{ name: "fake", fetch: async () => [] }],
-    deps: { loadState: async () => JSON.parse(JSON.stringify(state7)), saveState: async (st) => { state7 = JSON.parse(JSON.stringify(st)); }, push: async (n) => sent7.push(n) },
+  // full runs on a copy of the real road.json
+  const tmp8 = fs.mkdtempSync(path.join(os.tmpdir(), "road-test8-"));
+  const road8 = JSON.parse(fs.readFileSync(path.join(ROOT, "road.json"), "utf8"));
+  for (const c of road8.categories) for (const h of c.history) if (h.kind === "check") h.date = "1 Oct";
+  road8.updated = "1 Oct"; road8.updatedAt = "2026-10-01T10:00:00Z";
+  fs.writeFileSync(path.join(tmp8, "road.json"), JSON.stringify(road8, null, 2) + "\n");
+  fs.copyFileSync(path.join(ROOT, "app.js"), path.join(tmp8, "app.js"));
+  const real8 = realOf(road8);
+  const sent8 = [], commits8 = [];
+  let state8 = { seen: [] };
+  const opts8 = {
+    mode: "dry-run", roadPath: path.join(tmp8, "road.json"), appJsPath: path.join(tmp8, "app.js"),
+    commit: (f, m) => commits8.push(m), sources: [{ name: "fake", fetch: async () => [] }],
+    deps: { loadState: async () => JSON.parse(JSON.stringify(state8)), saveState: async (st) => { state8 = JSON.parse(JSON.stringify(st)); }, push: async (n) => sent8.push(n) },
   };
-  // preview (test mode): logs, writes nothing
-  const raw7 = fs.readFileSync(opts7.roadPath, "utf8");
-  const logs7 = [];
-  const realLog7 = console.log;
-  console.log = (...a) => { logs7.push(a.join(" ")); realLog7(...a); };
-  res = await road.run({ ...opts7, mode: "preview" });
-  console.log = realLog7;
-  check(fs.readFileSync(opts7.roadPath, "utf8") === raw7 && !commits7.length && !sent7.length && logs7.some((l) => /DATE REFRESH \[raptor\] .* 1 Oct → /.test(l)), "test mode: logs the date refresh, writes/commits/sends nothing");
-  res = await road.run(opts7);
-  const r7 = JSON.parse(fs.readFileSync(opts7.roadPath, "utf8"));
-  const checks7 = r7.categories.flatMap((c) => c.history.filter((h) => h.kind === "check"));
-  check(checks7.length === 5 && checks7.every((h) => h.date === today), `every no-news line now says ${today} (${checks7.length} lines)`);
-  check(JSON.stringify(r7.categories.map((c) => c.history.filter((h) => h.kind !== "check"))) === realBefore, "real news entries untouched (dates, text, order)");
-  check(r7.updated === today && r7.updatedAt.slice(0, 10) === new Date().toISOString().slice(0, 10), `card "Updated" moved to ${r7.updated}`);
-  check(commits7.length === 1 && /no-news dates/.test(commits7[0]) && sent7.length === 0 && res.notifications.length === 0, `date-only refresh → one commit ("${commits7[0]}"), NO push`);
-  check(r7.categories.every((c) => c.history.every((h, i, a) => !i || (road.sortHistory([a[i - 1], h])[0] === a[i - 1]))), "every box still newest first");
-  const raw7b = fs.readFileSync(opts7.roadPath, "utf8");
-  res = await road.run(opts7);
-  check(fs.readFileSync(opts7.roadPath, "utf8") === raw7b && commits7.length === 1 && sent7.length === 0, "next run the same day → no-op (no write, no commit, no push)");
-  // real news on a box with a check line: real entry has its own date and is pushed, check line still marked
-  res = await road.run({ ...opts7, sources: [{ name: "fake", fetch: async () => [item6("r7", "Ship 42 Raptor installs finished")] }] , askClaude: async () => [{ item: 1, box: "raptor", line: "Ship 42 has finished Raptor installs.", short: "S42 Raptors installed", status: null }] });
-  const rap7 = JSON.parse(fs.readFileSync(opts7.roadPath, "utf8")).categories.find((c) => c.id === "raptor");
-  check(rap7.history[0].key === "rss:r7" && rap7.history[0].date === road.fmtDay(rap7.history[0].at) && rap7.history.findIndex((h) => h.kind === "check") > 0 && rap7.history.filter((h) => h.date === today).every((h, i, a) => h.kind !== "check" || i === a.length - 1) && sent7.length === 1, "real news wins: on top with its true date, pushed; check line stays below");
+  const raw8 = fs.readFileSync(opts8.roadPath, "utf8");
+  const logs8 = [];
+  const realLog8 = console.log;
+  console.log = (...a) => { logs8.push(a.join(" ")); realLog8(...a); };
+  res = await road.run({ ...opts8, mode: "preview" });
+  console.log = realLog8;
+  check(fs.readFileSync(opts8.roadPath, "utf8") === raw8 && !commits8.length && !sent8.length && logs8.some((l) => /DATE REFRESH \[faa\] .* 1 Oct → /.test(l)), "test mode: logs the changes, writes/commits/sends nothing");
+  res = await road.run(opts8);
+  const r8 = JSON.parse(fs.readFileSync(opts8.roadPath, "utf8"));
+  const checks8 = r8.categories.filter((c) => c.history.some((h) => h.kind === "check"));
+  check(checks8.every((c) => c.history.filter((h) => h.kind === "check").length === 1 && c.history[0].kind === "check" && c.history[0].date === today), `each quiet box has one no-news line, on top, dated ${today} (${checks8.map((c) => c.id).join(", ")})`);
+  check(realOf(r8) === real8, "real news entries untouched (dates, text, order)");
+  check(r8.updated === today, `card "Updated" moved to ${r8.updated}`);
+  check(commits8.length === 1 && /no-news lines/.test(commits8[0]) && sent8.length === 0 && res.notifications.length === 0, `placeholder-only change → one commit ("${commits8[0]}"), NO push`);
+  const raw8b = fs.readFileSync(opts8.roadPath, "utf8");
+  res = await road.run(opts8);
+  check(fs.readFileSync(opts8.roadPath, "utf8") === raw8b && commits8.length === 1 && sent8.length === 0, "next run the same day → no-op (no write, no commit, no push)");
+  res = await road.run({ ...opts8, sources: [{ name: "fake", fetch: async () => [item6("r8", "Booster 22 static fire")] }], askClaude: async () => [{ item: 1, box: "static", line: "Booster 22 completed a static fire.", short: "B22 static fire done", status: "progress" }] });
+  const st8 = JSON.parse(fs.readFileSync(opts8.roadPath, "utf8")).categories.find((c) => c.id === "static");
+  check(st8.history[0].key === "rss:r8" && !st8.history.some((h) => h.kind === "check") && sent8.length === 1, "real news lands → on top with its true date, the box's no-news line is deleted, one push");
 
   console.log(`\nClaude called ${calls.claude}x, X search called ${calls.x}x (all fake).`);
   console.log(failed ? `\n❌ ${failed} check(s) failed` : "\n✅ All checks passed. (Dry run only — nothing real was saved, committed or sent.)");

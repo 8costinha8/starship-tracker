@@ -15,10 +15,17 @@
         tag and never changes a box's status or headline.
      5. Writes road.json, commits + pushes it, then sends one push
         notification per change.
-     6. Once per London day, moves the date of each box's "no news yet"
-        line (history entries with kind: "check") to today, so the card
-        shows when it was last checked. Real news entries keep their own
-        dates. Date-only refreshes are committed but never pushed.
+     6. "No news yet" lines (history entries with kind: "check") are
+        placeholders, not history: at most one per box, deleted as soon as
+        real news lands in that box, and only (re)added from the London day
+        AFTER the box's latest real entry. While it stands, its date rolls
+        forward to today once per London day. Real entries keep their own
+        dates. These placeholder-only changes are committed, never pushed.
+   Statuses: none, pending, progress, complete (shown as "Done": the
+   source explicitly says the stage is finished; that entry gets
+   complete: true and a green tint in the app; a trusted source can
+   re-open it), done (legacy "Done", and the Launch date box's "Confirmed").
+   The Launch date box is not shown in the app but is still tracked and pushed.
    When the flight it is tracking appears in app.js's FLIGHTS list (that's
    check-flights.js logging the result), it starts a fresh Road to the next
    flight on its own.
@@ -51,9 +58,20 @@ const LIMITS = {
   ll2EveryMin: 60,       // Launch Library free limit is 15/hour, check-flights already uses some
 };
 
-const STATUSES = ["none", "pending", "progress", "done"];
-const RANK = { none: 0, pending: 1, progress: 2, done: 3 };
-const STATUS_TEXT = { none: "Not started", pending: "Pending", progress: "In progress", done: "Done" };
+const STATUSES = ["none", "pending", "progress", "done", "complete"];
+const RANK = { none: 0, pending: 1, progress: 2, done: 3, complete: 3 };
+const STATUS_TEXT = { none: "Not started", pending: "Pending", progress: "In progress", done: "Done", complete: "Done" };
+const FINISHED = (s) => s === "done" || s === "complete"; // nothing awaited → no "no news yet" line
+
+// Wording for a new "no news yet" line (an existing one keeps its own wording).
+const CHECK_TEXT = {
+  cryo: "No new cryo testing news since the last update.",
+  raptor: "No new Raptor engine news since the last update.",
+  static: "No new static fire news since the last update.",
+  pad: "No new pad or vehicle move news since the last update.",
+  faa: "No new FAA licence news since the last update.",
+  date: "SpaceX has still not announced a date.",
+};
 
 // The six boxes. Used to start a fresh Road when the tracked flight flies.
 const BOXES = [
@@ -382,13 +400,13 @@ const SOURCES = [
 
 function buildPrompt(road, items) {
   const v = road.vehicles && road.vehicles.length ? road.vehicles.join(" and ") : "not yet known";
-  const hint = { date: " (done = SpaceX has announced the date)", pad: " (also launch site and pad assignment, and vehicle moves and locations: rollouts, rollbacks, stacking/destacking, which booster or ship is where)" };
+  const hint = { date: " (done = SpaceX has announced the date; never complete)", pad: " (also launch site and pad assignment, and vehicle moves and locations: rollouts, rollbacks, stacking/destacking, which booster or ship is where)" };
   const boxes = road.categories.map((c) => `- ${c.id} (${c.name}): ${c.status}${hint[c.id] || ""}. Headline: "${c.latest}"`).join("\n");
-  const recent = road.categories.flatMap((c) => (c.history || []).slice(0, 3).map((h) => `- [${c.id}] ${h.date}: ${h.text}`)).join("\n");
+  const recent = road.categories.flatMap((c) => (c.history || []).filter((h) => !isCheck(h)).slice(0, 3).map((h) => `- [${c.id}] ${h.date}: ${h.text}`)).join("\n");
   const list = items.map((it, i) => `${i + 1}. [${it.src}, ${fmtDay(it.publishedAt)}] ${it.title} — ${it.text}`).join("\n");
   return `You simplify Starship news into one-line updates for a small box in a tracker app called "Road to Flight ${road.flight}" (vehicles: ${v}).
 
-Boxes, current status (none, pending, progress, done) and headline:
+Boxes, current status (none, pending, progress, complete; Launch date uses done) and headline:
 ${boxes}
 
 Already in the boxes (don't repeat):
@@ -398,7 +416,7 @@ For each item below, decide if it reports something concrete about Flight ${road
 
 "line": simplify what the item says into one short plain sentence, max 100 characters. Only reword and shorten. No facts, framing or contrasts the item doesn't state (e.g. not "…, not Florida" when it only says a later flight may go there), no guesses, totals or numbers it doesn't give, and no hype. Keep every hedge: if the item says potentially, may, might, could, expected, planned (when hedged) or reportedly, the line keeps that hedge; never turn it into certainty. British English. Payloads are "deployed", never "released".
 "short": the same in 4-9 words, no full stop.
-"status": the status this item shows for that box, or null if it doesn't change it.
+"status": the status this item shows for that box, or null if it doesn't change it. Use "complete" ONLY when the item explicitly says that stage is finished for Flight ${road.flight}'s vehicles (e.g. "both vehicles have completed cryo testing"); never infer or invent it (one vehicle done, a test happening, or an estimate is "progress"). If a completed stage restarts or needs more work (e.g. the booster goes back for more cryo), say "progress". For the Launch date box, "done" means SpaceX has announced the date; never use "complete" there, and never use "done" for the other boxes.
 "supersedes": true only if this clearly replaces the box's current headline (e.g. a later step of the same thing), otherwise false.
 "reason": why, in max 12 words. For each item you skip, add {"item": n, "skip": true, "reason": "..."}.${road.vehicles && road.vehicles.length ? "" : `
 If an item says which booster and ship will fly Flight ${road.flight}, also add {"item": n, "vehicles": ["B23", "S43"]}.`}
@@ -471,6 +489,9 @@ function validateRoad(road) {
   for (const c of road.categories) {
     if (!BOXES.some((b) => b.id === c.id)) throw new Error(`unknown box ${c.id}`);
     if (!STATUSES.includes(c.status)) throw new Error(`bad status ${c.status} in ${c.id}`);
+    if (c.id === "date" && c.status === "complete") throw new Error(`the Launch date box uses done (Confirmed), not complete`);
+    if ((c.history || []).some((h) => h.complete !== undefined && h.complete !== true)) throw new Error(`bad complete flag in ${c.id}`);
+    if ((c.history || []).filter((h) => h.kind === "check").length > 1) throw new Error(`more than one "no news yet" line in ${c.id}`);
     if (typeof c.latest !== "string" || c.latest.length > 160) throw new Error(`bad latest in ${c.id}`);
     for (const h of c.history || []) {
       if (!h.date || !h.text || !h.src || h.text.length > 200) throw new Error(`bad entry in ${c.id}: ${JSON.stringify(h)}`);
@@ -538,23 +559,32 @@ function applyUpdates(road, items, updates, log, limit) {
     const trust = isTrusted(it.tier) ? "trusted" : "unconfirmed";
     const entry = { date: fmtDay(it.publishedAt), text: line, src: it.src, source: it.source, trust, url: it.url || undefined, at: it.publishedAt || new Date().toISOString(), key: it.key };
     const change = { box, entry, from: box.status, to: box.status, item: it, u, headline: "kept" };
-    const want = STATUSES.includes(u.status) ? u.status : null;
+    let want = STATUSES.includes(u.status) ? u.status : null;
+    if (want === "complete" && box.id === "date") { log(`ignored status complete for [date] (Launch date uses done = Confirmed)`); want = null; }
+    if (want === "done" && box.id !== "date") { log(`ignored status done for [${box.id}] (use complete, only when the source says the stage is finished)`); want = null; }
     if (trust === "unconfirmed") {
       log(`UNCONFIRMED [${box.id}] ${line} (${it.src}) — added with tag; status/headline left alone${want && want !== box.status ? ` (it suggested ${want})` : ""}`);
     } else {
       if (want && want !== box.status) {
         const backwards = RANK[want] < RANK[box.status];
-        if (backwards && it.tier !== "official") log(`BLOCKED [${box.id}] ${box.status} → ${want} from ${it.src}: moving a box backwards needs SpaceX/FAA`);
+        // a finished stage that restarts (e.g. booster back for more cryo) may be re-opened by a
+        // trusted source; the Launch date's "Confirmed" still needs SpaceX/FAA to move back
+        const reopen = backwards && box.id !== "date" && FINISHED(box.status);
+        if (backwards && !reopen && it.tier !== "official") log(`BLOCKED [${box.id}] ${box.status} → ${want} from ${it.src}: moving a box backwards needs SpaceX/FAA`);
         else if (box.id === "date" && want === "done" && it.tier !== "official") log(`BLOCKED [date] → Confirmed from ${it.src}: only SpaceX/FAA can confirm the date`);
         else { change.to = want; box.status = want; }
       }
       // headline: keep it unless Claude says this supersedes it, the status moved, or it's still the placeholder
       const short = cleanLine(u.short, { fullStop: false });
       const replace = u.supersedes === true || change.to !== change.from || !box.latest || box.latest === "Nothing reported yet";
-      if (short && replace) { box.latest = short; change.headline = "replaced"; } else change.headline = "kept";
+      if (box.status === "complete" && change.to === "complete" && change.from !== "complete") { box.latest = "Done"; change.headline = "replaced"; }
+      if (want === "complete" && box.status === "complete") entry.complete = true; // the update that finished the stage (green tint in the app)
+      else if (short && replace) { box.latest = short; change.headline = "replaced"; } else change.headline = "kept";
       log(`ADDED [${box.id}] ${line} (${it.src}, ${it.tier})${change.to !== change.from ? ` — status ${change.from} → ${change.to}` : ""} — headline ${change.headline}`);
     }
-    box.history = sortHistory([entry, ...(box.history || [])]).slice(0, LIMITS.historyPerBox);
+    const placeholder = (box.history || []).filter(isCheck);
+    if (placeholder.length) log(`removed "no news yet" line from [${box.id}]: real news landed`);
+    box.history = sortHistory([entry, ...(box.history || []).filter((h) => !isCheck(h))]).slice(0, LIMITS.historyPerBox);
     changes.push(change);
   }
   return changes;
@@ -589,21 +619,39 @@ function sortHistory(list, now = new Date()) {
     .map((x) => x.h);
 }
 
-// "No news yet" lines (e.g. "No report yet of Raptor installs finishing.")
-// are marked kind: "check". Their date means "last checked", so once per
-// London day it is moved to today. Nothing else is touched. Returns one
-// { box, text, from, to } per line moved; empty when already done today.
+// "No news yet" lines (kind: "check") are placeholders. Per box, at most one,
+// and only when nothing real has happened since the London day of the box's
+// latest real entry (real news on 9 Oct → a check line from 10 Oct at the
+// earliest). Finished boxes (complete / done / Confirmed) and empty boxes get
+// none. A standing line keeps its wording and its date rolls to today; a new
+// one uses CHECK_TEXT. Running it again on the same London day changes nothing.
+// Returns one { box, action: "moved" | "added" | "removed", text, from, to } per change.
 const isCheck = (h) => !!h && h.kind === "check";
 function refreshCheckDates(road, now = new Date()) {
   const today = fmtDay(now.toISOString());
-  const moved = [];
+  const todayKey = londonDayKey(now);
+  const out = [];
   for (const c of road.categories || []) {
-    const lines = (c.history || []).filter((h) => isCheck(h) && h.date !== today);
-    if (!lines.length) continue;
-    for (const h of lines) { moved.push({ box: c, text: h.text, from: h.date, to: today }); h.date = today; }
-    c.history = sortHistory(c.history, now);
+    const hist = c.history || [];
+    const checks = hist.filter(isCheck);
+    const real = hist.filter((h) => !isCheck(h));
+    const lastReal = real.map((h) => historyDayKey(h, now)).filter((k) => k !== null).reduce((a, b) => Math.max(a, b), 0);
+    const wanted = !FINISHED(c.status) && lastReal > 0 && todayKey > lastReal;
+    if (!wanted) {
+      for (const h of checks) out.push({ box: c, action: "removed", text: h.text, from: h.date, to: null });
+      if (checks.length) c.history = real;
+      continue;
+    }
+    const keep = checks[0];
+    if (keep && checks.length === 1 && keep.date === today) continue; // already done today
+    for (const h of checks.slice(1)) out.push({ box: c, action: "removed", text: h.text, from: h.date, to: null });
+    const line = keep
+      ? { ...keep, date: today }
+      : { date: today, text: CHECK_TEXT[c.id] || "No new reports since the last update.", src: "Tracker check", source: "manual-check", trust: "trusted", kind: "check" };
+    if (!keep || keep.date !== today) out.push({ box: c, action: keep ? "moved" : "added", text: line.text, from: keep ? keep.date : null, to: today });
+    c.history = sortHistory([line, ...real], now);
   }
-  return moved;
+  return out;
 }
 
 function notificationFor(road, ch) {
@@ -762,7 +810,9 @@ async function run(opts = {}) {
 
   // 4b. Once per London day: "no news yet" lines get today's date (no push for this)
   const refreshed = refreshCheckDates(road);
-  for (const m of refreshed) log(`DATE REFRESH [${m.box.id}] "${m.text}" ${m.from} → ${m.to} (no push)`);
+  for (const m of refreshed) log(m.action === "moved" ? `DATE REFRESH [${m.box.id}] "${m.text}" ${m.from} → ${m.to} (no push)`
+    : m.action === "added" ? `NO-NEWS LINE ADDED [${m.box.id}] ${m.to}: "${m.text}" (no push)`
+    : `NO-NEWS LINE REMOVED [${m.box.id}] ${m.from}: "${m.text}" (no push)`);
   if (refreshed.length) changed = true;
 
   // 5. Save, commit, then notify (so the app already has the new card when the push lands)
@@ -773,9 +823,9 @@ async function run(opts = {}) {
     const json = JSON.stringify(road, null, 2) + "\n";
     if (save) {
       fs.writeFileSync(roadPath, json);
-      const what = [notifications.length ? `${notifications.length} update(s)` : "", refreshed.length ? `no-news dates → ${road.updated}` : ""].filter(Boolean).join(", ");
+      const what = [notifications.length ? `${notifications.length} update(s)` : "", refreshed.length ? `no-news lines tidied (${road.updated})` : ""].filter(Boolean).join(", ");
       commit("road.json", `Auto: Road to Flight ${road.flight} — ${what}`);
-    } else console.log(`(not committed) Auto: Road to Flight ${road.flight} — ${notifications.length} update(s)${refreshed.length ? `, ${refreshed.length} no-news date(s) → ${road.updated}` : ""}`);
+    } else console.log(`(not committed) Auto: Road to Flight ${road.flight} — ${notifications.length} update(s)${refreshed.length ? `, ${refreshed.length} no-news line change(s) (${road.updated})` : ""}`);
     if (!notifications.length) log("date-only refresh — no push notification");
     for (const n of notifications) {
       if (save) await deps.push(n);
@@ -796,7 +846,7 @@ async function run(opts = {}) {
   return { road, changes, notifications, refreshed, state };
 }
 
-module.exports = { run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, fmtDay, LIMITS, SOURCES };
+module.exports = { run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, fmtDay, CHECK_TEXT, LIMITS, SOURCES };
 
 if (require.main === module) {
   run().catch((err) => {

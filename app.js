@@ -847,10 +847,15 @@ function Lightbox({ src, alt, onClose }) {
 // The data lives in road.json (same folder). scripts/check-road.js keeps it up
 // to date on its own; this card just shows whatever is in that file.
 // status: "none" (Not started, dotted) | "pending" / "progress" (outline) | "done" (filled; label is doneText, e.g. "Confirmed", else "Done")
+//   | "complete" (a stage the source says is finished: shown exactly like "done", label and headline "Done")
+// An entry with complete: true (the update that marked the stage finished) gets a subtle green tint.
+// An entry with kind: "check" is the box's "no news yet" placeholder (dashed outline).
 // An entry with trust: "unconfirmed" gets a small "Unconfirmed" tag.
+// The "date" (Launch date) box stays in road.json and keeps sending pushes, but isn't shown here.
+const ROAD_HIDDEN = ["date"];
 const ROAD_URL = "road.json";
 const ROAD_CACHE_KEY = "starship-road-cache-v1";
-const ROAD_STATUS_TEXT = { none: "Not started", pending: "Pending", progress: "In progress", done: "Done" };
+const ROAD_STATUS_TEXT = { none: "Not started", pending: "Pending", progress: "In progress", done: "Done", complete: "Done" };
 
 // Shows the last copy we saw straight away (no flicker on reopen), then
 // fetches a fresh one, skipping the browser cache, and swaps it in.
@@ -877,10 +882,10 @@ function RoadCard() {
   const road = useRoad();
   const [main, setMain] = React.useState(false);
   const [open, setOpen] = React.useState(null);
-  if (!road || !road.categories.length) return null;
-  const items = road.categories;
+  const items = road && Array.isArray(road.categories) ? road.categories.filter((m) => !ROAD_HIDDEN.includes(m.id)) : [];
+  if (!items.length) return null;
   const title = `Road to Flight ${road.flight}`;
-  const done = items.filter((m) => m.status === "done").length; // Done + Confirmed
+  const done = items.filter((m) => m.status === "done" || m.status === "complete").length; // shown boxes only
   const label = (m) => (m.status === "done" ? m.doneText || "Done" : ROAD_STATUS_TEXT[m.status] || m.status);
   return (
     <section className={"road" + (main ? " main-open" : "")} aria-label={title}>
@@ -901,13 +906,13 @@ function RoadCard() {
               <span className="callout-icon">{m.icon}</span>
               <span className="callout-body">
                 <span className="callout-name">{m.name}</span>
-                <span className="callout-latest">{m.latest}</span>
+                <span className="callout-latest">{m.status === "complete" ? "Done" : m.latest}</span>
               </span>
               <span className={"badge badge-" + m.status}>{label(m)}</span>
             </button>
             <div className="callout-hist"><div className="callout-hist-inner">
               {(m.history || []).map((h, i) => (
-                <div className="mini" key={i}>
+                <div className={"mini" + (h.complete ? " mini-done" : "") + (h.kind === "check" ? " mini-check" : "")} key={i}>
                   <div className="mini-top">
                     <span className="mini-date">{h.date}{h.trust === "unconfirmed" && <span className="mini-unc">Unconfirmed</span>}</span>
                     <span className="mini-src">{h.src}</span>
@@ -1312,7 +1317,7 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .road-dots { display: flex; gap: 6px; }
 .dot { width: 11px; height: 11px; border-radius: 50%; display: block; border: 1.5px solid var(--c); background: transparent; } /* outline = pending / in progress */
 .dot-none { border: 2px dotted var(--c); } /* dotted = not started */
-.dot-done { background: var(--c); } /* filled = done / confirmed */
+.dot-done, .dot-complete { background: var(--c); } /* filled = done / confirmed */
 .road-count { flex: 1; }
 .road-chev { transition: transform .35s; }
 .main-open .road-chev { transform: rotate(180deg); }
@@ -1336,7 +1341,7 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .callout-name { display: block; font-weight: 700; font-size: 15px; color: var(--c); }
 .callout-latest { display: block; font-size: 13px; color: var(--text); opacity: .85; margin-top: 3px; line-height: 1.35; }
 .badge { font-size: 11px; font-weight: 700; padding: 4px 9px; border-radius: 999px; white-space: nowrap; letter-spacing: .02em; }
-.badge-done { background: var(--c); color: #141B2D; border: 1px solid var(--c); } /* filled = done / confirmed */
+.badge-done, .badge-complete { background: var(--c); color: #141B2D; border: 1px solid var(--c); } /* filled = done / confirmed */
 .badge-progress, .badge-pending { background: transparent; color: var(--c); border: 1px solid color-mix(in srgb, var(--c) 70%, transparent); } /* outline */
 .badge-none { background: transparent; color: var(--c); border: 1.5px dotted var(--c); opacity: .9; } /* dotted = not started */
 .callout-hist { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .45s cubic-bezier(.2,.8,.2,1); }
@@ -1350,6 +1355,8 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .mini-date { font-size: 12px; font-weight: 700; color: var(--c); }
 .mini-src { font-size: 10.5px; color: var(--muted); background: rgba(255,255,255,.07); padding: 2px 7px; border-radius: 6px; }
 .mini p { margin: 4px 0 0; font-size: 13px; line-height: 1.4; }
+.mini-done { background: linear-gradient(100deg, rgba(61,220,132,.14), rgba(61,220,132,.05)); border-color: rgba(61,220,132,.30); box-shadow: inset 3px 0 0 rgba(61,220,132,.75); } /* the update that finished the stage */
+.mini-check { border-style: dashed; } /* "no news yet" placeholder */
 .mini-unc { margin-left: 7px; font-size: 10px; font-weight: 700; letter-spacing: .02em; color: #FFC93D; border: 1px dashed rgba(255,201,61,.65); padding: 1px 6px; border-radius: 6px; vertical-align: 1px; } /* single smaller source: never shown as fact */
 `;
 
