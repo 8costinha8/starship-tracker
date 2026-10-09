@@ -37,9 +37,8 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           TEST_MODE: ${{ inputs.test_mode }}
       # Road to Flight N card. Runs even if the step above failed.
-      # TEMP: only on manual test runs until Bernardo OKs going live (then drop "&& inputs.test_mode").
       - run: node scripts/check-road.js
-        if: ${{ !cancelled() && inputs.test_mode }}
+        if: ${{ !cancelled() }}
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
