@@ -61,7 +61,8 @@
           "text": "No report yet of Raptor installs finishing.",
           "src": "Tracker check",
           "source": "manual-check",
-          "trust": "trusted"
+          "trust": "trusted",
+          "kind": "check"
         },
         {
           "date": "30 Sep",
@@ -92,7 +93,8 @@
           "text": "Still no static fire reported.",
           "src": "Tracker check",
           "source": "manual-check",
-          "trust": "trusted"
+          "trust": "trusted",
+          "kind": "check"
         },
         {
           "date": "30 Sep",
@@ -126,7 +128,8 @@
           "text": "No rollout or stacking of B22/S42 reported yet.",
           "src": "Tracker check",
           "source": "manual-check",
-          "trust": "trusted"
+          "trust": "trusted",
+          "kind": "check"
         },
         {
           "date": "30 Sep",
@@ -157,7 +160,8 @@
           "text": "No Flight 15 licence modification reported.",
           "src": "Tracker check",
           "source": "manual-check",
-          "trust": "trusted"
+          "trust": "trusted",
+          "kind": "check"
         },
         {
           "date": "26 Sep",
@@ -182,7 +186,8 @@
           "text": "SpaceX has still not announced a date.",
           "src": "Tracker check",
           "source": "manual-check",
-          "trust": "trusted"
+          "trust": "trusted",
+          "kind": "check"
         },
         {
           "date": "30 Sep",

@@ -275,6 +275,70 @@ const box = (r, id) => r.categories.find((c) => c.id === id);
   res = await road.run(opts6);
   check(res.changes.length === 1 && state6.seen.includes("rss:e2"), "next run: the waiting item is processed");
 
+  console.log("\n────────── RUN 7: daily refresh of \"no news yet\" dates ──────────");
+  // unit: only kind:"check" lines move, real news keeps its date, London day, same day = no-op
+  const today = road.fmtDay();
+  const mk = () => ({ flight: 15, vehicles: [], categories: [
+    { id: "raptor", history: [
+      { date: "7 Oct", text: "No report yet of Raptor installs finishing.", src: "Tracker check", source: "manual-check", trust: "trusted", kind: "check" },
+      { date: "30 Sep", text: "Both being fitted with Raptors.", src: "NSF", source: "nsf", trust: "trusted" } ] },
+    { id: "pad", history: [
+      { date: "9 Oct", text: "Pad 2's chopsticks are undergoing maintenance.", src: "NSF", source: "nsf", trust: "trusted", at: "2026-10-08T23:00:08.000Z" },
+      { date: "7 Oct", text: "No rollout reported yet.", src: "Tracker check", source: "manual-check", trust: "trusted", kind: "check" } ] },
+    { id: "cryo", history: [{ date: "6 Oct", text: "Real news with no check line.", src: "NSF", source: "nsf", trust: "trusted" }] },
+  ] });
+  const u = mk();
+  const nowBst = new Date("2026-10-09T23:30:00Z"); // 00:30 on 10 Oct in London
+  const moved = road.refreshCheckDates(u, nowBst);
+  const ub = (id) => u.categories.find((c) => c.id === id);
+  check(moved.length === 2 && ub("raptor").history[0].date === "10 Oct" && ub("pad").history[0].date === "10 Oct", `check lines moved to the London date (10 Oct at 23:30 UTC on 9 Oct): ${moved.map((m) => `${m.box.id} ${m.from}→${m.to}`).join(", ")}`);
+  check(ub("raptor").history[1].date === "30 Sep" && ub("pad").history[1].date === "9 Oct" && ub("cryo").history[0].date === "6 Oct", "real news entries keep their true dates");
+  check(ub("pad").history[0].kind === "check" && ub("pad").history[1].src === "NSF", "history stays newest first (check line now newest in Pad)");
+  check(road.refreshCheckDates(u, new Date("2026-10-10T15:00:00Z")).length === 0, "second refresh on the same London day → no-op");
+  const same = mk();
+  same.categories[1].history[1].date = "9 Oct";
+  road.refreshCheckDates(same, new Date("2026-10-09T12:00:00Z"));
+  check(same.categories[1].history[0].kind !== "check" && same.categories[1].history[1].kind === "check", "same day as real news → the real entry stays on top");
+
+  // full runs: date-only refresh is committed once, never pushed; next run same day is a no-op
+  const tmp7 = fs.mkdtempSync(path.join(os.tmpdir(), "road-test7-"));
+  const road7 = JSON.parse(fs.readFileSync(path.join(ROOT, "road.json"), "utf8"));
+  for (const c of road7.categories) for (const h of c.history) if (h.kind === "check") h.date = "1 Oct";
+  road7.updated = "1 Oct"; road7.updatedAt = "2026-10-01T10:00:00Z";
+  fs.writeFileSync(path.join(tmp7, "road.json"), JSON.stringify(road7, null, 2) + "\n");
+  fs.copyFileSync(path.join(ROOT, "app.js"), path.join(tmp7, "app.js"));
+  const realBefore = JSON.stringify(road7.categories.map((c) => c.history.filter((h) => h.kind !== "check")));
+  const sent7 = [], commits7 = [];
+  let state7 = { seen: [] };
+  const opts7 = {
+    mode: "dry-run", roadPath: path.join(tmp7, "road.json"), appJsPath: path.join(tmp7, "app.js"),
+    commit: (f, m) => commits7.push(m), sources: [{ name: "fake", fetch: async () => [] }],
+    deps: { loadState: async () => JSON.parse(JSON.stringify(state7)), saveState: async (st) => { state7 = JSON.parse(JSON.stringify(st)); }, push: async (n) => sent7.push(n) },
+  };
+  // preview (test mode): logs, writes nothing
+  const raw7 = fs.readFileSync(opts7.roadPath, "utf8");
+  const logs7 = [];
+  const realLog7 = console.log;
+  console.log = (...a) => { logs7.push(a.join(" ")); realLog7(...a); };
+  res = await road.run({ ...opts7, mode: "preview" });
+  console.log = realLog7;
+  check(fs.readFileSync(opts7.roadPath, "utf8") === raw7 && !commits7.length && !sent7.length && logs7.some((l) => /DATE REFRESH \[raptor\] .* 1 Oct → /.test(l)), "test mode: logs the date refresh, writes/commits/sends nothing");
+  res = await road.run(opts7);
+  const r7 = JSON.parse(fs.readFileSync(opts7.roadPath, "utf8"));
+  const checks7 = r7.categories.flatMap((c) => c.history.filter((h) => h.kind === "check"));
+  check(checks7.length === 5 && checks7.every((h) => h.date === today), `every no-news line now says ${today} (${checks7.length} lines)`);
+  check(JSON.stringify(r7.categories.map((c) => c.history.filter((h) => h.kind !== "check"))) === realBefore, "real news entries untouched (dates, text, order)");
+  check(r7.updated === today && r7.updatedAt.slice(0, 10) === new Date().toISOString().slice(0, 10), `card "Updated" moved to ${r7.updated}`);
+  check(commits7.length === 1 && /no-news dates/.test(commits7[0]) && sent7.length === 0 && res.notifications.length === 0, `date-only refresh → one commit ("${commits7[0]}"), NO push`);
+  check(r7.categories.every((c) => c.history.every((h, i, a) => !i || (road.sortHistory([a[i - 1], h])[0] === a[i - 1]))), "every box still newest first");
+  const raw7b = fs.readFileSync(opts7.roadPath, "utf8");
+  res = await road.run(opts7);
+  check(fs.readFileSync(opts7.roadPath, "utf8") === raw7b && commits7.length === 1 && sent7.length === 0, "next run the same day → no-op (no write, no commit, no push)");
+  // real news on a box with a check line: real entry has its own date and is pushed, check line still marked
+  res = await road.run({ ...opts7, sources: [{ name: "fake", fetch: async () => [item6("r7", "Ship 42 Raptor installs finished")] }] , askClaude: async () => [{ item: 1, box: "raptor", line: "Ship 42 has finished Raptor installs.", short: "S42 Raptors installed", status: null }] });
+  const rap7 = JSON.parse(fs.readFileSync(opts7.roadPath, "utf8")).categories.find((c) => c.id === "raptor");
+  check(rap7.history[0].key === "rss:r7" && rap7.history[0].date === road.fmtDay(rap7.history[0].at) && rap7.history.findIndex((h) => h.kind === "check") > 0 && rap7.history.filter((h) => h.date === today).every((h, i, a) => h.kind !== "check" || i === a.length - 1) && sent7.length === 1, "real news wins: on top with its true date, pushed; check line stays below");
+
   console.log(`\nClaude called ${calls.claude}x, X search called ${calls.x}x (all fake).`);
   console.log(failed ? `\n❌ ${failed} check(s) failed` : "\n✅ All checks passed. (Dry run only — nothing real was saved, committed or sent.)");
   process.exit(failed ? 1 : 0);

@@ -15,6 +15,10 @@
         tag and never changes a box's status or headline.
      5. Writes road.json, commits + pushes it, then sends one push
         notification per change.
+     6. Once per London day, moves the date of each box's "no news yet"
+        line (history entries with kind: "check") to today, so the card
+        shows when it was last checked. Real news entries keep their own
+        dates. Date-only refreshes are committed but never pushed.
    When the flight it is tracking appears in app.js's FLIGHTS list (that's
    check-flights.js logging the result), it starts a fresh Road to the next
    flight on its own.
@@ -470,6 +474,7 @@ function validateRoad(road) {
     if (typeof c.latest !== "string" || c.latest.length > 160) throw new Error(`bad latest in ${c.id}`);
     for (const h of c.history || []) {
       if (!h.date || !h.text || !h.src || h.text.length > 200) throw new Error(`bad entry in ${c.id}: ${JSON.stringify(h)}`);
+      if (h.kind !== undefined && h.kind !== "check") throw new Error(`bad kind in ${c.id}: ${JSON.stringify(h)}`);
       if (h.trust !== "trusted" && h.trust !== "unconfirmed") throw new Error(`entry without trust in ${c.id}`);
     }
   }
@@ -557,7 +562,8 @@ function applyUpdates(road, items, updates, log, limit) {
 
 // Newest first. Uses "at" when there is one, else the "date" text road.json uses
 // ("7 Oct", "9–10 Sep", "30 Sep–2 Oct": the last day counts). Same London day:
-// both have "at" → by time; otherwise the current order is kept (stable sort).
+// real news goes above a "no news yet" check line; both have "at" → by time;
+// otherwise the current order is kept (stable sort).
 const MONTHS = { jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11 };
 function londonDayKey(d) {
   const p = Object.fromEntries(new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/London", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(d).map((x) => [x.type, x.value]));
@@ -576,10 +582,28 @@ function sortHistory(list, now = new Date()) {
   return list.map((h, i) => ({ h, i, k: historyDayKey(h, now) }))
     .sort((a, b) => {
       if (a.k !== b.k) return a.k === null ? 1 : b.k === null ? -1 : b.k - a.k; // undated go last
+      if (isCheck(a.h) !== isCheck(b.h)) return isCheck(a.h) ? 1 : -1; // same day: real news wins
       if (a.h.at && b.h.at && a.h.at !== b.h.at) return String(b.h.at).localeCompare(String(a.h.at));
       return a.i - b.i;
     })
     .map((x) => x.h);
+}
+
+// "No news yet" lines (e.g. "No report yet of Raptor installs finishing.")
+// are marked kind: "check". Their date means "last checked", so once per
+// London day it is moved to today. Nothing else is touched. Returns one
+// { box, text, from, to } per line moved; empty when already done today.
+const isCheck = (h) => !!h && h.kind === "check";
+function refreshCheckDates(road, now = new Date()) {
+  const today = fmtDay(now.toISOString());
+  const moved = [];
+  for (const c of road.categories || []) {
+    const lines = (c.history || []).filter((h) => isCheck(h) && h.date !== today);
+    if (!lines.length) continue;
+    for (const h of lines) { moved.push({ box: c, text: h.text, from: h.date, to: today }); h.date = today; }
+    c.history = sortHistory(c.history, now);
+  }
+  return moved;
 }
 
 function notificationFor(road, ch) {
@@ -736,6 +760,11 @@ async function run(opts = {}) {
   for (const ch of changes) notifications.push(notificationFor(road, ch));
   if (changes.length) changed = true;
 
+  // 4b. Once per London day: "no news yet" lines get today's date (no push for this)
+  const refreshed = refreshCheckDates(road);
+  for (const m of refreshed) log(`DATE REFRESH [${m.box.id}] "${m.text}" ${m.from} → ${m.to} (no push)`);
+  if (refreshed.length) changed = true;
+
   // 5. Save, commit, then notify (so the app already has the new card when the push lands)
   if (changed) {
     road.updated = fmtDay();
@@ -744,8 +773,10 @@ async function run(opts = {}) {
     const json = JSON.stringify(road, null, 2) + "\n";
     if (save) {
       fs.writeFileSync(roadPath, json);
-      commit("road.json", `Auto: Road to Flight ${road.flight} — ${notifications.length} update(s)`);
-    }
+      const what = [notifications.length ? `${notifications.length} update(s)` : "", refreshed.length ? `no-news dates → ${road.updated}` : ""].filter(Boolean).join(", ");
+      commit("road.json", `Auto: Road to Flight ${road.flight} — ${what}`);
+    } else console.log(`(not committed) Auto: Road to Flight ${road.flight} — ${notifications.length} update(s)${refreshed.length ? `, ${refreshed.length} no-news date(s) → ${road.updated}` : ""}`);
+    if (!notifications.length) log("date-only refresh — no push notification");
     for (const n of notifications) {
       if (save) await deps.push(n);
       else console.log(`(not sent) push: ${n.title} — ${n.body}`);
@@ -762,10 +793,10 @@ async function run(opts = {}) {
   state.seen = [...seen].slice(-LIMITS.seenKeep);
   state.lastRun = new Date().toISOString();
   if (save) await deps.saveState(state);
-  return { road, changes, notifications, state };
+  return { road, changes, notifications, refreshed, state };
 }
 
-module.exports = { run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, LIMITS, SOURCES };
+module.exports = { run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, fmtDay, LIMITS, SOURCES };
 
 if (require.main === module) {
   run().catch((err) => {
