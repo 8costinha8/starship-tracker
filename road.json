@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "9 Oct",
-  "updatedAt": "2026-10-09T09:44:28.521Z",
+  "updatedAt": "2026-10-09T14:57:12.452Z",
   "categories": [
     {
       "id": "cryo",
@@ -13,8 +13,18 @@
       "name": "Cryo tests",
       "color": "#BFE6FF",
       "status": "done",
-      "latest": "Both B22 and S42 have passed cryo testing",
+      "latest": "Ship 42 back for third cryo test",
       "history": [
+        {
+          "date": "9 Oct",
+          "text": "Ship 42 has returned to Massey's for a third round of cryo-proof testing.",
+          "src": "NSF",
+          "source": "nsf",
+          "trust": "trusted",
+          "url": "https://www.nasaspaceflight.com/2026/10/ship-40-returns-ship-42-more-testing/",
+          "at": "2026-10-09T14:36:44.000Z",
+          "key": "rss:https://www.nasaspaceflight.com/?p=115411"
+        },
         {
           "date": "9–10 Sep",
           "text": "Booster 22 cryo tests at Massey's.",
@@ -86,8 +96,18 @@
       "name": "Static fires",
       "color": "#FF5A36",
       "status": "pending",
-      "latest": "No static fire reported for B22 or S42",
+      "latest": "B22 static fire possibly next week",
       "history": [
+        {
+          "date": "9 Oct",
+          "text": "Booster 22 could be ready for a static fire as early as next week.",
+          "src": "NSF",
+          "source": "nsf",
+          "trust": "trusted",
+          "url": "https://www.nasaspaceflight.com/2026/10/ship-40-returns-ship-42-more-testing/",
+          "at": "2026-10-09T14:36:44.000Z",
+          "key": "rss:https://www.nasaspaceflight.com/?p=115411"
+        },
         {
           "date": "9 Oct",
           "text": "Still no static fire reported.",
@@ -179,8 +199,18 @@
       "color": "#FFC93D",
       "status": "pending",
       "doneText": "Confirmed",
-      "latest": "No SpaceX date. NET 19 Oct is only a provisional figure",
+      "latest": "Slide shows NET November readiness",
       "history": [
+        {
+          "date": "9 Oct",
+          "text": "A new slide suggests Ship 42 could be ready for flight NET November.",
+          "src": "NSF",
+          "source": "nsf",
+          "trust": "trusted",
+          "url": "https://www.nasaspaceflight.com/2026/10/ship-40-returns-ship-42-more-testing/",
+          "at": "2026-10-09T14:36:44.000Z",
+          "key": "rss:https://www.nasaspaceflight.com/?p=115411"
+        },
         {
           "date": "9 Oct",
           "text": "SpaceX has still not announced a date.",
