@@ -973,6 +973,12 @@ function londonDayUTC(iso) {
   return Date.UTC(Number(p.year), Number(p.month) - 1, Number(p.day));
 }
 
+// The source's real publish time in UK time ("14:32"), only when road.json has one.
+function feedTime(iso) {
+  if (!iso || !Number.isFinite(Date.parse(iso))) return "";
+  return new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/London", hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date(iso));
+}
+
 function buildFeed(road) {
   if (!road || !Array.isArray(road.categories)) return { posts: [], rows: [] };
   const posts = [];
@@ -1000,7 +1006,7 @@ function FeedPost({ p, onPhotoTap }) {
       <div className="post-top">
         <span className="chip"><span className="chip-i">{cat.icon}</span>{cat.name}</span>
         <span className="post-sep">·</span>
-        <span className="post-date">{h.date}</span>
+        <span className="post-date">{h.date}{!p.check && feedTime(h.publishedAt) ? ` · ${feedTime(h.publishedAt)}` : ""}</span>
         {h.trust === "unconfirmed" && <span className="mini-unc">Unconfirmed</span>}
       </div>
       <p className="post-text">{h.text}</p>

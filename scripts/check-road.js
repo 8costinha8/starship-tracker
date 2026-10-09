@@ -302,7 +302,7 @@ const SOURCES = [
         const text = (u.contentBlocks || []).map((b) => [b.heading, b.paragraph, ...(b.listItems || []).map((li) => li.text || li.content || "")].filter(Boolean).join(" ")).join(" ");
         return {
           key: `spacex-update:${u.updateId}`, title: decode(u.title), text: relevantSnippet(decode(text), road),
-          url: `https://www.spacex.com/updates#${u.updateId}`, publishedAt: u.date ? `${u.date}T12:00:00Z` : null, ...DOMAINS["spacex.com"],
+          url: `https://www.spacex.com/updates#${u.updateId}`, publishedAt: u.date ? `${u.date}T12:00:00Z` : null, timeKnown: false, ...DOMAINS["spacex.com"],
         };
       });
     },
@@ -324,7 +324,7 @@ const SOURCES = [
           key: `spacex-tile:${t.id}:${when(t)}`,
           title: `SpaceX launches page: ${t.title}`,
           text: `SpaceX's own launches page lists "${t.title}" (${t.vehicle}) on ${when(t)} from ${t.launchSite || "Starbase"}.`,
-          url: `https://www.spacex.com/launches/${t.link}`, publishedAt: new Date().toISOString(), ...DOMAINS["spacex.com"],
+          url: `https://www.spacex.com/launches/${t.link}`, publishedAt: new Date().toISOString(), timeKnown: false, ...DOMAINS["spacex.com"],
         }));
     },
   },
@@ -340,7 +340,7 @@ const SOURCES = [
         const body = p.split("</h3>")[1] || "";
         const title = decode((body.match(/<strong>([\s\S]*?)<\/strong>/) || [])[1] || "");
         const text = decode(body.split(/<h2/)[0]);
-        return { key: `faa:${date}:${sha(title)}`, title, text: text.slice(0, 900), url: "https://www.faa.gov/newsroom/statements/general-statements", publishedAt: toIso(date), ...DOMAINS["faa.gov"] };
+        return { key: `faa:${date}:${sha(title)}`, title, text: text.slice(0, 900), url: "https://www.faa.gov/newsroom/statements/general-statements", publishedAt: toIso(date), timeKnown: false, ...DOMAINS["faa.gov"] };
       }).filter((it) => /starship|spacex|starbase|boca chica/i.test(`${it.title} ${it.text}`));
     },
   },
@@ -558,6 +558,9 @@ function applyUpdates(road, items, updates, log, limit) {
   for (const { u, it, box, line } of toApply) {
     const trust = isTrusted(it.tier) ? "trusted" : "unconfirmed";
     const entry = { date: fmtDay(it.publishedAt), text: line, src: it.src, source: it.source, trust, url: it.url || undefined, at: it.publishedAt || new Date().toISOString(), key: it.key };
+    // The source's real publish time (shown in the Updates feed). Left out when the
+    // source only gives a day (SpaceX updates, FAA) or no time at all (launches page).
+    if (it.publishedAt && it.timeKnown !== false) entry.publishedAt = it.publishedAt;
     const change = { box, entry, from: box.status, to: box.status, item: it, u, headline: "kept" };
     let want = STATUSES.includes(u.status) ? u.status : null;
     if (want === "complete" && box.id === "date") { log(`ignored status complete for [date] (Launch date uses done = Confirmed)`); want = null; }
