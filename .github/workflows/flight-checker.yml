@@ -13,6 +13,10 @@ on:
         description: "Test mode only: how many hours back the road checker looks (blank = normal 72h + last road.json update)"
         type: string
         default: ""
+      test_push:
+        description: "Send ONE test notification to every subscribed device, then stop (skips both checkers, changes nothing)"
+        type: boolean
+        default: false
 
 permissions:
   contents: write   # needed so the checkers can commit + push app.js / road.json
@@ -32,16 +36,22 @@ jobs:
           node-version: 20
       - run: npm install firebase-admin
       - run: node scripts/check-flights.js
+        if: ${{ !inputs.test_push }}
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           TEST_MODE: ${{ inputs.test_mode }}
       # Road to Flight N card. Runs even if the step above failed.
       - run: node scripts/check-road.js
-        if: ${{ !cancelled() }}
+        if: ${{ !cancelled() && !inputs.test_push }}
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           X_BEARER_TOKEN: ${{ secrets.X_BEARER_TOKEN }}   # optional: leave unset to skip X
           TEST_MODE: ${{ inputs.test_mode }}
           ROAD_STALE_HOURS: ${{ inputs.stale_hours }}
+      # One-off test notification (manual runs only, never on schedule)
+      - run: node scripts/test-push.js
+        if: ${{ inputs.test_push }}
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
