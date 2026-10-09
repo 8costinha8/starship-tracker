@@ -878,8 +878,7 @@ function useRoad() {
   return road;
 }
 
-function RoadCard() {
-  const road = useRoad();
+function RoadCard({ road, onEntryTap }) {
   const [main, setMain] = React.useState(false);
   const [open, setOpen] = React.useState(null);
   const items = road && Array.isArray(road.categories) ? road.categories.filter((m) => !ROAD_HIDDEN.includes(m.id)) : [];
@@ -912,7 +911,9 @@ function RoadCard() {
             </button>
             <div className="callout-hist"><div className="callout-hist-inner">
               {(m.history || []).map((h, i) => (
-                <div className={"mini" + (h.complete ? " mini-done" : "") + (h.kind === "check" ? " mini-check" : "")} key={i}>
+                <div className={"mini" + (h.complete ? " mini-done" : "") + (h.kind === "check" ? " mini-check" : "") + (onEntryTap ? " tappable" : "")} key={i}
+                  {...(onEntryTap ? { role: "button", tabIndex: isOpen ? 0 : -1, "aria-label": `${h.date}: ${h.text}. Show in the updates feed`,
+                    onClick: () => onEntryTap(m.id, i), onKeyDown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onEntryTap(m.id, i); } } } : {})}>
                   <div className="mini-top">
                     <span className="mini-date">{h.date}{h.trust === "unconfirmed" && <span className="mini-unc">Unconfirmed</span>}</span>
                     <span className="mini-src">{h.src}</span>
@@ -929,11 +930,124 @@ function RoadCard() {
   );
 }
 
+// ---- Updates feed ----
+// Every Road entry from road.json as one newest-first list. Phone: a panel you
+// swipe in from the right (swipe left to open, right to go back, or use the
+// button top right). Desktop (900px+): always shown as a right-hand column.
+// Tapping an entry in the Road card jumps to its post here and highlights it.
+// Same data rules as the Road card: the hidden Launch date box is left out,
+// "no news yet" checks (kind: "check") show as dashed placeholders.
+const FEED_WIDE_QUERY = "(min-width: 900px)";
+const FEED_SLIDE_MS = 400;
+const FEED_MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const FEED_ICON = <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="3.75" cy="5" r="1.1" fill="currentColor" /><circle cx="3.75" cy="11" r="1.1" fill="currentColor" /><path d="M7 5h6M7 11h4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>;
+const BACK_ICON = <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3.5 5.5 8l4.5 4.5" stroke="currentColor" strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>;
+const LINK_ICON = <svg width="13" height="13" viewBox="0 0 14 14" aria-hidden="true"><path d="M8.5 2.5h3v3M11.5 2.5 6.5 7.5M10.5 8.5v2.25c0 .41-.34.75-.75.75h-6.5a.75.75 0 0 1-.75-.75v-6.5c0-.41.34-.75.75-.75H5.5" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>;
+
+function useMedia(query) {
+  const [match, setMatch] = React.useState(() => window.matchMedia(query).matches);
+  React.useEffect(() => {
+    const mq = window.matchMedia(query);
+    const on = () => setMatch(mq.matches);
+    on(); mq.addEventListener("change", on);
+    return () => mq.removeEventListener("change", on);
+  }, [query]);
+  return match;
+}
+
+// "9–10 Sep" / "30 Sep–2 Oct" -> the LAST day of the range (UTC midnight), in the road's year.
+// An entry dated well after the road's update must be from the previous year (Dec vs Jan).
+function feedDay(str, updatedAt) {
+  const all = [...String(str || "").matchAll(/(\d{1,2})\s+([A-Za-z]{3})/g)];
+  const last = all[all.length - 1];
+  if (!last) return 0;
+  const mon = FEED_MONTHS.indexOf(last[2][0].toUpperCase() + last[2].slice(1, 3).toLowerCase());
+  if (mon < 0) return 0;
+  const ref = Number.isFinite(Date.parse(updatedAt)) ? new Date(updatedAt) : new Date();
+  let d = Date.UTC(ref.getUTCFullYear(), mon, Number(last[1]));
+  if (d > ref.getTime() + 7 * DAY) d = Date.UTC(ref.getUTCFullYear() - 1, mon, Number(last[1]));
+  return d;
+}
+function londonDayUTC(iso) {
+  const p = Object.fromEntries(new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/London", year: "numeric", month: "numeric", day: "numeric" }).formatToParts(new Date(iso)).map((x) => [x.type, x.value]));
+  return Date.UTC(Number(p.year), Number(p.month) - 1, Number(p.day));
+}
+
+function buildFeed(road) {
+  if (!road || !Array.isArray(road.categories)) return { posts: [], rows: [] };
+  const posts = [];
+  road.categories.filter((c) => !ROAD_HIDDEN.includes(c.id)).forEach((c, ci) => (c.history || []).forEach((h, hi) => posts.push({
+    h, cat: c, ci, hi, id: `${c.id}-${hi}`, day: feedDay(h.date, road.updatedAt), at: Date.parse(h.at) || 0, check: h.kind === "check" ? 1 : 0,
+  })));
+  // newest first: day, then "no news" checks last in their day, then publish time, then card order
+  posts.sort((a, b) => b.day - a.day || a.check - b.check || b.at - a.at || a.ci - b.ci || a.hi - b.hi);
+  if (!posts.length) return { posts, rows: [] };
+  const newest = posts[0].day, oldest = Math.min(...posts.map((p) => p.day));
+  const flights = FLIGHTS.map((f) => ({ ...f, day: londonDayUTC(f.date) }))
+    .filter((f) => f.day >= oldest && f.day <= newest + DAY).sort((a, b) => b.day - a.day);
+  const rows = [];
+  for (const p of posts) {
+    while (flights.length && flights[0].day > p.day) rows.push({ divider: flights.shift() });
+    rows.push({ post: p });
+  }
+  return { posts, rows };
+}
+
+function FeedPost({ p, onPhotoTap }) {
+  const { h, cat } = p;
+  return (
+    <article className={"post" + (p.check ? " post-check" : "") + (h.complete ? " post-done" : "")} id={`post-${p.id}`} data-id={p.id} style={{ "--c": cat.color }}>
+      <div className="post-top">
+        <span className="chip"><span className="chip-i">{cat.icon}</span>{cat.name}</span>
+        <span className="post-sep">·</span>
+        <span className="post-date">{h.date}</span>
+        {h.trust === "unconfirmed" && <span className="mini-unc">Unconfirmed</span>}
+      </div>
+      <p className="post-text">{h.text}</p>
+      {h.photo && <div className="post-photo photo photo-wide has-img tappable" onClick={() => onPhotoTap(h.photo, h.text)}><img src={h.photo} alt="" loading="lazy" /></div>}
+      <div className="post-foot">
+        <span className="post-src">{h.src}</span>
+        {h.url && <a className="post-link" href={h.url} target="_blank" rel="noopener noreferrer" aria-label={`Open source: ${h.src}`}>{LINK_ICON}</a>}
+      </div>
+    </article>
+  );
+}
+
+function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap }) {
+  const { posts, rows } = React.useMemo(() => buildFeed(road), [road]);
+  if (!posts.length) return null;
+  return (
+    <aside className="feed-pane" aria-label="Updates feed" aria-hidden={!wide && !shown}>
+      <div className="feed" ref={scrollRef}>
+        <header className="feed-head">
+          {wide ? <span /> : <button className="round-btn" onClick={onBack} aria-label="Back to the flight log" tabIndex={shown ? 0 : -1}>{BACK_ICON}</button>}
+          <div className="brand">{`Road to Flight ${road.flight}`}<span>{`${posts.length} updates`}{road.updated ? ` · Updated ${road.updated}` : ""}</span></div>
+          <span />
+        </header>
+        <div className="feed-list">
+          {rows.map((r) => r.divider
+            ? <div className="fdiv" key={"f" + r.divider.n}><span><b>{`Flight ${r.divider.n}`}</b> <i>·</i> <span className={"fdiv-" + r.divider.outcome}>{OUTCOME_LABEL[r.divider.outcome] || r.divider.outcome}</span> <i>·</i> {`${new Date(r.divider.day).getUTCDate()} ${FEED_MONTHS[new Date(r.divider.day).getUTCMonth()]}`}</span></div>
+            : <FeedPost key={r.post.id} p={r.post} onPhotoTap={onPhotoTap} />)}
+          <p className="end">That's every update so far.</p>
+        </div>
+      </div>
+    </aside>
+  );
+}
+
 function StarshipTracker() {
   const [openId, setOpenId] = React.useState(null);
   const [aboutOpen, setAboutOpen] = React.useState(false);
   const [lightbox, setLightbox] = React.useState(null); // { src, alt } | null
   const [notifyModalOpen, setNotifyModalOpen] = React.useState(false);
+  const road = useRoad();
+  const wide = useMedia(FEED_WIDE_QUERY);
+  const [feedOpen, setFeedOpen] = React.useState(false); // phone panel
+  const [feedOn, setFeedOn] = React.useState(false);     // panel open, opening or closing
+  const [dragging, setDragging] = React.useState(false);
+  const rootRef = React.useRef(null);
+  const feedScroll = React.useRef(null);
+  const blocked = aboutOpen || notifyModalOpen || !!lightbox;
 
   // First visit: ask about notifications once, before any decision is stored.
   React.useEffect(() => {
@@ -1046,20 +1160,104 @@ function StarshipTracker() {
     };
   }, [openId]);
 
+  // Feed panel (phone): keep it laid out while it slides, hide it once closed.
+  React.useEffect(() => {
+    if (feedOpen) { setFeedOn(true); return; }
+    const t = setTimeout(() => setFeedOn(false), FEED_SLIDE_MS + 30);
+    return () => clearTimeout(t);
+  }, [feedOpen]);
+  React.useEffect(() => {
+    if (!feedOpen) return;
+    const onEsc = (e) => e.key === "Escape" && !blocked && setFeedOpen(false);
+    window.addEventListener("keydown", onEsc);
+    return () => window.removeEventListener("keydown", onEsc);
+  }, [feedOpen, blocked]);
+  React.useEffect(() => { if (wide) setFeedOpen(false); }, [wide]);
+
+  // iOS-style swipe: the panel follows your finger, then settles open or shut
+  // depending on how far / how fast you swiped. Vertical scrolling is left alone.
+  const swipe = React.useRef({ feedOpen, blocked, wide });
+  swipe.current.feedOpen = feedOpen; swipe.current.blocked = blocked; swipe.current.wide = wide;
+  React.useEffect(() => {
+    let g = null;
+    const setP = (p) => rootRef.current && rootRef.current.style.setProperty("--fp", String(p));
+    const start = (e) => {
+      const s = swipe.current;
+      g = null;
+      if (s.wide || s.blocked || e.touches.length !== 1) return;
+      if (e.target.closest && e.target.closest(".lightbox, .about, .notify-modal, input, textarea")) return;
+      const t = e.touches[0];
+      g = { x: t.clientX, y: t.clientY, t: performance.now(), from: s.feedOpen ? 1 : 0, mode: null, p: s.feedOpen ? 1 : 0, vx: 0, lx: t.clientX, lt: performance.now() };
+    };
+    const move = (e) => {
+      if (!g || g.mode === "no") return;
+      const t = e.touches[0], dx = t.clientX - g.x, dy = t.clientY - g.y;
+      if (!g.mode) {
+        if (Math.abs(dy) > 10 && Math.abs(dy) >= Math.abs(dx)) { g.mode = "no"; return; }
+        if (Math.abs(dx) < 10 || Math.abs(dx) < Math.abs(dy) * 1.3) return;
+        if ((g.from === 0 && dx > 0) || (g.from === 1 && dx < 0)) { g.mode = "no"; return; }
+        g.mode = "drag"; g.x = t.clientX; // start following from here: no jump
+        setFeedOn(true); setDragging(true);
+      }
+      if (e.cancelable) e.preventDefault();
+      const now = performance.now();
+      g.vx = (t.clientX - g.lx) / Math.max(1, now - g.lt); g.lx = t.clientX; g.lt = now;
+      g.p = Math.min(1, Math.max(0, g.from - (t.clientX - g.x) / window.innerWidth));
+      setP(g.p);
+    };
+    const end = () => {
+      if (!g || g.mode !== "drag") { g = null; return; }
+      const open = g.from === 0 ? (g.p > 0.35 || g.vx < -0.35) && g.vx < 0.35 : !((g.p < 0.65 || g.vx > 0.35) && g.vx > -0.35);
+      g = null;
+      setP(open ? 1 : 0); setDragging(false); setFeedOpen(open);
+    };
+    window.addEventListener("touchstart", start, { passive: true });
+    window.addEventListener("touchmove", move, { passive: false });
+    window.addEventListener("touchend", end);
+    window.addEventListener("touchcancel", end);
+    return () => {
+      window.removeEventListener("touchstart", start);
+      window.removeEventListener("touchmove", move);
+      window.removeEventListener("touchend", end);
+      window.removeEventListener("touchcancel", end);
+    };
+  }, []);
+
+  // Tap an entry in the Road card: show its post in the feed and light it up.
+  const jumpToPost = (catId, i) => {
+    const pane = feedScroll.current;
+    const el = pane && pane.querySelector(`#post-${CSS.escape(`${catId}-${i}`)}`);
+    if (!el) return;
+    const head = pane.querySelector(".feed-head");
+    const y = Math.max(0, el.offsetTop - (head ? head.offsetHeight : 0) - 14);
+    const flash = () => { el.classList.remove("hl"); void el.offsetWidth; el.classList.add("hl"); setTimeout(() => el.classList.remove("hl"), 2400); };
+    if (wide) {
+      pane.scrollTo({ top: y, behavior: reduceMotion() ? "auto" : "smooth" });
+      setTimeout(flash, reduceMotion() ? 0 : 350);
+    } else {
+      pane.scrollTop = y;
+      setFeedOpen(true);
+      setTimeout(flash, reduceMotion() ? 0 : FEED_SLIDE_MS);
+    }
+  };
+
   return (
-    <div className="st">
+    <div className={"st" + (feedOn ? " feed-on" : "") + (dragging ? " feed-drag" : "")} ref={rootRef} style={{ "--fp": feedOpen ? 1 : 0 }}>
       <style>{css}</style>
-      <div className="st-wrap">
+      <div className="st-layout">
+      <div className="st-wrap" aria-hidden={!wide && feedOpen ? true : undefined}>
         <header className="top">
           <button className="round-btn" onClick={() => setAboutOpen(true)} aria-label="Open about">
             <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6h10M3 10h7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
           </button>
           <div className="brand">Starship<span>Flight log</span></div>
-          <span />
+          {road && Array.isArray(road.categories)
+            ? <button className="round-btn feed-btn" onClick={() => setFeedOpen(true)} aria-label="Open updates feed">{FEED_ICON}</button>
+            : <span />}
         </header>
 
         <NextFlightCard f={nextFlight} now={now} />
-        <RoadCard />
+        <RoadCard road={road} onEntryTap={jumpToPost} />
         <Connector dashed label={`${daysSinceLatest} days since the last flight`} />
 
         {flights.map((f, i) => (
@@ -1071,6 +1269,9 @@ function StarshipTracker() {
 
         <p className="end">That's every flight so far.</p>
       </div>
+      <UpdatesFeed road={road} wide={wide} shown={feedOn} onBack={() => setFeedOpen(false)} scrollRef={feedScroll} onPhotoTap={(src, alt) => setLightbox({ src, alt })} />
+      </div>
+      {!wide && <div className="feed-dim" onClick={() => setFeedOpen(false)} />}
       <AboutPanel
         open={aboutOpen}
         onClose={() => setAboutOpen(false)}
@@ -1358,6 +1559,91 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .mini-done { background: linear-gradient(100deg, rgba(61,220,132,.14), rgba(61,220,132,.05)); border-color: rgba(61,220,132,.30); box-shadow: inset 3px 0 0 rgba(61,220,132,.75); } /* the update that finished the stage */
 .mini-check { border-style: dashed; } /* "no news yet" placeholder */
 .mini-unc { margin-left: 7px; font-size: 10px; font-weight: 700; letter-spacing: .02em; color: #FFC93D; border: 1px dashed rgba(255,201,61,.65); padding: 1px 6px; border-radius: 6px; vertical-align: 1px; } /* single smaller source: never shown as fact */
+
+/* updates feed */
+.feed { position: relative; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; scrollbar-width: none; }
+.feed::-webkit-scrollbar { display: none; }
+.feed-head {
+  position: sticky; top: 0; z-index: 3;
+  display: grid; grid-template-columns: 40px 1fr 40px; align-items: center;
+  padding: calc(18px + env(safe-area-inset-top)) 18px 12px;
+  background: linear-gradient(180deg, rgba(38,51,84,.985) 0%, rgba(33,44,72,.975) 100%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%); backdrop-filter: blur(18px) saturate(140%);
+  border-bottom: 1px solid rgba(170,190,245,.10);
+}
+.feed-head .brand { line-height: 1.3; }
+.feed-list { padding: 14px 18px calc(72px + env(safe-area-inset-bottom)); max-width: 440px; margin: 0 auto; }
+.feed-list .end { margin-top: 22px; }
+.post {
+  position: relative; margin-bottom: 10px;
+  background: var(--card); border: 1px solid rgba(170,190,245,.12); border-radius: 18px;
+  padding: 14px 16px; box-shadow: 0 18px 40px -28px rgba(8,12,28,.9);
+}
+.post::after { /* tap-to-post highlight */
+  content: ""; position: absolute; inset: -1px; border-radius: 18px; pointer-events: none; opacity: 0;
+  background: color-mix(in srgb, var(--c) 8%, transparent);
+  border: 1.5px solid color-mix(in srgb, var(--c) 75%, transparent);
+  box-shadow: 0 0 30px -4px color-mix(in srgb, var(--c) 55%, transparent);
+}
+.post.hl::after { animation: post-hl 2.2s forwards; }
+@keyframes post-hl { 0% { opacity: 0; } 11% { opacity: 1; animation-timing-function: linear; } 45% { opacity: 1; animation-timing-function: cubic-bezier(.45,0,.25,1); } 100% { opacity: 0; } }
+.post-top { display: flex; align-items: center; gap: 7px; min-height: 24px; }
+.chip {
+  display: inline-flex; align-items: center; gap: 5px; height: 24px; padding: 0 9px 0 7px;
+  border-radius: 999px; font-size: 11.5px; font-weight: 700; letter-spacing: .02em; white-space: nowrap; color: var(--c);
+  background: color-mix(in srgb, var(--c) 13%, transparent); border: 1px solid color-mix(in srgb, var(--c) 30%, transparent);
+}
+.chip-i { font-size: 12px; line-height: 1; letter-spacing: 0; }
+.post-sep { color: var(--faint); font-size: 12.5px; }
+.post-date { font-size: 12.5px; font-weight: 600; color: var(--muted); white-space: nowrap; }
+.post-top .mini-unc { margin-left: auto; vertical-align: 0; }
+.post-text { margin: 9px 0 0; font-size: 14.5px; line-height: 1.5; color: var(--text); }
+.post-photo { margin-top: 10px; }
+.post-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; min-height: 28px; }
+.post-src { font-size: 10.5px; color: var(--muted); background: rgba(255,255,255,.07); padding: 2px 7px; border-radius: 6px; }
+.post-link {
+  width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; flex: none;
+  border: 1px solid rgba(255,255,255,.08); background: rgba(255,255,255,.03); color: var(--muted);
+}
+.post-link:focus-visible, .mini.tappable:focus-visible { outline: 2px solid #A9BDF0; outline-offset: 3px; }
+.post-check { border-style: dashed; border-color: rgba(170,190,245,.22); background: rgba(34,45,70,.6); }
+.post-check .post-text { color: var(--muted); }
+.post-done { /* same recipe as .mini-done */
+  background: linear-gradient(100deg, rgba(61,220,132,.14), rgba(61,220,132,.05)), var(--card);
+  border-color: rgba(61,220,132,.30); box-shadow: inset 3px 0 0 rgba(61,220,132,.75), 0 18px 40px -28px rgba(8,12,28,.9);
+}
+.fdiv { display: flex; align-items: center; gap: 12px; margin: 18px 2px 16px; font-size: 12px; color: var(--faint); white-space: nowrap; }
+.fdiv::before, .fdiv::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+.fdiv b { font-weight: 600; color: var(--muted); }
+.fdiv i { font-style: normal; margin: 0 1px; }
+.fdiv-success { color: #9EDBB8; font-weight: 600; }
+.fdiv-partial { color: #EBD38C; font-weight: 600; }
+.fdiv-failure { color: #F2A2A2; font-weight: 600; }
+.mini.tappable { cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform .12s, background-color .12s; }
+.mini.tappable:active { transform: scale(.98); background: rgba(10,16,32,.75); border-color: color-mix(in srgb, var(--c) 45%, transparent); }
+.feed-dim { display: none; }
+@media (max-width: 899px) { /* phone: a panel that slides in from the right */
+  .feed-pane {
+    position: fixed; inset: 0; z-index: 15; background: var(--bg);
+    transform: translateX(calc((1 - var(--fp)) * 100%)); visibility: hidden;
+    box-shadow: -18px 0 40px -24px rgba(8,12,28,.9);
+    transition: transform .4s cubic-bezier(.2,.75,.2,1);
+  }
+  .feed-pane .feed { height: 100%; }
+  .feed-on .feed-pane { visibility: visible; }
+  .feed-on .st-wrap { transform: translateX(calc(var(--fp) * -100vw)); transition: transform .4s cubic-bezier(.2,.75,.2,1); }
+  .feed-on .feed-dim { display: block; position: fixed; inset: 0; z-index: 14; background: #080C18; opacity: calc(var(--fp) * .35); transition: opacity .4s cubic-bezier(.2,.75,.2,1); }
+  .feed-drag .feed-pane, .feed-drag .st-wrap, .feed-drag .feed-dim { transition: none; }
+  .st.feed-on { overflow-x: hidden; }
+}
+@media (min-width: 900px) { /* desktop: main page + feed column */
+  .st-layout { display: grid; grid-template-columns: 476px 420px; justify-content: center; align-items: start; }
+  .st-layout .st-wrap { width: 100%; }
+  .feed-btn { visibility: hidden; }
+  .feed-pane { position: sticky; top: 0; height: 100vh; border-left: 1px solid rgba(170,190,245,.10); border-right: 1px solid rgba(170,190,245,.10); }
+  .feed-pane .feed { height: 100%; }
+  .feed-head { background: linear-gradient(180deg, rgba(44,58,94,.985) 0%, rgba(38,51,84,.975) 100%); }
+}
 `;
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
