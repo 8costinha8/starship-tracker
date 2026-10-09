@@ -704,7 +704,7 @@ function windowText(f, now) {
   return now >= ws ? `Open now · Closes ${fmtTimeLondon(f.windowEnd)} (UK)` : `Opens ${fmtTimeLondon(f.windowStart)} · Closes ${fmtTimeLondon(f.windowEnd)} (UK)`;
 }
 
-function NextFlightCard({ f, checkedAt }) {
+function NextFlightCard({ f, checkedAt, children }) {
   const now = useNow(true);
   const status = effectiveStatus(f, now);
   const confirmed = status === "confirmed" && exactTime(f);
@@ -737,6 +737,7 @@ function NextFlightCard({ f, checkedAt }) {
         </div>
       )}
       {status === "inflight" && checkedAt && <p className="auto-note">Auto-updating · last checked {fmtTimeLondon(checkedAt)}</p>}
+      {children}
     </section>
   );
 }
@@ -1050,7 +1051,7 @@ function RoadCard({ road, onEntryTap }) {
         <span className="road-sum">
           <span className="road-dots">{items.map((m) => <i key={m.id} className={"dot dot-" + m.status} style={{ "--c": m.color }} title={m.name + ": " + label(m)} aria-label={m.name + ": " + label(m)} role="img" />)}</span>
           <span className="road-count">{done} of {items.length} done</span>
-          <svg className="road-chev" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5l4 4 4-4" stroke="currentColor" strokeWidth="1.6" fill="none" strokeLinecap="round" /></svg>
+          <svg className="road-chev" width="20" height="20" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5l4 4 4-4" stroke="currentColor" strokeWidth="1.7" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </span>
       </button>
       <div className="road-list"><div className="road-list-inner">
@@ -1419,8 +1420,9 @@ function StarshipTracker() {
             : <span />}
         </header>
 
-        <NextFlightCard f={nextFlight} checkedAt={checkedAt} />
-        <RoadCard road={road} onEntryTap={jumpToPost} />
+        <NextFlightCard f={nextFlight} checkedAt={checkedAt}>
+          <RoadCard road={road} onEntryTap={jumpToPost} />
+        </NextFlightCard>
         <Connector dashed label={`${daysSinceLatest} days since the last flight`} />
 
         {flights.map((f, i) => (
@@ -1813,6 +1815,14 @@ textarea.feedback-field { resize: none; min-height: 112px; }
   .feed-pane .feed { height: 100%; }
   .feed-head { background: linear-gradient(180deg, rgba(44,58,94,.985) 0%, rgba(38,51,84,.975) 100%); }
 }
+
+/* Road to Flight N as the bottom section of the next-flight card: a darker inset panel */
+.next .road {
+  margin: 16px -4px -6px; border-radius: 20px;
+  background: rgba(14,20,38,.42); border: 1px solid rgba(255,255,255,.06); box-shadow: none;
+}
+.next .road-head { padding: 15px 16px 14px; }
+.next .road-chev { color: var(--text); flex: none; margin-right: -2px; }
 `;
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
