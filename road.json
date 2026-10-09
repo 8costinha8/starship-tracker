@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "9 Oct",
-  "updatedAt": "2026-10-09T09:05:49.348Z",
+  "updatedAt": "2026-10-09T09:44:28.521Z",
   "categories": [
     {
       "id": "cryo",
@@ -57,7 +57,7 @@
           "key": "rss:yt:video:dPqDD39cBEw"
         },
         {
-          "date": "7 Oct",
+          "date": "9 Oct",
           "text": "No report yet of Raptor installs finishing.",
           "src": "Tracker check",
           "source": "manual-check",
@@ -89,7 +89,7 @@
       "latest": "No static fire reported for B22 or S42",
       "history": [
         {
-          "date": "7 Oct",
+          "date": "9 Oct",
           "text": "Still no static fire reported.",
           "src": "Tracker check",
           "source": "manual-check",
@@ -124,7 +124,7 @@
           "key": "rss:yt:video:dPqDD39cBEw"
         },
         {
-          "date": "7 Oct",
+          "date": "9 Oct",
           "text": "No rollout or stacking of B22/S42 reported yet.",
           "src": "Tracker check",
           "source": "manual-check",
@@ -156,7 +156,7 @@
       "latest": "26 Sep licence covers Flight 14 only, no F15 change yet",
       "history": [
         {
-          "date": "7 Oct",
+          "date": "9 Oct",
           "text": "No Flight 15 licence modification reported.",
           "src": "Tracker check",
           "source": "manual-check",
@@ -182,7 +182,7 @@
       "latest": "No SpaceX date. NET 19 Oct is only a provisional figure",
       "history": [
         {
-          "date": "7 Oct",
+          "date": "9 Oct",
           "text": "SpaceX has still not announced a date.",
           "src": "Tracker check",
           "source": "manual-check",
