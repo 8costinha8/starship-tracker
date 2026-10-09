@@ -4,8 +4,8 @@
     "B22",
     "S42"
   ],
-  "updated": "9 Oct",
-  "updatedAt": "2026-10-09T14:57:12.452Z",
+  "updated": "10 Oct",
+  "updatedAt": "2026-10-09T23:03:53.194Z",
   "categories": [
     {
       "id": "cryo",
@@ -15,6 +15,14 @@
       "status": "progress",
       "latest": "Ship 42 back for a third cryo test",
       "history": [
+        {
+          "date": "10 Oct",
+          "text": "No new cryo testing news since the last update.",
+          "src": "Tracker check",
+          "source": "manual-check",
+          "trust": "trusted",
+          "kind": "check"
+        },
         {
           "date": "9 Oct",
           "text": "Ship 42 has returned to Massey's for a third round of cryo-proof testing.",
@@ -58,6 +66,14 @@
       "latest": "Ship 42 Raptor engines removed",
       "history": [
         {
+          "date": "10 Oct",
+          "text": "No new Raptor engine news since the last update.",
+          "src": "Tracker check",
+          "source": "manual-check",
+          "trust": "trusted",
+          "kind": "check"
+        },
+        {
           "date": "9 Oct",
           "text": "Ship 42's Raptor engines have been removed ahead of Flight 15.",
           "src": "NSF",
@@ -93,6 +109,14 @@
       "latest": "B22 static fire possibly next week",
       "history": [
         {
+          "date": "10 Oct",
+          "text": "No new static fire news since the last update.",
+          "src": "Tracker check",
+          "source": "manual-check",
+          "trust": "trusted",
+          "kind": "check"
+        },
+        {
           "date": "9 Oct",
           "text": "Booster 22 could be ready for a static fire as early as next week.",
           "src": "NSF",
@@ -120,6 +144,14 @@
       "status": "progress",
       "latest": "Pad 2 being serviced after Flight 14, no F15 rollout yet",
       "history": [
+        {
+          "date": "10 Oct",
+          "text": "No new pad or vehicle move news since the last update.",
+          "src": "Tracker check",
+          "source": "manual-check",
+          "trust": "trusted",
+          "kind": "check"
+        },
         {
           "date": "9 Oct",
           "text": "Pad 2's chopsticks are undergoing maintenance.",
@@ -156,7 +188,7 @@
       "latest": "26 Sep licence covers Flight 14 only, no F15 change yet",
       "history": [
         {
-          "date": "9 Oct",
+          "date": "10 Oct",
           "text": "No Flight 15 licence modification reported.",
           "src": "Tracker check",
           "source": "manual-check",
@@ -181,6 +213,14 @@
       "doneText": "Confirmed",
       "latest": "Slide shows NET November readiness",
       "history": [
+        {
+          "date": "10 Oct",
+          "text": "SpaceX has still not announced a date.",
+          "src": "Tracker check",
+          "source": "manual-check",
+          "trust": "trusted",
+          "kind": "check"
+        },
         {
           "date": "9 Oct",
           "text": "A new slide suggests Ship 42 could be ready for flight NET November.",
