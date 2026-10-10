@@ -4,8 +4,8 @@
     "B22",
     "S42"
   ],
-  "updated": "10 Oct",
-  "updatedAt": "2026-10-09T23:03:53.194Z",
+  "updated": "11 Oct",
+  "updatedAt": "2026-10-10T23:02:50.210Z",
   "categories": [
     {
       "id": "cryo",
@@ -16,7 +16,7 @@
       "latest": "Ship 42 back for a third cryo test",
       "history": [
         {
-          "date": "10 Oct",
+          "date": "11 Oct",
           "text": "No new cryo testing news since the last update.",
           "src": "Tracker check",
           "source": "manual-check",
@@ -66,7 +66,7 @@
       "latest": "Ship 42 Raptor engines removed",
       "history": [
         {
-          "date": "10 Oct",
+          "date": "11 Oct",
           "text": "No new Raptor engine news since the last update.",
           "src": "Tracker check",
           "source": "manual-check",
@@ -109,7 +109,7 @@
       "latest": "B22 static fire possibly next week",
       "history": [
         {
-          "date": "10 Oct",
+          "date": "11 Oct",
           "text": "No new static fire news since the last update.",
           "src": "Tracker check",
           "source": "manual-check",
@@ -145,7 +145,7 @@
       "latest": "Pad 2 being serviced after Flight 14, no F15 rollout yet",
       "history": [
         {
-          "date": "10 Oct",
+          "date": "11 Oct",
           "text": "No new pad or vehicle move news since the last update.",
           "src": "Tracker check",
           "source": "manual-check",
@@ -188,7 +188,7 @@
       "latest": "26 Sep licence covers Flight 14 only, no F15 change yet",
       "history": [
         {
-          "date": "10 Oct",
+          "date": "11 Oct",
           "text": "No Flight 15 licence modification reported.",
           "src": "Tracker check",
           "source": "manual-check",
@@ -214,7 +214,7 @@
       "latest": "Slide shows NET November readiness",
       "history": [
         {
-          "date": "10 Oct",
+          "date": "11 Oct",
           "text": "SpaceX has still not announced a date.",
           "src": "Tracker check",
           "source": "manual-check",
