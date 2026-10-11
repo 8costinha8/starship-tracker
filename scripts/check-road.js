@@ -15,12 +15,10 @@
         tag and never changes a box's status or headline.
      5. Writes road.json, commits + pushes it, then sends one push
         notification per change.
-     6. "No news yet" lines (history entries with kind: "check") are
-        placeholders, not history: at most one per box, deleted as soon as
-        real news lands in that box, and only (re)added from the London day
-        AFTER the box's latest real entry. While it stands, its date rolls
-        forward to today once per London day. Real entries keep their own
-        dates. These placeholder-only changes are committed, never pushed.
+     6. "No news yet" lines (kind: "check") are no longer made; any old
+        ones are cleared out once (committed, never pushed).
+     7. New entries get media: { type, url, poster? }, their source's own
+        preview (YouTube thumbnail, X post media, article og:image/og:video).
    Statuses: none, pending, progress, complete (shown as "Done": the
    source explicitly says the stage is finished; that entry gets
    complete: true and a green tint in the app; a trusted source can
@@ -180,6 +178,117 @@ async function fetchText(url, opts = {}) {
   throw lastErr;
 }
 const fetchJson = async (url, opts) => JSON.parse(await fetchText(url, opts));
+
+/* ───────────── media: the source's own preview (shown in the Updates feed) ─────────────
+   Only real media from the entry's own source, never a stand-in, and only when it
+   plausibly shows what the entry is about (a roundup's lead image often doesn't):
+   - X: the post's photo / video, from the search call's media expansion (no extra request)
+   - YouTube: the video's thumbnail, only if the video title matches the entry (one oEmbed read)
+   - articles: og:video / og:image only if the article title matches the entry; otherwise an
+     in-article <img> whose alt or caption names the entry's vehicle; otherwise nothing
+   "Matches": the title names no vehicle the entry doesn't, and names one it does or the
+   box's subject (e.g. "Ship 40 returns as Ship 42 ..." doesn't match a Ship 42-only entry).
+   Stored on the entry as media: { type: "image" | "video", url, poster? }. */
+const BOX_WORDS = {
+  cryo: [/cryo/i], raptor: [/raptor/i, /engine/i], static: [/static[ -]?fire/i],
+  pad: [/\bpad\b/i, /chopstick/i, /\btower\b/i, /roll ?(out|back)/i, /stack/i],
+  faa: [/\bfaa\b/i, /licen[cs]e/i], date: [/launch date/i, /\bNET\b/, /\btarget/i],
+};
+function vehiclesIn(text) {
+  const out = new Set();
+  for (const m of String(text || "").matchAll(/\b(ship|booster|s|b)[\s-]?(\d{1,3})\b/gi)) {
+    const kind = m[1].toLowerCase()[0] === "s" ? "S" : "B";
+    if (m[1].length === 1 && m[1] !== m[1].toUpperCase()) continue; // "s 42" / "b 22" lowercase: not a vehicle
+    out.add(kind + Number(m[2]));
+  }
+  return out;
+}
+function titleMatches(title, text, boxId) {
+  if (!title) return false;
+  const tv = vehiclesIn(title), ev = vehiclesIn(text);
+  if ([...tv].some((v) => !ev.has(v))) return false; // names another vehicle: a roundup or another story
+  if ([...tv].some((v) => ev.has(v))) return true;
+  return (BOX_WORDS[boxId] || []).some((r) => r.test(title));
+}
+// In-article images whose alt text or caption names one of the entry's vehicles.
+function captionedImage(html, baseUrl, text) {
+  const ev = vehiclesIn(text);
+  if (!ev.size) return null;
+  const names = (s) => [...vehiclesIn(decode(s))].some((v) => ev.has(v));
+  const srcOf = (tagHtml) => {
+    const a = (k) => (tagHtml.match(new RegExp(`\\b${k}\\s*=\\s*["']([^"']+)["']`, "i")) || [])[1];
+    return httpUrl(a("data-src") || a("src") || (a("srcset") || "").split(/\s+/)[0] || "", baseUrl);
+  };
+  for (const fig of String(html).match(/<figure\b[\s\S]*?<\/figure>/gi) || []) {
+    const img = (fig.match(/<img\b[^>]*>/i) || [])[0];
+    const cap = (fig.match(/<figcaption\b[^>]*>([\s\S]*?)<\/figcaption>/i) || [])[1] || "";
+    const alt = img && (img.match(/\balt\s*=\s*["']([^"']*)["']/i) || [])[1];
+    if (img && (names(cap) || names(alt || "")) && srcOf(img)) return { type: "image", url: srcOf(img) };
+  }
+  for (const img of String(html).match(/<img\b[^>]*>/gi) || []) {
+    const alt = (img.match(/\balt\s*=\s*["']([^"']*)["']/i) || [])[1];
+    if (alt && names(alt) && srcOf(img)) return { type: "image", url: srcOf(img) };
+  }
+  return null;
+}
+function pageTitle(html) {
+  return decode(metaContent(html, ["og:title", "twitter:title"]) || (String(html).match(/<title[^>]*>([\s\S]*?)<\/title>/i) || [])[1] || "");
+}
+const MEDIA_TIMEOUT_MS = 6000;
+function youtubeId(url) {
+  const m = String(url || "").match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|live\/|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : null;
+}
+const httpUrl = (u, base) => { if (!u || !String(u).trim()) return null; try { const x = new URL(decode(u), base); return /^https?:$/.test(x.protocol) ? x.href : null; } catch { return null; } };
+function metaContent(html, names) {
+  for (const tagHtml of String(html).match(/<meta\b[^>]*>/gi) || []) {
+    const key = (tagHtml.match(/\b(?:property|name)\s*=\s*["']([^"']+)["']/i) || [])[1];
+    const val = (tagHtml.match(/\bcontent\s*=\s*["']([^"']*)["']/i) || [])[1];
+    if (key && val && names.includes(key.toLowerCase())) return val;
+  }
+  return null;
+}
+function parseOgMedia(html, baseUrl) {
+  const image = httpUrl(metaContent(html, ["og:image:secure_url", "og:image", "og:image:url", "twitter:image"]) || "", baseUrl);
+  const video = httpUrl(metaContent(html, ["og:video:secure_url", "og:video", "og:video:url"]) || "", baseUrl);
+  const vtype = (metaContent(html, ["og:video:type"]) || "").toLowerCase();
+  if (video && (/^video\/(mp4|webm)$/.test(vtype) || /\.(mp4|webm)(\?|$)/i.test(video))) return { type: "video", url: video, ...(image ? { poster: image } : {}) };
+  return image ? { type: "image", url: image } : null;
+}
+function xMedia(list) {
+  const m = (list || [])[0];
+  if (!m) return null;
+  if (m.type === "photo" && m.url) return { type: "image", url: m.url };
+  if (m.type === "video" || m.type === "animated_gif") {
+    const mp4 = (m.variants || []).filter((v) => v.content_type === "video/mp4" && v.url).sort((a, b) => (a.bit_rate || 0) - (b.bit_rate || 0));
+    const pick = mp4.filter((v) => (v.bit_rate || 0) <= 2500000).pop() || mp4[0]; // ≤ 720p keeps the feed light
+    if (pick) return { type: "video", url: pick.url, ...(m.preview_image_url ? { poster: m.preview_image_url } : {}) };
+    if (m.preview_image_url) return { type: "image", url: m.preview_image_url };
+  }
+  return null;
+}
+// One page read per new entry with a link, short timeout, never retried; failures just mean no media.
+const fetchPage = async (u) => {
+  const r = await fetch(u, { headers: { "user-agent": UA }, signal: AbortSignal.timeout(MEDIA_TIMEOUT_MS) });
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  return r.text();
+};
+// One or two reads per new entry with a link, short timeout, never retried; failures just mean no media.
+async function mediaFor(url, entry = {}, getText = fetchPage) {
+  const { text = "", box = "" } = entry;
+  const withTimeout = (u) => Promise.race([getText(u), new Promise((_, no) => setTimeout(() => no(new Error("timeout")), MEDIA_TIMEOUT_MS))]);
+  try {
+    const yt = youtubeId(url);
+    if (yt) {
+      const meta = JSON.parse(await withTimeout(`https://www.youtube.com/oembed?format=json&url=${encodeURIComponent(`https://www.youtube.com/watch?v=${yt}`)}`));
+      return titleMatches(meta.title, text, box) ? { type: "image", url: `https://i.ytimg.com/vi/${yt}/hqdefault.jpg` } : null;
+    }
+    if (!url || /^https?:\/\/(x|twitter)\.com\//i.test(url)) return null; // X media come from the API call
+    const html = await withTimeout(url);
+    if (titleMatches(pageTitle(html), text, box)) { const og = parseOgMedia(html, url); if (og) return og; }
+    return captionedImage(html, url, text);
+  } catch { return null; }
+}
 
 // Minimal RSS/Atom reader, no dependencies.
 function parseFeed(xml) {
@@ -387,15 +496,18 @@ const SOURCES = [
       const words = ["Starship", `"Flight ${road.flight}"`, ...vehicleWords(road).map((w) => (w.includes(" ") ? `"${w}"` : w))];
       const from = Object.keys(X_ACCOUNTS).filter((h) => state.xUserIds[h] !== "none").map((h) => `from:${h}`);
       const query = `(${from.join(" OR ")}) (${words.join(" OR ")}) -is:retweet -is:reply`;
-      const params = new URLSearchParams({ query, max_results: "25", "tweet.fields": "created_at,author_id" });
+      const params = new URLSearchParams({ query, max_results: "25", "tweet.fields": "created_at,author_id,attachments",
+        expansions: "attachments.media_keys", "media.fields": "type,url,preview_image_url,variants" }); // media come back in the same call
       if (state.xSinceId) params.set("since_id", state.xSinceId);
       else params.set("start_time", new Date(Date.now() - 6 * 3600000).toISOString());
       const j = await fetchJson(`https://api.x.com/2/tweets/search/recent?${params}`, auth);
       if (j.meta && j.meta.newest_id) state.xSinceId = j.meta.newest_id;
+      const mediaByKey = Object.fromEntries(((j.includes && j.includes.media) || []).map((m) => [m.media_key, m]));
       return (j.data || []).map((p) => {
         const handle = byId[p.author_id] || "unknown";
         const t = X_ACCOUNTS[handle] || { src: `@${handle}`, tier: "unconfirmed" };
-        return { key: `x:${p.id}`, title: `@${handle} on X`, text: decode(p.text).slice(0, 600), url: `https://x.com/${handle}/status/${p.id}`, publishedAt: p.created_at, src: t.src, source: `x:${handle}`, tier: t.tier };
+        return { key: `x:${p.id}`, title: `@${handle} on X`, text: decode(p.text).slice(0, 600), url: `https://x.com/${handle}/status/${p.id}`, publishedAt: p.created_at, src: t.src, source: `x:${handle}`, tier: t.tier,
+          media: xMedia(((p.attachments && p.attachments.media_keys) || []).map((k) => mediaByKey[k]).filter(Boolean)) || undefined };
       });
     },
   },
@@ -580,6 +692,7 @@ function applyUpdates(road, items, updates, log, limit) {
     // The source's real publish time (shown in the Updates feed). Left out when the
     // source only gives a day (SpaceX updates, FAA) or no time at all (launches page).
     if (it.publishedAt && it.timeKnown !== false) entry.publishedAt = it.publishedAt;
+    if (it.media) entry.media = it.media;
     const change = { box, entry, from: box.status, to: box.status, item: it, u, headline: "kept" };
     let want = STATUSES.includes(u.status) ? u.status : null;
     if (want === "complete" && box.id === "date") { log(`ignored status complete for [date] (Launch date uses done = Confirmed)`); want = null; }
@@ -641,37 +754,18 @@ function sortHistory(list, now = new Date()) {
     .map((x) => x.h);
 }
 
-// "No news yet" lines (kind: "check") are placeholders. Per box, at most one,
-// and only when nothing real has happened since the London day of the box's
-// latest real entry (real news on 9 Oct → a check line from 10 Oct at the
-// earliest). Finished boxes (complete / done / Confirmed) and empty boxes get
-// none. A standing line keeps its wording and its date rolls to today; a new
-// one uses CHECK_TEXT. Running it again on the same London day changes nothing.
-// Returns one { box, action: "moved" | "added" | "removed", text, from, to } per change.
+// "No news yet" lines (kind: "check") are no longer made (11 Oct 2026): the app
+// shows seen / new entries instead. This now only clears out any old ones,
+// once, with no push. It never adds or re-dates a line.
+// Returns one { box, action: "removed", text, from, to: null } per line removed.
 const isCheck = (h) => !!h && h.kind === "check";
-function refreshCheckDates(road, now = new Date()) {
-  const today = fmtDay(now.toISOString());
-  const todayKey = londonDayKey(now);
+function refreshCheckDates(road) {
   const out = [];
   for (const c of road.categories || []) {
     const hist = c.history || [];
-    const checks = hist.filter(isCheck);
-    const real = hist.filter((h) => !isCheck(h));
-    const lastReal = real.map((h) => historyDayKey(h, now)).filter((k) => k !== null).reduce((a, b) => Math.max(a, b), 0);
-    const wanted = !FINISHED(c.status) && lastReal > 0 && todayKey > lastReal;
-    if (!wanted) {
-      for (const h of checks) out.push({ box: c, action: "removed", text: h.text, from: h.date, to: null });
-      if (checks.length) c.history = real;
-      continue;
-    }
-    const keep = checks[0];
-    if (keep && checks.length === 1 && keep.date === today) continue; // already done today
-    for (const h of checks.slice(1)) out.push({ box: c, action: "removed", text: h.text, from: h.date, to: null });
-    const line = keep
-      ? { ...keep, date: today }
-      : { date: today, text: CHECK_TEXT[c.id] || "No new reports since the last update.", src: "Tracker check", source: "manual-check", trust: "trusted", kind: "check" };
-    if (!keep || keep.date !== today) out.push({ box: c, action: keep ? "moved" : "added", text: line.text, from: keep ? keep.date : null, to: today });
-    c.history = sortHistory([line, ...real], now);
+    if (!hist.some(isCheck)) continue;
+    for (const h of hist.filter(isCheck)) out.push({ box: c, action: "removed", text: h.text, from: h.date, to: null });
+    c.history = hist.filter((h) => !isCheck(h));
   }
   return out;
 }
@@ -853,10 +947,17 @@ async function run(opts = {}) {
       }
     }
   }
+  // 4a. Media preview for new entries (their source's own image/video; none if there isn't one)
+  const fetchMedia = opts.mediaFor || mediaFor;
+  for (const ch of changes) {
+    if (ch.entry.media || !ch.entry.url) continue;
+    const media = await fetchMedia(ch.entry.url, { text: ch.entry.text, box: ch.box.id });
+    if (media) { ch.entry.media = media; log(`media [${ch.box.id}] ${media.type}: ${media.url}`); }
+  }
   for (const ch of changes) notifications.push(notificationFor(road, ch));
   if (changes.length) changed = true;
 
-  // 4b. Once per London day: "no news yet" lines get today's date (no push for this)
+  // 4b. Clear out any old "no news yet" lines (no push for this)
   const refreshed = refreshCheckDates(road);
   for (const m of refreshed) log(m.action === "moved" ? `DATE REFRESH [${m.box.id}] "${m.text}" ${m.from} → ${m.to} (no push)`
     : m.action === "added" ? `NO-NEWS LINE ADDED [${m.box.id}] ${m.to}: "${m.text}" (no push)`
@@ -894,7 +995,7 @@ async function run(opts = {}) {
   return { road, changes, notifications, refreshed, state, scheduledSent };
 }
 
-module.exports = { run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
+module.exports = { run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, parseOgMedia, xMedia, youtubeId, mediaFor, titleMatches, captionedImage, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
 
 if (require.main === module) {
   run().catch((err) => {

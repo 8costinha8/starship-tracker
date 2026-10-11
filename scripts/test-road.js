@@ -139,7 +139,7 @@ const box = (r, id) => r.categories.find((c) => c.id === id);
   const st = box(r, "static");
   check(st.status === "complete" && st.history[0].text.startsWith("Ship 42") && st.history[1].text.startsWith("Booster 22") && st.latest === "Done" && st.history[0].complete === true && !st.history[1].complete, "B22 then S42 static fires → Static fires complete, newest first, headline \"Done\", S42 entry flagged");
   const cryo = box(r, "cryo");
-  check(cryo.status === "progress" && cryo.history[0].src === "NSF" && cryo.latest === "B22 back at Massey's for more cryo" && cryo.history.length === JSON.parse(fs.readFileSync(path.join(ROOT, "road.json"), "utf8")).categories.find((c) => c.id === "cryo").history.length + 1, "NSF says B22 back for cryo → finished stage re-opened (In progress), new entry on top, older kept");
+  check(cryo.status === "progress" && cryo.history[0].src === "NSF" && cryo.latest === "B22 back at Massey's for more cryo" && cryo.history.length === JSON.parse(fs.readFileSync(path.join(ROOT, "road.json"), "utf8")).categories.find((c) => c.id === "cryo").history.filter((h) => h.kind !== "check").length + 1, "NSF says B22 back for cryo → finished stage re-opened (In progress), new entry on top, older kept");
   check(!r.categories.some((c) => c.history.some((h) => /Flight 14 recap|Falcon 9|Starbase Live|Ship 42 to Pad 2/i.test(h.text))), "stale, off-topic, irrelevant and already-seen posts ignored");
   check(r.categories.every((c) => c.history.filter((h) => /b22-static-fire/.test(h.url || "")).length <= 1), "same NSF article from two sources added once");
   check(stored.pending.length === 2 && stored.pending.every((p) => p.tier === "unconfirmed"), `cap keeps official/trusted first; ${stored.pending.length} unconfirmed post(s) wait for the next run`);
@@ -332,41 +332,30 @@ const box = (r, id) => r.categories.find((c) => c.id === id);
   let threw2 = false; try { road.validateRoad({ ...cr, categories: cr.categories.map((c) => (c.id === "date" ? { ...c, status: "complete" } : c)) }); } catch { threw2 = true; }
   check(threw2, "validateRoad refuses a Complete Launch date");
 
-  console.log("\n────────── RUN 8: \"no news yet\" lines are placeholders ──────────");
+  console.log("\n────────── RUN 8: no more \"no news yet\" lines ──────────");
   const today = road.fmtDay();
   const nr = (h) => ({ date: h[0], text: h[1], src: h[2] || "NSF", source: "nsf", trust: "trusted", ...(h[3] || {}) });
   const ck = (date, text) => ({ date, text, src: "Tracker check", source: "manual-check", trust: "trusted", kind: "check" });
   const mk = () => ({ flight: 15, vehicles: [], categories: [
     { id: "raptor", status: "progress", history: [ck("7 Oct", "No report yet of Raptor installs finishing."), nr(["30 Sep", "Both being fitted with Raptors."])] },
     { id: "pad", status: "progress", history: [nr(["9 Oct", "Pad 2's chopsticks are undergoing maintenance.", "NSF", { at: "2026-10-08T23:00:08.000Z" }]), ck("7 Oct", "No rollout reported yet.")] },
-    { id: "cryo", status: "done", history: [nr(["6 Oct", "Both vehicles passed cryo."])] },
     { id: "static", status: "pending", history: [nr(["30 Sep", "B22 static fire in ~2 weeks."])] },
     { id: "faa", status: "pending", history: [ck("8 Oct", "No FAA news A."), ck("7 Oct", "No FAA news B."), nr(["26 Sep", "Licence for Flight 14 only."])] },
     { id: "date", status: "pending", history: [] },
   ] });
   const u = mk();
-  const ub = (id) => u.categories.find((c) => c.id === id);
   const realOf = (rd) => JSON.stringify(rd.categories.map((c) => c.history.filter((h) => h.kind !== "check")));
   const realU = realOf(u);
-  const day9 = new Date("2026-10-09T12:00:00Z");
-  const ch9 = road.refreshCheckDates(u, day9);
-  check(ub("raptor").history[0].kind === "check" && ub("raptor").history[0].date === "9 Oct" && ub("raptor").history[0].text === "No report yet of Raptor installs finishing.", "standing line keeps its wording, date rolls to today (7 Oct → 9 Oct)");
-  check(!ub("pad").history.some((h) => h.kind === "check"), "real news on 9 Oct → no check line on 9 Oct (removed)");
-  check(!ub("cryo").history.some((h) => h.kind === "check") && !ub("date").history.length, "finished box and empty box → no check line");
-  check(ub("static").history[0].kind === "check" && ub("static").history[0].date === "9 Oct" && ub("static").history[0].text === road.CHECK_TEXT.static, `quiet box without one gets the default line: "${road.CHECK_TEXT.static}"`);
-  check(ub("faa").history.filter((h) => h.kind === "check").length === 1 && ub("faa").history[0].text === "No FAA news A.", "never more than one check line per box");
+  const ch9 = road.refreshCheckDates(u, new Date("2026-10-09T12:00:00Z"));
+  check(ch9.length === 4 && ch9.every((m) => m.action === "removed") && !u.categories.some((c) => c.history.some((h) => h.kind === "check")), "old no-news lines are all removed (4), none added or re-dated");
   check(realOf(u) === realU, "real entries untouched (dates, text, order)");
-  check(road.refreshCheckDates(u, new Date("2026-10-09T22:59:00Z")).length === 0, "again the same London day → no-op");
-  const ch10 = road.refreshCheckDates(u, new Date("2026-10-09T23:30:00Z")); // 00:30 on 10 Oct in London
-  check(ub("pad").history[0].kind === "check" && ub("pad").history[0].date === "10 Oct" && ub("pad").history[0].text === road.CHECK_TEXT.pad && ub("pad").history[1].date === "9 Oct", "next London day (10 Oct) → Pad's check line re-appears on top, real 9 Oct entry below");
-  check(ub("raptor").history[0].date === "10 Oct" && ub("static").history[0].date === "10 Oct" && realOf(u) === realU, "standing lines roll to 10 Oct, real entries untouched");
-  const ch11 = road.refreshCheckDates(u, new Date("2026-10-11T08:00:00Z"));
-  check(ch11.length === 4 && ch11.every((m) => m.action === "moved" && m.to === "11 Oct"), "and roll again on 11 Oct");
+  check(road.refreshCheckDates(u, new Date("2026-10-12T08:00:00Z")).length === 0 && !u.categories.find((c) => c.id === "static").history.some((h) => h.kind === "check"), "later days: quiet boxes still get no line (no-op)");
 
-  // full runs on a copy of the real road.json
+  // full runs on a copy of the real road.json, with old no-news lines in it
   const tmp8 = fs.mkdtempSync(path.join(os.tmpdir(), "road-test8-"));
   const road8 = JSON.parse(fs.readFileSync(path.join(ROOT, "road.json"), "utf8"));
-  for (const c of road8.categories) for (const h of c.history) if (h.kind === "check") h.date = "1 Oct";
+  const pad8 = road8.categories.find((c) => c.id === "pad");
+  pad8.history = [ck("1 Oct", "No new pad news since the last update."), ...pad8.history.filter((h) => h.kind !== "check")];
   road8.updated = "1 Oct"; road8.updatedAt = "2026-10-01T10:00:00Z";
   fs.writeFileSync(path.join(tmp8, "road.json"), JSON.stringify(road8, null, 2) + "\n");
   fs.copyFileSync(path.join(ROOT, "app.js"), path.join(tmp8, "app.js"));
@@ -384,20 +373,68 @@ const box = (r, id) => r.categories.find((c) => c.id === id);
   console.log = (...a) => { logs8.push(a.join(" ")); realLog8(...a); };
   res = await road.run({ ...opts8, mode: "preview" });
   console.log = realLog8;
-  check(fs.readFileSync(opts8.roadPath, "utf8") === raw8 && !commits8.length && !sent8.length && logs8.some((l) => /DATE REFRESH \[faa\] .* 1 Oct → /.test(l)), "test mode: logs the changes, writes/commits/sends nothing");
+  check(fs.readFileSync(opts8.roadPath, "utf8") === raw8 && !commits8.length && !sent8.length && logs8.some((l) => /NO-NEWS LINE REMOVED \[pad\]/.test(l)), "test mode: logs the removal, writes/commits/sends nothing");
   res = await road.run(opts8);
   const r8 = JSON.parse(fs.readFileSync(opts8.roadPath, "utf8"));
-  const checks8 = r8.categories.filter((c) => c.history.some((h) => h.kind === "check"));
-  check(checks8.every((c) => c.history.filter((h) => h.kind === "check").length === 1 && c.history[0].kind === "check" && c.history[0].date === today), `each quiet box has one no-news line, on top, dated ${today} (${checks8.map((c) => c.id).join(", ")})`);
+  check(!r8.categories.some((c) => c.history.some((h) => h.kind === "check")), "live run: no no-news lines left in any box");
   check(realOf(r8) === real8, "real news entries untouched (dates, text, order)");
-  check(r8.updated === today, `card "Updated" moved to ${r8.updated}`);
-  check(commits8.length === 1 && /no-news lines/.test(commits8[0]) && sent8.length === 0 && res.notifications.length === 0, `placeholder-only change → one commit ("${commits8[0]}"), NO push`);
+  check(commits8.length === 1 && /no-news lines/.test(commits8[0]) && sent8.length === 0 && res.notifications.length === 0, `clean-up → one commit ("${commits8[0]}"), NO push`);
   const raw8b = fs.readFileSync(opts8.roadPath, "utf8");
   res = await road.run(opts8);
-  check(fs.readFileSync(opts8.roadPath, "utf8") === raw8b && commits8.length === 1 && sent8.length === 0, "next run the same day → no-op (no write, no commit, no push)");
-  res = await road.run({ ...opts8, sources: [{ name: "fake", fetch: async () => [item6("r8", "Booster 22 static fire")] }], askClaude: async () => [{ item: 1, box: "static", line: "Booster 22 completed a static fire.", short: "B22 static fire done", status: "progress" }] });
+  check(fs.readFileSync(opts8.roadPath, "utf8") === raw8b && commits8.length === 1 && sent8.length === 0, "next run → no-op (no line re-added, no write, no commit, no push)");
+  const mediaCalls = [];
+  res = await road.run({ ...opts8, mediaFor: async (url, e) => { mediaCalls.push([url, e]); return { type: "image", url: "https://example.com/og.jpg" }; },
+    sources: [{ name: "fake", fetch: async () => [item6("r8", "Booster 22 static fire")] }], askClaude: async () => [{ item: 1, box: "static", line: "Booster 22 completed a static fire.", short: "B22 static fire done", status: "progress" }] });
   const st8 = JSON.parse(fs.readFileSync(opts8.roadPath, "utf8")).categories.find((c) => c.id === "static");
-  check(st8.history[0].key === "rss:r8" && !st8.history.some((h) => h.kind === "check") && sent8.length === 1, "real news lands → on top with its true date, the box's no-news line is deleted, one push");
+  check(st8.history[0].key === "rss:r8" && !st8.history.some((h) => h.kind === "check") && sent8.length === 1, "real news lands → on top with its true date, one push");
+  check(mediaCalls.length === 1 && mediaCalls[0][1].box === "static" && /static fire/.test(mediaCalls[0][1].text) && st8.history[0].media && st8.history[0].media.url === "https://example.com/og.jpg", "new entry with a link → one media lookup, stored as media");
+
+  console.log("\n────────── RUN 9: media extraction (fake HTML, no network) ──────────");
+  const art = `<html><head><meta property="og:title" content="x"><meta property="og:image" content="/wp-content/uploads/ship.jpg" /><meta name="twitter:image" content="https://cdn.example.com/t.jpg"></head></html>`;
+  check(JSON.stringify(road.parseOgMedia(art, "https://www.nasaspaceflight.com/2026/10/a/")) === JSON.stringify({ type: "image", url: "https://www.nasaspaceflight.com/wp-content/uploads/ship.jpg" }), "article og:image → image (relative URL resolved)");
+  const vid = `<meta content="https://cdn.example.com/clip.mp4" property="og:video"><meta property="og:video:type" content="video/mp4"><meta property="og:image" content="https://cdn.example.com/poster.jpg">`;
+  check(JSON.stringify(road.parseOgMedia(vid, "https://example.com/")) === JSON.stringify({ type: "video", url: "https://cdn.example.com/clip.mp4", poster: "https://cdn.example.com/poster.jpg" }), "og:video (mp4) → video with og:image as poster (attribute order doesn't matter)");
+  const embed = `<meta property="og:video" content="https://www.youtube.com/embed/abc"><meta property="og:video:type" content="text/html"><meta property="og:image" content="https://example.com/p.jpg">`;
+  check(road.parseOgMedia(embed, "https://example.com/").type === "image", "og:video that is a player page (text/html) → not a video, falls back to og:image");
+  check(road.parseOgMedia("<html><head><title>no tags</title></head></html>", "https://example.com/") === null && road.parseOgMedia(`<meta property="og:image" content="javascript:alert(1)">`, "https://example.com/") === null, "no og tags, or a non-http URL → no media (nothing invented)");
+  check(road.youtubeId("https://www.youtube.com/watch?v=dPqDD39cBEw") === "dPqDD39cBEw" && road.youtubeId("https://youtu.be/dPqDD39cBEw?t=4") === "dPqDD39cBEw" && road.youtubeId("https://www.youtube.com/shorts/dPqDD39cBEw") === "dPqDD39cBEw" && road.youtubeId("https://example.com/watch?v=x") === null, "YouTube id from watch / youtu.be / shorts URLs");
+  check(JSON.stringify([...road.vehiclesIn("Ship 42, B22, S43 and Booster 23 (Flight 15)")]) === JSON.stringify(["S42", "B22", "S43", "B23"]), "vehicles found: Ship 42 / B22 / S43 / Booster 23, not Flight 15");
+  const e42 = { text: "Ship 42 has returned to Massey's for a third round of cryo-proof testing.", box: "cryo" };
+  const page = (title, extra = "") => `<html><head><title>${title} - NSF</title><meta property="og:title" content="${title}"><meta property="og:image" content="https://cdn.example.com/lead.jpg"></head><body>${extra}</body></html>`;
+  let reads = [];
+  const fake = (html, yt) => async (u) => { reads.push(u); return u.includes("youtube.com/oembed") ? JSON.stringify({ title: yt }) : html; };
+  let mm = await road.mediaFor("https://example.com/a", e42, fake(page("Ship 42 heads back for more cryo testing")));
+  check(mm && mm.url === "https://cdn.example.com/lead.jpg", "single-topic article (title names Ship 42) → og:image kept");
+  mm = await road.mediaFor("https://example.com/b", e42, fake(page("Ship 40 Returns Home as Ship 42 gets more Cryo Proof Testing")));
+  check(mm === null, "roundup (title also names Ship 40), no matching in-article image → NO media");
+  mm = await road.mediaFor("https://example.com/c", e42, fake(page("Ship 40 Returns Home as Ship 42 gets more Cryo Proof Testing",
+    `<figure><img src="/up/s40.jpg" alt=""><figcaption>Ship 40 back at the Rocket Garden</figcaption></figure><figure><img src="/up/s42.jpg" alt=""><figcaption>Ship 42 at Massey's (Credit: NSF)</figcaption></figure>`)));
+  check(mm && mm.url === "https://example.com/up/s42.jpg", "roundup → the in-article image whose caption names Ship 42 (not the Ship 40 one)");
+  mm = await road.mediaFor("https://example.com/d", e42, fake(page("Starbase roundup: Ship 40 and Booster 23", `<img src="/x.jpg" alt="Ship 40 on the barge"><img data-src="/y.jpg" alt="S42 rolls to Massey's">`)));
+  check(mm && mm.url === "https://example.com/y.jpg", "img alt naming S42 (data-src) → used; other-vehicle alt skipped");
+  mm = await road.mediaFor("https://example.com/e", e42, fake(page("Weekly Starbase news")));
+  check(mm === null, "title names neither the vehicle nor the box subject → NO media");
+  mm = await road.mediaFor("https://example.com/f", e42, fake(page("Cryo testing continues at Massey's")));
+  check(mm && mm.url === "https://cdn.example.com/lead.jpg", "title names the box subject (cryo) and no other vehicle → og:image kept");
+  const vidM = `<meta property="og:title" content="Ship 42 cryo test"><meta content="https://cdn.example.com/clip.mp4" property="og:video"><meta property="og:video:type" content="video/mp4"><meta property="og:image" content="https://cdn.example.com/poster.jpg">`;
+  mm = await road.mediaFor("https://example.com/g", e42, fake(vidM));
+  check(JSON.stringify(mm) === JSON.stringify({ type: "video", url: "https://cdn.example.com/clip.mp4", poster: "https://cdn.example.com/poster.jpg" }), "matching article with an mp4 og:video → video with poster");
+  reads = [];
+  const eRap = { text: "Ship 42's Raptor engines have been removed ahead of Flight 15.", box: "raptor" };
+  const ePad = { text: "Pad 2's chopsticks are undergoing maintenance.", box: "pad" };
+  const ytT = "Could Engine Work Delay Starship Flight 15? | Starship Update";
+  mm = await road.mediaFor("https://www.youtube.com/watch?v=dPqDD39cBEw", eRap, fake("", ytT));
+  check(mm && mm.url === "https://i.ytimg.com/vi/dPqDD39cBEw/hqdefault.jpg" && reads.length === 1 && reads[0].includes("oembed"), "YouTube title about engines → Raptor entry keeps the thumbnail (one oEmbed read)");
+  check(await road.mediaFor("https://www.youtube.com/watch?v=dPqDD39cBEw", ePad, fake("", ytT)) === null, "same video for a Pad-chopsticks entry → title doesn't match → NO thumbnail");
+  check(await road.mediaFor("https://youtu.be/dPqDD39cBEw", eRap, fake("", "Ship 43 and Booster 23 roll out")) === null, "video title naming other vehicles → NO thumbnail");
+  check(await road.mediaFor("https://example.com/down", e42, async () => { throw new Error("HTTP 500"); }) === null, "page fails → no media, no throw");
+  reads = [];
+  check(await road.mediaFor("https://x.com/SpaceX/status/1", e42, fake(page("Ship 42"))) === null && reads.length === 0, "X post URL → not scraped (media come from the API call)");
+  const xm = road.xMedia([{ type: "video", preview_image_url: "https://pbs.twimg.com/p.jpg", variants: [
+    { content_type: "application/x-mpegURL", url: "https://video.twimg.com/x.m3u8" }, { bit_rate: 256000, content_type: "video/mp4", url: "https://video.twimg.com/270.mp4" },
+    { bit_rate: 2176000, content_type: "video/mp4", url: "https://video.twimg.com/720.mp4" }, { bit_rate: 10368000, content_type: "video/mp4", url: "https://video.twimg.com/1080.mp4" }] }]);
+  check(JSON.stringify(xm) === JSON.stringify({ type: "video", url: "https://video.twimg.com/720.mp4", poster: "https://pbs.twimg.com/p.jpg" }), "X video → best mp4 up to 720p, preview as poster");
+  check(JSON.stringify(road.xMedia([{ type: "photo", url: "https://pbs.twimg.com/media/a.jpg" }])) === JSON.stringify({ type: "image", url: "https://pbs.twimg.com/media/a.jpg" }) && road.xMedia([]) === null, "X photo → image; no media → none");
 
   check(calls.x > 0 && calls.xUsers === 0, `X: all 10 user ids hard-coded → no users/by lookup (${calls.xUsers} lookups, ${calls.x} searches)`);
   { // fallback: an account without a hard-coded id is still looked up once

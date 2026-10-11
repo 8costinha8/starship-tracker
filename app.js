@@ -1036,8 +1036,9 @@ function useRoad() {
   return road;
 }
 
-function RoadCard({ road, onEntryTap }) {
+function RoadCard({ road, onEntryTap, openReq }) {
   const [main, setMain] = React.useState(false);
+  React.useEffect(() => { if (openReq) setMain(true); }, [openReq]); // header chip asks it to open
   const [open, setOpen] = React.useState(null);
   const items = road && Array.isArray(road.categories) ? road.categories.filter((m) => !ROAD_HIDDEN.includes(m.id)) : [];
   if (!items.length) return null;
@@ -1068,8 +1069,9 @@ function RoadCard({ road, onEntryTap }) {
               <span className={"badge badge-" + m.status}>{label(m)}</span>
             </button>
             <div className="callout-hist"><div className="callout-hist-inner">
-              {(m.history || []).map((h, i) => (
-                <div className={"mini" + (h.complete ? " mini-done" : "") + (h.kind === "check" ? " mini-check" : "") + (onEntryTap ? " tappable" : "")} key={i}
+              {(m.history || []).map((h, i) => isRealEntry(h) && (
+                <div className={"mini" + (h.complete ? " mini-done" : "") + (onEntryTap ? " tappable" : "")} key={i}
+                  ref={(el) => observeSeen(el, entryId(h))}
                   {...(onEntryTap ? { role: "button", tabIndex: isOpen ? 0 : -1, "aria-label": `${h.date}: ${h.text}. Show in the updates feed`,
                     onClick: () => onEntryTap(m.id, i), onKeyDown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onEntryTap(m.id, i); } } } : {})}>
                   <div className="mini-top">
@@ -1086,6 +1088,75 @@ function RoadCard({ road, onEntryTap }) {
       </div></div>
     </section>
   );
+}
+
+// ---- Seen / new (per device) ----
+// Each Road entry gets a stable id from its source key or link + date + text,
+// so it survives the bot rewriting road.json. An entry counts as seen once at
+// least half of it has been on screen for ~0.5 s. Dimming only applies from
+// the NEXT visit (page load): this visit compares against what was stored
+// before it started. First ever visit: nothing is dimmed.
+const SEEN_KEY = "st_seen_v1";
+const SEEN_MAX = 600; // keep the newest ids only
+function hash53(str) { // cyrb53: small, stable string hash
+  let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+  for (let i = 0; i < str.length; i++) { const c = str.charCodeAt(i); h1 = Math.imul(h1 ^ c, 2654435761); h2 = Math.imul(h2 ^ c, 1597334677); }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36);
+}
+const entryId = (h) => "e" + hash53(`${h.key || h.url || h.src || ""}|${h.date || ""}|${String(h.text || "").trim()}`);
+const isRealEntry = (h) => h && h.kind !== "check"; // "no news yet" lines aren't shown any more
+const Seen = (() => {
+  let ids = {};
+  try { ids = (JSON.parse(localStorage.getItem(SEEN_KEY)) || {}).ids || {}; } catch {}
+  const before = new Set(Object.keys(ids)); // frozen for this visit
+  const subs = new Set();
+  const save = () => {
+    const keep = Object.entries(ids).sort((a, b) => b[1] - a[1]).slice(0, SEEN_MAX);
+    ids = Object.fromEntries(keep);
+    try { localStorage.setItem(SEEN_KEY, JSON.stringify({ v: 1, ids })); } catch {}
+  };
+  return {
+    returning: before.size > 0,
+    wasSeen: (id) => before.has(id),
+    seenNow: (id) => !!ids[id],
+    mark(id) { if (!id || ids[id]) return; ids[id] = Date.now(); save(); subs.forEach((f) => f()); },
+    subscribe(f) { subs.add(f); return () => subs.delete(f); },
+  };
+})();
+let seenIO = null;
+const seenTimers = new WeakMap();
+function observeSeen(el, id) {
+  if (!el || !id) return;
+  el.dataset.seenId = id;
+  if (Seen.seenNow(id) || typeof IntersectionObserver === "undefined") return;
+  if (!seenIO) seenIO = new IntersectionObserver((entries) => entries.forEach((e) => {
+    const t = e.target;
+    if (e.isIntersecting && e.intersectionRatio >= 0.5) {
+      if (!seenTimers.has(t)) seenTimers.set(t, setTimeout(() => { Seen.mark(t.dataset.seenId); seenIO.unobserve(t); seenTimers.delete(t); }, 500));
+    } else if (seenTimers.has(t)) { clearTimeout(seenTimers.get(t)); seenTimers.delete(t); }
+  }), { threshold: [0, 0.5, 1] });
+  seenIO.observe(el);
+}
+// Small "Road to Flight N ›" link next to the header title. Tapping it glides to
+// the Road box inside the next-flight card and opens it.
+const CHIP_CHEVRON = <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+function RoadChip({ road, onOpen }) {
+  if (!road || !road.flight || !Array.isArray(road.categories)) return null;
+  return (
+    <button className="road-chip" onClick={onOpen} aria-label={`Road to Flight ${road.flight}: open`}>
+      {`Road to Flight ${road.flight}`}{CHIP_CHEVRON}
+    </button>
+  );
+}
+// Smooth, fixed-length page glide (≈450 ms ease-in-out), same feel everywhere.
+function glideTo(top, ms = 450) {
+  const from = window.scrollY, dist = top - from;
+  if (reduceMotion() || Math.abs(dist) < 2) { window.scrollTo(0, top); return; }
+  const t0 = performance.now(), ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+  const step = (now) => { const t = Math.min(1, (now - t0) / ms); window.scrollTo(0, from + dist * ease(t)); if (t < 1) requestAnimationFrame(step); };
+  requestAnimationFrame(step);
 }
 
 // ---- Updates feed ----
@@ -1140,7 +1211,7 @@ function feedTime(iso) {
 function buildFeed(road) {
   if (!road || !Array.isArray(road.categories)) return { posts: [], rows: [] };
   const posts = [];
-  road.categories.filter((c) => !ROAD_HIDDEN.includes(c.id)).forEach((c, ci) => (c.history || []).forEach((h, hi) => posts.push({
+  road.categories.filter((c) => !ROAD_HIDDEN.includes(c.id)).forEach((c, ci) => (c.history || []).forEach((h, hi) => isRealEntry(h) && posts.push({
     h, cat: c, ci, hi, id: `${c.id}-${hi}`, day: feedDay(h.date, road.updatedAt), at: Date.parse(h.at) || 0, check: h.kind === "check" ? 1 : 0,
   })));
   // newest first: day, then "no news" checks last in their day, then publish time, then card order
@@ -1157,23 +1228,103 @@ function buildFeed(road) {
   return { posts, rows };
 }
 
+// Publisher videos (a direct mp4/webm) loop muted like a GIF, and only play while on screen.
+let videoIO = null;
+function watchVideo(el) {
+  if (!el || el.dataset.watched) return;
+  el.dataset.watched = "1"; el.muted = true; el.defaultMuted = true;
+  if (reduceMotion()) return;
+  if (typeof IntersectionObserver === "undefined") { el.play().catch(() => {}); return; }
+  if (!videoIO) videoIO = new IntersectionObserver((es) => es.forEach((e) => {
+    if (e.isIntersecting) e.target.play().catch(() => {}); else e.target.pause();
+  }), { threshold: 0.25 });
+  videoIO.observe(el);
+}
+const isXVideo = (media, href) => media.type === "video" && (/(^|\.)twimg\.com$/.test(hostOf(media.url)) || /^(x|twitter)\.com$/.test(hostOf(href)));
+function hostOf(u) { try { return new URL(u).hostname.replace(/^www\./, ""); } catch { return ""; } }
+const PLAY_ICON = <span className="post-media-play" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></span>;
+
+// The source's own preview (image, or a looping muted video), linking to the original.
+function PostMedia({ media, href, src }) {
+  const [failed, setFailed] = React.useState(false);
+  if (!media || !media.url || !href || failed) return null;
+  const host = hostOf(href);
+  const xVideo = isXVideo(media, href); // X videos: poster + play icon only, the file is never loaded
+  if (xVideo && !media.poster) return null;
+  return (
+    <a className={"post-media post-media-" + media.type} href={href} target="_blank" rel="noopener noreferrer" aria-label={`Open the original on ${host || src}`}>
+      {xVideo
+        ? <><img src={media.poster} alt="" loading="lazy" referrerPolicy="no-referrer" onError={() => setFailed(true)} />{PLAY_ICON}</>
+        : media.type === "video"
+        ? <video src={media.url} poster={media.poster} muted loop playsInline preload="metadata" ref={watchVideo} onError={() => setFailed(true)} />
+        : <img src={media.url} alt="" loading="lazy" referrerPolicy="no-referrer" onError={() => setFailed(true)} />}
+      <span className="post-media-tag">{media.type === "video" && <i aria-hidden="true">▶</i>}{host || src}<span aria-hidden="true"> ↗</span></span>
+    </a>
+  );
+}
+
 function FeedPost({ p, onPhotoTap }) {
   const { h, cat } = p;
+  const sid = entryId(h);
   return (
-    <article className={"post" + (p.check ? " post-check" : "") + (h.complete ? " post-done" : "")} id={`post-${p.id}`} data-id={p.id} style={{ "--c": cat.color }}>
+    <article className={"post" + (h.complete ? " post-done" : "") + (Seen.wasSeen(sid) ? " is-seen" : "")} id={`post-${p.id}`} data-id={p.id} style={{ "--c": cat.color }}
+      ref={(el) => observeSeen(el, sid)}>
       <div className="post-top">
         <span className="chip"><span className="chip-i">{cat.icon}</span>{cat.name}</span>
         <span className="post-sep">·</span>
-        <span className="post-date">{h.date}{!p.check && feedTime(h.publishedAt) ? ` · ${feedTime(h.publishedAt)}` : ""}</span>
+        <span className="post-date">{h.date}{feedTime(h.publishedAt) ? ` · ${feedTime(h.publishedAt)}` : ""}</span>
         {h.trust === "unconfirmed" && <span className="mini-unc">Unconfirmed</span>}
       </div>
       <p className="post-text">{h.text}</p>
       {h.photo && <div className="post-photo photo photo-wide has-img tappable" onClick={() => onPhotoTap(h.photo, h.text)}><img src={h.photo} alt="" loading="lazy" /></div>}
+      <PostMedia media={h.media} href={h.url} src={h.src} />
       <div className="post-foot">
         <span className="post-src">{h.src}</span>
         {h.url && <a className="post-link" href={h.url} target="_blank" rel="noopener noreferrer" aria-label={`Open source: ${h.src}`}>{LINK_ICON}</a>}
       </div>
     </article>
+  );
+}
+
+// Phone header, fixed while the pages slide under it. Each page has its own title:
+// "Starship / Flight log" (with a small "Road to Flight N ›" hint) and "Road to Flight N".
+// Everything here is driven by --fp (0 = main page, 1 = feed), the same value the
+// swipe sets live, so the titles cross over and the pill slides and resizes from one
+// title to the other with the finger, then springs on release.
+const ABOUT_ICON = <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6h10M3 10h7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>;
+function PhoneHeader({ road, count, feedOpen, onAbout, onFeed, onBack, onHint }) {
+  const ref = React.useRef(null);
+  const [ready, setReady] = React.useState(false);
+  React.useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const measure = () => {
+      const a = el.querySelector(".hdr-a"), b = el.querySelector(".hdr-b");
+      const W = el.clientWidth, aw = a.offsetWidth, bw = b.offsetWidth, s0 = 0.77, gap = 12;
+      const ax = Math.round((W - (aw + gap + bw * s0)) / 2), bx = Math.round((W - bw) / 2);
+      const set = (k, v) => el.style.setProperty(k, v);
+      set("--ax", ax + "px"); set("--aw", aw + "px"); set("--hx", ax + aw + gap + "px"); set("--bx", bx + "px"); set("--bw", bw + "px"); set("--s0", String(s0));
+      setReady(true);
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure).catch(() => {});
+    return () => window.removeEventListener("resize", measure);
+  }, [road.flight, count]);
+  return (
+    <div className={"hdr" + (ready ? " hdr-ready" : "") + (feedOpen ? " hdr-feed" : "")} ref={ref}>
+      <span className="hdr-pill" aria-hidden="true" />
+      <button className="round-btn hdr-left" onClick={feedOpen ? onBack : onAbout} aria-label={feedOpen ? "Back to the flight log" : "Open about"}>
+        <span className="hdr-ic hdr-ic-a">{ABOUT_ICON}</span><span className="hdr-ic hdr-ic-b">{BACK_ICON}</span>
+      </button>
+      <div className="hdr-a brand" aria-hidden={feedOpen}>Starship<span>Flight log</span></div>
+      <button className="hdr-b" onClick={feedOpen ? undefined : onHint} tabIndex={feedOpen ? -1 : 0}
+        aria-label={feedOpen ? `Road to Flight ${road.flight}, ${count} updates` : `Road to Flight ${road.flight}: open`}>
+        <span className="hdr-b-t">{`Road to Flight ${road.flight}`}<span className="hdr-chev">{CHIP_CHEVRON}</span></span>
+        <span className="hdr-b-sub">{`${count} updates`}</span>
+      </button>
+      <button className="round-btn hdr-right" onClick={onFeed} aria-label="Open updates feed" tabIndex={feedOpen ? -1 : 0}>{FEED_ICON}</button>
+    </div>
   );
 }
 
@@ -1185,7 +1336,7 @@ function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap }) {
       <div className="feed" ref={scrollRef}>
         <header className="feed-head">
           {wide ? <span /> : <button className="round-btn" onClick={onBack} aria-label="Back to the flight log" tabIndex={shown ? 0 : -1}>{BACK_ICON}</button>}
-          <div className="brand">{`Road to Flight ${road.flight}`}<span>{`${posts.length} updates`}{road.updated ? ` · Updated ${road.updated}` : ""}</span></div>
+          <div className="brand">{`Road to Flight ${road.flight}`}<span>{`${posts.length} updates`}</span></div>
           <span />
         </header>
         <div className="feed-list">
@@ -1387,6 +1538,24 @@ function StarshipTracker() {
     };
   }, []);
 
+  // Header link: (slide the phone feed away,) glide to the Road box in the top card and open it.
+  const [roadOpenReq, setRoadOpenReq] = React.useState(0);
+  const openRoad = () => {
+    const go = () => {
+      const el = document.querySelector(".next .road");
+      if (!el) return;
+      setRoadOpenReq((n) => n + 1); // opens with its own .5s ease while the page glides
+      glideTo(Math.max(0, el.getBoundingClientRect().top + window.scrollY - 84));
+    };
+    if (!wide && feedOpen) { setFeedOpen(false); setTimeout(go, reduceMotion() ? 0 : Math.round(FEED_SLIDE_MS * 0.6)); } else go();
+  };
+  const chip = <RoadChip road={road} onOpen={openRoad} />;
+  const feedCount = React.useMemo(() => buildFeed(road).posts.length, [road]);
+  const phoneHeader = !wide && road && road.flight && Array.isArray(road.categories) ? (
+    <PhoneHeader road={road} count={feedCount} feedOpen={feedOpen} onAbout={() => setAboutOpen(true)}
+      onFeed={() => setFeedOpen(true)} onBack={() => setFeedOpen(false)} onHint={openRoad} />
+  ) : null;
+
   // Tap an entry in the Road card: show its post in the feed and light it up.
   const jumpToPost = (catId, i) => {
     const pane = feedScroll.current;
@@ -1414,14 +1583,17 @@ function StarshipTracker() {
           <button className="round-btn" onClick={() => setAboutOpen(true)} aria-label="Open about">
             <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6h10M3 10h7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
           </button>
-          <div className="brand">Starship<span>Flight log</span></div>
+          <div className="brand-row">
+            <div className="brand">Starship<span>Flight log</span></div>
+            {chip}
+          </div>
           {road && Array.isArray(road.categories)
             ? <button className="round-btn feed-btn" onClick={() => setFeedOpen(true)} aria-label="Open updates feed">{FEED_ICON}</button>
             : <span />}
         </header>
 
         <NextFlightCard f={nextFlight} checkedAt={checkedAt}>
-          <RoadCard road={road} onEntryTap={jumpToPost} />
+          <RoadCard road={road} onEntryTap={jumpToPost} openReq={roadOpenReq} />
         </NextFlightCard>
         <Connector dashed label={`${daysSinceLatest} days since the last flight`} />
 
@@ -1436,7 +1608,8 @@ function StarshipTracker() {
       </div>
       <UpdatesFeed road={road} wide={wide} shown={feedOn} onBack={() => setFeedOpen(false)} scrollRef={feedScroll} onPhotoTap={(src, alt) => setLightbox({ src, alt })} />
       </div>
-      {!wide && <div className="feed-dim" onClick={() => setFeedOpen(false)} />}
+      {phoneHeader && <div className="seg-scrim" aria-hidden="true" />}
+      {phoneHeader}
       <AboutPanel
         open={aboutOpen}
         onClose={() => setAboutOpen(false)}
@@ -1455,6 +1628,8 @@ const css = `
 
 .st {
   --bg: #1A2236; --card: #222D46; --card-open: #27344F; --line: #3B4A6B;
+  --slide: .42s cubic-bezier(.22,1,.36,1);       /* settle like a damped spring */
+  --spring: .42s cubic-bezier(.34,1.32,.64,1);   /* pill: a touch of overshoot */
   --text: #E4EAF6; --muted: #97A3BD; --faint: #66738F; --red: #EE6B6E;
   min-height: 100vh; color: var(--text);
   background: radial-gradient(130% 55% at 50% -8%, #2E3D63 0%, #1A2236 62%), #1A2236;
@@ -1793,19 +1968,56 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .mini.tappable { cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform .12s, background-color .12s; }
 .mini.tappable:active { transform: scale(.98); background: rgba(10,16,32,.75); border-color: color-mix(in srgb, var(--c) 45%, transparent); }
 .feed-dim { display: none; }
-@media (max-width: 899px) { /* phone: a panel that slides in from the right */
+@media (max-width: 899px) { /* phone: two pages side by side; the content slides, the background stays */
+  .st { position: relative; isolation: isolate; background: #1A2236; }
+  .st::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background: radial-gradient(130% 55% at 50% -8%, #2E3D63 0%, #1A2236 62%), #1A2236; }
   .feed-pane {
-    position: fixed; inset: 0; z-index: 15; background: var(--bg);
-    transform: translateX(calc((1 - var(--fp)) * 100%)); visibility: hidden;
-    box-shadow: -18px 0 40px -24px rgba(8,12,28,.9);
-    transition: transform .4s cubic-bezier(.2,.75,.2,1);
+    position: fixed; inset: 0; z-index: 15; background: none;
+    transform: translate3d(calc((1 - var(--fp)) * 100%), 0, 0); visibility: hidden;
+    transition: transform var(--slide); will-change: transform;
   }
   .feed-pane .feed { height: 100%; }
   .feed-on .feed-pane { visibility: visible; }
-  .feed-on .st-wrap { transform: translateX(calc(var(--fp) * -100vw)); transition: transform .4s cubic-bezier(.2,.75,.2,1); }
-  .feed-on .feed-dim { display: block; position: fixed; inset: 0; z-index: 14; background: #080C18; opacity: calc(var(--fp) * .35); transition: opacity .4s cubic-bezier(.2,.75,.2,1); }
-  .feed-drag .feed-pane, .feed-drag .st-wrap, .feed-drag .feed-dim { transition: none; }
+  .feed-on .st-wrap { transform: translate3d(calc(var(--fp) * -100vw), 0, 0); transition: transform var(--slide); will-change: transform; }
+  .feed-drag .feed-pane, .feed-drag .st-wrap { transition: none; }
   .st.feed-on { overflow-x: hidden; }
+  /* the fixed header (.hdr) stands in for both pages' own header rows, which stay as spacers */
+  .st-wrap > .top, .feed-head > * { visibility: hidden; }
+  .feed-head { background: none; border-bottom: 0; -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .seg-scrim { position: fixed; left: 0; right: 0; top: 0; height: calc(84px + env(safe-area-inset-top)); z-index: 16; pointer-events: none;
+    background: linear-gradient(180deg, rgba(30,40,66,.97) 0%, rgba(29,39,63,.95) 62%, rgba(26,34,54,0) 100%); }
+  .hdr { position: fixed; z-index: 17; top: calc(18px + env(safe-area-inset-top)); left: 0; right: 0; height: 40px; pointer-events: none; opacity: 0; }
+  .hdr.hdr-ready { opacity: 1; transition: opacity .2s; }
+  .hdr > * { pointer-events: auto; -webkit-tap-highlight-color: transparent; }
+  .hdr-left { position: absolute; left: 18px; top: 0; }
+  .hdr-right { position: absolute; right: 18px; top: 0; opacity: calc(1 - var(--fp)); transform: translate3d(calc(var(--fp) * -24px), 0, 0);
+    transition: opacity var(--slide), transform var(--slide); }
+  .hdr-ic { position: absolute; inset: 0; display: grid; place-items: center; transition: opacity var(--slide); }
+  .hdr-ic-a { opacity: calc(1 - var(--fp) * 2); }
+  .hdr-ic-b { opacity: calc(var(--fp) * 2 - 1); }
+  .hdr-feed .hdr-right, .hdr-feed .hdr-a { pointer-events: none; }
+  .hdr-a { position: absolute; left: var(--ax); top: 1px; text-align: left; white-space: nowrap;
+    opacity: calc(1 - var(--fp) * 1.5); transform: translate3d(calc(var(--fp) * -40px), 0, 0);
+    transition: opacity var(--slide), transform var(--slide); }
+  .hdr-b { position: absolute; left: var(--bx); top: 1px; padding: 0; border: 0; background: none; font: inherit; color: var(--text); text-align: left;
+    white-space: nowrap; cursor: pointer; -webkit-tap-highlight-color: transparent; transform-origin: 0 50%;
+    transform: translate3d(calc((var(--hx) - var(--bx)) * (1 - var(--fp))), calc((1 - var(--fp)) * 9px), 0) scale(calc(var(--s0) + (1 - var(--s0)) * var(--fp)));
+    transition: transform var(--slide); }
+  .hdr-b-t { display: inline-flex; align-items: center; font-size: 15px; font-weight: 600;
+    color: color-mix(in srgb, var(--text) calc(55% + var(--fp) * 45%), var(--muted)); transition: color var(--slide); }
+  .hdr-chev { display: inline-flex; margin-left: 2px; opacity: calc(1 - var(--fp) * 2); transition: opacity var(--slide); }
+  .hdr-chev svg { width: 15px; height: 15px; }
+  .hdr-b-sub { display: block; font-size: 12px; font-weight: 400; color: var(--faint); margin-top: 1px; opacity: calc(var(--fp) * 2 - 1); transition: opacity var(--slide); }
+  .hdr-pill { position: absolute; left: 0; top: -3px; height: 46px; border-radius: 16px; pointer-events: none;
+    width: calc(var(--aw) + (var(--bw) - var(--aw)) * var(--fp) + 24px);
+    transform: translate3d(calc(var(--ax) + (var(--bx) - var(--ax)) * var(--fp) - 12px), 0, 0);
+    background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.05)); border: 1px solid rgba(255,255,255,.10);
+    box-shadow: 0 10px 26px -18px rgba(5,8,20,.9); transition: transform var(--spring), width var(--spring); }
+  .feed-drag .hdr *, .feed-drag .hdr-pill { transition: none !important; }
+}
+@media (max-width: 899px) and (prefers-reduced-motion: reduce) {
+  .feed-pane, .feed-on .st-wrap, .hdr, .hdr * { transition: none !important; }
 }
 @media (min-width: 900px) { /* desktop: main page + feed column */
   .st-layout { display: grid; grid-template-columns: 476px 420px; justify-content: center; align-items: start; }
@@ -1823,6 +2035,33 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 }
 .next .road-head { padding: 15px 16px 14px; }
 .next .road-chev { color: var(--text); flex: none; margin-right: -2px; }
+
+/* header: small "Road to Flight N ›" link next to the title */
+.brand-row { display: flex; align-items: center; justify-content: center; gap: 12px; min-width: 0; }
+.brand-row .brand { text-align: left; }
+.road-chip { display: inline-flex; align-items: center; gap: 2px; padding: 6px 2px; border: 0; background: none; cursor: pointer;
+  font: inherit; font-size: 11.5px; color: var(--muted); white-space: nowrap; -webkit-tap-highlight-color: transparent; transition: color .3s ease; }
+.road-chip svg { opacity: .8; transition: transform .3s ease; }
+.road-chip:hover, .road-chip:active { color: var(--text); }
+.road-chip:hover svg { transform: translateX(2px); }
+.road-chip:focus-visible { outline: 2px solid #A9BDF0; outline-offset: 2px; border-radius: 6px; }
+
+/* feed only: posts seen on an earlier visit are quieter; new ones stay full strength */
+.post.is-seen { opacity: .55; transition: opacity .3s; }
+.post.is-seen:hover { opacity: .8; }
+
+/* feed media: the source's own preview, linking to the original */
+.post-media { position: relative; display: block; margin-top: 10px; border-radius: 12px; overflow: hidden; aspect-ratio: 16 / 9;
+  background: linear-gradient(165deg, #34466E 0%, #1C263D 100%); border: 1px solid rgba(255,255,255,.06); }
+.post-media img, .post-media video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.post-media-play { position: absolute; left: 50%; top: 50%; width: 44px; height: 44px; margin: -22px 0 0 -22px; border-radius: 50%;
+  display: grid; place-items: center; color: #fff; background: rgba(10,16,32,.6); border: 1px solid rgba(255,255,255,.35);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.post-media-play svg { margin-left: 2px; }
+.post-media-tag { position: absolute; left: 8px; bottom: 8px; display: inline-flex; gap: 5px; align-items: center; font-size: 10.5px; color: rgba(228,234,246,.9);
+  background: rgba(10,16,32,.62); padding: 3px 8px; border-radius: 999px; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.post-media-tag i { font-style: normal; font-size: 8px; }
+.post-media:focus-visible { outline: 2px solid #A9BDF0; outline-offset: 3px; }
 `;
 
 const root = ReactDOM.createRoot(document.getElementById("root"));

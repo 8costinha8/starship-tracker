@@ -82,7 +82,11 @@
           "url": "https://www.youtube.com/watch?v=dPqDD39cBEw",
           "at": "2026-10-08T23:00:08.000Z",
           "key": "rss:yt:video:dPqDD39cBEw",
-          "publishedAt": "2026-10-08T23:00:08.000Z"
+          "publishedAt": "2026-10-08T23:00:08.000Z",
+          "media": {
+            "type": "image",
+            "url": "https://i.ytimg.com/vi/dPqDD39cBEw/hqdefault.jpg"
+          }
         },
         {
           "date": "30 Sep",
