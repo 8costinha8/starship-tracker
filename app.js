@@ -1286,45 +1286,54 @@ function FeedPost({ p, onPhotoTap }) {
   );
 }
 
-// Phone header, fixed while the pages slide under it. Each page has its own title:
-// "Starship / Flight log" (with a small "Road to Flight N ›" hint) and "Road to Flight N".
-// Everything here is driven by --fp (0 = main page, 1 = feed), the same value the
-// swipe sets live, so the titles cross over and the pill slides and resizes from one
-// title to the other with the finger, then springs on release.
+// Phone header: an opaque, blurred bar fixed over both pages (and the status bar
+// area). Each page has its own two-line title: "Starship / Flight Log" (with a small
+// "Road to / Flight N ›" hint at the right) and "Road to / Flight N". Everything is
+// driven by --fp (0 = main page, 1 = feed), the value the swipe sets live, so the
+// titles cross over and the pill slides and resizes from one to the other with the
+// finger, then springs on release. Sizes are re-measured whenever they change
+// (ResizeObserver), so late fonts or late styles can't leave it mis-placed.
 const ABOUT_ICON = <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6h10M3 10h7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>;
-function PhoneHeader({ road, count, feedOpen, onAbout, onFeed, onBack, onHint }) {
+const HDR_S0 = 0.8, HDR_GAP = 14, HDR_CHEV = 13;
+function PhoneHeader({ road, feedOpen, onAbout, onFeed, onBack, onHint }) {
   const ref = React.useRef(null);
   const [ready, setReady] = React.useState(false);
   React.useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
+    const a = el.querySelector(".hdr-a"), b = el.querySelector(".hdr-b");
     const measure = () => {
-      const a = el.querySelector(".hdr-a"), b = el.querySelector(".hdr-b");
-      const W = el.clientWidth, aw = a.offsetWidth, bw = b.offsetWidth, s0 = 0.77, gap = 12;
-      const ax = Math.round((W - (aw + gap + bw * s0)) / 2), bx = Math.round((W - bw) / 2);
+      const W = el.clientWidth, aw = a.offsetWidth, bw = b.offsetWidth;
+      if (!W || !aw || !bw || aw > W * 0.6 || bw > W * 0.6) return; // styles not applied yet: wait for the next resize
+      const ax = Math.round((W - (aw + HDR_GAP + (bw + HDR_CHEV) * HDR_S0)) / 2), bx = Math.round((W - bw) / 2);
       const set = (k, v) => el.style.setProperty(k, v);
-      set("--ax", ax + "px"); set("--aw", aw + "px"); set("--hx", ax + aw + gap + "px"); set("--bx", bx + "px"); set("--bw", bw + "px"); set("--s0", String(s0));
+      set("--ax", ax + "px"); set("--aw", aw + "px"); set("--hx", ax + aw + HDR_GAP + "px"); set("--bx", bx + "px"); set("--bw", bw + "px"); set("--s0", String(HDR_S0));
       setReady(true);
     };
     measure();
+    const raf = requestAnimationFrame(measure);
+    let ro = null;
+    if (typeof ResizeObserver !== "undefined") { ro = new ResizeObserver(measure); ro.observe(el); ro.observe(a); ro.observe(b); }
     window.addEventListener("resize", measure);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure).catch(() => {});
-    return () => window.removeEventListener("resize", measure);
-  }, [road.flight, count]);
+    return () => { cancelAnimationFrame(raf); if (ro) ro.disconnect(); window.removeEventListener("resize", measure); };
+  }, [road.flight]);
   return (
-    <div className={"hdr" + (ready ? " hdr-ready" : "") + (feedOpen ? " hdr-feed" : "")} ref={ref}>
-      <span className="hdr-pill" aria-hidden="true" />
-      <button className="round-btn hdr-left" onClick={feedOpen ? onBack : onAbout} aria-label={feedOpen ? "Back to the flight log" : "Open about"}>
-        <span className="hdr-ic hdr-ic-a">{ABOUT_ICON}</span><span className="hdr-ic hdr-ic-b">{BACK_ICON}</span>
-      </button>
-      <div className="hdr-a brand" aria-hidden={feedOpen}>Starship<span>Flight log</span></div>
-      <button className="hdr-b" onClick={feedOpen ? undefined : onHint} tabIndex={feedOpen ? -1 : 0}
-        aria-label={feedOpen ? `Road to Flight ${road.flight}, ${count} updates` : `Road to Flight ${road.flight}: open`}>
-        <span className="hdr-b-t">{`Road to Flight ${road.flight}`}<span className="hdr-chev">{CHIP_CHEVRON}</span></span>
-        <span className="hdr-b-sub">{`${count} updates`}</span>
-      </button>
-      <button className="round-btn hdr-right" onClick={onFeed} aria-label="Open updates feed" tabIndex={feedOpen ? -1 : 0}>{FEED_ICON}</button>
-    </div>
+    <>
+      <div className="hdr-bar" aria-hidden="true" />
+      <div className={"hdr" + (ready ? " hdr-ready" : "") + (feedOpen ? " hdr-feed" : "")} ref={ref}>
+        <span className="hdr-pill" aria-hidden="true" />
+        <button className="round-btn hdr-left" onClick={feedOpen ? onBack : onAbout} aria-label={feedOpen ? "Back to the flight log" : "Open about"}>
+          <span className="hdr-ic hdr-ic-a">{ABOUT_ICON}</span><span className="hdr-ic hdr-ic-b">{BACK_ICON}</span>
+        </button>
+        <div className="hdr-a brand" aria-hidden={feedOpen}>Starship<span>Flight Log</span></div>
+        <button className="hdr-b brand" onClick={feedOpen ? undefined : onHint} tabIndex={feedOpen ? -1 : 0}
+          aria-label={feedOpen ? `Road to Flight ${road.flight}` : `Road to Flight ${road.flight}: open`}>
+          Road to<span>{`Flight ${road.flight}`}</span><i className="hdr-chev">{CHIP_CHEVRON}</i>
+        </button>
+        <button className="round-btn hdr-right" onClick={onFeed} aria-label="Open updates feed" tabIndex={feedOpen ? -1 : 0}>{FEED_ICON}</button>
+      </div>
+    </>
   );
 }
 
@@ -1336,7 +1345,7 @@ function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap }) {
       <div className="feed" ref={scrollRef}>
         <header className="feed-head">
           {wide ? <span /> : <button className="round-btn" onClick={onBack} aria-label="Back to the flight log" tabIndex={shown ? 0 : -1}>{BACK_ICON}</button>}
-          <div className="brand">{`Road to Flight ${road.flight}`}<span>{`${posts.length} updates`}</span></div>
+          <div className="brand">Road to<span>{`Flight ${road.flight}`}</span></div>
           <span />
         </header>
         <div className="feed-list">
@@ -1550,9 +1559,8 @@ function StarshipTracker() {
     if (!wide && feedOpen) { setFeedOpen(false); setTimeout(go, reduceMotion() ? 0 : Math.round(FEED_SLIDE_MS * 0.6)); } else go();
   };
   const chip = <RoadChip road={road} onOpen={openRoad} />;
-  const feedCount = React.useMemo(() => buildFeed(road).posts.length, [road]);
   const phoneHeader = !wide && road && road.flight && Array.isArray(road.categories) ? (
-    <PhoneHeader road={road} count={feedCount} feedOpen={feedOpen} onAbout={() => setAboutOpen(true)}
+    <PhoneHeader road={road} feedOpen={feedOpen} onAbout={() => setAboutOpen(true)}
       onFeed={() => setFeedOpen(true)} onBack={() => setFeedOpen(false)} onHint={openRoad} />
   ) : null;
 
@@ -1575,7 +1583,7 @@ function StarshipTracker() {
   };
 
   return (
-    <div className={"st" + (feedOn ? " feed-on" : "") + (dragging ? " feed-drag" : "")} ref={rootRef} style={{ "--fp": feedOpen ? 1 : 0 }}>
+    <div className={"st" + (feedOn ? " feed-on" : "") + (dragging ? " feed-drag" : "") + (feedOpen && !dragging ? " feed-open" : "")} ref={rootRef} style={{ "--fp": feedOpen ? 1 : 0 }}>
       <style>{css}</style>
       <div className="st-layout">
       <div className="st-wrap" aria-hidden={!wide && feedOpen ? true : undefined}>
@@ -1584,7 +1592,7 @@ function StarshipTracker() {
             <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6h10M3 10h7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
           </button>
           <div className="brand-row">
-            <div className="brand">Starship<span>Flight log</span></div>
+            <div className="brand">Starship<span>Flight Log</span></div>
             {chip}
           </div>
           {road && Array.isArray(road.categories)
@@ -1608,7 +1616,6 @@ function StarshipTracker() {
       </div>
       <UpdatesFeed road={road} wide={wide} shown={feedOn} onBack={() => setFeedOpen(false)} scrollRef={feedScroll} onPhotoTap={(src, alt) => setLightbox({ src, alt })} />
       </div>
-      {phoneHeader && <div className="seg-scrim" aria-hidden="true" />}
       {phoneHeader}
       <AboutPanel
         open={aboutOpen}
@@ -1627,6 +1634,7 @@ const css = `
 @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&display=swap');
 
 .st {
+  --sat: env(safe-area-inset-top, 0px); /* status bar / Dynamic Island (standalone PWA, viewport-fit=cover) */
   --bg: #1A2236; --card: #222D46; --card-open: #27344F; --line: #3B4A6B;
   --slide: .42s cubic-bezier(.22,1,.36,1);       /* settle like a damped spring */
   --spring: .42s cubic-bezier(.34,1.32,.64,1);   /* pill: a touch of overshoot */
@@ -1640,7 +1648,7 @@ const css = `
 html, body, .st { overflow-anchor: none; } /* we handle scroll position ourselves */
 .title { flex-wrap: wrap; row-gap: 2px; }
 .t-word { white-space: nowrap; }
-.st-wrap { max-width: 440px; margin: 0 auto; padding: calc(18px + env(safe-area-inset-top)) 18px 72px; }
+.st-wrap { max-width: 440px; margin: 0 auto; padding: calc(18px + var(--sat)) 18px 72px; }
 
 /* header */
 .top { display: grid; grid-template-columns: 40px 1fr 40px; align-items: center; margin-bottom: 22px; }
@@ -1912,7 +1920,7 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .feed-head {
   position: sticky; top: 0; z-index: 3;
   display: grid; grid-template-columns: 40px 1fr 40px; align-items: center;
-  padding: calc(18px + env(safe-area-inset-top)) 18px 12px;
+  padding: calc(18px + var(--sat)) 18px 12px;
   background: linear-gradient(180deg, rgba(38,51,84,.985) 0%, rgba(33,44,72,.975) 100%);
   -webkit-backdrop-filter: blur(18px) saturate(140%); backdrop-filter: blur(18px) saturate(140%);
   border-bottom: 1px solid rgba(170,190,245,.10);
@@ -1972,48 +1980,58 @@ textarea.feedback-field { resize: none; min-height: 112px; }
   .st { position: relative; isolation: isolate; background: #1A2236; }
   .st::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
     background: radial-gradient(130% 55% at 50% -8%, #2E3D63 0%, #1A2236 62%), #1A2236; }
+  /* Each page is its own clipped viewport, and they crossfade with the swipe, so only
+     one page's content is legible at any moment (a brief mid-swipe blend at most). */
   .feed-pane {
-    position: fixed; inset: 0; z-index: 15; background: none;
-    transform: translate3d(calc((1 - var(--fp)) * 100%), 0, 0); visibility: hidden;
-    transition: transform var(--slide); will-change: transform;
+    position: fixed; inset: 0; z-index: 15; background: none; overflow: hidden; contain: paint;
+    -webkit-transform: translate3d(calc((1 - var(--fp)) * 100%), 0, 0); transform: translate3d(calc((1 - var(--fp)) * 100%), 0, 0);
+    opacity: calc(var(--fp) * 2 - .4); visibility: hidden;
+    transition: transform var(--slide), opacity var(--slide); will-change: transform, opacity;
   }
   .feed-pane .feed { height: 100%; }
   .feed-on .feed-pane { visibility: visible; }
-  .feed-on .st-wrap { transform: translate3d(calc(var(--fp) * -100vw), 0, 0); transition: transform var(--slide); will-change: transform; }
+  .feed-on .st-wrap {
+    -webkit-transform: translate3d(calc(var(--fp) * -100%), 0, 0); transform: translate3d(calc(var(--fp) * -100%), 0, 0);
+    opacity: calc(1.6 - var(--fp) * 2); transition: transform var(--slide), opacity var(--slide); will-change: transform, opacity;
+  }
+  .feed-open .st-wrap { visibility: hidden; transition-property: transform, opacity, visibility; transition-delay: 0s, 0s, .42s; }
   .feed-drag .feed-pane, .feed-drag .st-wrap { transition: none; }
   .st.feed-on { overflow-x: hidden; }
-  /* the fixed header (.hdr) stands in for both pages' own header rows, which stay as spacers */
+  html, body { overflow-x: hidden; }
+  /* the fixed header stands in for both pages' own header rows, which stay as spacers */
   .st-wrap > .top, .feed-head > * { visibility: hidden; }
-  .feed-head { background: none; border-bottom: 0; -webkit-backdrop-filter: none; backdrop-filter: none; }
-  .seg-scrim { position: fixed; left: 0; right: 0; top: 0; height: calc(84px + env(safe-area-inset-top)); z-index: 16; pointer-events: none;
-    background: linear-gradient(180deg, rgba(30,40,66,.97) 0%, rgba(29,39,63,.95) 62%, rgba(26,34,54,0) 100%); }
-  .hdr { position: fixed; z-index: 17; top: calc(18px + env(safe-area-inset-top)); left: 0; right: 0; height: 40px; pointer-events: none; opacity: 0; }
+  .feed-head { position: static; background: none; border-bottom: 0; -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .hdr-bar { position: fixed; left: 0; right: 0; top: 0; height: calc(var(--sat) + 70px); z-index: 16; pointer-events: none;
+    background: linear-gradient(180deg, #2A3859 0%, #25314E 100%); box-shadow: 0 8px 24px -16px rgba(5,8,20,.9); /* opaque: nothing shows through, status bar area included */
+    border-bottom: 1px solid rgba(170,190,245,.10); }
+  .hdr { position: fixed; z-index: 17; top: calc(var(--sat) + 15px); left: 0; right: 0; height: 46px; overflow: hidden; pointer-events: none; opacity: 0; }
   .hdr.hdr-ready { opacity: 1; transition: opacity .2s; }
   .hdr > * { pointer-events: auto; -webkit-tap-highlight-color: transparent; }
-  .hdr-left { position: absolute; left: 18px; top: 0; }
-  .hdr-right { position: absolute; right: 18px; top: 0; opacity: calc(1 - var(--fp)); transform: translate3d(calc(var(--fp) * -24px), 0, 0);
+  .hdr-left { position: absolute; left: 18px; top: 3px; }
+  .hdr-right { position: absolute; right: 18px; top: 3px; opacity: calc(1 - var(--fp) * 1.5);
+    -webkit-transform: translate3d(calc(var(--fp) * -24px), 0, 0); transform: translate3d(calc(var(--fp) * -24px), 0, 0);
     transition: opacity var(--slide), transform var(--slide); }
   .hdr-ic { position: absolute; inset: 0; display: grid; place-items: center; transition: opacity var(--slide); }
   .hdr-ic-a { opacity: calc(1 - var(--fp) * 2); }
   .hdr-ic-b { opacity: calc(var(--fp) * 2 - 1); }
   .hdr-feed .hdr-right, .hdr-feed .hdr-a { pointer-events: none; }
-  .hdr-a { position: absolute; left: var(--ax); top: 1px; text-align: left; white-space: nowrap;
-    opacity: calc(1 - var(--fp) * 1.5); transform: translate3d(calc(var(--fp) * -40px), 0, 0);
+  .hdr-a, .hdr-b { position: absolute; top: 7px; display: block; width: max-content; text-align: left; white-space: nowrap; line-height: 1.25; }
+  .hdr-a { left: var(--ax, 0px); opacity: calc(1 - var(--fp) * 2.2);
+    -webkit-transform: translate3d(calc(var(--fp) * -40px), 0, 0); transform: translate3d(calc(var(--fp) * -40px), 0, 0);
     transition: opacity var(--slide), transform var(--slide); }
-  .hdr-b { position: absolute; left: var(--bx); top: 1px; padding: 0; border: 0; background: none; font: inherit; color: var(--text); text-align: left;
-    white-space: nowrap; cursor: pointer; -webkit-tap-highlight-color: transparent; transform-origin: 0 50%;
-    transform: translate3d(calc((var(--hx) - var(--bx)) * (1 - var(--fp))), calc((1 - var(--fp)) * 9px), 0) scale(calc(var(--s0) + (1 - var(--s0)) * var(--fp)));
-    transition: transform var(--slide); }
-  .hdr-b-t { display: inline-flex; align-items: center; font-size: 15px; font-weight: 600;
-    color: color-mix(in srgb, var(--text) calc(55% + var(--fp) * 45%), var(--muted)); transition: color var(--slide); }
-  .hdr-chev { display: inline-flex; margin-left: 2px; opacity: calc(1 - var(--fp) * 2); transition: opacity var(--slide); }
+  .hdr-b { left: var(--bx, 0px); padding: 0; border: 0; background: none; font: inherit; font-weight: 600; font-size: 15px; color: var(--text); cursor: pointer;
+    -webkit-transform-origin: 0 50%; transform-origin: 0 50%;
+    -webkit-transform: translate3d(calc((var(--hx, 0px) - var(--bx, 0px)) * (1 - var(--fp))), 0, 0) scale(calc(var(--s0, 1) + (1 - var(--s0, 1)) * var(--fp)));
+    transform: translate3d(calc((var(--hx, 0px) - var(--bx, 0px)) * (1 - var(--fp))), 0, 0) scale(calc(var(--s0, 1) + (1 - var(--s0, 1)) * var(--fp)));
+    opacity: calc(.62 + var(--fp) * .38); transition: transform var(--slide), opacity var(--slide); }
+  .hdr-chev { position: absolute; right: -16px; top: 50%; margin-top: -8px; display: flex; font-style: normal; color: var(--muted); opacity: calc(1 - var(--fp) * 2); transition: opacity var(--slide); }
   .hdr-chev svg { width: 15px; height: 15px; }
-  .hdr-b-sub { display: block; font-size: 12px; font-weight: 400; color: var(--faint); margin-top: 1px; opacity: calc(var(--fp) * 2 - 1); transition: opacity var(--slide); }
-  .hdr-pill { position: absolute; left: 0; top: -3px; height: 46px; border-radius: 16px; pointer-events: none;
-    width: calc(var(--aw) + (var(--bw) - var(--aw)) * var(--fp) + 24px);
-    transform: translate3d(calc(var(--ax) + (var(--bx) - var(--ax)) * var(--fp) - 12px), 0, 0);
+  .hdr-pill { position: absolute; left: 0; top: 0; height: 46px; border-radius: 16px; pointer-events: none;
+    width: calc(var(--aw, 0px) + (var(--bw, 0px) - var(--aw, 0px)) * var(--fp) + 24px);
+    -webkit-transform: translate3d(calc(var(--ax, 0px) + (var(--bx, 0px) - var(--ax, 0px)) * var(--fp) - 12px), 0, 0);
+    transform: translate3d(calc(var(--ax, 0px) + (var(--bx, 0px) - var(--ax, 0px)) * var(--fp) - 12px), 0, 0);
     background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.05)); border: 1px solid rgba(255,255,255,.10);
-    box-shadow: 0 10px 26px -18px rgba(5,8,20,.9); transition: transform var(--spring), width var(--spring); }
+    transition: transform var(--spring), width var(--spring); }
   .feed-drag .hdr *, .feed-drag .hdr-pill { transition: none !important; }
 }
 @media (max-width: 899px) and (prefers-reduced-motion: reduce) {
