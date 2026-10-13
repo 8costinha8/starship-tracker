@@ -1314,18 +1314,23 @@ function FeedPost({ p, onPhotoTap }) {
 // (ResizeObserver), so late fonts or late styles can't leave it mis-placed.
 const ABOUT_ICON = <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6h10M3 10h7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>;
 const HDR_S0 = 0.8, HDR_GAP = 14, HDR_CHEV = 13;
+const HDR_TITLE_Y = 17, HDR_LABEL_Y = 11; // px inside .hdr: title top, small label centre
 function PhoneHeader({ road, feedOpen, onAbout, onFeed, onBack, onHint }) {
   const ref = React.useRef(null);
   const [ready, setReady] = React.useState(false);
   React.useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const a = el.querySelector(".hdr-a"), b = el.querySelector(".hdr-b");
+    const a = el.querySelector(".hdr-a"), b = el.querySelector(".hdr-b"), g = el.querySelector(".hdr-g");
     const measure = () => {
       const W = el.clientWidth, aw = a.offsetWidth, bw = b.offsetWidth;
       if (!W || !aw || !bw || aw > W * 0.6 || bw > W * 0.6) return; // styles not applied yet: wait for the next resize
       const ax = Math.round((W - (aw + HDR_GAP + (bw + HDR_CHEV) * HDR_S0)) / 2), bx = Math.round((W - bw) / 2);
       const set = (k, v) => el.style.setProperty(k, v);
+      // Road page: the tracker title rides along as a small faded label centred above "Road to"
+      const cx = bx + bw / 2, ah = a.offsetHeight || 38, lw = g ? g.offsetWidth : aw, lh = g ? g.offsetHeight : 13;
+      set("--lx", Math.round(cx - lw / 2) + "px"); set("--ly", Math.round(HDR_LABEL_Y - lh / 2) + "px");
+      set("--dxa", Math.round(cx - (ax + aw / 2)) + "px"); set("--dya", Math.round(HDR_LABEL_Y - (HDR_TITLE_Y + ah / 2)) + "px");
       set("--ax", ax + "px"); set("--aw", aw + "px"); set("--hx", ax + aw + HDR_GAP + "px"); set("--bx", bx + "px"); set("--bw", bw + "px"); set("--s0", String(HDR_S0));
       setReady(true);
     };
@@ -1346,6 +1351,7 @@ function PhoneHeader({ road, feedOpen, onAbout, onFeed, onBack, onHint }) {
           <span className="hdr-ic hdr-ic-a">{ABOUT_ICON}</span><span className="hdr-ic hdr-ic-b">{BACK_ICON}</span>
         </button>
         <div className="hdr-a brand" aria-hidden={feedOpen}>Starship<span>Flight Log</span></div>
+        <div className="hdr-g" aria-hidden="true">Starship · Flight Log</div>
         <button className="hdr-b brand" onClick={feedOpen ? undefined : onHint} tabIndex={feedOpen ? -1 : 0}
           aria-label={feedOpen ? `Road to Flight ${road.flight}` : `Road to Flight ${road.flight}: open`}>
           Road to<span>{`Flight ${road.flight}`}</span><i className="hdr-chev">{CHIP_CHEVRON}</i>
@@ -1523,7 +1529,9 @@ function StarshipTracker() {
   swipe.current.feedOpen = feedOpen; swipe.current.blocked = blocked; swipe.current.wide = wide;
   React.useEffect(() => {
     let g = null;
-    const setP = (p) => rootRef.current && rootRef.current.style.setProperty("--fp", String(p));
+    let raf = 0, pend = null;
+    const setNow = (p) => { if (raf) { cancelAnimationFrame(raf); raf = 0; } rootRef.current && rootRef.current.style.setProperty("--fp", String(p)); };
+    const setP = (p) => { pend = p; if (!raf) raf = requestAnimationFrame(() => { raf = 0; setNow(pend); }); }; // one style write per frame
     const start = (e) => {
       const s = swipe.current;
       g = null;
@@ -1552,7 +1560,7 @@ function StarshipTracker() {
       if (!g || g.mode !== "drag") { g = null; return; }
       const open = g.from === 0 ? (g.p > 0.35 || g.vx < -0.35) && g.vx < 0.35 : !((g.p < 0.65 || g.vx > 0.35) && g.vx > -0.35);
       g = null;
-      setP(open ? 1 : 0); setDragging(false); setFeedOpen(open);
+      setNow(open ? 1 : 0); setDragging(false); setFeedOpen(open);
     };
     window.addEventListener("touchstart", start, { passive: true });
     window.addEventListener("touchmove", move, { passive: false });
@@ -2024,34 +2032,42 @@ textarea.feedback-field { resize: none; min-height: 112px; }
   .hdr-bar { position: fixed; left: 0; right: 0; top: 0; height: calc(var(--sat) + 70px); z-index: 16; pointer-events: none;
     background: linear-gradient(180deg, #2A3859 0%, #25314E 100%); box-shadow: 0 8px 24px -16px rgba(5,8,20,.9); /* opaque: nothing shows through, status bar area included */
     border-bottom: 1px solid rgba(170,190,245,.10); }
-  .hdr { position: fixed; z-index: 17; top: calc(var(--sat) + 15px); left: 0; right: 0; height: 46px; overflow: hidden; pointer-events: none; opacity: 0; }
+  .hdr { position: fixed; z-index: 17; top: calc(var(--sat) + 5px); left: 0; right: 0; height: 64px; overflow: hidden; pointer-events: none; opacity: 0; }
   .hdr.hdr-ready { opacity: 1; transition: opacity .2s; }
   .hdr > * { pointer-events: auto; -webkit-tap-highlight-color: transparent; }
-  .hdr-left { position: absolute; left: 18px; top: 3px; }
-  .hdr-right { position: absolute; right: 18px; top: 3px; opacity: calc(1 - var(--fp) * 1.5);
+  .hdr-left { position: absolute; left: 18px; top: 13px; }
+  .hdr-right { position: absolute; right: 18px; top: 13px; will-change: transform, opacity; opacity: calc(1 - var(--fp) * 1.5);
     -webkit-transform: translate3d(calc(var(--fp) * -24px), 0, 0); transform: translate3d(calc(var(--fp) * -24px), 0, 0);
     transition: opacity var(--slide), transform var(--slide); }
   .hdr-ic { position: absolute; inset: 0; display: grid; place-items: center; transition: opacity var(--slide); }
   .hdr-ic-a { opacity: calc(1 - var(--fp) * 2); }
   .hdr-ic-b { opacity: calc(var(--fp) * 2 - 1); }
   .hdr-feed .hdr-right, .hdr-feed .hdr-a { pointer-events: none; }
-  .hdr-a, .hdr-b { position: absolute; top: 7px; display: block; width: max-content; text-align: left; white-space: nowrap; line-height: 1.25; }
-  .hdr-a { left: var(--ax, 0px); opacity: calc(1 - var(--fp) * 2.2);
-    -webkit-transform: translate3d(calc(var(--fp) * -40px), 0, 0); transform: translate3d(calc(var(--fp) * -40px), 0, 0);
+  .hdr-a, .hdr-b { position: absolute; top: 17px; will-change: transform, opacity; display: block; width: max-content; text-align: left; white-space: nowrap; line-height: 1.25; }
+  /* tracker title: glides up to the centre and shrinks, handing over to the small label (.hdr-g) */
+  .hdr-a { left: var(--ax, 0px); opacity: calc(1 - var(--fp) * 2.4); -webkit-transform-origin: 50% 50%; transform-origin: 50% 50%;
+    -webkit-transform: translate3d(calc(var(--dxa, 0px) * var(--fp)), calc(var(--dya, 0px) * var(--fp)), 0) scale(calc(1 - var(--fp) * .42));
+    transform: translate3d(calc(var(--dxa, 0px) * var(--fp)), calc(var(--dya, 0px) * var(--fp)), 0) scale(calc(1 - var(--fp) * .42));
+    transition: opacity var(--slide), transform var(--slide); }
+  .hdr-g { position: absolute; left: var(--lx, 0px); top: var(--ly, 0px); white-space: nowrap; pointer-events: none !important;
+    font-size: 11px; font-weight: 500; line-height: 13px; letter-spacing: .01em; color: var(--text);
+    opacity: calc((var(--fp) - .4) * .75); will-change: transform, opacity; -webkit-transform-origin: 50% 50%; transform-origin: 50% 50%;
+    -webkit-transform: translate3d(calc(var(--dxa, 0px) * (1 - var(--fp)) * -.35), calc((1 - var(--fp)) * 8px), 0) scale(calc(1.25 - var(--fp) * .25));
+    transform: translate3d(calc(var(--dxa, 0px) * (1 - var(--fp)) * -.35), calc((1 - var(--fp)) * 8px), 0) scale(calc(1.25 - var(--fp) * .25));
     transition: opacity var(--slide), transform var(--slide); }
   .hdr-b { left: var(--bx, 0px); padding: 0; border: 0; background: none; font: inherit; font-weight: 600; font-size: 15px; color: var(--text); cursor: pointer;
     -webkit-transform-origin: 0 50%; transform-origin: 0 50%;
-    -webkit-transform: translate3d(calc((var(--hx, 0px) - var(--bx, 0px)) * (1 - var(--fp))), 0, 0) scale(calc(var(--s0, 1) + (1 - var(--s0, 1)) * var(--fp)));
-    transform: translate3d(calc((var(--hx, 0px) - var(--bx, 0px)) * (1 - var(--fp))), 0, 0) scale(calc(var(--s0, 1) + (1 - var(--s0, 1)) * var(--fp)));
+    -webkit-transform: translate3d(calc((var(--hx, 0px) - var(--bx, 0px)) * (1 - var(--fp))), calc(var(--fp) * 4px), 0) scale(calc(var(--s0, 1) + (1 - var(--s0, 1)) * var(--fp)));
+    transform: translate3d(calc((var(--hx, 0px) - var(--bx, 0px)) * (1 - var(--fp))), calc(var(--fp) * 4px), 0) scale(calc(var(--s0, 1) + (1 - var(--s0, 1)) * var(--fp)));
     opacity: calc(.62 + var(--fp) * .38); transition: transform var(--slide), opacity var(--slide); }
   .hdr-chev { position: absolute; right: -16px; top: 50%; margin-top: -8px; display: flex; font-style: normal; color: var(--muted); opacity: calc(1 - var(--fp) * 2); transition: opacity var(--slide); }
   .hdr-chev svg { width: 15px; height: 15px; }
-  .hdr-pill { position: absolute; left: 0; top: 0; height: 46px; border-radius: 16px; pointer-events: none;
+  .hdr-pill { position: absolute; left: 0; top: 10px; height: 46px; will-change: transform; border-radius: 16px; pointer-events: none;
     width: calc(var(--aw, 0px) + (var(--bw, 0px) - var(--aw, 0px)) * var(--fp) + 24px);
-    -webkit-transform: translate3d(calc(var(--ax, 0px) + (var(--bx, 0px) - var(--ax, 0px)) * var(--fp) - 12px), 0, 0);
-    transform: translate3d(calc(var(--ax, 0px) + (var(--bx, 0px) - var(--ax, 0px)) * var(--fp) - 12px), 0, 0);
+    -webkit-transform: translate3d(calc(var(--ax, 0px) + (var(--bx, 0px) - var(--ax, 0px)) * var(--fp) - 12px), calc(var(--fp) * 4px), 0);
+    transform: translate3d(calc(var(--ax, 0px) + (var(--bx, 0px) - var(--ax, 0px)) * var(--fp) - 12px), calc(var(--fp) * 4px), 0);
     background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.05)); border: 1px solid rgba(255,255,255,.10);
-    transition: transform var(--spring), width var(--spring); }
+    transition: transform var(--slide), width var(--slide); } /* same curve as the titles: no overshoot mismatch */
   .feed-drag .hdr *, .feed-drag .hdr-pill { transition: none !important; }
 }
 @media (max-width: 899px) and (prefers-reduced-motion: reduce) {
