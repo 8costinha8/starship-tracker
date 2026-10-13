@@ -1314,6 +1314,14 @@ function FeedPost({ p, onPhotoTap }) {
 // (ResizeObserver), so late fonts or late styles can't leave it mis-placed.
 const ABOUT_ICON = <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6h10M3 10h7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>;
 const HDR_K = 0.72, HDR_PGAP = 10; // inactive pill scale, gap between pills
+// Settle after a horizontal drag: true = Road page open. Commits to the other page once
+// the drag passes SWIPE_DIST of the width, or on a quick flick (|v| > SWIPE_FLICK px/ms)
+// in that direction even if short. A flick back the other way cancels.
+const SWIPE_DIST = 0.18, SWIPE_FLICK = 0.3;
+function swipeCommit(from, p, vx) {
+  if (from === 0) return vx < SWIPE_FLICK && (p > SWIPE_DIST || vx < -SWIPE_FLICK);
+  return !(vx > -SWIPE_FLICK && (1 - p > SWIPE_DIST || vx > SWIPE_FLICK));
+}
 function PhoneHeader({ road, feedOpen, onAbout, onFeed, onBack, onHint }) {
   const ref = React.useRef(null);
   const [ready, setReady] = React.useState(false);
@@ -1542,21 +1550,33 @@ function StarshipTracker() {
       const t = e.touches[0], dx = t.clientX - g.x, dy = t.clientY - g.y;
       if (!g.mode) {
         if (Math.abs(dy) > 10 && Math.abs(dy) >= Math.abs(dx)) { g.mode = "no"; return; }
-        if (Math.abs(dx) < 10 || Math.abs(dx) < Math.abs(dy) * 1.3) return;
+        if (Math.abs(dx) < 10 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
         if ((g.from === 0 && dx > 0) || (g.from === 1 && dx < 0)) { g.mode = "no"; return; }
         g.mode = "drag"; g.x = t.clientX; // start following from here: no jump
         setFeedOn(true); setDragging(true);
       }
       if (e.cancelable) e.preventDefault();
       const now = performance.now();
-      g.vx = (t.clientX - g.lx) / Math.max(1, now - g.lt); g.lx = t.clientX; g.lt = now;
+      const inst = (t.clientX - g.lx) / Math.max(1, now - g.lt);
+      g.vx = g.vx ? g.vx * 0.3 + inst * 0.7 : inst; g.lx = t.clientX; g.lt = now; // lightly smoothed px/ms
       g.p = Math.min(1, Math.max(0, g.from - (t.clientX - g.x) / window.innerWidth));
       setP(g.p);
     };
     const end = () => {
       if (!g || g.mode !== "drag") { g = null; return; }
-      const open = g.from === 0 ? (g.p > 0.35 || g.vx < -0.35) && g.vx < 0.35 : !((g.p < 0.65 || g.vx > 0.35) && g.vx > -0.35);
+      const open = swipeCommit(g.from, g.p, g.vx), gp = g.p, gv = g.vx;
       g = null;
+      // Carry the finger's speed into the settle: the curve's opening slope (~2.25 x average)
+      // matches the release velocity, so a short flick glides on instead of snapping.
+      const root = rootRef.current;
+      if (root) {
+        const left = Math.abs((open ? 1 : 0) - gp) * window.innerWidth, v = Math.abs(gv);
+        const ms = Math.round(Math.min(520, Math.max(240, v > 0.05 ? (2.25 * left) / v : 520)));
+        const ease = `${ms}ms cubic-bezier(.32,.72,0,1)`;
+        root.style.setProperty("--slide", ease); root.style.setProperty("--hdr-ease", ease);
+        clearTimeout(swipe.current.easeT);
+        swipe.current.easeT = setTimeout(() => { root.style.removeProperty("--slide"); root.style.removeProperty("--hdr-ease"); }, ms + 60);
+      }
       setNow(open ? 1 : 0); setDragging(false); setFeedOpen(open);
     };
     window.addEventListener("touchstart", start, { passive: true });
@@ -1660,7 +1680,7 @@ const css = `
 .st {
   --sat: env(safe-area-inset-top, 0px); /* status bar / Dynamic Island (standalone PWA, viewport-fit=cover) */
   --bg: #1A2236; --card: #222D46; --card-open: #27344F; --line: #3B4A6B;
-  --slide: .42s cubic-bezier(.22,1,.36,1);       /* settle like a damped spring */
+  --slide: .5s cubic-bezier(.32,.72,0,1);        /* pages: same curve as the header pill (swipe settle and taps) */
   --hdr-ease: .5s cubic-bezier(.32,.72,0,1);    /* header pill + titles: iOS-style critically damped settle, one curve for all */
   --spring: .42s cubic-bezier(.34,1.32,.64,1);   /* pill: a touch of overshoot */
   --text: #E4EAF6; --muted: #97A3BD; --faint: #66738F; --red: #EE6B6E;
@@ -2020,7 +2040,7 @@ textarea.feedback-field { resize: none; min-height: 112px; }
     -webkit-transform: translate3d(calc(var(--fp) * -100%), 0, 0); transform: translate3d(calc(var(--fp) * -100%), 0, 0);
     opacity: calc(1.6 - var(--fp) * 2); transition: transform var(--slide), opacity var(--slide); will-change: transform, opacity;
   }
-  .feed-open .st-wrap { visibility: hidden; transition-property: transform, opacity, visibility; transition-delay: 0s, 0s, .42s; }
+  .feed-open .st-wrap { visibility: hidden; transition-property: transform, opacity, visibility; transition-delay: 0s, 0s, .5s; }
   .feed-drag .feed-pane, .feed-drag .st-wrap { transition: none; }
   .st.feed-on { overflow-x: hidden; }
   html, body { overflow-x: hidden; }
