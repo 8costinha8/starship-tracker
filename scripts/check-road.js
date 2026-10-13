@@ -42,6 +42,8 @@ const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 const { execSync } = require("child_process");
+const os = require("os");
+const predict = require("./predicted.js");
 
 const ROOT = path.join(__dirname, "..");
 const ANTHROPIC_MODEL = "claude-sonnet-5"; // same model as check-flights.js
@@ -117,6 +119,12 @@ const X_ACCOUNTS = {
   SpaceflightNow: { src: "Spaceflight Now", tier: "trusted", id: "17217640" },
   SpaceNews_Inc: { src: "SpaceNews", tier: "trusted", id: "31098756" },
   thesheetztweetz: { src: "CNBC", tier: "trusted", id: "1231406720" },
+};
+// Accounts read ONLY for the predicted launch date (road.json "predicted"), in the
+// same single X search as above (no extra call). Their posts never reach the Road
+// card, the feed or Claude's Road prompt, and never send a push.
+const PREDICT_X_ACCOUNTS = {
+  elonmusk: { src: "Elon Musk", tier: "trusted", id: "44196397" },
 };
 // Spaceflight News API "news_site" names we trust (others come in unconfirmed).
 const SNAPI_TRUSTED = {
@@ -465,6 +473,7 @@ const SOURCES = [
       state.ll2At = Date.now();
       const j = await fetchJson("https://ll.thespacedevs.com/2.3.0/launches/upcoming/?search=Starship&limit=5&mode=detailed");
       const launch = (j.results || []).find((l) => Number((l.name.match(/Flight\s*(\d+)/i) || [])[1]) === road.flight);
+      if (launch && (launch.net || launch.status)) state.ll2Next = { n: road.flight, status: launch.status && launch.status.abbrev, date: launch.net, precision: (launch.net_precision && launch.net_precision.abbrev) || "", at: new Date().toISOString() };
       return ((launch && launch.updates) || []).map((u) => {
         const t = trustForUrl(u.info_url) || { src: "Launch Library", source: "ll2", tier: "unconfirmed" };
         return { key: `ll2:${u.id}`, title: decode(u.comment), text: `Launch Library note on Flight ${road.flight}: ${decode(u.comment)}`, url: u.info_url, publishedAt: u.created_on, ...t, source: `ll2>${t.source}` };
@@ -480,7 +489,7 @@ const SOURCES = [
       const auth = { headers: { authorization: `Bearer ${token}` } };
       // 1. handle -> user id, looked up once and remembered (user reads cost extra)
       state.xUserIds = state.xUserIds || {};
-      for (const [h, a] of Object.entries(X_ACCOUNTS)) if (a.id) state.xUserIds[h] = a.id; // hard-coded ids win
+      for (const [h, a] of Object.entries({ ...X_ACCOUNTS, ...PREDICT_X_ACCOUNTS })) if (a.id) state.xUserIds[h] = a.id; // hard-coded ids win
       const missing = Object.keys(X_ACCOUNTS).filter((h) => !state.xUserIds[h]);
       if (missing.length) {
         const u = await fetchJson(`https://api.x.com/2/users/by?usernames=${missing.join(",")}`, auth);
@@ -494,7 +503,7 @@ const SOURCES = [
       // 2. one search for Starship posts from those accounts since last time.
       //    You only pay for posts that come back, so quiet runs cost nothing.
       const words = ["Starship", `"Flight ${road.flight}"`, ...vehicleWords(road).map((w) => (w.includes(" ") ? `"${w}"` : w))];
-      const from = Object.keys(X_ACCOUNTS).filter((h) => state.xUserIds[h] !== "none").map((h) => `from:${h}`);
+      const from = Object.keys({ ...X_ACCOUNTS, ...PREDICT_X_ACCOUNTS }).filter((h) => state.xUserIds[h] && state.xUserIds[h] !== "none").map((h) => `from:${h}`);
       const query = `(${from.join(" OR ")}) (${words.join(" OR ")}) -is:retweet -is:reply`;
       const params = new URLSearchParams({ query, max_results: "25", "tweet.fields": "created_at,author_id,attachments",
         expansions: "attachments.media_keys", "media.fields": "type,url,preview_image_url,variants" }); // media come back in the same call
@@ -505,8 +514,8 @@ const SOURCES = [
       const mediaByKey = Object.fromEntries(((j.includes && j.includes.media) || []).map((m) => [m.media_key, m]));
       return (j.data || []).map((p) => {
         const handle = byId[p.author_id] || "unknown";
-        const t = X_ACCOUNTS[handle] || { src: `@${handle}`, tier: "unconfirmed" };
-        return { key: `x:${p.id}`, title: `@${handle} on X`, text: decode(p.text).slice(0, 600), url: `https://x.com/${handle}/status/${p.id}`, publishedAt: p.created_at, src: t.src, source: `x:${handle}`, tier: t.tier,
+        const t = X_ACCOUNTS[handle] || PREDICT_X_ACCOUNTS[handle] || { src: `@${handle}`, tier: "unconfirmed" };
+        return { ...(PREDICT_X_ACCOUNTS[handle] ? { predictOnly: true } : {}), key: `x:${p.id}`, title: `@${handle} on X`, text: decode(p.text).slice(0, 600), url: `https://x.com/${handle}/status/${p.id}`, publishedAt: p.created_at, src: t.src, source: `x:${handle}`, tier: t.tier,
           media: xMedia(((p.attachments && p.attachments.media_keys) || []).map((k) => mediaByKey[k]).filter(Boolean)) || undefined };
       });
     },
@@ -809,6 +818,17 @@ function commitAndPush(file, message) {
   try { run("git push"); } catch { run("git pull --rebase"); run("git push"); }
 }
 
+// Next flight from check-flights.js (same job, written to the runner's temp dir),
+// else what the hourly Launch Library read saw. null = unknown (nothing is cleared).
+function readNextFlight(handoffPath, state, road, now) {
+  const file = handoffPath || path.join(process.env.RUNNER_TEMP || os.tmpdir(), "starship-next-flight.json");
+  try {
+    const h = JSON.parse(fs.readFileSync(file, "utf8"));
+    if (h && now - new Date(h.at).getTime() < 30 * 60000) return h;
+  } catch {}
+  return state.ll2Next && state.ll2Next.n === road.flight ? state.ll2Next : null;
+}
+
 /* ───────────── main ───────────── */
 
 async function run(opts = {}) {
@@ -879,6 +899,37 @@ async function run(opts = {}) {
 
   // posts that were waiting (cap reached, or Claude was down last time)
   items.push(...(state.pending || []));
+
+  // 2b. Predicted launch date: scan the posts already fetched (no extra fetches).
+  //     Prediction-only X accounts (Elon) are used here and nowhere else.
+  const predictItems = [...items, ...(state.predPending || [])];
+  items = items.filter((it) => !it.predictOnly);
+  const next = opts.next !== undefined ? opts.next : readNextFlight(opts.handoffPath, state, road, clock());
+  const target = next && Number.isInteger(next.n) && next.n > 0 ? next.n : road.flight;
+  const predScanned = new Set(state.predScanned || []);
+  const predCutoff = clock() - LIMITS.staleHours * 3600000;
+  const predBatch = [];
+  for (const it of predictItems) {
+    if (!it.key || predScanned.has(it.key) || seen.has(it.key) || predBatch.some((b) => b.key === it.key)) continue;
+    if (!isTrusted(it.tier) || (it.publishedAt && new Date(it.publishedAt).getTime() < predCutoff)) continue;
+    if (!predict.prefilter(it, target, target === road.flight ? road.vehicles || [] : [], clock())) { predScanned.add(it.key); continue; }
+    predBatch.push(it);
+  }
+  let mentions = [];
+  state.predPending = [];
+  if (predBatch.length) {
+    const batchP = predBatch.slice(0, 8);
+    const askDates = opts.askDates || (opts.askClaude ? async () => [] : askClaude); // test-road's fake Claude only knows the Road prompt
+    try {
+      const reply = await askDates(predict.buildDatePrompt(target, batchP), log);
+      mentions = predict.mentionsFromReply(batchP, reply, target, clock());
+      batchP.forEach((it) => predScanned.add(it.key));
+      log(`predicted date: ${batchP.length} candidate post(s) checked, ${mentions.length} dated mention(s)${mentions.map((m) => ` [${m.source} ${m.date}]`).join("")}`);
+    } catch (err) { log(`predicted date: LLM failed (${err.message}) — ${batchP.length} post(s) retried next run`); state.predPending.push(...batchP); }
+    state.predPending.push(...predBatch.slice(8));
+    state.predPending = state.predPending.slice(0, 20).map(({ key, title, text, url, publishedAt, src, source, tier, predictOnly }) => ({ key, title, text, url, publishedAt, src, source, tier, predictOnly }));
+  }
+  state.predScanned = [...predScanned].slice(-LIMITS.seenKeep);
 
   // 3. Drop stale, seen, duplicate and off-topic posts
   // ROAD_STALE_HOURS (preview only): look back N hours and ignore road.updatedAt, for practice runs
@@ -964,18 +1015,29 @@ async function run(opts = {}) {
     : `NO-NEWS LINE REMOVED [${m.box.id}] ${m.from}: "${m.text}" (no push)`);
   if (refreshed.length) changed = true;
 
+  // 4c. Predicted launch date (no push, never bumps the Road card's "Updated")
+  const before = JSON.stringify([road.predicted || null, road.predicted_candidates || []]);
+  const pr = predict.computePredicted({ road, target, next, lastLogged: lastN, mentions, now: clock() });
+  if (pr.predicted) road.predicted = pr.predicted; else delete road.predicted;
+  if (pr.candidates.length) road.predicted_candidates = pr.candidates; else delete road.predicted_candidates;
+  const predChanged = JSON.stringify([road.predicted || null, road.predicted_candidates || []]) !== before;
+  if (predChanged) log(`predicted date: ${road.predicted ? `${road.predicted.mode} NET ${road.predicted.net} (${road.predicted.basis})` : "none"} — ${pr.reason} (no push)`);
+
   // 5. Save, commit, then notify (so the app already has the new card when the push lands)
-  if (changed) {
-    road.updated = fmtDay();
-    road.updatedAt = new Date().toISOString();
+  if (changed || predChanged) {
+    if (changed) {
+      road.updated = fmtDay();
+      road.updatedAt = new Date().toISOString();
+    }
     validateRoad(road);
+    predict.validatePredicted(road);
     const json = JSON.stringify(road, null, 2) + "\n";
     if (save) {
       fs.writeFileSync(roadPath, json);
-      const what = [rolledOver ? "new Road" : "", notifications.length ? `${notifications.length} update(s)` : "", refreshed.length ? `no-news lines tidied (${road.updated})` : ""].filter(Boolean).join(", ");
+      const what = [rolledOver ? "new Road" : "", notifications.length ? `${notifications.length} update(s)` : "", refreshed.length ? `no-news lines tidied (${road.updated})` : "", predChanged ? `predicted date ${road.predicted ? `NET ${road.predicted.net}` : "cleared"}` : ""].filter(Boolean).join(", ");
       commit("road.json", `Auto: Road to Flight ${road.flight} — ${what}`);
     } else console.log(`(not committed) Auto: Road to Flight ${road.flight} — ${notifications.length} update(s)${refreshed.length ? `, ${refreshed.length} no-news line change(s) (${road.updated})` : ""}`);
-    if (!notifications.length && !rolledOver) log("date-only refresh — no push notification");
+    if (!notifications.length && !rolledOver) log("no push notification for this change");
     for (const n of notifications) {
       if (save) await deps.push(n);
       else console.log(`(not sent) push: ${n.title} — ${n.body}`);
@@ -995,7 +1057,7 @@ async function run(opts = {}) {
   return { road, changes, notifications, refreshed, state, scheduledSent };
 }
 
-module.exports = { run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, parseOgMedia, xMedia, youtubeId, mediaFor, titleMatches, captionedImage, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
+module.exports = { readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, parseOgMedia, xMedia, youtubeId, mediaFor, titleMatches, captionedImage, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
 
 if (require.main === module) {
   run().catch((err) => {

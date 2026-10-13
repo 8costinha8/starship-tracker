@@ -208,6 +208,7 @@
   "predicted": {
     "flight": 15,
     "net": "2026-11-08",
+    "mode": "manual",
     "basis": "FAA planning · NSF",
     "sources": [
       {

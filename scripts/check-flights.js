@@ -241,6 +241,7 @@ function liveDeps() {
     fetchJson,
     async loadState() { const snap = await stateRef.get(); return snap.exists ? snap.data() : null; },
     async saveState(st) { await stateRef.set(st); },
+    writeHandoff: (h) => fs.writeFileSync(path.join(process.env.RUNNER_TEMP || require("os").tmpdir(), "starship-next-flight.json"), JSON.stringify(h)),
     readAppJs: () => fs.readFileSync(APP_JS_PATH, "utf8"),
     writeAppJs: (text) => fs.writeFileSync(APP_JS_PATH, text),
     commitAndPush,
@@ -282,6 +283,11 @@ async function run(deps) {
     precision: launch.net_precision?.abbrev || "",
     outcome: mapOutcome(launch.status?.abbrev),
   };
+
+  // Hand the next flight to check-road.js (same job) for its predicted date. No git, no push.
+  if (deps.writeHandoff) {
+    try { deps.writeHandoff({ n: current.n, status: launch.status?.abbrev || "", date: launch.net, precision: current.precision, at: new Date(now()).toISOString() }); } catch {}
+  }
 
   // 2. Load what we saw last time we ran
   const prev = await deps.loadState();
