@@ -1925,7 +1925,7 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .road-list { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .5s cubic-bezier(.2,.8,.2,1); }
 .main-open .road-list { grid-template-rows: 1fr; }
 .road-list-inner { overflow: hidden; padding: 0 10px; }
-.main-open .road-list-inner { padding-bottom: 8.5px; } /* last card to inner edge = progress row (dots) to first card: 18.5px each */
+.main-open .road-list-inner { padding-top: 8px; padding-bottom: 16.5px; } /* 8px clear room above the first card (and its open glow, which overflow:hidden would clip); bottom gap matches the top: 26.5px each */
 .callout {
   position: relative; border-radius: 18px; margin-bottom: 10px; overflow: hidden;
   background: linear-gradient(100deg, color-mix(in srgb, var(--c) 8%, transparent), color-mix(in srgb, var(--c) 3%, transparent));
