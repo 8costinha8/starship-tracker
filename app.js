@@ -1661,6 +1661,7 @@ const css = `
   --sat: env(safe-area-inset-top, 0px); /* status bar / Dynamic Island (standalone PWA, viewport-fit=cover) */
   --bg: #1A2236; --card: #222D46; --card-open: #27344F; --line: #3B4A6B;
   --slide: .42s cubic-bezier(.22,1,.36,1);       /* settle like a damped spring */
+  --hdr-ease: .5s cubic-bezier(.32,.72,0,1);    /* header pill + titles: iOS-style critically damped settle, one curve for all */
   --spring: .42s cubic-bezier(.34,1.32,.64,1);   /* pill: a touch of overshoot */
   --text: #E4EAF6; --muted: #97A3BD; --faint: #66738F; --red: #EE6B6E;
   min-height: 100vh; color: var(--text);
@@ -2046,7 +2047,7 @@ textarea.feedback-field { resize: none; min-height: 112px; }
     line-height: 1.2; isolation: isolate; will-change: transform; -webkit-transform-origin: 0 50%; transform-origin: 0 50%;
     --s: calc(var(--k, .72) + (1 - var(--k, .72)) * var(--act));
     --T: calc(var(--wa, 0px) * (1 - (1 - var(--k, .72)) * var(--fp)) + var(--pg, 10px) + var(--wb, 0px) * (var(--k, .72) + (1 - var(--k, .72)) * var(--fp)));
-    transition: transform var(--slide); }
+    transition: transform var(--hdr-ease); }
   /* one pill (fill + border) that only the active title wears: it slides and resizes from one to the other with --fp */
   .hdr-pill { position: absolute; left: 0; top: 7px; height: var(--ph, 54px); border-radius: 16px; pointer-events: none !important; will-change: transform, width;
     background: #4A5684; border: 1px solid rgba(190,205,255,.28); box-sizing: border-box;
@@ -2054,8 +2055,8 @@ textarea.feedback-field { resize: none; min-height: 112px; }
     --xb: calc(var(--cx, 0px) - (var(--wa, 0px) * var(--k, .72) + var(--pg, 10px) + var(--wb, 0px)) / 2 + var(--wa, 0px) * var(--k, .72) + var(--pg, 10px));
     width: calc(var(--wa, 0px) + (var(--wb, 0px) - var(--wa, 0px)) * var(--fp));
     -webkit-transform: translate3d(calc(var(--xa) + (var(--xb) - var(--xa)) * var(--fp)), 0, 0); transform: translate3d(calc(var(--xa) + (var(--xb) - var(--xa)) * var(--fp)), 0, 0);
-    transition: transform var(--slide), width var(--slide); }
-  .hdr-p b, .hdr-p span { display: block; opacity: calc(.5 + .5 * var(--act)); transition: opacity var(--slide); }
+    transition: transform var(--hdr-ease), width var(--hdr-ease); }
+  .hdr-p b, .hdr-p span { display: block; will-change: opacity; opacity: calc(.5 + .5 * var(--act)); transition: opacity var(--hdr-ease); }
   .hdr-p b { font-size: 17px; font-weight: 700; letter-spacing: -.01em; }
   .hdr-p span { font-size: 13px; font-weight: 600; color: #DCE3F5; margin-top: 1px; }
   .hdr-a { --act: calc(1 - var(--fp));
