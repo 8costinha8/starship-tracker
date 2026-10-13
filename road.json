@@ -204,5 +204,21 @@
         }
       ]
     }
-  ]
+  ],
+  "predicted": {
+    "flight": 15,
+    "net": "2026-11-08",
+    "basis": "FAA planning · NSF",
+    "sources": [
+      {
+        "name": "NSF",
+        "url": "https://x.com/NASASpaceflight/status/2108210569862070387",
+        "note": "FAA air-traffic planning slides, posted 8 Oct"
+      },
+      {
+        "name": "Elon Musk",
+        "note": "10 Oct: hopefully 4-6 weeks"
+      }
+    ]
+  }
 }

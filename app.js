@@ -489,6 +489,23 @@ function roughNet(f, now = nowMs()) {
   return { label: `NET ${when} · unconfirmed` };
 }
 
+// Curated "predicted" date from road.json, e.g. {flight, net:"2026-11-08", basis, sources:[...]}.
+// Shown only while LL2's date is unconfirmed (rough/placeholder), for the same
+// flight, backed by 2+ trusted sources, and not already in the past. As soon as
+// LL2 has a real date this returns null and the normal label takes over.
+function predictedNet(f, road, now = nowMs()) {
+  const p = road && road.predicted;
+  if (!f || !p || !Array.isArray(p.sources) || p.sources.length < 2) return null;
+  if (Number(p.flight) !== Number(f.n)) return null;
+  if (effectiveStatus(f, now) !== "tbc" || exactTime(f)) return null;
+  if (f.date && !roughNet(f, now)) return null; // LL2 has a day-or-better date
+  const d = new Date(`${p.net}T00:00:00Z`);
+  if (!Number.isFinite(d.getTime()) || d.getTime() + DAY < now) return null; // stale
+  const label = `NET ${d.toLocaleDateString("en-GB", { timeZone: "UTC", day: "numeric", month: "short" })} · predicted`;
+  const basis = p.basis || p.sources.map((s) => s.name).filter(Boolean).join(" · ");
+  return { label, basis };
+}
+
 // Turns LL2's launch detail into the card's data.
 function flightFromLL2(full) {
   const boosterSerial = full.rocket?.launcher_stage?.[0]?.launcher?.serial_number || "";
@@ -704,7 +721,7 @@ function windowText(f, now) {
   return now >= ws ? `Open now · Closes ${fmtTimeLondon(f.windowEnd)} (UK)` : `Opens ${fmtTimeLondon(f.windowStart)} · Closes ${fmtTimeLondon(f.windowEnd)} (UK)`;
 }
 
-function NextFlightCard({ f, checkedAt, children }) {
+function NextFlightCard({ f, checkedAt, road, children }) {
   const now = useNow(true);
   const status = effectiveStatus(f, now);
   const confirmed = status === "confirmed" && exactTime(f);
@@ -716,6 +733,8 @@ function NextFlightCard({ f, checkedAt, children }) {
   else if (status !== "tbc" && f.date) dateText = fmtDateTimeLondon(f.date);
   const rough = status === "tbc" ? roughNet(f, now) : null;
   if (rough) dateText = rough.label;
+  const predicted = predictedNet(f, road, now);
+  if (predicted) dateText = predicted.label;
   return (
     <section className="next" aria-label={`${status === "inflight" ? "Current" : status === "done" ? "Latest" : "Next"} flight: Flight ${f.n}`}>
       <div className="next-top">
@@ -724,7 +743,7 @@ function NextFlightCard({ f, checkedAt, children }) {
       </div>
       <div className="next-title"><span className="t-word">Starship Flight</span><span className="t-num">{f.n || "—"}</span></div>
       <dl className="facts">
-        <dt>{dateLabel}</dt><dd>{dateText}</dd>
+        <dt>{dateLabel}</dt><dd>{dateText}{predicted && predicted.basis && <span className="pred-basis">{predicted.basis}</span>}</dd>
         {win && <><dt>Window</dt><dd>{win}</dd></>}
         <dt>Site</dt><dd>{siteLine(f)}</dd>
         <dt>Vehicle</dt><dd>{vehicleLine(f)}</dd>
@@ -1600,7 +1619,7 @@ function StarshipTracker() {
             : <span />}
         </header>
 
-        <NextFlightCard f={nextFlight} checkedAt={checkedAt}>
+        <NextFlightCard f={nextFlight} checkedAt={checkedAt} road={road}>
           <RoadCard road={road} onEntryTap={jumpToPost} openReq={roadOpenReq} />
         </NextFlightCard>
         <Connector dashed label={`${daysSinceLatest} days since the last flight`} />
@@ -1704,6 +1723,7 @@ a.watch-badge-live:active { transform: scale(.96); }
 .facts { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; font-size: 13.5px; margin: 0 0 14px; }
 .facts dt { color: #AAB6D6; }
 .facts dd { margin: 0; }
+.facts .pred-basis { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }
 .next-note { font-size: 13.5px; line-height: 1.55; color: #CDD6EE; margin: 0; }
 .watch-where { margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(170,190,245,.16); }
 .watch-where-h { display: block; font-size: 12px; color: #AAB6D6; margin-bottom: 8px; }
