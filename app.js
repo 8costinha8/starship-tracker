@@ -1313,25 +1313,19 @@ function FeedPost({ p, onPhotoTap }) {
 // finger, then springs on release. Sizes are re-measured whenever they change
 // (ResizeObserver), so late fonts or late styles can't leave it mis-placed.
 const ABOUT_ICON = <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6h10M3 10h7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>;
-const HDR_S0 = 0.8, HDR_GAP = 14, HDR_CHEV = 13;
-const HDR_TITLE_Y = 17, HDR_LABEL_Y = 11; // px inside .hdr: title top, small label centre
+const HDR_K = 0.72, HDR_PGAP = 10; // inactive pill scale, gap between pills
 function PhoneHeader({ road, feedOpen, onAbout, onFeed, onBack, onHint }) {
   const ref = React.useRef(null);
   const [ready, setReady] = React.useState(false);
   React.useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const a = el.querySelector(".hdr-a"), b = el.querySelector(".hdr-b"), g = el.querySelector(".hdr-g");
+    const a = el.querySelector(".hdr-a"), b = el.querySelector(".hdr-b");
     const measure = () => {
-      const W = el.clientWidth, aw = a.offsetWidth, bw = b.offsetWidth;
-      if (!W || !aw || !bw || aw > W * 0.6 || bw > W * 0.6) return; // styles not applied yet: wait for the next resize
-      const ax = Math.round((W - (aw + HDR_GAP + (bw + HDR_CHEV) * HDR_S0)) / 2), bx = Math.round((W - bw) / 2);
+      const W = el.clientWidth, wa = a.offsetWidth, wb = b.offsetWidth;
+      if (!W || !wa || !wb || wa > W * 0.6 || wb > W * 0.6) return; // styles not applied yet: wait for the next resize
       const set = (k, v) => el.style.setProperty(k, v);
-      // Road page: the tracker title rides along as a small faded label centred above "Road to"
-      const cx = bx + bw / 2, ah = a.offsetHeight || 38, lw = g ? g.offsetWidth : aw, lh = g ? g.offsetHeight : 13;
-      set("--lx", Math.round(cx - lw / 2) + "px"); set("--ly", Math.round(HDR_LABEL_Y - lh / 2) + "px");
-      set("--dxa", Math.round(cx - (ax + aw / 2)) + "px"); set("--dya", Math.round(HDR_LABEL_Y - (HDR_TITLE_Y + ah / 2)) + "px");
-      set("--ax", ax + "px"); set("--aw", aw + "px"); set("--hx", ax + aw + HDR_GAP + "px"); set("--bx", bx + "px"); set("--bw", bw + "px"); set("--s0", String(HDR_S0));
+      set("--ph", a.offsetHeight + "px"); set("--cx", W / 2 + "px"); set("--wa", wa + "px"); set("--wb", wb + "px"); set("--k", String(HDR_K)); set("--pg", HDR_PGAP + "px");
       setReady(true);
     };
     measure();
@@ -1342,19 +1336,22 @@ function PhoneHeader({ road, feedOpen, onAbout, onFeed, onBack, onHint }) {
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure).catch(() => {});
     return () => { cancelAnimationFrame(raf); if (ro) ro.disconnect(); window.removeEventListener("resize", measure); };
   }, [road.flight]);
+  // Two pills, always visible: the active page's is full size and bright, the other
+  // smaller and dimmer. Everything is a function of --fp (0 = tracker, 1 = Road), so
+  // it follows the finger and eases on release. Tap the small pill to switch pages.
   return (
     <>
       <div className="hdr-bar" aria-hidden="true" />
       <div className={"hdr" + (ready ? " hdr-ready" : "") + (feedOpen ? " hdr-feed" : "")} ref={ref}>
-        <span className="hdr-pill" aria-hidden="true" />
         <button className="round-btn hdr-left" onClick={feedOpen ? onBack : onAbout} aria-label={feedOpen ? "Back to the flight log" : "Open about"}>
           <span className="hdr-ic hdr-ic-a">{ABOUT_ICON}</span><span className="hdr-ic hdr-ic-b">{BACK_ICON}</span>
         </button>
-        <div className="hdr-a brand" aria-hidden={feedOpen}>Starship<span>Flight Log</span></div>
-        <div className="hdr-g" aria-hidden="true">Starship · Flight Log</div>
-        <button className="hdr-b brand" onClick={feedOpen ? undefined : onHint} tabIndex={feedOpen ? -1 : 0}
-          aria-label={feedOpen ? `Road to Flight ${road.flight}` : `Road to Flight ${road.flight}: open`}>
-          Road to<span>{`Flight ${road.flight}`}</span><i className="hdr-chev">{CHIP_CHEVRON}</i>
+        <span className="hdr-pill" aria-hidden="true" />
+        <button className="hdr-p hdr-a" onClick={feedOpen ? onBack : undefined} aria-current={feedOpen ? undefined : "page"} aria-label="Starship Flight Log">
+          <b>Starship</b><span>Flight Log</span>
+        </button>
+        <button className="hdr-p hdr-b" onClick={feedOpen ? undefined : onFeed} aria-current={feedOpen ? "page" : undefined} aria-label={`Road to Flight ${road.flight}`}>
+          <b>Road to</b><span>{`Flight ${road.flight}`}</span>
         </button>
         <button className="round-btn hdr-right" onClick={onFeed} aria-label="Open updates feed" tabIndex={feedOpen ? -1 : 0}>{FEED_ICON}</button>
       </div>
@@ -2042,33 +2039,31 @@ textarea.feedback-field { resize: none; min-height: 112px; }
   .hdr-ic { position: absolute; inset: 0; display: grid; place-items: center; transition: opacity var(--slide); }
   .hdr-ic-a { opacity: calc(1 - var(--fp) * 2); }
   .hdr-ic-b { opacity: calc(var(--fp) * 2 - 1); }
-  .hdr-feed .hdr-right, .hdr-feed .hdr-a { pointer-events: none; }
-  .hdr-a, .hdr-b { position: absolute; top: 17px; will-change: transform, opacity; display: block; width: max-content; text-align: left; white-space: nowrap; line-height: 1.25; }
-  /* tracker title: glides up to the centre and shrinks, handing over to the small label (.hdr-g) */
-  .hdr-a { left: var(--ax, 0px); opacity: calc(1 - var(--fp) * 2.4); -webkit-transform-origin: 50% 50%; transform-origin: 50% 50%;
-    -webkit-transform: translate3d(calc(var(--dxa, 0px) * var(--fp)), calc(var(--dya, 0px) * var(--fp)), 0) scale(calc(1 - var(--fp) * .42));
-    transform: translate3d(calc(var(--dxa, 0px) * var(--fp)), calc(var(--dya, 0px) * var(--fp)), 0) scale(calc(1 - var(--fp) * .42));
-    transition: opacity var(--slide), transform var(--slide); }
-  .hdr-g { position: absolute; left: var(--lx, 0px); top: var(--ly, 0px); white-space: nowrap; pointer-events: none !important;
-    font-size: 11px; font-weight: 500; line-height: 13px; letter-spacing: .01em; color: var(--text);
-    opacity: calc((var(--fp) - .4) * .75); will-change: transform, opacity; -webkit-transform-origin: 50% 50%; transform-origin: 50% 50%;
-    -webkit-transform: translate3d(calc(var(--dxa, 0px) * (1 - var(--fp)) * -.35), calc((1 - var(--fp)) * 8px), 0) scale(calc(1.25 - var(--fp) * .25));
-    transform: translate3d(calc(var(--dxa, 0px) * (1 - var(--fp)) * -.35), calc((1 - var(--fp)) * 8px), 0) scale(calc(1.25 - var(--fp) * .25));
-    transition: opacity var(--slide), transform var(--slide); }
-  .hdr-b { left: var(--bx, 0px); padding: 0; border: 0; background: none; font: inherit; font-weight: 600; font-size: 15px; color: var(--text); cursor: pointer;
-    -webkit-transform-origin: 0 50%; transform-origin: 0 50%;
-    -webkit-transform: translate3d(calc((var(--hx, 0px) - var(--bx, 0px)) * (1 - var(--fp))), calc(var(--fp) * 4px), 0) scale(calc(var(--s0, 1) + (1 - var(--s0, 1)) * var(--fp)));
-    transform: translate3d(calc((var(--hx, 0px) - var(--bx, 0px)) * (1 - var(--fp))), calc(var(--fp) * 4px), 0) scale(calc(var(--s0, 1) + (1 - var(--s0, 1)) * var(--fp)));
-    opacity: calc(.62 + var(--fp) * .38); transition: transform var(--slide), opacity var(--slide); }
-  .hdr-chev { position: absolute; right: -16px; top: 50%; margin-top: -8px; display: flex; font-style: normal; color: var(--muted); opacity: calc(1 - var(--fp) * 2); transition: opacity var(--slide); }
-  .hdr-chev svg { width: 15px; height: 15px; }
-  .hdr-pill { position: absolute; left: 0; top: 10px; height: 46px; will-change: transform; border-radius: 16px; pointer-events: none;
-    width: calc(var(--aw, 0px) + (var(--bw, 0px) - var(--aw, 0px)) * var(--fp) + 24px);
-    -webkit-transform: translate3d(calc(var(--ax, 0px) + (var(--bx, 0px) - var(--ax, 0px)) * var(--fp) - 12px), calc(var(--fp) * 4px), 0);
-    transform: translate3d(calc(var(--ax, 0px) + (var(--bx, 0px) - var(--ax, 0px)) * var(--fp) - 12px), calc(var(--fp) * 4px), 0);
-    background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.05)); border: 1px solid rgba(255,255,255,.10);
-    transition: transform var(--slide), width var(--slide); } /* same curve as the titles: no overshoot mismatch */
-  .feed-drag .hdr *, .feed-drag .hdr-pill { transition: none !important; }
+  .hdr-feed .hdr-right { pointer-events: none; }
+  /* pills: --act 1 = active page. Width T of the pair is linear in --fp, so the pair stays centred */
+  .hdr-p { position: absolute; left: 0; top: 7px; display: block; width: max-content; white-space: nowrap; text-align: center;
+    padding: 8px 16px; border: 0; background: none; color: #fff; font: inherit; cursor: pointer;
+    line-height: 1.2; isolation: isolate; will-change: transform; -webkit-transform-origin: 0 50%; transform-origin: 0 50%;
+    --s: calc(var(--k, .72) + (1 - var(--k, .72)) * var(--act));
+    --T: calc(var(--wa, 0px) * (1 - (1 - var(--k, .72)) * var(--fp)) + var(--pg, 10px) + var(--wb, 0px) * (var(--k, .72) + (1 - var(--k, .72)) * var(--fp)));
+    transition: transform var(--slide); }
+  /* one pill (fill + border) that only the active title wears: it slides and resizes from one to the other with --fp */
+  .hdr-pill { position: absolute; left: 0; top: 7px; height: var(--ph, 54px); border-radius: 16px; pointer-events: none !important; will-change: transform, width;
+    background: #4A5684; border: 1px solid rgba(190,205,255,.28); box-sizing: border-box;
+    --xa: calc(var(--cx, 0px) - (var(--wa, 0px) + var(--pg, 10px) + var(--wb, 0px) * var(--k, .72)) / 2);
+    --xb: calc(var(--cx, 0px) - (var(--wa, 0px) * var(--k, .72) + var(--pg, 10px) + var(--wb, 0px)) / 2 + var(--wa, 0px) * var(--k, .72) + var(--pg, 10px));
+    width: calc(var(--wa, 0px) + (var(--wb, 0px) - var(--wa, 0px)) * var(--fp));
+    -webkit-transform: translate3d(calc(var(--xa) + (var(--xb) - var(--xa)) * var(--fp)), 0, 0); transform: translate3d(calc(var(--xa) + (var(--xb) - var(--xa)) * var(--fp)), 0, 0);
+    transition: transform var(--slide), width var(--slide); }
+  .hdr-p b, .hdr-p span { display: block; opacity: calc(.5 + .5 * var(--act)); transition: opacity var(--slide); }
+  .hdr-p b { font-size: 17px; font-weight: 700; letter-spacing: -.01em; }
+  .hdr-p span { font-size: 13px; font-weight: 600; color: #DCE3F5; margin-top: 1px; }
+  .hdr-a { --act: calc(1 - var(--fp));
+    -webkit-transform: translate3d(calc(var(--cx, 0px) - var(--T) / 2), 0, 0) scale(var(--s)); transform: translate3d(calc(var(--cx, 0px) - var(--T) / 2), 0, 0) scale(var(--s)); }
+  .hdr-b { --act: var(--fp);
+    -webkit-transform: translate3d(calc(var(--cx, 0px) - var(--T) / 2 + var(--wa, 0px) * (1 - (1 - var(--k, .72)) * var(--fp)) + var(--pg, 10px)), 0, 0) scale(var(--s));
+    transform: translate3d(calc(var(--cx, 0px) - var(--T) / 2 + var(--wa, 0px) * (1 - (1 - var(--k, .72)) * var(--fp)) + var(--pg, 10px)), 0, 0) scale(var(--s)); }
+  .feed-drag .hdr * { transition: none !important; }
 }
 @media (max-width: 899px) and (prefers-reduced-motion: reduce) {
   .feed-pane, .feed-on .st-wrap, .hdr, .hdr * { transition: none !important; }
