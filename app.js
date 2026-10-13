@@ -2047,9 +2047,9 @@ textarea.feedback-field { resize: none; min-height: 112px; }
   /* the fixed header stands in for both pages' own header rows, which stay as spacers */
   .st-wrap > .top, .feed-head > * { visibility: hidden; }
   .feed-head { position: static; background: none; border-bottom: 0; -webkit-backdrop-filter: none; backdrop-filter: none; }
-  .hdr-bar { position: fixed; left: 0; right: 0; top: 0; height: calc(var(--sat) + 70px); z-index: 16; pointer-events: none;
-    background: linear-gradient(180deg, #2A3859 0%, #25314E 100%); box-shadow: 0 8px 24px -16px rgba(5,8,20,.9); /* opaque: nothing shows through, status bar area included */
-    border-bottom: 1px solid rgba(170,190,245,.10); }
+  /* no bar: pills + buttons sit on the page; content scrolling under them fades out into the page colour */
+  .hdr-bar { position: fixed; left: 0; right: 0; top: 0; height: calc(var(--sat) + 84px); z-index: 16; pointer-events: none;
+    background: linear-gradient(180deg, #1F2840 0%, #1F2840 calc(var(--sat) + 52px), rgba(31,40,64,0) 100%); }
   .hdr { position: fixed; z-index: 17; top: calc(var(--sat) + 5px); left: 0; right: 0; height: 64px; overflow: hidden; pointer-events: none; opacity: 0; }
   .hdr.hdr-ready { opacity: 1; transition: opacity .2s; }
   .hdr > * { pointer-events: auto; -webkit-tap-highlight-color: transparent; }
@@ -2062,14 +2062,14 @@ textarea.feedback-field { resize: none; min-height: 112px; }
   .hdr-ic-b { opacity: calc(var(--fp) * 2 - 1); }
   .hdr-feed .hdr-right { pointer-events: none; }
   /* pills: --act 1 = active page. Width T of the pair is linear in --fp, so the pair stays centred */
-  .hdr-p { position: absolute; left: 0; top: 7px; display: block; width: max-content; white-space: nowrap; text-align: center;
-    padding: 8px 16px; border: 0; background: none; color: #fff; font: inherit; cursor: pointer;
+  .hdr-p { position: absolute; left: 0; top: 10px; display: block; width: max-content; white-space: nowrap; text-align: center;
+    padding: 7px 14px; border: 0; background: none; color: #fff; font: inherit; cursor: pointer;
     line-height: 1.2; isolation: isolate; will-change: transform; -webkit-transform-origin: 0 50%; transform-origin: 0 50%;
     --s: calc(var(--k, .72) + (1 - var(--k, .72)) * var(--act));
     --T: calc(var(--wa, 0px) * (1 - (1 - var(--k, .72)) * var(--fp)) + var(--pg, 10px) + var(--wb, 0px) * (var(--k, .72) + (1 - var(--k, .72)) * var(--fp)));
     transition: transform var(--hdr-ease); }
   /* one pill (fill + border) that only the active title wears: it slides and resizes from one to the other with --fp */
-  .hdr-pill { position: absolute; left: 0; top: 7px; height: var(--ph, 54px); border-radius: 16px; pointer-events: none !important; will-change: transform, width;
+  .hdr-pill { position: absolute; left: 0; top: 10px; height: var(--ph, 54px); border-radius: 14px; pointer-events: none !important; will-change: transform, width;
     background: #4A5684; border: 1px solid rgba(190,205,255,.28); box-sizing: border-box;
     --xa: calc(var(--cx, 0px) - (var(--wa, 0px) + var(--pg, 10px) + var(--wb, 0px) * var(--k, .72)) / 2);
     --xb: calc(var(--cx, 0px) - (var(--wa, 0px) * var(--k, .72) + var(--pg, 10px) + var(--wb, 0px)) / 2 + var(--wa, 0px) * var(--k, .72) + var(--pg, 10px));
@@ -2077,8 +2077,8 @@ textarea.feedback-field { resize: none; min-height: 112px; }
     -webkit-transform: translate3d(calc(var(--xa) + (var(--xb) - var(--xa)) * var(--fp)), 0, 0); transform: translate3d(calc(var(--xa) + (var(--xb) - var(--xa)) * var(--fp)), 0, 0);
     transition: transform var(--hdr-ease), width var(--hdr-ease); }
   .hdr-p b, .hdr-p span { display: block; will-change: opacity; opacity: calc(.5 + .5 * var(--act)); transition: opacity var(--hdr-ease); }
-  .hdr-p b { font-size: 17px; font-weight: 700; letter-spacing: -.01em; }
-  .hdr-p span { font-size: 13px; font-weight: 600; color: #DCE3F5; margin-top: 1px; }
+  .hdr-p b { font-size: 15px; font-weight: 700; letter-spacing: -.01em; }
+  .hdr-p span { font-size: 11px; font-weight: 600; color: #DCE3F5; margin-top: 1px; }
   .hdr-a { --act: calc(1 - var(--fp));
     -webkit-transform: translate3d(calc(var(--cx, 0px) - var(--T) / 2), 0, 0) scale(var(--s)); transform: translate3d(calc(var(--cx, 0px) - var(--T) / 2), 0, 0) scale(var(--s)); }
   .hdr-b { --act: var(--fp);
