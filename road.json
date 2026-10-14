@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "14 Oct",
-  "updatedAt": "2026-10-14T19:09:56.511Z",
+  "updatedAt": "2026-10-14T21:37:54.118Z",
   "categories": [
     {
       "id": "cryo",
@@ -55,8 +55,19 @@
       "name": "Raptor engines",
       "color": "#FF9A3D",
       "status": "progress",
-      "latest": "Ship 42 Raptor engines removed",
+      "latest": "Ship 42 Raptor engines being reinstalled",
       "history": [
+        {
+          "date": "14 Oct",
+          "text": "Ship 42's Raptor engines are reportedly being reinstalled.",
+          "src": "NSF",
+          "source": "nsf-youtube",
+          "trust": "trusted",
+          "url": "https://www.youtube.com/watch?v=t9iGVxSx0aw",
+          "at": "2026-10-14T18:59:28.000Z",
+          "key": "rss:yt:video:t9iGVxSx0aw",
+          "publishedAt": "2026-10-14T18:59:28.000Z"
+        },
         {
           "date": "9 Oct",
           "text": "Ship 42's Raptor engines have been removed ahead of Flight 15.",
