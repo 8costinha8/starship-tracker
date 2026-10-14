@@ -4,8 +4,8 @@
     "B22",
     "S42"
   ],
-  "updated": "12 Oct",
-  "updatedAt": "2026-10-11T23:09:57.976Z",
+  "updated": "14 Oct",
+  "updatedAt": "2026-10-14T19:09:56.511Z",
   "categories": [
     {
       "id": "cryo",
@@ -175,8 +175,19 @@
       "color": "#FFC93D",
       "status": "pending",
       "doneText": "Confirmed",
-      "latest": "Slide shows NET November readiness",
+      "latest": "Flight 15 targets NET 8 Nov",
       "history": [
+        {
+          "date": "14 Oct",
+          "text": "Flight 15 is now targeting NET 8 November, with recovery plans to catch both vehicles.",
+          "src": "NSF",
+          "source": "nsf-youtube",
+          "trust": "trusted",
+          "url": "https://www.youtube.com/watch?v=eeS1nYInJ2w",
+          "at": "2026-10-14T18:22:50.000Z",
+          "key": "rss:yt:video:eeS1nYInJ2w",
+          "publishedAt": "2026-10-14T18:22:50.000Z"
+        },
         {
           "date": "9 Oct",
           "text": "A new slide suggests Ship 42 could be ready for flight NET November.",
