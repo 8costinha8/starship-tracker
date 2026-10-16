@@ -503,7 +503,7 @@ const SOURCES = [
       const byId = Object.fromEntries(Object.entries(state.xUserIds).filter(([, id]) => id !== "none").map(([h, id]) => [id, h]));
       // 2. one search for Starship posts from those accounts since last time.
       //    You only pay for posts that come back, so quiet runs cost nothing.
-      const words = ["Starship", `"Flight ${road.flight}"`, ...vehicleWords(road).map((w) => (w.includes(" ") ? `"${w}"` : w))];
+      const words = ["Starship", "Starbase", `"Super Heavy"`, "Raptor", "Massey", `"Flight ${road.flight}"`, `"Flight ${road.flight + 1}"`, ...vehicleWords(road).map((w) => (w.includes(" ") ? `"${w}"` : w))];
       const from = Object.keys({ ...X_ACCOUNTS, ...PREDICT_X_ACCOUNTS }).filter((h) => state.xUserIds[h] && state.xUserIds[h] !== "none").map((h) => `from:${h}`);
       const query = `(${from.join(" OR ")}) (${words.join(" OR ")}) -is:retweet -is:reply`;
       const params = new URLSearchParams({ query, max_results: "25", "tweet.fields": "created_at,author_id,attachments",
