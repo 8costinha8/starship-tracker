@@ -221,10 +221,11 @@ function titleMatches(title, text, boxId) {
 function xPostCard(p, mediaByKey, usersById) {
   const u = usersById[p.author_id] || {};
   const media = ((p.attachments && p.attachments.media_keys) || []).map((k) => mediaByKey[k]).filter(Boolean).map((m) => {
-    if (m.type === "photo") return m.url ? { type: "photo", url: m.url } : null;
+    const alt = m.alt_text ? { alt: decode(m.alt_text).slice(0, 300) } : {};
+    if (m.type === "photo") return m.url ? { type: "photo", url: m.url, ...alt } : null;
     const mp4 = (m.variants || []).filter((v) => v.content_type === "video/mp4" && v.url).sort((a, b) => (b.bit_rate || 0) - (a.bit_rate || 0));
     if (!m.preview_image_url && !mp4.length) return null;
-    return { type: "video", ...(m.preview_image_url ? { poster: m.preview_image_url } : {}), ...(mp4.length ? { video_url: mp4[0].url } : {}) };
+    return { type: "video", ...(m.preview_image_url ? { poster: m.preview_image_url } : {}), ...(mp4.length ? { video_url: mp4[0].url } : {}), ...alt };
   }).filter(Boolean);
   const text = decode((p.note_tweet && p.note_tweet.text) || p.text || "").replace(/\s*https:\/\/t\.co\/\w+$/, "");
   return { post_id: p.id, url: `https://x.com/${u.username || "i"}/status/${p.id}`, created_at: p.created_at, text,
@@ -235,7 +236,7 @@ function xPostCard(p, mediaByKey, usersById) {
 // keeping total posts read under 30. Strict match, ±2 days, a post's media never reused.
 // A matched entry's text is rewritten by the writer from the post (no quoted post text).
 const X_FIELDS = { "tweet.fields": "created_at,author_id,attachments,note_tweet", expansions: "attachments.media_keys,author_id",
-  "media.fields": "type,url,preview_image_url,variants,width,height", "user.fields": "name,username,profile_image_url" };
+  "media.fields": "type,url,preview_image_url,variants,width,height,alt_text", "user.fields": "name,username,profile_image_url" };
 const X_READ_CAP = 29;
 const xIdOf = (u) => (String(u || "").match(/^(?:https?:\/\/(?:www\.)?(?:x|twitter)\.com\/[^/]+\/status\/|x:)(\d+)/i) || [])[1];
 async function backfillX(road, { token, fetchFn = fetch, rewrite = null, log = console.log } = {}) {
@@ -434,6 +435,67 @@ Reply with JSON: {"same": true|false, "line": "..."}`;
   }
   log(`MIX summary: ${calls} call(s), ${read} post(s) read, ${results.filter((r) => r.x_post).length} matched of ${results.length}`);
   for (const r of results) log(`MIX ${JSON.stringify(r)}`);
+}
+/* ───────────── image precision (vision check) ─────────────
+   An entry only keeps an X photo / video (poster frame) that CLEARLY shows the entry's subject:
+   the same vehicle (ship / booster number, or the pad) AND the same kind of event (cryo test,
+   static fire, rollout, lift, engine work…). Grok vision (grok-4.3, Claude fallback) looks at
+   each candidate image with the entry text, the post text and the alt text; it must say
+   shows=true with confidence ≥ 0.8. Otherwise the entry is text only (still linking to its post). */
+const VISION_SCHEMA = { type: "object", additionalProperties: false, required: ["shows", "confidence", "seen", "reason"],
+  properties: { shows: { type: "boolean" }, confidence: { type: "number" }, seen: { type: "string" }, reason: { type: "string" } } };
+const IMAGE_MIN_CONF = 0.8;
+const imageOf = (m) => (m.type === "photo" ? m.url : m.poster) || null;
+async function askVision(prompt, url) {
+  return writer.askJson(prompt, { images: [url], schema: VISION_SCHEMA, schemaName: "image_check", maxTokens: 3000, claudeMaxTokens: 400, attempts: 1, log: () => {},
+    extract: (t) => { const o = JSON.parse(t.replace(/```json|```/g, "").trim()); if (typeof o.shows !== "boolean" || typeof o.confidence !== "number") throw new Error("no verdict"); return o; } });
+}
+async function pickImage(entryText, boxName, post, { ask = askVision, log = console.log } = {}) {
+  const media = (post && post.media) || [];
+  if (!media.length) return { media: [], check: { verdict: "no media on the post" } };
+  let best = null;
+  const tried = [];
+  for (const m of media.slice(0, 4)) {
+    const url = imageOf(m);
+    if (!url) continue;
+    const prompt = `You check whether a picture clearly shows what a Starship tracker update is about.
+Update (${boxName}): ${entryText}
+X post text: ${post.text}
+${m.alt ? `Alt text: ${m.alt}\n` : ""}This picture is ${m.type === "video" ? "the poster frame of the post's video" : "a photo from the post"}.
+"shows": true ONLY if the picture clearly and recognisably shows the update's subject: the same vehicle (ship or booster, readable or unambiguous from context) or the same pad structure, AND the same kind of event or activity (e.g. a cryo test on the test stand, a static fire, a rollout on the transporter, a lift by the chopsticks, engine work). A generic factory interior, a dark or blurry frame, a far-off view where the subject can't be made out, a different vehicle, or an unrelated scene is false.
+"confidence": 0 to 1. "seen": what is actually visible, in a few words. "reason": max 15 words.
+Reply with JSON only.`;
+    try {
+      const v = await ask(prompt, url);
+      tried.push(`${m.type} ${v.shows ? "✓" : "✗"} ${Number(v.confidence).toFixed(2)} (${v.seen})`);
+      if (v.shows && v.confidence >= IMAGE_MIN_CONF && (!best || v.confidence > best.v.confidence)) best = { m, v };
+    } catch (e) { tried.push(`${m.type} check failed (${String(e.message).slice(0, 80)})`); }
+  }
+  if (!best) return { media: [], check: { verdict: "no image clearly shows it", tried } };
+  return { media: [best.m], check: { verdict: "shows it", confidence: best.v.confidence, seen: best.v.seen, reason: best.v.reason, by: best.v.writer || "grok", tried } };
+}
+// Keep only the verified picture on an entry's X post (the post link stays either way).
+async function applyImageCheck(h, boxName, opts = {}) {
+  if (!h.x_post || h.imageChecked2) return null;
+  const all = h.x_post.media_all || h.x_post.media || []; // media_all: every picture the post had (a reviewed preview may have hidden some)
+  const r = await pickImage(h.x_text || h.text, boxName, { ...h.x_post, media: all }, opts);
+  h.x_post = { ...h.x_post, media: r.media, media_all: all };
+  h.image_check = r.check; h.imageChecked2 = true;
+  return r;
+}
+// One-off for existing entries (road.imagesVerified): vision-check every stored X picture, no X calls.
+async function verifyImages(road, opts = {}) {
+  const res = { checked: 0, kept: [], removed: [] };
+  if (road.imagesVerified) return res;
+  for (const c of road.categories) for (const h of c.history || []) {
+    if (!h.x_post || h.imageChecked2) continue;
+    const had = (h.x_post.media_all || h.x_post.media || []).length;
+    const r = await applyImageCheck(h, c.name || c.id, opts);
+    res.checked++;
+    (r.media.length ? res.kept : res.removed).push(`${c.id} ${h.date}: ${had ? r.check.verdict : "no media"}${r.check.seen ? ` — ${r.check.seen}` : ""}`);
+  }
+  road.imagesVerified = new Date().toISOString();
+  return res;
 }
 // One-off (road.feedJudged): re-check the feed's existing X matches with the writer, using the
 // stored posts (no X calls); a post that isn't about the same thing is removed and the card hidden.
@@ -660,7 +722,7 @@ const SOURCES = [
       const from = Object.keys({ ...X_ACCOUNTS, ...PREDICT_X_ACCOUNTS }).filter((h) => state.xUserIds[h] && state.xUserIds[h] !== "none").map((h) => `from:${h}`);
       const query = `(${from.join(" OR ")}) (${words.join(" OR ")}) -is:retweet -is:reply`;
       const params = new URLSearchParams({ query, max_results: "25", "tweet.fields": "created_at,author_id,attachments,note_tweet",
-        expansions: "attachments.media_keys,author_id", "media.fields": "type,url,preview_image_url,variants,width,height", "user.fields": "name,username,profile_image_url" }); // media + author in the same call
+        expansions: "attachments.media_keys,author_id", "media.fields": "type,url,preview_image_url,variants,width,height,alt_text", "user.fields": "name,username,profile_image_url" }); // media + author in the same call
       // since_id only if it is a sane post id: not in the future and inside recent search's 7-day window
       const sinceMs = state.xSinceId ? snowflakeMs(state.xSinceId) : NaN;
       const sinceOk = Number.isFinite(sinceMs) && sinceMs <= Date.now() + 60000 && Date.now() - sinceMs < 6.5 * 86400000;
@@ -948,7 +1010,14 @@ function refreshCheckDates(road) {
   return out;
 }
 
+const FEED_LINK = "https://8costinha8.github.io/starship-tracker/?feed=1";
 function notificationFor(road, ch) {
+  const n = notificationText(road, ch);
+  const m = ch.entry.x_post && (ch.entry.x_post.media || [])[0];
+  const img = m && imageOf(m);
+  return { ...n, ...(ch.entry.x_text ? { body: ch.entry.x_text } : {}), link: FEED_LINK, ...(img ? { image: img } : {}) };
+}
+function notificationText(road, ch) {
   const { box, entry } = ch;
   const label = (s) => (s === "done" ? box.doneText || "Done" : STATUS_TEXT[s]);
   if (ch.to !== ch.from) return { title: `${box.icon} ${box.name}: ${label(ch.to)}`, body: entry.text };
@@ -957,6 +1026,15 @@ function notificationFor(road, ch) {
 }
 
 /* ───────────── live plumbing (Firebase + git) ───────────── */
+// FCM multicast message: title/body, the Road page link, and the verified picture when there is
+// one (notification.imageUrl for Android/iOS apps, webpush.notification.image for web pushes;
+// iOS Safari web pushes don't show images, the text still arrives).
+function fcmMessage(tokens, n) {
+  const webpush = {};
+  if (n.link) webpush.fcmOptions = { link: n.link };
+  if (n.image) webpush.notification = { image: n.image };
+  return { tokens, notification: { title: n.title, body: n.body, ...(n.image ? { imageUrl: n.image } : {}) }, ...(Object.keys(webpush).length ? { webpush } : {}) };
+}
 
 function firebaseDeps() {
   const admin = require("firebase-admin");
@@ -971,8 +1049,7 @@ function firebaseDeps() {
       const subs = await db.collection("subscribers").get();
       const tokens = subs.docs.map((d) => d.id);
       if (!tokens.length) { console.log(`Would have sent "${notification.title}" — but there are no subscribers yet.`); return; }
-      const resp = await admin.messaging().sendEachForMulticast({ tokens, notification: { title: notification.title, body: notification.body },
-        ...(notification.link ? { webpush: { fcmOptions: { link: notification.link } } } : {}) }); // news pushes open the Updates feed
+      const resp = await admin.messaging().sendEachForMulticast(fcmMessage(tokens, notification)); // opens the Road page; picture when verified
       console.log(`Sent "${notification.title}" to ${resp.successCount}/${tokens.length} device(s).`);
       resp.responses.forEach((r, i) => { if (!r.success) db.collection("subscribers").doc(tokens[i]).delete().catch(() => {}); });
     },
@@ -1182,6 +1259,16 @@ async function run(opts = {}) {
       }
     }
   }
+  // 4a-img. New entries with an X post: keep only a picture that clearly shows the update
+  for (const ch of changes) {
+    if (!ch.entry.x_post || (opts.sources && !opts.vision)) continue; // tests without a fake vision skip the check
+    try { const r = await applyImageCheck(ch.entry, ch.box.name, { ...(opts.vision ? { ask: opts.vision } : {}), log }); if (r) log(`image [${ch.box.id}] ${r.media.length ? `kept (${r.check.seen}, ${r.check.confidence})` : `none — ${r.check.verdict}`}`); }
+    catch (e) { ch.entry.x_post = { ...ch.entry.x_post, media: [] }; log(`image check failed (${e.message}) — text only`); }
+  }
+  if ((!opts.sources && mode === "live") || opts.verifyImages) {
+    try { const vi = await verifyImages(road, { ...(opts.vision ? { ask: opts.vision } : {}), log }); if (vi.checked) { log(`image check: ${vi.checked} entries, ${vi.kept.length} kept a picture, ${vi.removed.length} text only`); [...vi.kept.map((x) => "kept: " + x), ...vi.removed.map((x) => "text only: " + x)].forEach((x) => log("  " + x)); changed = true; } }
+    catch (e) { log(`image check failed: ${e.message} — tried again next run`); }
+  }
   // 4a0. One-off feed verification against full-archive X search (no push)
   if ((!opts.sources && mode === "live") || opts.verifyFeed) {
     try {
@@ -1293,7 +1380,7 @@ async function run(opts = {}) {
   return { road, changes, notifications, refreshed, state, scheduledSent, newsPushes };
 }
 
-module.exports = { judgeFeed, verifyFeed, entryDayMs, backfillX, xPostCard, xIdOf, readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, titleMatches, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
+module.exports = { pickImage, applyImageCheck, verifyImages, fcmMessage, notificationFor, judgeFeed, verifyFeed, entryDayMs, backfillX, xPostCard, xIdOf, readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, titleMatches, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
 
 if (require.main === module) {
   run().catch((err) => {

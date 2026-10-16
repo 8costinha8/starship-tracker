@@ -1096,7 +1096,7 @@ function RoadCard({ road, onEntryTap, openReq }) {
                     <span className="mini-date">{h.date}{h.trust === "unconfirmed" && <span className="mini-unc">Unconfirmed</span>}</span>
                     <span className="mini-src">{srcOf(h)}</span>
                   </div>
-                  <p>{h.text}</p>
+                  <p>{h.x_text || h.text}</p>
                 </div>
               ))}
             </div></div>

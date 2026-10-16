@@ -49,11 +49,11 @@ const writerModel = () => {
 const resetFallbackWarning = () => { warnedFallback = false; }; // for tests
 
 /* one HTTP call; returns { text, status, summary, body } (never throws for an empty reply) */
-async function callClaude({ prompt, model, maxTokens }) {
+async function callClaude({ prompt, model, maxTokens, images }) {
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: { "x-api-key": process.env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-    body: JSON.stringify({ model, max_tokens: maxTokens, messages: [{ role: "user", content: prompt }] }),
+    body: JSON.stringify({ model, max_tokens: maxTokens, messages: [{ role: "user", content: images && images.length ? [...images.map((url) => ({ type: "image", source: { type: "url", url } })), { type: "text", text: prompt }] : prompt }] }),
   });
   const json = await res.json();
   if (json.error) throw new Error(`Anthropic API error (${json.error.type}): ${String(json.error.message).slice(0, 2000)}`);
@@ -80,8 +80,9 @@ function responsesText(json) {
   return typeof json.output_text === "string" ? json.output_text : undefined;
 }
 
-async function callGrok({ prompt, model, maxTokens, schema, schemaName }) {
-  const reqBody = { model, input: [{ role: "user", content: prompt }], max_output_tokens: maxTokens, store: false };
+async function callGrok({ prompt, model, maxTokens, schema, schemaName, images }) {
+  const content = images && images.length ? [...images.map((url) => ({ type: "input_image", image_url: url, detail: "high" })), { type: "input_text", text: prompt }] : prompt;
+  const reqBody = { model, input: [{ role: "user", content }], max_output_tokens: maxTokens, store: false };
   if (schema) reqBody.text = { format: { type: "json_schema", name: schemaName || "reply", schema, strict: true } };
   const res = await fetch("https://api.x.ai/v1/responses", {
     method: "POST",
@@ -136,8 +137,8 @@ async function askWith(w, model, prompt, opts) {
   const extract = opts.extract || ((t) => JSON.parse(t.replace(/```json|```/g, "").trim()));
   for (let attempt = 1; attempt <= attempts; attempt++) {
     const r = w === "grok"
-      ? await callGrok({ prompt, model, maxTokens: opts.maxTokens || 16000, schema: opts.schema, schemaName: opts.schemaName })
-      : await callClaude({ prompt, model, maxTokens: opts.maxTokens || 16000 });
+      ? await callGrok({ prompt, model, maxTokens: opts.maxTokens || 16000, schema: opts.schema, schemaName: opts.schemaName, images: opts.images })
+      : await callClaude({ prompt, model, maxTokens: opts.maxTokens || 16000, images: opts.images });
     log(`${label} ${r.summary} (attempt ${attempt}, model: ${model}, ${r.details})`);
     let problem;
     if (!r.text || !r.text.trim()) problem = "no text in the reply";

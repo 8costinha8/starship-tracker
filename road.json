@@ -36,7 +36,8 @@
               "username": "LabPadre",
               "avatar": "https://pbs.twimg.com/profile_images/2018042465932988416/LR5UN4G0_normal.png"
             },
-            "media": [
+            "media": [],
+            "media_all": [
               {
                 "type": "video",
                 "poster": "https://pbs.twimg.com/amplify_video_thumb/2108486743485792256/img/_Y2lLbcCzwdiu7HC.jpg",
@@ -46,7 +47,12 @@
           },
           "src_original": "NSF",
           "url_original": "https://www.nasaspaceflight.com/2026/10/ship-40-returns-ship-42-more-testing/",
-          "x_text": "Ship 42 has been transported back to the cryo test stand at the Massey outpost for more testing."
+          "x_text": "Ship 42 has been transported back to the cryo test stand at the Massey outpost for more testing.",
+          "image_check": {
+            "verdict": "no image clearly shows it",
+            "seen": "interior of a high bay with a lift and crane; Ship 42 / cryo stand not visible",
+            "by": "manual preview review (Grok vision re-checks on the first live run)"
+          }
         },
         {
           "date": "9–10 Sep",
@@ -65,7 +71,8 @@
               "username": "RGVaerialphotos",
               "avatar": "https://pbs.twimg.com/profile_images/2019953617743097856/PJqBBhpU_normal.jpg"
             },
-            "media": [
+            "media": [],
+            "media_all": [
               {
                 "type": "video",
                 "poster": "https://pbs.twimg.com/amplify_video_thumb/2098710877696602112/img/8FWMu0bY2ERqrRU_.jpg",
@@ -73,7 +80,12 @@
               }
             ]
           },
-          "x_text": "Booster 22 arrives at build site after testing at Massey's."
+          "x_text": "Booster 22 arrives at build site after testing at Massey's.",
+          "image_check": {
+            "verdict": "no image clearly shows it",
+            "seen": "night shot of transporter wheels; Booster 22 not recognisable",
+            "by": "manual preview review (Grok vision re-checks on the first live run)"
+          }
         },
         {
           "date": "9 Sep",
@@ -105,9 +117,20 @@
                 "type": "photo",
                 "url": "https://pbs.twimg.com/media/HRUjjSMWsAMkvu6.jpg"
               }
+            ],
+            "media_all": [
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HRUjjSMWsAMkvu6.jpg"
+              }
             ]
           },
-          "x_text": "Ship 42's first cryo test is underway."
+          "x_text": "Ship 42's first cryo test is underway.",
+          "image_check": {
+            "verdict": "shows it",
+            "seen": "Ship 42 on the Massey test stand during the cryo test (distant but recognisable)",
+            "by": "manual preview review (Grok vision re-checks on the first live run)"
+          }
         }
       ]
     },
@@ -156,27 +179,7 @@
           "text": "Both vehicles back to the Mega Bays for Raptor installation.",
           "src": "NSF",
           "source": "nsf",
-          "trust": "trusted",
-          "xChecked": true,
-          "x_post": {
-            "post_id": "2098985653849542753",
-            "url": "https://x.com/NASASpaceflight/status/2098985653849542753",
-            "created_at": "2026-09-13T04:02:31.000Z",
-            "text": "Ship 42 (Flight 15) has finally escaped the grip of Pad 2's chopsticks and is set to return to the Production Site. This clears the pad for preparations for Flight 14 later this month. https://t.co/HSumkyMfYU",
-            "author": {
-              "name": "NSF - NASASpaceflight.com",
-              "username": "NASASpaceflight",
-              "avatar": "https://pbs.twimg.com/profile_images/1637919260298158080/kRT8BkYf_normal.jpg"
-            },
-            "media": [
-              {
-                "type": "video",
-                "poster": "https://pbs.twimg.com/amplify_video_thumb/2098985547830067202/img/6Tr9W8EABtAdu3X2.jpg",
-                "video_url": "https://video.twimg.com/amplify_video/2098985547830067202/vid/avc1/1136x636/0RRTVGTQxEA9n1cw.mp4"
-              }
-            ]
-          },
-          "x_text": "Ship 42 escapes Pad 2 chopsticks and returns to the production site."
+          "trust": "trusted"
         }
       ]
     },
@@ -252,9 +255,20 @@
                 "type": "photo",
                 "url": "https://pbs.twimg.com/media/HTZMWubWIAAnONr.jpg"
               }
+            ],
+            "media_all": [
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HTZMWubWIAAnONr.jpg"
+              }
             ]
           },
-          "x_text": "New OLM work platform is being installed in the Pad 2 mount."
+          "x_text": "New OLM work platform is being installed in the Pad 2 mount.",
+          "image_check": {
+            "verdict": "shows it",
+            "seen": "the new OLM work platform being lifted into the Pad 2 mount",
+            "by": "manual preview review (Grok vision re-checks on the first live run)"
+          }
         },
         {
           "date": "11–12 Sep",
@@ -278,9 +292,20 @@
                 "type": "photo",
                 "url": "https://pbs.twimg.com/media/HSBsusxacAAij-F.jpg"
               }
+            ],
+            "media_all": [
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HSBsusxacAAij-F.jpg"
+              }
             ]
           },
-          "x_text": "Ship 42 is going up."
+          "x_text": "Ship 42 is going up.",
+          "image_check": {
+            "verdict": "shows it",
+            "seen": "Ship 42 held by the Pad 2 chopsticks",
+            "by": "manual preview review (Grok vision re-checks on the first live run)"
+          }
         }
       ]
     },
