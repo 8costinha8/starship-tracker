@@ -503,19 +503,130 @@ async function verifyImages(road, opts = {}) {
    links to that post and credits @author. If the pick's post differs from the post the Grok text
    was written from, the original entry text is shown instead (no mismatched rewrite). */
 function loadMediaPicks(file = path.join(__dirname, "..", "road-media.json")) {
-  try { return (JSON.parse(fs.readFileSync(file, "utf8")).picks || []).filter((p) => p.category && p.date && p.post_url && p.image); } catch { return []; }
+  try { return (JSON.parse(fs.readFileSync(file, "utf8")).picks || []).map((p) => ({ ...p, image: p.image || p.media_url })).filter((p) => (p.entry_id || (p.category && p.date)) && p.post_url && p.image); } catch { return []; }
 }
 function applyMediaPicks(road, picks) {
   let n = 0;
   for (const c of road.categories) for (const h of c.history || []) {
-    const p = picks.find((x) => x.category === c.id && x.date === h.date);
+    const hit = (x) => (x.entry_id ? x.entry_id === h.id : x.category === c.id && x.date === h.date);
+    const p = picks.find((x) => !String(x.mode || "").startsWith("auto") && hit(x)) || picks.find(hit); // manual wins
     if (!p) continue;
-    const mo = { post_url: p.post_url, post_id: p.post_id || xIdOf(p.post_url), author: p.author, type: p.media_type === "video" ? "video" : "photo", image: p.image };
+    const mo = { post_url: p.post_url, post_id: p.post_id || xIdOf(p.post_url), author: String(p.author).replace(/^@/, ""), type: p.media_type === "video" ? "video" : "photo", image: p.image, mode: p.mode || "manual" };
     if (JSON.stringify(h.media_override) !== JSON.stringify(mo)) { h.media_override = mo; n++; }
     if (h.x_text && (!h.x_post || h.x_post.post_id !== mo.post_id)) { delete h.x_text; n++; }
     h.imageChecked2 = true; // the pick wins: no automatic check for this entry
   }
   return n;
+}
+/* ───────────── automatic picture picking (new entries without a pick) ─────────────
+   Runs inside the normal checker run (no new schedule), for a new Road entry that has no
+   road-media.json pick (manual picks always win).
+   Step 0: the entry's source IS an X post with media → use that post's own photo / video
+           (preview image for videos); no search, no judging; the card links to that post.
+   Otherwise (news source, or an X post without media): topic query from the entry's hardware
+   + subject words, has:media, trusted photo/video accounts; full-archive search over the last
+   14 days, widened to 45 only if nothing strong came back (≤ 2 X calls). Score: hardware ID +3,
+   subject/action word +2, within 7 days +1 (media required; another vehicle −3). Top 3 → ONE
+   writer call (Grok, Claude fallback) with their pictures → a post id or none; the e579e17
+   vision check is the final gate. Winners go to road-media.json as mode "auto". */
+const PICK_ACCOUNTS = ["LabPadre", "RGVaerialphotos", "NASASpaceflight", "StarbaseSurfer", "SpaceX", "CSI_Starbase", "nicans", "ZackGolden_"];
+const SUBJECT_WORDS = [["static fire", /static[ -]?fire/i], ["cryo", /cryo/i], ["Raptor", /raptor|engine/i], ["chopsticks", /chopstick/i], ["Pad 2", /pad ?2|\bolm\b|launch mount/i],
+  ["Massey", /massey/i], ["rollout", /roll ?(out|back)|rolled|rolling|transport/i], ["Mega Bay", /mega ?bay/i], ["stack", /\bstack/i], ["lift", /\blift|lifted|catch/i], ["licence", /licen[cs]e|\bfaa\b/i]];
+function entryId(boxId, h) {
+  return h.id || "e-" + require("crypto").createHash("sha1").update(`${boxId}|${h.date}|${h.src_original ? h.text : h.text}`).digest("hex").slice(0, 10);
+}
+function ensureEntryIds(road) {
+  let n = 0;
+  for (const c of road.categories) for (const h of c.history || []) if (!h.id && !isCheck(h)) { h.id = entryId(c.id, h); n++; }
+  return n;
+}
+function pickTerms(h) {
+  const text = `${h.x_text || ""} ${h.text || ""}`;
+  const hw = [...vehiclesIn(text)];
+  const hwWords = hw.flatMap((v) => [v, `"${v[0] === "S" ? "Ship" : "Booster"} ${v.slice(1)}"`]);
+  const subj = SUBJECT_WORDS.filter(([, re]) => re.test(text)).map(([w]) => w);
+  return { hw, subj, words: [...hwWords, ...subj.map((w) => (w.includes(" ") ? `"${w}"` : w))] };
+}
+function pickQuery(h) {
+  const { words } = pickTerms(h);
+  if (!words.length) return null;
+  return `(${words.join(" OR ")}) has:media -is:retweet -is:reply (${PICK_ACCOUNTS.map((a) => `from:${a}`).join(" OR ")})`;
+}
+function scorePost(p, h, day) {
+  const { hw, subj } = pickTerms(h);
+  if (!p.media || !p.media.length) return -1;
+  const pv = vehiclesIn(p.text);
+  let s = 0;
+  if (hw.some((v) => pv.has(v))) s += 3;
+  if (hw.length && [...pv].some((v) => !hw.includes(v))) s -= 3; // names another vehicle
+  if (SUBJECT_WORDS.some(([w, re]) => subj.includes(w) && re.test(p.text))) s += 2;
+  if (Number.isFinite(day) && Math.abs(Date.parse(p.created_at) - day) <= 7 * DAY_MS) s += 1;
+  return s;
+}
+// Step 0: the entry's own source post (an X post with media)
+function sourcePost(h) {
+  const id = xIdOf(h.url_original || h.url) || xIdOf(h.key);
+  if (!id || !h.x_post || h.x_post.post_id !== id) return null;
+  const media = h.x_post.media_all || h.x_post.media || [];
+  return media.length ? { post: h.x_post, m: media[0] } : null;
+}
+const PICK_SCHEMA = { type: "object", additionalProperties: false, required: ["post_id", "reason"], properties: { post_id: { type: "string" }, reason: { type: "string" } } };
+async function askPickJudge(prompt, images) {
+  return writer.askJson(prompt, { images, schema: PICK_SCHEMA, schemaName: "picture_pick", maxTokens: 4000, claudeMaxTokens: 400, attempts: 1, log: () => {},
+    extract: (t) => { const o = JSON.parse(t.replace(/```json|```/g, "").trim()); if (typeof o.post_id !== "string") throw new Error("no post_id"); return o; } });
+}
+const pickRecord = (h, box, post, m, extra) => ({ entry_id: entryId(box.id, h), category: box.id, date: h.date, post_id: post.post_id, post_url: post.url,
+  author: post.author.username, media_type: m.type === "video" ? "video" : "photo", media_url: imageOf(m), image: imageOf(m), ...extra });
+async function autoPick(h, box, { token, fetchFn = fetch, judge = askPickJudge, vision = askVision, now = Date.now(), log = console.log } = {}) {
+  const res = { calls: 0, read: 0, pick: null, step: null, why: "" };
+  const own = sourcePost(h);
+  if (own) { res.step = "source"; res.pick = pickRecord(h, box, own.post, own.m, { mode: "auto-source", picked_at: new Date(now).toISOString() }); res.why = `step 0: the source post's own ${own.m.type} (@${own.post.author.username})`; return res; }
+  res.step = "search";
+  const query = pickQuery(h);
+  if (!query) { res.why = "no hardware or subject words"; return res; }
+  if (!token) { res.why = "no X token"; return res; }
+  const day = entryDayMs(h);
+  const end = Number.isFinite(day) ? Math.min(day + 3 * DAY_MS, now - 60000) : now - 60000;
+  const posts = [];
+  const scoreAll = () => posts.map((p) => ({ p, s: scorePost(p, h, day) }));
+  for (const days of [14, 45]) {
+    const params = new URLSearchParams({ query, max_results: "10", start_time: new Date(end - days * DAY_MS).toISOString(), end_time: new Date(end).toISOString(), ...X_FIELDS });
+    const r = await fetchFn(`https://api.x.com/2/tweets/search/all?${params}`, { headers: { authorization: `Bearer ${token}`, "user-agent": UA }, signal: AbortSignal.timeout(20000) });
+    res.calls++;
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) { res.why = `X HTTP ${r.status}`; return res; }
+    res.read += (j.data || []).length;
+    const mk = Object.fromEntries(((j.includes && j.includes.media) || []).map((m) => [m.media_key, m]));
+    const us = Object.fromEntries(((j.includes && j.includes.users) || []).map((u) => [u.id, u]));
+    for (const p of j.data || []) if (!posts.some((q) => q.post_id === p.id)) posts.push(xPostCard(p, mk, us));
+    if (scoreAll().some((x) => x.s >= 5)) break; // a strong candidate: don't widen
+  }
+  const top = scoreAll().filter((x) => x.s >= 3).sort((a, b) => b.s - a.s || Math.abs(Date.parse(a.p.created_at) - day) - Math.abs(Date.parse(b.p.created_at) - day)).slice(0, 3);
+  if (!top.length) { res.why = `no candidate scored ≥ 3 (${posts.length} read)`; return res; }
+  const prompt = `Pick the X post whose picture best shows what this Starship tracker update is about, or "none".
+Update (${box.name || box.id}, ${h.date}): ${h.x_text || h.text}
+The attached pictures are, in order, the first picture of each candidate:
+${top.map((x, i) => `${i + 1}. post_id ${x.p.post_id} — @${x.p.author.username}, ${x.p.created_at.slice(0, 10)}, ${x.p.media[0].type}: ${x.p.text.replace(/\s+/g, " ").slice(0, 280)}`).join("\n")}
+Rules: prefer a picture of the SAME event (same vehicle, same activity, same days). Accept the same hardware only in a clearly matching context (e.g. Ship 42 on the cryo stand for a cryo update). Reject dark, blurry, far-off or generic pictures (factory interiors, crowds, graphics unless the update is about a document) and any picture of a different ship or booster. If none clearly shows the update, answer "none": a reader must recognise the update in the picture at a glance.
+Reply with JSON: {"post_id": "<one of the ids above, or none>", "reason": "<max 15 words>"}`;
+  let v;
+  try { v = await judge(prompt, top.map((x) => imageOf(x.p.media[0])).filter(Boolean)); } catch (e) { res.why = `judge failed: ${e.message}`; return res; }
+  const win = top.find((x) => x.p.post_id === v.post_id);
+  if (!win) { res.why = `judge: none (${v.reason})`; return res; }
+  const gate = await pickImage(h.x_text || h.text, box.name || box.id, win.p, { ask: vision, log });
+  if (!gate.media.length) { res.why = `vision gate rejected @${win.p.author.username} ${win.p.post_id}`; return res; }
+  res.pick = pickRecord(h, box, win.p, gate.media[0], { mode: "auto", reason: v.reason, seen: gate.check.seen, score: win.s, picked_at: new Date(now).toISOString() });
+  res.why = `search: @${res.pick.author} (score ${win.s}) — ${v.reason}`;
+  return res;
+}
+function saveMediaPick(pick, file = path.join(__dirname, "..", "road-media.json")) {
+  let doc = { picks: [] };
+  try { doc = JSON.parse(fs.readFileSync(file, "utf8")); } catch {}
+  const same = (p) => p.entry_id === pick.entry_id || (!p.entry_id && p.category === pick.category && p.date === pick.date);
+  if ((doc.picks || []).some((p) => same(p) && !String(p.mode || "manual").startsWith("auto"))) return false; // manual wins
+  doc.picks = (doc.picks || []).filter((p) => !same(p)).concat(pick);
+  fs.writeFileSync(file, JSON.stringify(doc, null, 1) + "\n");
+  return true;
 }
 // One-off (road.feedJudged): re-check the feed's existing X matches with the writer, using the
 // stored posts (no X calls); a post that isn't about the same thing is removed and the card hidden.
@@ -1035,7 +1146,7 @@ function notificationFor(road, ch) {
   const n = notificationText(road, ch);
   const m = ch.entry.x_post && (ch.entry.x_post.media || [])[0];
   const img = (ch.entry.media_override && ch.entry.media_override.image) || (m && imageOf(m));
-  return { ...n, ...(ch.entry.x_text ? { body: ch.entry.x_text } : {}), link: FEED_LINK, ...(img ? { image: img } : {}) };
+  return { ...n, ...(ch.entry.x_text ? { body: ch.entry.x_text } : {}), link: ch.entry.id ? `${FEED_LINK}&entry=${encodeURIComponent(ch.entry.id)}` : FEED_LINK, ...(img ? { image: img } : {}) };
 }
 function notificationText(road, ch) {
   const { box, entry } = ch;
@@ -1279,6 +1390,22 @@ async function run(opts = {}) {
       }
     }
   }
+  // 4a-ids. Stable entry ids (push deep links ?feed=1&entry=<id>)
+  for (const ch of changes) ch.entry.id = entryId(ch.box.id, ch.entry);
+  if (!opts.sources && ensureEntryIds(road)) changed = true; // existing entries get ids once (live runs)
+  // 4a-auto. New entries without a road-media.json pick: step 0 (own X media) or topic search
+  if (!opts.sources || opts.autoPick) {
+    const picks = opts.mediaPicks || loadMediaPicks();
+    for (const ch of changes) {
+      if (picks.some((p) => p.entry_id === ch.entry.id || (p.category === ch.box.id && p.date === ch.entry.date))) continue;
+      try {
+        const ap = await autoPick(ch.entry, ch.box, { token: process.env.X_BEARER_TOKEN, ...(opts.autoPick || {}), log });
+        log(`auto picture [${ch.box.id}] ${ap.why} (${ap.calls} X call(s), ${ap.read} read)`);
+        if (ap.pick) { if (opts.autoPick && opts.autoPick.save) opts.autoPick.save(ap.pick); else if (mode === "live") saveMediaPick(ap.pick); picks.push(ap.pick); }
+      } catch (e) { log(`auto picture failed (${e.message}) — text only`); }
+    }
+    opts = { ...opts, mediaPicks: picks };
+  }
   // 4a-pick. Hand-picked pictures win over the automatic check
   if (!opts.sources || opts.mediaPicks) { const np = applyMediaPicks(road, opts.mediaPicks || loadMediaPicks()); if (np) { log(`media picks: ${np} change(s) from road-media.json`); changed = true; } }
   // 4a-img. New entries with an X post: keep only a picture that clearly shows the update
@@ -1402,7 +1529,7 @@ async function run(opts = {}) {
   return { road, changes, notifications, refreshed, state, scheduledSent, newsPushes };
 }
 
-module.exports = { applyMediaPicks, loadMediaPicks, pickImage, applyImageCheck, verifyImages, fcmMessage, notificationFor, judgeFeed, verifyFeed, entryDayMs, backfillX, xPostCard, xIdOf, readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, titleMatches, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
+module.exports = { autoPick, scorePost, pickQuery, pickTerms, entryId, ensureEntryIds, saveMediaPick, applyMediaPicks, loadMediaPicks, pickImage, applyImageCheck, verifyImages, fcmMessage, notificationFor, judgeFeed, verifyFeed, entryDayMs, backfillX, xPostCard, xIdOf, readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, titleMatches, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
 
 if (require.main === module) {
   run().catch((err) => {
