@@ -1095,7 +1095,7 @@ function RoadCard({ road, onEntryTap, openReq }) {
                     onClick: () => onEntryTap(m.id, i), onKeyDown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onEntryTap(m.id, i); } } } : {})}>
                   <div className="mini-top">
                     <span className="mini-date">{h.date}{h.trust === "unconfirmed" && <span className="mini-unc">Unconfirmed</span>}</span>
-                    <span className="mini-src">{h.src}</span>
+                    <span className="mini-src">{srcOf(h)}</span>
                   </div>
                   <p>{h.text}</p>
                 </div>
@@ -1272,6 +1272,9 @@ function XMedia({ x }) {
     </div>
   );
 }
+// An entry with an X post credits and links the post's author, so text, media and credit match.
+const srcOf = (h) => (h.x_post && h.x_post.author && h.x_post.author.username ? `@${h.x_post.author.username}` : h.src);
+const urlOf = (h) => (h.x_post && h.x_post.url) || h.url;
 function FeedPost({ p, onPhotoTap }) {
   const { h, cat } = p;
   const sid = entryId(h);
@@ -1287,8 +1290,8 @@ function FeedPost({ p, onPhotoTap }) {
       <p className="post-text">{h.text}</p>
       {h.x_post && <XMedia x={h.x_post} />}
       <div className="post-foot">
-        <span className="post-src">{h.src}</span>
-        {h.url && <a className="post-link" href={h.url} target="_blank" rel="noopener noreferrer" aria-label={`Open source: ${h.src}`}>{LINK_ICON}</a>}
+        <span className="post-src">{srcOf(h)}</span>
+        {urlOf(h) && <a className="post-link" href={urlOf(h)} target="_blank" rel="noopener noreferrer" aria-label={`Open source: ${srcOf(h)}`}>{LINK_ICON}</a>}
       </div>
     </article>
   );

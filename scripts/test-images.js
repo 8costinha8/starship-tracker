@@ -28,6 +28,7 @@ const vid = { media_key: "v", type: "video", preview_image_url: "https://pbs.twi
   check(res.read <= 29, `posts read under 30 (${res.read})`);
   check(a.x_post && a.x_post.post_id === "111" && a.x_post.media[0].video_url === "https://v/hi.mp4" && a.x_post.media[0].poster, "stored X URL → its own post, highest-bitrate mp4 + poster");
   check(b.x_post && b.x_post.post_id === "222" && b.x_post.media.length === 2 && b.text === "Ship 42 is back at Massey's for cryo testing.", "clear match within 2 days → photos attached, text rewritten by the writer");
+  check(b.src === "@NASASpaceflight" && b.url === "https://x.com/NASASpaceflight/status/222" && b.url_original === "https://example.com/a", "credit + link follow the X post (original kept as url_original)");
   check(!c.x_post, "same post never reused for another entry");
   check(!d.x_post, "post naming another vehicle (and untrusted author) → nothing");
   check([a, b, c, d].every((h) => h.xChecked), "every entry marked checked (runs once)");

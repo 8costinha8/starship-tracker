@@ -289,6 +289,7 @@ async function backfillX(road, { token, fetchFn = fetch, rewrite = null, log = c
     if (!best || used.has(best.post_id)) continue;
     used.add(best.post_id);
     h.x_post = best;
+    if (best.author.username) { h.src_original = h.src; h.url_original = h.url; h.src = `@${best.author.username}`; h.url = best.url; } // credit + link follow the post
     if (rewrite) {
       try { const t = await rewrite(h, [best], c); if (t) { h.text = t; res.rewritten++; } } catch (e) { log(`• X backfill rewrite failed (${e.message}) — kept the entry text`); }
     }
@@ -724,7 +725,10 @@ function applyUpdates(road, items, updates, log, limit) {
     // source only gives a day (SpaceX updates, FAA) or no time at all (launches page).
     if (it.publishedAt && it.timeKnown !== false) entry.publishedAt = it.publishedAt;
     // the full trusted X post behind the entry (Road to Flight N page), same strict match
-    if (it.xpost && isTrusted(it.tier) && titleMatches(it.xpost.text, line, box.id)) entry.x_post = it.xpost;
+    if (it.xpost && isTrusted(it.tier) && titleMatches(it.xpost.text, line, box.id)) {
+      entry.x_post = it.xpost;
+      if (it.xpost.author.username) { entry.src = `@${it.xpost.author.username}`; entry.url = it.xpost.url; } // credit + link follow the post
+    }
     const change = { box, entry, from: box.status, to: box.status, item: it, u, headline: "kept" };
     let want = STATUSES.includes(u.status) ? u.status : null;
     if (want === "complete" && box.id === "date") { log(`ignored status complete for [date] (Launch date uses done = Confirmed)`); want = null; }
@@ -975,7 +979,7 @@ async function run(opts = {}) {
   const cutoff = practiceHours > 0
     ? Date.now() - practiceHours * 3600000
     : Math.max(Date.now() - LIMITS.staleHours * 3600000, firstRun ? new Date(road.updatedAt || 0).getTime() : 0);
-  const knownUrls = new Set(road.categories.flatMap((c) => (c.history || []).map((h) => h.url).filter(Boolean)));
+  const knownUrls = new Set(road.categories.flatMap((c) => (c.history || []).flatMap((h) => [h.url, h.url_original]).filter(Boolean)));
   const urlsThisRun = new Set();
   const counts = { stale: 0, seen: 0, dupe: 0, offTopic: 0 };
   const candidates = [];
