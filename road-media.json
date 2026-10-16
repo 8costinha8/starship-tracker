@@ -1,5 +1,5 @@
 {
- "_about": "Hand-picked pictures for Road entries (matched by category + date). These win over the automatic picture check; new entries without a pick keep the automatic check.",
+ "_about": "Hand-picked pictures for Road entries (matched by category + date). These win over the automatic picture check; new entries without a pick keep the automatic check. Fix 16 Oct: picks must be within ~2 days of the event and show the same event; #5, #7, #9, #10 are text only.",
  "picks": [
   {
    "category": "cryo",
@@ -47,36 +47,14 @@
   },
   {
    "category": "raptor",
-   "date": "14 Oct",
-   "entry": "Ship 42's Raptor engines are reportedly being reinstalled.",
-   "post_id": "2105970196624085085",
-   "post_url": "https://x.com/LabPadre/status/2105970196624085085",
-   "author": "LabPadre",
-   "media_type": "video",
-   "image": "https://pbs.twimg.com/ext_tw_video_thumb/2105970142207213568/pu/img/dazph1fMasbV1dNT.jpg",
-   "note": "Raptor 3 engines at Mega Bay 2 (Ship 42's bay), 2 Oct. Shows S42's Raptors, but they're being moved OUT; I found no photo of the reinstall itself."
-  },
-  {
-   "category": "raptor",
-   "date": "9 Oct",
-   "entry": "Ship 42's Raptor engines have been removed ahead of Flight 15.",
-   "post_id": "2105361316185506016",
-   "post_url": "https://x.com/LabPadre/status/2105361316185506016",
-   "author": "LabPadre",
-   "media_type": "video",
-   "image": "https://pbs.twimg.com/ext_tw_video_thumb/2105361209310535680/pu/img/AMNkAm1Tu_N4Li8p.jpg",
-   "note": "Raptor 3s (2 sea-level + 1 RVac) coming off Ship 42 on 30 Sep: the engine removal itself."
-  },
-  {
-   "category": "raptor",
    "date": "30 Sep",
-   "entry": "B22 in Mega Bay 1, S42 in Mega Bay 2, both being fitted with Raptors.",
-   "post_id": "2106590891679101152",
-   "post_url": "https://x.com/RGVaerialphotos/status/2106590891679101152",
-   "author": "RGVaerialphotos",
-   "media_type": "photo",
-   "image": "https://pbs.twimg.com/media/HTwdNITbMAAz4q1.jpg",
-   "note": "Booster 22 inside Mega Bay 1 on 1 Oct (2nd image of the post), during its Raptor fit-out."
+   "entry": "Ship 42's Raptor engines have been removed ahead of Flight 15.",
+   "post_id": "2105350891859501311",
+   "post_url": "https://x.com/LabPadre/status/2105350891859501311",
+   "author": "LabPadre",
+   "media_type": "video",
+   "image": "https://pbs.twimg.com/ext_tw_video_thumb/2105350874126065664/pu/img/_hEgqyI82ZPVnywD.jpg",
+   "note": "LabPadre, 30 Sep 18:35 BST: two Raptor 3s (1 RVac, 1 SL) rolled out of Mega Bay 2, removed from Ship 42 — the removal itself, same day. Card date moved to 30 Sep (the event), from 9 Oct (when it was reported)."
   },
   {
    "category": "raptor",
@@ -88,28 +66,6 @@
    "media_type": "video",
    "image": "https://pbs.twimg.com/ext_tw_video_thumb/2098642453741887497/pu/img/JdijqZ7iq6c-qq8K.jpg",
    "note": "Booster 22 rolling from Massey's back to the production site/Mega Bay on 12 Sep."
-  },
-  {
-   "category": "static",
-   "date": "9 Oct",
-   "entry": "Booster 22 could be ready for a static fire as early as next week.",
-   "post_id": "2093477720638341395",
-   "post_url": "https://x.com/SpaceX/status/2093477720638341395",
-   "author": "SpaceX",
-   "media_type": "video",
-   "image": "https://pbs.twimg.com/amplify_video_thumb/2093476901998198784/img/GBWfYxbTq6oqdZ4k.jpg",
-   "note": "SpaceX's own 33-engine booster static fire at Pad 2 (B21, 28 Aug): shows what B22's upcoming static fire looks like. Wrong booster and about 7 weeks old, because B22 hasn't fired yet."
-  },
-  {
-   "category": "static",
-   "date": "30 Sep",
-   "entry": "B22 ready for static fire within ~2 weeks, S42 within 2–3 weeks. Estimate, not a SpaceX schedule.",
-   "post_id": "2098539384135889001",
-   "post_url": "https://x.com/RGVaerialphotos/status/2098539384135889001",
-   "author": "RGVaerialphotos",
-   "media_type": "photo",
-   "image": "https://pbs.twimg.com/media/HR-CcTLXoAEcaBs.jpg",
-   "note": "Aerial shot of Booster 22 (11 Sep), the vehicle in the static-fire estimate. There's no static-fire imagery of B22/S42 yet."
   },
   {
    "category": "pad",
@@ -126,12 +82,12 @@
    "category": "pad",
    "date": "30 Sep",
    "entry": "Pad 2 clear after Flight 14. New servicing structure going in for hold-down clamp work.",
-   "post_id": "2106591567930925423",
-   "post_url": "https://x.com/RGVaerialphotos/status/2106591567930925423",
-   "author": "RGVaerialphotos",
+   "post_id": "2104953832895615155",
+   "post_url": "https://x.com/LabPadre/status/2104953832895615155",
+   "author": "LabPadre",
    "media_type": "photo",
-   "image": "https://pbs.twimg.com/media/HTwdsecaIAAK_9e.jpg",
-   "note": "Pad 2 after Flight 14, showing the new OLM work platform for hold-down clamp work, 4 Oct."
+   "image": "https://pbs.twimg.com/media/HTZMWubWIAAnONr.jpg",
+   "note": "LabPadre, 29 Sep 16:17 BST: the new OLM work platform being lifted into the Pad 2 mount — the servicing structure itself, 1 day before the card."
   },
   {
    "category": "pad",

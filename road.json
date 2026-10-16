@@ -184,32 +184,25 @@
           "key": "rss:yt:video:t9iGVxSx0aw",
           "publishedAt": "2026-10-14T18:59:28.000Z",
           "xChecked": true,
-          "media_override": {
-            "post_url": "https://x.com/LabPadre/status/2105970196624085085",
-            "post_id": "2105970196624085085",
-            "author": "LabPadre",
-            "type": "video",
-            "image": "https://pbs.twimg.com/ext_tw_video_thumb/2105970142207213568/pu/img/dazph1fMasbV1dNT.jpg"
-          },
           "imageChecked2": true
         },
         {
-          "date": "9 Oct",
+          "date": "30 Sep",
           "text": "Ship 42's Raptor engines have been removed ahead of Flight 15.",
           "src": "NSF",
           "source": "nsf-youtube",
           "trust": "trusted",
           "url": "https://www.youtube.com/watch?v=dPqDD39cBEw",
-          "at": "2026-10-08T23:00:08.000Z",
+          "at": "2026-09-30T17:35:00.000Z",
           "key": "rss:yt:video:dPqDD39cBEw",
-          "publishedAt": "2026-10-08T23:00:08.000Z",
+          "publishedAt": "2026-09-30T17:35:00.000Z",
           "xChecked": true,
           "media_override": {
-            "post_url": "https://x.com/LabPadre/status/2105361316185506016",
-            "post_id": "2105361316185506016",
+            "post_url": "https://x.com/LabPadre/status/2105350891859501311",
+            "post_id": "2105350891859501311",
             "author": "LabPadre",
             "type": "video",
-            "image": "https://pbs.twimg.com/ext_tw_video_thumb/2105361209310535680/pu/img/AMNkAm1Tu_N4Li8p.jpg"
+            "image": "https://pbs.twimg.com/ext_tw_video_thumb/2105350874126065664/pu/img/_hEgqyI82ZPVnywD.jpg"
           },
           "imageChecked2": true
         },
@@ -220,13 +213,6 @@
           "source": "nsf",
           "trust": "trusted",
           "xChecked": true,
-          "media_override": {
-            "post_url": "https://x.com/RGVaerialphotos/status/2106590891679101152",
-            "post_id": "2106590891679101152",
-            "author": "RGVaerialphotos",
-            "type": "photo",
-            "image": "https://pbs.twimg.com/media/HTwdNITbMAAz4q1.jpg"
-          },
           "imageChecked2": true
         },
         {
@@ -266,13 +252,6 @@
           "key": "rss:https://www.nasaspaceflight.com/?p=115411",
           "publishedAt": "2026-10-09T14:36:44.000Z",
           "xChecked": true,
-          "media_override": {
-            "post_url": "https://x.com/SpaceX/status/2093477720638341395",
-            "post_id": "2093477720638341395",
-            "author": "SpaceX",
-            "type": "video",
-            "image": "https://pbs.twimg.com/amplify_video_thumb/2093476901998198784/img/GBWfYxbTq6oqdZ4k.jpg"
-          },
           "imageChecked2": true
         },
         {
@@ -282,13 +261,6 @@
           "source": "nsf",
           "trust": "trusted",
           "xChecked": true,
-          "media_override": {
-            "post_url": "https://x.com/RGVaerialphotos/status/2098539384135889001",
-            "post_id": "2098539384135889001",
-            "author": "RGVaerialphotos",
-            "type": "photo",
-            "image": "https://pbs.twimg.com/media/HR-CcTLXoAEcaBs.jpg"
-          },
           "imageChecked2": true
         }
       ]
@@ -357,11 +329,11 @@
             "by": "manual preview review (Grok vision re-checks on the first live run)"
           },
           "media_override": {
-            "post_url": "https://x.com/RGVaerialphotos/status/2106591567930925423",
-            "post_id": "2106591567930925423",
-            "author": "RGVaerialphotos",
+            "post_url": "https://x.com/LabPadre/status/2104953832895615155",
+            "post_id": "2104953832895615155",
+            "author": "LabPadre",
             "type": "photo",
-            "image": "https://pbs.twimg.com/media/HTwdsecaIAAK_9e.jpg"
+            "image": "https://pbs.twimg.com/media/HTZMWubWIAAnONr.jpg"
           },
           "imageChecked2": true
         },

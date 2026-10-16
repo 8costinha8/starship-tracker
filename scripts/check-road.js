@@ -509,7 +509,7 @@ function loadMediaPicks(file = path.join(__dirname, "..", "road-media.json")) {
 function applyMediaPicks(road, picks) {
   let n = 0;
   for (const c of road.categories) for (const h of c.history || []) {
-    const p = picks.find((x) => x.category === c.id && x.date === h.date);
+    const p = picks.find((x) => x.category === c.id && x.date === h.date && (!x.entry || x.entry === h.text)); // same day, same card
     if (!p) continue;
     const mo = { post_url: p.post_url, post_id: p.post_id || xIdOf(p.post_url), author: p.author, type: p.media_type === "video" ? "video" : "photo", image: p.image };
     if (JSON.stringify(h.media_override) !== JSON.stringify(mo)) { h.media_override = mo; n++; }
