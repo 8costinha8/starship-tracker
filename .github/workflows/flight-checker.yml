@@ -54,31 +54,13 @@ jobs:
         with:
           node-version: 20
       - run: npm install firebase-admin
-      - run: node scripts/check-flights.js
-        if: ${{ !inputs.test_push }}
+      # auto-picker BRANCH ONLY: this branch's workflow just runs the picture-picker dry run
+      # (writes nothing, commits nothing, sends nothing). Never merge this file to main.
+      - run: node scripts/pick-dry-run.js road-media.json
+        if: ${{ inputs.test_mode && !inputs.test_push }}
         env:
-          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
-          WRITER: ${{ inputs.writer || 'grok' }}
-          TEST_MODE: ${{ inputs.test_mode }}
-      # Road to Flight N card. Runs even if the step above failed.
-      - run: node scripts/check-road.js
-        if: ${{ !cancelled() && !inputs.test_push }}
-        env:
-          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
-          WRITER: ${{ inputs.writer || 'grok' }}
-          X_BEARER_TOKEN: ${{ secrets.X_BEARER_TOKEN }}   # optional: leave unset to skip X
-          TEST_MODE: ${{ inputs.test_mode }}
-          ROAD_STALE_HOURS: ${{ inputs.stale_hours }}
-          ROAD_MIX_PREVIEW: ${{ github.ref_name == 'road-mix' && inputs.test_mode && '1' || '' }}
-      # One-off test notification (manual runs only, never on schedule)
-      - run: node scripts/test-push.js
-        if: ${{ inputs.test_push }}
-        env:
-          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          TEST_PUSH_TITLE: ${{ inputs.test_title }}
-          TEST_PUSH_BODY: ${{ inputs.test_body }}
-          TEST_PUSH_LINK: ${{ inputs.test_link }}
+          WRITER: grok
+          X_BEARER_TOKEN: ${{ secrets.X_BEARER_TOKEN }}
+          TEST_MODE: "true"
