@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "16 Oct",
-  "updatedAt": "2026-10-16T17:24:54.782Z",
+  "updatedAt": "2026-10-16T17:53:11.344Z",
   "categories": [
     {
       "id": "cryo",
@@ -45,7 +45,8 @@
             ]
           },
           "src_original": "NSF",
-          "url_original": "https://www.nasaspaceflight.com/2026/10/ship-40-returns-ship-42-more-testing/"
+          "url_original": "https://www.nasaspaceflight.com/2026/10/ship-40-returns-ship-42-more-testing/",
+          "x_text": "Ship 42 has been transported back to the cryo test stand at the Massey outpost for more testing."
         },
         {
           "date": "9–10 Sep",
@@ -53,7 +54,8 @@
           "src": "Next Spaceflight",
           "source": "next-spaceflight",
           "trust": "trusted",
-          "xChecked": true
+          "xChecked": true,
+          "feed_hide": true
         },
         {
           "date": "9 Sep",
@@ -61,7 +63,8 @@
           "src": "NSF (secondary)",
           "source": "nsf",
           "trust": "trusted",
-          "xChecked": true
+          "xChecked": true,
+          "feed_hide": true
         },
         {
           "date": "3–4 Sep",
@@ -69,7 +72,25 @@
           "src": "Next Spaceflight",
           "source": "next-spaceflight",
           "trust": "trusted",
-          "xChecked": true
+          "xChecked": true,
+          "x_post": {
+            "post_id": "2095620292823462214",
+            "url": "https://x.com/LabPadre/status/2095620292823462214",
+            "created_at": "2026-09-03T21:09:47.000Z",
+            "text": "Ship 42's 1st cryo test is underway!",
+            "author": {
+              "name": "Avid Space",
+              "username": "LabPadre",
+              "avatar": "https://pbs.twimg.com/profile_images/2018042465932988416/LR5UN4G0_normal.png"
+            },
+            "media": [
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HRUjjSMWsAMkvu6.jpg"
+              }
+            ]
+          },
+          "x_text": "Ship 42's first cryo test is underway."
         }
       ]
     },
@@ -91,7 +112,8 @@
           "at": "2026-10-14T18:59:28.000Z",
           "key": "rss:yt:video:t9iGVxSx0aw",
           "publishedAt": "2026-10-14T18:59:28.000Z",
-          "xChecked": true
+          "xChecked": true,
+          "feed_hide": true
         },
         {
           "date": "9 Oct",
@@ -103,7 +125,8 @@
           "at": "2026-10-08T23:00:08.000Z",
           "key": "rss:yt:video:dPqDD39cBEw",
           "publishedAt": "2026-10-08T23:00:08.000Z",
-          "xChecked": true
+          "xChecked": true,
+          "feed_hide": true
         },
         {
           "date": "30 Sep",
@@ -111,7 +134,26 @@
           "src": "NSF",
           "source": "nsf",
           "trust": "trusted",
-          "xChecked": true
+          "xChecked": true,
+          "x_post": {
+            "post_id": "2105350891859501311",
+            "url": "https://x.com/LabPadre/status/2105350891859501311",
+            "created_at": "2026-09-30T17:35:42.000Z",
+            "text": "Earlier this morning, 2 raptor 3's (1 RVAC and 1 SL) were rolled out of Megabay 2, likely removed from Ship 42.",
+            "author": {
+              "name": "Avid Space",
+              "username": "LabPadre",
+              "avatar": "https://pbs.twimg.com/profile_images/2018042465932988416/LR5UN4G0_normal.png"
+            },
+            "media": [
+              {
+                "type": "video",
+                "poster": "https://pbs.twimg.com/ext_tw_video_thumb/2105350874126065664/pu/img/_hEgqyI82ZPVnywD.jpg",
+                "video_url": "https://video.twimg.com/ext_tw_video/2105350874126065664/pu/vid/avc1/1280x720/qkdrY9MO2keGZ4A-.mp4?tag=12"
+              }
+            ]
+          },
+          "x_text": "Two Raptor 3 engines were likely removed from S42 in mega bay 2."
         },
         {
           "date": "12–13 Sep",
@@ -119,7 +161,8 @@
           "src": "NSF",
           "source": "nsf",
           "trust": "trusted",
-          "xChecked": true
+          "xChecked": true,
+          "feed_hide": true
         }
       ]
     },
@@ -141,7 +184,8 @@
           "at": "2026-10-09T14:36:44.000Z",
           "key": "rss:https://www.nasaspaceflight.com/?p=115411",
           "publishedAt": "2026-10-09T14:36:44.000Z",
-          "xChecked": true
+          "xChecked": true,
+          "feed_hide": true
         },
         {
           "date": "30 Sep",
@@ -149,7 +193,26 @@
           "src": "NSF",
           "source": "nsf",
           "trust": "trusted",
-          "xChecked": true
+          "xChecked": true,
+          "x_post": {
+            "post_id": "2105361316185506016",
+            "url": "https://x.com/LabPadre/status/2105361316185506016",
+            "created_at": "2026-09-30T18:17:08.000Z",
+            "text": "3 More Raptor 3's(2 SL and 1 Rvac) were removed from Ship 42.",
+            "author": {
+              "name": "Avid Space",
+              "username": "LabPadre",
+              "avatar": "https://pbs.twimg.com/profile_images/2018042465932988416/LR5UN4G0_normal.png"
+            },
+            "media": [
+              {
+                "type": "video",
+                "poster": "https://pbs.twimg.com/ext_tw_video_thumb/2105361209310535680/pu/img/AMNkAm1Tu_N4Li8p.jpg",
+                "video_url": "https://video.twimg.com/ext_tw_video/2105361209310535680/pu/vid/avc1/1280x720/ZdqxMdPIhSdaQb7y.mp4?tag=12"
+              }
+            ]
+          },
+          "x_text": "B22 static fire expected within about two weeks, S42 within two to three weeks; estimate not a SpaceX schedule."
         }
       ]
     },
@@ -171,7 +234,20 @@
           "at": "2026-10-08T23:00:08.000Z",
           "key": "rss:yt:video:dPqDD39cBEw",
           "publishedAt": "2026-10-08T23:00:08.000Z",
-          "xChecked": true
+          "xChecked": true,
+          "x_post": {
+            "post_id": "2108210569862070387",
+            "url": "https://x.com/NASASpaceflight/status/2108210569862070387",
+            "created_at": "2026-10-08T14:59:03.000Z",
+            "text": "Starship (unofficial) schedule latest: Flight 15 (Starbase Pad 2) - NET November 8. Flight 16 (Potentially KSC 39A) - NET December 10.",
+            "author": {
+              "name": "NSF - NASASpaceflight.com",
+              "username": "NASASpaceflight",
+              "avatar": "https://pbs.twimg.com/profile_images/1637919260298158080/kRT8BkYf_normal.jpg"
+            },
+            "media": []
+          },
+          "x_text": "Pad 2's chopsticks are undergoing maintenance."
         },
         {
           "date": "30 Sep",
@@ -179,7 +255,25 @@
           "src": "NSF",
           "source": "nsf",
           "trust": "trusted",
-          "xChecked": true
+          "xChecked": true,
+          "x_post": {
+            "post_id": "2104953832895615155",
+            "url": "https://x.com/LabPadre/status/2104953832895615155",
+            "created_at": "2026-09-29T15:17:56.000Z",
+            "text": "New OLM work platform is being installed in the Pad 2 Mount",
+            "author": {
+              "name": "Avid Space",
+              "username": "LabPadre",
+              "avatar": "https://pbs.twimg.com/profile_images/2018042465932988416/LR5UN4G0_normal.png"
+            },
+            "media": [
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HTZMWubWIAAnONr.jpg"
+              }
+            ]
+          },
+          "x_text": "New OLM work platform is being installed in the Pad 2 mount."
         },
         {
           "date": "11–12 Sep",
@@ -187,7 +281,25 @@
           "src": "NSF",
           "source": "nsf",
           "trust": "trusted",
-          "xChecked": true
+          "xChecked": true,
+          "x_post": {
+            "post_id": "2098797005585911983",
+            "url": "https://x.com/RGVaerialphotos/status/2098797005585911983",
+            "created_at": "2026-09-12T15:32:54.000Z",
+            "text": "Ship 42 is going up!",
+            "author": {
+              "name": "RGV Aerial Photography",
+              "username": "RGVaerialphotos",
+              "avatar": "https://pbs.twimg.com/profile_images/2019953617743097856/PJqBBhpU_normal.jpg"
+            },
+            "media": [
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HSBsusxacAAij-F.jpg"
+              }
+            ]
+          },
+          "x_text": "Ship 42 is going up."
         }
       ]
     },
@@ -205,7 +317,8 @@
           "src": "FAA via NSF",
           "source": "faa-via-nsf",
           "trust": "trusted",
-          "xChecked": true
+          "xChecked": true,
+          "feed_hide": true
         }
       ]
     },
@@ -277,5 +390,6 @@
         "note": "10 Oct: hopefully 4-6 weeks"
       }
     ]
-  }
+  },
+  "feedVerified": "2026-10-16T17:53:11.334Z"
 }
