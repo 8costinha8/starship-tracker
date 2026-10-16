@@ -55,7 +55,25 @@
           "source": "next-spaceflight",
           "trust": "trusted",
           "xChecked": true,
-          "feed_hide": true
+          "x_post": {
+            "post_id": "2098711062560559228",
+            "url": "https://x.com/RGVaerialphotos/status/2098711062560559228",
+            "created_at": "2026-09-12T09:51:24.000Z",
+            "text": "Booster 22 has arrived at the build site after being tested at Massey's for a bit.",
+            "author": {
+              "name": "RGV Aerial Photography",
+              "username": "RGVaerialphotos",
+              "avatar": "https://pbs.twimg.com/profile_images/2019953617743097856/PJqBBhpU_normal.jpg"
+            },
+            "media": [
+              {
+                "type": "video",
+                "poster": "https://pbs.twimg.com/amplify_video_thumb/2098710877696602112/img/8FWMu0bY2ERqrRU_.jpg",
+                "video_url": "https://video.twimg.com/amplify_video/2098710877696602112/vid/avc1/2560x1440/KaeE4eZytq7GZLmM.mp4"
+              }
+            ]
+          },
+          "x_text": "Booster 22 arrives at build site after testing at Massey's."
         },
         {
           "date": "9 Sep",
@@ -63,8 +81,7 @@
           "src": "NSF (secondary)",
           "source": "nsf",
           "trust": "trusted",
-          "xChecked": true,
-          "feed_hide": true
+          "xChecked": true
         },
         {
           "date": "3–4 Sep",
@@ -73,7 +90,24 @@
           "source": "next-spaceflight",
           "trust": "trusted",
           "xChecked": true,
-          "feed_hide": true
+          "x_post": {
+            "post_id": "2095620292823462214",
+            "url": "https://x.com/LabPadre/status/2095620292823462214",
+            "created_at": "2026-09-03T21:09:47.000Z",
+            "text": "Ship 42's 1st cryo test is underway!",
+            "author": {
+              "name": "Avid Space",
+              "username": "LabPadre",
+              "avatar": "https://pbs.twimg.com/profile_images/2018042465932988416/LR5UN4G0_normal.png"
+            },
+            "media": [
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HRUjjSMWsAMkvu6.jpg"
+              }
+            ]
+          },
+          "x_text": "Ship 42's first cryo test is underway."
         }
       ]
     },
@@ -95,8 +129,7 @@
           "at": "2026-10-14T18:59:28.000Z",
           "key": "rss:yt:video:t9iGVxSx0aw",
           "publishedAt": "2026-10-14T18:59:28.000Z",
-          "xChecked": true,
-          "feed_hide": true
+          "xChecked": true
         },
         {
           "date": "9 Oct",
@@ -108,8 +141,7 @@
           "at": "2026-10-08T23:00:08.000Z",
           "key": "rss:yt:video:dPqDD39cBEw",
           "publishedAt": "2026-10-08T23:00:08.000Z",
-          "xChecked": true,
-          "feed_hide": true
+          "xChecked": true
         },
         {
           "date": "30 Sep",
@@ -117,8 +149,7 @@
           "src": "NSF",
           "source": "nsf",
           "trust": "trusted",
-          "xChecked": true,
-          "feed_hide": true
+          "xChecked": true
         },
         {
           "date": "12–13 Sep",
@@ -127,7 +158,25 @@
           "source": "nsf",
           "trust": "trusted",
           "xChecked": true,
-          "feed_hide": true
+          "x_post": {
+            "post_id": "2098985653849542753",
+            "url": "https://x.com/NASASpaceflight/status/2098985653849542753",
+            "created_at": "2026-09-13T04:02:31.000Z",
+            "text": "Ship 42 (Flight 15) has finally escaped the grip of Pad 2's chopsticks and is set to return to the Production Site. This clears the pad for preparations for Flight 14 later this month. https://t.co/HSumkyMfYU",
+            "author": {
+              "name": "NSF - NASASpaceflight.com",
+              "username": "NASASpaceflight",
+              "avatar": "https://pbs.twimg.com/profile_images/1637919260298158080/kRT8BkYf_normal.jpg"
+            },
+            "media": [
+              {
+                "type": "video",
+                "poster": "https://pbs.twimg.com/amplify_video_thumb/2098985547830067202/img/6Tr9W8EABtAdu3X2.jpg",
+                "video_url": "https://video.twimg.com/amplify_video/2098985547830067202/vid/avc1/1136x636/0RRTVGTQxEA9n1cw.mp4"
+              }
+            ]
+          },
+          "x_text": "Ship 42 escapes Pad 2 chopsticks and returns to the production site."
         }
       ]
     },
@@ -149,8 +198,7 @@
           "at": "2026-10-09T14:36:44.000Z",
           "key": "rss:https://www.nasaspaceflight.com/?p=115411",
           "publishedAt": "2026-10-09T14:36:44.000Z",
-          "xChecked": true,
-          "feed_hide": true
+          "xChecked": true
         },
         {
           "date": "30 Sep",
@@ -158,8 +206,7 @@
           "src": "NSF",
           "source": "nsf",
           "trust": "trusted",
-          "xChecked": true,
-          "feed_hide": true
+          "xChecked": true
         }
       ]
     },
@@ -181,8 +228,7 @@
           "at": "2026-10-08T23:00:08.000Z",
           "key": "rss:yt:video:dPqDD39cBEw",
           "publishedAt": "2026-10-08T23:00:08.000Z",
-          "xChecked": true,
-          "feed_hide": true
+          "xChecked": true
         },
         {
           "date": "30 Sep",
@@ -191,7 +237,24 @@
           "source": "nsf",
           "trust": "trusted",
           "xChecked": true,
-          "feed_hide": true
+          "x_post": {
+            "post_id": "2104953832895615155",
+            "url": "https://x.com/LabPadre/status/2104953832895615155",
+            "created_at": "2026-09-29T15:17:56.000Z",
+            "text": "New OLM work platform is being installed in the Pad 2 Mount",
+            "author": {
+              "name": "Avid Space",
+              "username": "LabPadre",
+              "avatar": "https://pbs.twimg.com/profile_images/2018042465932988416/LR5UN4G0_normal.png"
+            },
+            "media": [
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HTZMWubWIAAnONr.jpg"
+              }
+            ]
+          },
+          "x_text": "New OLM work platform is being installed in the Pad 2 mount."
         },
         {
           "date": "11–12 Sep",
@@ -200,7 +263,24 @@
           "source": "nsf",
           "trust": "trusted",
           "xChecked": true,
-          "feed_hide": true
+          "x_post": {
+            "post_id": "2098797005585911983",
+            "url": "https://x.com/RGVaerialphotos/status/2098797005585911983",
+            "created_at": "2026-09-12T15:32:54.000Z",
+            "text": "Ship 42 is going up!",
+            "author": {
+              "name": "RGV Aerial Photography",
+              "username": "RGVaerialphotos",
+              "avatar": "https://pbs.twimg.com/profile_images/2019953617743097856/PJqBBhpU_normal.jpg"
+            },
+            "media": [
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HSBsusxacAAij-F.jpg"
+              }
+            ]
+          },
+          "x_text": "Ship 42 is going up."
         }
       ]
     },
@@ -218,8 +298,7 @@
           "src": "FAA via NSF",
           "source": "faa-via-nsf",
           "trust": "trusted",
-          "xChecked": true,
-          "feed_hide": true
+          "xChecked": true
         }
       ]
     },
