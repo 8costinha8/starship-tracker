@@ -52,6 +52,25 @@ async function runWith(items, answer, vis) {
   const app = fs.readFileSync(path.join(ROOT, "app.js"), "utf8");
   check(/<p>\{h\.x_text \|\| h\.text\}<\/p>/.test(app) && /post-text">\{h\.x_text \|\| h\.text\}/.test(app), "Road card and Road page both use the rewritten text");
   check(/h\.x_post && <XMedia/.test(app) && !/mini[^\n]*XMedia/.test(app), "pictures only on the Road page (Road card stays text only)");
+  // 4b. hand-picked pictures win over the automatic check and over a mismatched rewrite
+  {
+    const rd = { categories: [{ id: "cryo", history: [
+      { date: "9 Oct", text: "Orig A.", x_text: "Rewrite from post 1.", x_post: { post_id: "1", media: [{ type: "photo", url: "u1" }] } },
+      { date: "8 Oct", text: "Orig B.", x_text: "Rewrite from post 5.", x_post: { post_id: "5", media: [] } },
+      { date: "7 Oct", text: "No pick." } ] }] };
+    const picks = [{ category: "cryo", date: "9 Oct", post_url: "https://x.com/LabPadre/status/2", post_id: "2", author: "LabPadre", media_type: "video", image: "https://pbs.twimg.com/pick.jpg" },
+      { category: "cryo", date: "8 Oct", post_url: "https://x.com/NSF/status/5", author: "NSF", media_type: "photo", image: "https://pbs.twimg.com/p5.jpg" }];
+    road.applyMediaPicks(rd, picks);
+    const [a, b, c] = rd.categories[0].history;
+    check(a.media_override.image === "https://pbs.twimg.com/pick.jpg" && a.media_override.type === "video" && a.imageChecked2 && !a.x_text, "pick wins: picture + post + author; rewrite from another post dropped");
+    check(b.media_override.post_id === "5" && b.x_text === "Rewrite from post 5.", "pick from the same post keeps the Grok text");
+    check(!c.media_override, "no pick → automatic check stays");
+    const n = road.notificationFor({ flight: 15 }, { box: { icon: "❄️", name: "Cryo" }, entry: a, from: "progress", to: "progress" });
+    check(n.image === "https://pbs.twimg.com/pick.jpg", "push uses the picked picture");
+    check(road.loadMediaPicks().length === 14, "repo road-media.json has the 14 picks");
+    const appSrc = fs.readFileSync(path.join(ROOT, "app.js"), "utf8");
+    check(/h\.media_override \? <PickMedia/.test(appSrc) && /media_override && h\.media_override\.post_url/.test(appSrc), "app: picked picture shown, card links to the picked post");
+  }
   // 5. writer sends the picture to Grok (input_image) and to Claude on fallback (image block)
   {
     const writer = require("./writer.js"); const realFetch = global.fetch; const bodies = [];

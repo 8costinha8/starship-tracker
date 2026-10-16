@@ -497,6 +497,26 @@ async function verifyImages(road, opts = {}) {
   road.imagesVerified = new Date().toISOString();
   return res;
 }
+/* ───────────── hand-picked pictures (road-media.json) ─────────────
+   { picks: [{ category, date, post_url, post_id, author, media_type, image, note }] }, matched
+   by category + date. A pick wins over the automatic picture check: the card shows that picture,
+   links to that post and credits @author. If the pick's post differs from the post the Grok text
+   was written from, the original entry text is shown instead (no mismatched rewrite). */
+function loadMediaPicks(file = path.join(__dirname, "..", "road-media.json")) {
+  try { return (JSON.parse(fs.readFileSync(file, "utf8")).picks || []).filter((p) => p.category && p.date && p.post_url && p.image); } catch { return []; }
+}
+function applyMediaPicks(road, picks) {
+  let n = 0;
+  for (const c of road.categories) for (const h of c.history || []) {
+    const p = picks.find((x) => x.category === c.id && x.date === h.date);
+    if (!p) continue;
+    const mo = { post_url: p.post_url, post_id: p.post_id || xIdOf(p.post_url), author: p.author, type: p.media_type === "video" ? "video" : "photo", image: p.image };
+    if (JSON.stringify(h.media_override) !== JSON.stringify(mo)) { h.media_override = mo; n++; }
+    if (h.x_text && (!h.x_post || h.x_post.post_id !== mo.post_id)) { delete h.x_text; n++; }
+    h.imageChecked2 = true; // the pick wins: no automatic check for this entry
+  }
+  return n;
+}
 // One-off (road.feedJudged): re-check the feed's existing X matches with the writer, using the
 // stored posts (no X calls); a post that isn't about the same thing is removed and the card hidden.
 async function judgeFeed(road, { rewrite = rewriteFromPosts, log = console.log } = {}) {
@@ -1014,7 +1034,7 @@ const FEED_LINK = "https://8costinha8.github.io/starship-tracker/?feed=1";
 function notificationFor(road, ch) {
   const n = notificationText(road, ch);
   const m = ch.entry.x_post && (ch.entry.x_post.media || [])[0];
-  const img = m && imageOf(m);
+  const img = (ch.entry.media_override && ch.entry.media_override.image) || (m && imageOf(m));
   return { ...n, ...(ch.entry.x_text ? { body: ch.entry.x_text } : {}), link: FEED_LINK, ...(img ? { image: img } : {}) };
 }
 function notificationText(road, ch) {
@@ -1259,9 +1279,11 @@ async function run(opts = {}) {
       }
     }
   }
+  // 4a-pick. Hand-picked pictures win over the automatic check
+  if (!opts.sources || opts.mediaPicks) { const np = applyMediaPicks(road, opts.mediaPicks || loadMediaPicks()); if (np) { log(`media picks: ${np} change(s) from road-media.json`); changed = true; } }
   // 4a-img. New entries with an X post: keep only a picture that clearly shows the update
   for (const ch of changes) {
-    if (!ch.entry.x_post || (opts.sources && !opts.vision)) continue; // tests without a fake vision skip the check
+    if (!ch.entry.x_post || ch.entry.media_override || (opts.sources && !opts.vision)) continue; // tests without a fake vision skip the check
     try { const r = await applyImageCheck(ch.entry, ch.box.name, { ...(opts.vision ? { ask: opts.vision } : {}), log }); if (r) log(`image [${ch.box.id}] ${r.media.length ? `kept (${r.check.seen}, ${r.check.confidence})` : `none — ${r.check.verdict}`}`); }
     catch (e) { ch.entry.x_post = { ...ch.entry.x_post, media: [] }; log(`image check failed (${e.message}) — text only`); }
   }
@@ -1380,7 +1402,7 @@ async function run(opts = {}) {
   return { road, changes, notifications, refreshed, state, scheduledSent, newsPushes };
 }
 
-module.exports = { pickImage, applyImageCheck, verifyImages, fcmMessage, notificationFor, judgeFeed, verifyFeed, entryDayMs, backfillX, xPostCard, xIdOf, readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, titleMatches, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
+module.exports = { applyMediaPicks, loadMediaPicks, pickImage, applyImageCheck, verifyImages, fcmMessage, notificationFor, judgeFeed, verifyFeed, entryDayMs, backfillX, xPostCard, xIdOf, readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, titleMatches, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
 
 if (require.main === module) {
   run().catch((err) => {

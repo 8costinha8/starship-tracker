@@ -1248,6 +1248,19 @@ function XVideo({ m, url }) {
     </div>
   );
 }
+// Hand-picked picture (road-media.json): the image, a play icon for videos, @author credit; the post opens on tap.
+function PickMedia({ mo }) {
+  const [bad, setBad] = React.useState(false);
+  if (bad) return null;
+  return (
+    <div className="xm">
+      <div className="xm-grid n1"><a href={mo.post_url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
+        <img src={mo.image} alt="" loading="lazy" referrerPolicy="no-referrer" onError={() => setBad(true)} />{mo.type === "video" && PLAY_ICON}</a></div>
+      <div className="xm-foot"><span>@{mo.author}</span>
+        <a href={mo.post_url} target="_blank" rel="noopener noreferrer" aria-label="View on X" onClick={(e) => e.stopPropagation()}>View on X {LINK_ICON}</a></div>
+    </div>
+  );
+}
 function XMedia({ x }) {
   const [bad, setBad] = React.useState({});
   const media = (x.media || []).map((m, i) => ({ ...m, i })).filter((m) => !bad[m.i] && (m.type === "photo" ? m.url : m.video_url || m.poster));
@@ -1268,9 +1281,9 @@ function XMedia({ x }) {
   );
 }
 // An entry with an X post credits and links the post's author, so text, media and credit match.
-const srcOf = (h) => (h.x_post && h.x_post.author && h.x_post.author.username ? `@${h.x_post.author.username}` : h.src);
+const srcOf = (h) => (h.media_override ? `@${h.media_override.author}` : h.x_post && h.x_post.author && h.x_post.author.username ? `@${h.x_post.author.username}` : h.src);
 const isYouTube = (u) => /(^|\.)(youtube\.com|youtu\.be)$/i.test(hostOf(u || ""));
-const urlOf = (h) => (h.x_post && h.x_post.url) || (h.url && !isYouTube(h.url) ? h.url : null); // YouTube sources: not clickable
+const urlOf = (h) => (h.media_override && h.media_override.post_url) || (h.x_post && h.x_post.url) || (h.url && !isYouTube(h.url) ? h.url : null); // YouTube sources: not clickable
 const openUrl = (u) => window.open(u, "_blank", "noopener,noreferrer");
 const linkProps = (h) => { const u = urlOf(h); return u ? { role: "link", tabIndex: 0, "aria-label": `${h.x_text || h.text} — open ${h.x_post ? "the post on X" : "the source"}`,
   onClick: (e) => { if (!e.target.closest("a, video, button, .xm-video")) openUrl(u); }, onKeyDown: (e) => { if (e.key === "Enter" && e.target === e.currentTarget) openUrl(u); } } : {}; };
@@ -1286,7 +1299,7 @@ function FeedPost({ p, onPhotoTap }) {
         {h.trust === "unconfirmed" && <span className="mini-unc">Unconfirmed</span>}
       </div>
       <p className="post-text">{h.x_text || h.text}</p>
-      {h.x_post && <XMedia x={h.x_post} />}
+      {h.media_override ? <PickMedia mo={h.media_override} /> : h.x_post && <XMedia x={h.x_post} />}
       <div className="post-foot">
         <span className="post-src">{srcOf(h)}</span>
         {urlOf(h) && <a className="post-link" href={urlOf(h)} target="_blank" rel="noopener noreferrer" aria-label={`Open source: ${srcOf(h)}`}>{LINK_ICON}</a>}

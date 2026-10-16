@@ -1,0 +1,159 @@
+{
+ "_about": "Hand-picked pictures for Road entries (matched by category + date). These win over the automatic picture check; new entries without a pick keep the automatic check.",
+ "picks": [
+  {
+   "category": "cryo",
+   "date": "9 Oct",
+   "entry": "Ship 42 has been transported back to the cryo test stand at the Massey outpost for more testing.",
+   "post_id": "2108486994401825101",
+   "post_url": "https://x.com/LabPadre/status/2108486994401825101",
+   "author": "LabPadre",
+   "media_type": "video",
+   "image": "https://pbs.twimg.com/amplify_video_thumb/2108486743485792256/img/_Y2lLbcCzwdiu7HC.jpg",
+   "note": "Video of Ship 42 itself arriving at the Massey cryo stand on 9 Oct — the exact event."
+  },
+  {
+   "category": "cryo",
+   "date": "9–10 Sep",
+   "entry": "Booster 22 cryo tests at Massey's.",
+   "post_id": "2098045579234259249",
+   "post_url": "https://x.com/LabPadre/status/2098045579234259249",
+   "author": "LabPadre",
+   "media_type": "video",
+   "image": "https://pbs.twimg.com/amplify_video_thumb/2098045351559131140/img/1-Fe_-VnJa8yKMza.jpg",
+   "note": "Booster 22 on the Massey cryo stand during its 9–10 Sep cryo test."
+  },
+  {
+   "category": "cryo",
+   "date": "9 Sep",
+   "entry": "Ship 42 heads back to Massey's for further cryo testing.",
+   "post_id": "2097784884957778276",
+   "post_url": "https://x.com/RGVaerialphotos/status/2097784884957778276",
+   "author": "RGVaerialphotos",
+   "media_type": "photo",
+   "image": "https://pbs.twimg.com/media/HRzT1OnWYAEDCml.jpg",
+   "note": "Aerial photo of Ship 42 (with B22) at Massey's, taken 9 Sep — same day it went back for more cryo."
+  },
+  {
+   "category": "cryo",
+   "date": "3–4 Sep",
+   "entry": "Ship 42 completes two cryo proof tests at Massey's.",
+   "post_id": "2095620292823462214",
+   "post_url": "https://x.com/LabPadre/status/2095620292823462214",
+   "author": "LabPadre",
+   "media_type": "photo",
+   "image": "https://pbs.twimg.com/media/HRUjjSMWsAMkvu6.jpg",
+   "note": "Ship 42's first cryo proof test in progress at Massey's, 3 Sep."
+  },
+  {
+   "category": "raptor",
+   "date": "14 Oct",
+   "entry": "Ship 42's Raptor engines are reportedly being reinstalled.",
+   "post_id": "2105970196624085085",
+   "post_url": "https://x.com/LabPadre/status/2105970196624085085",
+   "author": "LabPadre",
+   "media_type": "video",
+   "image": "https://pbs.twimg.com/ext_tw_video_thumb/2105970142207213568/pu/img/dazph1fMasbV1dNT.jpg",
+   "note": "Raptor 3 engines at Mega Bay 2 (Ship 42's bay), 2 Oct. Shows S42's Raptors, but they're being moved OUT; I found no photo of the reinstall itself."
+  },
+  {
+   "category": "raptor",
+   "date": "9 Oct",
+   "entry": "Ship 42's Raptor engines have been removed ahead of Flight 15.",
+   "post_id": "2105361316185506016",
+   "post_url": "https://x.com/LabPadre/status/2105361316185506016",
+   "author": "LabPadre",
+   "media_type": "video",
+   "image": "https://pbs.twimg.com/ext_tw_video_thumb/2105361209310535680/pu/img/AMNkAm1Tu_N4Li8p.jpg",
+   "note": "Raptor 3s (2 sea-level + 1 RVac) coming off Ship 42 on 30 Sep: the engine removal itself."
+  },
+  {
+   "category": "raptor",
+   "date": "30 Sep",
+   "entry": "B22 in Mega Bay 1, S42 in Mega Bay 2, both being fitted with Raptors.",
+   "post_id": "2106590891679101152",
+   "post_url": "https://x.com/RGVaerialphotos/status/2106590891679101152",
+   "author": "RGVaerialphotos",
+   "media_type": "photo",
+   "image": "https://pbs.twimg.com/media/HTwdNITbMAAz4q1.jpg",
+   "note": "Booster 22 inside Mega Bay 1 on 1 Oct (2nd image of the post), during its Raptor fit-out."
+  },
+  {
+   "category": "raptor",
+   "date": "12–13 Sep",
+   "entry": "Both vehicles back to the Mega Bays for Raptor installation.",
+   "post_id": "2098642467390153040",
+   "post_url": "https://x.com/LabPadre/status/2098642467390153040",
+   "author": "LabPadre",
+   "media_type": "video",
+   "image": "https://pbs.twimg.com/ext_tw_video_thumb/2098642453741887497/pu/img/JdijqZ7iq6c-qq8K.jpg",
+   "note": "Booster 22 rolling from Massey's back to the production site/Mega Bay on 12 Sep."
+  },
+  {
+   "category": "static",
+   "date": "9 Oct",
+   "entry": "Booster 22 could be ready for a static fire as early as next week.",
+   "post_id": "2093477720638341395",
+   "post_url": "https://x.com/SpaceX/status/2093477720638341395",
+   "author": "SpaceX",
+   "media_type": "video",
+   "image": "https://pbs.twimg.com/amplify_video_thumb/2093476901998198784/img/GBWfYxbTq6oqdZ4k.jpg",
+   "note": "SpaceX's own 33-engine booster static fire at Pad 2 (B21, 28 Aug): shows what B22's upcoming static fire looks like. Wrong booster and about 7 weeks old, because B22 hasn't fired yet."
+  },
+  {
+   "category": "static",
+   "date": "30 Sep",
+   "entry": "B22 ready for static fire within ~2 weeks, S42 within 2–3 weeks. Estimate, not a SpaceX schedule.",
+   "post_id": "2098539384135889001",
+   "post_url": "https://x.com/RGVaerialphotos/status/2098539384135889001",
+   "author": "RGVaerialphotos",
+   "media_type": "photo",
+   "image": "https://pbs.twimg.com/media/HR-CcTLXoAEcaBs.jpg",
+   "note": "Aerial shot of Booster 22 (11 Sep), the vehicle in the static-fire estimate. There's no static-fire imagery of B22/S42 yet."
+  },
+  {
+   "category": "pad",
+   "date": "9 Oct",
+   "entry": "Pad 2's chopsticks are undergoing maintenance.",
+   "post_id": "2107896796424835482",
+   "post_url": "https://x.com/LabPadre/status/2107896796424835482",
+   "author": "LabPadre",
+   "media_type": "video",
+   "image": "https://pbs.twimg.com/ext_tw_video_thumb/2107896783682625537/pu/img/18FR3ZuZ82Tz2gNw.jpg",
+   "note": "Pad 2 chopsticks being actuated at full speed during maintenance and testing work, 7 Oct."
+  },
+  {
+   "category": "pad",
+   "date": "30 Sep",
+   "entry": "Pad 2 clear after Flight 14. New servicing structure going in for hold-down clamp work.",
+   "post_id": "2106591567930925423",
+   "post_url": "https://x.com/RGVaerialphotos/status/2106591567930925423",
+   "author": "RGVaerialphotos",
+   "media_type": "photo",
+   "image": "https://pbs.twimg.com/media/HTwdsecaIAAK_9e.jpg",
+   "note": "Pad 2 after Flight 14, showing the new OLM work platform for hold-down clamp work, 4 Oct."
+  },
+  {
+   "category": "pad",
+   "date": "11–12 Sep",
+   "entry": "S42 lifted by Pad 2 chopsticks in a catch position. SQD arm connect tests.",
+   "post_id": "2099008859134374365",
+   "post_url": "https://x.com/RGVaerialphotos/status/2099008859134374365",
+   "author": "RGVaerialphotos",
+   "media_type": "video",
+   "image": "https://pbs.twimg.com/amplify_video_thumb/2099008701491535872/img/I7qk6Tawvh4EgZDs.jpg",
+   "note": "Timelapse of Ship 42 held in the Pad 2 chopsticks, 13 Sep."
+  },
+  {
+   "category": "faa",
+   "date": "26 Sep",
+   "entry": "FAA licence issued for Flight 14 only. F15 needs a modification.",
+   "post_id": "2103953927624356245",
+   "post_url": "https://x.com/NASASpaceflight/status/2103953927624356245",
+   "author": "NASASpaceflight",
+   "media_type": "photo",
+   "image": "https://pbs.twimg.com/media/HTK-2HuXwAIKtUN.png",
+   "note": "NSF post announcing the FAA Flight 14 licence on 26 Sep. The image is a graphic, not hardware."
+  }
+ ]
+}

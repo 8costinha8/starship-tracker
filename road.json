@@ -52,7 +52,15 @@
             "verdict": "no image clearly shows it",
             "seen": "interior of a high bay with a lift and crane; Ship 42 / cryo stand not visible",
             "by": "manual preview review (Grok vision re-checks on the first live run)"
-          }
+          },
+          "media_override": {
+            "post_url": "https://x.com/LabPadre/status/2108486994401825101",
+            "post_id": "2108486994401825101",
+            "author": "LabPadre",
+            "type": "video",
+            "image": "https://pbs.twimg.com/amplify_video_thumb/2108486743485792256/img/_Y2lLbcCzwdiu7HC.jpg"
+          },
+          "imageChecked2": true
         },
         {
           "date": "9–10 Sep",
@@ -80,12 +88,19 @@
               }
             ]
           },
-          "x_text": "Booster 22 arrives at build site after testing at Massey's.",
           "image_check": {
             "verdict": "no image clearly shows it",
             "seen": "night shot of transporter wheels; Booster 22 not recognisable",
             "by": "manual preview review (Grok vision re-checks on the first live run)"
-          }
+          },
+          "media_override": {
+            "post_url": "https://x.com/LabPadre/status/2098045579234259249",
+            "post_id": "2098045579234259249",
+            "author": "LabPadre",
+            "type": "video",
+            "image": "https://pbs.twimg.com/amplify_video_thumb/2098045351559131140/img/1-Fe_-VnJa8yKMza.jpg"
+          },
+          "imageChecked2": true
         },
         {
           "date": "9 Sep",
@@ -93,7 +108,15 @@
           "src": "NSF (secondary)",
           "source": "nsf",
           "trust": "trusted",
-          "xChecked": true
+          "xChecked": true,
+          "media_override": {
+            "post_url": "https://x.com/RGVaerialphotos/status/2097784884957778276",
+            "post_id": "2097784884957778276",
+            "author": "RGVaerialphotos",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HRzT1OnWYAEDCml.jpg"
+          },
+          "imageChecked2": true
         },
         {
           "date": "3–4 Sep",
@@ -130,7 +153,15 @@
             "verdict": "shows it",
             "seen": "Ship 42 on the Massey test stand during the cryo test (distant but recognisable)",
             "by": "manual preview review (Grok vision re-checks on the first live run)"
-          }
+          },
+          "media_override": {
+            "post_url": "https://x.com/LabPadre/status/2095620292823462214",
+            "post_id": "2095620292823462214",
+            "author": "LabPadre",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HRUjjSMWsAMkvu6.jpg"
+          },
+          "imageChecked2": true
         }
       ]
     },
@@ -152,7 +183,15 @@
           "at": "2026-10-14T18:59:28.000Z",
           "key": "rss:yt:video:t9iGVxSx0aw",
           "publishedAt": "2026-10-14T18:59:28.000Z",
-          "xChecked": true
+          "xChecked": true,
+          "media_override": {
+            "post_url": "https://x.com/LabPadre/status/2105970196624085085",
+            "post_id": "2105970196624085085",
+            "author": "LabPadre",
+            "type": "video",
+            "image": "https://pbs.twimg.com/ext_tw_video_thumb/2105970142207213568/pu/img/dazph1fMasbV1dNT.jpg"
+          },
+          "imageChecked2": true
         },
         {
           "date": "9 Oct",
@@ -164,7 +203,15 @@
           "at": "2026-10-08T23:00:08.000Z",
           "key": "rss:yt:video:dPqDD39cBEw",
           "publishedAt": "2026-10-08T23:00:08.000Z",
-          "xChecked": true
+          "xChecked": true,
+          "media_override": {
+            "post_url": "https://x.com/LabPadre/status/2105361316185506016",
+            "post_id": "2105361316185506016",
+            "author": "LabPadre",
+            "type": "video",
+            "image": "https://pbs.twimg.com/ext_tw_video_thumb/2105361209310535680/pu/img/AMNkAm1Tu_N4Li8p.jpg"
+          },
+          "imageChecked2": true
         },
         {
           "date": "30 Sep",
@@ -172,14 +219,30 @@
           "src": "NSF",
           "source": "nsf",
           "trust": "trusted",
-          "xChecked": true
+          "xChecked": true,
+          "media_override": {
+            "post_url": "https://x.com/RGVaerialphotos/status/2106590891679101152",
+            "post_id": "2106590891679101152",
+            "author": "RGVaerialphotos",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HTwdNITbMAAz4q1.jpg"
+          },
+          "imageChecked2": true
         },
         {
           "date": "12–13 Sep",
           "text": "Both vehicles back to the Mega Bays for Raptor installation.",
           "src": "NSF",
           "source": "nsf",
-          "trust": "trusted"
+          "trust": "trusted",
+          "media_override": {
+            "post_url": "https://x.com/LabPadre/status/2098642467390153040",
+            "post_id": "2098642467390153040",
+            "author": "LabPadre",
+            "type": "video",
+            "image": "https://pbs.twimg.com/ext_tw_video_thumb/2098642453741887497/pu/img/JdijqZ7iq6c-qq8K.jpg"
+          },
+          "imageChecked2": true
         }
       ]
     },
@@ -201,7 +264,15 @@
           "at": "2026-10-09T14:36:44.000Z",
           "key": "rss:https://www.nasaspaceflight.com/?p=115411",
           "publishedAt": "2026-10-09T14:36:44.000Z",
-          "xChecked": true
+          "xChecked": true,
+          "media_override": {
+            "post_url": "https://x.com/SpaceX/status/2093477720638341395",
+            "post_id": "2093477720638341395",
+            "author": "SpaceX",
+            "type": "video",
+            "image": "https://pbs.twimg.com/amplify_video_thumb/2093476901998198784/img/GBWfYxbTq6oqdZ4k.jpg"
+          },
+          "imageChecked2": true
         },
         {
           "date": "30 Sep",
@@ -209,7 +280,15 @@
           "src": "NSF",
           "source": "nsf",
           "trust": "trusted",
-          "xChecked": true
+          "xChecked": true,
+          "media_override": {
+            "post_url": "https://x.com/RGVaerialphotos/status/2098539384135889001",
+            "post_id": "2098539384135889001",
+            "author": "RGVaerialphotos",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HR-CcTLXoAEcaBs.jpg"
+          },
+          "imageChecked2": true
         }
       ]
     },
@@ -231,7 +310,15 @@
           "at": "2026-10-08T23:00:08.000Z",
           "key": "rss:yt:video:dPqDD39cBEw",
           "publishedAt": "2026-10-08T23:00:08.000Z",
-          "xChecked": true
+          "xChecked": true,
+          "media_override": {
+            "post_url": "https://x.com/LabPadre/status/2107896796424835482",
+            "post_id": "2107896796424835482",
+            "author": "LabPadre",
+            "type": "video",
+            "image": "https://pbs.twimg.com/ext_tw_video_thumb/2107896783682625537/pu/img/18FR3ZuZ82Tz2gNw.jpg"
+          },
+          "imageChecked2": true
         },
         {
           "date": "30 Sep",
@@ -263,12 +350,19 @@
               }
             ]
           },
-          "x_text": "New OLM work platform is being installed in the Pad 2 mount.",
           "image_check": {
             "verdict": "shows it",
             "seen": "the new OLM work platform being lifted into the Pad 2 mount",
             "by": "manual preview review (Grok vision re-checks on the first live run)"
-          }
+          },
+          "media_override": {
+            "post_url": "https://x.com/RGVaerialphotos/status/2106591567930925423",
+            "post_id": "2106591567930925423",
+            "author": "RGVaerialphotos",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HTwdsecaIAAK_9e.jpg"
+          },
+          "imageChecked2": true
         },
         {
           "date": "11–12 Sep",
@@ -300,12 +394,19 @@
               }
             ]
           },
-          "x_text": "Ship 42 is going up.",
           "image_check": {
             "verdict": "shows it",
             "seen": "Ship 42 held by the Pad 2 chopsticks",
             "by": "manual preview review (Grok vision re-checks on the first live run)"
-          }
+          },
+          "media_override": {
+            "post_url": "https://x.com/RGVaerialphotos/status/2099008859134374365",
+            "post_id": "2099008859134374365",
+            "author": "RGVaerialphotos",
+            "type": "video",
+            "image": "https://pbs.twimg.com/amplify_video_thumb/2099008701491535872/img/I7qk6Tawvh4EgZDs.jpg"
+          },
+          "imageChecked2": true
         }
       ]
     },
@@ -323,7 +424,15 @@
           "src": "FAA via NSF",
           "source": "faa-via-nsf",
           "trust": "trusted",
-          "xChecked": true
+          "xChecked": true,
+          "media_override": {
+            "post_url": "https://x.com/NASASpaceflight/status/2103953927624356245",
+            "post_id": "2103953927624356245",
+            "author": "NASASpaceflight",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HTK-2HuXwAIKtUN.png"
+          },
+          "imageChecked2": true
         }
       ]
     },
