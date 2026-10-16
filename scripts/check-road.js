@@ -307,7 +307,7 @@ async function newsCardFor(url, entry, getText = fetchPage) {
     if (!title) return null;
     const og = titleMatches(title, entry.text, entry.box) ? parseOgMedia(html, url) : null;
     const img = (og && (og.type === "image" ? og.url : og.poster)) || (captionedImage(html, url, entry.text) || {}).url;
-    return { title: title.replace(/\s+[-|–]\s+[^-|–]+$/, ""), summary: decode(metaContent(html, ["og:description", "description", "twitter:description"]) || "").slice(0, 300), link: url, ...(img ? { image: img } : {}) };
+    return { title: title.replace(/\s+[-|–]\s+[^-|–]+$/, ""), summary: decode(decode(metaContent(html, ["og:description", "description", "twitter:description"]) || "")).slice(0, 300), link: url, ...(img ? { image: img } : {}) };
   } catch { return null; }
 }
 const STAGE_WORDS = { cryo: "cryo", raptor: "Raptor", static: `"static fire"`, pad: "(chopsticks OR Pad OR rollout OR stack)", faa: "FAA", date: `("Flight 15" OR NET)` };
