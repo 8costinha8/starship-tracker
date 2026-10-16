@@ -40,5 +40,25 @@ const vid = { media_key: "v", type: "video", preview_image_url: "https://pbs.twi
   const r3 = mk();
   const res3 = await r.backfillX(r3, { log: () => {} });
   check(res3.calls === 0 && !r3.categories[0].history[0].xChecked, "no token → nothing, retried later");
+  // feed verification: date clusters, small date-bounded full-archive searches, ≤60 read, stop on 403
+  {
+    const fr = { flight: 15, vehicles: ["B22", "S42"], categories: [
+      { id: "cryo", name: "Cryo", history: [{ date: "3–4 Sep", text: "Ship 42 completes two cryo proof tests at Massey's." }, { date: "9 Sep", text: "Ship 42 heads back to Massey's for further cryo testing." }] },
+      { id: "pad", name: "Pad", history: [{ date: "1 Oct", text: "Pad 2 chopsticks maintenance." }] },
+      { id: "static", name: "Static", history: [{ date: "2 Oct", text: "Booster 22 static fire soon." }] } ] };
+    const q = [];
+    const ff = async (url) => { const u = new URL(url); q.push(u); const st = u.searchParams.get("start_time");
+      return { ok: true, status: 200, json: async () => ({ data: st < "2026-09-06" ? [{ id: "1", author_id: NSF, created_at: "2026-09-04T10:00:00Z", text: "Ship 42 completes another cryo proof test", attachments: { media_keys: ["p1"] } }]
+        : st > "2026-09-20" ? [{ id: "2", author_id: NSF, created_at: "2026-10-01T10:00:00Z", text: "Pad 2 chopsticks being serviced" }] : [], includes: { users: [user], media: [{ media_key: "p1", type: "photo", url: "https://pbs.twimg.com/1.jpg" }] } }) }; };
+    const vr = await r.verifyFeed(fr, { token: "t", fetchFn: ff, log: () => {}, rewrite: async () => "Ship 42 finished another cryo proof test." });
+    const [h1, h2] = fr.categories[0].history, hp = fr.categories[1].history[0], hs = fr.categories[2].history[0];
+    check(vr.calls === 3 && q.every((u) => /search\/all/.test(u.pathname) && u.searchParams.get("max_results") === "10" && u.searchParams.get("end_time")), "3 date clusters → 3 small, date-bounded full-archive searches");
+    check(h1.x_post && h1.x_text === "Ship 42 finished another cryo proof test." && h1.text === "Ship 42 completes two cryo proof tests at Massey's.", "match → x_post + writer text in x_text; Road card text unchanged");
+    check(h2.feed_hide && hp.x_post && !hp.feed_hide && hs.feed_hide, "no match → hidden from the feed; topic match without vehicle (Pad 2 chopsticks) → kept");
+    check(fr.feedVerified && (await r.verifyFeed(fr, { token: "t", fetchFn: ff, log: () => {} })).calls === 0, "runs once");
+    const f2 = JSON.parse(JSON.stringify({ ...fr, feedVerified: undefined })); f2.categories.forEach((c) => c.history.forEach((h) => { delete h.x_post; delete h.feed_hide; }));
+    const v2 = await r.verifyFeed(f2, { token: "t", fetchFn: async () => ({ ok: false, status: 403, json: async () => ({}) }), log: () => {} });
+    check(v2.calls === 1 && v2.stopped === "HTTP 403" && !f2.feedVerified, "403 → stops after one call, retried later");
+  }
   console.log(fails ? `\n${fails} FAILED` : "\n✅ All X media checks passed."); process.exit(fails ? 1 : 0);
 })();

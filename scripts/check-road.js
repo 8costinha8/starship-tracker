@@ -297,6 +297,75 @@ async function backfillX(road, { token, fetchFn = fetch, rewrite = null, log = c
   }
   return res;
 }
+// One-off feed verification (road.feedVerified): every Road-page card must come from a real
+// trusted X post. Entries are grouped into date clusters and each cluster gets ONE small
+// full-archive search (max_results 10, date-bounded), total ≤ 60 posts read, stop on 401/403.
+// Match = strict vehicle/topic rule + a shared vehicle (or the box topic when the entry names
+// none), within 2 days, a post never reused. Matched → x_post + x_text (writer rewrite from the
+// post). Unmatched → feed_hide (kept for the Starship-page Road card, which is unchanged).
+const MONTHS_ = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+function entryDayMs(h, year = new Date().getUTCFullYear()) {
+  const t = Date.parse(h.publishedAt || h.at || "");
+  if (Number.isFinite(t)) return t;
+  const m = String(h.date || "").match(/(\d{1,2})(?:\s*[–-]\s*\d{1,2})?\s+([A-Za-z]{3})/);
+  if (!m) return NaN;
+  const mi = MONTHS_.indexOf(m[2].toLowerCase());
+  return mi < 0 ? NaN : Date.UTC(year, mi, Number(m[1]), 12);
+}
+const FEED_READ_CAP = 60, DAY_MS = 86400000;
+async function verifyFeed(road, { token, fetchFn = fetch, rewrite = null, log = console.log } = {}) {
+  const res = { calls: 0, read: 0, kept: [], matched: [], dropped: [], stopped: null };
+  if (road.feedVerified) return res;
+  if (!token) { log("• feed check: no X token — waits for a run that has one"); return res; }
+  const todo = [];
+  for (const c of road.categories) for (const h of c.history || []) {
+    if (isCheck(h) || c.id === "date") continue; // Launch date isn't shown on the Road page
+    if (h.x_post) { if (!h.x_text) h.x_text = h.text; delete h.feed_hide; res.kept.push(`${c.id} "${h.x_text}" ← @${h.x_post.author.username}`); continue; }
+    todo.push({ c, h, day: entryDayMs(h) });
+  }
+  const used = new Set(road.categories.flatMap((c) => (c.history || []).filter((h) => h.x_post).map((h) => h.x_post.post_id)));
+  // date clusters (entries within 3 days of each other share one search)
+  const dated = todo.filter((t) => Number.isFinite(t.day)).sort((a, b) => a.day - b.day);
+  const clusters = [];
+  for (const t of dated) { const last = clusters[clusters.length - 1]; if (last && t.day - last.max <= 3 * DAY_MS) { last.items.push(t); last.max = t.day; } else clusters.push({ min: t.day, max: t.day, items: [t] }); }
+  const vwords = [...new Set([...vehicleWords(road), "S43", "B23", "S44", "B24", "Ship 43", "Booster 23"])].map((w) => (w.includes(" ") ? `"${w}"` : w));
+  const query = `(${Object.keys(X_ACCOUNTS).map((h) => `from:${h}`).join(" OR ")}) (${[...vwords, `"Pad 2"`, `"Flight ${road.flight}"`, `"Flight ${road.flight + 1}"`, `"Flight ${road.flight + 2}"`].join(" OR ")}) -is:retweet -is:reply`;
+  const trusted = new Set(Object.values(X_ACCOUNTS).map((a) => a.id).filter(Boolean));
+  const auth = { authorization: `Bearer ${token}`, "user-agent": UA };
+  // newest clusters first, so the budget goes to the most recent cards
+  for (const cl of clusters.reverse()) {
+    if (res.stopped || res.read + 10 > FEED_READ_CAP) { cl.items.forEach((t) => (t.unsearched = true)); continue; }
+    const params = new URLSearchParams({ query, max_results: "10", start_time: new Date(cl.min - 2 * DAY_MS).toISOString(),
+      end_time: new Date(Math.min(cl.max + 2 * DAY_MS, Date.now() - 60000)).toISOString(), ...X_FIELDS });
+    const r = await fetchFn(`https://api.x.com/2/tweets/search/all?${params}`, { headers: auth, signal: AbortSignal.timeout(20000) });
+    res.calls++;
+    const j = await r.json().catch(() => ({}));
+    log(`• feed check search ${new Date(cl.min - 2 * DAY_MS).toISOString().slice(0, 10)}→${new Date(cl.max + 2 * DAY_MS).toISOString().slice(0, 10)}: HTTP ${r.status}, ${(j.data || []).length} post(s)`);
+    if (r.status === 401 || r.status === 403) { res.stopped = `HTTP ${r.status}`; cl.items.forEach((t) => (t.unsearched = true)); continue; }
+    if (!r.ok) { cl.items.forEach((t) => (t.unsearched = true)); continue; }
+    res.read += (j.data || []).length;
+    const mk = Object.fromEntries(((j.includes && j.includes.media) || []).map((m) => [m.media_key, m]));
+    const us = Object.fromEntries(((j.includes && j.includes.users) || []).map((u) => [u.id, u]));
+    const posts = (j.data || []).filter((p) => trusted.has(p.author_id)).map((p) => xPostCard(p, mk, us));
+    for (const t of cl.items) {
+      const ev = vehiclesIn(t.h.text);
+      t.best = posts.filter((p) => !used.has(p.post_id) && Math.abs(Date.parse(p.created_at) - t.day) <= 2.5 * DAY_MS && titleMatches(p.text, t.h.text, t.c.id)
+        && (ev.size ? [...vehiclesIn(p.text)].some((v) => ev.has(v)) : (BOX_WORDS[t.c.id] || []).some((re) => re.test(p.text))))
+        .sort((a, b) => Math.abs(Date.parse(a.created_at) - t.day) - Math.abs(Date.parse(b.created_at) - t.day))[0];
+      if (t.best) used.add(t.best.post_id);
+    }
+  }
+  for (const t of todo) {
+    const { c, h } = t;
+    if (!t.best) { h.feed_hide = true; res.dropped.push(`${c.id} ${h.date} "${h.text}"${t.unsearched ? " (not searched: budget/stop)" : !Number.isFinite(t.day) ? " (no date)" : ""}`); continue; }
+    h.x_post = t.best; delete h.feed_hide;
+    h.x_text = h.text;
+    if (rewrite) { try { const v = await rewrite(h, [t.best], c); if (v) h.x_text = v; } catch (e) { log(`• feed check rewrite failed (${e.message}) — kept the entry text`); } }
+    res.matched.push(`${c.id} ${h.date} "${h.x_text}" ← @${t.best.author.username} ${t.best.created_at} (${t.best.media.length} media)`);
+  }
+  if (!res.stopped) road.feedVerified = new Date().toISOString();
+  return res;
+}
 // The writer's short, plain rewrite of an entry from its trusted X post(s). Never quotes the post.
 const REWRITE_SCHEMA = { type: "object", additionalProperties: false, required: ["line"], properties: { line: { type: "string" } } };
 async function rewriteFromPosts(h, posts, c) {
@@ -726,7 +795,7 @@ function applyUpdates(road, items, updates, log, limit) {
     if (it.publishedAt && it.timeKnown !== false) entry.publishedAt = it.publishedAt;
     // the full trusted X post behind the entry (Road to Flight N page), same strict match
     if (it.xpost && isTrusted(it.tier) && titleMatches(it.xpost.text, line, box.id)) {
-      entry.x_post = it.xpost;
+      entry.x_post = it.xpost; entry.x_text = line;
       if (it.xpost.author.username) { entry.src = `@${it.xpost.author.username}`; entry.url = it.xpost.url; } // credit + link follow the post
     }
     const change = { box, entry, from: box.status, to: box.status, item: it, u, headline: "kept" };
@@ -1040,6 +1109,17 @@ async function run(opts = {}) {
       }
     }
   }
+  // 4a0. One-off feed verification against full-archive X search (no push)
+  if ((!opts.sources && mode === "live") || opts.verifyFeed) {
+    try {
+      const vf = await verifyFeed(road, { token: process.env.X_BEARER_TOKEN, rewrite: rewriteFromPosts, ...(opts.verifyFeed || {}), log });
+      if (vf.calls) {
+        log(`feed check: ${vf.calls} call(s), ${vf.read} post(s) read${vf.stopped ? `, stopped (${vf.stopped})` : ""}; kept ${vf.kept.length}, matched ${vf.matched.length}, hidden from feed ${vf.dropped.length}`);
+        [...vf.kept.map((x) => "kept: " + x), ...vf.matched.map((x) => "matched: " + x), ...vf.dropped.map((x) => "hidden: " + x)].forEach((x) => log("  " + x));
+        changed = true;
+      }
+    } catch (e) { log(`feed check failed: ${e.message} — tried again next run`); }
+  }
   // 4a. Older entries: one-off X backfill (no push; strict match; under 30 posts read)
   for (const ch of changes) ch.entry.xChecked = true;
   if (!opts.sources || opts.backfillX) {
@@ -1135,7 +1215,7 @@ async function run(opts = {}) {
   return { road, changes, notifications, refreshed, state, scheduledSent, newsPushes };
 }
 
-module.exports = { backfillX, xPostCard, xIdOf, readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, titleMatches, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
+module.exports = { verifyFeed, entryDayMs, backfillX, xPostCard, xIdOf, readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, titleMatches, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
 
 if (require.main === module) {
   run().catch((err) => {

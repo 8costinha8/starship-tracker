@@ -1227,21 +1227,32 @@ function feedTime(iso) {
   return new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/London", hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date(iso));
 }
 
+// Which flight a card belongs to: Road vehicles → the next flight; a flown vehicle → its flight;
+// else "Flight N" in the text; else the next flight.
+function flightOf(h, road) {
+  const txt = `${h.x_text || ""} ${h.text || ""} ${(h.x_post && h.x_post.text) || ""}`;
+  const vs = [...txt.matchAll(/\b(Ship|Booster|S|B)[\s-]?(\d{1,3})\b/g)].map((m) => (m[1][0].toUpperCase() === "S" ? "S" : "B") + Number(m[2]));
+  if (vs.some((v) => (road.vehicles || []).includes(v))) return road.flight;
+  for (const v of vs) { const f = [...FLIGHTS].reverse().find((x) => x.booster === v || x.ship === v); if (f) return f.n; }
+  const m = txt.match(/\bFlight\s+(\d{1,3})\b/i);
+  return m ? Number(m[1]) : road.flight;
+}
+// Road to Flight N page: only cards backed by a trusted X post, in sections by flight (newest flight first).
 function buildFeed(road) {
   if (!road || !Array.isArray(road.categories)) return { posts: [], rows: [] };
   const posts = [];
-  road.categories.filter((c) => !ROAD_HIDDEN.includes(c.id)).forEach((c, ci) => (c.history || []).forEach((h, hi) => isRealEntry(h) && posts.push({
-    h, cat: c, ci, hi, id: `${c.id}-${hi}`, day: feedDay(h.date, road.updatedAt), at: Date.parse(h.at) || 0, check: h.kind === "check" ? 1 : 0,
+  road.categories.filter((c) => !ROAD_HIDDEN.includes(c.id)).forEach((c, ci) => (c.history || []).forEach((h, hi) => isRealEntry(h) && h.x_post && !h.feed_hide && posts.push({
+    h, cat: c, ci, hi, id: `${c.id}-${hi}`, day: feedDay(h.date, road.updatedAt), at: Date.parse(h.x_post.created_at || h.at) || 0, flight: flightOf(h, road),
   })));
-  // newest first: day, then "no news" checks last in their day, then publish time, then card order
-  posts.sort((a, b) => b.day - a.day || a.check - b.check || b.at - a.at || a.ci - b.ci || a.hi - b.hi);
-  if (!posts.length) return { posts, rows: [] };
-  const newest = posts[0].day, oldest = Math.min(...posts.map((p) => p.day));
-  const flights = FLIGHTS.map((f) => ({ ...f, day: londonDayUTC(f.date) }))
-    .filter((f) => f.day >= oldest && f.day <= newest + DAY).sort((a, b) => b.day - a.day);
+  posts.sort((a, b) => b.flight - a.flight || b.day - a.day || b.at - a.at || a.ci - b.ci || a.hi - b.hi);
   const rows = [];
+  let cur = null;
   for (const p of posts) {
-    while (flights.length && flights[0].day > p.day) rows.push({ divider: flights.shift() });
+    if (p.flight !== cur) {
+      cur = p.flight;
+      const f = FLIGHTS.find((x) => x.n === cur);
+      rows.push({ section: { n: cur, flown: f ? { ...f, day: londonDayUTC(f.date) } : null, next: cur === road.flight } });
+    }
     rows.push({ post: p });
   }
   return { posts, rows };
@@ -1253,6 +1264,37 @@ const PLAY_ICON = <span className="post-media-play" aria-hidden="true"><svg view
 // The source's own preview (image, or a looping muted video), linking to the original.
 // Only the photos / video attached to the entry's trusted X post, with a tiny credit and
 // a View on X link. No X media → text only. Videos play inline (controls, preload none).
+// X videos: video.twimg.com refuses requests that carry our site as Referer (403), so the page
+// switches to no-referrer while a video loads/plays and back afterwards. The file only loads on
+// tap (preload none), plays inline with controls, never autoplays; taps never reach the card.
+// If it still fails, the poster becomes a link to the post.
+function setNoReferrer(on) {
+  let m = document.querySelector('meta[name="referrer"]');
+  if (!m) { m = document.createElement("meta"); m.name = "referrer"; document.head.appendChild(m); }
+  m.content = on ? "no-referrer" : "strict-origin-when-cross-origin";
+}
+function XVideo({ m, url }) {
+  const ref = React.useRef(null);
+  const [state, setState] = React.useState("idle"); // idle | on | failed
+  const stop = (e) => e.stopPropagation();
+  const start = (e) => {
+    e.stopPropagation(); e.preventDefault();
+    const v = ref.current; if (!v) return;
+    setNoReferrer(true);
+    if (!v.getAttribute("src")) v.src = m.video_url;
+    v.controls = true; setState("on");
+    const pr = v.play(); if (pr && pr.catch) pr.catch(() => {});
+  };
+  if (state === "failed") return <a href={url} target="_blank" rel="noopener noreferrer" onClick={stop}><img src={m.poster} alt="" loading="lazy" referrerPolicy="no-referrer" />{PLAY_ICON}</a>;
+  return (
+    <div className="xm-video" onClick={stop} onTouchEnd={stop}>
+      <video ref={ref} poster={m.poster} playsInline webkit-playsinline="true" preload="none" muted={false}
+        onPlay={() => setNoReferrer(true)} onPause={() => setNoReferrer(false)} onEnded={() => setNoReferrer(false)}
+        onError={() => { if (state !== "idle" || ref.current.getAttribute("src")) { setNoReferrer(false); setState("failed"); } }} />
+      {state === "idle" && <button className="xm-play" aria-label="Play video" onClick={start}>{PLAY_ICON}</button>}
+    </div>
+  );
+}
 function XMedia({ x }) {
   const [bad, setBad] = React.useState({});
   const media = (x.media || []).map((m, i) => ({ ...m, i })).filter((m) => !bad[m.i] && (m.type === "photo" ? m.url : m.video_url || m.poster));
@@ -1264,7 +1306,7 @@ function XMedia({ x }) {
         {media.slice(0, 4).map((m) => m.type === "photo"
           ? <a key={m.i} href={x.url} target="_blank" rel="noopener noreferrer"><img src={m.url} alt="" loading="lazy" referrerPolicy="no-referrer" onError={off(m.i)} /></a>
           : m.video_url
-          ? <video key={m.i} src={m.video_url} poster={m.poster} controls playsInline preload="none" onError={off(m.i)} />
+          ? <XVideo key={m.i} m={m} url={x.url} />
           : <a key={m.i} href={x.url} target="_blank" rel="noopener noreferrer"><img src={m.poster} alt="" loading="lazy" referrerPolicy="no-referrer" onError={off(m.i)} />{PLAY_ICON}</a>)}
       </div>
       <div className="xm-foot"><span>@{x.author && x.author.username}</span>
@@ -1279,15 +1321,17 @@ function FeedPost({ p, onPhotoTap }) {
   const { h, cat } = p;
   const sid = entryId(h);
   return (
-    <article className={"post" + (h.complete ? " post-done" : "") + (Seen.wasSeen(sid) ? " is-seen" : "")} id={`post-${p.id}`} data-id={p.id} style={{ "--c": cat.color }}
-      ref={(el) => observeSeen(el, sid)}>
+    <article className={"post post-tap" + (h.complete ? " post-done" : "") + (Seen.wasSeen(sid) ? " is-seen" : "")} id={`post-${p.id}`} data-id={p.id} style={{ "--c": cat.color }}
+      ref={(el) => observeSeen(el, sid)} role="link" tabIndex={0} aria-label={`${h.x_text || h.text} — open the post on X`}
+      onClick={(e) => { if (e.target.closest("a, video, button, .xm-video")) return; window.open(urlOf(h), "_blank", "noopener,noreferrer"); }}
+      onKeyDown={(e) => { if (e.key === "Enter" && e.target === e.currentTarget) window.open(urlOf(h), "_blank", "noopener,noreferrer"); }}>
       <div className="post-top">
         <span className="chip"><span className="chip-i">{cat.icon}</span>{cat.name}</span>
         <span className="post-sep">·</span>
         <span className="post-date">{h.date}{feedTime(h.publishedAt) ? ` · ${feedTime(h.publishedAt)}` : ""}</span>
         {h.trust === "unconfirmed" && <span className="mini-unc">Unconfirmed</span>}
       </div>
-      <p className="post-text">{h.text}</p>
+      <p className="post-text">{h.x_text || h.text}</p>
       {h.x_post && <XMedia x={h.x_post} />}
       <div className="post-foot">
         <span className="post-src">{srcOf(h)}</span>
@@ -1371,8 +1415,10 @@ function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap }) {
           <span />
         </header>
         <div className="feed-list">
-          {rows.map((r) => r.divider
-            ? <div className="fdiv" key={"f" + r.divider.n}><span><b>{`Flight ${r.divider.n}`}</b> <i>·</i> <span className={"fdiv-" + r.divider.outcome}>{OUTCOME_LABEL[r.divider.outcome] || r.divider.outcome}</span> <i>·</i> {`${new Date(r.divider.day).getUTCDate()} ${FEED_MONTHS[new Date(r.divider.day).getUTCMonth()]}`}</span></div>
+          {rows.map((r) => r.section
+            ? <div className="fdiv" key={"f" + r.section.n}><span><b>{`Flight ${r.section.n}`}</b> <i>·</i> {r.section.flown
+                ? <><span className={"fdiv-" + r.section.flown.outcome}>{OUTCOME_LABEL[r.section.flown.outcome] || r.section.flown.outcome}</span> <i>·</i> {`${new Date(r.section.flown.day).getUTCDate()} ${FEED_MONTHS[new Date(r.section.flown.day).getUTCMonth()]}`}</>
+                : <span className="fdiv-next">{r.section.next ? "Next flight" : "Upcoming"}</span>}</span></div>
             : <FeedPost key={r.post.id} p={r.post} onPhotoTap={onPhotoTap} />)}
           <p className="end">That's every update so far.</p>
         </div>
@@ -2127,6 +2173,12 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .xm-grid.n2, .xm-grid.n4 { grid-template-columns: 1fr 1fr; }
 .xm-grid.n3 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
 .xm-grid.n3 > :first-child { grid-row: span 2; }
+.xm-video { position: relative; min-height: 0; min-width: 0; background: #000; }
+.xm-video video { position: absolute; inset: 0; }
+.xm-play { all: unset; position: absolute; inset: 0; cursor: pointer; }
+.post-tap { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.post-tap:focus-visible { outline: 2px solid #A9BDF0; outline-offset: 3px; }
+.fdiv-next { color: #A9BDF0; font-weight: 600; }
 .xm-grid > a, .xm-grid > video { position: relative; display: block; min-height: 0; min-width: 0; }
 .xm-grid img, .xm-grid video { width: 100%; height: 100%; object-fit: cover; display: block; }
 .xm-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; font-size: 10.5px; color: var(--muted); }
