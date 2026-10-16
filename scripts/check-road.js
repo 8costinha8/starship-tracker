@@ -276,6 +276,89 @@ function xMedia(list) {
   }
   return null;
 }
+/* ───────────── full X post cards (Road to Flight N page) ─────────────
+   Stored per entry as x_post: { post_id, url, created_at, text, author: { name, username, avatar },
+   media: [{ type: "photo", url } | { type: "video", poster, video_url? }] } so the page needs no X calls.
+   Videos: the highest-bitrate mp4 the API returns (played inline with controls); none → poster only. */
+function xPostCard(p, mediaByKey, usersById) {
+  const u = usersById[p.author_id] || {};
+  const media = ((p.attachments && p.attachments.media_keys) || []).map((k) => mediaByKey[k]).filter(Boolean).map((m) => {
+    if (m.type === "photo") return m.url ? { type: "photo", url: m.url } : null;
+    const mp4 = (m.variants || []).filter((v) => v.content_type === "video/mp4" && v.url).sort((a, b) => (b.bit_rate || 0) - (a.bit_rate || 0));
+    if (!m.preview_image_url && !mp4.length) return null;
+    return { type: "video", ...(m.preview_image_url ? { poster: m.preview_image_url } : {}), ...(mp4.length ? { video_url: mp4[0].url } : {}) };
+  }).filter(Boolean);
+  const text = decode((p.note_tweet && p.note_tweet.text) || p.text || "").replace(/\s*https:\/\/t\.co\/\w+$/, "");
+  return { post_id: p.id, url: `https://x.com/${u.username || "i"}/status/${p.id}`, created_at: p.created_at, text,
+    author: { name: u.name || u.username || "", username: u.username || "", ...(u.profile_image_url ? { avatar: u.profile_image_url } : {}) }, media };
+}
+// News fallback card (only when no X post): title, summary, og:image only if it strictly matches, link.
+async function newsCardFor(url, entry, getText = fetchPage) {
+  try {
+    const yt = youtubeId(url);
+    if (yt) {
+      const meta = JSON.parse(await getText(`https://www.youtube.com/oembed?format=json&url=${encodeURIComponent(`https://www.youtube.com/watch?v=${yt}`)}`));
+      if (!meta.title) return null;
+      return { title: decode(meta.title), summary: "", link: url, ...(titleMatches(meta.title, entry.text, entry.box) ? { image: `https://i.ytimg.com/vi/${yt}/hqdefault.jpg` } : {}) };
+    }
+    if (/^https?:\/\/(x|twitter)\.com\//i.test(url)) return null;
+    const html = await getText(url);
+    const title = pageTitle(html);
+    if (!title) return null;
+    const og = titleMatches(title, entry.text, entry.box) ? parseOgMedia(html, url) : null;
+    const img = (og && (og.type === "image" ? og.url : og.poster)) || (captionedImage(html, url, entry.text) || {}).url;
+    return { title: title.replace(/\s+[-|–]\s+[^-|–]+$/, ""), summary: decode(metaContent(html, ["og:description", "description", "twitter:description"]) || "").slice(0, 300), link: url, ...(img ? { image: img } : {}) };
+  } catch { return null; }
+}
+const STAGE_WORDS = { cryo: "cryo", raptor: "Raptor", static: `"static fire"`, pad: "(chopsticks OR Pad OR rollout OR stack)", faa: "FAA", date: `("Flight 15" OR NET)` };
+// One-off: for entries without a post, ONE 7-day recent search (two if the query is too long)
+// of the trusted from: list + stage keywords; attach a post only on a clear match.
+async function backfillPosts(road, { token, xUserIds = {}, fetchFn = fetch, newsFn = newsCardFor, log = console.log } = {}) {
+  const res = { calls: 0, read: 0, attached: [], news: [], empty: [] };
+  const todo = [];
+  for (const c of road.categories) for (const h of c.history || []) if (!isCheck(h) && !h.postChecked && !h.x_post) todo.push({ c, h });
+  if (!todo.length) return res;
+  if (!token) { log("• post backfill: no X token — waiting for a run that has one"); return res; }
+  const handles = Object.keys(X_ACCOUNTS).filter((h) => xUserIds[h] && xUserIds[h] !== "none" || X_ACCOUNTS[h].id);
+  const words = [...new Set([...vehicleWords(road).map((w) => (w.includes(" ") ? `"${w}"` : w)), ...todo.map((t) => STAGE_WORDS[t.c.id]).filter(Boolean)])];
+  const build = (hs) => `(${hs.map((h) => `from:${h}`).join(" OR ")}) (${words.join(" OR ")}) -is:retweet -is:reply`;
+  const groups = build(handles).length <= 512 ? [handles] : [handles.slice(0, Math.ceil(handles.length / 2)), handles.slice(Math.ceil(handles.length / 2))];
+  const posts = [];
+  for (const g of groups) {
+    const params = new URLSearchParams({ query: build(g), max_results: "100", start_time: new Date(Date.now() - 7 * 86400000 + 120000).toISOString(),
+      "tweet.fields": "created_at,author_id,attachments,note_tweet", expansions: "attachments.media_keys,author_id",
+      "media.fields": "type,url,preview_image_url,variants,width,height", "user.fields": "name,username,profile_image_url" });
+    const r = await fetchFn(`https://api.x.com/2/tweets/search/recent?${params}`, { headers: { authorization: `Bearer ${token}`, "user-agent": UA }, signal: AbortSignal.timeout(20000) });
+    res.calls++;
+    const j = await r.json().catch(() => ({}));
+    log(`• post backfill X search: HTTP ${r.status}, ${(j.data || []).length} post(s), query ${build(g).length} chars`);
+    if (!r.ok) throw new Error(`X HTTP ${r.status}`);
+    const mk = Object.fromEntries(((j.includes && j.includes.media) || []).map((m) => [m.media_key, m]));
+    const us = Object.fromEntries(((j.includes && j.includes.users) || []).map((u) => [u.id, u]));
+    for (const p of j.data || []) posts.push(xPostCard(p, mk, us));
+  }
+  res.read = posts.length;
+  const used = new Set();
+  for (const { c, h } of todo) {
+    const at = Date.parse(h.publishedAt || h.at || "") || NaN;
+    const idInUrl = (String(h.url || "").match(/status\/(\d+)/) || [])[1];
+    // the post that triggered it, else a clearly matching post within 2 days of the entry
+    let best = posts.find((p) => p.post_id === idInUrl);
+    if (!best) {
+      const ok = posts.filter((p) => !used.has(p.post_id) && titleMatches(p.text, h.text, c.id) && vehiclesIn(p.text).size > 0 && [...vehiclesIn(p.text)].some((v) => vehiclesIn(h.text).has(v)) && Number.isFinite(at) && Math.abs(Date.parse(p.created_at) - at) < 2 * 86400000);
+      ok.sort((a, b) => Math.abs(Date.parse(a.created_at) - at) - Math.abs(Date.parse(b.created_at) - at));
+      best = ok[0];
+    }
+    if (best) { h.x_post = best; used.add(best.post_id); res.attached.push(`${c.id} "${h.text}" ← @${best.author.username} ${best.created_at}`); }
+    else if (h.url) {
+      const n = await newsFn(h.url, { text: h.text, box: c.id });
+      if (n) { h.news_card = n; res.news.push(`${c.id} "${h.text}" ← ${h.src}: ${n.title}${n.image ? " (with image)" : ""}`); }
+      else res.empty.push(`${c.id} "${h.text}"`);
+    } else res.empty.push(`${c.id} "${h.text}"`);
+    h.postChecked = true;
+  }
+  return res;
+}
 // Road stage image fields, from the entry's (already strictly matched) media: the still to
 // show (a video's poster), its credit (source name) and the post/story it opens.
 function setImage(entry) {
@@ -555,8 +638,8 @@ const SOURCES = [
       const words = ["Starship", "Starbase", `"Super Heavy"`, "Raptor", "Massey", `"Flight ${road.flight}"`, `"Flight ${road.flight + 1}"`, ...vehicleWords(road).map((w) => (w.includes(" ") ? `"${w}"` : w))];
       const from = Object.keys({ ...X_ACCOUNTS, ...PREDICT_X_ACCOUNTS }).filter((h) => state.xUserIds[h] && state.xUserIds[h] !== "none").map((h) => `from:${h}`);
       const query = `(${from.join(" OR ")}) (${words.join(" OR ")}) -is:retweet -is:reply`;
-      const params = new URLSearchParams({ query, max_results: "25", "tweet.fields": "created_at,author_id,attachments",
-        expansions: "attachments.media_keys", "media.fields": "type,url,preview_image_url,variants" }); // media come back in the same call
+      const params = new URLSearchParams({ query, max_results: "25", "tweet.fields": "created_at,author_id,attachments,note_tweet",
+        expansions: "attachments.media_keys,author_id", "media.fields": "type,url,preview_image_url,variants,width,height", "user.fields": "name,username,profile_image_url" }); // media + author in the same call
       // since_id only if it is a sane post id: not in the future and inside recent search's 7-day window
       const sinceMs = state.xSinceId ? snowflakeMs(state.xSinceId) : NaN;
       const sinceOk = Number.isFinite(sinceMs) && sinceMs <= Date.now() + 60000 && Date.now() - sinceMs < 6.5 * 86400000;
@@ -572,11 +655,13 @@ const SOURCES = [
       if (!r.ok) throw new Error(`HTTP ${r.status}${errs.length ? ` ${errs[0]}` : ""}`);
       if (j.meta && j.meta.newest_id) state.xSinceId = j.meta.newest_id;
       const mediaByKey = Object.fromEntries(((j.includes && j.includes.media) || []).map((m) => [m.media_key, m]));
+      const usersById = Object.fromEntries(((j.includes && j.includes.users) || []).map((u) => [u.id, u]));
       return (j.data || []).map((p) => {
         const handle = byId[p.author_id] || "unknown";
+        const xpost = xPostCard(p, mediaByKey, usersById);
         const t = X_ACCOUNTS[handle] || PREDICT_X_ACCOUNTS[handle] || { src: `@${handle}`, tier: "unconfirmed" };
         return { ...(PREDICT_X_ACCOUNTS[handle] ? { predictOnly: true } : {}), key: `x:${p.id}`, title: `@${handle} on X`, text: decode(p.text).slice(0, 600), url: `https://x.com/${handle}/status/${p.id}`, publishedAt: p.created_at, src: t.src, source: `x:${handle}`, tier: t.tier,
-          media: xMedia(((p.attachments && p.attachments.media_keys) || []).map((k) => mediaByKey[k]).filter(Boolean)) || undefined };
+          media: xMedia(((p.attachments && p.attachments.media_keys) || []).map((k) => mediaByKey[k]).filter(Boolean)) || undefined, xpost };
       });
     },
   },
@@ -765,6 +850,8 @@ function applyUpdates(road, items, updates, log, limit) {
       if (titleMatches(it.text, line, box.id)) entry.media = it.media;
       else log(`image rejected [${box.id}] post media doesn't name the same vehicle/topic: ${it.url}`);
     }
+    // the full trusted X post behind the entry (Road to Flight N page), same strict match
+    if (it.xpost && isTrusted(it.tier) && titleMatches(it.xpost.text, line, box.id)) entry.x_post = it.xpost;
     const change = { box, entry, from: box.status, to: box.status, item: it, u, headline: "kept" };
     let want = STATUSES.includes(u.status) ? u.status : null;
     if (want === "complete" && box.id === "date") { log(`ignored status complete for [date] (Launch date uses done = Confirmed)`); want = null; }
@@ -1085,6 +1172,8 @@ async function run(opts = {}) {
     }
     setImage(ch.entry);
     if (ch.entry.url) ch.entry.imageChecked = true;
+    if (!ch.entry.x_post && ch.entry.url && !opts.sources) { const n = await newsCardFor(ch.entry.url, { text: ch.entry.text, box: ch.box.id }); if (n) ch.entry.news_card = n; }
+    ch.entry.postChecked = true;
   }
   // 4a2. One-off image backfill for older entries (no push; strict match, unsure → none)
   if (!opts.sources || opts.backfill) {
@@ -1094,6 +1183,17 @@ async function run(opts = {}) {
       bf.rejected.forEach((r) => log(`  no image — ${r}`));
       changed = true;
     }
+  }
+  // 4a3. One-off post backfill for older entries (no push)
+  if (!opts.sources || opts.backfillPosts) {
+    try {
+      const bp = await backfillPosts(road, { token: process.env.X_BEARER_TOKEN, xUserIds: state.xUserIds, ...(opts.backfillPosts || {}), log });
+      if (bp.calls) {
+        log(`post backfill: ${bp.calls} X call(s), ${bp.read} post(s) read; ${bp.attached.length} X post(s), ${bp.news.length} news card(s), ${bp.empty.length} empty`);
+        [...bp.attached.map((x) => "X: " + x), ...bp.news.map((x) => "news: " + x), ...bp.empty.map((x) => "empty: " + x)].forEach((x) => log("  " + x));
+        changed = true;
+      }
+    } catch (e) { log(`post backfill failed: ${e.message} — tried again next run`); }
   }
   for (const ch of changes) notifications.push(notificationFor(road, ch));
   if (changes.length) changed = true;
@@ -1178,7 +1278,7 @@ async function run(opts = {}) {
   return { road, changes, notifications, refreshed, state, scheduledSent, newsPushes };
 }
 
-module.exports = { backfillImages, setImage, readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, parseOgMedia, xMedia, youtubeId, mediaFor, titleMatches, captionedImage, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
+module.exports = { backfillPosts, xPostCard, newsCardFor, backfillImages, setImage, readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, parseOgMedia, xMedia, youtubeId, mediaFor, titleMatches, captionedImage, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
 
 if (require.main === module) {
   run().catch((err) => {
