@@ -47,7 +47,7 @@ const predict = require("./predicted.js");
 const news = require("./news.js");
 
 const ROOT = path.join(__dirname, "..");
-const ANTHROPIC_MODEL = "claude-sonnet-5"; // same model as check-flights.js
+const writer = require("./writer.js"); // WRITER=grok (default, Claude fallback) | claude
 
 const LIMITS = {
   itemsToClaude: 12,     // most posts sent to Claude in one run
@@ -569,39 +569,33 @@ Items:
 ${list}`;
 }
 
-// Sonnet 5 thinks adaptively (no budget_tokens; that's a 400). max_tokens covers
-// thinking + answer, so it's set well above what this small task needs.
-// An empty or unparseable reply is retried once; then err.empty = true.
-async function askClaude(prompt, log = console.log) {
-  for (let attempt = 1; attempt <= 2; attempt++) {
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: { "x-api-key": process.env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-      body: JSON.stringify({ model: ANTHROPIC_MODEL, max_tokens: LIMITS.claudeMaxTokens, messages: [{ role: "user", content: prompt }] }),
-    });
-    const json = await res.json();
-    if (json.error) throw new Error(`Anthropic API error (${json.error.type}): ${String(json.error.message).slice(0, 2000)}`);
-    const blocks = (json.content || []).map((b) => b.type).join(",") || "none";
-    log(`Claude stop_reason: ${json.stop_reason} (attempt ${attempt}, blocks: ${blocks}, output tokens: ${json.usage?.output_tokens ?? "?"})`);
-    const text = json.content?.find((b) => b.type === "text")?.text;
-    let problem;
-    if (!text || !text.trim()) problem = "no text in the reply";
-    else {
-      try {
-        const cleaned = text.replace(/```json|```/g, "").trim();
-        const parsed = JSON.parse(cleaned.slice(cleaned.indexOf("["), cleaned.lastIndexOf("]") + 1));
-        if (!Array.isArray(parsed)) throw new Error("not a JSON array");
-        Object.defineProperty(parsed, "raw", { value: text, enumerable: false }); // logged in preview only
-        return parsed;
-      } catch (err) { problem = `unparseable reply (${err.message})`; }
-    }
-    // thinking signatures are long base64; show their size instead
-    const body = JSON.stringify({ ...json, content: (json.content || []).map((b) => (b.signature ? { ...b, signature: `[${b.signature.length} chars]` } : b)) });
-    log(`Claude reply problem: ${problem}${attempt < 2 ? " — retrying once" : ""}. Body: ${body.slice(0, 2000)}`);
-    if (attempt < 2) await new Promise((ok) => setTimeout(ok, LIMITS.claudeRetryMs));
-    else { const err = new Error(`${problem}, twice`); err.empty = true; throw err; }
-  }
+// The writer (scripts/writer.js): Grok by default, with an automatic Claude fallback
+// on any Grok error / empty / invalid reply. Both get the same prompt; Grok also gets
+// a strict JSON schema ({"entries": [...]}, unwrapped back to the array).
+const nul = (t) => ({ type: [t, "null"] });
+const entriesSchema = (props) => ({
+  type: "object", additionalProperties: false, required: ["entries"],
+  properties: { entries: { type: "array", items: { type: "object", additionalProperties: false, required: Object.keys(props), properties: props } } },
+});
+const ROAD_SCHEMA = entriesSchema({
+  item: { type: "integer" }, skip: nul("boolean"), box: nul("string"), line: nul("string"), short: nul("string"),
+  status: nul("string"), supersedes: nul("boolean"), reason: nul("string"), vehicles: { type: ["array", "null"], items: { type: "string" } },
+});
+const DATES_SCHEMA = entriesSchema({ item: { type: "integer" }, date: nul("string") });
+const NEWS_SCHEMA = entriesSchema({ item: { type: "integer" }, push: { type: "boolean" }, dup: nul("string"), story: nul("string"), headline: nul("string"), reason: nul("string") });
+// JSON array out of the reply; null / empty-array fields dropped (a schema reply fills every key)
+function arrayReply(text) {
+  const cleaned = text.replace(/```json|```/g, "").trim();
+  const parsed = JSON.parse(cleaned.slice(cleaned.indexOf("["), cleaned.lastIndexOf("]") + 1));
+  if (!Array.isArray(parsed)) throw new Error("not a JSON array");
+  return parsed.map((e) => (e && typeof e === "object" ? Object.fromEntries(Object.entries(e).filter(([, v]) => v !== null && !(Array.isArray(v) && !v.length))) : e));
 }
+const askWriter = (schema, name) => (prompt, log = console.log) => writer.askJson(prompt, {
+  log, maxTokens: LIMITS.claudeMaxTokens, retryMs: LIMITS.claudeRetryMs, schema, schemaName: name, unwrap: "entries", extract: arrayReply,
+});
+const askClaude = askWriter(ROAD_SCHEMA, "road_updates"); // name kept: tests and callers inject askClaude
+const askDatesWriter = askWriter(DATES_SCHEMA, "predicted_dates");
+const askNewsWriter = askWriter(NEWS_SCHEMA, "news_pushes");
 
 // {"item": n, "skip": true, "reason": "..."} only explains a skip. "reason" is never stored.
 const isSkip = (u) => !!u && typeof u === "object" && (u.skip === true || (u.box == null && u.line == null && u.vehicles == null));
@@ -859,6 +853,7 @@ async function run(opts = {}) {
   const save = mode !== "preview";
 
   console.log(`=== Road checker (${mode}) ${new Date().toISOString()} ===`);
+  console.log(`writer: ${writer.writerLabel()} (${writer.writerModel()})${writer.writerName() === "grok" ? ", Claude fallback on any Grok failure" : ""}`);
   let road = JSON.parse(fs.readFileSync(roadPath, "utf8"));
   const prevState = await deps.loadState();
   const state = prevState || { seen: [] };
@@ -936,7 +931,7 @@ async function run(opts = {}) {
   state.predPending = [];
   if (predBatch.length) {
     const batchP = predBatch.slice(0, 8);
-    const askDates = opts.askDates || (opts.askClaude ? async () => [] : askClaude); // test-road's fake Claude only knows the Road prompt
+    const askDates = opts.askDates || (opts.askClaude ? async () => [] : askDatesWriter); // test-road's fake Claude only knows the Road prompt
     try {
       const reply = await askDates(predict.buildDatePrompt(target, batchP), log);
       mentions = predict.mentionsFromReply(batchP, reply, target, clock());
@@ -995,7 +990,7 @@ async function run(opts = {}) {
     let updates = null;
     try {
       updates = await (opts.askClaude || askClaude)(buildPrompt(road, batch), log);
-      log(`Claude returned ${updates.filter((u) => !isSkip(u)).length} update(s) and ${updates.filter(isSkip).length} skip(s) for ${batch.length} item(s)`);
+      log(`${updates.writer || "writer"} returned ${updates.filter((u) => !isSkip(u)).length} update(s) and ${updates.filter(isSkip).length} skip(s) for ${batch.length} item(s)`);
     } catch (err) {
       if (err.empty) {
         log(`‼️ CLAUDE EMPTY REPLY — items NOT marked seen (${batch.length} will be retried next run): ${err.message}`);
@@ -1053,7 +1048,7 @@ async function run(opts = {}) {
     const fresh = newsCands.filter((it) => { if (roadKeys.has(it.key)) { state.news.seen.push(it.key); return false; } return true; });
     const nb = fresh.slice(0, 10);
     state.news.pending = fresh.slice(10).map(({ key, title, text, url, publishedAt, src, source, tier }) => ({ key, title, text, url, publishedAt, src, source, tier }));
-    const askNews = opts.askNews || (opts.askClaude || opts.sources ? null : askClaude); // fake test runs: only when a test passes askNews
+    const askNews = opts.askNews || (opts.askClaude || opts.sources ? null : askNewsWriter); // fake test runs: only when a test passes askNews
     if (nb.length && !askNews) nb.forEach((it) => state.news.seen.push(it.key));
     else if (nb.length) {
       const recent = state.news.sent.filter((x) => clock() - new Date(x.at).getTime() < 48 * 3600000);

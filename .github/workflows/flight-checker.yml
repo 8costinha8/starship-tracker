@@ -13,6 +13,13 @@ on:
         description: "Test mode only: how many hours back the road checker looks (blank = normal 72h + last road.json update)"
         type: string
         default: ""
+      writer:
+        description: "Which AI writes (Road lines, dates, news, flight stories). Grok falls back to Claude on any error."
+        type: choice
+        options:
+          - grok
+          - claude
+        default: grok
       test_push:
         description: "Send ONE test notification to every subscribed device, then stop (skips both checkers, changes nothing)"
         type: boolean
@@ -52,6 +59,8 @@ jobs:
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+          WRITER: ${{ inputs.writer || 'grok' }}
           TEST_MODE: ${{ inputs.test_mode }}
       # Road to Flight N card. Runs even if the step above failed.
       - run: node scripts/check-road.js
@@ -59,6 +68,8 @@ jobs:
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+          WRITER: ${{ inputs.writer || 'grok' }}
           X_BEARER_TOKEN: ${{ secrets.X_BEARER_TOKEN }}   # optional: leave unset to skip X
           TEST_MODE: ${{ inputs.test_mode }}
           ROAD_STALE_HOURS: ${{ inputs.stale_hours }}

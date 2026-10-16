@@ -34,7 +34,7 @@ const { execSync } = require("child_process");
 
 const LL2_ENDPOINT = "https://ll.thespacedevs.com/2.3.0/launches/upcoming/?search=Starship&limit=1&mode=list";
 const APP_JS_PATH = path.join(__dirname, "..", "app.js");
-const ANTHROPIC_MODEL = "claude-sonnet-5";
+const writer = require("./writer.js"); // WRITER=grok (default, Claude fallback) | claude
 
 function mapLL2Status(abbrev) {
   if (abbrev === "Go") return "confirmed";
@@ -125,33 +125,15 @@ ${styleExamples.map((s, i) => `Example ${i + 1}: ${s}`).join("\n")}
 Reply with ONLY valid JSON, nothing else, in this exact shape:
 {"headline": "a short 4-8 word caption, no period", "story": "the 2-4 sentence recap"}`;
 
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "x-api-key": process.env.ANTHROPIC_API_KEY,
-      "anthropic-version": "2023-06-01",
-      "content-type": "application/json",
-    },
-    body: JSON.stringify({
-      model: ANTHROPIC_MODEL,
-      max_tokens: 1024,
-      messages: [{ role: "user", content: prompt }],
-    }),
+  // Same prompt for either writer; Grok also gets the shape as a strict JSON schema.
+  // Grok fails → Claude (writer.js). One attempt each: if both fail, run() retries next run.
+  const story = await writer.askJson(prompt, {
+    maxTokens: 4096, claudeMaxTokens: 1024, attempts: 1, schemaName: "flight_story",
+    schema: { type: "object", additionalProperties: false, properties: { headline: { type: "string" }, story: { type: "string" } }, required: ["headline", "story"] },
+    extract: (t) => { const v = JSON.parse(t.replace(/```json|```/g, "").trim()); if (!v || typeof v.headline !== "string" || typeof v.story !== "string") throw new Error("not {headline, story}"); return v; },
   });
-  const json = await res.json();
-  if (json.error) {
-    throw new Error(`Anthropic API error (${json.error.type}): ${json.error.message}`);
-  }
-  const text = json.content?.find((b) => b.type === "text")?.text;
-  if (!text) {
-    throw new Error(`Anthropic API returned no text. Raw response: ${JSON.stringify(json)}`);
-  }
-  const cleaned = text.replace(/```json|```/g, "").trim();
-  try {
-    return JSON.parse(cleaned);
-  } catch {
-    throw new Error(`Claude's reply wasn't valid JSON. Raw text: ${cleaned}`);
-  }
+  console.log(`story written by ${story.writer}`);
+  return { headline: story.headline, story: story.story };
 }
 
 // Inserts the new flight object right before FLIGHTS's closing "];",
@@ -205,6 +187,7 @@ async function main() {
   // like, WITHOUT touching app.js, git, Firebase, or sending any notification.
   if (process.env.TEST_MODE === "true") {
     console.log("=== TEST MODE — nothing will be saved, committed, or sent ===");
+    console.log(`writer: ${writer.writerLabel()} (${writer.writerModel()})`);
     const testFacts = {
       n: 9999, outcome: "success", date: new Date().toISOString(),
       pad: "Pad 2", block: "V3", booster: "B99", ship: "S99",
