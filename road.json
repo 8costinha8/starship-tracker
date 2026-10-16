@@ -24,38 +24,28 @@
           "url": "https://www.nasaspaceflight.com/2026/10/ship-40-returns-ship-42-more-testing/",
           "at": "2026-10-09T14:36:44.000Z",
           "key": "rss:https://www.nasaspaceflight.com/?p=115411",
-          "publishedAt": "2026-10-09T14:36:44.000Z",
-          "imageChecked": true,
-          "news_card": {
-            "title": "Ship 40 Returns Home as Ship 42 gets more Cryo Proof Testing",
-            "summary": "Ship 42 for Flight 15 has headed back out to Massey’s for more cryo-proof testing…",
-            "link": "https://www.nasaspaceflight.com/2026/10/ship-40-returns-ship-42-more-testing/"
-          },
-          "postChecked": true
+          "publishedAt": "2026-10-09T14:36:44.000Z"
         },
         {
           "date": "9–10 Sep",
           "text": "Booster 22 cryo tests at Massey's.",
           "src": "Next Spaceflight",
           "source": "next-spaceflight",
-          "trust": "trusted",
-          "postChecked": true
+          "trust": "trusted"
         },
         {
           "date": "9 Sep",
           "text": "Ship 42 heads back to Massey's for further cryo testing.",
           "src": "NSF (secondary)",
           "source": "nsf",
-          "trust": "trusted",
-          "postChecked": true
+          "trust": "trusted"
         },
         {
           "date": "3–4 Sep",
           "text": "Ship 42 completes two cryo proof tests at Massey's.",
           "src": "Next Spaceflight",
           "source": "next-spaceflight",
-          "trust": "trusted",
-          "postChecked": true
+          "trust": "trusted"
         }
       ]
     },
@@ -76,14 +66,7 @@
           "url": "https://www.youtube.com/watch?v=t9iGVxSx0aw",
           "at": "2026-10-14T18:59:28.000Z",
           "key": "rss:yt:video:t9iGVxSx0aw",
-          "publishedAt": "2026-10-14T18:59:28.000Z",
-          "imageChecked": true,
-          "news_card": {
-            "title": "Starship Flight 15 Date In Sight - With Catches Planned | Starship Update",
-            "summary": "",
-            "link": "https://www.youtube.com/watch?v=t9iGVxSx0aw"
-          },
-          "postChecked": true
+          "publishedAt": "2026-10-14T18:59:28.000Z"
         },
         {
           "date": "9 Oct",
@@ -94,38 +77,21 @@
           "url": "https://www.youtube.com/watch?v=dPqDD39cBEw",
           "at": "2026-10-08T23:00:08.000Z",
           "key": "rss:yt:video:dPqDD39cBEw",
-          "publishedAt": "2026-10-08T23:00:08.000Z",
-          "media": {
-            "type": "image",
-            "url": "https://i.ytimg.com/vi/dPqDD39cBEw/hqdefault.jpg"
-          },
-          "image_url": "https://i.ytimg.com/vi/dPqDD39cBEw/hqdefault.jpg",
-          "credit": "NSF",
-          "link": "https://www.youtube.com/watch?v=dPqDD39cBEw",
-          "imageChecked": true,
-          "news_card": {
-            "title": "Could Engine Work Delay Starship Flight 15? | Starship Update",
-            "summary": "",
-            "link": "https://www.youtube.com/watch?v=dPqDD39cBEw",
-            "image": "https://i.ytimg.com/vi/dPqDD39cBEw/hqdefault.jpg"
-          },
-          "postChecked": true
+          "publishedAt": "2026-10-08T23:00:08.000Z"
         },
         {
           "date": "30 Sep",
           "text": "B22 in Mega Bay 1, S42 in Mega Bay 2, both being fitted with Raptors.",
           "src": "NSF",
           "source": "nsf",
-          "trust": "trusted",
-          "postChecked": true
+          "trust": "trusted"
         },
         {
           "date": "12–13 Sep",
           "text": "Both vehicles back to the Mega Bays for Raptor installation.",
           "src": "NSF",
           "source": "nsf",
-          "trust": "trusted",
-          "postChecked": true
+          "trust": "trusted"
         }
       ]
     },
@@ -146,22 +112,14 @@
           "url": "https://www.nasaspaceflight.com/2026/10/ship-40-returns-ship-42-more-testing/",
           "at": "2026-10-09T14:36:44.000Z",
           "key": "rss:https://www.nasaspaceflight.com/?p=115411",
-          "publishedAt": "2026-10-09T14:36:44.000Z",
-          "imageChecked": true,
-          "news_card": {
-            "title": "Ship 40 Returns Home as Ship 42 gets more Cryo Proof Testing",
-            "summary": "Ship 42 for Flight 15 has headed back out to Massey’s for more cryo-proof testing…",
-            "link": "https://www.nasaspaceflight.com/2026/10/ship-40-returns-ship-42-more-testing/"
-          },
-          "postChecked": true
+          "publishedAt": "2026-10-09T14:36:44.000Z"
         },
         {
           "date": "30 Sep",
           "text": "B22 ready for static fire within ~2 weeks, S42 within 2–3 weeks. Estimate, not a SpaceX schedule.",
           "src": "NSF",
           "source": "nsf",
-          "trust": "trusted",
-          "postChecked": true
+          "trust": "trusted"
         }
       ]
     },
@@ -182,30 +140,21 @@
           "url": "https://www.youtube.com/watch?v=dPqDD39cBEw",
           "at": "2026-10-08T23:00:08.000Z",
           "key": "rss:yt:video:dPqDD39cBEw",
-          "publishedAt": "2026-10-08T23:00:08.000Z",
-          "imageChecked": true,
-          "news_card": {
-            "title": "Could Engine Work Delay Starship Flight 15? | Starship Update",
-            "summary": "",
-            "link": "https://www.youtube.com/watch?v=dPqDD39cBEw"
-          },
-          "postChecked": true
+          "publishedAt": "2026-10-08T23:00:08.000Z"
         },
         {
           "date": "30 Sep",
           "text": "Pad 2 clear after Flight 14. New servicing structure going in for hold-down clamp work.",
           "src": "NSF",
           "source": "nsf",
-          "trust": "trusted",
-          "postChecked": true
+          "trust": "trusted"
         },
         {
           "date": "11–12 Sep",
           "text": "S42 lifted by Pad 2 chopsticks in a catch position. SQD arm connect tests.",
           "src": "NSF",
           "source": "nsf",
-          "trust": "trusted",
-          "postChecked": true
+          "trust": "trusted"
         }
       ]
     },
@@ -222,8 +171,7 @@
           "text": "FAA licence issued for Flight 14 only. F15 needs a modification.",
           "src": "FAA via NSF",
           "source": "faa-via-nsf",
-          "trust": "trusted",
-          "postChecked": true
+          "trust": "trusted"
         }
       ]
     },
@@ -245,9 +193,7 @@
           "url": "https://www.youtube.com/watch?v=eeS1nYInJ2w",
           "at": "2026-10-14T18:22:50.000Z",
           "key": "rss:yt:video:eeS1nYInJ2w",
-          "publishedAt": "2026-10-14T18:22:50.000Z",
-          "imageChecked": true,
-          "postChecked": true
+          "publishedAt": "2026-10-14T18:22:50.000Z"
         },
         {
           "date": "9 Oct",
@@ -258,30 +204,21 @@
           "url": "https://www.nasaspaceflight.com/2026/10/ship-40-returns-ship-42-more-testing/",
           "at": "2026-10-09T14:36:44.000Z",
           "key": "rss:https://www.nasaspaceflight.com/?p=115411",
-          "publishedAt": "2026-10-09T14:36:44.000Z",
-          "imageChecked": true,
-          "news_card": {
-            "title": "Ship 40 Returns Home as Ship 42 gets more Cryo Proof Testing",
-            "summary": "Ship 42 for Flight 15 has headed back out to Massey’s for more cryo-proof testing…",
-            "link": "https://www.nasaspaceflight.com/2026/10/ship-40-returns-ship-42-more-testing/"
-          },
-          "postChecked": true
+          "publishedAt": "2026-10-09T14:36:44.000Z"
         },
         {
           "date": "30 Sep",
           "text": "B22 and S42 could be flight-ready by end of October.",
           "src": "NSF estimate",
           "source": "nsf",
-          "trust": "trusted",
-          "postChecked": true
+          "trust": "trusted"
         },
         {
           "date": "24 Sep",
           "text": "Air-traffic slide shows NET 19 Oct, labelled \"super provisional\".",
           "src": "NSF (unofficial)",
           "source": "nsf",
-          "trust": "trusted",
-          "postChecked": true
+          "trust": "trusted"
         }
       ]
     }

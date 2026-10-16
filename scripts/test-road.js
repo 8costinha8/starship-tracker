@@ -382,59 +382,12 @@ const box = (r, id) => r.categories.find((c) => c.id === id);
   const raw8b = fs.readFileSync(opts8.roadPath, "utf8");
   res = await road.run(opts8);
   check(fs.readFileSync(opts8.roadPath, "utf8") === raw8b && commits8.length === 1 && sent8.length === 0, "next run → no-op (no line re-added, no write, no commit, no push)");
-  const mediaCalls = [];
-  res = await road.run({ ...opts8, mediaFor: async (url, e) => { mediaCalls.push([url, e]); return { type: "image", url: "https://example.com/og.jpg" }; },
+  res = await road.run({ ...opts8,
     sources: [{ name: "fake", fetch: async () => [item6("r8", "Booster 22 static fire")] }], askClaude: async () => [{ item: 1, box: "static", line: "Booster 22 completed a static fire.", short: "B22 static fire done", status: "progress" }] });
   const st8 = JSON.parse(fs.readFileSync(opts8.roadPath, "utf8")).categories.find((c) => c.id === "static");
   check(st8.history[0].key === "rss:r8" && !st8.history.some((h) => h.kind === "check") && sent8.length === 1, "real news lands → on top with its true date, one push");
-  check(mediaCalls.length === 1 && mediaCalls[0][1].box === "static" && /static fire/.test(mediaCalls[0][1].text) && st8.history[0].media && st8.history[0].media.url === "https://example.com/og.jpg", "new entry with a link → one media lookup, stored as media");
-
-  console.log("\n────────── RUN 9: media extraction (fake HTML, no network) ──────────");
-  const art = `<html><head><meta property="og:title" content="x"><meta property="og:image" content="/wp-content/uploads/ship.jpg" /><meta name="twitter:image" content="https://cdn.example.com/t.jpg"></head></html>`;
-  check(JSON.stringify(road.parseOgMedia(art, "https://www.nasaspaceflight.com/2026/10/a/")) === JSON.stringify({ type: "image", url: "https://www.nasaspaceflight.com/wp-content/uploads/ship.jpg" }), "article og:image → image (relative URL resolved)");
-  const vid = `<meta content="https://cdn.example.com/clip.mp4" property="og:video"><meta property="og:video:type" content="video/mp4"><meta property="og:image" content="https://cdn.example.com/poster.jpg">`;
-  check(JSON.stringify(road.parseOgMedia(vid, "https://example.com/")) === JSON.stringify({ type: "video", url: "https://cdn.example.com/clip.mp4", poster: "https://cdn.example.com/poster.jpg" }), "og:video (mp4) → video with og:image as poster (attribute order doesn't matter)");
-  const embed = `<meta property="og:video" content="https://www.youtube.com/embed/abc"><meta property="og:video:type" content="text/html"><meta property="og:image" content="https://example.com/p.jpg">`;
-  check(road.parseOgMedia(embed, "https://example.com/").type === "image", "og:video that is a player page (text/html) → not a video, falls back to og:image");
-  check(road.parseOgMedia("<html><head><title>no tags</title></head></html>", "https://example.com/") === null && road.parseOgMedia(`<meta property="og:image" content="javascript:alert(1)">`, "https://example.com/") === null, "no og tags, or a non-http URL → no media (nothing invented)");
-  check(road.youtubeId("https://www.youtube.com/watch?v=dPqDD39cBEw") === "dPqDD39cBEw" && road.youtubeId("https://youtu.be/dPqDD39cBEw?t=4") === "dPqDD39cBEw" && road.youtubeId("https://www.youtube.com/shorts/dPqDD39cBEw") === "dPqDD39cBEw" && road.youtubeId("https://example.com/watch?v=x") === null, "YouTube id from watch / youtu.be / shorts URLs");
+  check(!st8.history[0].media && !st8.history[0].x_post && !st8.history[0].news_card, "news entry → no media, no card (only X post media are shown)");
   check(JSON.stringify([...road.vehiclesIn("Ship 42, B22, S43 and Booster 23 (Flight 15)")]) === JSON.stringify(["S42", "B22", "S43", "B23"]), "vehicles found: Ship 42 / B22 / S43 / Booster 23, not Flight 15");
-  const e42 = { text: "Ship 42 has returned to Massey's for a third round of cryo-proof testing.", box: "cryo" };
-  const page = (title, extra = "") => `<html><head><title>${title} - NSF</title><meta property="og:title" content="${title}"><meta property="og:image" content="https://cdn.example.com/lead.jpg"></head><body>${extra}</body></html>`;
-  let reads = [];
-  const fake = (html, yt) => async (u) => { reads.push(u); return u.includes("youtube.com/oembed") ? JSON.stringify({ title: yt }) : html; };
-  let mm = await road.mediaFor("https://example.com/a", e42, fake(page("Ship 42 heads back for more cryo testing")));
-  check(mm && mm.url === "https://cdn.example.com/lead.jpg", "single-topic article (title names Ship 42) → og:image kept");
-  mm = await road.mediaFor("https://example.com/b", e42, fake(page("Ship 40 Returns Home as Ship 42 gets more Cryo Proof Testing")));
-  check(mm === null, "roundup (title also names Ship 40), no matching in-article image → NO media");
-  mm = await road.mediaFor("https://example.com/c", e42, fake(page("Ship 40 Returns Home as Ship 42 gets more Cryo Proof Testing",
-    `<figure><img src="/up/s40.jpg" alt=""><figcaption>Ship 40 back at the Rocket Garden</figcaption></figure><figure><img src="/up/s42.jpg" alt=""><figcaption>Ship 42 at Massey's (Credit: NSF)</figcaption></figure>`)));
-  check(mm && mm.url === "https://example.com/up/s42.jpg", "roundup → the in-article image whose caption names Ship 42 (not the Ship 40 one)");
-  mm = await road.mediaFor("https://example.com/d", e42, fake(page("Starbase roundup: Ship 40 and Booster 23", `<img src="/x.jpg" alt="Ship 40 on the barge"><img data-src="/y.jpg" alt="S42 rolls to Massey's">`)));
-  check(mm && mm.url === "https://example.com/y.jpg", "img alt naming S42 (data-src) → used; other-vehicle alt skipped");
-  mm = await road.mediaFor("https://example.com/e", e42, fake(page("Weekly Starbase news")));
-  check(mm === null, "title names neither the vehicle nor the box subject → NO media");
-  mm = await road.mediaFor("https://example.com/f", e42, fake(page("Cryo testing continues at Massey's")));
-  check(mm && mm.url === "https://cdn.example.com/lead.jpg", "title names the box subject (cryo) and no other vehicle → og:image kept");
-  const vidM = `<meta property="og:title" content="Ship 42 cryo test"><meta content="https://cdn.example.com/clip.mp4" property="og:video"><meta property="og:video:type" content="video/mp4"><meta property="og:image" content="https://cdn.example.com/poster.jpg">`;
-  mm = await road.mediaFor("https://example.com/g", e42, fake(vidM));
-  check(JSON.stringify(mm) === JSON.stringify({ type: "video", url: "https://cdn.example.com/clip.mp4", poster: "https://cdn.example.com/poster.jpg" }), "matching article with an mp4 og:video → video with poster");
-  reads = [];
-  const eRap = { text: "Ship 42's Raptor engines have been removed ahead of Flight 15.", box: "raptor" };
-  const ePad = { text: "Pad 2's chopsticks are undergoing maintenance.", box: "pad" };
-  const ytT = "Could Engine Work Delay Starship Flight 15? | Starship Update";
-  mm = await road.mediaFor("https://www.youtube.com/watch?v=dPqDD39cBEw", eRap, fake("", ytT));
-  check(mm && mm.url === "https://i.ytimg.com/vi/dPqDD39cBEw/hqdefault.jpg" && reads.length === 1 && reads[0].includes("oembed"), "YouTube title about engines → Raptor entry keeps the thumbnail (one oEmbed read)");
-  check(await road.mediaFor("https://www.youtube.com/watch?v=dPqDD39cBEw", ePad, fake("", ytT)) === null, "same video for a Pad-chopsticks entry → title doesn't match → NO thumbnail");
-  check(await road.mediaFor("https://youtu.be/dPqDD39cBEw", eRap, fake("", "Ship 43 and Booster 23 roll out")) === null, "video title naming other vehicles → NO thumbnail");
-  check(await road.mediaFor("https://example.com/down", e42, async () => { throw new Error("HTTP 500"); }) === null, "page fails → no media, no throw");
-  reads = [];
-  check(await road.mediaFor("https://x.com/SpaceX/status/1", e42, fake(page("Ship 42"))) === null && reads.length === 0, "X post URL → not scraped (media come from the API call)");
-  const xm = road.xMedia([{ type: "video", preview_image_url: "https://pbs.twimg.com/p.jpg", variants: [
-    { content_type: "application/x-mpegURL", url: "https://video.twimg.com/x.m3u8" }, { bit_rate: 256000, content_type: "video/mp4", url: "https://video.twimg.com/270.mp4" },
-    { bit_rate: 2176000, content_type: "video/mp4", url: "https://video.twimg.com/720.mp4" }, { bit_rate: 10368000, content_type: "video/mp4", url: "https://video.twimg.com/1080.mp4" }] }]);
-  check(JSON.stringify(xm) === JSON.stringify({ type: "video", url: "https://video.twimg.com/720.mp4", poster: "https://pbs.twimg.com/p.jpg" }), "X video → best mp4 up to 720p, preview as poster");
-  check(JSON.stringify(road.xMedia([{ type: "photo", url: "https://pbs.twimg.com/media/a.jpg" }])) === JSON.stringify({ type: "image", url: "https://pbs.twimg.com/media/a.jpg" }) && road.xMedia([]) === null, "X photo → image; no media → none");
 
   check(calls.x > 0 && calls.xUsers === 0, `X: all 10 user ids hard-coded → no users/by lookup (${calls.xUsers} lookups, ${calls.x} searches)`);
   { // fallback: an account without a hard-coded id is still looked up once

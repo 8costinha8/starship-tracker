@@ -1247,77 +1247,31 @@ function buildFeed(road) {
   return { posts, rows };
 }
 
-// Publisher videos (a direct mp4/webm) loop muted like a GIF, and only play while on screen.
-let videoIO = null;
-function watchVideo(el) {
-  if (!el || el.dataset.watched) return;
-  el.dataset.watched = "1"; el.muted = true; el.defaultMuted = true;
-  if (reduceMotion()) return;
-  if (typeof IntersectionObserver === "undefined") { el.play().catch(() => {}); return; }
-  if (!videoIO) videoIO = new IntersectionObserver((es) => es.forEach((e) => {
-    if (e.isIntersecting) e.target.play().catch(() => {}); else e.target.pause();
-  }), { threshold: 0.25 });
-  videoIO.observe(el);
-}
-const isXVideo = (media, href) => media.type === "video" && (/(^|\.)twimg\.com$/.test(hostOf(media.url)) || /^(x|twitter)\.com$/.test(hostOf(href)));
 function hostOf(u) { try { return new URL(u).hostname.replace(/^www\./, ""); } catch { return ""; } }
 const PLAY_ICON = <span className="post-media-play" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></span>;
 
 // The source's own preview (image, or a looping muted video), linking to the original.
-// Full trusted X post behind a Road entry, stored in road.json (no X calls on load).
-const ukTime = (iso) => { try { return new Date(iso).toLocaleString("en-GB", { timeZone: "Europe/London", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }); } catch { return ""; } };
-function XPostCard({ x }) {
+// Only the photos / video attached to the entry's trusted X post, with a tiny credit and
+// a View on X link. No X media → text only. Videos play inline (controls, preload none).
+function XMedia({ x }) {
   const [bad, setBad] = React.useState({});
-  const media = (x.media || []).filter((m, i) => !bad[i]);
+  const media = (x.media || []).map((m, i) => ({ ...m, i })).filter((m) => !bad[m.i] && (m.type === "photo" ? m.url : m.video_url || m.poster));
+  if (!media.length) return null;
   const off = (i) => () => setBad((b) => ({ ...b, [i]: true }));
   return (
-    <div className="xpost">
-      <a className="xpost-head" href={x.url} target="_blank" rel="noopener noreferrer">
-        {x.author.avatar ? <img className="xpost-av" src={x.author.avatar} alt="" loading="lazy" referrerPolicy="no-referrer" /> : <span className="xpost-av" />}
-        <span className="xpost-who"><b>{x.author.name}</b><span>@{x.author.username}</span></span>
-        <span className="xpost-x" aria-hidden="true">𝕏</span>
-      </a>
-      <p className="xpost-text">{x.text}</p>
-      {media.length > 0 && <div className={"xpost-media n" + Math.min(media.length, 4)}>
-        {(x.media || []).map((m, i) => bad[i] ? null : m.type === "photo"
-          ? <a key={i} href={x.url} target="_blank" rel="noopener noreferrer"><img src={m.url} alt="" loading="lazy" referrerPolicy="no-referrer" onError={off(i)} /></a>
+    <div className="xm">
+      <div className={"xm-grid n" + Math.min(media.length, 4)}>
+        {media.slice(0, 4).map((m) => m.type === "photo"
+          ? <a key={m.i} href={x.url} target="_blank" rel="noopener noreferrer"><img src={m.url} alt="" loading="lazy" referrerPolicy="no-referrer" onError={off(m.i)} /></a>
           : m.video_url
-          ? <video key={i} src={m.video_url} poster={m.poster} controls playsInline preload="none" onError={off(i)} />
-          : <a key={i} href={x.url} target="_blank" rel="noopener noreferrer" className="xpost-poster"><img src={m.poster} alt="" loading="lazy" referrerPolicy="no-referrer" onError={off(i)} />{PLAY_ICON}</a>)}
-      </div>}
-      <div className="xpost-foot"><span>{ukTime(x.created_at)}</span><a href={x.url} target="_blank" rel="noopener noreferrer">View on X ↗</a></div>
+          ? <video key={m.i} src={m.video_url} poster={m.poster} controls playsInline preload="none" onError={off(m.i)} />
+          : <a key={m.i} href={x.url} target="_blank" rel="noopener noreferrer"><img src={m.poster} alt="" loading="lazy" referrerPolicy="no-referrer" onError={off(m.i)} />{PLAY_ICON}</a>)}
+      </div>
+      <div className="xm-foot"><span>@{x.author && x.author.username}</span>
+        <a href={x.url} target="_blank" rel="noopener noreferrer" aria-label="View on X">View on X {LINK_ICON}</a></div>
     </div>
   );
 }
-function NewsCard({ n }) {
-  const [bad, setBad] = React.useState(false);
-  return (
-    <a className="xpost newscard" href={n.link} target="_blank" rel="noopener noreferrer">
-      {n.image && !bad && <span className="newscard-img"><img src={n.image} alt="" loading="lazy" referrerPolicy="no-referrer" onError={() => setBad(true)} /></span>}
-      <b className="newscard-title">{n.title}</b>
-      {n.summary && <span className="newscard-sum">{n.summary}</span>}
-      <span className="xpost-foot"><span>{hostOf(n.link)}</span><span>Read ↗</span></span>
-    </a>
-  );
-}
-function PostMedia({ media, href, src }) {
-  const [failed, setFailed] = React.useState(false);
-  if (!media || !media.url || !href || failed) return null;
-  const host = hostOf(href);
-  const xVideo = isXVideo(media, href); // X videos: poster + play icon only, the file is never loaded
-  if (xVideo && !media.poster) return null;
-  return (
-    <a className={"post-media post-media-" + media.type} href={href} target="_blank" rel="noopener noreferrer" aria-label={`Open the original on ${host || src}`}>
-      {xVideo
-        ? <><img src={media.poster} alt="" loading="lazy" referrerPolicy="no-referrer" onError={() => setFailed(true)} />{PLAY_ICON}</>
-        : media.type === "video"
-        ? <video src={media.url} poster={media.poster} muted loop playsInline preload="metadata" ref={watchVideo} onError={() => setFailed(true)} />
-        : <img src={media.url} alt="" loading="lazy" referrerPolicy="no-referrer" onError={() => setFailed(true)} />}
-      <span className="post-media-tag">{media.type === "video" && <i aria-hidden="true">▶</i>}{host || src}<span aria-hidden="true"> ↗</span></span>
-    </a>
-  );
-}
-
 function FeedPost({ p, onPhotoTap }) {
   const { h, cat } = p;
   const sid = entryId(h);
@@ -1331,8 +1285,7 @@ function FeedPost({ p, onPhotoTap }) {
         {h.trust === "unconfirmed" && <span className="mini-unc">Unconfirmed</span>}
       </div>
       <p className="post-text">{h.text}</p>
-      {h.photo && <div className="post-photo photo photo-wide has-img tappable" onClick={() => onPhotoTap(h.photo, h.text)}><img src={h.photo} alt="" loading="lazy" /></div>}
-      {h.x_post ? <XPostCard x={h.x_post} /> : h.news_card ? <NewsCard n={h.news_card} /> : <PostMedia media={h.media} href={h.url} src={h.src} />}
+      {h.x_post && <XMedia x={h.x_post} />}
       <div className="post-foot">
         <span className="post-src">{h.src}</span>
         {h.url && <a className="post-link" href={h.url} target="_blank" rel="noopener noreferrer" aria-label={`Open source: ${h.src}`}>{LINK_ICON}</a>}
@@ -2165,37 +2118,22 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .post.is-seen:hover { opacity: .8; }
 
 /* feed media: the source's own preview, linking to the original */
-.post-media { position: relative; display: block; margin-top: 10px; border-radius: 12px; overflow: hidden; aspect-ratio: 16 / 9;
   background: linear-gradient(165deg, #34466E 0%, #1C263D 100%); border: 1px solid rgba(255,255,255,.06); }
-.post-media img, .post-media video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.xm { margin-top: 10px; }
+.xm-grid { display: grid; gap: 3px; border-radius: 12px; overflow: hidden; aspect-ratio: 16 / 9; background: #0E1424; }
+.xm-grid.n2, .xm-grid.n4 { grid-template-columns: 1fr 1fr; }
+.xm-grid.n3 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+.xm-grid.n3 > :first-child { grid-row: span 2; }
+.xm-grid > a, .xm-grid > video { position: relative; display: block; min-height: 0; min-width: 0; }
+.xm-grid img, .xm-grid video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.xm-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; font-size: 10.5px; color: var(--muted); }
+.xm-foot a { display: inline-flex; align-items: center; gap: 4px; color: #A9BDF0; text-decoration: none; font-weight: 600; }
+.xm-foot svg { width: 12px; height: 12px; }
 .post-media-play { position: absolute; left: 50%; top: 50%; width: 44px; height: 44px; margin: -22px 0 0 -22px; border-radius: 50%;
   display: grid; place-items: center; color: #fff; background: rgba(10,16,32,.6); border: 1px solid rgba(255,255,255,.35);
   -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
 .post-media-play svg { margin-left: 2px; }
-.post-media-tag { position: absolute; left: 8px; bottom: 8px; display: inline-flex; gap: 5px; align-items: center; font-size: 10.5px; color: rgba(228,234,246,.9);
   background: rgba(10,16,32,.62); padding: 3px 8px; border-radius: 999px; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
-.xpost { display: block; margin-top: 10px; border: 1px solid rgba(170,190,245,.16); border-radius: 14px; padding: 11px 12px; background: #1A2338; color: inherit; text-decoration: none; }
-.xpost-head { display: flex; align-items: center; gap: 9px; color: inherit; text-decoration: none; }
-.xpost-av { width: 34px; height: 34px; border-radius: 50%; background: #2E3A57; flex: none; object-fit: cover; }
-.xpost-who { display: flex; flex-direction: column; min-width: 0; line-height: 1.25; }
-.xpost-who b { font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.xpost-who span { font-size: 12px; color: var(--muted); }
-.xpost-x { margin-left: auto; font-size: 15px; color: var(--muted); }
-.xpost-text { margin: 8px 0 0; font-size: 13.5px; line-height: 1.42; white-space: pre-wrap; overflow-wrap: anywhere; }
-.xpost-media { margin-top: 9px; display: grid; gap: 3px; border-radius: 12px; overflow: hidden; aspect-ratio: 16 / 9; }
-.xpost-media.n2, .xpost-media.n4 { grid-template-columns: 1fr 1fr; }
-.xpost-media.n3 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
-.xpost-media.n3 > :first-child { grid-row: span 2; }
-.xpost-media > a, .xpost-media > video { position: relative; display: block; min-height: 0; background: #0E1424; }
-.xpost-media img, .xpost-media video { width: 100%; height: 100%; object-fit: cover; display: block; }
-.xpost-foot { display: flex; justify-content: space-between; margin-top: 9px; font-size: 11.5px; color: var(--muted); }
-.xpost-foot a { color: #A9BDF0; text-decoration: none; font-weight: 600; }
-.newscard-img { display: block; aspect-ratio: 16 / 9; border-radius: 10px; overflow: hidden; margin-bottom: 9px; }
-.newscard-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.newscard-title { display: block; font-size: 13.5px; line-height: 1.35; }
-.newscard-sum { display: block; margin-top: 5px; font-size: 12.5px; color: var(--muted); line-height: 1.4; }
-.post-media-tag i { font-style: normal; font-size: 8px; }
-.post-media:focus-visible { outline: 2px solid #A9BDF0; outline-offset: 3px; }
 `;
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
