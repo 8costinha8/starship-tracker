@@ -1212,7 +1212,7 @@ function buildFeed(road) {
 }
 
 function hostOf(u) { try { return new URL(u).hostname.replace(/^www\./, ""); } catch { return ""; } }
-const PLAY_ICON = <span className="post-media-play" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></span>;
+const PLAY_ICON = null; // no play badge on pictures: videos show just their preview image
 
 // The source's own preview (image, or a looping muted video), linking to the original.
 // Only the photos / video attached to the entry's trusted X post, with a tiny credit and
