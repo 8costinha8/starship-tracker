@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "16 Oct",
-  "updatedAt": "2026-10-16T17:57:57.317Z",
+  "updatedAt": "2026-10-16T21:22:55.323Z",
   "categories": [
     {
       "id": "cryo",
@@ -242,7 +242,8 @@
             "type": "video",
             "image": "https://pbs.twimg.com/ext_tw_video_thumb/2098642453741887497/pu/img/JdijqZ7iq6c-qq8K.jpg"
           },
-          "imageChecked2": true
+          "imageChecked2": true,
+          "xChecked": true
         }
       ]
     },
@@ -506,5 +507,6 @@
     ]
   },
   "feedVerified": "2026-10-16T17:53:11.334Z",
-  "feedJudged": "2026-10-16T17:57:57.301Z"
+  "feedJudged": "2026-10-16T17:57:57.301Z",
+  "imagesVerified": "2026-10-16T21:22:55.023Z"
 }
