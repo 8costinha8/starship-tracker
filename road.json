@@ -24,7 +24,8 @@
           "url": "https://www.nasaspaceflight.com/2026/10/ship-40-returns-ship-42-more-testing/",
           "at": "2026-10-09T14:36:44.000Z",
           "key": "rss:https://www.nasaspaceflight.com/?p=115411",
-          "publishedAt": "2026-10-09T14:36:44.000Z"
+          "publishedAt": "2026-10-09T14:36:44.000Z",
+          "imageChecked": true
         },
         {
           "date": "9–10 Sep",
@@ -66,7 +67,8 @@
           "url": "https://www.youtube.com/watch?v=t9iGVxSx0aw",
           "at": "2026-10-14T18:59:28.000Z",
           "key": "rss:yt:video:t9iGVxSx0aw",
-          "publishedAt": "2026-10-14T18:59:28.000Z"
+          "publishedAt": "2026-10-14T18:59:28.000Z",
+          "imageChecked": true
         },
         {
           "date": "9 Oct",
@@ -81,7 +83,11 @@
           "media": {
             "type": "image",
             "url": "https://i.ytimg.com/vi/dPqDD39cBEw/hqdefault.jpg"
-          }
+          },
+          "image_url": "https://i.ytimg.com/vi/dPqDD39cBEw/hqdefault.jpg",
+          "credit": "NSF",
+          "link": "https://www.youtube.com/watch?v=dPqDD39cBEw",
+          "imageChecked": true
         },
         {
           "date": "30 Sep",
@@ -116,7 +122,8 @@
           "url": "https://www.nasaspaceflight.com/2026/10/ship-40-returns-ship-42-more-testing/",
           "at": "2026-10-09T14:36:44.000Z",
           "key": "rss:https://www.nasaspaceflight.com/?p=115411",
-          "publishedAt": "2026-10-09T14:36:44.000Z"
+          "publishedAt": "2026-10-09T14:36:44.000Z",
+          "imageChecked": true
         },
         {
           "date": "30 Sep",
@@ -144,7 +151,8 @@
           "url": "https://www.youtube.com/watch?v=dPqDD39cBEw",
           "at": "2026-10-08T23:00:08.000Z",
           "key": "rss:yt:video:dPqDD39cBEw",
-          "publishedAt": "2026-10-08T23:00:08.000Z"
+          "publishedAt": "2026-10-08T23:00:08.000Z",
+          "imageChecked": true
         },
         {
           "date": "30 Sep",
@@ -197,7 +205,8 @@
           "url": "https://www.youtube.com/watch?v=eeS1nYInJ2w",
           "at": "2026-10-14T18:22:50.000Z",
           "key": "rss:yt:video:eeS1nYInJ2w",
-          "publishedAt": "2026-10-14T18:22:50.000Z"
+          "publishedAt": "2026-10-14T18:22:50.000Z",
+          "imageChecked": true
         },
         {
           "date": "9 Oct",
@@ -208,7 +217,8 @@
           "url": "https://www.nasaspaceflight.com/2026/10/ship-40-returns-ship-42-more-testing/",
           "at": "2026-10-09T14:36:44.000Z",
           "key": "rss:https://www.nasaspaceflight.com/?p=115411",
-          "publishedAt": "2026-10-09T14:36:44.000Z"
+          "publishedAt": "2026-10-09T14:36:44.000Z",
+          "imageChecked": true
         },
         {
           "date": "30 Sep",

@@ -1098,6 +1098,7 @@ function RoadCard({ road, onEntryTap, openReq }) {
                     <span className="mini-src">{h.src}</span>
                   </div>
                   <p>{h.text}</p>
+                  {h.image_url && h.link && <StageImage h={h} />}
                 </div>
               ))}
             </div></div>
@@ -1264,6 +1265,20 @@ function hostOf(u) { try { return new URL(u).hostname.replace(/^www\./, ""); } c
 const PLAY_ICON = <span className="post-media-play" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></svg></span>;
 
 // The source's own preview (image, or a looping muted video), linking to the original.
+// Road stage image: the entry's own (strictly matched) still, opening the post/story.
+function StageImage({ h }) {
+  const [failed, setFailed] = React.useState(false);
+  if (failed) return null;
+  const video = h.media && h.media.type === "video";
+  return (
+    <a className="post-media mini-media" href={h.link} target="_blank" rel="noopener noreferrer" aria-label={`Open the original on ${h.credit || hostOf(h.link)}`}
+      onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
+      <img src={h.image_url} alt="" loading="lazy" decoding="async" referrerPolicy="no-referrer" onError={() => setFailed(true)} />
+      {video && PLAY_ICON}
+      <span className="post-media-tag">{video && <i aria-hidden="true">▶</i>}{h.credit || hostOf(h.link)}<span aria-hidden="true"> ↗</span></span>
+    </a>
+  );
+}
 function PostMedia({ media, href, src }) {
   const [failed, setFailed] = React.useState(false);
   if (!media || !media.url || !href || failed) return null;
@@ -1936,8 +1951,8 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .main-open .road-list-inner { padding-top: 8px; padding-bottom: 16.5px; } /* 8px clear room above the first card (and its open glow, which overflow:hidden would clip); bottom gap matches the top: 26.5px each */
 .callout {
   position: relative; border-radius: 18px; margin-bottom: 10px; overflow: hidden;
-  background: linear-gradient(100deg, color-mix(in srgb, var(--c) 8%, transparent), color-mix(in srgb, var(--c) 3%, transparent));
-  border: 1px solid color-mix(in srgb, var(--c) 18%, transparent);
+  background: var(--card); /* solid, like the flight log cards */
+  border: 1px solid color-mix(in srgb, var(--c) 22%, rgba(170,190,245,.12));
   box-shadow: inset 4px 0 0 var(--c), 0 10px 26px -20px color-mix(in srgb, var(--c) 60%, transparent);
   transition: box-shadow .3s, background .3s;
 }
@@ -1948,17 +1963,17 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 }
 .callout-icon { font-size: 22px; line-height: 1.2; }
 .callout-name { display: block; font-weight: 700; font-size: 15px; color: var(--c); }
-.callout-latest { display: block; font-size: 13px; color: var(--text); opacity: .85; margin-top: 3px; line-height: 1.35; }
+.callout-latest { display: block; font-size: 13px; color: var(--text); margin-top: 3px; line-height: 1.35; }
 .badge { font-size: 11px; font-weight: 700; padding: 4px 9px; border-radius: 999px; white-space: nowrap; letter-spacing: .02em; }
 .badge-done, .badge-complete { background: var(--c); color: #141B2D; border: 1px solid var(--c); } /* filled = done / confirmed */
 .badge-progress, .badge-pending { background: transparent; color: var(--c); border: 1px solid color-mix(in srgb, var(--c) 70%, transparent); } /* outline */
-.badge-none { background: transparent; color: var(--c); border: 1.5px dotted var(--c); opacity: .9; } /* dotted = not started */
+.badge-none { background: transparent; color: var(--c); border: 1.5px dotted var(--c); } /* dotted = not started */
 .callout-hist { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .45s cubic-bezier(.2,.8,.2,1); }
 .callout.open .callout-hist { grid-template-rows: 1fr; }
 .callout-hist-inner { overflow: hidden; padding: 0 14px 0 30px; position: relative; }
 .callout.open .callout-hist-inner { padding-bottom: 14px; }
 .callout-hist-inner::before { content: ""; position: absolute; left: 22px; top: 4px; bottom: 18px; width: 2px; background: color-mix(in srgb, var(--c) 40%, transparent); }
-.mini { position: relative; background: rgba(10,16,32,.45); border: 1px solid rgba(255,255,255,.07); border-radius: 12px; padding: 9px 11px; margin-top: 8px; }
+.mini { position: relative; background: #1A2338; border: 1px solid rgba(170,190,245,.12); border-radius: 12px; padding: 9px 11px; margin-top: 8px; }
 .mini::before { content: ""; position: absolute; left: -12px; top: 14px; width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
 .mini-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .mini-date { font-size: 12px; font-weight: 700; color: var(--c); }
@@ -2138,6 +2153,7 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .post-media-play svg { margin-left: 2px; }
 .post-media-tag { position: absolute; left: 8px; bottom: 8px; display: inline-flex; gap: 5px; align-items: center; font-size: 10.5px; color: rgba(228,234,246,.9);
   background: rgba(10,16,32,.62); padding: 3px 8px; border-radius: 999px; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+.mini-media { margin-top: 8px; border-radius: 10px; }
 .post-media-tag i { font-style: normal; font-size: 8px; }
 .post-media:focus-visible { outline: 2px solid #A9BDF0; outline-offset: 3px; }
 `;

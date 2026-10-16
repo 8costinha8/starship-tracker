@@ -276,6 +276,55 @@ function xMedia(list) {
   }
   return null;
 }
+// Road stage image fields, from the entry's (already strictly matched) media: the still to
+// show (a video's poster), its credit (source name) and the post/story it opens.
+function setImage(entry) {
+  const m = entry.media;
+  const still = m && (m.type === "video" ? m.poster : m.url);
+  if (!still || !entry.url) return false;
+  entry.image_url = still; entry.credit = entry.src; entry.link = entry.url;
+  return true;
+}
+// One-off backfill for entries that predate images: X posts in ONE batched lookup
+// (tweets?ids=… with the media expansion), other links via mediaFor (og:image / captioned
+// image / matching YouTube thumbnail). Same strict match; unsure → no image.
+async function backfillImages(road, { token, fetchFn = fetch, mediaForFn = mediaFor, log = console.log } = {}) {
+  const todo = [];
+  for (const c of road.categories) for (const h of c.history || []) if (h.url && !h.imageChecked && !isCheck(h)) todo.push({ c, h });
+  const res = { checked: 0, added: 0, rejected: [] };
+  if (!todo.length) return res;
+  const xid = (u) => (String(u).match(/^https?:\/\/(?:x|twitter)\.com\/[^/]+\/status\/(\d+)/i) || [])[1];
+  const xs = todo.filter((t) => xid(t.h.url));
+  const xPosts = {};
+  if (xs.length && token) {
+    try {
+      const params = new URLSearchParams({ ids: xs.map((t) => xid(t.h.url)).slice(0, 100).join(","), "tweet.fields": "attachments",
+        expansions: "attachments.media_keys", "media.fields": "type,url,preview_image_url,variants" });
+      const r = await fetchFn(`https://api.x.com/2/tweets?${params}`, { headers: { authorization: `Bearer ${token}`, "user-agent": UA }, signal: AbortSignal.timeout(20000) });
+      const j = await r.json();
+      log(`• image backfill X lookup: HTTP ${r.status}, ${(j.data || []).length} post(s)`);
+      const byKey = Object.fromEntries(((j.includes && j.includes.media) || []).map((m) => [m.media_key, m]));
+      for (const p of j.data || []) xPosts[p.id] = { text: decode(p.text || ""), media: xMedia(((p.attachments && p.attachments.media_keys) || []).map((k) => byKey[k]).filter(Boolean)) };
+    } catch (e) { log(`• image backfill X lookup failed: ${e.message} — X entries retried next run`); xs.forEach((t) => (t.retry = true)); }
+  } else xs.forEach((t) => (t.retry = true));
+  for (const t of todo) {
+    if (t.retry) continue;
+    const { c, h } = t;
+    res.checked++;
+    let media = null;
+    const id = xid(h.url);
+    if (id) {
+      const p = xPosts[id];
+      if (p && p.media) { if (titleMatches(p.text, h.text, c.id)) media = p.media; else res.rejected.push(`${c.id}: "${h.text}" — post media doesn't name the same vehicle/topic`); }
+    } else {
+      media = h.media || (await mediaForFn(h.url, { text: h.text, box: c.id }));
+      if (!media) res.rejected.push(`${c.id}: "${h.text}" — no image that clearly matches (${h.url})`);
+    }
+    if (media) { h.media = media; if (setImage(h)) res.added++; }
+    h.imageChecked = true;
+  }
+  return res;
+}
 // One page read per new entry with a link, short timeout, never retried; failures just mean no media.
 const fetchPage = async (u) => {
   const r = await fetch(u, { headers: { "user-agent": UA }, signal: AbortSignal.timeout(MEDIA_TIMEOUT_MS) });
@@ -711,7 +760,11 @@ function applyUpdates(road, items, updates, log, limit) {
     // The source's real publish time (shown in the Updates feed). Left out when the
     // source only gives a day (SpaceX updates, FAA) or no time at all (launches page).
     if (it.publishedAt && it.timeKnown !== false) entry.publishedAt = it.publishedAt;
-    if (it.media) entry.media = it.media;
+    if (it.media) {
+      // X: the post's own media, only if the post itself names the entry's vehicle/topic (strict rule)
+      if (titleMatches(it.text, line, box.id)) entry.media = it.media;
+      else log(`image rejected [${box.id}] post media doesn't name the same vehicle/topic: ${it.url}`);
+    }
     const change = { box, entry, from: box.status, to: box.status, item: it, u, headline: "kept" };
     let want = STATUSES.includes(u.status) ? u.status : null;
     if (want === "complete" && box.id === "date") { log(`ignored status complete for [date] (Launch date uses done = Confirmed)`); want = null; }
@@ -1026,9 +1079,21 @@ async function run(opts = {}) {
   // 4a. Media preview for new entries (their source's own image/video; none if there isn't one)
   const fetchMedia = opts.mediaFor || mediaFor;
   for (const ch of changes) {
-    if (ch.entry.media || !ch.entry.url) continue;
-    const media = await fetchMedia(ch.entry.url, { text: ch.entry.text, box: ch.box.id });
-    if (media) { ch.entry.media = media; log(`media [${ch.box.id}] ${media.type}: ${media.url}`); }
+    if (!ch.entry.media && ch.entry.url) {
+      const media = await fetchMedia(ch.entry.url, { text: ch.entry.text, box: ch.box.id });
+      if (media) { ch.entry.media = media; log(`media [${ch.box.id}] ${media.type}: ${media.url}`); }
+    }
+    setImage(ch.entry);
+    if (ch.entry.url) ch.entry.imageChecked = true;
+  }
+  // 4a2. One-off image backfill for older entries (no push; strict match, unsure → none)
+  if (!opts.sources || opts.backfill) {
+    const bf = await backfillImages(road, { token: process.env.X_BEARER_TOKEN, ...(opts.backfill || {}), log });
+    if (bf.checked) {
+      log(`image backfill: ${bf.checked} entr${bf.checked === 1 ? "y" : "ies"} checked, ${bf.added} got an image`);
+      bf.rejected.forEach((r) => log(`  no image — ${r}`));
+      changed = true;
+    }
   }
   for (const ch of changes) notifications.push(notificationFor(road, ch));
   if (changes.length) changed = true;
@@ -1113,7 +1178,7 @@ async function run(opts = {}) {
   return { road, changes, notifications, refreshed, state, scheduledSent, newsPushes };
 }
 
-module.exports = { readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, parseOgMedia, xMedia, youtubeId, mediaFor, titleMatches, captionedImage, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
+module.exports = { backfillImages, setImage, readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, parseOgMedia, xMedia, youtubeId, mediaFor, titleMatches, captionedImage, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
 
 if (require.main === module) {
   run().catch((err) => {
