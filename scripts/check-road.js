@@ -508,9 +508,19 @@ const SOURCES = [
       const query = `(${from.join(" OR ")}) (${words.join(" OR ")}) -is:retweet -is:reply`;
       const params = new URLSearchParams({ query, max_results: "25", "tweet.fields": "created_at,author_id,attachments",
         expansions: "attachments.media_keys", "media.fields": "type,url,preview_image_url,variants" }); // media come back in the same call
-      if (state.xSinceId) params.set("since_id", state.xSinceId);
+      // since_id only if it is a sane post id: not in the future and inside recent search's 7-day window
+      const sinceMs = state.xSinceId ? snowflakeMs(state.xSinceId) : NaN;
+      const sinceOk = Number.isFinite(sinceMs) && sinceMs <= Date.now() + 60000 && Date.now() - sinceMs < 6.5 * 86400000;
+      if (state.xSinceId && !sinceOk) console.log(`• X: dropping since_id ${state.xSinceId} (${Number.isFinite(sinceMs) ? new Date(sinceMs).toISOString() : "unreadable"}) — outside the 7-day window or in the future`);
+      if (sinceOk) params.set("since_id", state.xSinceId);
       else params.set("start_time", new Date(Date.now() - 6 * 3600000).toISOString());
-      const j = await fetchJson(`https://api.x.com/2/tweets/search/recent?${params}`, auth);
+      const r = await fetch(`https://api.x.com/2/tweets/search/recent?${params}`, { ...auth, headers: { ...auth.headers, "user-agent": UA }, signal: AbortSignal.timeout(20000) });
+      const body = await r.text();
+      let j = {};
+      try { j = JSON.parse(body); } catch {}
+      const errs = [...(j.errors || []).map((e) => e.title || e.message || e.detail), j.title && `${j.title}: ${j.detail || ""}`].filter(Boolean);
+      console.log(`• X search: HTTP ${r.status}, ${j.meta && j.meta.result_count != null ? j.meta.result_count : (j.data || []).length} result(s), ${sinceOk ? `since_id ${state.xSinceId} (${new Date(sinceMs).toISOString()})` : `start_time ${params.get("start_time")}`}, query ${query.length} chars, rate left ${(r.headers && r.headers.get ? r.headers.get("x-rate-limit-remaining") : null) ?? "?"}${errs.length ? `, errors: ${errs.join(" | ").slice(0, 300)}` : ""}`);
+      if (!r.ok) throw new Error(`HTTP ${r.status}${errs.length ? ` ${errs[0]}` : ""}`);
       if (j.meta && j.meta.newest_id) state.xSinceId = j.meta.newest_id;
       const mediaByKey = Object.fromEntries(((j.includes && j.includes.media) || []).map((m) => [m.media_key, m]));
       return (j.data || []).map((p) => {
@@ -522,6 +532,11 @@ const SOURCES = [
     },
   },
 ];
+
+// X post ids are snowflakes: the top bits are ms since 2010-11-04 (Twitter epoch).
+function snowflakeMs(id) {
+  try { return Number(BigInt(String(id)) >> 22n) + 1288834974657; } catch { return NaN; }
+}
 
 /* ───────────── Claude: simplify + classify ───────────── */
 
