@@ -1090,7 +1090,6 @@ function RoadCard({ road, onEntryTap, openReq }) {
             <div className="callout-hist"><div className="callout-hist-inner">
               {(m.history || []).map((h, i) => isRealEntry(h) && (
                 <div className={"mini" + (h.complete ? " mini-done" : "") + (onEntryTap ? " tappable" : "")} key={i}
-                  ref={(el) => observeSeen(el, entryId(h))}
                   {...(onEntryTap ? { role: "button", tabIndex: isOpen ? 0 : -1, "aria-label": `${h.date}: ${h.text}. Show in the updates feed`,
                     onClick: () => onEntryTap(m.id, i), onKeyDown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onEntryTap(m.id, i); } } } : {})}>
                   <div className="mini-top">
@@ -1109,55 +1108,9 @@ function RoadCard({ road, onEntryTap, openReq }) {
   );
 }
 
-// ---- Seen / new (per device) ----
-// Each Road entry gets a stable id from its source key or link + date + text,
-// so it survives the bot rewriting road.json. An entry counts as seen once at
-// least half of it has been on screen for ~0.5 s. Dimming only applies from
-// the NEXT visit (page load): this visit compares against what was stored
-// before it started. First ever visit: nothing is dimmed.
-const SEEN_KEY = "st_seen_v1";
-const SEEN_MAX = 600; // keep the newest ids only
-function hash53(str) { // cyrb53: small, stable string hash
-  let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
-  for (let i = 0; i < str.length; i++) { const c = str.charCodeAt(i); h1 = Math.imul(h1 ^ c, 2654435761); h2 = Math.imul(h2 ^ c, 1597334677); }
-  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
-  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
-  return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36);
-}
-const entryId = (h) => "e" + hash53(`${h.key || h.url || h.src || ""}|${h.date || ""}|${String(h.text || "").trim()}`);
+// No "seen" dimming anywhere: every card stays full strength. The old per-device seen list is cleared.
+try { localStorage.removeItem("st_seen_v1"); } catch {}
 const isRealEntry = (h) => h && h.kind !== "check"; // "no news yet" lines aren't shown any more
-const Seen = (() => {
-  let ids = {};
-  try { ids = (JSON.parse(localStorage.getItem(SEEN_KEY)) || {}).ids || {}; } catch {}
-  const before = new Set(Object.keys(ids)); // frozen for this visit
-  const subs = new Set();
-  const save = () => {
-    const keep = Object.entries(ids).sort((a, b) => b[1] - a[1]).slice(0, SEEN_MAX);
-    ids = Object.fromEntries(keep);
-    try { localStorage.setItem(SEEN_KEY, JSON.stringify({ v: 1, ids })); } catch {}
-  };
-  return {
-    returning: before.size > 0,
-    wasSeen: (id) => before.has(id),
-    seenNow: (id) => !!ids[id],
-    mark(id) { if (!id || ids[id]) return; ids[id] = Date.now(); save(); subs.forEach((f) => f()); },
-    subscribe(f) { subs.add(f); return () => subs.delete(f); },
-  };
-})();
-let seenIO = null;
-const seenTimers = new WeakMap();
-function observeSeen(el, id) {
-  if (!el || !id) return;
-  el.dataset.seenId = id;
-  if (Seen.seenNow(id) || typeof IntersectionObserver === "undefined") return;
-  if (!seenIO) seenIO = new IntersectionObserver((entries) => entries.forEach((e) => {
-    const t = e.target;
-    if (e.isIntersecting && e.intersectionRatio >= 0.5) {
-      if (!seenTimers.has(t)) seenTimers.set(t, setTimeout(() => { Seen.mark(t.dataset.seenId); seenIO.unobserve(t); seenTimers.delete(t); }, 500));
-    } else if (seenTimers.has(t)) { clearTimeout(seenTimers.get(t)); seenTimers.delete(t); }
-  }), { threshold: [0, 0.5, 1] });
-  seenIO.observe(el);
-}
 // Small "Road to Flight N ›" link next to the header title. Tapping it glides to
 // the Road box inside the next-flight card and opens it.
 const CHIP_CHEVRON = <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>;
@@ -1241,8 +1194,8 @@ function flightOf(h, road) {
 function buildFeed(road) {
   if (!road || !Array.isArray(road.categories)) return { posts: [], rows: [] };
   const posts = [];
-  road.categories.filter((c) => !ROAD_HIDDEN.includes(c.id)).forEach((c, ci) => (c.history || []).forEach((h, hi) => isRealEntry(h) && h.x_post && !h.feed_hide && posts.push({
-    h, cat: c, ci, hi, id: `${c.id}-${hi}`, day: feedDay(h.date, road.updatedAt), at: Date.parse(h.x_post.created_at || h.at) || 0, flight: flightOf(h, road),
+  road.categories.filter((c) => !ROAD_HIDDEN.includes(c.id)).forEach((c, ci) => (c.history || []).forEach((h, hi) => isRealEntry(h) && posts.push({
+    h, cat: c, ci, hi, id: `${c.id}-${hi}`, day: feedDay(h.date, road.updatedAt), at: Date.parse((h.x_post && h.x_post.created_at) || h.at) || 0, flight: flightOf(h, road),
   })));
   posts.sort((a, b) => b.flight - a.flight || b.day - a.day || b.at - a.at || a.ci - b.ci || a.hi - b.hi);
   const rows = [];
@@ -1316,15 +1269,16 @@ function XMedia({ x }) {
 }
 // An entry with an X post credits and links the post's author, so text, media and credit match.
 const srcOf = (h) => (h.x_post && h.x_post.author && h.x_post.author.username ? `@${h.x_post.author.username}` : h.src);
-const urlOf = (h) => (h.x_post && h.x_post.url) || h.url;
+const isYouTube = (u) => /(^|\.)(youtube\.com|youtu\.be)$/i.test(hostOf(u || ""));
+const urlOf = (h) => (h.x_post && h.x_post.url) || (h.url && !isYouTube(h.url) ? h.url : null); // YouTube sources: not clickable
+const openUrl = (u) => window.open(u, "_blank", "noopener,noreferrer");
+const linkProps = (h) => { const u = urlOf(h); return u ? { role: "link", tabIndex: 0, "aria-label": `${h.x_text || h.text} — open ${h.x_post ? "the post on X" : "the source"}`,
+  onClick: (e) => { if (!e.target.closest("a, video, button, .xm-video")) openUrl(u); }, onKeyDown: (e) => { if (e.key === "Enter" && e.target === e.currentTarget) openUrl(u); } } : {}; };
 function FeedPost({ p, onPhotoTap }) {
   const { h, cat } = p;
-  const sid = entryId(h);
   return (
-    <article className={"post post-tap" + (h.complete ? " post-done" : "") + (Seen.wasSeen(sid) ? " is-seen" : "")} id={`post-${p.id}`} data-id={p.id} style={{ "--c": cat.color }}
-      ref={(el) => observeSeen(el, sid)} role="link" tabIndex={0} aria-label={`${h.x_text || h.text} — open the post on X`}
-      onClick={(e) => { if (e.target.closest("a, video, button, .xm-video")) return; window.open(urlOf(h), "_blank", "noopener,noreferrer"); }}
-      onKeyDown={(e) => { if (e.key === "Enter" && e.target === e.currentTarget) window.open(urlOf(h), "_blank", "noopener,noreferrer"); }}>
+    <article className={"post" + (urlOf(h) ? " post-tap" : "") + (h.complete ? " post-done" : "")} id={`post-${p.id}`} data-id={p.id} style={{ "--c": cat.color }}
+      {...linkProps(h)}>
       <div className="post-top">
         <span className="chip"><span className="chip-i">{cat.icon}</span>{cat.name}</span>
         <span className="post-sep">·</span>
@@ -2162,9 +2116,6 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .road-chip:hover svg { transform: translateX(2px); }
 .road-chip:focus-visible { outline: 2px solid #A9BDF0; outline-offset: 2px; border-radius: 6px; }
 
-/* feed only: posts seen on an earlier visit are quieter; new ones stay full strength */
-.post.is-seen { opacity: .55; transition: opacity .3s; }
-.post.is-seen:hover { opacity: .8; }
 
 /* feed media: the source's own preview, linking to the original */
   background: linear-gradient(165deg, #34466E 0%, #1C263D 100%); border: 1px solid rgba(255,255,255,.06); }

@@ -73,6 +73,7 @@ jobs:
           X_BEARER_TOKEN: ${{ secrets.X_BEARER_TOKEN }}   # optional: leave unset to skip X
           TEST_MODE: ${{ inputs.test_mode }}
           ROAD_STALE_HOURS: ${{ inputs.stale_hours }}
+          ROAD_MIX_PREVIEW: ${{ github.ref_name == 'road-mix' && inputs.test_mode && '1' || '' }}
       # One-off test notification (manual runs only, never on schedule)
       - run: node scripts/test-push.js
         if: ${{ inputs.test_push }}

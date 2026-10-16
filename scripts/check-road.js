@@ -383,6 +383,58 @@ Reply with JSON: {"same": true|false, "line": "..."}`;
   if (!v.same) return null;
   return cleanLine(v.line, { fullStop: true });
 }
+// PREVIEW ONLY (branch road-mix, ROAD_MIX_PREVIEW=1 in a test_mode run): relaxed matching for
+// every entry without an X post. Candidates = posts already read (scripts/mix-candidates.json)
+// + up to 2 small full-archive searches (≤ 25 posts read). Relaxed rule: same vehicle (or the
+// box topic when the entry names none), within 3 days, Grok confirms same milestone / work /
+// hardware. Logs "MIX {json}" lines; writes nothing.
+async function mixPreview(road, { token, log = console.log } = {}) {
+  const cands = JSON.parse(fs.readFileSync(path.join(__dirname, "mix-candidates.json"), "utf8"));
+  let read = 0, calls = 0;
+  const windows = [["2026-10-07T00:00:00Z", "2026-10-16T18:00:00Z"], ["2026-09-07T00:00:00Z", "2026-09-15T00:00:00Z"]];
+  const vwords = [...new Set([...vehicleWords(road), "Pad 2", "Massey"])].map((w) => (w.includes(" ") ? `"${w}"` : w));
+  const query = `(${Object.keys(X_ACCOUNTS).map((h) => `from:${h}`).join(" OR ")}) (${vwords.join(" OR ")}) -is:retweet -is:reply`;
+  const trusted = new Set(Object.values(X_ACCOUNTS).map((a) => a.id).filter(Boolean));
+  for (const [st, en] of windows) {
+    if (!token || read + 10 > 25) break;
+    const r = await fetch(`https://api.x.com/2/tweets/search/all?${new URLSearchParams({ query, max_results: "12", start_time: st, end_time: en, ...X_FIELDS })}`, { headers: { authorization: `Bearer ${token}`, "user-agent": UA }, signal: AbortSignal.timeout(20000) });
+    calls++; const j = await r.json().catch(() => ({}));
+    log(`MIX search ${st.slice(0, 10)}→${en.slice(0, 10)}: HTTP ${r.status}, ${(j.data || []).length} post(s)`);
+    if (r.status === 401 || r.status === 403) break;
+    read += (j.data || []).length;
+    const mk = Object.fromEntries(((j.includes && j.includes.media) || []).map((m) => [m.media_key, m]));
+    const us = Object.fromEntries(((j.includes && j.includes.users) || []).map((u) => [u.id, u]));
+    for (const p of j.data || []) if (trusted.has(p.author_id) && !cands.some((c) => c.post_id === p.id)) cands.push(xPostCard(p, mk, us));
+  }
+  const used = new Set(road.categories.flatMap((c) => (c.history || []).filter((h) => h.x_post).map((h) => h.x_post.post_id)));
+  const results = [];
+  for (const c of road.categories) for (const h of c.history || []) {
+    if (isCheck(h) || c.id === "date" || h.x_post) continue;
+    const day = entryDayMs(h), ev = vehiclesIn(h.text);
+    const pool = cands.filter((p) => !used.has(p.post_id) && Number.isFinite(day) && Math.abs(Date.parse(p.created_at) - day) <= 3 * DAY_MS
+      && (ev.size ? [...vehiclesIn(p.text)].some((v) => ev.has(v)) : (BOX_WORDS[c.id] || []).some((re) => re.test(p.text)) || /pad 2/i.test(p.text)))
+      .sort((a, b) => Math.abs(Date.parse(a.created_at) - day) - Math.abs(Date.parse(b.created_at) - day)).slice(0, 2);
+    let hit = null;
+    for (const p of pool) {
+      const prompt = `A Starship tracker entry and an X post proposed as its source.
+"same": true if the post is about the same milestone, work or hardware on the same vehicle or pad, at about the same time (e.g. entry "S42 lifted by Pad 2 chopsticks" and post "Ship 42 is going up!" → true; entry "static fire estimate" and post "engines removed" → false).
+"line": if same, rewrite the entry as ONE short, easy-to-read sentence (max 100 characters, British English, no hype, no quotes, hashtags, @handles or links) using only facts stated in the post. Keep hedges. If not same, "".
+Stage: ${c.name || c.id}
+Entry (${h.date}): ${h.text}
+Post (@${p.author.username}, ${p.created_at}): ${p.text}
+Reply with JSON: {"same": true|false, "line": "..."}`;
+      try {
+        const v = await writer.askJson(prompt, { schema: REWRITE_SCHEMA, schemaName: "entry_rewrite", maxTokens: 4000, claudeMaxTokens: 400, attempts: 1, log: () => {},
+          extract: (t) => { const o = JSON.parse(t.replace(/```json|```/g, "").trim()); if (typeof o.same !== "boolean") throw new Error("no verdict"); return o; } });
+        if (v.same && cleanLine(v.line, { fullStop: true })) { hit = { post: p, line: cleanLine(v.line, { fullStop: true }), writer: v.writer }; break; }
+      } catch (e) { log(`MIX judge failed: ${e.message}`); }
+    }
+    if (hit) used.add(hit.post.post_id);
+    results.push({ cat: c.id, date: h.date, text: h.text, ...(hit ? { line: hit.line, writer: hit.writer, x_post: hit.post } : { candidates: pool.length }) });
+  }
+  log(`MIX summary: ${calls} call(s), ${read} post(s) read, ${results.filter((r) => r.x_post).length} matched of ${results.length}`);
+  for (const r of results) log(`MIX ${JSON.stringify(r)}`);
+}
 // One-off (road.feedJudged): re-check the feed's existing X matches with the writer, using the
 // stored posts (no X calls); a post that isn't about the same thing is removed and the card hidden.
 async function judgeFeed(road, { rewrite = rewriteFromPosts, log = console.log } = {}) {
@@ -1145,6 +1197,7 @@ async function run(opts = {}) {
     const jf = await judgeFeed(road, { ...(opts.judgeFeed || {}), log });
     if (jf.checked && !jf.failed) { log(`feed judge: ${jf.checked} checked, ${jf.hidden.length} hidden`); [...jf.kept.map((x) => "kept: " + x), ...jf.hidden.map((x) => "hidden: " + x)].forEach((x) => log("  " + x)); changed = true; }
   }
+  if (process.env.ROAD_MIX_PREVIEW === "1" && mode === "preview") await mixPreview(road, { token: process.env.X_BEARER_TOKEN, log: console.log });
   // 4a. Older entries: one-off X backfill (no push; strict match; under 30 posts read)
   for (const ch of changes) ch.entry.xChecked = true;
   if (!opts.sources || opts.backfillX) {
