@@ -47,6 +47,7 @@ const predict = require("./predicted.js");
 const news = require("./news.js");
 
 const ROOT = path.join(__dirname, "..");
+const xFirstMod = require("./x-first.js");
 const writer = require("./writer.js"); // WRITER=grok (default, Claude fallback) | claude
 
 const LIMITS = {
@@ -1035,7 +1036,7 @@ function notificationFor(road, ch) {
   const n = notificationText(road, ch);
   const m = ch.entry.x_post && (ch.entry.x_post.media || [])[0];
   const img = (ch.entry.media_override && ch.entry.media_override.image) || (m && imageOf(m));
-  return { ...n, ...(ch.entry.x_text ? { body: ch.entry.x_text } : {}), link: FEED_LINK, ...(img ? { image: img } : {}) };
+  return { ...n, ...(ch.entry.x_text ? { body: ch.entry.x_text } : {}), link: ch.entry.id ? `${FEED_LINK}&entry=${encodeURIComponent(ch.entry.id)}` : FEED_LINK, ...(img ? { image: img } : {}) };
 }
 function notificationText(road, ch) {
   const { box, entry } = ch;
@@ -1153,6 +1154,18 @@ async function run(opts = {}) {
     log(`"${state.pendingPush.title}" push scheduled for ${state.pendingPush.sendAfter} (09:00 London, morning after the launch day)`);
   }
 
+  // X-first (production default): new posts from the trusted X accounts are the Road cards.
+  // Articles never create Road cards; the old article → card path only runs for legacy tests.
+  const xFirst = opts.xFirst !== undefined ? !!opts.xFirst : !opts.sources;
+  let xf = null;
+  if (xFirst) {
+    try {
+      xf = await xFirstMod.runXFirst(road, state, { token: opts.xToken !== undefined ? opts.xToken : process.env.X_BEARER_TOKEN, fetchFn: opts.xFetch, postCard: xPostCard,
+        ask: opts.askXFirst || ((prompt, o) => writer.askJson(prompt, { ...o, log })), log, now: clock(), maxCards: LIMITS.changesPerRun });
+      state.xFirst = xf.state;
+    } catch (e) { log(`X-first failed (${e.message}) — tried again next run`); }
+  }
+
   // 2. Collect posts from every source (one failing source never stops the run)
   let items = [];
   for (const s of sources) {
@@ -1167,6 +1180,7 @@ async function run(opts = {}) {
 
   // posts that were waiting (cap reached, or Claude was down last time)
   items.push(...(state.pending || []));
+  if (xf) items.push(...xf.news); // X posts classified as Starship news go to the news pushes
 
   // 2b. Predicted launch date: scan the posts already fetched (no extra fetches).
   //     Prediction-only X accounts (Elon) are used here and nowhere else.
@@ -1242,7 +1256,11 @@ async function run(opts = {}) {
 
   // 4. Claude simplifies + classifies, then the trust rules decide what changes
   let changes = [];
-  if (batch.length) {
+  if (xFirst) {
+    for (const it of batch) seen.add(it.key); // articles: news/date only, never a Road card
+    if (xf) for (const r of xf.cards) changes.push({ box: r.box, entry: r.entry, from: r.box.status, to: r.box.status, item: { key: `x:${r.entry.x_post.post_id}` } });
+    if (xf && xf.merged.length) changed = true;
+  } else if (batch.length) {
     let updates = null;
     try {
       updates = await (opts.askClaude || askClaude)(buildPrompt(road, batch), log);
@@ -1283,16 +1301,16 @@ async function run(opts = {}) {
   if (!opts.sources || opts.mediaPicks) { const np = applyMediaPicks(road, opts.mediaPicks || loadMediaPicks()); if (np) { log(`media picks: ${np} change(s) from road-media.json`); changed = true; } }
   // 4a-img. New entries with an X post: keep only a picture that clearly shows the update
   for (const ch of changes) {
-    if (!ch.entry.x_post || ch.entry.media_override || (opts.sources && !opts.vision)) continue; // tests without a fake vision skip the check
+    if (xFirst || !ch.entry.x_post || ch.entry.media_override || (opts.sources && !opts.vision)) continue; // tests without a fake vision skip the check
     try { const r = await applyImageCheck(ch.entry, ch.box.name, { ...(opts.vision ? { ask: opts.vision } : {}), log }); if (r) log(`image [${ch.box.id}] ${r.media.length ? `kept (${r.check.seen}, ${r.check.confidence})` : `none — ${r.check.verdict}`}`); }
     catch (e) { ch.entry.x_post = { ...ch.entry.x_post, media: [] }; log(`image check failed (${e.message}) — text only`); }
   }
-  if ((!opts.sources && mode === "live") || opts.verifyImages) {
+  if (!xFirst && ((!opts.sources && mode === "live") || opts.verifyImages)) { // picture search/judge: disabled under X-first
     try { const vi = await verifyImages(road, { ...(opts.vision ? { ask: opts.vision } : {}), log }); if (vi.checked) { log(`image check: ${vi.checked} entries, ${vi.kept.length} kept a picture, ${vi.removed.length} text only`); [...vi.kept.map((x) => "kept: " + x), ...vi.removed.map((x) => "text only: " + x)].forEach((x) => log("  " + x)); changed = true; } }
     catch (e) { log(`image check failed: ${e.message} — tried again next run`); }
   }
   // 4a0. One-off feed verification against full-archive X search (no push)
-  if ((!opts.sources && mode === "live") || opts.verifyFeed) {
+  if (!xFirst && ((!opts.sources && mode === "live") || opts.verifyFeed)) {
     try {
       const vf = await verifyFeed(road, { token: process.env.X_BEARER_TOKEN, rewrite: rewriteFromPosts, ...(opts.verifyFeed || {}), log });
       if (vf.calls) {
@@ -1302,14 +1320,14 @@ async function run(opts = {}) {
       }
     } catch (e) { log(`feed check failed: ${e.message} — tried again next run`); }
   }
-  if ((!opts.sources && mode === "live") || opts.judgeFeed) {
+  if (!xFirst && ((!opts.sources && mode === "live") || opts.judgeFeed)) {
     const jf = await judgeFeed(road, { ...(opts.judgeFeed || {}), log });
     if (jf.checked && !jf.failed) { log(`feed judge: ${jf.checked} checked, ${jf.hidden.length} hidden`); [...jf.kept.map((x) => "kept: " + x), ...jf.hidden.map((x) => "hidden: " + x)].forEach((x) => log("  " + x)); changed = true; }
   }
-  if (process.env.ROAD_MIX_PREVIEW === "1" && mode === "preview") await mixPreview(road, { token: process.env.X_BEARER_TOKEN, log: console.log });
+  if (!xFirst && process.env.ROAD_MIX_PREVIEW === "1" && mode === "preview") await mixPreview(road, { token: process.env.X_BEARER_TOKEN, log: console.log });
   // 4a. Older entries: one-off X backfill (no push; strict match; under 30 posts read)
   for (const ch of changes) ch.entry.xChecked = true;
-  if (!opts.sources || opts.backfillX) {
+  if (!xFirst && (!opts.sources || opts.backfillX)) {
     try {
       const bx = await backfillX(road, { token: process.env.X_BEARER_TOKEN, rewrite: rewriteFromPosts, ...(opts.backfillX || {}), log });
       if (bx.calls || bx.lookup) {
@@ -1399,7 +1417,7 @@ async function run(opts = {}) {
   state.seen = [...seen].slice(-LIMITS.seenKeep);
   state.lastRun = new Date().toISOString();
   if (save) await deps.saveState(state);
-  return { road, changes, notifications, refreshed, state, scheduledSent, newsPushes };
+  return { road, changes, notifications, refreshed, state, scheduledSent, newsPushes, xFirst: xf };
 }
 
 module.exports = { applyMediaPicks, loadMediaPicks, pickImage, applyImageCheck, verifyImages, fcmMessage, notificationFor, judgeFeed, verifyFeed, entryDayMs, backfillX, xPostCard, xIdOf, readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, titleMatches, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };

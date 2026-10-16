@@ -1290,7 +1290,7 @@ const linkProps = (h) => { const u = urlOf(h); return u ? { role: "link", tabInd
 function FeedPost({ p, onPhotoTap }) {
   const { h, cat } = p;
   return (
-    <article className={"post" + (urlOf(h) ? " post-tap" : "") + (h.complete ? " post-done" : "")} id={`post-${p.id}`} data-id={p.id} style={{ "--c": cat.color }}
+    <article className={"post" + (urlOf(h) ? " post-tap" : "") + (h.complete ? " post-done" : "")} id={`post-${p.id}`} data-id={p.id} data-entry={h.id || undefined} style={{ "--c": cat.color }}
       {...linkProps(h)}>
       <div className="post-top">
         <span className="chip"><span className="chip-i">{cat.icon}</span>{cat.name}</span>
@@ -1402,11 +1402,13 @@ function StarshipTracker() {
   const road = useRoad();
   const wide = useMedia(FEED_WIDE_QUERY);
   // ?feed=1 (tapping a "🚀 Starship" news push) opens the phone's Updates feed straight away
+  // ?feed=1&entry=<id> (a Road push): open the Road page, scroll to that card and highlight it
+  const [entryReq, setEntryReq] = React.useState(() => { try { return new URLSearchParams(window.location.search).get("entry") || null; } catch { return null; } });
   const [feedOpen, setFeedOpen] = React.useState(() => {
     try {
       const q = new URLSearchParams(window.location.search);
       if (q.get("feed") !== "1") return false;
-      q.delete("feed"); window.history.replaceState(null, "", window.location.pathname + (q.toString() ? `?${q}` : "") + window.location.hash);
+      q.delete("feed"); q.delete("entry"); window.history.replaceState(null, "", window.location.pathname + (q.toString() ? `?${q}` : "") + window.location.hash);
       return window.innerWidth < 900;
     } catch { return false; }
   }); // phone panel
@@ -1622,6 +1624,20 @@ function StarshipTracker() {
   ) : null;
 
   // Tap an entry in the Road card: show its post in the feed and light it up.
+  React.useEffect(() => {
+    if (!entryReq || !road) return;
+    const t = setTimeout(() => {
+      const pane = feedScroll.current;
+      const el = pane && pane.querySelector(`[data-entry="${CSS.escape(entryReq)}"]`);
+      setEntryReq(null);
+      if (!el) return;
+      const head = pane.querySelector(".feed-head");
+      pane.scrollTop = Math.max(0, el.offsetTop - (head ? head.offsetHeight : 0) - 14);
+      if (!wide) setFeedOpen(true);
+      setTimeout(() => { el.classList.remove("hl"); void el.offsetWidth; el.classList.add("hl"); setTimeout(() => el.classList.remove("hl"), 2400); }, reduceMotion() ? 0 : FEED_SLIDE_MS);
+    }, 300);
+    return () => clearTimeout(t);
+  }, [entryReq, road]);
   const jumpToPost = (catId, i) => {
     const pane = feedScroll.current;
     const el = pane && pane.querySelector(`#post-${CSS.escape(`${catId}-${i}`)}`);
