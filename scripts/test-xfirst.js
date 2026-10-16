@@ -74,6 +74,25 @@ const xReply = (posts, newest) => ({ ok: true, status: 200, json: async () => ({
   const t0 = stored.xFirst.sinceId; xPage = xReply([P("3001", "1", 1, "S50 #3001", "photo")], "3001");
   res = await road.run({ ...base, askXFirst: async () => { throw new Error("down"); } });
   check(stored.xFirst.sinceId === t0, "writer down: since_id not advanced, posts retried next run");
+  // status updates (same rules as the article path)
+  const st = (id) => JSON.parse(fs.readFileSync(roadPath, "utf8")).categories.find((c) => c.id === id);
+  { const r0 = JSON.parse(fs.readFileSync(roadPath, "utf8")); r0.categories.find((c) => c.id === "static").status = "pending"; r0.categories.find((c) => c.id === "cryo").status = "complete"; r0.categories.find((c) => c.id === "date").status = "pending"; fs.writeFileSync(roadPath, JSON.stringify(r0, null, 2)); }
+  Object.assign(cls, { "4001": { kind: "road", stage: "static", hardware: "B60", text: "Booster 60 began its static fire campaign.", status: "progress" },
+    "4002": { kind: "road", stage: "cryo", hardware: "S61", text: "Ship 61 is back at Massey's for more cryo testing.", status: "progress" },
+    "4003": { kind: "road", stage: "date", hardware: null, text: "Flight 15 is set for 30 Oct.", status: "confirmed" },
+    "4004": { kind: "road", stage: "faa", hardware: "FAA", text: "The FAA issued the Flight 15 licence.", status: "done" } });
+  sent.length = 0; xPage = xReply([P("4001", "1", 1, "B60 #4001", "photo"), P("4002", "2", 1, "S61 #4002", "photo"), P("4003", "1", 1, "NET 30 Oct #4003", "photo"), P("4004", "1", 1, "licence #4004", "photo")], "4004");
+  res = await road.run({ ...base, askXFirst: ask });
+  check(st("static").status === "progress" && sent.some((n) => /Static fires: In progress/.test(n.title) && /entry=x-4001$/.test(n.link)), "status: in progress applies, push names the box and new status (existing push)");
+  check(st("cryo").status === "progress", "a finished stage can be re-opened by a trusted account (both directions)");
+  check(st("date").status === "pending" && !/Confirmed/.test(sent.map((n) => n.title).join()), "Launch date: only SpaceX/FAA can confirm (LabPadre blocked)");
+  check(st("faa").status === "complete" && st("faa").history[0].complete === true && st("faa").latest === "Done", "done → stage complete (Done, green entry)");
+  Object.assign(cls, { "4005": { kind: "road", stage: "date", hardware: null, text: "SpaceX set Flight 15 for 30 Oct.", status: "confirmed" }, "4006": { kind: "road", stage: "static", hardware: "B60", text: "Booster 60 finished its static fire.", status: "done" } });
+  sent.length = 0; xPage = xReply([P("4005", "4", 1, "Flight 15 NET 30 Oct #4005", "photo"), P("4006", "1", 0.5, "B60 static fire done #4006", "video")], "4006");
+  res = await road.run({ ...base, askXFirst: ask });
+  check(st("date").status === "done" && sent.some((n) => /Launch date: Confirmed/.test(n.title)), "SpaceX post confirms the Launch date");
+  check(st("static").status === "complete" && st("static").history.filter((h) => h.hardware === "B60").length === 1 && sent.some((n) => /Static fires: Done/.test(n.title) && /entry=x-4001$/.test(n.link)), "merged post that finishes the stage still moves the status and pushes");
+  check(road.xStatus({ id: "date" }, "done") === null && road.xStatus({ id: "pad" }, "confirmed") === null, "done is not used on the Launch date; confirmed only there");
   // app
   const app = fs.readFileSync(path.join(ROOT, "app.js"), "utf8");
   check(/const PLAY_ICON = null/.test(app) && /get\("entry"\)/.test(app) && /data-entry=\{h\.id/.test(app), "app: no play badge; ?entry= scrolls to and highlights the card");

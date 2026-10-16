@@ -898,6 +898,26 @@ function lastLoggedFlight(appJsText) {
 }
 
 // Applies Claude's updates with the trust rules. Returns the list of changes.
+// The status rules (shared by the article path and X-first): trusted sources only (callers check);
+// moving backwards needs SpaceX/FAA unless a finished stage re-opens; only SpaceX/FAA confirm the date.
+function statusRule(box, want, tier, src, log) {
+  if (!want || want === box.status) return false;
+  const backwards = RANK[want] < RANK[box.status];
+  // a finished stage that restarts (e.g. booster back for more cryo) may be re-opened by a
+  // trusted source; the Launch date's "Confirmed" still needs SpaceX/FAA to move back
+  const reopen = backwards && box.id !== "date" && FINISHED(box.status);
+  if (backwards && !reopen && tier !== "official") { log(`BLOCKED [${box.id}] ${box.status} → ${want} from ${src}: moving a box backwards needs SpaceX/FAA`); return false; }
+  if (box.id === "date" && want === "done" && tier !== "official") { log(`BLOCKED [date] → Confirmed from ${src}: only SpaceX/FAA can confirm the date`); return false; }
+  return true;
+}
+// X-first status words → box status: "progress" → progress; "done" → complete (a stage) /
+// ignored on the Launch date (use confirmed); "confirmed" → done (= Confirmed) on the Launch date only.
+function xStatus(box, s) {
+  if (s === "progress") return "progress";
+  if (s === "done") return box.id === "date" ? null : "complete";
+  if (s === "confirmed") return box.id === "date" ? "done" : null;
+  return null;
+}
 function applyUpdates(road, items, updates, log, limit) {
   // 1. keep only usable, new updates
   const perItem = {};
@@ -961,15 +981,7 @@ function applyUpdates(road, items, updates, log, limit) {
     if (trust === "unconfirmed") {
       log(`UNCONFIRMED [${box.id}] ${line} (${it.src}) — added with tag; status/headline left alone${want && want !== box.status ? ` (it suggested ${want})` : ""}`);
     } else {
-      if (want && want !== box.status) {
-        const backwards = RANK[want] < RANK[box.status];
-        // a finished stage that restarts (e.g. booster back for more cryo) may be re-opened by a
-        // trusted source; the Launch date's "Confirmed" still needs SpaceX/FAA to move back
-        const reopen = backwards && box.id !== "date" && FINISHED(box.status);
-        if (backwards && !reopen && it.tier !== "official") log(`BLOCKED [${box.id}] ${box.status} → ${want} from ${it.src}: moving a box backwards needs SpaceX/FAA`);
-        else if (box.id === "date" && want === "done" && it.tier !== "official") log(`BLOCKED [date] → Confirmed from ${it.src}: only SpaceX/FAA can confirm the date`);
-        else { change.to = want; box.status = want; }
-      }
+      if (statusRule(box, want, it.tier, it.src, log)) { change.to = want; box.status = want; }
       // headline: keep it unless Claude says this supersedes it, the status moved, or it's still the placeholder
       const short = cleanLine(u.short, { fullStop: false });
       const replace = u.supersedes === true || change.to !== change.from || !box.latest || box.latest === "Nothing reported yet";
@@ -1161,7 +1173,15 @@ async function run(opts = {}) {
   if (xFirst) {
     try {
       xf = await xFirstMod.runXFirst(road, state, { token: opts.xToken !== undefined ? opts.xToken : process.env.X_BEARER_TOKEN, fetchFn: opts.xFetch, postCard: xPostCard,
-        ask: opts.askXFirst || ((prompt, o) => writer.askJson(prompt, { ...o, log })), log, now: clock(), maxCards: LIMITS.changesPerRun });
+        ask: opts.askXFirst || ((prompt, o) => writer.askJson(prompt, { ...o, log })), log, now: clock(), maxCards: LIMITS.changesPerRun,
+        status: (box, s, post, entry) => { // trusted accounts only (all X-first accounts are trusted)
+          const want = xStatus(box, s), from = box.status, tier = entry.official ? "official" : "trusted";
+          if (!statusRule(box, want, tier, `@${post.author.username}`, log)) return null;
+          box.status = want; box.latest = want === "complete" ? "Done" : entry.text.slice(0, 160);
+          if (want === "complete") entry.complete = true;
+          log(`STATUS [${box.id}] ${from} → ${want} (@${post.author.username})`);
+          return { from, to: want };
+        } });
       state.xFirst = xf.state;
     } catch (e) { log(`X-first failed (${e.message}) — tried again next run`); }
   }
@@ -1258,7 +1278,8 @@ async function run(opts = {}) {
   let changes = [];
   if (xFirst) {
     for (const it of batch) seen.add(it.key); // articles: news/date only, never a Road card
-    if (xf) for (const r of xf.cards) changes.push({ box: r.box, entry: r.entry, from: r.box.status, to: r.box.status, item: { key: `x:${r.entry.x_post.post_id}` } });
+    // new cards push; a merge only pushes when it moved the status
+    if (xf) for (const r of [...xf.cards, ...xf.merged.filter((m) => m.st)]) changes.push({ box: r.box, entry: r.entry, from: r.st ? r.st.from : r.box.status, to: r.box.status, item: { key: `x:${r.entry.x_post.post_id}` } });
     if (xf && xf.merged.length) changed = true;
   } else if (batch.length) {
     let updates = null;
@@ -1420,7 +1441,7 @@ async function run(opts = {}) {
   return { road, changes, notifications, refreshed, state, scheduledSent, newsPushes, xFirst: xf };
 }
 
-module.exports = { applyMediaPicks, loadMediaPicks, pickImage, applyImageCheck, verifyImages, fcmMessage, notificationFor, judgeFeed, verifyFeed, entryDayMs, backfillX, xPostCard, xIdOf, readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, titleMatches, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
+module.exports = { statusRule, xStatus, applyMediaPicks, loadMediaPicks, pickImage, applyImageCheck, verifyImages, fcmMessage, notificationFor, judgeFeed, verifyFeed, entryDayMs, backfillX, xPostCard, xIdOf, readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, titleMatches, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
 
 if (require.main === module) {
   run().catch((err) => {
