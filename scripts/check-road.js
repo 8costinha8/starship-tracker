@@ -44,6 +44,7 @@ const crypto = require("crypto");
 const { execSync } = require("child_process");
 const os = require("os");
 const predict = require("./predicted.js");
+const news = require("./news.js");
 
 const ROOT = path.join(__dirname, "..");
 const ANTHROPIC_MODEL = "claude-sonnet-5"; // same model as check-flights.js
@@ -802,7 +803,8 @@ function firebaseDeps() {
       const subs = await db.collection("subscribers").get();
       const tokens = subs.docs.map((d) => d.id);
       if (!tokens.length) { console.log(`Would have sent "${notification.title}" — but there are no subscribers yet.`); return; }
-      const resp = await admin.messaging().sendEachForMulticast({ tokens, notification: { title: notification.title, body: notification.body } });
+      const resp = await admin.messaging().sendEachForMulticast({ tokens, notification: { title: notification.title, body: notification.body },
+        ...(notification.link ? { webpush: { fcmOptions: { link: notification.link } } } : {}) }); // news pushes open the Updates feed
       console.log(`Sent "${notification.title}" to ${resp.successCount}/${tokens.length} device(s).`);
       resp.responses.forEach((r, i) => { if (!r.success) db.collection("subscribers").doc(tokens[i]).delete().catch(() => {}); });
     },
@@ -931,6 +933,19 @@ async function run(opts = {}) {
   }
   state.predScanned = [...predScanned].slice(-LIMITS.seenKeep);
 
+  // 2c. News pushes: first run only seeds what's already out there (no backlog pushes)
+  let newsCands = [];
+  if (!state.news) {
+    state.news = news.freshNewsState(clock());
+    state.news.seen = predictItems.map((it) => it.key).filter(Boolean);
+    log(`news: first run — ${state.news.seen.length} current item(s) seeded as seen, nothing pushed`);
+  } else {
+    const { candidates: nc, skipped } = news.newsCandidates([...(state.news.pending || []), ...predictItems], state.news, { isTrusted, looksStarship: (t) => looksRelevant(t, road), now: clock() });
+    state.news.pending = [];
+    for (const it of skipped) state.news.seen.push(it.key);
+    newsCands = nc;
+  }
+
   // 3. Drop stale, seen, duplicate and off-topic posts
   // ROAD_STALE_HOURS (preview only): look back N hours and ignore road.updatedAt, for practice runs
   const practiceHours = mode === "preview" ? Number(process.env.ROAD_STALE_HOURS) : 0;
@@ -1015,6 +1030,31 @@ async function run(opts = {}) {
     : `NO-NEWS LINE REMOVED [${m.box.id}] ${m.from}: "${m.text}" (no push)`);
   if (refreshed.length) changed = true;
 
+  // 4b2. News: one Claude call for this run's new trusted items (items that just made a
+  //      Road change already get that push, so they're not pushed twice)
+  const newsPushes = [];
+  if (newsCands.length) {
+    const roadKeys = new Set(changes.map((c) => c.item.key));
+    const fresh = newsCands.filter((it) => { if (roadKeys.has(it.key)) { state.news.seen.push(it.key); return false; } return true; });
+    const nb = fresh.slice(0, 10);
+    state.news.pending = fresh.slice(10).map(({ key, title, text, url, publishedAt, src, source, tier }) => ({ key, title, text, url, publishedAt, src, source, tier }));
+    const askNews = opts.askNews || (opts.askClaude || opts.sources ? null : askClaude); // fake test runs: only when a test passes askNews
+    if (nb.length && !askNews) nb.forEach((it) => state.news.seen.push(it.key));
+    else if (nb.length) {
+      const recent = state.news.sent.filter((x) => clock() - new Date(x.at).getTime() < 48 * 3600000);
+      try {
+        const reply = await askNews(news.buildNewsPrompt(nb, recent), log);
+        nb.forEach((it) => state.news.seen.push(it.key));
+        newsPushes.push(...news.decideNews(nb, reply, state.news, clock(), log));
+        log(`news: ${nb.length} new item(s) checked → ${newsPushes.length} push(es) (${state.news.count}/${news.NEWS_DAILY_CAP} today)`);
+      } catch (err) {
+        log(`news: Claude failed (${err.message}) — ${nb.length} item(s) retried next run`);
+        state.news.pending = [...nb, ...state.news.pending].slice(0, 15).map(({ key, title, text, url, publishedAt, src, source, tier }) => ({ key, title, text, url, publishedAt, src, source, tier }));
+      }
+    }
+  }
+  news.trimNews(state.news, clock());
+
   // 4c. Predicted launch date (no push, never bumps the Road card's "Updated")
   const before = JSON.stringify([road.predicted || null, road.predicted_candidates || []]);
   const pr = predict.computePredicted({ road, target, next, lastLogged: lastN, mentions, now: clock() });
@@ -1047,6 +1087,12 @@ async function run(opts = {}) {
     log("no change to the Road card");
   }
 
+  // 5b. News pushes (no commit needed: nothing in road.json changes). In test mode: logged only.
+  for (const n of newsPushes) {
+    if (save) await deps.push(n);
+    else console.log(`(not sent) news push: ${n.title} — ${n.body}`);
+  }
+
   // anything not handled yet is kept, so posts from X / Launch Library (which
   // only hand each post over once) are never lost
   state.pending = candidates.filter((it) => !seen.has(it.key)).slice(0, 30)
@@ -1054,7 +1100,7 @@ async function run(opts = {}) {
   state.seen = [...seen].slice(-LIMITS.seenKeep);
   state.lastRun = new Date().toISOString();
   if (save) await deps.saveState(state);
-  return { road, changes, notifications, refreshed, state, scheduledSent };
+  return { road, changes, notifications, refreshed, state, scheduledSent, newsPushes };
 }
 
 module.exports = { readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, parseOgMedia, xMedia, youtubeId, mediaFor, titleMatches, captionedImage, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };

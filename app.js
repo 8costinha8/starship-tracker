@@ -1396,7 +1396,15 @@ function StarshipTracker() {
   const [notifyModalOpen, setNotifyModalOpen] = React.useState(false);
   const road = useRoad();
   const wide = useMedia(FEED_WIDE_QUERY);
-  const [feedOpen, setFeedOpen] = React.useState(false); // phone panel
+  // ?feed=1 (tapping a "🚀 Starship" news push) opens the phone's Updates feed straight away
+  const [feedOpen, setFeedOpen] = React.useState(() => {
+    try {
+      const q = new URLSearchParams(window.location.search);
+      if (q.get("feed") !== "1") return false;
+      q.delete("feed"); window.history.replaceState(null, "", window.location.pathname + (q.toString() ? `?${q}` : "") + window.location.hash);
+      return window.innerWidth < 900;
+    } catch { return false; }
+  }); // phone panel
   const [feedOn, setFeedOn] = React.useState(false);     // panel open, opening or closing
   const [dragging, setDragging] = React.useState(false);
   const rootRef = React.useRef(null);

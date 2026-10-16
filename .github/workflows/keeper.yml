@@ -1,0 +1,51 @@
+name: Keeper
+
+# Keeps the flight checker running every 15 minutes even when GitHub's own cron
+# is late or skipped. One keeper job loops for ~5h45m, dispatching
+# flight-checker.yml through the REST API with GITHUB_TOKEN (workflow_dispatch is
+# allowed from GITHUB_TOKEN), then dispatches keeper.yml again, so the chain never
+# ends. The hourly schedule only revives the chain if it ever breaks: it exits at
+# once when another keeper run is already going. The flight checker's own cron and
+# the box loop stay as extra backups; its concurrency group stops overlapping runs.
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "23 * * * *"   # revival fallback only
+
+concurrency:
+  group: keeper
+  cancel-in-progress: false
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  keep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 358
+    steps:
+      - name: Loop (dispatch the checker every 15 min, then hand over to a new keeper)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          set -u
+          api() { curl -sS -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" "$@"; }
+          others() { api "https://api.github.com/repos/$REPO/actions/workflows/keeper.yml/runs?status=in_progress&per_page=20" | jq --argjson me "$RUN_ID" '[.workflow_runs[] | select(.id != $me)] | length'; }
+          dispatch() { code=$(curl -sS -o /tmp/out -w '%{http_code}' -X POST -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" \
+                         "https://api.github.com/repos/$REPO/actions/workflows/$1/dispatches" -d '{"ref":"main"}'); echo "$(date -u '+%F %T') UTC dispatch $1 → HTTP $code $(cat /tmp/out)"; [ "$code" = "204" ]; }
+          if [ "$EVENT" = "schedule" ] && [ "$(others)" != "0" ]; then echo "Another keeper is running — revival not needed."; exit 0; fi
+          start=$(date +%s); end=$((start + 345*60))
+          while :; do
+            dispatch flight-checker.yml || { sleep 20; dispatch flight-checker.yml || true; }
+            next=$(( ( $(date +%s) / 900 + 1 ) * 900 ))   # next quarter-hour
+            [ $next -ge $end ] && break
+            sleep $(( next - $(date +%s) ))
+          done
+          # hand over: the new run waits in the keeper concurrency group until this one ends
+          for i in 1 2 3 4 5; do dispatch keeper.yml && exit 0; sleep 30; done
+          echo "::error::could not dispatch the next keeper — the hourly schedule will revive it"; exit 1

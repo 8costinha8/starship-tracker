@@ -7,8 +7,10 @@
    ───────────────────────────────────────────────────────────── */
 const admin = require("firebase-admin");
 
-const TITLE = "🚀 Road to Flight 15 — test notification";
-const BODY = "If you see this, Road alerts work.";
+// Optional overrides (workflow inputs test_title / test_body / test_link), e.g. to send one example news push.
+const TITLE = process.env.TEST_PUSH_TITLE || "🚀 Road to Flight 15 — test notification";
+const BODY = process.env.TEST_PUSH_BODY || "If you see this, Road alerts work.";
+const LINK = process.env.TEST_PUSH_LINK || "";
 
 async function main() {
   admin.initializeApp({ credential: admin.credential.cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)) });
@@ -17,7 +19,8 @@ async function main() {
   console.log(`Found ${tokens.length} subscribed device(s).`);
   if (!tokens.length) { console.log("Nothing sent: no subscribers."); return; }
 
-  const resp = await admin.messaging().sendEachForMulticast({ tokens, notification: { title: TITLE, body: BODY } });
+  const resp = await admin.messaging().sendEachForMulticast({ tokens, notification: { title: TITLE, body: BODY },
+    ...(LINK ? { webpush: { fcmOptions: { link: LINK } } } : {}) });
   console.log(`Sent "${TITLE}" to ${resp.successCount}/${tokens.length} device(s). Failures: ${resp.failureCount}.`);
   resp.responses.forEach((r, i) => {
     if (!r.success) console.log(`  ✗ token …${tokens[i].slice(-8)} (created ${subs.docs[i].get("createdAt") || "?"}): ${r.error?.code} ${r.error?.message || ""}`);

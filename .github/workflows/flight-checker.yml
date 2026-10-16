@@ -17,6 +17,18 @@ on:
         description: "Send ONE test notification to every subscribed device, then stop (skips both checkers, changes nothing)"
         type: boolean
         default: false
+      test_title:
+        description: "test_push only: optional title (blank = the standard test text)"
+        type: string
+        default: ""
+      test_body:
+        description: "test_push only: optional body"
+        type: string
+        default: ""
+      test_link:
+        description: "test_push only: optional link opened on tap (e.g. https://8costinha8.github.io/starship-tracker/?feed=1)"
+        type: string
+        default: ""
 
 permissions:
   contents: write   # needed so the checkers can commit + push app.js / road.json
@@ -55,3 +67,6 @@ jobs:
         if: ${{ inputs.test_push }}
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          TEST_PUSH_TITLE: ${{ inputs.test_title }}
+          TEST_PUSH_BODY: ${{ inputs.test_body }}
+          TEST_PUSH_LINK: ${{ inputs.test_link }}
