@@ -360,24 +360,45 @@ async function verifyFeed(road, { token, fetchFn = fetch, rewrite = null, log = 
     if (!t.best) { h.feed_hide = true; res.dropped.push(`${c.id} ${h.date} "${h.text}"${t.unsearched ? " (not searched: budget/stop)" : !Number.isFinite(t.day) ? " (no date)" : ""}`); continue; }
     h.x_post = t.best; delete h.feed_hide;
     h.x_text = h.text;
-    if (rewrite) { try { const v = await rewrite(h, [t.best], c); if (v) h.x_text = v; } catch (e) { log(`• feed check rewrite failed (${e.message}) — kept the entry text`); } }
+    if (rewrite) { try { const v = await rewrite(h, [t.best], c); if (v) h.x_text = v; else { delete h.x_post; delete h.x_text; h.feed_hide = true; res.dropped.push(`${c.id} ${h.date} "${h.text}" (writer: post not about the same thing)`); continue; } } catch (e) { log(`• feed check rewrite failed (${e.message}) — kept the entry text`); } }
     res.matched.push(`${c.id} ${h.date} "${h.x_text}" ← @${t.best.author.username} ${t.best.created_at} (${t.best.media.length} media)`);
   }
   if (!res.stopped) road.feedVerified = new Date().toISOString();
   return res;
 }
 // The writer's short, plain rewrite of an entry from its trusted X post(s). Never quotes the post.
-const REWRITE_SCHEMA = { type: "object", additionalProperties: false, required: ["line"], properties: { line: { type: "string" } } };
+const REWRITE_SCHEMA = { type: "object", additionalProperties: false, required: ["same", "line"], properties: { same: { type: "boolean" }, line: { type: "string" } } };
+// Returns the rewritten line, or null when the writer says the post isn't about the same thing.
 async function rewriteFromPosts(h, posts, c) {
-  const prompt = `Rewrite this Starship tracker entry as ONE short, easy-to-read sentence (max 100 characters, British English, no hype, no quotes, no hashtags, no @handles, no links), using only facts stated in the X post(s) below that are about the same thing as the entry. Keep every hedge (may, could, expected, reportedly). Don't add facts.
+  const prompt = `A Starship tracker entry and the X post(s) proposed as its source.
+1. "same": true ONLY if the post(s) clearly report the same event or fact as the entry (same vehicle and same activity, e.g. both about Ship 42's cryo test). A post about a different activity of the same vehicle (e.g. engines removed vs a static fire estimate), or a general schedule post for a maintenance entry, is false.
+2. "line": if same, rewrite the entry as ONE short, easy-to-read sentence (max 100 characters, British English, no hype, no quotes, no hashtags, no @handles, no links) using only facts stated in the post(s). Keep every hedge (may, could, expected, reportedly). Don't add facts. If not same, "line": "".
 Stage: ${c.name || c.id}
-Current entry: ${h.text}
+Entry: ${h.text}
 Post(s):
 ${posts.map((p, i) => `${i + 1}. @${p.author.username} (${p.created_at}): ${p.text}`).join("\n")}
-Reply with JSON: {"line": "..."}`;
+Reply with JSON: {"same": true|false, "line": "..."}`;
   const v = await writer.askJson(prompt, { schema: REWRITE_SCHEMA, schemaName: "entry_rewrite", maxTokens: 4000, claudeMaxTokens: 400, attempts: 1,
-    extract: (t) => { const o = JSON.parse(t.replace(/```json|```/g, "").trim()); if (!o || typeof o.line !== "string") throw new Error("no line"); return o; } });
+    extract: (t) => { const o = JSON.parse(t.replace(/```json|```/g, "").trim()); if (!o || typeof o.same !== "boolean") throw new Error("no verdict"); return o; } });
+  if (!v.same) return null;
   return cleanLine(v.line, { fullStop: true });
+}
+// One-off (road.feedJudged): re-check the feed's existing X matches with the writer, using the
+// stored posts (no X calls); a post that isn't about the same thing is removed and the card hidden.
+async function judgeFeed(road, { rewrite = rewriteFromPosts, log = console.log } = {}) {
+  const res = { checked: 0, hidden: [], kept: [] };
+  if (road.feedJudged || !road.feedVerified) return res;
+  for (const c of road.categories) for (const h of c.history || []) {
+    if (!h.x_post || h.feed_hide || c.id === "date") continue;
+    res.checked++;
+    let line;
+    try { line = await rewrite(h, [h.x_post], c); } catch (e) { log(`• feed judge failed (${e.message}) — tried again next run`); return { ...res, failed: true }; }
+    if (!line) { res.hidden.push(`${c.id} ${h.date} "${h.text}" ✗ @${h.x_post.author.username}: ${h.x_post.text.slice(0, 80)}`); h.feed_hide = true; delete h.x_post; delete h.x_text;
+      if (h.src_original) { h.src = h.src_original; h.url = h.url_original; delete h.src_original; delete h.url_original; } }
+    else { h.x_text = line; res.kept.push(`${c.id} ${h.date} "${line}" ← @${h.x_post.author.username}`); }
+  }
+  road.feedJudged = new Date().toISOString();
+  return res;
 }
 // Minimal RSS/Atom reader, no dependencies.
 function parseFeed(xml) {
@@ -1120,6 +1141,10 @@ async function run(opts = {}) {
       }
     } catch (e) { log(`feed check failed: ${e.message} — tried again next run`); }
   }
+  if ((!opts.sources && mode === "live") || opts.judgeFeed) {
+    const jf = await judgeFeed(road, { ...(opts.judgeFeed || {}), log });
+    if (jf.checked && !jf.failed) { log(`feed judge: ${jf.checked} checked, ${jf.hidden.length} hidden`); [...jf.kept.map((x) => "kept: " + x), ...jf.hidden.map((x) => "hidden: " + x)].forEach((x) => log("  " + x)); changed = true; }
+  }
   // 4a. Older entries: one-off X backfill (no push; strict match; under 30 posts read)
   for (const ch of changes) ch.entry.xChecked = true;
   if (!opts.sources || opts.backfillX) {
@@ -1215,7 +1240,7 @@ async function run(opts = {}) {
   return { road, changes, notifications, refreshed, state, scheduledSent, newsPushes };
 }
 
-module.exports = { verifyFeed, entryDayMs, backfillX, xPostCard, xIdOf, readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, titleMatches, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
+module.exports = { judgeFeed, verifyFeed, entryDayMs, backfillX, xPostCard, xIdOf, readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, titleMatches, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
 
 if (require.main === module) {
   run().catch((err) => {

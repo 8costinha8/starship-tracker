@@ -60,5 +60,13 @@ const vid = { media_key: "v", type: "video", preview_image_url: "https://pbs.twi
     const v2 = await r.verifyFeed(f2, { token: "t", fetchFn: async () => ({ ok: false, status: 403, json: async () => ({}) }), log: () => {} });
     check(v2.calls === 1 && v2.stopped === "HTTP 403" && !f2.feedVerified, "403 → stops after one call, retried later");
   }
+  {
+    const jr = { feedVerified: "x", categories: [{ id: "static", name: "Static", history: [
+      { date: "a", text: "B22 static fire within two weeks.", src: "@LabPadre", src_original: "NSF", url: "https://x.com/LabPadre/status/1", url_original: "https://n", x_text: "x", x_post: { post_id: "1", author: { username: "LabPadre" }, text: "3 more Raptors removed from Ship 42", media: [] } },
+      { date: "b", text: "B22 static fire done.", x_text: "y", x_post: { post_id: "2", author: { username: "NASASpaceflight" }, text: "Booster 22 static fire!", media: [] } } ] }] };
+    const jres = await r.judgeFeed(jr, { log: () => {}, rewrite: async (h) => (/static fire/i.test(h.x_post.text) ? "Booster 22 completed a static fire." : null) });
+    const [j1, j2] = jr.categories[0].history;
+    check(jres.checked === 2 && j1.feed_hide && !j1.x_post && j1.src === "NSF" && j1.url === "https://n" && j2.x_text === "Booster 22 completed a static fire." && jr.feedJudged, "writer judge: unrelated post removed (source restored), related kept + rewritten");
+  }
   console.log(fails ? `\n${fails} FAILED` : "\n✅ All X media checks passed."); process.exit(fails ? 1 : 0);
 })();

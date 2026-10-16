@@ -1230,7 +1230,7 @@ function feedTime(iso) {
 // Which flight a card belongs to: Road vehicles → the next flight; a flown vehicle → its flight;
 // else "Flight N" in the text; else the next flight.
 function flightOf(h, road) {
-  const txt = `${h.x_text || ""} ${h.text || ""} ${(h.x_post && h.x_post.text) || ""}`;
+  const txt = `${(h.x_post && h.x_post.text) || ""} ${h.x_text || h.text || ""}`; // the post first: the old entry text may mention past flights
   const vs = [...txt.matchAll(/\b(Ship|Booster|S|B)[\s-]?(\d{1,3})\b/g)].map((m) => (m[1][0].toUpperCase() === "S" ? "S" : "B") + Number(m[2]));
   if (vs.some((v) => (road.vehicles || []).includes(v))) return road.flight;
   for (const v of vs) { const f = [...FLIGHTS].reverse().find((x) => x.booster === v || x.ship === v); if (f) return f.n; }
