@@ -177,9 +177,15 @@ const box = (r, id) => r.categories.find((c) => c.id === id);
   const app = fs.readFileSync(appJsPath, "utf8");
   const end = app.indexOf("\n];", app.indexOf("const FLIGHTS = ["));
   fs.writeFileSync(appJsPath, app.slice(0, end) + `\n  { n: 15, date: "2026-10-21T23:00:00Z", pad: "Pad 2", block: "V3", booster: "B22", ship: "S42", outcome: "success",\n    headline: "x", highlights: "",\n    story: "x" },` + app.slice(end));
+  const pre5 = JSON.parse(fs.readFileSync(roadPath, "utf8"));
+  const f15n = pre5.categories.flatMap((c) => c.history.filter((h) => h.kind !== "check" && !(h.flight > 15))).length;
+  const later = pre5.categories.flatMap((c) => c.history.filter((h) => h.flight > 15).map((h) => `${c.id}|${h.text}`));
   res = await road.run(opts);
   r = JSON.parse(fs.readFileSync(roadPath, "utf8"));
-  check(r.flight === 16 && r.categories.every((c) => c.status === "none" && c.history.length === 0), "rolled over to Road to Flight 16 with empty boxes");
+  const left = r.categories.flatMap((c) => c.history.filter((h) => h.kind !== "check").map((h) => `${c.id}|${h.text}`));
+  check(r.flight === 16 && r.categories.every((c) => c.status === "none") && left.join() === later.join(), `rolled over to Road to Flight 16: statuses reset, only later-flight cards stay (${later.length})`);
+  check(r.archive && r.archive[15] && r.archive[15].length === f15n && r.archive[15].every((e, i, a) => e.text && e.box && (!i || a[i - 1].when >= e.when)), `Flight 15's ${f15n} Road entries archived for its Flight Log card (text only, newest first), not deleted`);
+  check(JSON.stringify(r.archive[14] || []) === JSON.stringify(pre5.archive ? pre5.archive[14] || [] : []), "earlier archives kept as they are");
   check(sent.length === 0, "rollover: no push at the moment of rollover");
   check(stored.pendingPush && stored.pendingPush.title === "🚀 Road to Flight 16" && stored.pendingPush.sendAfter === "2026-10-23T08:00:00.000Z",
     `"🚀 Road to Flight 16" scheduled for 09:00 London the morning after the launch day (launch 00:00 London 22 Oct → ${stored.pendingPush && stored.pendingPush.sendAfter})`);

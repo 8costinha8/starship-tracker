@@ -761,7 +761,8 @@ function NextFlightCard({ f, checkedAt, road, children }) {
   );
 }
 
-function FlightCard({ f, open, onTap, onPhotoTap, register }) {
+function FlightCard({ f, open, onTap, onPhotoTap, register, road }) {
+  const past = React.useMemo(() => pastRoad(road, f.n), [road, f.n]);
   const onKey = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onTap(f.n); } };
   // While closed, tapping the thumb should expand the card like the rest of the header.
   // Once open, tapping the thumb opens the lightbox instead — so it needs to stop
@@ -792,6 +793,19 @@ function FlightCard({ f, open, onTap, onPhotoTap, register }) {
           <div className="more-pad">
             <h3 className="headline">{f.headline}</h3>
             <p className="story">{f.story}</p>
+            {past.length > 0 && (
+              <div className="past-road" aria-label={`Road to Flight ${f.n}`}>
+                {past.map((e, i) => (
+                  <div className="mini past-mini" key={i} style={{ "--c": e.color }}>
+                    <div className="mini-top">
+                      <span className="mini-date">{e.date}</span>
+                      <span className="past-pill">{e.label}</span>
+                    </div>
+                    <p>{e.text}</p>
+                  </div>
+                ))}
+              </div>
+            )}
             <div className="gallery">
               <PhotoSlot
                 size="wide" src={f.photo?.gallery?.[0]} alt={`${f.headline} \u2014 photo 1`}
@@ -1088,7 +1102,7 @@ function RoadCard({ road, onEntryTap, openReq }) {
               <span className={"badge badge-" + m.status}>{label(m)}</span>
             </button>
             <div className="callout-hist"><div className="callout-hist-inner">
-              {(m.history || []).map((h, i) => isRealEntry(h) && !(h.flight > road.flight) && ( /* later flights' cards: Road page only */
+              {(m.history || []).map((h, i) => isRealEntry(h) && !(h.flight > road.flight) && !isLaunched(h.flight) && ( /* later flights' cards: Road page only */
                 <div className={"mini" + (h.complete ? " mini-done" : "") + (onEntryTap ? " tappable" : "")} key={i}
                   {...(onEntryTap ? { role: "button", tabIndex: isOpen ? 0 : -1, "aria-label": `${h.date}: ${h.text}. Show in the updates feed`,
                     onClick: () => onEntryTap(m.id, i), onKeyDown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onEntryTap(m.id, i); } } } : {})}>
@@ -1198,6 +1212,19 @@ function cardTime(h, road) {
   const pid = h.media_override && (h.media_override.post_id || (String(h.media_override.post_url || "").match(/status\/(\d+)/) || [])[1]);
   return (pid && snowflakeMs(pid)) || Date.parse((h.x_post && h.x_post.created_at) || "") || Date.parse(h.at || "") || feedDay(h.date, road.updatedAt) || 0;
 }
+// A launched flight's Road updates (shown in its Flight Log card): road.archive[n] (written by the
+// checker when the flight is logged), plus any entry still on the Road tagged for that flight.
+// Text only, newest first. Category → small pill.
+const PAST_LABEL = { cryo: "Cryo", raptor: "Raptor", static: "Static fires", pad: "Pad", faa: "FAA licence", date: "Launch date" };
+const PAST_COLOR = { cryo: "#BFE6FF", raptor: "#FF9A3D", static: "#FF5A36", pad: "#A88BFF", faa: "#2FD3B0", date: "#FFC93D" };
+function pastRoad(road, n) {
+  if (!road || !Array.isArray(road.categories)) return [];
+  const color = (id) => (road.categories.find((c) => c.id === id) || {}).color || PAST_COLOR[id] || "#AAB6D6";
+  const out = ((road.archive && road.archive[n]) || []).map((e) => ({ box: e.box, date: e.date, text: e.text, when: Number(e.when) || Date.parse(e.at || "") || 0 }));
+  road.categories.forEach((c) => (c.history || []).forEach((h) => { if (isRealEntry(h) && flightOf(h, road) === n) out.push({ box: c.id, date: h.date, text: h.x_text || h.text, when: cardTime(h, road) }); }));
+  return out.filter((e) => e.text).sort((a, b) => b.when - a.when).map((e) => ({ ...e, label: PAST_LABEL[e.box] || e.box, color: color(e.box) }));
+}
+const isLaunched = (n) => FLIGHTS.some((x) => x.n === n);
 // Road to Flight N page: only cards backed by a trusted X post, in sections by flight (newest flight first).
 function buildFeed(road) {
   if (!road || !Array.isArray(road.categories)) return { posts: [], rows: [] };
@@ -1206,6 +1233,7 @@ function buildFeed(road) {
     h, cat: c, ci, hi, id: `${c.id}-${hi}`, day: feedDay(h.date, road.updatedAt), at: Date.parse((h.x_post && h.x_post.created_at) || h.at) || 0, flight: flightOf(h, road),
     when: cardTime(h, road),
   })));
+  for (let i = posts.length - 1; i >= 0; i--) if (isLaunched(posts[i].flight)) posts.splice(i, 1); // launched flights: Flight Log card only
   // sections newest flight first; inside a section newest first by the card's post date (else its entry date)
   posts.sort((a, b) => b.flight - a.flight || b.when - a.when || a.ci - b.ci || a.hi - b.hi);
   const rows = [];
@@ -1690,7 +1718,7 @@ function StarshipTracker() {
 
         {flights.map((f, i) => (
           <div key={f.n}>
-            <FlightCard f={f} open={openId === f.n} onTap={handleTap} onPhotoTap={(src, alt) => setLightbox({ src, alt })} register={register} />
+            <FlightCard f={f} open={openId === f.n} onTap={handleTap} onPhotoTap={(src, alt) => setLightbox({ src, alt })} register={register} road={road} />
             {i < flights.length - 1 && <Connector label={`${daysBetween(flights[i + 1].date, f.date)} days`} />}
           </div>
         ))}
@@ -1861,6 +1889,13 @@ a.watch-badge-live:active { transform: scale(.96); }
 .headline { font-size: 16px; font-weight: 600; margin: 6px 0 8px; }
 .story { font-size: 14px; line-height: 1.62; color: #C9D2E6; margin: 0 0 14px; }
 .gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.past-road { position: relative; padding-left: 16px; margin: 0 0 14px; }
+.past-road::before { content: ""; position: absolute; left: 7px; top: 12px; bottom: 14px; width: 2px; background: rgba(170,190,245,.16); }
+.past-mini { padding: 8px 10px; }
+.past-mini:first-child { margin-top: 0; }
+.past-mini .mini-date { color: var(--muted); font-weight: 600; }
+.past-pill { font-size: 9.5px; font-weight: 700; letter-spacing: .02em; padding: 2px 7px; border-radius: 999px; white-space: nowrap;
+  color: var(--c); background: color-mix(in srgb, var(--c) 14%, transparent); border: 1px solid color-mix(in srgb, var(--c) 38%, transparent); }
 .highlights-link {
   display: flex; align-items: center; justify-content: center; gap: 7px;
   margin-top: 12px; padding: 9px 14px; border-radius: 11px;
