@@ -46,6 +46,12 @@ const mk = () => ({ flight: 15, vehicles: ["B22", "S42"], updated: "1 Oct", upda
   check(/useState\(false\); \/\/ the Road list starts closed/.test(card) && /className=\{"past-toggle"/.test(card) && /e\.stopPropagation\(\); setPastOpen/.test(card) && /aria-expanded=\{pastOpen\}/.test(card), "collapsible 'Road to Flight N' pill: closed by default, toggles without toggling the flight card");
   check(/\.past-wrap \{ display: grid; grid-template-rows: 0fr; transition/.test(app) && /\.past-toggle\.open \.past-chev \{ transform: rotate\(180deg\)/.test(app), "smooth expand; chevron rotates up when open");
   check(!JSON.parse(fs.readFileSync(path.join(ROOT, "road.json"), "utf8")).categories.some((c) => c.history.some((h) => h.flight === 14)), "the two misfiled Flight 14 notes are back on Flight 15");
+  const fnBody = (name) => { const a = app.indexOf(`function ${name}(`); const b = app.indexOf("\nfunction ", a + 10); return app.slice(a, b); };
+  check(!/past-|pastRoad/.test(fnBody("NextFlightCard")) && !/past-|pastRoad/.test(fnBody("RoadCard")), "the Next flight card and its Road card never render the Road to Flight pill");
+  check(/isLaunched\(f\.n\) \? pastRoad\(road, f\.n\) : \[\]/.test(card), "the pill is only built for flights already in the log");
+  { // pastRoad only lists a launched flight's own entries; the upcoming flight gets none from the archive
+    const ctx = {}; const src = app.slice(app.indexOf("const PAST_LABEL"), app.indexOf("const isLaunched"));
+    check(/function pastRoad\(road, n\)/.test(src) && /road\.archive && road\.archive\[n\]/.test(src), "past list reads only that flight's archive and entries tagged for it"); }
   check(/isLaunched\(posts\[i\]\.flight\)\) posts\.splice/.test(app), "Road page: launched flights' sections are not shown");
   console.log(fails ? `\n${fails} FAILED` : "\n✅ All archive checks passed."); process.exit(fails ? 1 : 0);
 })();

@@ -762,7 +762,7 @@ function NextFlightCard({ f, checkedAt, road, children }) {
 }
 
 function FlightCard({ f, open, onTap, onPhotoTap, register, road }) {
-  const past = React.useMemo(() => pastRoad(road, f.n), [road, f.n]);
+  const past = React.useMemo(() => (isLaunched(f.n) ? pastRoad(road, f.n) : []), [road, f.n]); // launched flights only, never the next flight
   const [pastOpen, setPastOpen] = React.useState(false); // the Road list starts closed
   const onKey = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onTap(f.n); } };
   // While closed, tapping the thumb should expand the card like the rest of the header.
