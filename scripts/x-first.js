@@ -102,7 +102,7 @@ function placePost(road, post, cls, now = Date.now()) {
   const official = OFFICIAL.has(post.author.username.toLowerCase());
   const entry = { id: "x-" + post.post_id, date: dayLabel(post.created_at), at: new Date(at).toISOString(), text: cls.text, x_text: cls.text,
     url: post.url, src: `@${post.author.username}`, trust: "trusted", ...(official ? { official: true } : {}), x_first: true, stage: cls.stage,
-    hardware: cls.hardware || null, x_post: post, x_posts: [post.post_id], xChecked: true, imageChecked2: true,
+    hardware: cls.hardware || null, ...(Number.isInteger(cls.flight) ? { flight: cls.flight } : {}) /* optional flight tag (not asked for yet: untagged = the app's default) */, x_post: post, x_posts: [post.post_id], xChecked: true, imageChecked2: true,
     ...(m ? { media_override: overrideFor(post, m) } : {}) };
   box.history = [entry, ...(box.history || [])].slice(0, 12);
   box.latest = cls.text.slice(0, 160);

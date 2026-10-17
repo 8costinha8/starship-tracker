@@ -26,7 +26,7 @@ const xReply = (posts, newest) => ({ ok: true, status: 200, json: async () => ({
   const cls = { "1001": { kind: "road", stage: "cryo", hardware: "S42", text: "Ship 42 rolled to Massey's for cryo testing." },
     "1002": { kind: "road", stage: "cryo", hardware: "Ship 42", text: "Ship 42 is on the cryo stand." },
     "1003": { kind: "skip", reason: "meme" }, "1004": { kind: "news", reason: "programme news" },
-    "1005": { kind: "road", stage: "static", hardware: "B22", text: "Booster 22 rolled to the static fire site." },
+    "1005": { kind: "road", stage: "static", hardware: "B70", text: "Booster 22 rolled to the static fire site." },
     "1006": { kind: "road", stage: "pad", hardware: "Pad 2", text: "Pad 2's chopsticks were tested." } };
   const ask = async (prompt, o) => { asks.push(prompt); return { entries: [...prompt.matchAll(/^(\d+)\. @\S+ \S+ \[[^\]]*\]: .*?#(\d+)/gm)].map((m) => ({ item: +m[1], kind: "skip", stage: null, hardware: null, text: null, reason: "x", ...cls[m[2]] })) }; };
 
@@ -40,7 +40,7 @@ const xReply = (posts, newest) => ({ ok: true, status: 200, json: async () => ({
   // run 2: new posts
   urls.length = 0; sent.length = 0;
   xPage = xReply([P("1001", "1", 30, "S42 rolling to Massey's #1001", "photo"), P("1002", "2", 5, "Ship 42 on the cryo stand #1002", "video"), P("1003", "1", 4, "lol meme #1003", "photo"),
-    P("1004", "4", 3, "Starship programme update #1004"), P("1005", "1", 2, "B22 rolling to Massey's #1005", "video"), P("1006", "2", 1, "Pad 2 chopsticks test #1006", "photo"),
+    P("1004", "4", 3, "Starship programme update #1004"), P("1005", "1", 2, "B70 rolling to Massey's #1005", "video"), P("1006", "2", 1, "Pad 2 chopsticks test #1006", "photo"),
     P("1007", "3", 1, "Tesla Q3 numbers #1007", "photo")], "1007");
   res = await road.run({ ...base, askXFirst: ask });
   const r = JSON.parse(fs.readFileSync(roadPath, "utf8")), B = (id) => r.categories.find((c) => c.id === id);
@@ -96,6 +96,10 @@ const xReply = (posts, newest) => ({ ok: true, status: 200, json: async () => ({
   // app
   const app = fs.readFileSync(path.join(ROOT, "app.js"), "utf8");
   check(/const PLAY_ICON = null/.test(app) && /get\("entry"\)/.test(app) && /data-entry=\{h\.id/.test(app), "app: no play badge; ?entry= scrolls to and highlights the card");
+  check(/Number\.isInteger\(h\.flight\)\) return h\.flight/.test(app) && /b\.flight - a\.flight \|\| b\.when - a\.when/.test(app) && /!\(h\.flight > road\.flight\)/.test(app), "flight sections are data-driven (entry flight tag), newest first by post date; later flights stay off the Starship card");
+  { const live = JSON.parse(fs.readFileSync(path.join(ROOT, "road.json"), "utf8")); const b23 = live.categories.find((c) => c.id === "cryo").history.find((h) => h.id === "x-2110889490336350574");
+    check(b23 && b23.flight === 16 && b23.manual && b23.media_override.author === "StarshipGazer" && !xf.XF_ACCOUNTS.includes("StarshipGazer"), "manual Flight 16 card (B23 cryo, @StarshipGazer) — not a trusted pipeline account");
+    const bad = JSON.parse(JSON.stringify(live)); bad.categories[0].history[0].flight = "16"; let threw = false; try { road.validateRoad(bad); } catch { threw = true; } check(threw, "a malformed flight tag is rejected"); }
   check(xf.hwKey("Ship 42") === xf.hwKey("S42") && xf.hwKey("Booster 22") === "B22", "hardware ids normalise (Ship 42 = S42)");
   console.log(fails ? `\n${fails} FAILED` : "\n✅ All X-first checks passed."); process.exit(fails ? 1 : 0);
 })();

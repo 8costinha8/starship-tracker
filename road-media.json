@@ -110,6 +110,19 @@
    "media_type": "photo",
    "image": "https://pbs.twimg.com/media/HTK-2HuXwAIKtUN.png",
    "note": "NSF post announcing the FAA Flight 14 licence on 26 Sep. The image is a graphic, not hardware."
+  },
+  {
+   "category": "cryo",
+   "date": "15 Oct",
+   "entry": "Booster 23 completed a cryo proof test.",
+   "flight": 16,
+   "manual": true,
+   "post_id": "2110889490336350574",
+   "post_url": "https://x.com/StarshipGazer/status/2110889490336350574",
+   "author": "StarshipGazer",
+   "media_type": "photo",
+   "image": "https://pbs.twimg.com/media/HUtiVIybkAAu4_E.jpg",
+   "note": "Manual (Bernardo): StarshipGazer photo of Booster 23 during its cryo proof test at Massey's, 15 Oct (Texas time; posted 16 Oct 01:24 BST). Flight 16 hardware. StarshipGazer is not a trusted pipeline account."
   }
  ]
 }

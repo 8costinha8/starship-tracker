@@ -1088,7 +1088,7 @@ function RoadCard({ road, onEntryTap, openReq }) {
               <span className={"badge badge-" + m.status}>{label(m)}</span>
             </button>
             <div className="callout-hist"><div className="callout-hist-inner">
-              {(m.history || []).map((h, i) => isRealEntry(h) && (
+              {(m.history || []).map((h, i) => isRealEntry(h) && !(h.flight > road.flight) && ( /* later flights' cards: Road page only */
                 <div className={"mini" + (h.complete ? " mini-done" : "") + (onEntryTap ? " tappable" : "")} key={i}
                   {...(onEntryTap ? { role: "button", tabIndex: isOpen ? 0 : -1, "aria-label": `${h.date}: ${h.text}. Show in the updates feed`,
                     onClick: () => onEntryTap(m.id, i), onKeyDown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onEntryTap(m.id, i); } } } : {})}>
@@ -1180,9 +1180,10 @@ function feedTime(iso) {
   return new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/London", hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date(iso));
 }
 
-// Which flight a card belongs to: Road vehicles → the next flight; a flown vehicle → its flight;
+// Which flight a card belongs to: the entry's own "flight" tag; else Road vehicles → the next flight; a flown vehicle → its flight;
 // else "Flight N" in the text; else the next flight.
 function flightOf(h, road) {
+  if (Number.isInteger(h.flight)) return h.flight; // data-driven: the entry says which flight it belongs to
   const txt = `${(h.x_post && h.x_post.text) || ""} ${h.x_text || h.text || ""}`; // the post first: the old entry text may mention past flights
   const vs = [...txt.matchAll(/\b(Ship|Booster|S|B)[\s-]?(\d{1,3})\b/g)].map((m) => (m[1][0].toUpperCase() === "S" ? "S" : "B") + Number(m[2]));
   if (vs.some((v) => (road.vehicles || []).includes(v))) return road.flight;
@@ -1190,14 +1191,23 @@ function flightOf(h, road) {
   const m = txt.match(/\bFlight\s+(\d{1,3})\b/i);
   return m ? Number(m[1]) : road.flight;
 }
+// When a card happened, for sorting: the linked X post's time (picked post id snowflake, else the
+// stored post), else the entry's time, else its date (last day of a range).
+const snowflakeMs = (id) => { try { return Number((BigInt(id) >> 22n) + 1288834974657n); } catch { return 0; } };
+function cardTime(h, road) {
+  const pid = h.media_override && (h.media_override.post_id || (String(h.media_override.post_url || "").match(/status\/(\d+)/) || [])[1]);
+  return (pid && snowflakeMs(pid)) || Date.parse((h.x_post && h.x_post.created_at) || "") || Date.parse(h.at || "") || feedDay(h.date, road.updatedAt) || 0;
+}
 // Road to Flight N page: only cards backed by a trusted X post, in sections by flight (newest flight first).
 function buildFeed(road) {
   if (!road || !Array.isArray(road.categories)) return { posts: [], rows: [] };
   const posts = [];
   road.categories.filter((c) => !ROAD_HIDDEN.includes(c.id)).forEach((c, ci) => (c.history || []).forEach((h, hi) => isRealEntry(h) && posts.push({
     h, cat: c, ci, hi, id: `${c.id}-${hi}`, day: feedDay(h.date, road.updatedAt), at: Date.parse((h.x_post && h.x_post.created_at) || h.at) || 0, flight: flightOf(h, road),
+    when: cardTime(h, road),
   })));
-  posts.sort((a, b) => b.flight - a.flight || b.day - a.day || b.at - a.at || a.ci - b.ci || a.hi - b.hi);
+  // sections newest flight first; inside a section newest first by the card's post date (else its entry date)
+  posts.sort((a, b) => b.flight - a.flight || b.when - a.when || a.ci - b.ci || a.hi - b.hi);
   const rows = [];
   let cur = null;
   for (const p of posts) {
@@ -1383,9 +1393,9 @@ function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap }) {
         </header>
         <div className="feed-list">
           {rows.map((r) => r.section
-            ? <div className="fdiv" key={"f" + r.section.n}><span><b>{`Flight ${r.section.n}`}</b> <i>·</i> {r.section.flown
+            ? <div className="fdiv" key={"f" + r.section.n}><span><b>{`Flight ${r.section.n}`}</b>{(r.section.flown || r.section.next) && <> <i>·</i> </>}{r.section.flown
                 ? <><span className={"fdiv-" + r.section.flown.outcome}>{OUTCOME_LABEL[r.section.flown.outcome] || r.section.flown.outcome}</span> <i>·</i> {`${new Date(r.section.flown.day).getUTCDate()} ${FEED_MONTHS[new Date(r.section.flown.day).getUTCMonth()]}`}</>
-                : <span className="fdiv-next">{r.section.next ? "Next flight" : "Upcoming"}</span>}</span></div>
+                : r.section.next ? <span className="fdiv-next">Next flight</span> : null}</span></div>
             : <FeedPost key={r.post.id} p={r.post} onPhotoTap={onPhotoTap} />)}
           <p className="end">That's every update so far.</p>
         </div>

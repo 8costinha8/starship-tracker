@@ -871,6 +871,7 @@ function validateRoad(road) {
       if (!h.date || !h.text || !h.src || h.text.length > 200) throw new Error(`bad entry in ${c.id}: ${JSON.stringify(h)}`);
       if (h.kind !== undefined && h.kind !== "check") throw new Error(`bad kind in ${c.id}: ${JSON.stringify(h)}`);
       if (h.trust !== "trusted" && h.trust !== "unconfirmed") throw new Error(`entry without trust in ${c.id}`);
+      if (h.flight !== undefined && (!Number.isInteger(h.flight) || h.flight < 1)) throw new Error(`bad flight tag in ${c.id}: ${JSON.stringify(h.flight)}`);
     }
   }
 }

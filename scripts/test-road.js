@@ -124,6 +124,7 @@ const box = (r, id) => r.categories.find((c) => c.id === id);
   { // start with Cryo finished, so RUN 1 can show a trusted source re-opening it
     const start = JSON.parse(fs.readFileSync(roadPath, "utf8"));
     start.categories.find((c) => c.id === "cryo").status = "done";
+    start.categories.find((c) => c.id === "static").status = "pending"; // fixture: independent of the live static-fire status
     fs.writeFileSync(roadPath, JSON.stringify(start, null, 2) + "\n");
   }
   const opts = { xFirst: false /* legacy article path (production runs X-first; see test-xfirst.js) */, mode: "dry-run", roadPath, appJsPath, deps, commit: (f, m) => { commits.push(m); console.log(`(fake commit) ${m}`); } };
