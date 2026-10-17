@@ -48,6 +48,7 @@ const news = require("./news.js");
 
 const ROOT = path.join(__dirname, "..");
 const xFirstMod = require("./x-first.js");
+const milestones = require("./milestones.js");
 const writer = require("./writer.js"); // WRITER=grok (default, Claude fallback) | claude
 
 const LIMITS = {
@@ -850,13 +851,15 @@ function cleanLine(s, { fullStop }) {
 
 /* ───────────── the road itself ───────────── */
 
-// Launched flights: their Road entries move to road.archive[n] (shown in that flight's Flight Log
-// card), never deleted. An entry's flight is its "flight" tag, else the Road's own flight.
-// Text-only copies, newest first; an entry already archived (same box, date, text) isn't added twice.
+// Launched flights: their Road entries move to road.archive[n].entries (kept, not shown) and the
+// running milestone summary is frozen into road.archive[n].summary (shown in that flight's Flight
+// Log card, behind the "Road to Flight N" pill). A hand-written summary is never replaced.
+// An entry's flight is its "flight" tag, else the Road's own flight. Never deleted, never doubled.
 function archiveLaunched(road, lastN) {
   if (!Number.isInteger(lastN)) return 0;
   let moved = 0;
   const arch = road.archive || {};
+  const slot = (f) => (arch[f] = arch[f] && !Array.isArray(arch[f]) ? arch[f] : { entries: Array.isArray(arch[f]) ? arch[f] : [] });
   const ms = (h) => { const id = h.media_override && h.media_override.post_id; return (id && snowflakeMs(id)) || Date.parse((h.x_post && h.x_post.created_at) || "") || Date.parse(h.at || "") || entryDayMs(h) || 0; };
   for (const c of road.categories) {
     const keep = [];
@@ -864,13 +867,17 @@ function archiveLaunched(road, lastN) {
       const f = Number.isInteger(h.flight) ? h.flight : road.flight;
       if (h.kind === "check" || f > lastN) { if (h.kind !== "check" || road.flight > lastN) keep.push(h); continue; }
       const e = { box: c.id, date: h.date, text: h.x_text || h.text, when: ms(h), ...(h.src ? { src: h.src } : {}), ...(h.url ? { url: h.url } : {}) };
-      const list = (arch[f] = arch[f] || []);
+      const list = slot(f).entries;
       if (!list.some((x) => x.box === e.box && x.date === e.date && x.text === e.text)) list.push(e);
       moved++;
     }
     c.history = keep;
   }
-  for (const k of Object.keys(arch)) arch[k].sort((a, b) => b.when - a.when);
+  if (road.flight <= lastN && road.milestones) { // the Road's own flight launched: freeze its vehicles' summary
+    const a = slot(road.flight);
+    if (!a.summary) { const sm = milestones.buildSummary(road.milestones, road.vehicles); if (sm) a.summary = sm; }
+  }
+  for (const k of Object.keys(arch)) if (arch[k].entries) arch[k].entries.sort((a, b) => b.when - a.when);
   if (Object.keys(arch).length) road.archive = arch;
   return moved;
 }
@@ -884,8 +891,10 @@ function freshRoad(flight) {
 function validateRoad(road) {
   if (!Number.isInteger(road.flight) || road.flight < 1) throw new Error("road.flight must be a number");
   if (!Array.isArray(road.categories) || road.categories.length !== BOXES.length) throw new Error("road.json must have exactly 6 boxes");
-  for (const [k, list] of Object.entries(road.archive || {})) {
-    if (!/^\d+$/.test(k) || !Array.isArray(list) || list.some((e) => !e || !BOXES.some((b) => b.id === e.box) || !e.date || !e.text)) throw new Error(`bad archive for flight ${k}`);
+  for (const [k, a] of Object.entries(road.archive || {})) {
+    const list = (a && a.entries) || [], items = (a && a.summary && a.summary.items) || [];
+    if (!/^\d+$/.test(k) || !a || Array.isArray(a) || !Array.isArray(list) || list.some((e) => !e || !BOXES.some((b) => b.id === e.box) || !e.date || !e.text)) throw new Error(`bad archive for flight ${k}`);
+    if (a.summary && (!Array.isArray(a.summary.items) || items.some((e) => !e || !BOXES.some((b) => b.id === e.box) || !e.vehicle || !e.text || e.text.length > 120))) throw new Error(`bad summary for flight ${k}`);
   }
   for (const c of road.categories) {
     if (!BOXES.some((b) => b.id === c.id)) throw new Error(`unknown box ${c.id}`);
@@ -1187,6 +1196,9 @@ async function run(opts = {}) {
     const moved = archiveLaunched(old, lastN);
     road = freshRoad(lastN + 1);
     if (old.archive) road.archive = old.archive;
+    const oldV = new Set((old.vehicles || []).map(milestones.hwKey));
+    const carry = Object.fromEntries(Object.entries(old.milestones || {}).filter(([k]) => k !== "flight" && !oldV.has(k)));
+    if (Object.keys(carry).length) road.milestones = carry; // later flights' hardware keeps its running counts
     for (const c of road.categories) { // cards already tagged for later flights (e.g. a Flight 16 booster) stay on the Road
       const later = ((old.categories.find((o) => o.id === c.id) || {}).history || []).filter((h) => h.kind !== "check");
       if (later.length) { c.history = later; c.latest = (later[0].x_text || later[0].text).slice(0, 160); }
@@ -1213,6 +1225,7 @@ async function run(opts = {}) {
     try {
       xf = await xFirstMod.runXFirst(road, state, { token: opts.xToken !== undefined ? opts.xToken : process.env.X_BEARER_TOKEN, fetchFn: opts.xFetch, postCard: xPostCard,
         ask: opts.askXFirst || ((prompt, o) => writer.askJson(prompt, { ...o, log })), log, now: clock(), maxCards: LIMITS.changesPerRun,
+        milestone: (v, post) => milestones.recordMilestone(road, { hardware: v.hardware, event: v.event, at: post.created_at, src: post.url }),
         status: (box, s, post, entry) => { // trusted accounts only (all X-first accounts are trusted)
           const want = xStatus(box, s), from = box.status, tier = entry.official ? "official" : "trusted";
           if (!statusRule(box, want, tier, `@${post.author.username}`, log)) return null;
@@ -1480,7 +1493,7 @@ async function run(opts = {}) {
   return { road, changes, notifications, refreshed, state, scheduledSent, newsPushes, xFirst: xf };
 }
 
-module.exports = { archiveLaunched, statusRule, xStatus, applyMediaPicks, loadMediaPicks, pickImage, applyImageCheck, verifyImages, fcmMessage, notificationFor, judgeFeed, verifyFeed, entryDayMs, backfillX, xPostCard, xIdOf, readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, titleMatches, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
+module.exports = { archiveLaunched, milestones, statusRule, xStatus, applyMediaPicks, loadMediaPicks, pickImage, applyImageCheck, verifyImages, fcmMessage, notificationFor, judgeFeed, verifyFeed, entryDayMs, backfillX, xPostCard, xIdOf, readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, titleMatches, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
 
 if (require.main === module) {
   run().catch((err) => {

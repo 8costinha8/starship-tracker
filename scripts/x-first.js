@@ -39,14 +39,14 @@ async function fetchNewPosts({ token, sinceId, fetchFn = fetch, postCard }) {
 }
 
 const CLASSIFY_SCHEMA = { type: "object", additionalProperties: false, required: ["entries"], properties: { entries: { type: "array", items: {
-  type: "object", additionalProperties: false, required: ["item", "kind", "stage", "hardware", "text", "status", "reason"],
+  type: "object", additionalProperties: false, required: ["item", "kind", "stage", "hardware", "text", "status", "event", "reason"],
   properties: { item: { type: "integer" }, kind: { type: "string", enum: ["road", "news", "skip"] }, stage: { type: ["string", "null"] },
-    hardware: { type: ["string", "null"] }, text: { type: ["string", "null"] }, status: { type: ["string", "null"], enum: ["progress", "done", "confirmed", null] }, reason: { type: "string" } } } } } };
+    hardware: { type: ["string", "null"] }, text: { type: ["string", "null"] }, status: { type: ["string", "null"], enum: ["progress", "done", "confirmed", null] }, event: { type: ["string", "null"], enum: ["cryo_test", "static_fire", "engines_installed", "stacked", "wdr", "licence", null] }, reason: { type: "string" } } } } } };
 
 function classifyPrompt(road, posts, stages) {
   return `You sort new X posts for a Starship tracker's "Road to Flight ${road.flight}" page.
 Vehicles for this flight: ${(road.vehicles || []).join(", ") || "unknown"}.
-For EVERY post return one entry: {item, kind, stage, hardware, text, status, reason}.
+For EVERY post return one entry: {item, kind, stage, hardware, text, status, event, reason}.
 kind:
 - "road": concrete, real progress toward Flight ${road.flight}: hardware moving or being worked on, a test (cryo, static fire, engine install/removal, stacking, pad work), or regulatory progress (FAA licence). It must be real (photo/video/report of actual events).
 - "news": real Starship news that is not a Road step (e.g. programme announcements, other flights).
@@ -54,6 +54,7 @@ kind:
 stage (road only): one of ${stages.map((s) => `"${s.id}" (${s.name})`).join(", ")}; null otherwise.
 hardware (road only): the main hardware id in short form, e.g. "S42", "B22", "Pad 2", "FAA"; null if none.
 status (road only, else null): "progress" if the post shows the stage is now under way (or restarted), "done" ONLY if it clearly says the stage is finished (e.g. static fire completed, licence issued), "confirmed" ONLY for an official launch date confirmation (Launch date stage); null if the post doesn't change the stage's status.
+event (road only, else null): the concrete milestone the post shows actually HAPPENING: "cryo_test" (a cryo/proof test was done), "static_fire" (a static fire was done), "engines_installed" (Raptors fully installed), "stacked" (ship stacked on booster), "wdr" (wet dress rehearsal), "licence" (FAA launch licence issued); null for anything else (rollouts, plans, forecasts, removals).
 text (road only): ONE short plain sentence (max 20 words) saying what happened, no hashtags, no emojis, no @handles; null otherwise.
 Posts:
 ${posts.map((p, i) => `${i + 1}. @${p.author.username} ${p.created_at} [${p.media.length ? p.media.map((m) => m.type).join("+") : "no media"}]: ${p.text.replace(/\s+/g, " ").slice(0, 600)}`).join("\n")}`;
@@ -110,7 +111,7 @@ function placePost(road, post, cls, now = Date.now()) {
 }
 
 // The whole step. ask(prompt, opts) → JSON (writer.askJson). Returns cards, news items, state.
-async function runXFirst(road, state, { token, fetchFn, ask, postCard, log = console.log, now = Date.now(), maxCards = 5, status = null }) {
+async function runXFirst(road, state, { token, fetchFn, ask, postCard, log = console.log, now = Date.now(), maxCards = 5, status = null, milestone = null }) {
   const xs = state.xFirst || {};
   const got = await fetchNewPosts({ token, sinceId: xs.sinceId, fetchFn, postCard });
   const seen = new Set(xs.seen || []);
@@ -132,6 +133,7 @@ async function runXFirst(road, state, { token, fetchFn, ask, postCard, log = con
     if (cards.length >= maxCards) { seen.delete(p.post_id); waiting.push(p); return log(`X-first: card cap reached — @${p.author.username} ${p.post_id} waits`); }
     const r = placePost(road, p, v, now);
     if (status && v.status) r.st = status(r.box, v.status, p, r.entry);
+    if (milestone && v.event) milestone(v, p); // running per-vehicle summary (counts + dates)
     (r.merged ? merged : cards).push(r);
     log(`X-first: road/${v.stage} ${v.hardware || "-"} @${p.author.username} ${p.post_id} → ${r.merged ? `merged into ${r.entry.id}` : `new card ${r.entry.id}`}`);
   });

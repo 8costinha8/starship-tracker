@@ -580,5 +580,127 @@
   },
   "feedVerified": "2026-10-16T17:53:11.334Z",
   "feedJudged": "2026-10-16T17:57:57.301Z",
-  "imagesVerified": "2026-10-16T21:22:55.023Z"
+  "imagesVerified": "2026-10-16T21:22:55.023Z",
+  "archive": {
+    "14": {
+      "entries": [],
+      "summary": {
+        "items": [
+          {
+            "box": "cryo",
+            "vehicle": "Ship 41",
+            "text": "At least 2 cryo tests · last confirmed 30 Jun"
+          },
+          {
+            "box": "cryo",
+            "vehicle": "Booster 21",
+            "text": "At least 2 cryo tests · last 20 Jul"
+          },
+          {
+            "box": "raptor",
+            "vehicle": "Ship 41",
+            "text": "Engines installed by 18 Aug"
+          },
+          {
+            "box": "raptor",
+            "vehicle": "Booster 21",
+            "text": "Engines installed by 25 Aug"
+          },
+          {
+            "box": "static",
+            "vehicle": "Ship 41",
+            "text": "2 static fires · 20 and 21 Aug"
+          },
+          {
+            "box": "static",
+            "vehicle": "Booster 21",
+            "text": "1 static fire · 28 Aug"
+          },
+          {
+            "box": "pad",
+            "vehicle": "Full stack",
+            "text": "Stacked 23 Sep · wet dress rehearsal 24 Sep"
+          },
+          {
+            "box": "faa",
+            "vehicle": "Licence",
+            "text": "Launch licence issued 26 Sep"
+          }
+        ],
+        "sources": [
+          {
+            "fact": "S41 cryo proof tests #1 29 Jun, #2 30 Jun (more testing at Massey's 3-6 Jul, type unconfirmed)",
+            "src": [
+              "https://nextspaceflight.com (Ship 41 page: cryo proof test #1 29 Jun, #2 30 Jun)",
+              "https://x.com/LabPadre/status/2071363828873380312",
+              "https://x.com/LabPadre/status/2072245460283044032",
+              "https://x.com/LabPadre/status/2072980917857984639 (back on the cryo stand to Massey's 3 Jul, returned 6 Jul: test type not confirmed)"
+            ],
+            "confidence": "medium (count is a lower bound)"
+          },
+          {
+            "fact": "B21 cryo at Massey's 17-22 Jul, full cryo 20 Jul",
+            "src": [
+              "https://x.com/LabPadre/status/2078025314790256809",
+              "https://x.com/NASASpaceflight/status/2079324460121723328",
+              "https://x.com/NASASpaceflight/status/2079985489986150608",
+              "NSF article: completed cryoproof testing on 20 Jul"
+            ],
+            "confidence": "high on date, count a lower bound"
+          },
+          {
+            "fact": "S41 engines installed before its 18 Aug move to Massey's for static fire (exact date not confirmed)",
+            "src": [
+              "nasaspaceflight.com/2026/08/ship-41-engine-testing-flight-14/"
+            ],
+            "confidence": "high for 'by', date unknown"
+          },
+          {
+            "fact": "B21 engines installed before the 25 Aug rollout to Pad 2 (exact date not confirmed)",
+            "src": [
+              "https://x.com/SpaceX/status/2092372845544321445"
+            ],
+            "confidence": "high for 'by', date unknown"
+          },
+          {
+            "fact": "S41 static fires 20 Aug (1 engine ~18 s) and 21 Aug (6 engines ~60 s)",
+            "src": [
+              "https://x.com/NASASpaceflight/status/2090289388357886156",
+              "https://x.com/NASASpaceflight/status/2090640350029197766",
+              "https://x.com/LabPadre/status/2090298212573671758",
+              "https://x.com/LabPadre/status/2090641301628666254",
+              "nasaspaceflight.com/2026/08/ship-41-engine-testing-flight-14/"
+            ],
+            "confidence": "high"
+          },
+          {
+            "fact": "B21 static fire 28 Aug, 33 engines (26 Aug attempt scrubbed)",
+            "src": [
+              "https://x.com/NASASpaceflight/status/2093401194236391586",
+              "https://x.com/NASASpaceflight/status/2093480305537470605",
+              "https://x.com/LabPadre/status/2093405277085143449",
+              "https://x.com/CSI_Starbase/status/2093401590095073590"
+            ],
+            "confidence": "high"
+          },
+          {
+            "fact": "Full stack 23 Sep, WDR 24 Sep with simulated T-0",
+            "src": [
+              "https://x.com/SpaceX/status/2102820322915353038",
+              "https://x.com/NASASpaceflight/status/2103146583885836790",
+              "https://x.com/LabPadre/status/2103152573981102364"
+            ],
+            "confidence": "high"
+          },
+          {
+            "fact": "FAA launch licence 26 Sep",
+            "src": [
+              "https://x.com/NASASpaceflight/status/2103953927624356245"
+            ],
+            "confidence": "high"
+          }
+        ]
+      }
+    }
+  }
 }

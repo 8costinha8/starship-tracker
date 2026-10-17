@@ -184,7 +184,7 @@ const box = (r, id) => r.categories.find((c) => c.id === id);
   r = JSON.parse(fs.readFileSync(roadPath, "utf8"));
   const left = r.categories.flatMap((c) => c.history.filter((h) => h.kind !== "check").map((h) => `${c.id}|${h.text}`));
   check(r.flight === 16 && r.categories.every((c) => c.status === "none") && left.join() === later.join(), `rolled over to Road to Flight 16: statuses reset, only later-flight cards stay (${later.length})`);
-  check(r.archive && r.archive[15] && r.archive[15].length === f15n && r.archive[15].every((e, i, a) => e.text && e.box && (!i || a[i - 1].when >= e.when)), `Flight 15's ${f15n} Road entries archived for its Flight Log card (text only, newest first), not deleted`);
+  check(r.archive && r.archive[15] && r.archive[15].entries.length === f15n && r.archive[15].entries.every((e, i, a) => e.text && e.box && (!i || a[i - 1].when >= e.when)), `Flight 15's ${f15n} Road entries archived for its Flight Log card (text only, newest first), not deleted`);
   check(JSON.stringify(r.archive[14] || []) === JSON.stringify(pre5.archive ? pre5.archive[14] || [] : []), "earlier archives kept as they are");
   check(sent.length === 0, "rollover: no push at the moment of rollover");
   check(stored.pendingPush && stored.pendingPush.title === "🚀 Road to Flight 16" && stored.pendingPush.sendAfter === "2026-10-23T08:00:00.000Z",
