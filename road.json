@@ -4,8 +4,8 @@
     "B22",
     "S42"
   ],
-  "updated": "16 Oct",
-  "updatedAt": "2026-10-16T21:22:55.323Z",
+  "updated": "17 Oct",
+  "updatedAt": "2026-10-17T05:30:44.708Z",
   "categories": [
     {
       "id": "cryo",
@@ -238,9 +238,51 @@
       "icon": "💥",
       "name": "Static fires",
       "color": "#FF5A36",
-      "status": "pending",
-      "latest": "B22 static fire possibly next week",
+      "status": "progress",
+      "latest": "Booster 22 waiting to roll out for pre-flight static fire testing.",
       "history": [
+        {
+          "id": "x-2111327584122437857",
+          "date": "17 Oct",
+          "at": "2026-10-17T05:24:57.000Z",
+          "text": "Booster 22 waiting to roll out for pre-flight static fire testing.",
+          "x_text": "Booster 22 waiting to roll out for pre-flight static fire testing.",
+          "url": "https://x.com/RGVaerialphotos/status/2111327584122437857",
+          "src": "@RGVaerialphotos",
+          "trust": "trusted",
+          "x_first": true,
+          "stage": "static",
+          "hardware": "B22",
+          "x_post": {
+            "post_id": "2111327584122437857",
+            "url": "https://x.com/RGVaerialphotos/status/2111327584122437857",
+            "created_at": "2026-10-17T05:24:57.000Z",
+            "text": "Booster 24 was getting its LOX landing tank installed during this flyover while Booster 22 sat behind it, waiting to roll out for pre-flight static fire testing.",
+            "author": {
+              "name": "RGV Aerial Photography",
+              "username": "RGVaerialphotos",
+              "avatar": "https://pbs.twimg.com/profile_images/2019953617743097856/PJqBBhpU_normal.jpg"
+            },
+            "media": [
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HUzwveqbQAA5V8W.jpg"
+              }
+            ]
+          },
+          "x_posts": [
+            "2111327584122437857"
+          ],
+          "xChecked": true,
+          "imageChecked2": true,
+          "media_override": {
+            "post_url": "https://x.com/RGVaerialphotos/status/2111327584122437857",
+            "post_id": "2111327584122437857",
+            "author": "RGVaerialphotos",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HUzwveqbQAA5V8W.jpg"
+          }
+        },
         {
           "date": "9 Oct",
           "text": "Booster 22 could be ready for a static fire as early as next week.",
