@@ -43,6 +43,9 @@ const mk = () => ({ flight: 15, vehicles: ["B22", "S42"], updated: "1 Oct", upda
   const iS = card.indexOf('className="story"'), iP = card.indexOf('className="past-road"'), iG = card.indexOf('className="gallery"'), iH = card.indexOf("highlights-link");
   check(iS > 0 && iS < iP && iP < iG && iG < iH, "Flight Log card order: story → Road updates → 2 photos → highlights");
   check(/past-pill/.test(card) && !/<img|PhotoSlot[^]*past/.test(card.slice(iP, iG)) && !/badge|progress/.test(card.slice(iP, iG)), "updates are text only with a small category pill, no status/progress");
+  check(/useState\(false\); \/\/ the Road list starts closed/.test(card) && /className=\{"past-toggle"/.test(card) && /e\.stopPropagation\(\); setPastOpen/.test(card) && /aria-expanded=\{pastOpen\}/.test(card), "collapsible 'Road to Flight N' pill: closed by default, toggles without toggling the flight card");
+  check(/\.past-wrap \{ display: grid; grid-template-rows: 0fr; transition/.test(app) && /\.past-toggle\.open \.past-chev \{ transform: rotate\(180deg\)/.test(app), "smooth expand; chevron rotates up when open");
+  check(!JSON.parse(fs.readFileSync(path.join(ROOT, "road.json"), "utf8")).categories.some((c) => c.history.some((h) => h.flight === 14)), "the two misfiled Flight 14 notes are back on Flight 15");
   check(/isLaunched\(posts\[i\]\.flight\)\) posts\.splice/.test(app), "Road page: launched flights' sections are not shown");
   console.log(fails ? `\n${fails} FAILED` : "\n✅ All archive checks passed."); process.exit(fails ? 1 : 0);
 })();

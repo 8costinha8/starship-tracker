@@ -763,6 +763,7 @@ function NextFlightCard({ f, checkedAt, road, children }) {
 
 function FlightCard({ f, open, onTap, onPhotoTap, register, road }) {
   const past = React.useMemo(() => pastRoad(road, f.n), [road, f.n]);
+  const [pastOpen, setPastOpen] = React.useState(false); // the Road list starts closed
   const onKey = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onTap(f.n); } };
   // While closed, tapping the thumb should expand the card like the rest of the header.
   // Once open, tapping the thumb opens the lightbox instead — so it needs to stop
@@ -793,7 +794,13 @@ function FlightCard({ f, open, onTap, onPhotoTap, register, road }) {
           <div className="more-pad">
             <h3 className="headline">{f.headline}</h3>
             <p className="story">{f.story}</p>
-            {past.length > 0 && (
+            {past.length > 0 && (<>
+              <button type="button" className={"past-toggle" + (pastOpen ? " open" : "")} aria-expanded={pastOpen} aria-controls={`past-${f.n}`}
+                tabIndex={open ? 0 : -1} onClick={(e) => { e.stopPropagation(); setPastOpen((v) => !v); }} onKeyDown={(e) => e.stopPropagation()}>
+                {`Road to Flight ${f.n}`}
+                <svg className="past-chev" width="12" height="12" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5.5l4 4 4-4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+              </button>
+              <div className={"past-wrap" + (pastOpen ? " open" : "")} id={`past-${f.n}`} aria-hidden={!pastOpen}><div className="past-wrap-inner">
               <div className="past-road" aria-label={`Road to Flight ${f.n}`}>
                 {past.map((e, i) => (
                   <div className="mini past-mini" key={i} style={{ "--c": e.color }}>
@@ -805,7 +812,8 @@ function FlightCard({ f, open, onTap, onPhotoTap, register, road }) {
                   </div>
                 ))}
               </div>
-            )}
+              </div></div>
+            </>)}
             <div className="gallery">
               <PhotoSlot
                 size="wide" src={f.photo?.gallery?.[0]} alt={`${f.headline} \u2014 photo 1`}
@@ -1889,6 +1897,16 @@ a.watch-badge-live:active { transform: scale(.96); }
 .headline { font-size: 16px; font-weight: 600; margin: 6px 0 8px; }
 .story { font-size: 14px; line-height: 1.62; color: #C9D2E6; margin: 0 0 14px; }
 .gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.past-toggle { all: unset; box-sizing: border-box; display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 11px 0 12px; margin: 0 0 14px;
+  border-radius: 999px; font-size: 12px; font-weight: 600; letter-spacing: .01em; color: #C9D2E6; cursor: pointer; -webkit-tap-highlight-color: transparent;
+  background: rgba(255,255,255,.06); border: 1px solid rgba(170,190,245,.18); transition: background-color .15s, border-color .15s; }
+.past-toggle:active { background: rgba(255,255,255,.1); }
+.past-toggle:focus-visible { outline: 2px solid rgba(170,190,245,.5); outline-offset: 2px; }
+.past-chev { color: var(--faint); transition: transform .35s; }
+.past-toggle.open .past-chev { transform: rotate(180deg); }
+.past-wrap { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .45s cubic-bezier(.2,.8,.2,1); }
+.past-wrap.open { grid-template-rows: 1fr; }
+.past-wrap-inner { overflow: hidden; min-height: 0; }
 .past-road { position: relative; padding-left: 16px; margin: 0 0 14px; }
 .past-road::before { content: ""; position: absolute; left: 7px; top: 12px; bottom: 14px; width: 2px; background: rgba(170,190,245,.16); }
 .past-mini { padding: 8px 10px; }

@@ -387,6 +387,51 @@
           "flight": 15
         },
         {
+          "date": "30 Sep",
+          "text": "Pad 2 clear after Flight 14. New servicing structure going in for hold-down clamp work.",
+          "src": "NSF",
+          "source": "nsf",
+          "trust": "trusted",
+          "xChecked": true,
+          "x_post": {
+            "post_id": "2104953832895615155",
+            "url": "https://x.com/LabPadre/status/2104953832895615155",
+            "created_at": "2026-09-29T15:17:56.000Z",
+            "text": "New OLM work platform is being installed in the Pad 2 Mount",
+            "author": {
+              "name": "Avid Space",
+              "username": "LabPadre",
+              "avatar": "https://pbs.twimg.com/profile_images/2018042465932988416/LR5UN4G0_normal.png"
+            },
+            "media": [
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HTZMWubWIAAnONr.jpg"
+              }
+            ],
+            "media_all": [
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HTZMWubWIAAnONr.jpg"
+              }
+            ]
+          },
+          "image_check": {
+            "verdict": "shows it",
+            "seen": "the new OLM work platform being lifted into the Pad 2 mount",
+            "by": "manual preview review (Grok vision re-checks on the first live run)"
+          },
+          "media_override": {
+            "post_url": "https://x.com/LabPadre/status/2104953832895615155",
+            "post_id": "2104953832895615155",
+            "author": "LabPadre",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HTZMWubWIAAnONr.jpg"
+          },
+          "imageChecked2": true,
+          "flight": 15
+        },
+        {
           "date": "11–12 Sep",
           "text": "S42 lifted by Pad 2 chopsticks in a catch position. SQD arm connect tests.",
           "src": "NSF",
@@ -440,7 +485,25 @@
       "color": "#2FD3B0",
       "status": "pending",
       "latest": "26 Sep licence covers Flight 14 only, no F15 change yet",
-      "history": []
+      "history": [
+        {
+          "date": "26 Sep",
+          "text": "FAA licence issued for Flight 14 only. F15 needs a modification.",
+          "src": "FAA via NSF",
+          "source": "faa-via-nsf",
+          "trust": "trusted",
+          "xChecked": true,
+          "media_override": {
+            "post_url": "https://x.com/NASASpaceflight/status/2103953927624356245",
+            "post_id": "2103953927624356245",
+            "author": "NASASpaceflight",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HTK-2HuXwAIKtUN.png"
+          },
+          "imageChecked2": true,
+          "flight": 15
+        }
+      ]
     },
     {
       "id": "date",
@@ -517,23 +580,5 @@
   },
   "feedVerified": "2026-10-16T17:53:11.334Z",
   "feedJudged": "2026-10-16T17:57:57.301Z",
-  "imagesVerified": "2026-10-16T21:22:55.023Z",
-  "archive": {
-    "14": [
-      {
-        "box": "pad",
-        "date": "30 Sep",
-        "text": "Pad 2 clear after Flight 14. New servicing structure going in for hold-down clamp work.",
-        "when": 1790695076570,
-        "src": "NSF"
-      },
-      {
-        "box": "faa",
-        "date": "26 Sep",
-        "text": "FAA licence issued for Flight 14 only. F15 needs a modification.",
-        "when": 1790456680576,
-        "src": "FAA via NSF"
-      }
-    ]
-  }
+  "imagesVerified": "2026-10-16T21:22:55.023Z"
 }
