@@ -4,8 +4,8 @@
     "B22",
     "S42"
   ],
-  "updated": "17 Oct",
-  "updatedAt": "2026-10-17T05:30:44.708Z",
+  "updated": "18 Oct",
+  "updatedAt": "2026-10-18T14:01:44.139Z",
   "categories": [
     {
       "id": "cryo",
@@ -318,7 +318,8 @@
             ]
           },
           "x_posts": [
-            "2111327584122437857"
+            "2111327584122437857",
+            "2111816175478870437"
           ],
           "xChecked": true,
           "imageChecked2": true,
