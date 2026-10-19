@@ -230,8 +230,12 @@ function xPostCard(p, mediaByKey, usersById) {
     return { type: "video", ...(m.preview_image_url ? { poster: m.preview_image_url } : {}), ...(mp4.length ? { video_url: mp4[0].url } : {}), ...alt };
   }).filter(Boolean);
   const text = decode((p.note_tweet && p.note_tweet.text) || p.text || "").replace(/\s*https:\/\/t\.co\/\w+$/, "");
+  // link card (an article the post links to): its title/description go to the classifier, its image is the fallback picture
+  const lk = ((p.entities && p.entities.urls) || []).find((e) => (e.title || e.description) && !/^https?:\/\/(x|twitter)\.com\//i.test(e.unwound_url || e.expanded_url || ""));
+  const link = lk ? { url: lk.unwound_url || lk.expanded_url, ...(lk.title ? { title: decode(lk.title).slice(0, 200) } : {}), ...(lk.description ? { description: decode(lk.description).slice(0, 300) } : {}),
+    ...(lk.images && lk.images[0] && lk.images[0].url ? { image: lk.images[0].url } : {}) } : null;
   return { post_id: p.id, url: `https://x.com/${u.username || "i"}/status/${p.id}`, created_at: p.created_at, text,
-    author: { name: u.name || u.username || "", username: u.username || "", ...(u.profile_image_url ? { avatar: u.profile_image_url } : {}) }, media };
+    author: { name: u.name || u.username || "", username: u.username || "", ...(u.profile_image_url ? { avatar: u.profile_image_url } : {}) }, media, ...(link ? { link } : {}) };
 }
 // One-off X backfill for older entries (flag xChecked): X post URLs already in the data in ONE
 // batched tweets?ids lookup, then ONE full-archive search if the plan allows it (stop on 401/403),
@@ -1223,7 +1227,7 @@ async function run(opts = {}) {
   let xf = null;
   if (xFirst) {
     try {
-      xf = await xFirstMod.runXFirst(road, state, { token: opts.xToken !== undefined ? opts.xToken : process.env.X_BEARER_TOKEN, fetchFn: opts.xFetch, postCard: xPostCard,
+      xf = await xFirstMod.runXFirst(road, state, { token: opts.xToken !== undefined ? opts.xToken : process.env.X_BEARER_TOKEN, fetchFn: opts.xFetch, postCard: xPostCard, linkFetch: opts.linkFetch !== undefined ? opts.linkFetch : opts.xFetch ? null : fetch /* linked articles: plain GET, tests never hit the network */,
         ask: opts.askXFirst || ((prompt, o) => writer.askJson(prompt, { ...o, log })), log, now: clock(), maxCards: LIMITS.changesPerRun,
         milestone: (v, post) => milestones.recordMilestone(road, { hardware: v.hardware, event: v.event, at: post.created_at, src: post.url }),
         status: (box, s, post, entry) => { // trusted accounts only (all X-first accounts are trusted)

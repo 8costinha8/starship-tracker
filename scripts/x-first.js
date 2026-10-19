@@ -11,7 +11,7 @@ const XF_ACCOUNTS = ["SpaceX", "elonmusk", "NASASpaceflight", "LabPadre", "RGVae
 const OFFICIAL = new Set(["spacex", "faanews"]);
 const STARSHIP_WORDS = /starship|super ?heavy|booster|\bship ?\d|\b[bs]\d{2}\b|raptor|starbase|massey|chopsticks|mechazilla|static fire|flight \d+|olp|launch pad|faa/i;
 const MERGE_MS = 48 * 3600000;
-const XF_FIELDS = { "tweet.fields": "created_at,author_id,attachments,note_tweet,referenced_tweets", expansions: "attachments.media_keys,author_id",
+const XF_FIELDS = { "tweet.fields": "created_at,author_id,attachments,note_tweet,referenced_tweets,entities", expansions: "attachments.media_keys,author_id",
   "media.fields": "type,url,preview_image_url,variants,width,height,alt_text", "user.fields": "name,username,profile_image_url" };
 const MAX_POSTS = 40;
 
@@ -49,7 +49,8 @@ Vehicles for this flight: ${(road.vehicles || []).join(", ") || "unknown"}.
 For EVERY post return one entry: {item, kind, stage, hardware, text, status, event, reason}.
 kind:
 - "road": concrete, real progress toward Flight ${road.flight}: hardware moving or being worked on, a test (cryo, static fire, engine install/removal, stacking, pad work), or regulatory progress (FAA licence). It must be real (photo/video/report of actual events).
-- "news": real Starship news that is not a Road step (e.g. programme announcements, other flights).
+  ALSO "road": a firm statement or trusted report about Flight ${road.flight}'s OWN vehicles or mission, even without a photo, e.g. SpaceX/Musk confirming it will try to catch the booster and/or the ship, a vehicle reported to have all engines installed, a rollout or static fire reported as imminent. Read the post's [link: ...] title/description too: a teaser post linking an article counts for what the article reports about Flight ${road.flight}.
+- "news": real Starship news that is not a Road step for Flight ${road.flight} (e.g. long-term cadence plans, other flights, policy). If a post mixes long-term plans with a concrete Flight ${road.flight} item, it is "road" for that item.
 - "skip": anything else — memes, opinions, jokes, renders/artwork, polls, merch, livestream ads, vague hype, unrelated topics.
 stage (road only): one of ${stages.map((s) => `"${s.id}" (${s.name})`).join(", ")}; null otherwise.
 hardware (road only): the main hardware id in short form, e.g. "S42", "B22", "Pad 2", "FAA"; null if none.
@@ -57,7 +58,7 @@ status (road only, else null): "progress" if the post shows the stage is now und
 event (road only, else null): the concrete milestone the post shows actually HAPPENING: "cryo_test" (a cryo/proof test was done), "static_fire" (a static fire was done), "engines_installed" (Raptors fully installed), "stacked" (ship stacked on booster), "wdr" (wet dress rehearsal), "licence" (FAA launch licence issued); null for anything else (rollouts, plans, forecasts, removals).
 text (road only): ONE short plain sentence (max 20 words) saying what happened, no hashtags, no emojis, no @handles; null otherwise.
 Posts:
-${posts.map((p, i) => `${i + 1}. @${p.author.username} ${p.created_at} [${p.media.length ? p.media.map((m) => m.type).join("+") : "no media"}]: ${p.text.replace(/\s+/g, " ").slice(0, 600)}`).join("\n")}`;
+${posts.map((p, i) => `${i + 1}. @${p.author.username} ${p.created_at} [${p.media.length ? p.media.map((m) => m.type).join("+") : "no media"}]: ${p.text.replace(/\s+/g, " ").slice(0, 600)}${p.link && (p.link.title || p.link.description || p.link.lead) ? ` [link: ${[p.link.title, p.link.lead || p.link.description].filter(Boolean).join(" — ").replace(/\s+/g, " ").slice(0, 1000)}]` : ""}`).join("\n")}`;
 }
 
 async function classifyPosts(road, posts, stages, ask) {
@@ -72,6 +73,28 @@ async function classifyPosts(road, posts, stages, ask) {
   });
 }
 
+// Teaser posts that link a trusted outlet's article: read the article's opening paragraphs (plain
+// HTTP GET, no API cost; at most 3 per run) so the classifier sees what the article reports.
+const LINK_HOSTS = /(^|\.)(nasaspaceflight\.com|spacex\.com|faa\.gov)$/i;
+const MAX_LINK_READS = 3;
+function articleLead(html) {
+  const body = String(html).replace(/<(script|style|figure|blockquote)[^]*?<\/\1>/gi, " ");
+  const ps = [...body.matchAll(/<p[^>]*>([^]*?)<\/p>/gi)].map((m) => m[1].replace(/<[^>]+>/g, "").replace(/&#8217;|&rsquo;/g, "’").replace(/&#8220;|&#8221;|&quot;/g, '"').replace(/&amp;/g, "&").replace(/&nbsp;|\s+/g, " ").trim()).filter((t) => t.length > 60);
+  return ps.join(" ").slice(0, 900);
+}
+async function readLinks(posts, fetchFn, log = () => {}) {
+  let n = 0;
+  for (const p of posts) {
+    const u = p.link && p.link.url; let host = ""; try { host = new URL(u).hostname; } catch { continue; }
+    if (!LINK_HOSTS.test(host) || p.link.lead || n >= MAX_LINK_READS) continue;
+    n++;
+    try { const r = await fetchFn(u, { headers: { "User-Agent": "Mozilla/5.0 starship-tracker" }, signal: AbortSignal.timeout(10000) }); if (r.ok) p.link.lead = articleLead(await r.text()); }
+    catch (e) { log(`X-first: link not read (${host}: ${e.message})`); }
+  }
+  return n;
+}
+// The post's own media; a link-only post (no photo/video) uses its link card's image, as X shows it.
+function postMedia(post) { return bestMedia(post.media) || (post.link && post.link.image ? { type: "photo", url: post.link.image } : null); }
 function bestMedia(media) {
   const v = media.find((m) => m.type === "video" && m.poster);
   return v || media.find((m) => m.type === "photo" && m.url) || null;
@@ -88,7 +111,7 @@ function dayLabel(iso) { return new Date(iso).toLocaleDateString("en-GB", { day:
 // Build a new card or merge into a recent card about the same hardware. Returns {box, entry, merged}.
 function placePost(road, post, cls, now = Date.now()) {
   const box = road.categories.find((c) => c.id === cls.stage);
-  const m = bestMedia(post.media);
+  const m = postMedia(post);
   const at = Date.parse(post.created_at) || now;
   const key = hwKey(cls.hardware);
   const prev = key && road.categories.flatMap((c) => (c.history || []).map((h) => ({ c, h })))
@@ -111,7 +134,7 @@ function placePost(road, post, cls, now = Date.now()) {
 }
 
 // The whole step. ask(prompt, opts) → JSON (writer.askJson). Returns cards, news items, state.
-async function runXFirst(road, state, { token, fetchFn, ask, postCard, log = console.log, now = Date.now(), maxCards = 5, status = null, milestone = null }) {
+async function runXFirst(road, state, { token, fetchFn, ask, postCard, log = console.log, now = Date.now(), maxCards = 5, status = null, milestone = null, linkFetch = null }) {
   const xs = state.xFirst || {};
   const got = await fetchNewPosts({ token, sinceId: xs.sinceId, fetchFn, postCard });
   const seen = new Set(xs.seen || []);
@@ -120,6 +143,7 @@ async function runXFirst(road, state, { token, fetchFn, ask, postCard, log = con
   log(`X-first: ${got.calls} X call(s), ${got.read || 0} read, ${posts.length} new post(s)${got.why ? ` — ${got.why}` : ""}`);
   const stages = road.categories.map((c) => ({ id: c.id, name: c.name }));
   let verdicts = [];
+  if (posts.length && linkFetch) await readLinks(posts, linkFetch, log);
   if (posts.length) {
     try { verdicts = await classifyPosts(road, posts, stages, ask); }
     catch (e) { log(`X-first: writer failed (${e.message}) — posts retried next run`); return { cards: [], merged: [], news: [], state: { ...xs }, calls: got.calls, retry: true }; /* since_id not advanced */ }
@@ -128,6 +152,7 @@ async function runXFirst(road, state, { token, fetchFn, ask, postCard, log = con
   posts.forEach((p, i) => {
     const v = verdicts[i];
     seen.add(p.post_id);
+    if (v.reason === "no verdict" && !p.retry) { seen.delete(p.post_id); waiting.push({ ...p, retry: 1 }); return log(`X-first: no verdict for @${p.author.username} ${p.post_id} — retried next run`); } // the writer skipped it: one more try
     if (v.kind === "news") newsItems.push({ key: `x:${p.post_id}`, title: p.text.slice(0, 200), text: p.text, url: p.url, publishedAt: p.created_at, src: `X @${p.author.username}`, source: `@${p.author.username}`, tier: OFFICIAL.has(p.author.username.toLowerCase()) ? "official" : "trusted" });
     if (v.kind !== "road") return log(`X-first: ${v.kind} @${p.author.username} ${p.post_id} — ${v.reason || ""}`);
     if (cards.length >= maxCards) { seen.delete(p.post_id); waiting.push(p); return log(`X-first: card cap reached — @${p.author.username} ${p.post_id} waits`); }
@@ -140,4 +165,4 @@ async function runXFirst(road, state, { token, fetchFn, ask, postCard, log = con
   return { cards, merged, news: newsItems, state: { sinceId: got.sinceId, seen: [...seen].slice(-500), pending: waiting.slice(0, 20) }, calls: got.calls };
 }
 
-module.exports = { runXFirst, fetchNewPosts, classifyPosts, classifyPrompt, placePost, bestMedia, hwKey, xfQuery, XF_ACCOUNTS, CLASSIFY_SCHEMA, MERGE_MS };
+module.exports = { runXFirst, fetchNewPosts, classifyPosts, classifyPrompt, placePost, bestMedia, postMedia, articleLead, readLinks, hwKey, xfQuery, XF_ACCOUNTS, CLASSIFY_SCHEMA, MERGE_MS };
