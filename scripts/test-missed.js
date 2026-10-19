@@ -48,5 +48,18 @@ check(/catching both the booster and the Ship/.test(lead) && /all of its engines
   { const app = require("fs").readFileSync(__dirname + "/../app.js", "utf8"); const body = (n) => app.slice(app.indexOf(`function ${n}(`), app.indexOf("\n}\n", app.indexOf(`function ${n}(`)));
     check(!/@\{/.test(body("PickMedia")) && !/@\{/.test(body("XMedia")) && /post-src">\{srcOf\(h\)\}/.test(body("FeedPost")), "single credit: @author once per card (card foot), the picture keeps only View on X"); }
   check(xf.xfQuery().length <= 512, `X query fits the 512-char search limit (${xf.xfQuery().length} chars)`);
+  { // the 3 backfill cards: valid, sections right, and a normal run keeps them and sends no push
+    const fs = require("fs"), os = require("os"), path = require("path"); const ROOT = path.join(__dirname, "..");
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "miss-")); const roadPath = path.join(tmp, "road.json"), appJsPath = path.join(tmp, "app.js");
+    fs.copyFileSync(path.join(ROOT, "road.json"), roadPath); fs.copyFileSync(path.join(ROOT, "app.js"), appJsPath);
+    const ids = { "x-2111860189670646174": 15, "x-2112035558994419901": 15, "x-2111681468724601021": 16 };
+    const find = (rd) => rd.categories.flatMap((c) => c.history).filter((h) => ids[h.id]);
+    const live = JSON.parse(fs.readFileSync(roadPath, "utf8")); road.validateRoad(live);
+    check(find(live).length === 3 && find(live).every((h) => h.flight === ids[h.id] && h.manual && h.media_override && h.media_override.author === h.src.slice(1)), "backfill: catch plan + B22/pad under Flight 15, B23 (manual) under Flight 16, each with its post's own picture");
+    const sent = []; let stored = { seen: [], news: { seen: [], pending: [], sent: [], count: 0, day: "2026-10-19" }, xFirst: { sinceId: "1", seen: [] } };
+    await road.run({ xFirst: true, xToken: "", mode: "dry-run", roadPath, appJsPath, sources: [], next: null, askNews: async () => [], askDates: async () => [],
+      deps: { loadState: async () => stored, saveState: async (st) => { stored = st; }, push: async (n) => sent.push(n) }, commit: () => {} });
+    check(sent.length === 0 && find(JSON.parse(fs.readFileSync(roadPath, "utf8"))).length === 3, "a normal run keeps the backfill cards and sends no push");
+  }
   console.log(fails ? `\n${fails} FAILED` : "\n✅ All missed-post checks passed."); process.exit(fails ? 1 : 0);
 })();

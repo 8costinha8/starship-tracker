@@ -16,6 +16,47 @@
       "latest": "Ship 42 back for a third cryo test",
       "history": [
         {
+          "id": "x-2111681468724601021",
+          "date": "18 Oct",
+          "at": "2026-10-18T04:51:09.000Z",
+          "text": "Booster 23 rolled back to the production site after its cryo testing at Massey's.",
+          "x_text": "Booster 23 rolled back to the production site after its cryo testing at Massey's.",
+          "src": "@TrackingTheSB",
+          "source": "TrackingTheSB",
+          "trust": "trusted",
+          "manual": true,
+          "backfill": "2026-10-19",
+          "flight": 16,
+          "stage": "cryo",
+          "hardware": "B23",
+          "url": "https://x.com/TrackingTheSB/status/2111681468724601021",
+          "x_post": {
+            "post_id": "2111681468724601021",
+            "url": "https://x.com/TrackingTheSB/status/2111681468724601021",
+            "created_at": "2026-10-18T04:51:09.000Z",
+            "text": "Booster 23 has entered HWY 4 and is headed back to the production site",
+            "author": {
+              "name": "Tracking The Starbase",
+              "username": "TrackingTheSB"
+            },
+            "media": [
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HU4y2cUbwAE6od-.jpg"
+              }
+            ]
+          },
+          "xChecked": true,
+          "imageChecked2": true,
+          "media_override": {
+            "post_url": "https://x.com/TrackingTheSB/status/2111681468724601021",
+            "post_id": "2111681468724601021",
+            "author": "TrackingTheSB",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HU4y2cUbwAE6od-.jpg"
+          }
+        },
+        {
           "id": "x-2110889490336350574",
           "date": "15 Oct",
           "at": "2026-10-16T00:24:07.000Z",
@@ -366,6 +407,88 @@
       "status": "progress",
       "latest": "Pad 2 being serviced after Flight 14, no F15 rollout yet",
       "history": [
+        {
+          "id": "x-2112035558994419901",
+          "date": "19 Oct",
+          "at": "2026-10-19T04:18:11.000Z",
+          "text": "Pad 2's launch mount work platform removed overnight as Booster 22, reportedly with all engines in, nears static fire rollout.",
+          "x_text": "Pad 2's launch mount work platform removed overnight as Booster 22, reportedly with all engines in, nears static fire rollout.",
+          "src": "@efraser77",
+          "source": "efraser77",
+          "trust": "trusted",
+          "manual": true,
+          "backfill": "2026-10-19",
+          "flight": 15,
+          "stage": "pad",
+          "hardware": "Pad 2",
+          "url": "https://x.com/efraser77/status/2112035558994419901",
+          "x_post": {
+            "post_id": "2112035558994419901",
+            "url": "https://x.com/efraser77/status/2112035558994419901",
+            "created_at": "2026-10-19T04:18:11.000Z",
+            "text": "The \"Dancefloor 2.0\" service structure has been removed from the Pad 2 OLM this evening. There is a road delay scheduled for 10am-2pm CDT Monday. Will we get a booster rollout?",
+            "author": {
+              "name": "Eric Fraser",
+              "username": "efraser77"
+            },
+            "media": [
+              {
+                "type": "video",
+                "poster": "https://pbs.twimg.com/amplify_video_thumb/2112035083679043584/img/dw7Zle9xo9YHSp0k.jpg"
+              }
+            ]
+          },
+          "xChecked": true,
+          "imageChecked2": true,
+          "media_override": {
+            "post_url": "https://x.com/efraser77/status/2112035558994419901",
+            "post_id": "2112035558994419901",
+            "author": "efraser77",
+            "type": "video",
+            "image": "https://pbs.twimg.com/amplify_video_thumb/2112035083679043584/img/dw7Zle9xo9YHSp0k.jpg"
+          }
+        },
+        {
+          "id": "x-2111860189670646174",
+          "date": "18 Oct",
+          "at": "2026-10-18T16:41:20.000Z",
+          "text": "Musk confirms Flight 15 will try to catch both Booster 22 and Ship 42.",
+          "x_text": "Musk confirms Flight 15 will try to catch both Booster 22 and Ship 42.",
+          "src": "@NASASpaceflight",
+          "source": "NASASpaceflight",
+          "trust": "trusted",
+          "manual": true,
+          "backfill": "2026-10-19",
+          "flight": 15,
+          "stage": "pad",
+          "hardware": null,
+          "url": "https://x.com/NASASpaceflight/status/2111860189670646174",
+          "x_post": {
+            "post_id": "2111860189670646174",
+            "url": "https://x.com/NASASpaceflight/status/2111860189670646174",
+            "created_at": "2026-10-18T16:41:20.000Z",
+            "text": "SpaceX is preparing Flights 15 and 16 to close out 2026 for Starship, while documentation shows plans for a crazy future cadence at Starbase alone.",
+            "author": {
+              "name": "NSF - NASASpaceflight.com",
+              "username": "NASASpaceflight"
+            },
+            "media": [
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/news_img/2111858941869084672/mLw4yAnd?format=jpg&name=orig"
+              }
+            ]
+          },
+          "xChecked": true,
+          "imageChecked2": true,
+          "media_override": {
+            "post_url": "https://x.com/NASASpaceflight/status/2111860189670646174",
+            "post_id": "2111860189670646174",
+            "author": "NASASpaceflight",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/news_img/2111858941869084672/mLw4yAnd?format=jpg&name=orig"
+          }
+        },
         {
           "date": "9 Oct",
           "text": "Pad 2's chopsticks are undergoing maintenance.",

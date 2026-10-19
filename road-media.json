@@ -123,6 +123,45 @@
    "media_type": "photo",
    "image": "https://pbs.twimg.com/media/HUtiVIybkAAu4_E.jpg",
    "note": "Manual (Bernardo): StarshipGazer photo of Booster 23 during its cryo proof test at Massey's, 15 Oct (Texas time; posted 16 Oct 01:24 BST). Flight 16 hardware. StarshipGazer is not a trusted pipeline account."
+  },
+  {
+   "category": "pad",
+   "date": "18 Oct",
+   "entry": "Musk confirms Flight 15 will try to catch both Booster 22 and Ship 42.",
+   "flight": 15,
+   "manual": true,
+   "post_id": "2111860189670646174",
+   "post_url": "https://x.com/NASASpaceflight/status/2111860189670646174",
+   "author": "NASASpaceflight",
+   "media_type": "photo",
+   "image": "https://pbs.twimg.com/news_img/2111858941869084672/mLw4yAnd?format=jpg&name=orig",
+   "note": "Backfill 19 Oct (missed by X-first: judged news). NSF teaser post linking 'SpaceX working through Starship Flight 15 and 16 milestones' (18 Oct): Musk confirmed SpaceX intends to catch both the booster and the ship. Picture = the post's own link card image (Mega Bays, Ceaser G for NSF)."
+  },
+  {
+   "category": "pad",
+   "date": "19 Oct",
+   "entry": "Pad 2's launch mount work platform removed overnight as Booster 22, reportedly with all engines in, nears static fire rollout.",
+   "flight": 15,
+   "manual": true,
+   "post_id": "2112035558994419901",
+   "post_url": "https://x.com/efraser77/status/2112035558994419901",
+   "author": "efraser77",
+   "media_type": "video",
+   "image": "https://pbs.twimg.com/amplify_video_thumb/2112035083679043584/img/dw7Zle9xo9YHSp0k.jpg",
+   "note": "Backfill 19 Oct (efraser77 not a trusted account at the time). Video (NSF Starbase Live) of the 'Dancefloor 2.0' service structure lifted off the Pad 2 OLM on the evening of 18 Oct (Texas). 'All engines installed' for B22 is from the NSF article of 18 Oct. Picture = the video's own preview image."
+  },
+  {
+   "category": "cryo",
+   "date": "18 Oct",
+   "entry": "Booster 23 rolled back to the production site after its cryo testing at Massey's.",
+   "flight": 16,
+   "manual": true,
+   "post_id": "2111681468724601021",
+   "post_url": "https://x.com/TrackingTheSB/status/2111681468724601021",
+   "author": "TrackingTheSB",
+   "media_type": "photo",
+   "image": "https://pbs.twimg.com/media/HU4y2cUbwAE6od-.jpg",
+   "note": "Manual Flight 16 card (Tusk: no Flight 16 automation). TrackingTheSB photo (NSF Starbase Live) of Booster 23 on HWY 4 heading back to the production site, 18 Oct. Cryo campaign concluded (NSF 18 Oct article; Blobifie: first full cryo done 16 Oct)."
   }
  ]
 }
