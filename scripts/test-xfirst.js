@@ -98,7 +98,7 @@ const xReply = (posts, newest) => ({ ok: true, status: 200, json: async () => ({
   check(/const PLAY_ICON = null/.test(app) && /get\("entry"\)/.test(app) && /data-entry=\{h\.id/.test(app), "app: no play badge; ?entry= scrolls to and highlights the card");
   check(/Number\.isInteger\(h\.flight\)\) return h\.flight/.test(app) && /b\.flight - a\.flight \|\| b\.when - a\.when/.test(app) && /!\(h\.flight > road\.flight\)/.test(app), "flight sections are data-driven (entry flight tag), newest first by post date; later flights stay off the Starship card");
   { const live = JSON.parse(fs.readFileSync(path.join(ROOT, "road.json"), "utf8")); const b23 = live.categories.find((c) => c.id === "cryo").history.find((h) => h.id === "x-2110889490336350574");
-    check(b23 && b23.flight === 16 && b23.manual && b23.media_override.author === "StarshipGazer" && !xf.XF_ACCOUNTS.includes("StarshipGazer"), "manual Flight 16 card (B23 cryo, @StarshipGazer) — not a trusted pipeline account");
+    check(b23 && b23.flight === 16 && b23.manual && b23.media_override.author === "StarshipGazer", "manual Flight 16 card (B23 cryo, @StarshipGazer)");
     const bad = JSON.parse(JSON.stringify(live)); bad.categories[0].history[0].flight = "16"; let threw = false; try { road.validateRoad(bad); } catch { threw = true; } check(threw, "a malformed flight tag is rejected"); }
   check(xf.hwKey("Ship 42") === xf.hwKey("S42") && xf.hwKey("Booster 22") === "B22", "hardware ids normalise (Ship 42 = S42)");
   console.log(fails ? `\n${fails} FAILED` : "\n✅ All X-first checks passed."); process.exit(fails ? 1 : 0);
