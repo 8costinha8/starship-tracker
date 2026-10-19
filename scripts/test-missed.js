@@ -45,6 +45,8 @@ check(/catching both the booster and the Ship/.test(lead) && /all of its engines
     ask: async () => ({ entries: [{ item: 1, kind: "road", stage: "pad", hardware: "B22", text: "Flight 15 will try to catch both Booster 22 and Ship 42.", status: null, event: null, reason: "catch plan" }] }) });
   const e = c.cards[0] && c.cards[0].entry;
   check(e && e.media_override && /news_img/.test(e.media_override.image) && e.media_override.author === "NASASpaceflight" && e.src === "@NASASpaceflight", "catch-plan card: link image, @NASASpaceflight");
+  { const app = require("fs").readFileSync(__dirname + "/../app.js", "utf8"); const body = (n) => app.slice(app.indexOf(`function ${n}(`), app.indexOf("\n}\n", app.indexOf(`function ${n}(`)));
+    check(!/@\{/.test(body("PickMedia")) && !/@\{/.test(body("XMedia")) && /post-src">\{srcOf\(h\)\}/.test(body("FeedPost")), "single credit: @author once per card (card foot), the picture keeps only View on X"); }
   check(xf.xfQuery().length <= 512, `X query fits the 512-char search limit (${xf.xfQuery().length} chars)`);
   console.log(fails ? `\n${fails} FAILED` : "\n✅ All missed-post checks passed."); process.exit(fails ? 1 : 0);
 })();

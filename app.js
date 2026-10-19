@@ -1293,7 +1293,7 @@ function XVideo({ m, url }) {
     </div>
   );
 }
-// Hand-picked picture (road-media.json): the image, a play icon for videos, @author credit; the post opens on tap.
+// Hand-picked picture (road-media.json): the image and a View on X link; the post opens on tap. The @author credit shows once, in the card foot.
 function PickMedia({ mo }) {
   const [bad, setBad] = React.useState(false);
   if (bad) return null;
@@ -1301,7 +1301,7 @@ function PickMedia({ mo }) {
     <div className="xm">
       <div className="xm-grid n1"><a href={mo.post_url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
         <img src={mo.image} alt="" loading="lazy" referrerPolicy="no-referrer" onError={() => setBad(true)} />{mo.type === "video" && PLAY_ICON}</a></div>
-      <div className="xm-foot"><span>@{mo.author}</span>
+      <div className="xm-foot">
         <a href={mo.post_url} target="_blank" rel="noopener noreferrer" aria-label="View on X" onClick={(e) => e.stopPropagation()}>View on X {LINK_ICON}</a></div>
     </div>
   );
@@ -1320,7 +1320,7 @@ function XMedia({ x }) {
           ? <XVideo key={m.i} m={m} url={x.url} />
           : <a key={m.i} href={x.url} target="_blank" rel="noopener noreferrer"><img src={m.poster} alt="" loading="lazy" referrerPolicy="no-referrer" onError={off(m.i)} />{PLAY_ICON}</a>)}
       </div>
-      <div className="xm-foot"><span>@{x.author && x.author.username}</span>
+      <div className="xm-foot">
         <a href={x.url} target="_blank" rel="noopener noreferrer" aria-label="View on X">View on X {LINK_ICON}</a></div>
     </div>
   );
@@ -2223,7 +2223,7 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .fdiv-next { color: #A9BDF0; font-weight: 600; }
 .xm-grid > a, .xm-grid > video { position: relative; display: block; min-height: 0; min-width: 0; }
 .xm-grid img, .xm-grid video { width: 100%; height: 100%; object-fit: cover; display: block; }
-.xm-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; font-size: 10.5px; color: var(--muted); }
+.xm-foot { display: flex; justify-content: flex-end; align-items: center; margin-top: 6px; font-size: 10.5px; color: var(--muted); }
 .xm-foot a { display: inline-flex; align-items: center; gap: 4px; color: #A9BDF0; text-decoration: none; font-weight: 600; }
 .xm-foot svg { width: 12px; height: 12px; }
 .post-media-play { position: absolute; left: 50%; top: 50%; width: 44px; height: 44px; margin: -22px 0 0 -22px; border-radius: 50%;
