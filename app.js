@@ -749,6 +749,7 @@ function NextFlightCard({ f, checkedAt, road, children }) {
         <dt>Vehicle</dt><dd>{vehicleLine(f)}</dd>
       </dl>
       <p className="next-note">{f.note}</p>
+      {missionLines(road, f.n).map((u, i) => <p className="next-upd" key={i}>{u.line}</p>)}
       {showWatch && (
         <div className="watch-where">
           <span className="watch-where-h">Where to watch</span>
@@ -1230,6 +1231,12 @@ function pastSummary(road, n) {
   const a = road.archive && road.archive[n], items = (a && a.summary && a.summary.items) || [];
   const color = (id) => (road.categories.find((c) => c.id === id) || {}).color || PAST_COLOR[id] || "#AAB6D6";
   return items.filter((e) => e && e.text && e.vehicle).map((e) => ({ box: e.box, vehicle: e.vehicle, text: e.text, label: PAST_LABEL[e.box] || e.box, color: color(e.box) }));
+}
+// Mission updates for the upcoming flight (road.json "mission_updates", written by the checker
+// from X posts about the mission itself: catch plans, objectives, payload…). Text lines only.
+function missionLines(road, n) {
+  const list = road && road.mission_updates && road.mission_updates[n];
+  return Array.isArray(list) ? list.filter((u) => u && typeof u.line === "string" && u.line).slice(0, 5) : [];
 }
 const isLaunched = (n) => FLIGHTS.some((x) => x.n === n);
 // Road to Flight N page: only cards backed by a trusted X post, in sections by flight (newest flight first).
@@ -1825,6 +1832,7 @@ a.watch-badge-live:active { transform: scale(.96); }
 .facts dd { margin: 0; }
 .facts .pred-basis { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }
 .next-note { font-size: 13.5px; line-height: 1.55; color: #CDD6EE; margin: 0; }
+.next-upd { font-size: 13.5px; line-height: 1.55; color: #CDD6EE; margin: 6px 0 0; } /* mission update line, same look as the note */
 .watch-where { margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(170,190,245,.16); }
 .watch-where-h { display: block; font-size: 12px; color: #AAB6D6; margin-bottom: 8px; }
 .watch-where ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }

@@ -449,47 +449,6 @@
           }
         },
         {
-          "id": "x-2111860189670646174",
-          "date": "18 Oct",
-          "at": "2026-10-18T16:41:20.000Z",
-          "text": "Musk confirms Flight 15 will try to catch both Booster 22 and Ship 42.",
-          "x_text": "Musk confirms Flight 15 will try to catch both Booster 22 and Ship 42.",
-          "src": "@NASASpaceflight",
-          "source": "NASASpaceflight",
-          "trust": "trusted",
-          "manual": true,
-          "backfill": "2026-10-19",
-          "flight": 15,
-          "stage": "pad",
-          "hardware": null,
-          "url": "https://x.com/NASASpaceflight/status/2111860189670646174",
-          "x_post": {
-            "post_id": "2111860189670646174",
-            "url": "https://x.com/NASASpaceflight/status/2111860189670646174",
-            "created_at": "2026-10-18T16:41:20.000Z",
-            "text": "SpaceX is preparing Flights 15 and 16 to close out 2026 for Starship, while documentation shows plans for a crazy future cadence at Starbase alone.",
-            "author": {
-              "name": "NSF - NASASpaceflight.com",
-              "username": "NASASpaceflight"
-            },
-            "media": [
-              {
-                "type": "photo",
-                "url": "https://pbs.twimg.com/news_img/2111858941869084672/mLw4yAnd?format=jpg&name=orig"
-              }
-            ]
-          },
-          "xChecked": true,
-          "imageChecked2": true,
-          "media_override": {
-            "post_url": "https://x.com/NASASpaceflight/status/2111860189670646174",
-            "post_id": "2111860189670646174",
-            "author": "NASASpaceflight",
-            "type": "photo",
-            "image": "https://pbs.twimg.com/news_img/2111858941869084672/mLw4yAnd?format=jpg&name=orig"
-          }
-        },
-        {
           "date": "9 Oct",
           "text": "Pad 2's chopsticks are undergoing maintenance.",
           "src": "NSF",
@@ -826,5 +785,17 @@
         ]
       }
     }
+  },
+  "mission_updates": {
+    "15": [
+      {
+        "topic": "catch",
+        "line": "SpaceX plans to try catching both Booster 22 and Ship 42 (Musk confirmed, 18 Oct).",
+        "at": "2026-10-18T16:41:20.000Z",
+        "src": "@NASASpaceflight",
+        "url": "https://x.com/NASASpaceflight/status/2111860189670646174",
+        "post_id": "2111860189670646174"
+      }
+    ]
   }
 }

@@ -49,6 +49,7 @@ const news = require("./news.js");
 const ROOT = path.join(__dirname, "..");
 const xFirstMod = require("./x-first.js");
 const milestones = require("./milestones.js");
+const mission = require("./mission.js");
 const writer = require("./writer.js"); // WRITER=grok (default, Claude fallback) | claude
 
 const LIMITS = {
@@ -1257,6 +1258,17 @@ async function run(opts = {}) {
   // posts that were waiting (cap reached, or Claude was down last time)
   items.push(...(state.pending || []));
   if (xf) items.push(...xf.news); // X posts classified as Starship news go to the news pushes
+  // X posts classified as mission updates: a line on the Next flight card (+ one push each); a
+  // NET/launch-date one feeds the predicted-date code instead (that code owns the date display)
+  const missionPushes = [];
+  if (xf) for (const m of xf.missions || []) {
+    const r = mission.applyMissionUpdate(road, road.flight, m);
+    const p = m.post;
+    if (r.net) { items.push({ key: `x:${p.post_id}`, title: p.text.slice(0, 200), text: p.text, url: p.url, publishedAt: p.created_at, src: `X @${p.author.username}`, source: `@${p.author.username}`, tier: xFirstMod.isOfficial(p) ? "official" : "trusted", predictOnly: true }); log(`mission-update (NET) → predicted-date check: @${p.author.username} ${p.post_id}`); continue; }
+    if (!r.changed) { log(`mission-update: no change (${m.topic}, same or older)`); continue; }
+    changed = true; missionPushes.push(mission.missionPush(road.flight, r.line));
+    log(`MISSION [${road.flight}/${m.topic}] ${r.line}`);
+  }
 
   // 2b. Predicted launch date: scan the posts already fetched (no extra fetches).
   //     Prediction-only X accounts (Elon) are used here and nowhere else.
@@ -1415,6 +1427,7 @@ async function run(opts = {}) {
     } catch (e) { log(`X backfill failed: ${e.message} — tried again next run`); }
   }
   for (const ch of changes) notifications.push(notificationFor(road, ch));
+  if (typeof missionPushes !== "undefined") notifications.push(...missionPushes); // same caps (X-first run cap) and the same save-then-push step
   if (changes.length) changed = true;
 
   // 4b. Clear out any old "no news yet" lines (no push for this)
@@ -1464,6 +1477,7 @@ async function run(opts = {}) {
       road.updatedAt = new Date().toISOString();
     }
     validateRoad(road);
+    mission.validateMission(road);
     predict.validatePredicted(road);
     const json = JSON.stringify(road, null, 2) + "\n";
     if (save) {

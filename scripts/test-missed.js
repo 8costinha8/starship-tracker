@@ -25,7 +25,7 @@ check(/catching both the booster and the Ship/.test(lead) && /all of its engines
   check(n === 3 && fetched.length === 3 && fetched.every((u) => /nasaspaceflight\.com/.test(u)) && !other.link.lead, "links read only for trusted outlets, at most 3 per run");
   const prompt = xf.classifyPrompt(r, [post], stages);
   check(/\[link: SpaceX working through Starship Flight 15 and 16 milestones[^\]]*catching both the booster and the Ship/.test(prompt), "the classifier sees the linked article's title and lead");
-  check(/catch the booster and\/or the ship/.test(prompt) && /all engines installed/.test(prompt) && /long-term cadence plans/.test(prompt), "prompt: Flight N catch plans / readiness reports are road; only long-term plans are news");
+  check(/"mission-update": anything about Flight 15's MISSION/.test(prompt) && /catch plans/.test(prompt) && /"road": ONLY hardware and test progress/.test(prompt) && /all engines installed/.test(prompt) && /"starship-news"/.test(prompt), "prompt: road (hardware/tests) | mission-update (mission) | starship-news | skip");
   check(!/Flight 16|\${road\.flight \+ 1}/.test(prompt.split("Posts:")[0]), "no Flight 16 automation: the prompt only asks about the Road's own flight");
   const m = xf.postMedia(post);
   check(m && m.type === "photo" && /news_img/.test(m.url), "a link-only post's picture is its link card image (as X shows it); no play badge");
@@ -42,9 +42,9 @@ check(/catching both the booster and the Ship/.test(lead) && /all of its engines
   // a road verdict on the teaser post makes a card with the link image, credited once to the author
   const r2 = JSON.parse(JSON.stringify(r));
   const c = await xf.runXFirst(r2, state, { token: "t", fetchFn: async () => x1, postCard: road.xPostCard, log: () => {},
-    ask: async () => ({ entries: [{ item: 1, kind: "road", stage: "pad", hardware: "B22", text: "Flight 15 will try to catch both Booster 22 and Ship 42.", status: null, event: null, reason: "catch plan" }] }) });
+    ask: async () => ({ entries: [{ item: 1, kind: "road", stage: "raptor", hardware: "B22", text: "Booster 22 reportedly has all its engines installed.", status: null, event: null, topic: null, attribution: null, reason: "engines" }] }) });
   const e = c.cards[0] && c.cards[0].entry;
-  check(e && e.media_override && /news_img/.test(e.media_override.image) && e.media_override.author === "NASASpaceflight" && e.src === "@NASASpaceflight", "catch-plan card: link image, @NASASpaceflight");
+  check(e && e.media_override && /news_img/.test(e.media_override.image) && e.media_override.author === "NASASpaceflight" && e.src === "@NASASpaceflight", "a road card from a teaser post: link image, @NASASpaceflight");
   { const app = require("fs").readFileSync(__dirname + "/../app.js", "utf8"); const body = (n) => app.slice(app.indexOf(`function ${n}(`), app.indexOf("\n}\n", app.indexOf(`function ${n}(`)));
     check(!/@\{/.test(body("PickMedia")) && !/@\{/.test(body("XMedia")) && /post-src">\{srcOf\(h\)\}/.test(body("FeedPost")), "single credit: @author once per card (card foot), the picture keeps only View on X"); }
   check(xf.xfQuery().length <= 512, `X query fits the 512-char search limit (${xf.xfQuery().length} chars)`);
@@ -52,14 +52,14 @@ check(/catching both the booster and the Ship/.test(lead) && /all of its engines
     const fs = require("fs"), os = require("os"), path = require("path"); const ROOT = path.join(__dirname, "..");
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "miss-")); const roadPath = path.join(tmp, "road.json"), appJsPath = path.join(tmp, "app.js");
     fs.copyFileSync(path.join(ROOT, "road.json"), roadPath); fs.copyFileSync(path.join(ROOT, "app.js"), appJsPath);
-    const ids = { "x-2111860189670646174": 15, "x-2112035558994419901": 15, "x-2111681468724601021": 16 };
+    const ids = { "x-2112035558994419901": 15, "x-2111681468724601021": 16 };
     const find = (rd) => rd.categories.flatMap((c) => c.history).filter((h) => ids[h.id]);
     const live = JSON.parse(fs.readFileSync(roadPath, "utf8")); road.validateRoad(live);
-    check(find(live).length === 3 && find(live).every((h) => h.flight === ids[h.id] && h.manual && h.media_override && h.media_override.author === h.src.slice(1)), "backfill: catch plan + B22/pad under Flight 15, B23 (manual) under Flight 16, each with its post's own picture");
+    check(find(live).length === 2 && !live.categories.some((c) => c.history.some((h) => h.id === "x-2111860189670646174")) && live.mission_updates[15][0].line === "SpaceX plans to try catching both Booster 22 and Ship 42 (Musk confirmed, 18 Oct)." && find(live).every((h) => h.flight === ids[h.id] && h.manual && h.media_override && h.media_override.author === h.src.slice(1)), "backfill: catch plan is a Flight 15 mission line (no Road card); B22/pad under Flight 15, B23 (manual) under Flight 16, each with its post's own picture");
     const sent = []; let stored = { seen: [], news: { seen: [], pending: [], sent: [], count: 0, day: "2026-10-19" }, xFirst: { sinceId: "1", seen: [] } };
     await road.run({ xFirst: true, xToken: "", mode: "dry-run", roadPath, appJsPath, sources: [], next: null, askNews: async () => [], askDates: async () => [],
       deps: { loadState: async () => stored, saveState: async (st) => { stored = st; }, push: async (n) => sent.push(n) }, commit: () => {} });
-    check(sent.length === 0 && find(JSON.parse(fs.readFileSync(roadPath, "utf8"))).length === 3, "a normal run keeps the backfill cards and sends no push");
+    check(sent.length === 0 && find(JSON.parse(fs.readFileSync(roadPath, "utf8"))).length === 2, "a normal run keeps the backfill cards and sends no push");
   }
   console.log(fails ? `\n${fails} FAILED` : "\n✅ All missed-post checks passed."); process.exit(fails ? 1 : 0);
 })();

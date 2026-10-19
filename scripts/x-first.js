@@ -38,25 +38,29 @@ async function fetchNewPosts({ token, sinceId, fetchFn = fetch, postCard }) {
   return { posts, sinceId: newest || sinceId, calls: 1, read: data.length };
 }
 
+const MISSION_TOPICS = ["net", "catch", "objectives", "payload", "trajectory", "landing", "licence", "other"];
 const CLASSIFY_SCHEMA = { type: "object", additionalProperties: false, required: ["entries"], properties: { entries: { type: "array", items: {
-  type: "object", additionalProperties: false, required: ["item", "kind", "stage", "hardware", "text", "status", "event", "reason"],
-  properties: { item: { type: "integer" }, kind: { type: "string", enum: ["road", "news", "skip"] }, stage: { type: ["string", "null"] },
-    hardware: { type: ["string", "null"] }, text: { type: ["string", "null"] }, status: { type: ["string", "null"], enum: ["progress", "done", "confirmed", null] }, event: { type: ["string", "null"], enum: ["cryo_test", "static_fire", "engines_installed", "stacked", "wdr", "licence", null] }, reason: { type: "string" } } } } } };
+  type: "object", additionalProperties: false, required: ["item", "kind", "stage", "hardware", "text", "status", "event", "topic", "attribution", "reason"],
+  properties: { item: { type: "integer" }, kind: { type: "string", enum: ["road", "mission-update", "starship-news", "skip"] }, stage: { type: ["string", "null"] },
+    hardware: { type: ["string", "null"] }, text: { type: ["string", "null"] }, status: { type: ["string", "null"], enum: ["progress", "done", "confirmed", null] }, event: { type: ["string", "null"], enum: ["cryo_test", "static_fire", "engines_installed", "stacked", "wdr", "licence", null] }, topic: { type: ["string", "null"], enum: [...MISSION_TOPICS, null] }, attribution: { type: ["string", "null"] }, reason: { type: "string" } } } } } };
 
 function classifyPrompt(road, posts, stages) {
   return `You sort new X posts for a Starship tracker's "Road to Flight ${road.flight}" page.
 Vehicles for this flight: ${(road.vehicles || []).join(", ") || "unknown"}.
-For EVERY post return one entry: {item, kind, stage, hardware, text, status, event, reason}.
+For EVERY post return one entry: {item, kind, stage, hardware, text, status, event, topic, attribution, reason}.
 kind:
-- "road": concrete, real progress toward Flight ${road.flight}: hardware moving or being worked on, a test (cryo, static fire, engine install/removal, stacking, pad work), or regulatory progress (FAA licence). It must be real (photo/video/report of actual events).
-  ALSO "road": a firm statement or trusted report about Flight ${road.flight}'s OWN vehicles or mission, even without a photo, e.g. SpaceX/Musk confirming it will try to catch the booster and/or the ship, a vehicle reported to have all engines installed, a rollout or static fire reported as imminent. Read the post's [link: ...] title/description too: a teaser post linking an article counts for what the article reports about Flight ${road.flight}.
-- "news": real Starship news that is not a Road step for Flight ${road.flight} (e.g. long-term cadence plans, other flights, policy). If a post mixes long-term plans with a concrete Flight ${road.flight} item, it is "road" for that item.
+- "road": ONLY hardware and test progress toward Flight ${road.flight}: rollouts, cryo tests, static fires, engine installs/removals, stacking, pad work. It must be real (photo/video/report of actual events, incl. a trusted report such as "all engines installed" or a rollout due).
+- "mission-update": anything about Flight ${road.flight}'s MISSION itself: launch date/NET, catch plans (booster and/or ship), flight objectives, payload, trajectory, landing/catch targets, licence-driven mission changes. Never a Road card.
+- "starship-news": real Starship news that is neither (long-term cadence plans, other flights, policy, the wider programme).
 - "skip": anything else — memes, opinions, jokes, renders/artwork, polls, merch, livestream ads, vague hype, unrelated topics.
+Read the post's [link: ...] title/description too: a teaser post linking an article counts for what the article reports about Flight ${road.flight}. If a post mixes long-term plans with a concrete Flight ${road.flight} item, classify it by that item.
 stage (road only): one of ${stages.map((s) => `"${s.id}" (${s.name})`).join(", ")}; null otherwise.
 hardware (road only): the main hardware id in short form, e.g. "S42", "B22", "Pad 2", "FAA"; null if none.
 status (road only, else null): "progress" if the post shows the stage is now under way (or restarted), "done" ONLY if it clearly says the stage is finished (e.g. static fire completed, licence issued), "confirmed" ONLY for an official launch date confirmation (Launch date stage); null if the post doesn't change the stage's status.
 event (road only, else null): the concrete milestone the post shows actually HAPPENING: "cryo_test" (a cryo/proof test was done), "static_fire" (a static fire was done), "engines_installed" (Raptors fully installed), "stacked" (ship stacked on booster), "wdr" (wet dress rehearsal), "licence" (FAA launch licence issued); null for anything else (rollouts, plans, forecasts, removals).
-text (road only): ONE short plain sentence (max 20 words) saying what happened, no hashtags, no emojis, no @handles; null otherwise.
+text (road / mission-update, else null): ONE short plain sentence (max 20 words), no hashtags, no emojis, no @handles. Road: what happened. Mission-update: the mission fact, e.g. "SpaceX plans to try catching both Booster 22 and Ship 42".
+topic (mission-update only, else null): one of ${MISSION_TOPICS.map((t) => `"${t}"`).join(", ")}.
+attribution (mission-update only, else null): who said it, 2-3 words, e.g. "Musk confirmed", "SpaceX", "FAA", "NSF reports".
 Posts:
 ${posts.map((p, i) => `${i + 1}. @${p.author.username} ${p.created_at} [${p.media.length ? p.media.map((m) => m.type).join("+") : "no media"}]: ${p.text.replace(/\s+/g, " ").slice(0, 600)}${p.link && (p.link.title || p.link.description || p.link.lead) ? ` [link: ${[p.link.title, p.link.lead || p.link.description].filter(Boolean).join(" — ").replace(/\s+/g, " ").slice(0, 1000)}]` : ""}`).join("\n")}`;
 }
@@ -67,7 +71,9 @@ async function classifyPosts(road, posts, stages, ask) {
   const list = Array.isArray(reply) ? reply : (reply && reply.entries) || [];
   return posts.map((p, i) => {
     const r = list.find((x) => x && x.item === i + 1);
-    if (!r || !["road", "news", "skip"].includes(r.kind)) return { kind: "skip", reason: "no verdict" };
+    if (r && r.kind === "news") r.kind = "starship-news"; // older wording
+    if (!r || !["road", "mission-update", "starship-news", "skip"].includes(r.kind)) return { kind: "skip", reason: "no verdict" };
+    if (r.kind === "mission-update" && (!MISSION_TOPICS.includes(r.topic) || !r.text)) return { kind: "skip", reason: "mission-update without a topic/text" };
     if (r.kind === "road" && (!stages.some((s) => s.id === r.stage) || !r.text)) return { kind: "skip", reason: "road without a valid stage/text" };
     return r;
   });
@@ -146,23 +152,29 @@ async function runXFirst(road, state, { token, fetchFn, ask, postCard, log = con
   if (posts.length && linkFetch) await readLinks(posts, linkFetch, log);
   if (posts.length) {
     try { verdicts = await classifyPosts(road, posts, stages, ask); }
-    catch (e) { log(`X-first: writer failed (${e.message}) — posts retried next run`); return { cards: [], merged: [], news: [], state: { ...xs }, calls: got.calls, retry: true }; /* since_id not advanced */ }
+    catch (e) { log(`X-first: writer failed (${e.message}) — posts retried next run`); return { cards: [], merged: [], news: [], missions: [], state: { ...xs }, calls: got.calls, retry: true }; /* since_id not advanced */ }
   }
-  const cards = [], merged = [], newsItems = [];
+  const cards = [], merged = [], newsItems = [], missions = [];
   posts.forEach((p, i) => {
     const v = verdicts[i];
     seen.add(p.post_id);
     if (v.reason === "no verdict" && !p.retry) { seen.delete(p.post_id); waiting.push({ ...p, retry: 1 }); return log(`X-first: no verdict for @${p.author.username} ${p.post_id} — retried next run`); } // the writer skipped it: one more try
-    if (v.kind === "news") newsItems.push({ key: `x:${p.post_id}`, title: p.text.slice(0, 200), text: p.text, url: p.url, publishedAt: p.created_at, src: `X @${p.author.username}`, source: `@${p.author.username}`, tier: OFFICIAL.has(p.author.username.toLowerCase()) ? "official" : "trusted" });
+    if (v.kind === "mission-update") { // that flight's mission line (no Road card); shares the per-run cap
+      if (cards.length + missions.length >= maxCards) { seen.delete(p.post_id); waiting.push(p); return log(`X-first: cap reached — @${p.author.username} ${p.post_id} waits`); }
+      missions.push({ post: p, topic: v.topic, text: v.text, attribution: v.attribution || null });
+      return log(`X-first: mission-update/${v.topic} @${p.author.username} ${p.post_id} — ${v.text}`);
+    }
+    if (v.kind === "starship-news") newsItems.push({ key: `x:${p.post_id}`, title: p.text.slice(0, 200), text: p.text, url: p.url, publishedAt: p.created_at, src: `X @${p.author.username}`, source: `@${p.author.username}`, tier: OFFICIAL.has(p.author.username.toLowerCase()) ? "official" : "trusted" });
     if (v.kind !== "road") return log(`X-first: ${v.kind} @${p.author.username} ${p.post_id} — ${v.reason || ""}`);
-    if (cards.length >= maxCards) { seen.delete(p.post_id); waiting.push(p); return log(`X-first: card cap reached — @${p.author.username} ${p.post_id} waits`); }
+    if (cards.length + missions.length >= maxCards) { seen.delete(p.post_id); waiting.push(p); return log(`X-first: card cap reached — @${p.author.username} ${p.post_id} waits`); }
     const r = placePost(road, p, v, now);
     if (status && v.status) r.st = status(r.box, v.status, p, r.entry);
     if (milestone && v.event) milestone(v, p); // running per-vehicle summary (counts + dates)
     (r.merged ? merged : cards).push(r);
     log(`X-first: road/${v.stage} ${v.hardware || "-"} @${p.author.username} ${p.post_id} → ${r.merged ? `merged into ${r.entry.id}` : `new card ${r.entry.id}`}`);
   });
-  return { cards, merged, news: newsItems, state: { sinceId: got.sinceId, seen: [...seen].slice(-500), pending: waiting.slice(0, 20) }, calls: got.calls };
+  return { cards, merged, news: newsItems, missions, state: { sinceId: got.sinceId, seen: [...seen].slice(-500), pending: waiting.slice(0, 20) }, calls: got.calls };
 }
 
-module.exports = { runXFirst, fetchNewPosts, classifyPosts, classifyPrompt, placePost, bestMedia, postMedia, articleLead, readLinks, hwKey, xfQuery, XF_ACCOUNTS, CLASSIFY_SCHEMA, MERGE_MS };
+const isOfficial = (p) => OFFICIAL.has(String(p.author && p.author.username).toLowerCase());
+module.exports = { isOfficial, MISSION_TOPICS, runXFirst, fetchNewPosts, classifyPosts, classifyPrompt, placePost, bestMedia, postMedia, articleLead, readLinks, hwKey, xfQuery, XF_ACCOUNTS, CLASSIFY_SCHEMA, MERGE_MS };

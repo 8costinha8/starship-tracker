@@ -126,19 +126,6 @@
   },
   {
    "category": "pad",
-   "date": "18 Oct",
-   "entry": "Musk confirms Flight 15 will try to catch both Booster 22 and Ship 42.",
-   "flight": 15,
-   "manual": true,
-   "post_id": "2111860189670646174",
-   "post_url": "https://x.com/NASASpaceflight/status/2111860189670646174",
-   "author": "NASASpaceflight",
-   "media_type": "photo",
-   "image": "https://pbs.twimg.com/news_img/2111858941869084672/mLw4yAnd?format=jpg&name=orig",
-   "note": "Backfill 19 Oct (missed by X-first: judged news). NSF teaser post linking 'SpaceX working through Starship Flight 15 and 16 milestones' (18 Oct): Musk confirmed SpaceX intends to catch both the booster and the ship. Picture = the post's own link card image (Mega Bays, Ceaser G for NSF)."
-  },
-  {
-   "category": "pad",
    "date": "19 Oct",
    "entry": "Pad 2's launch mount work platform removed overnight as Booster 22, reportedly with all engines in, nears static fire rollout.",
    "flight": 15,
