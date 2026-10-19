@@ -1908,7 +1908,7 @@ a.watch-badge-live:active { transform: scale(.96); }
 .past-wrap-inner { overflow: hidden; min-height: 0; }
 .past-sum { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 0 14px; }
 .past-box { background: #1A2338; border: 1px solid rgba(170,190,245,.12); border-radius: 12px; padding: 8px 10px 9px; min-width: 0; }
-.past-box-top { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+.past-box-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 4px 6px; }
 .past-veh { font-size: 11.5px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .past-box p { margin: 5px 0 0; font-size: 12px; line-height: 1.38; color: #C9D2E6; }
 .past-pill { font-size: 9.5px; font-weight: 700; letter-spacing: .02em; padding: 2px 7px; border-radius: 999px; white-space: nowrap;
