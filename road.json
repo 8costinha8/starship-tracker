@@ -4,8 +4,8 @@
     "B22",
     "S42"
   ],
-  "updated": "18 Oct",
-  "updatedAt": "2026-10-18T14:01:44.139Z",
+  "updated": "20 Oct",
+  "updatedAt": "2026-10-20T14:01:45.123Z",
   "categories": [
     {
       "id": "cryo",
@@ -788,6 +788,14 @@
   },
   "mission_updates": {
     "15": [
+      {
+        "topic": "payload",
+        "line": "Payload deployment sequence is complete (SpaceX, 20 Oct).",
+        "at": "2026-10-20T13:56:40.000Z",
+        "src": "@SpaceX",
+        "url": "https://x.com/SpaceX/status/2112543527481876848",
+        "post_id": "2112543527481876848"
+      },
       {
         "topic": "catch",
         "line": "SpaceX plans to try catching both Booster 22 and Ship 42 (Musk confirmed, 18 Oct).",
