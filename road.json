@@ -4,8 +4,8 @@
     "B22",
     "S42"
   ],
-  "updated": "20 Oct",
-  "updatedAt": "2026-10-20T14:01:45.123Z",
+  "updated": "21 Oct",
+  "updatedAt": "2026-10-20T23:01:23.088Z",
   "categories": [
     {
       "id": "cryo",
@@ -405,8 +405,61 @@
       "name": "Pad activity",
       "color": "#A88BFF",
       "status": "progress",
-      "latest": "Pad 2 being serviced after Flight 14, no F15 rollout yet",
+      "latest": "SpaceX performing more catch testing at tower top with launch and landing deluge tests.",
       "history": [
+        {
+          "id": "x-2112679319818686934",
+          "date": "20 Oct",
+          "at": "2026-10-20T22:56:16.000Z",
+          "text": "SpaceX performing more catch testing at tower top with launch and landing deluge tests.",
+          "x_text": "SpaceX performing more catch testing at tower top with launch and landing deluge tests.",
+          "url": "https://x.com/Blobifie/status/2112679319818686934",
+          "src": "@Blobifie",
+          "trust": "trusted",
+          "x_first": true,
+          "stage": "pad",
+          "hardware": "Tower",
+          "x_post": {
+            "post_id": "2112679319818686934",
+            "url": "https://x.com/Blobifie/status/2112679319818686934",
+            "created_at": "2026-10-20T22:56:16.000Z",
+            "text": "SpaceX is performing more catch testing at the top of the tower and has performed both a launch and landing deluge test. https://t.co/xmAgZcRRoe",
+            "author": {
+              "name": "Blobifi",
+              "username": "Blobifie",
+              "avatar": "https://pbs.twimg.com/profile_images/2091766013562159104/xgHLFjBX_normal.jpg"
+            },
+            "media": [
+              {
+                "type": "video",
+                "poster": "https://pbs.twimg.com/amplify_video_thumb/2112678295435464704/img/9a4tS6nMnzIHT1_6.jpg",
+                "video_url": "https://video.twimg.com/amplify_video/2112678295435464704/vid/avc1/1280x720/hIJeUPTzUct39HHB.mp4?tag=14"
+              },
+              {
+                "type": "video",
+                "poster": "https://pbs.twimg.com/amplify_video_thumb/2112678706091302912/img/RTXpeIJYPa2YhUAR.jpg",
+                "video_url": "https://video.twimg.com/amplify_video/2112678706091302912/vid/avc1/1280x720/MgNN4yvfRUvInuYs.mp4?tag=14"
+              },
+              {
+                "type": "video",
+                "poster": "https://pbs.twimg.com/amplify_video_thumb/2112679203716149248/img/Yn65E82-8TkmkoZw.jpg",
+                "video_url": "https://video.twimg.com/amplify_video/2112679203716149248/vid/avc1/1284x720/LtrjGAZJ23Q2tDMx.mp4?tag=14"
+              }
+            ]
+          },
+          "x_posts": [
+            "2112679319818686934"
+          ],
+          "xChecked": true,
+          "imageChecked2": true,
+          "media_override": {
+            "post_url": "https://x.com/Blobifie/status/2112679319818686934",
+            "post_id": "2112679319818686934",
+            "author": "Blobifie",
+            "type": "video",
+            "image": "https://pbs.twimg.com/amplify_video_thumb/2112678295435464704/img/9a4tS6nMnzIHT1_6.jpg"
+          }
+        },
         {
           "id": "x-2112035558994419901",
           "date": "19 Oct",
