@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "21 Oct",
-  "updatedAt": "2026-10-20T23:01:23.088Z",
+  "updatedAt": "2026-10-21T18:01:04.863Z",
   "categories": [
     {
       "id": "cryo",
@@ -405,8 +405,57 @@
       "name": "Pad activity",
       "color": "#A88BFF",
       "status": "progress",
-      "latest": "SpaceX performing more catch testing at tower top with launch and landing deluge tests.",
+      "latest": "Starbase Pad 2 BQDs purging ahead of Booster 22 arrival.",
       "history": [
+        {
+          "id": "x-2112967167767433728",
+          "date": "21 Oct",
+          "at": "2026-10-21T18:00:04.000Z",
+          "text": "Starbase Pad 2 BQDs purging ahead of Booster 22 arrival.",
+          "x_text": "Starbase Pad 2 BQDs purging ahead of Booster 22 arrival.",
+          "url": "https://x.com/NASASpaceflight/status/2112967167767433728",
+          "src": "@NASASpaceflight",
+          "trust": "trusted",
+          "x_first": true,
+          "stage": "pad",
+          "hardware": "Pad 2",
+          "x_post": {
+            "post_id": "2112967167767433728",
+            "url": "https://x.com/NASASpaceflight/status/2112967167767433728",
+            "created_at": "2026-10-21T18:00:04.000Z",
+            "text": "Starbase Pad 2 BQDs (Booster Quick Disconnect) purging. Hopefully ahead of Booster 22 arriving soon. https://t.co/HSumkyMfYU",
+            "author": {
+              "name": "NSF - NASASpaceflight.com",
+              "username": "NASASpaceflight",
+              "avatar": "https://pbs.twimg.com/profile_images/1637919260298158080/kRT8BkYf_normal.jpg"
+            },
+            "media": [
+              {
+                "type": "video",
+                "poster": "https://pbs.twimg.com/amplify_video_thumb/2112967085047369728/img/mvvPfdSAuw24PHag.jpg",
+                "video_url": "https://video.twimg.com/amplify_video/2112967085047369728/vid/avc1/1104x628/f4_kx_BSb3HL7S26.mp4"
+              }
+            ],
+            "link": {
+              "url": "https://www.youtube.com/watch?v=mhJRzQsLZGg",
+              "title": "Starbase Live: 24/7 Starship & Super Heavy Development From SpaceX's Boca Chica Facility",
+              "description": "Starship is SpaceX's fully reusable launch system which is being de...",
+              "image": "https://pbs.twimg.com/news_img/2111802046466973698/IAIT5BI6?format=jpg&name=orig"
+            }
+          },
+          "x_posts": [
+            "2112967167767433728"
+          ],
+          "xChecked": true,
+          "imageChecked2": true,
+          "media_override": {
+            "post_url": "https://x.com/NASASpaceflight/status/2112967167767433728",
+            "post_id": "2112967167767433728",
+            "author": "NASASpaceflight",
+            "type": "video",
+            "image": "https://pbs.twimg.com/amplify_video_thumb/2112967085047369728/img/mvvPfdSAuw24PHag.jpg"
+          }
+        },
         {
           "id": "x-2112679319818686934",
           "date": "20 Oct",
