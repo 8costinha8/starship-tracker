@@ -4,8 +4,8 @@
     "B22",
     "S42"
   ],
-  "updated": "21 Oct",
-  "updatedAt": "2026-10-21T18:01:04.863Z",
+  "updated": "22 Oct",
+  "updatedAt": "2026-10-21T23:15:35.617Z",
   "categories": [
     {
       "id": "cryo",
@@ -891,20 +891,20 @@
   "mission_updates": {
     "15": [
       {
+        "topic": "catch",
+        "line": "Elon Musk says SpaceX is go for double catch on Flight 15 (Elon Musk, 22 Oct).",
+        "at": "2026-10-21T23:05:30.000Z",
+        "src": "@NASASpaceflight",
+        "url": "https://x.com/NASASpaceflight/status/2113044031638741321",
+        "post_id": "2113044031638741321"
+      },
+      {
         "topic": "payload",
         "line": "Payload deployment sequence is complete (SpaceX, 20 Oct).",
         "at": "2026-10-20T13:56:40.000Z",
         "src": "@SpaceX",
         "url": "https://x.com/SpaceX/status/2112543527481876848",
         "post_id": "2112543527481876848"
-      },
-      {
-        "topic": "catch",
-        "line": "SpaceX plans to try catching both Booster 22 and Ship 42 (Musk confirmed, 18 Oct).",
-        "at": "2026-10-18T16:41:20.000Z",
-        "src": "@NASASpaceflight",
-        "url": "https://x.com/NASASpaceflight/status/2111860189670646174",
-        "post_id": "2111860189670646174"
       }
     ]
   }
