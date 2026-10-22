@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "22 Oct",
-  "updatedAt": "2026-10-22T00:01:34.969Z",
+  "updatedAt": "2026-10-22T09:01:01.597Z",
   "categories": [
     {
       "id": "cryo",
@@ -404,8 +404,8 @@
       "icon": "🏗️",
       "name": "Pad activity",
       "color": "#A88BFF",
-      "status": "progress",
-      "latest": "Starbase Pad 2 BQDs purging ahead of Booster 22 arrival.",
+      "status": "complete",
+      "latest": "Done",
       "history": [
         {
           "id": "x-2112967167767433728",
@@ -445,7 +445,8 @@
           },
           "x_posts": [
             "2112967167767433728",
-            "2113057179523760370"
+            "2113057179523760370",
+            "2113193182276309126"
           ],
           "xChecked": true,
           "imageChecked2": true,
@@ -455,7 +456,8 @@
             "author": "NASASpaceflight",
             "type": "video",
             "image": "https://pbs.twimg.com/amplify_video_thumb/2112967085047369728/img/mvvPfdSAuw24PHag.jpg"
-          }
+          },
+          "complete": true
         },
         {
           "id": "x-2112679319818686934",
