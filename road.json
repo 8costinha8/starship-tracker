@@ -13,7 +13,7 @@
       "name": "Cryo tests",
       "color": "#BFE6FF",
       "status": "progress",
-      "latest": "Ship 42 completed its cryo tests at Massey's.",
+      "latest": "Ship 42 back for a third cryo test",
       "history": [
         {
           "id": "x-2111681468724601021",
@@ -117,7 +117,7 @@
         },
         {
           "date": "9 Oct",
-          "text": "Ship 42 has completed its cryo tests.",
+          "text": "Ship 42 has been transported back to the cryo test stand at the Massey outpost for more testing.",
           "src": "@LabPadre",
           "source": "nsf",
           "trust": "trusted",
@@ -147,7 +147,7 @@
           },
           "src_original": "NSF",
           "url_original": "https://www.nasaspaceflight.com/2026/10/ship-40-returns-ship-42-more-testing/",
-          "x_text": "Ship 42 has completed its cryo tests.",
+          "x_text": "Ship 42 has been transported back to the cryo test stand at the Massey outpost for more testing.",
           "image_check": {
             "verdict": "no image clearly shows it",
             "seen": "interior of a high bay with a lift and crane; Ship 42 / cryo stand not visible",
@@ -168,32 +168,30 @@
             "type": "cryo_test",
             "flight": 15,
             "hardware": "S42",
-            "phase": "completed",
+            "phase": "progress",
             "migrated": true
           },
           "updates": [
             {
               "date": "9 Sep",
-              "at": "2026-09-09T12:00:00.000Z",
               "text": "Ship 42 heads back to Massey's for further cryo testing.",
+              "src": "NSF (secondary)",
+              "phase": "progress",
               "tier": 2
             },
             {
-              "date": "3 Sep",
-              "at": "2026-09-03T21:09:00.000Z",
-              "text": "Ship 42 completes its first cryo test.",
-              "url": "https://x.com/LabPadre/status/2095620292823462214",
-              "src": "@LabPadre",
+              "date": "3–4 Sep",
+              "text": "Ship 42's first cryo test is underway.",
+              "src": "Next Spaceflight",
+              "phase": "progress",
               "tier": 2
             }
-          ],
-          "assumed": true,
-          "complete": true
+          ]
         },
         {
           "date": "9–10 Sep",
-          "text": "Booster 22 completed its cryo test at Massey's.",
-          "src": "@TrackingTheSB",
+          "text": "Booster 22 cryo tests at Massey's.",
+          "src": "Next Spaceflight",
           "source": "next-spaceflight",
           "trust": "trusted",
           "xChecked": true,
@@ -222,10 +220,11 @@
             "by": "manual preview review (Grok vision re-checks on the first live run)"
           },
           "media_override": {
-            "type": "photo",
-            "image": "https://pbs.twimg.com/media/HSAaXN7bwAAplGl.jpg",
-            "post_url": "https://x.com/TrackingTheSB/status/2098706696487240054",
-            "author": "TrackingTheSB"
+            "post_url": "https://x.com/LabPadre/status/2098045579234259249",
+            "post_id": "2098045579234259249",
+            "author": "LabPadre",
+            "type": "video",
+            "image": "https://pbs.twimg.com/amplify_video_thumb/2098045351559131140/img/1-Fe_-VnJa8yKMza.jpg"
           },
           "imageChecked2": true,
           "flight": 15,
@@ -235,16 +234,9 @@
             "type": "cryo_test",
             "flight": 15,
             "hardware": "B22",
-            "phase": "completed",
+            "phase": "progress",
             "migrated": true
-          },
-          "id": "x-2098706696487240054",
-          "x_text": "Booster 22 completed its cryo test at Massey's.",
-          "url": "https://x.com/TrackingTheSB/status/2098706696487240054",
-          "at": "2026-09-12T09:34:00.000Z",
-          "hardware": "B22",
-          "x_first": true,
-          "complete": true
+          }
         }
       ]
     },

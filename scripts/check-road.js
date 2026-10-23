@@ -1109,7 +1109,7 @@ const PHASE_TEXT = { expected: "Expected", progress: "In progress", completed: "
 function notificationText(road, ch) {
   const { box, entry } = ch;
   const label = (s) => (s === "done" ? box.doneText || "Done" : STATUS_TEXT[s]);
-  if (ch.phase && ch.phase.from) return { title: `${box.icon} ${box.name}: ${(box.id === "date" && ch.phase.to === "completed" ? "Confirmed" : PHASE_TEXT[ch.phase.to])}`, body: entry.x_text || entry.text };
+  if (ch.phase && ch.phase.from) return { title: `${box.icon} ${box.name}: ${PHASE_TEXT[ch.phase.to]}`, body: entry.x_text || entry.text };
   if (ch.to !== ch.from) return { title: `${box.icon} ${box.name}: ${label(ch.to)}`, body: entry.text };
   if (entry.trust === "unconfirmed") return { title: `${box.icon} ${box.name} (unconfirmed)`, body: entry.text };
   return { title: `${box.icon} ${box.name} · Flight ${Number.isInteger(entry.flight) ? entry.flight : road.flight}`, body: entry.text };
@@ -1251,7 +1251,7 @@ async function run(opts = {}) {
         ask: opts.askXFirst || ((prompt, o) => writer.askJson(prompt, { ...o, log })), log, now: clock(), maxCards: LIMITS.changesPerRun,
         milestone: (v, post) => milestones.recordMilestone(road, { hardware: v.hardware, event: v.event, at: post.created_at, src: post.url }),
         status: (box, s, post, entry) => { // trusted accounts only (all X-first accounts are trusted)
-          const want = xStatus(box, s), from = box.status, tier = entry.official || xFirstMod.isOfficial(post) ? "official" : "trusted"; // the posting account counts, not the card's first author
+          const want = xStatus(box, s), from = box.status, tier = entry.official ? "official" : "trusted";
           if (!statusRule(box, want, tier, `@${post.author.username}`, log)) return null;
           box.status = want; box.latest = want === "complete" ? "Done" : entry.text.slice(0, 160);
           if (want === "complete") entry.complete = true;

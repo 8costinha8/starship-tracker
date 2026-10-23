@@ -23,11 +23,7 @@ function visibleFor(road, n) {
   if (v.where === "road") {
     const c = (road.categories || []).find((x) => x.id === v.box);
     const h = c && (c.history || []).find((e) => e.id === v.id);
-    if (!h) return null;
-    // a card's timeline shows every line openly: an earlier line (now under the newest) is still the visible copy of its push
-    const line = (h.x_text || h.text) === n.body || !Array.isArray(h.updates) ? null : h.updates.find((u) => u && u.text === n.body && u.push);
-    if (line) return { title: line.push.title, body: line.text, url: line.push.url, at: line.push.at };
-    return { title: h.push && h.push.title, body: h.x_text || h.text, url: h.push && h.push.url, at: h.push && h.push.at };
+    return h && { title: h.push && h.push.title, body: h.x_text || h.text, url: h.push && h.push.url, at: h.push && h.push.at };
   }
   if (v.where === "mission") {
     const u = ((road.mission_updates || {})[v.flight] || []).find((x) => x.line === n.body);
