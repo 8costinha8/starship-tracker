@@ -53,28 +53,6 @@
     raptor: { what: "Raptor installation", span: "up to two weeks", maxDays: 14, grace: 7, done: /\b(engines? (are )?(all )?(installed|in)|all engines in)\b/i },
   };
   const DAY = 86400000;
-  // Numbered instances (boxes) inside a vehicle card: one per test or event run. A new box starts when a line
-  // signals a new run ("heads back", "another", "further", "again", "second"…) or comes after the step's usual
-  // window; otherwise the line updates the current box (its newest sentence is shown).
-  const NOUN = { cryo: "Cryo test", static: "Static fire", raptor: "Raptor install", pad: "Pad work", faa: "Licence update", date: "Date update" };
-  const PLACE_DEFAULT = { cryo: "Massey's" };
-  const NEW_RUN = /\b(heads? back|went back|goes back|back (to|at) (the )?(Massey|pad|stand|cryo)|another|further|again|second|third|fourth|next|new|first)\b/i;
-  function placeOf(text, sectionId) {
-    const m = String(text || "").match(/\b(Massey'?s|Mega ?Bay ?\d|Pad ?[12AB]|Starfactory|Gigabay|launch site|production site|the tower)\b/i);
-    return m ? m[1].replace(/^massey'?s$/i, "Massey's").replace(/^Mega ?Bay ?(\d)$/i, "Mega Bay $1").replace(/^Pad ?(\w)$/i, "Pad $1") : PLACE_DEFAULT[sectionId] || null;
-  }
-  function boxesOf(lines, sectionId, rule) { // lines newest first → boxes newest first, numbered #1 = oldest
-    const asc = [...lines].reverse(), win = ((rule && rule.maxDays) || 3) + ((rule && rule.grace) || 4), out = [];
-    for (const l of asc) {
-      const cur = out[out.length - 1];
-      const fresh = !cur || l.at - cur.start > win * DAY || (NEW_RUN.test(l.text) && !l.reason && !(cur.lines.length === 1 && cur.lines[0].at === l.at));
-      if (fresh) out.push({ start: l.at, lines: [l] }); else cur.lines.push(l);
-    }
-    return out.map((b, i) => { const top = b.lines[b.lines.length - 1];
-      const done = b.lines.some((l) => l.phase === "completed" && counts(l));
-      return { n: i + 1, title: `${NOUN[sectionId] || "Update"} #${i + 1}`, date: b.lines[0].shown, place: placeOf(b.lines[0].text, sectionId) || placeOf(b.lines.map((l) => l.text).join(" "), sectionId),
-        text: top.text, line: top, lines: b.lines.slice().reverse(), completed: done, assumed: done && b.lines.filter((l) => l.phase === "completed" && counts(l)).every((l) => l.assumed) }; }).reverse();
-  }
   const words = (s) => new Set(String(s || "").toLowerCase().replace(/[^a-z0-9 ]/g, " ").split(/\s+/).filter((w) => w.length > 2));
   function similar(a, b) { const A = words(a), B = words(b); if (!A.size || !B.size) return false; let n = 0; A.forEach((w) => B.has(w) && n++); return n / Math.min(A.size, B.size) >= 0.7; }
   const flightOfEntry = (h, road) => (Number.isInteger(h.flight) ? h.flight : h.milestone && Number.isInteger(h.milestone.flight) ? h.milestone.flight : road.flight);
@@ -139,9 +117,6 @@
           if (!kept.some((l) => l.reason)) { kept.unshift({ date: cardDate(sig ? sig.date : lastTest.date), shown: cardDate(sig ? sig.date : lastTest.date), at: at + 1, text: reason, phase: "completed", tier: 2, reason: true, assumed: true }); kept.sort((a, b) => b.at - a.at); }
         }
       }
-      c.boxes = boxesOf(kept, box.id, DURATIONS[box.id]);
-      c.completed = !!(c.boxes[0] && c.boxes[0].completed); // the LATEST box decides the card's glow
-      c.assumed = c.completed && c.boxes[0].assumed;
       c.status = c.completed ? "completed" : c.active ? "progress" : "expected";
       const pick = (done.length ? done : []).concat(kept).find((l) => l.media && !l.media.credit_only) || kept.find((l) => l.media);
       c.media = pick ? pick.media : null;
@@ -165,5 +140,5 @@
     return { flight: f, sections, done: sections.filter((s) => s.status === "completed").length, total: sections.length };
   }
   const flightsIn = (road) => [...new Set((road.categories || []).flatMap((c) => (c.history || []).filter((h) => h && h.kind !== "check").map((h) => flightOfEntry(h, road))))].sort((a, b) => a - b);
-  return { boxesOf, placeOf, NOUN, cardDate, lintCopy, DURATIONS, roadModel, sectionCards, sectionStatus, phaseOfText, vehiclesIn, hwKey, vehicleName, similar, flightsIn, PHASES };
+  return { cardDate, lintCopy, DURATIONS, roadModel, sectionCards, sectionStatus, phaseOfText, vehiclesIn, hwKey, vehicleName, similar, flightsIn, PHASES };
 });

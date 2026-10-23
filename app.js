@@ -1120,25 +1120,16 @@ const SEC_TEXT = { expected: "Expected", progress: "In progress", completed: "Co
 const DOT_FILL = (() => { try { return new URLSearchParams(location.search).get("dot") === "colour" ? "colour" : "white"; } catch { return "white"; } })(); // preview: ?dot=colour variant
 function VehicleCards({ sec, images, road }) {
   if (!sec.cards.length) return <p className="vc-none">Nothing reported yet.</p>;
-  const stop = (e) => e.stopPropagation();
   return (<div className="vcards">{sec.cards.map((c) => {
     const ids = [...new Set(c.lines.map((l) => l.entry && l.entry.id).filter(Boolean))];
     const ml = c.mediaLine, mh = ml && ml.entry ? { ...ml.entry, url: (c.media && c.media.post_url) || ml.url, src: c.media && c.media.author ? "@" + c.media.author : ml.src } : null;
-    const meta = (b) => <div className="vb-meta">{b.place ? <>📍 {b.place} · </> : null}{b.date}</div>;
     return (
       <div key={c.key} className={"vcard" + (c.completed ? " vc-done" : "")} style={{ "--c": sec.box.color }} data-card={c.key} data-status={c.status}
         id={ids[0] ? "post-" + ids[0] : undefined} data-entry={ids.join(" ") || undefined}>
         <div className="vc-name">{c.name}</div>
-        {c.boxes.map((b, k) => k === 0
-          ? <div key={b.n} className={"vbox vb-open" + (b.completed ? " vb-done" : "")} data-n={b.n}>
-              <div className="vb-title">{b.title}</div>{meta(b)}<p className="vb-text">{scrub(b.text)}</p>
-              {images && c.media && !c.media.credit_only && <VcImage m={c.media} />}
-              {images && mh && <CreditLine h={mh} />}
-            </div>
-          : <details key={b.n} className="vbox vb-old" data-n={b.n} onClick={stop}>
-              <summary><span className="vb-title">{b.title}</span><span className="vb-date">{b.date}</span><svg className="vb-chev" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5l4 4 4-4" stroke="currentColor" strokeWidth="1.7" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg></summary>
-              {meta(b)}<p className="vb-text">{scrub(b.text)}</p>
-            </details>)}
+        <ul className="vc-tl">{c.lines.map((l, k) => <li key={k}><span className="vc-date">{l.shown}</span><span className="vc-text">{scrub(l.text)}</span></li>)}</ul>
+        {images && c.media && !c.media.credit_only && <VcImage m={c.media} />}
+        {images && mh && <CreditLine h={mh} />}
       </div>);
   })}</div>);
 }
@@ -2151,19 +2142,8 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .badge.sbadge-expected { background: transparent; color: var(--muted); border: 1px solid rgba(170,190,245,.25); }
 .vcards { display: flex; flex-direction: column; gap: 8px; padding-top: 8px; }
 .vcard { background: #1A2338; border: 1px solid rgba(170,190,245,.12); border-radius: 12px; padding: 10px 12px; transition: box-shadow .4s; }
-.vcard.vc-done { border-color: color-mix(in srgb, var(--c) 70%, transparent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--c) 22%, transparent), 0 0 18px -2px color-mix(in srgb, var(--c) 45%, transparent); } /* subtle glow in the section colour */
+.vcard.vc-done { border-color: color-mix(in srgb, var(--c) 45%, transparent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--c) 22%, transparent), 0 0 18px -2px color-mix(in srgb, var(--c) 45%, transparent); } /* subtle glow in the section colour */
 .vc-name { font-weight: 700; font-size: 14px; color: var(--text); margin-bottom: 4px; }
-.vbox { background: #161D2E; border: 1px solid rgba(170,190,245,.12); border-radius: 10px; padding: 9px 12px; margin-top: 8px; }
-.vbox.vb-done { border-color: color-mix(in srgb, var(--c) 80%, transparent); box-shadow: 0 0 12px -2px color-mix(in srgb, var(--c) 55%, transparent); } /* the latest box glows when it is a completed test */
-.vb-title { font-weight: 700; font-size: 14px; color: var(--text); }
-.vb-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
-.vb-text { margin: 4px 0 0; font-size: 13px; line-height: 1.4; }
-.vb-old summary { list-style: none; display: flex; align-items: center; gap: 8px; cursor: pointer; }
-.vb-old summary::-webkit-details-marker { display: none; }
-.vb-date { font-size: 12px; color: var(--muted); flex: 1; }
-.vb-chev { color: var(--muted); transition: transform .25s; }
-.vb-old[open] .vb-chev { transform: rotate(180deg); }
-.vb-old[open] .vb-meta { margin-top: 6px; }
 .vc-tl { list-style: none; margin: 0; padding: 0; }
 .vc-tl li { display: flex; gap: 10px; font-size: 13px; line-height: 1.4; padding: 3px 0; }
 .vc-date { flex: 0 0 46px; color: var(--muted); font-variant-numeric: tabular-nums; }
