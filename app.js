@@ -1116,10 +1116,11 @@ function RoadCard({ road, onEntryTap, openReq }) {
                   {...(onEntryTap ? { role: "button", tabIndex: isOpen ? 0 : -1, "aria-label": `${h.date}: ${h.text}. Show in the updates feed`,
                     onClick: () => onEntryTap(m.id, i), onKeyDown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onEntryTap(m.id, i); } } } : {})}>
                   <div className="mini-top">
-                    <span className="mini-date">{h.date}{h.trust === "unconfirmed" && <span className="mini-unc">Unconfirmed</span>}</span>
+                    <span className="mini-date">{h.date}{h.milestone && <span className={"mini-phase ph-" + h.milestone.phase}>{PHASE_LABEL[h.milestone.phase]}</span>}{h.milestone && <TierTag t={h.tier} src={h.src} rep={h.reported} />}{h.trust === "unconfirmed" && <span className="mini-unc">Unconfirmed</span>}</span>
                     <span className="mini-src">{srcOf(h)}</span>
                   </div>
                   <p>{h.x_text || h.text}</p>
+                  <BuildUp h={h} />
                 </div>
               ))}
             </div></div>
@@ -1133,6 +1134,38 @@ function RoadCard({ road, onEntryTap, openReq }) {
 
 // No "seen" dimming anywhere: every card stays full strength. The old per-device seen list is cleared.
 try { localStorage.removeItem("st_seen_v1"); } catch {}
+// Milestone lifecycle (road.json entry.milestone: type + flight + vehicle + phase). One entry per milestone:
+// later posts update it in place; the older lines stay under it as a collapsible build-up list.
+const PHASE_LABEL = { expected: "Expected", progress: "In progress", completed: "Completed" };
+const TIER_LABEL = { 1: "Confirmed", 2: "Reported", 3: "Rumour" }; // source tier (scripts/source-tiers.js)
+function TierTag({ t, src, rep }) {
+  if (!t) return null;
+  return <span className={"mini-tier tier-" + t}>{TIER_LABEL[t]}{t === 2 && rep ? " " + PHASE_LABEL[rep].toLowerCase() : ""}{src ? " · " + src : ""}</span>;
+}
+function BuildUp({ h }) {
+  const ups = Array.isArray(h.updates) ? h.updates.filter((u) => u && u.text) : [];
+  if (!ups.length) return null;
+  const stop = (e) => e.stopPropagation();
+  return (
+    <details className="buildup" onClick={stop}>
+      <summary>{h.milestone && h.milestone.phase === "completed" ? `Build-up (${ups.length})` : `Earlier updates (${ups.length})`}</summary>
+      <ul>{ups.map((u, i) => <li key={i}><span className="bu-date">{u.date}</span>{u.tier ? <span className={"mini-tier tier-" + u.tier}>{TIER_LABEL[u.tier]}{u.src ? " · " + u.src : ""}</span> : null} {u.url ? <a href={u.url} target="_blank" rel="noopener noreferrer" onClick={stop}>{u.text}</a> : u.text}</li>)}</ul>
+    </details>
+  );
+}
+// Context picture for a milestone that hasn't happened yet: an earlier trusted post's photo of the same hardware.
+function ContextMedia({ mc }) {
+  const [bad, setBad] = React.useState(false);
+  if (bad || !mc || !mc.image) return null;
+  return (
+    <div className="xm xm-context">
+      <div className="xm-grid n1"><a href={mc.post_url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
+        <img src={mc.image} alt="" loading="lazy" referrerPolicy="no-referrer" onError={() => setBad(true)} /></a></div>
+      <div className="xm-foot"><span className="xm-ctx">Earlier photo{mc.author ? ` · @${mc.author}` : ""}</span>
+        <a href={mc.post_url} target="_blank" rel="noopener noreferrer" aria-label="View on X" onClick={(e) => e.stopPropagation()}>View on X {LINK_ICON}</a></div>
+    </div>
+  );
+}
 const isRealEntry = (h) => h && h.kind !== "check"; // "no news yet" lines aren't shown any more
 // Small "Road to Flight N ›" link next to the header title. Tapping it glides to
 // the Road box inside the next-flight card and opens it.
@@ -1358,11 +1391,13 @@ function FeedPost({ p, onPhotoTap }) {
       <div className="post-top">
         <span className="chip"><span className="chip-i">{cat.icon}</span>{cat.name}</span>
         <span className="post-sep">·</span>
-        <span className="post-date">{h.date}{feedTime(h.publishedAt) ? ` · ${feedTime(h.publishedAt)}` : ""}</span>
+        <span className="post-date">{h.date}{feedTime(h.publishedAt || (h.milestone && h.at)) ? ` · ${feedTime(h.publishedAt || h.at)}` : ""}</span>
+        {h.milestone && <span className={"mini-phase ph-" + h.milestone.phase}>{PHASE_LABEL[h.milestone.phase]}</span>}{h.milestone && <TierTag t={h.tier} src={h.src} rep={h.reported} />}
         {h.trust === "unconfirmed" && <span className="mini-unc">Unconfirmed</span>}
       </div>
       <p className="post-text">{h.x_text || h.text}</p>
-      {h.media_override ? <PickMedia mo={h.media_override} /> : h.x_post && <XMedia x={h.x_post} />}
+      {h.media_override ? <PickMedia mo={h.media_override} /> : h.media_context ? <ContextMedia mc={h.media_context} /> : !h.milestone && h.x_post && <XMedia x={h.x_post} />}
+      <BuildUp h={h} />
       <div className="post-foot">
         <span className="post-src">{srcOf(h)}</span>
         {urlOf(h) && <a className="post-link" href={urlOf(h)} target="_blank" rel="noopener noreferrer" aria-label={`Open source: ${srcOf(h)}`}>{LINK_ICON}</a>}
@@ -2068,6 +2103,19 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .mini p { margin: 4px 0 0; font-size: 13px; line-height: 1.4; }
 .mini-done { background: linear-gradient(100deg, rgba(61,220,132,.14), rgba(61,220,132,.05)); border-color: rgba(61,220,132,.30); box-shadow: inset 3px 0 0 rgba(61,220,132,.75); } /* the update that finished the stage */
 .mini-check { border-style: dashed; } /* "no news yet" placeholder */
+.mini-phase { margin-left: 6px; font-size: 10.5px; font-weight: 700; padding: 1px 6px; border-radius: 6px; background: rgba(170,182,214,.16); color: #AAB6D6; }
+.post-top:has(.mini-tier) { flex-wrap: wrap; row-gap: 4px; }
+.mini-tier { margin-left: 6px; font-size: 10.5px; font-weight: 600; padding: 1px 6px; border-radius: 6px; background: rgba(255,255,255,.06); color: #AAB6D6; }
+.mini-tier.tier-1 { color: #6EE7A0; } .mini-tier.tier-3 { color: #F9A8D4; font-style: italic; }
+.mini-phase.ph-completed { background: rgba(74,222,128,.16); color: #6EE7A0; }
+.mini-phase.ph-progress { background: rgba(250,204,21,.14); color: #FACC15; }
+.buildup { margin-top: 6px; font-size: 12.5px; color: var(--muted, #AAB6D6); }
+.buildup summary { cursor: pointer; font-weight: 600; list-style: revert; }
+.buildup ul { margin: 6px 0 0; padding-left: 16px; }
+.buildup li { margin: 3px 0; }
+.buildup a { color: inherit; }
+.bu-date { font-weight: 700; margin-right: 4px; }
+.xm-ctx { font-size: 11px; opacity: .75; margin-right: auto; }
 .mini-unc { margin-left: 7px; font-size: 10px; font-weight: 700; letter-spacing: .02em; color: #FFC93D; border: 1px dashed rgba(255,201,61,.65); padding: 1px 6px; border-radius: 6px; vertical-align: 1px; } /* single smaller source: never shown as fact */
 
 /* updates feed */

@@ -8,7 +8,7 @@ const road = require("./check-road.js"), ps = require("./push-sync.js"), mission
 const ROOT = path.join(__dirname, "..");
 let fails = 0; const check = (ok, m) => { console.log((ok ? "✅ " : "❌ ") + m); if (!ok) fails++; };
 const NOW = Date.parse("2026-10-22T18:00:00Z"), ago = (h) => new Date(NOW - h * 3600000).toISOString();
-const users = [["1", "NASASpaceflight"], ["4", "SpaceX"], ["5", "StarbaseWatcher"]].map(([id, username]) => ({ id, username, name: username }));
+const users = [["1", "NASASpaceflight"], ["4", "SpaceX"], ["5", "FAANews"]].map(([id, username]) => ({ id, username, name: username }));
 const P = (id, uid, at, text) => ({ id, author_id: uid, created_at: at, text });
 const xReply = (posts, newest) => ({ ok: true, status: 200, json: async () => ({ data: posts, meta: { newest_id: newest }, includes: { users, media: [] } }) });
 

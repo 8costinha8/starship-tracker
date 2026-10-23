@@ -1105,12 +1105,14 @@ function notificationFor(road, ch) {
   return { ...n, ...(ch.entry.x_text ? { body: ch.entry.x_text } : {}), link: ch.entry.id ? `${FEED_LINK}&entry=${encodeURIComponent(ch.entry.id)}` : FEED_LINK, ...(img ? { image: img } : {}),
     url: ch.entry.url || (ch.entry.x_post && ch.entry.x_post.url) || "", at: (ch.entry.x_post && ch.entry.x_post.created_at) || ch.entry.at || new Date().toISOString() };
 }
+const PHASE_TEXT = { expected: "Expected", progress: "In progress", completed: "Completed" };
 function notificationText(road, ch) {
   const { box, entry } = ch;
   const label = (s) => (s === "done" ? box.doneText || "Done" : STATUS_TEXT[s]);
+  if (ch.phase && ch.phase.from) return { title: `${box.icon} ${box.name}: ${PHASE_TEXT[ch.phase.to]}`, body: entry.x_text || entry.text };
   if (ch.to !== ch.from) return { title: `${box.icon} ${box.name}: ${label(ch.to)}`, body: entry.text };
   if (entry.trust === "unconfirmed") return { title: `${box.icon} ${box.name} (unconfirmed)`, body: entry.text };
-  return { title: `${box.icon} ${box.name} · Flight ${road.flight}`, body: entry.text };
+  return { title: `${box.icon} ${box.name} · Flight ${Number.isInteger(entry.flight) ? entry.flight : road.flight}`, body: entry.text };
 }
 
 /* ───────────── live plumbing (Firebase + git) ───────────── */
@@ -1245,7 +1247,7 @@ async function run(opts = {}) {
   let xf = null;
   if (xFirst) {
     try {
-      xf = await xFirstMod.runXFirst(road, state, { token: opts.xToken !== undefined ? opts.xToken : process.env.X_BEARER_TOKEN, fetchFn: opts.xFetch, postCard: xPostCard, linkFetch: opts.linkFetch !== undefined ? opts.linkFetch : opts.xFetch ? null : fetch /* linked articles: plain GET, tests never hit the network */,
+      xf = await xFirstMod.runXFirst(road, state, { picks: (() => { try { const pk = opts.mediaPicks || loadMediaPicks(); return Array.isArray(pk) ? pk : pk.picks || []; } catch { return []; } })(), token: opts.xToken !== undefined ? opts.xToken : process.env.X_BEARER_TOKEN, fetchFn: opts.xFetch, postCard: xPostCard, linkFetch: opts.linkFetch !== undefined ? opts.linkFetch : opts.xFetch ? null : fetch /* linked articles: plain GET, tests never hit the network */,
         ask: opts.askXFirst || ((prompt, o) => writer.askJson(prompt, { ...o, log })), log, now: clock(), maxCards: LIMITS.changesPerRun,
         milestone: (v, post) => milestones.recordMilestone(road, { hardware: v.hardware, event: v.event, at: post.created_at, src: post.url }),
         status: (box, s, post, entry) => { // trusted accounts only (all X-first accounts are trusted)
@@ -1366,7 +1368,9 @@ async function run(opts = {}) {
     // new cards push; a merge only pushes when it moved the status
     if (xf) for (const r of xf.cards) changes.push({ box: r.box, entry: r.entry, from: r.st ? r.st.from : r.box.status, to: r.box.status, item: { key: `x:${r.entry.x_post.post_id}` } });
     // a merge that moved the status gets its own visible dated line ("Pad activity: Done (22 Oct)"), the push says the same
-    if (xf) for (const r of xf.merged.filter((m) => m.st)) changes.push({ box: r.box, entry: statusLine(road, r.box, r.entry, r.post), from: r.st.from, to: r.box.status, item: { key: `x:${r.entry.x_post.post_id}` }, merge: true });
+    // a milestone entry that moved Expected → In progress → Completed: the SAME entry (updated in place) is the push
+    if (xf) for (const r of xf.merged.filter((m) => m.phase)) changes.push({ box: r.box, entry: r.entry, from: r.box.status, to: r.box.status, phase: r.phase, item: { key: `x:${r.post.post_id}` } });
+    if (xf) for (const r of xf.merged.filter((m) => m.st && !m.phase)) changes.push({ box: r.box, entry: statusLine(road, r.box, r.entry, r.post), from: r.st.from, to: r.box.status, item: { key: `x:${r.entry.x_post.post_id}` }, merge: true });
     if (xf && xf.merged.length) changed = true;
   } else if (batch.length) {
     let updates = null;
