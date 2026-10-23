@@ -16,7 +16,8 @@ check(/<FeedBuildUp h=\{h\} \/>/.test(post) && !/<BuildUp /.test(post), "Road pa
 
 // 2. no standalone credit row
 check(/if \(!u\) return null;/.test(credit) && (post.match(/<CreditLine /g) || []).length === 1 && !/post-src|mini-src|srcOf\(h\)\}<\/span>/.test(post), "no standalone @handle credit row: a credit only ever sits in a View on X line");
-check(/who && <span className="xm-ctx">\{who\}<\/span>.*&nbsp;·&nbsp;/.test(credit) && /\.post-credit \.xm-ctx \{ margin-right: 0; \}/.test(app), "the handle is inline, small and muted, right-aligned: '@handle · View on X ↗'");
+check(!/xm-ctx|\{who\}<|&nbsp;·/.test(credit) && /\{isX \? "View on X" : "View source"\} \{LINK_ICON\}<\/a>/.test(credit) && /href=\{u\}/.test(credit), "View on X lines show no '@handle' text, only 'View on X ↗', and keep the link");
+check(/\.buildup\.feed-bu ul \{ padding-left: 0; margin-left: 0; margin-right: 0;/.test(app) && /\.feed-bu \.bu-pill \{ box-sizing: border-box; width: 100%; \}/.test(app), "pill CSS: no list indent, full width (browser check measures it against the image)");
 
 // 3. one View on X line per post with a url: under the main post (above Earlier updates), and in each update pill
 check(post.indexOf("<CreditLine h={h} />") > 0 && post.indexOf("<CreditLine h={h} />") < post.indexOf("<FeedBuildUp"), "main post's View on X line sits under its media, above Earlier updates");
@@ -33,7 +34,7 @@ const urls = live.categories.flatMap((c) => (c.history || []).flatMap((h) => h.u
 check(urls.every((x) => /^https:\/\/x\.com\/\w+\/status\/\d+$/.test(x)), `every X url on an update is a real status link (${urls.length})`);
 
 // 5. the Flight Log is unchanged
-const cssLog = app.split("\n").filter((l) => /^\.road[ .{]|^\.mini|^\.buildup/.test(l)).join("\n");
+const cssLog = app.split("\n").filter((l) => /^\.road[ .{]|^\.mini|^\.buildup/.test(l) && !/feed-bu/.test(l)).join("\n");
 check(crypto.createHash("sha1").update(fn("RoadCard") + cssLog).digest("hex") === "de296c94e36b0c9faa3595f69043966201f45bbc", "Flight Log card code and CSS byte-identical to 04a48c2");
 check(/<summary>\{`Earlier updates \(\$\{ups\.length\}\)`\}<\/summary>/.test(fn("BuildUp")) && /u\.url && !\(log && u\.handle\)/.test(fn("BuildUp")), "Flight Log build-up keeps its count; a new X url doesn't turn its line into a link");
 

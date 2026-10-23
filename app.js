@@ -1449,11 +1449,11 @@ const urlOf = (h) => (h.media_override && !h.media_override.credit_only && h.med
 const openUrl = (u) => window.open(u, "_blank", "noopener,noreferrer");
 const linkProps = (h) => { const u = urlOf(h); return u ? { role: "link", tabIndex: 0, "aria-label": `${h.x_text || h.text} — open ${h.x_post ? "the post on X" : "the source"}`,
   onClick: (e) => { if (!e.target.closest("a, video, button, .xm-video")) openUrl(u); }, onKeyDown: (e) => { if (e.key === "Enter" && e.target === e.currentTarget) openUrl(u); } } : {}; };
-// One small right-aligned line per card: "@handle · View on X ↗" (X's author credit + the link). No separate chip/icon row.
+// One small right-aligned "View on X ↗" line per post (the link is the attribution; the handle stays in its aria-label). No separate chip/icon row.
 function CreditLine({ h }) {
   const u = urlOf(h), who = srcOf(h), isX = /^https?:\/\/(x|twitter)\.com\//i.test(u || "");
   if (!u) return null; // no post, no line (no standalone credit)
-  return (<div className="xm-foot post-credit">{who && <span className="xm-ctx">{who}</span>}{who && u && <span className="xm-ctx">&nbsp;·&nbsp;</span>}
+  return (<div className="xm-foot post-credit">
     {u && <a href={u} target="_blank" rel="noopener noreferrer" aria-label={`${isX ? "View on X" : "View source"}${who ? ": " + who : ""}`} onClick={(e) => e.stopPropagation()}>{isX ? "View on X" : "View source"} {LINK_ICON}</a>}</div>);
 }
 // Road page build-up: "Earlier updates" (no count). An earlier update with its own post is a
@@ -2201,12 +2201,12 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .buildup .bu-top .bu-date { flex: none; }
 .buildup .bu-top .mini-tier { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 0 1 auto; margin: 0; }
 .buildup .bu-text { margin-top: 2px; }
-.feed-bu ul { padding-left: 0; list-style: none; } /* Road page */
-.feed-bu li { padding: 0 2px; }
+.buildup.feed-bu ul { padding-left: 0; margin-left: 0; margin-right: 0; list-style: none; } /* Road page */
+.buildup.feed-bu li { padding: 0 2px; margin-left: 0; margin-right: 0; }
+.feed-bu .bu-pill { box-sizing: border-box; width: 100%; } /* same left/right edges as the post image */
 .feed-bu .bu-pill { padding: 8px 10px; margin: 6px 0; border: 1px solid rgba(255,255,255,.14); border-radius: 10px; background: rgba(255,255,255,.035); cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .feed-bu .bu-pill:focus-visible { outline: 2px solid #A9BDF0; outline-offset: 2px; }
 .feed-bu .bu-pill .post-credit { margin-top: 4px; }
-.post-credit .xm-ctx { margin-right: 0; } /* handle sits inline, right-aligned, before View on X */
 .mini-tier { margin-left: 6px; font-size: 10.5px; font-weight: 600; padding: 1px 6px; border-radius: 6px; background: rgba(255,255,255,.06); color: #AAB6D6; }
 .mini-tier.tier-1 { color: #6EE7A0; } .mini-tier.tier-3 { color: #F9A8D4; font-style: italic; }
 .mini-phase.ph-completed { background: rgba(74,222,128,.16); color: #6EE7A0; }
