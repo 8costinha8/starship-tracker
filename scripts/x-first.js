@@ -192,6 +192,7 @@ function placePost(road, post, cls, now = Date.now(), picks = []) {
       if (logText) h.log_text = logText; else delete h.log_text;
       Object.assign(h, { date: dayLabel(post.created_at), log_date: logDate, at: new Date(at).toISOString(), text: cls.text, x_text: cls.text, url: post.url, src: `@${post.author.username}`, x_post: post });
     }
+    if (h.updates) h.updates = h.updates.filter((u) => !logText_.isRejected(road, life.c.id, u) && !logText_.isMonthMixup(h, u)); // a rejected or month-mixed-up line never comes back
     if (!accurate) h.updates[0] && (h.updates[0].note = "later post did not match the vehicle/pad numbers; status unchanged");
     if (m && (claimed === "completed" || cls.media_fit === "shows-event")) { h.media_override = overrideFor(post, m); delete h.media_context; } // real media of the event itself
     else if (!h.media_override && !h.media_context) { const cx = contextImage(road, cls.stage, cls.hardware, h.id, picks); if (cx) h.media_context = cx; }

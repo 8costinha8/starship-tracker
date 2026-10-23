@@ -1112,25 +1112,29 @@ function Tags({ h }) {
 // Flight Log lines (scripts/log-text.js mirrors these): the clean log_text first, then text; never the raw post.
 const logLine = (h) => (h && (h.log_text || h.text)) || "";
 const LOG_MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-// One single day, no clock time: log_date, else the entry's own day (a range → its first day), else the post's UK day.
+// The source's own day or day range ("3–4 Sep"), never a clock time: log_date, else the entry's date with any time stripped, else the post's UK day.
 function logDay(h) {
   if (!h) return "";
   if (h.log_date) return h.log_date;
-  const m = String(h.date || "").match(/(\d{1,2})\s*(?:[–-]\s*\d{1,2}\s*)?([A-Z][a-z]{2})/);
-  if (m) return `${Number(m[1])} ${m[2]}`;
+  const m = String(h.date || "").replace(/\s*-\s*/g, "–").match(/^(\d{1,2}(?: [A-Z][a-z]{2})?\s*[–-]\s*)?\d{1,2} [A-Z][a-z]{2}/);
+  if (m) return m[0].replace(/\s*–\s*/, "–");
   const iso = h.publishedAt || h.at;
   if (!iso || !Number.isFinite(Date.parse(iso))) return "";
   const p = Object.fromEntries(new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "numeric", timeZone: "Europe/London" }).formatToParts(new Date(iso)).map((x) => [x.type, x.value]));
   return `${Number(p.day)} ${LOG_MON[p.month - 1]}`;
 }
+// A finished vehicle box: it glows on the Flight Log, and when every vehicle's box glows the section dot fills (same rule).
+const logDone = (h) => !!h && ((h.milestone && h.milestone.phase === "completed") || h.complete === true);
+const ROLLUP_IDS = ["cryo", "raptor", "static"];
+const logGlows = (c, h, road) => ROLLUP_IDS.includes(c.id) && !!logHw(h) && h.trust !== "unconfirmed" && !(h.flight > road.flight) && logDone(h);
 const logHw = (h) => { const m = String((h.milestone && h.milestone.hardware) || h.hardware || "").match(/^\s*(?:Ship\s*|S)(\d+)|^\s*(?:Booster\s*|B)(\d+)/i); return m ? (m[1] ? "S" + m[1] : "B" + m[2]) : null; };
 // Every current-flight vehicle's latest entry in the section is completed → the section is done.
 function rollupStatus(c, road) {
-  if (!c || !["cryo", "raptor", "static"].includes(c.id)) return c && c.status; // per-vehicle test sections only
+  if (!c || !ROLLUP_IDS.includes(c.id)) return c && c.status; // per-vehicle test sections only
   const vs = (road.vehicles || []).map((v) => String(v).toUpperCase());
   const own = (c.history || []).filter((h) => h && h.kind !== "check" && !(h.flight > road.flight) && h.trust !== "unconfirmed" && logHw(h));
   if (!vs.length || !own.length) return c.status;
-  const fin = (h) => (h.milestone && h.milestone.phase === "completed") || h.complete === true;
+  const fin = logDone;
   const last = {};
   for (const h of own) if (!last[logHw(h)]) last[logHw(h)] = h;
   return vs.every((v) => last[v] && fin(last[v])) && Object.values(last).every(fin) ? "done" : c.status;
@@ -1175,7 +1179,7 @@ function RoadCard({ road, onEntryTap, openReq }) {
             </button>
             <div className="callout-hist"><div className="callout-hist-inner">
               {(m.history || []).map((h, i) => isRealEntry(h) && !(h.flight > road.flight) && !isLaunched(h.flight) && ( /* later flights' cards: Road page only */
-                <div className={"mini" + (onEntryTap ? " tappable" : "")} key={i}
+                <div className={"mini" + (onEntryTap ? " tappable" : "") + (logGlows(m, h, road) ? " glow" : "")} key={i}
                   {...(onEntryTap ? { role: "button", tabIndex: isOpen ? 0 : -1, "aria-label": `${logDay(h)}: ${logLine(h)}. Show in the updates feed`,
                     onClick: () => onEntryTap(m.id, i), onKeyDown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onEntryTap(m.id, i); } } } : {})}>
                   <div className="mini-top">
@@ -2160,6 +2164,7 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .callout.open .callout-hist-inner { padding-bottom: 14px; }
 .callout-hist-inner::before { content: ""; position: absolute; left: 22px; top: 4px; bottom: 18px; width: 2px; background: color-mix(in srgb, var(--c) 40%, transparent); }
 .mini { position: relative; background: #1A2338; border: 1px solid rgba(170,190,245,.12); border-radius: 12px; padding: 9px 11px; margin-top: 8px; }
+.road .mini.glow { border-color: color-mix(in srgb, var(--c) 45%, transparent); box-shadow: 0 0 12px -2px color-mix(in srgb, var(--c) 45%, transparent); } /* Flight Log only: finished vehicle box, soft glow in the section colour */
 .mini::before { content: ""; position: absolute; left: -12px; top: 14px; width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
 .mini-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .mini-date { font-size: 12px; font-weight: 700; color: var(--c); }

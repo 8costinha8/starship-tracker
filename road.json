@@ -175,27 +175,18 @@
           },
           "updates": [
             {
-              "date": "9 Sep",
-              "text": "Ship 42 heads back to Massey's for further cryo testing.",
-              "src": "NSF (secondary)",
-              "phase": "progress",
-              "tier": 2,
-              "log_text": "Ship 42 heads back to Massey's for further cryo testing."
-            },
-            {
-              "date": "3 Sep",
+              "date": "3–4 Sep",
               "text": "Ship 42 completes its first cryo test.",
               "src": "Next Spaceflight",
               "phase": "progress",
               "tier": 2,
-              "log_text": "Ship 42 completes its first cryo test.",
-              "log_date": "3 Sep"
+              "log_text": "Ship 42 completes its first cryo tests."
             }
           ],
           "log_text": "Ship 42 completed further cryo tests."
         },
         {
-          "date": "9 Sep",
+          "date": "9–10 Sep",
           "text": "Booster 22 completed its cryo test at Massey's.",
           "src": "Next Spaceflight",
           "source": "next-spaceflight",
@@ -243,8 +234,7 @@
             "phase": "completed",
             "migrated": true
           },
-          "log_text": "Booster 22 completed its cryo test at Massey's.",
-          "log_date": "9 Sep"
+          "log_text": "Booster 22 completed its cryo test at Massey's."
         }
       ],
       "log_latest": "Ship 42 completed its cryo tests at Massey's."
@@ -976,5 +966,14 @@
         "post_id": "2112543527481876848"
       }
     ]
-  }
+  },
+  "rejected_lines": [
+    {
+      "box": "cryo",
+      "hardware": "S42",
+      "date": "9 Sep",
+      "text": "Ship 42 heads back to Massey's for further cryo testing.",
+      "why": "Seed line from 7 Oct (no link, 'NSF (secondary)'): the 9 Oct NSF story mis-dated 9 Sep. S42 had no cryo test on 9 Sep."
+    }
+  ]
 }

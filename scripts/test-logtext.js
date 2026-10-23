@@ -8,16 +8,16 @@ let fails = 0; const check = (ok, m) => { console.log((ok ? "✅ " : "❌ ") + m
 const live = JSON.parse(fs.readFileSync(path.join(ROOT, "road.json"), "utf8"));
 const app = fs.readFileSync(path.join(ROOT, "app.js"), "utf8");
 const fn = (name) => { const i = app.indexOf(`function ${name}(`); return app.slice(i, app.indexOf("\n}\n", i) + 2); };
-const A = new Function(`${app.slice(app.indexOf("const logLine ="), app.indexOf("function logDay("))}${fn("logDay")}${app.slice(app.indexOf("const logHw ="), app.indexOf("function rollupStatus("))}${fn("rollupStatus")}; return { logLine, logDay, rollupStatus };`)();
+const A = new Function(`${app.slice(app.indexOf("const logLine ="), app.indexOf("function rollupStatus("))}${fn("rollupStatus")}; return { logLine, logDay, rollupStatus, logDone, logGlows };`)();
 const cur = (c) => (c.history || []).filter((h) => h.kind !== "check" && !(h.flight > live.flight));
 
 // 1. date only, single date
 const days = live.categories.flatMap((c) => cur(c).flatMap((h) => [h, ...(h.updates || [])])).map(A.logDay);
-check(days.length > 0 && days.every((d) => /^\d{1,2} [A-Z][a-z]{2}$/.test(d)), `Flight Log dates are one plain day, no time or range (${days.length} lines)`);
-check(A.logDay({ date: "9–10 Sep" }) === "9 Sep" && A.logDay({ date: "30 Sep–2 Oct" }) === "30 Sep" && A.logDay({ at: "2026-10-09T14:36:44.000Z" }) === "9 Oct" && A.logDay({ date: "9 Oct", log_date: "8 Oct", at: "2026-10-09T14:36:44Z" }) === "8 Oct", "a range → its first day; no date → the post's UK day; log_date wins");
+check(days.length > 0 && days.every((d) => /^(\d{1,2}( [A-Z][a-z]{2})?–)?\d{1,2} [A-Z][a-z]{2}$/.test(d) && !/:|UK/.test(d)), `Flight Log dates are a day or a source day range, never a time (${days.length} lines)`);
+check(A.logDay({ date: "9–10 Sep" }) === "9–10 Sep" && A.logDay({ date: "30 Sep–2 Oct" }) === "30 Sep–2 Oct" && A.logDay({ date: "9 Oct · 15:36 UK" }) === "9 Oct" && A.logDay({ at: "2026-10-09T14:36:44.000Z" }) === "9 Oct" && A.logDay({ date: "9 Oct", log_date: "8 Oct", at: "2026-10-09T14:36:44Z" }) === "8 Oct", "ranges kept, clock times stripped; no date → the post's UK day; log_date wins");
 check(A.logDay({ date: "3–4 Sep" }) === L.logDay({ date: "3–4 Sep" }) && A.logDay({ at: "2026-10-23T23:30:00Z" }) === L.logDay({ at: "2026-10-23T23:30:00Z" }), "app and scripts agree on the day");
 const cryo = live.categories.find((c) => c.id === "cryo"), e = (t) => cur(cryo).find((h) => (h.log_text || "").startsWith(t));
-check(A.logDay(e("Booster 22")) === "9 Sep" && A.logDay(e("Ship 42").updates[1]) === "3 Sep" && A.logDay(e("Ship 42")) === "9 Oct" && A.logDay(e("Ship 42").updates[0]) === "9 Sep", "Cryo: B22 9 Sep; S42 9 Oct, earlier 9 Sep and 3 Sep");
+check(A.logDay(e("Booster 22")) === "9–10 Sep" && A.logDay(e("Ship 42")) === "9 Oct" && e("Ship 42").updates.length === 1 && A.logDay(e("Ship 42").updates[0]) === "3–4 Sep", "Cryo: S42 9 Oct with one earlier update 3–4 Sep; B22 9–10 Sep");
 check(/<span className="mini-date">\{logDay\(h\)\}<\/span>/.test(app) && /bu-date">\{log \? logDay\(u\) : entryDate\(u\)\}/.test(app) && /post-date">\{entryDate\(h\)\}/.test(app), "Flight Log uses the plain day; the Updates feed keeps its times");
 
 // 2. the Flight Log prefers log_text and never shows raw post text
@@ -25,7 +25,35 @@ check(A.logLine({ log_text: "Clean.", x_text: "X text", text: "Text", x_post: { 
 const card = fn("RoadCard"), bu = fn("BuildUp");
 check(!/x_text|x_post/.test(card) && /<p>\{scrub\(logLine\(h\)\)\}<\/p>/.test(card) && /<BuildUp h=\{h\} log \/>/.test(card) && /log \? logLine\(u\) : u\.text/.test(bu), "Road to Flight N card never reads x_text / x_post.text");
 check(/if \(m\.log_latest && !later\) return m\.log_latest;/.test(fn("boxLatest")) && !/x_text/.test(fn("boxLatest").split("\n").filter((l) => !/const later/.test(l)).join("\n")), "box headline: log_latest, else the clean line");
-check(cryo.log_latest === "Ship 42 completed its cryo tests at Massey's." && e("Ship 42").log_text === "Ship 42 completed further cryo tests." && e("Ship 42").updates.map((u) => u.log_text).join("|") === "Ship 42 heads back to Massey's for further cryo testing.|Ship 42 completes its first cryo test." && e("Booster 22").log_text === "Booster 22 completed its cryo test at Massey's.", "Cryo matches the target wording");
+check(cryo.log_latest === "Ship 42 completed its cryo tests at Massey's." && e("Ship 42").log_text === "Ship 42 completed further cryo tests." && e("Ship 42").updates.map((u) => u.log_text).join("|") === "Ship 42 completes its first cryo tests." && e("Booster 22").log_text === "Booster 22 completed its cryo test at Massey's.", "Cryo matches the target wording");
+
+// glow: Flight Log only, on completed vehicle boxes, and the same rule as the dot
+{ const rp = app.indexOf("// Road to Flight N page"), page = app.slice(rp, app.indexOf("\n}\n", app.indexOf("function", rp)));
+  const glowLines = app.split("\n").filter((l) => /\.glow\b|" glow"|logGlows/.test(l) && !/^\s*\/\//.test(l));
+  check(/\.road \.mini\.glow \{[^}]*box-shadow: 0 0 12px -2px color-mix\(in srgb, var\(--c\)/.test(app) && rp > 0 && !/glow/i.test(page) && glowLines.length === 3 && /logGlows\(m, h, road\) \? " glow"/.test(card), "soft glow in the section colour, Flight Log card only (Road page untouched)"); }
+check(cur(cryo).filter((h) => A.logGlows(cryo, h, live)).map((h) => h.log_text).join("|") === "Ship 42 completed further cryo tests.|Booster 22 completed its cryo test at Massey's." && A.rollupStatus(cryo, live) === "done", "Cryo: S42 and B22 boxes glow → the Cryo dot fills");
+for (const c of live.categories) {
+  const vs = live.vehicles, own = cur(c).filter((h) => A.logGlows({ id: c.id }, { ...h, milestone: { ...(h.milestone || {}), phase: "completed" } }, live)); // vehicle boxes in a roll-up section
+  const latest = vs.map((v) => cur(c).find((h) => own.includes(h) && (h.milestone && h.milestone.hardware || h.hardware || "").toUpperCase().replace(/^SHIP ?/, "S").replace(/^BOOSTER ?/, "B") === v));
+  const allGlow = latest.every((h) => h && A.logGlows(c, h, live));
+  check((A.rollupStatus({ ...c, status: "progress" }, live) === "done") === (own.length > 0 && allGlow), `${c.id}: dot fills exactly when every vehicle's box glows`);
+}
+check(!A.logGlows(live.categories.find((c) => c.id === "pad"), { hardware: "B22", milestone: { phase: "completed" }, flight: 15 }, live) && !A.logGlows(cryo, { hardware: "B22", milestone: { phase: "progress" }, flight: 15 }, live), "no glow outside the vehicle test sections or on unfinished boxes");
+
+// the wrong 9 Sep S42 line can't come back
+const JS = JSON.stringify(live);
+check(!/heads back to Massey's for further cryo testing/.test(JS.replace(JSON.stringify(live.rejected_lines), "")) && live.rejected_lines.some((r) => r.box === "cryo" && r.date === "9 Sep"), "the 9 Sep S42 line is gone and listed in rejected_lines");
+{ const seed = { flight: 15, vehicles: ["B22", "S42"], rejected_lines: live.rejected_lines, categories: [{ id: "cryo", history: [
+  { date: "9 Oct", text: "Ship 42 completed further cryo tests.", trust: "trusted", flight: 15, milestone: { key: "cryo_test|15|S42", type: "cryo_test", flight: 15, hardware: "S42", phase: "completed", migrated: true } },
+  { date: "9 Sep", text: "Ship 42 heads back to Massey's for further cryo testing.", src: "NSF (secondary)", trust: "trusted", flight: 15, milestone: { key: "cryo_test|15|S42", type: "cryo_test", flight: 15, hardware: "S42", phase: "progress", migrated: true } },
+  { date: "3–4 Sep", text: "Ship 42 completes its first cryo tests.", trust: "trusted", flight: 15, milestone: { key: "cryo_test|15|S42", type: "cryo_test", flight: 15, hardware: "S42", phase: "progress", migrated: true } }] }] };
+  require("./migrate-lifecycle.js").migrate(seed);
+  const u = seed.categories[0].history[0].updates || [];
+  check(seed.categories[0].history.length === 1 && u.length === 1 && u[0].date === "3–4 Sep", "migration drops the rejected 9 Sep line instead of folding it in");
+  const mix = { categories: [{ id: "cryo", history: [{ date: "9 Oct", text: "x", updates: [{ date: "9 Sep", text: "Some other wording of the same story." }, { date: "3–4 Sep", text: "y" }] }] }] };
+  L.scrubRejected(mix);
+  check(mix.categories[0].history[0].updates.map((x) => x.date).join() === "3–4 Sep" && L.isMonthMixup({ date: "9 Oct" }, { date: "9 Sep" }) && !L.isMonthMixup({ date: "9 Oct" }, { date: "9 Sep", url: "https://x.com/a/status/1" }), "an unsourced line dated the entry's day in another month is dropped on every save");
+}
 
 // 3. style lint on every log line
 const all = live.categories.flatMap((c) => [c.log_latest, ...cur(c).flatMap((h) => [h.log_text, ...(h.updates || []).map((u) => u.log_text)])]);

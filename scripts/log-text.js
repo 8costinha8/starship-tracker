@@ -36,16 +36,20 @@ function cleanLogText(s) {
   t = t.charAt(0).toUpperCase() + t.slice(1);
   return lintLogText(t).length ? null : t;
 }
-// One single day for the Flight Log: explicit log_date, else the entry's own day (a range → its first day), else the time's UK day.
+// The Flight Log day: the source's own day or day range ("3–4 Sep", "9–10 Sep"), never a clock time.
+// log_date, else the entry's date with any time stripped, else the post's UK day.
+const DAY_RE = /^(\d{1,2}(?: [A-Z][a-z]{2})?\s*[–-]\s*)?\d{1,2} [A-Z][a-z]{2}/;
 function logDay(h) {
   if (!h) return "";
   if (h.log_date) return h.log_date;
-  const m = String(h.date || "").match(/(\d{1,2})\s*(?:[–-]\s*\d{1,2}\s*)?([A-Z][a-z]{2})/);
-  if (m) return `${Number(m[1])} ${m[2]}`;
+  const m = String(h.date || "").replace(/\s*-\s*/g, "–").match(DAY_RE);
+  if (m) return m[0].replace(/\s*–\s*/, "–");
   const iso = h.publishedAt || h.at;
   return iso && Number.isFinite(Date.parse(iso)) ? ukDay(iso) : "";
 }
 const hwOf = (h) => { const raw = (h.milestone && h.milestone.hardware) || h.hardware || ""; const m = String(raw).match(/^\s*(?:Ship\s*|S)(\d+)|^\s*(?:Booster\s*|B)(\d+)/i); return m ? (m[1] ? "S" + m[1] : "B" + m[2]) : null; };
+// A vehicle box is finished (glows on the Flight Log; all glowing → the section dot fills).
+const logDone = (h) => !!h && ((h.milestone && h.milestone.phase === "completed") || h.complete === true);
 const ROLLUP_SECTIONS = ["cryo", "raptor", "static"]; // per-vehicle test sections (pad work, FAA and the date never roll up)
 // Section status from its entries: every current-flight vehicle has a completed entry and none is open → "done".
 function rollupStatus(c, road) {
@@ -53,15 +57,37 @@ function rollupStatus(c, road) {
   const vs = (road.vehicles || []).map((v) => String(v).toUpperCase());
   const own = (c.history || []).filter((h) => h && h.kind !== "check" && !(h.flight > road.flight) && h.trust !== "unconfirmed" && hwOf(h));
   if (!vs.length || !own.length) return c.status;
-  const done = (h) => (h.milestone && h.milestone.phase === "completed") || h.complete === true;
+  const done = logDone;
   const latestPer = {};
   for (const h of own) if (!latestPer[hwOf(h)]) latestPer[hwOf(h)] = h; // history is newest first
   return vs.every((v) => latestPer[v] && done(latestPer[v])) && Object.values(latestPer).every(done) ? "done" : c.status;
 }
 const hasVehicleEntries = (c, road) => !!c && ROLLUP_SECTIONS.includes(c.id) && (road.vehicles || []).length > 0 && (c.history || []).some((h) => h && h.kind !== "check" && !(h.flight > road.flight) && h.trust !== "unconfirmed" && hwOf(h));
+// Lines Bernardo rejected as wrong (road.rejected_lines): never shown, never re-added by a merge or migration.
+const norm = (t) => String(t || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+function isRejected(road, boxId, line) {
+  return ((road && road.rejected_lines) || []).some((r) => r.box === boxId && (norm(r.text) === norm(line.log_text) || norm(r.text) === norm(line.text)) && (!r.date || r.date === line.date));
+}
+// An unsourced build-up line (no link, no time) dated the same day number as its entry but a different
+// month is the entry's own story with the month mixed up (how "9 Sep" crept in for the 9 Oct S42 story).
+function isMonthMixup(head, u) {
+  if (!head || !u || u.url || u.at) return false;
+  const d = (s) => (String(s || "").match(/(\d{1,2}) ([A-Z][a-z]{2})\s*$/) || []).slice(1);
+  const [hd, hm] = d(head.date), [ud, um] = d(u.date);
+  return !!hd && hd === ud && hm !== um;
+}
+// Drops rejected lines and month mix-ups from every box (entries and build-up). Returns what it dropped.
+function scrubRejected(road) {
+  const out = [];
+  for (const c of (road && road.categories) || []) {
+    c.history = (c.history || []).filter((h) => { if (h && h.kind !== "check" && isRejected(road, c.id, h)) { out.push(`${c.id} ${h.date} ${h.text}`); return false; } return true; });
+    for (const h of c.history) if (Array.isArray(h.updates)) h.updates = h.updates.filter((u) => { if (isRejected(road, c.id, u) || isMonthMixup(h, u)) { out.push(`${c.id} ${u.date} ${u.text}`); return false; } return true; });
+  }
+  return out;
+}
 // The section's Flight Log headline: the newest current-flight trusted entry's log line.
 function sectionLatest(c, road) {
   const h = (c.history || []).find((x) => x && x.kind !== "check" && !(x.flight > road.flight) && x.trust !== "unconfirmed" && x.log_text);
   return h ? h.log_text : c.log_latest || null;
 }
-module.exports = { lintLogText, cleanLogText, logDay, rollupStatus, hasVehicleEntries, sectionLatest, hwOf, ukDay };
+module.exports = { scrubRejected, logDone, isRejected, isMonthMixup, lintLogText, cleanLogText, logDay, rollupStatus, hasVehicleEntries, sectionLatest, hwOf, ukDay };

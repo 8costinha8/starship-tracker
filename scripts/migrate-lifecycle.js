@@ -38,6 +38,7 @@ function tierFor(h) {
 }
 const vehicleOf = (h, text) => hwKey(h.hardware) || ((String(text).match(/\b(?:Ship|S)\s?(\d{2,3})\b|\b(?:Booster|B)\s?(\d{2,3})\b/) || []).slice(1).map((d, i) => d && (i ? "B" : "S") + d).find(Boolean)) || null;
 
+const LT = require("./log-text.js");
 function migrate(road) {
   let touched = 0, folded = 0;
   for (const c of road.categories || []) {
@@ -59,6 +60,7 @@ function migrate(road) {
       }
       if (h.milestone && h.milestone.phase === "completed") h.complete = true; else delete h.complete;
       const k = h.milestone && h.milestone.key, head = k && open.get(k);
+      if (head && h.milestone.migrated && !h.manual && !head.manual && (LT.isRejected(road, c.id, h) || LT.isMonthMixup(head, h))) { folded++; continue; } // a rejected line or a month mix-up of the entry's own story is dropped, never folded in
       if (head && h.milestone.migrated && !h.manual && !head.manual) { // hand-made cards stay their own entry // older line of the same milestone: under the newest entry as build-up
         head.updates = [...(head.updates || []), { date: h.date, at: h.at, text, url: h.url, src: h.src, phase: h.milestone.phase, tier: h.tier }].slice(0, 20);
         if (h.x_posts) head.x_posts = [...new Set([...(head.x_posts || []), ...h.x_posts])];

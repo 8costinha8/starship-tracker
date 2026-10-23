@@ -1507,6 +1507,7 @@ async function run(opts = {}) {
       road.updated = fmtDay();
       road.updatedAt = new Date().toISOString();
     }
+    { const dropped = logText.scrubRejected(road); if (dropped.length) log(`dropped rejected / month-mixed-up line(s): ${dropped.join(" | ")}`); }
     validateRoad(road);
     mission.validateMission(road);
     predict.validatePredicted(road);
