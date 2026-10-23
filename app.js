@@ -1118,13 +1118,12 @@ function boxLatest(m, road) {
 // open dated timeline (newest first), section status rolled up from its cards.
 const SEC_TEXT = { expected: "Expected", progress: "In progress", completed: "Completed" };
 const DOT_FILL = (() => { try { return new URLSearchParams(location.search).get("dot") === "colour" ? "colour" : "white"; } catch { return "white"; } })(); // preview: ?dot=colour variant
-// Two separate views over ONE derive layer (RoadCards.buildRoadModel): the shared VehicleCardList
-// renders structure only; each view decides what its latest box carries. No page flags.
-function VehicleCardList({ sec, renderLatestExtra }) {
+function VehicleCards({ sec, images, road }) {
   if (!sec.cards.length) return <p className="vc-none">Nothing reported yet.</p>;
   const stop = (e) => e.stopPropagation();
   return (<div className="vcards">{sec.cards.map((c) => {
     const ids = [...new Set(c.lines.map((l) => l.entry && l.entry.id).filter(Boolean))];
+    const ml = c.mediaLine, mh = ml && ml.entry ? { ...ml.entry, url: (c.media && c.media.post_url) || ml.url, src: c.media && c.media.author ? "@" + c.media.author : ml.src } : null;
     const meta = (b) => <div className="vb-meta">{b.place ? <>📍 {b.place} · </> : null}{b.date}</div>;
     return (
       <div key={c.key} className={"vcard" + (c.completed ? " vc-done" : "")} style={{ "--c": sec.box.color }} data-card={c.key} data-status={c.status}
@@ -1133,7 +1132,8 @@ function VehicleCardList({ sec, renderLatestExtra }) {
         {c.boxes.map((b, k) => k === 0
           ? <div key={b.n} className={"vbox vb-open" + (b.completed ? " vb-done" : "")} data-n={b.n}>
               <div className="vb-title">{b.title}</div>{meta(b)}<p className="vb-text">{scrub(b.text)}</p>
-              {renderLatestExtra ? renderLatestExtra(c) : null}
+              {images && c.media && !c.media.credit_only && <VcImage m={c.media} />}
+              {images && mh && <CreditLine h={mh} />}
             </div>
           : <details key={b.n} className="vbox vb-old" data-n={b.n} onClick={stop}>
               <summary><span className="vb-title">{b.title}</span><span className="vb-date">{b.date}</span><svg className="vb-chev" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5l4 4 4-4" stroke="currentColor" strokeWidth="1.7" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg></summary>
@@ -1141,16 +1141,6 @@ function VehicleCardList({ sec, renderLatestExtra }) {
             </details>)}
       </div>);
   })}</div>);
-}
-// Flight Log Road box: simple text only
-function FlightLogRoadView({ sec }) { return <VehicleCardList sec={sec} />; }
-// Road page: post-style richness, the card's one image and the '@handle · View on X' line on the latest box
-function RoadPageView({ sec }) {
-  const extra = (c) => {
-    const ml = c.mediaLine, mh = ml && ml.entry ? { ...ml.entry, url: (c.media && c.media.post_url) || ml.url, src: c.media && c.media.author ? "@" + c.media.author : ml.src } : null;
-    return (<>{c.media && !c.media.credit_only && <VcImage m={c.media} />}{mh && <CreditLine h={mh} />}</>);
-  };
-  return <VehicleCardList sec={sec} renderLatestExtra={extra} />;
 }
 function VcImage({ m }) {
   const [bad, setBad] = React.useState(false);
@@ -1169,17 +1159,18 @@ function RoadCard({ road, onEntryTap, openReq }) {
   const [main, setMain] = React.useState(false);
   React.useEffect(() => { if (openReq) setMain(true); }, [openReq]); // header chip asks it to open
   const [open, setOpen] = React.useState(null);
-  const model = React.useMemo(() => (road && Array.isArray(road.categories) && window.RoadCards ? window.RoadCards.buildRoadModel(road, undefined, { hidden: ROAD_HIDDEN }) : null), [road]);
-  const items = model ? model.sections : [];
+  const model = React.useMemo(() => (road && Array.isArray(road.categories) && window.RoadCards ? window.RoadCards.roadModel(road) : null), [road]);
+  const items = model ? model.sections.filter((x) => !ROAD_HIDDEN.includes(x.box.id)) : [];
   if (!items.length) return null;
   const title = `Road to Flight ${road.flight}`;
+  const done = items.filter((x) => x.status === "completed").length;
   return (
     <section className={"road" + (main ? " main-open" : "")} aria-label={title}>
       <button className="road-head" aria-expanded={main} onClick={() => { setMain(!main); setOpen(null); }}>
         <span className="road-title"><h2>{title}</h2>{road.updated && <span className="road-upd">{`Updated ${road.updated}`}</span>}</span>
         <span className="road-sum">
-          <span className={"road-dots fill-" + DOT_FILL}>{items.map((x) => <i key={x.box.id} className={"dot " + x.dot} data-id={x.box.id} style={{ "--c": x.box.color }} title={x.box.name + ": " + SEC_TEXT[x.status]} aria-label={x.box.name + ": " + SEC_TEXT[x.status]} role="img" />)}</span>
-          <span className="road-count">{model.count}</span>
+          <span className={"road-dots fill-" + DOT_FILL}>{items.map((x) => <i key={x.box.id} className={"dot sdot-" + x.status} data-id={x.box.id} style={{ "--c": x.box.color }} title={x.box.name + ": " + SEC_TEXT[x.status]} aria-label={x.box.name + ": " + SEC_TEXT[x.status]} role="img" />)}</span>
+          <span className="road-count">{done} of {items.length} done</span>
           <svg className="road-chev" width="20" height="20" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5l4 4 4-4" stroke="currentColor" strokeWidth="1.7" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </span>
       </button>
@@ -1197,7 +1188,7 @@ function RoadCard({ road, onEntryTap, openReq }) {
               <span className={"badge sbadge-" + x.status}>{SEC_TEXT[x.status]}</span>
             </button>
             <div className="callout-hist"><div className="callout-hist-inner">
-              <FlightLogRoadView sec={x} />
+              <VehicleCards sec={x} images={false} road={road} /> {/* Flight Log box: text only */}
             </div></div>
           </div>
         );
@@ -1356,7 +1347,7 @@ function buildFeed(road) {
   // Road milestones: one block per section per flight (vehicle cards with one image each), placed in the flight's
   // section by its newest line; ordered by the Road's own section order
   const RC = window.RoadCards, flights = RC ? [...new Set([road.flight, ...RC.flightsIn(road)])] : [];
-  flights.forEach((n) => RC.buildRoadModel(road, n, { hidden: ROAD_HIDDEN }).sections.forEach((sec, ci) => { if (!sec.cards.length) return;
+  flights.forEach((n) => RC.roadModel(road, n).sections.forEach((sec, ci) => { if (ROAD_HIDDEN.includes(sec.box.id) || !sec.cards.length) return;
     posts.push({ sec, cat: sec.box, ci, hi: 0, id: `sec-${n}-${sec.box.id}`, flight: n, when: 1e15 - ci, at: Math.max(...sec.cards.map((c) => c.at)) }); }));
   // pushes with no Road box (Starship news, flight-checker alerts): the push's own title, text, source link and time
   (Array.isArray(road.feed_items) ? road.feed_items : []).forEach((f, fi) => { if (!f || !f.id || !f.body) return;
@@ -1471,7 +1462,7 @@ function RoadSection({ p, road }) {
     <article className="post rsec" id={`post-${p.id}`} data-id={p.id} data-sec={sec.box.id} data-status={sec.status} style={{ "--c": sec.box.color }}>
       <div className="post-top"><span className="chip"><span className="chip-i">{sec.box.icon}</span>{sec.box.name}</span>
         <span className={"badge sbadge-" + sec.status}>{SEC_TEXT[sec.status]}</span></div>
-      <RoadPageView sec={sec} />
+      <VehicleCards sec={sec} images={true} road={road} />
     </article>);
 }
 function FeedPost({ p, onPhotoTap }) {
