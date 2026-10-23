@@ -213,7 +213,7 @@ function placePost(road, post, cls, now = Date.now(), picks = []) {
   if (type) { entry.milestone = { key: mk, type, flight, hardware: key || null, phase }; if (!Number.isInteger(entry.flight) && flight !== road.flight) entry.flight = flight; if (phase === "completed") entry.complete = true; }
   if (!entry.media_override && type) { const cx = contextImage(road, cls.stage, cls.hardware, entry.id, picks); if (cx) entry.media_context = cx; }
   box.history = [entry, ...(box.history || [])].slice(0, 12);
-  box.latest = cls.text.slice(0, 160);
+  if (!(entry.flight > road.flight) && entry.trust !== "unconfirmed") box.latest = cls.text.slice(0, 160); // a later flight's post never becomes this flight's headline
   return { box, entry, merged: false, accurate, tier, phase: type ? { from: null, to: phase } : null };
 }
 

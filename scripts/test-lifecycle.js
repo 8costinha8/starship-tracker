@@ -32,4 +32,9 @@ check(r.accurate === false && r.entry.trust === "unconfirmed", "vehicle number n
 // 6. unrelated media → no picture
 r = xf.placePost(road, post("17", "NASASpaceflight", "2026-10-21T11:00:00Z", "Pad 2 BQD purge", "launch"), { ...c("progress", "Pad 2 BQDs are purging."), hardware: "Pad 2", event: "pad_work", media_fit: "unrelated" });
 check(!r.entry.media_override, "media that doesn't match the text is dropped");
+// 6. a later flight's post (B23 → Flight 16) never becomes Flight 15's box headline
+{ const rr = { flight: 15, categories: [{ id: "cryo", name: "Cryo tests", status: "progress", latest: "Ship 42 back for a third cryo test", history: [] }] };
+  const q = xf.placePost(rr, post("31", "StarshipGazer", "2026-10-16T00:24:07Z", "Booster 23 during cryogenic proof testing", "b23"), { ...c("progress", "Booster 23 is in cryo proof testing at Massey's."), stage: "cryo", hardware: "B23", event: "cryo_test", flight: 16 });
+  check(q.entry.flight === 16 && rr.categories[0].latest === "Ship 42 back for a third cryo test", "Flight 16 entry (B23) leaves the Flight 15 box headline alone"); }
+
 console.log(fails ? `\n${fails} FAILED` : "\nall passed"); process.exit(fails ? 1 : 0);

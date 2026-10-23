@@ -105,7 +105,7 @@ const xReply = (posts, newest) => ({ ok: true, status: 200, json: async () => ({
     check(before === 2 && after === 1 && tiers.TIER2.length === 11, "proposed accounts only apply with SOURCE_TIERS_PROPOSED=1 (live list unchanged)"); }
   // app
   const app = fs.readFileSync(path.join(ROOT, "app.js"), "utf8");
-  check(/function TierTag/.test(app) && /<TierTag t=\{h\.tier\} src=\{h\.src\}/.test(app), "app: tier label + @handle on milestone entries");
+  check(/function TierTag/.test(app) && /<TierTag t=\{h\.tier\} src=\{srcOf\(h\)\}/.test(app) && /mini-src">\{srcOf\(h\)\}/.test(app) && /!\(h\.milestone && h\.tier\) && <span className="mini-src">/.test(app), "app: tier label + @handle on milestone entries (the handle shows once: no second source chip)");
   check(/const PLAY_ICON = null/.test(app) && /get\("entry"\)/.test(app) && /data-entry=\{h\.id/.test(app), "app: no play badge; ?entry= scrolls to and highlights the card");
   check(/Number\.isInteger\(h\.flight\)\) return h\.flight/.test(app) && /rank\(a\.flight\) - rank\(b\.flight\) \|\| b\.when - a\.when/.test(app) && /!\(h\.flight > road\.flight\)/.test(app), "flight sections are data-driven (entry flight tag), next flight on top, later flights below, newest first by post date; later flights stay off the Starship card");
   { const live = JSON.parse(fs.readFileSync(path.join(ROOT, "road.json"), "utf8")); const b23 = live.categories.find((c) => c.id === "cryo").history.find((h) => h.id === "x-2110889490336350574");

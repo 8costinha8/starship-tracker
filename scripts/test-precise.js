@@ -50,7 +50,7 @@ async function runWith(items, answer, vis) {
   check(h.x_post.media.length === 0, "vision call fails → no picture");
   // 4. app: Road card and Road page both show the rewritten text; picture only on the Road page
   const app = fs.readFileSync(path.join(ROOT, "app.js"), "utf8");
-  check(/<p>\{h\.x_text \|\| h\.text\}<\/p>/.test(app) && /post-text">\{h\.x_text \|\| h\.text\}/.test(app), "Road card and Road page both use the rewritten text");
+  check(/<p>\{scrub\(h\.x_text \|\| h\.text\)\}<\/p>/.test(app) && /post-text">\{scrub\(h\.x_text \|\| h\.text\)\}/.test(app), "Road card and Road page both use the rewritten text");
   check(/h\.x_post && <XMedia/.test(app) && !/mini[^\n]*XMedia/.test(app), "pictures only on the Road page (Road card stays text only)");
   // 4b. hand-picked pictures win over the automatic check and over a mismatched rewrite
   {
@@ -67,7 +67,7 @@ async function runWith(items, answer, vis) {
     check(!c.media_override, "no pick → automatic check stays");
     const n = road.notificationFor({ flight: 15 }, { box: { icon: "❄️", name: "Cryo" }, entry: a, from: "progress", to: "progress" });
     check(n.image === "https://pbs.twimg.com/pick.jpg", "push uses the picked picture");
-    check(road.loadMediaPicks().length === 14 && road.loadMediaPicks().filter((p) => p.context_only).length === 1, "repo road-media.json has the 14 picks (10 + the manual Flight 16 B23 card + the 2 backfill cards of 19 Oct + 1 context-only Pad 2 shot)");
+    check(road.loadMediaPicks().length === 15 && road.loadMediaPicks().filter((p) => p.context_only).length === 1, "repo road-media.json has the 15 picks (10 + the manual Flight 16 B23 card + the 2 backfill cards of 19 Oct + 1 context-only Pad 2 shot + the 14 Oct Raptor reinstall photo)");
     const appSrc = fs.readFileSync(path.join(ROOT, "app.js"), "utf8");
     check(/h\.media_override \? <PickMedia/.test(appSrc) && /media_override && h\.media_override\.post_url/.test(appSrc), "app: picked picture shown, card links to the picked post");
   }

@@ -136,7 +136,15 @@ function ukStamp(iso, withTime = true) {
 const LONG_MON = { January: "Jan", February: "Feb", March: "Mar", April: "Apr", June: "Jun", July: "Jul", August: "Aug", September: "Sep", Sept: "Sep", October: "Oct", November: "Nov", December: "Dec" };
 const normDay = (s) => typeof s === "string" ? s.replace(/\b(January|February|March|April|June|July|August|September|Sept|October|November|December)\b/g, (m) => LONG_MON[m]).replace(/(\d{1,2})\s*[-–—]\s*(\d{1,2})\b/g, "$1–$2") : s;
 // An entry's date: its post time when known (full stamp), else its stored day label (date only).
-const entryDate = (h) => { const iso = h && (h.publishedAt || h.at); return iso && Number.isFinite(Date.parse(iso)) ? ukStamp(iso) : normDay(h && h.date); };
+const postIdOf = (h) => h && ((h.media_override && (h.media_override.post_id || (String(h.media_override.post_url || "").match(/status\/(\d+)/) || [])[1])) || (h.x_post && h.x_post.post_id) || (String(h.url || "").match(/x\.com\/[^/]+\/status\/(\d+)/) || [])[1]);
+const sfIso = (id) => { try { return new Date(Number((BigInt(id) >> 22n) + 1288834974657n)).toISOString(); } catch { return ""; } };
+// THE date formatter: every date in the app goes through ukStamp (or fmtDay for a stored day label).
+const fmtDay = (s) => normDay(s);
+const entryDate = (h) => { const iso = h && (h.publishedAt || h.at || (/^\d{1,2} [A-Z][a-z]{2}$/.test(normDay(h.date) || "") && postIdOf(h) && sfIso(postIdOf(h)))); return iso && Number.isFinite(Date.parse(iso)) ? ukStamp(iso) : fmtDay(h && h.date); };
+// No public source names in the UI: @handles stay, outlet names are removed.
+const SRC_NAMES = /\s*(?:\(|\b)(?:per|via|from|according to)?\s*(?:NASASpaceflight(?:\.com)?|NSF|Spaceflight Now|SpaceNews|Teslarati|Next ?Spaceflight|LL2|Launch Library 2?|Spaceflight News API|LabPadre|Ars Technica|Space\.com)\b(?:\s*[-–]\s*NASASpaceflight\.com)?\)?/gi;
+const scrub = (s) => typeof s !== "string" ? s : s.replace(SRC_NAMES, "").replace(/\(\s*(unofficial|secondary|estimate)\s*\)/gi, "($1)").replace(/\s*·\s*(?=·|$)/g, "").replace(/^\s*·\s*/, "").replace(/\s{2,}/g, " ").trim();
+const uiSrc = (s) => { if (typeof s !== "string" || !s) return ""; if (/^@\w+$/.test(s.trim())) return s.trim(); const t = scrub(s).replace(/^(estimate|\(unofficial\)|\(secondary\)|\(estimate\))$/i, ""); return /^(FAA|SpaceX)\b/.test(t) ? t.replace(/\s+via\s*$/i, "") : ""; };
 // For the next-flight card specifically: local launch time and date together,
 // in the UK's own timezone (auto-adjusts BST/GMT), so there's no ambiguity.
 const fmtDateTimeLondon = (iso) => ukStamp(iso);
@@ -166,8 +174,8 @@ const WATCH_LIVE_URL = "https://x.com/SpaceX";
 const WATCH_LINKS = [
   { label: "SpaceX on X", href: "https://x.com/SpaceX" },
   { label: "SpaceX website", href: "https://www.spacex.com/launches/" },
-  { label: "NASASpaceflight", href: "https://www.youtube.com/channel/UCSUu1lih2RifWkKtDOJdsBA/live" },
-  { label: "LabPadre", href: "https://www.youtube.com/channel/UCFwMITSkc1Fms6PoJoh1OUQ/live" },
+  { label: "Live pad cam 1", href: "https://www.youtube.com/channel/UCSUu1lih2RifWkKtDOJdsBA/live" },
+  { label: "Live pad cam 2", href: "https://www.youtube.com/channel/UCFwMITSkc1Fms6PoJoh1OUQ/live" },
 ];
 
 const reduceMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -748,13 +756,13 @@ function NextFlightCard({ f, checkedAt, road, children }) {
       </div>
       <div className="next-title"><span className="t-word">Starship Flight</span><span className="t-num">{f.n || "—"}</span></div>
       <dl className="facts">
-        <dt>{dateLabel}</dt><dd>{dateText}{predicted && predicted.basis && <span className="pred-basis">{predicted.basis}</span>}</dd>
+        <dt>{dateLabel}</dt><dd>{dateText}{predicted && scrub(predicted.basis) && <span className="pred-basis">{scrub(predicted.basis)}</span>}</dd>
         {win && <><dt>Window</dt><dd>{win}</dd></>}
         <dt>Site</dt><dd>{siteLine(f)}</dd>
         <dt>Vehicle</dt><dd>{vehicleLine(f)}</dd>
       </dl>
-      <p className="next-note">{f.note}</p>
-      {missionLines(road, f.n).map((u, i) => <p className="next-upd" key={i}>{u.line}</p>)}
+      <p className="next-note">{scrub(f.note)}</p>
+      {missionLines(road, f.n).map((u, i) => <p className="next-upd" key={i}>{scrub(u.line)}</p>)}
       {showWatch && (
         <div className="watch-where">
           <span className="watch-where-h">Where to watch</span>
@@ -787,7 +795,7 @@ function FlightCard({ f, open, onTap, onPhotoTap, register, road }) {
             <div className="title"><span className="t-word">Starship Flight</span><span className="t-num">{f.n}</span></div>
             <Pill outcome={f.outcome} />
           </div>
-          <div className="date">{fmt(f.date, { day: "numeric", month: "short", year: "numeric" })}</div>
+          <div className="date">{ukStamp(f.date, false)}</div>
           <div className="sub">{f.pad}, {siteLabel(f)}</div>
           <div className="sub">{f.block} · {f.booster} / {f.ship}</div>
         </div>
@@ -814,7 +822,7 @@ function FlightCard({ f, open, onTap, onPhotoTap, register, road }) {
                       <span className="past-veh">{e.vehicle}</span>
                       <span className="past-pill">{e.label}</span>
                     </div>
-                    <p>{e.text}</p>
+                    <p>{scrub(e.text)}</p>
                   </div>
                 ))}
               </div>
@@ -1083,6 +1091,27 @@ function useRoad() {
   return road;
 }
 
+// Lifecycle + tier tags on their own row under the date (never squeezed into the date line).
+function Tags({ h }) {
+  const phase = h.milestone && !h.hedged, tier = h.milestone && h.tier, unc = h.trust === "unconfirmed";
+  if (!phase && !tier && !unc && !h.demo) return null;
+  return (<div className="mini-tags">{phase && <span className={"mini-phase ph-" + h.milestone.phase}>{PHASE_LABEL[h.milestone.phase]}</span>}
+    {tier && <TierTag t={h.tier} src={srcOf(h)} rep={h.reported} hedged={h.hedged} />}{unc && <span className="mini-unc">Unconfirmed</span>}{h.demo && <span className="mini-unc">DEMO</span>}</div>);
+}
+// The entry's own picture in the Road card (same picture as its feed card).
+function MiniMedia({ h }) {
+  const [bad, setBad] = React.useState(false);
+  const x = h.x_post && Array.isArray(h.x_post.media) ? h.x_post.media.find((m) => m && (m.url || m.preview_image_url)) : null;
+  const src = (h.media_override && h.media_override.image) || (h.media_context && h.media_context.image) || (!h.milestone && x && (x.url || x.preview_image_url)) || null;
+  if (bad || !src) return null;
+  return <div className="mini-media"><img src={src} alt="" loading="lazy" referrerPolicy="no-referrer" onError={() => setBad(true)} />{h.media_context && !h.media_override && <span className="mini-ctx">Earlier photo</span>}</div>;
+}
+// A box's headline comes from this flight's own entries: a later flight's post (B23 for Flight 16) never replaces it.
+function boxLatest(m, road) {
+  const own = (m.history || []).filter((h) => isRealEntry(h) && !(h.flight > road.flight) && !isLaunched(h.flight) && h.trust !== "unconfirmed");
+  const later = (m.history || []).some((h) => h.flight > road.flight && (h.x_text || h.text || "").slice(0, 60) === String(m.latest || "").slice(0, 60));
+  return later ? (own[0] ? (own[0].x_text || own[0].text) : "Nothing reported yet") : m.latest;
+}
 function RoadCard({ road, onEntryTap, openReq }) {
   const [main, setMain] = React.useState(false);
   React.useEffect(() => { if (openReq) setMain(true); }, [openReq]); // header chip asks it to open
@@ -1111,7 +1140,7 @@ function RoadCard({ road, onEntryTap, openReq }) {
               <span className="callout-icon">{m.icon}</span>
               <span className="callout-body">
                 <span className="callout-name">{m.name}</span>
-                <span className="callout-latest">{m.status === "complete" ? "Done" : m.latest}</span>
+                <span className="callout-latest">{m.status === "complete" ? "Done" : scrub(boxLatest(m, road))}</span>
               </span>
               <span className={"badge badge-" + m.status}>{label(m)}</span>
             </button>
@@ -1121,10 +1150,12 @@ function RoadCard({ road, onEntryTap, openReq }) {
                   {...(onEntryTap ? { role: "button", tabIndex: isOpen ? 0 : -1, "aria-label": `${entryDate(h)}: ${h.text}. Show in the updates feed`,
                     onClick: () => onEntryTap(m.id, i), onKeyDown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onEntryTap(m.id, i); } } } : {})}>
                   <div className="mini-top">
-                    <span className="mini-date">{entryDate(h)}{h.milestone && !h.hedged && <span className={"mini-phase ph-" + h.milestone.phase}>{PHASE_LABEL[h.milestone.phase]}</span>}{h.milestone && <TierTag t={h.tier} src={h.src} rep={h.reported} hedged={h.hedged} />}{h.trust === "unconfirmed" && <span className="mini-unc">Unconfirmed</span>}{h.demo && <span className="mini-unc">DEMO</span>}</span>
-                    <span className="mini-src">{srcOf(h)}</span>
+                    <span className="mini-date">{entryDate(h)}</span>
+                    {!(h.milestone && h.tier) && <span className="mini-src">{srcOf(h)}</span>}
                   </div>
-                  <p>{h.x_text || h.text}</p>
+                  <Tags h={h} />
+                  <p>{scrub(h.x_text || h.text)}</p>
+                  <MiniMedia h={h} />
                   <BuildUp h={h} />
                 </div>
               ))}
@@ -1145,7 +1176,7 @@ const PHASE_LABEL = { expected: "Expected", progress: "In progress", completed: 
 const TIER_LABEL = { 1: "Confirmed", 2: "Reported", 3: "Rumour" }; // Tier 3 shows only as Expected // source tier (scripts/source-tiers.js)
 function TierTag({ t, src, rep, hedged }) {
   if (!t) return null;
-  return <span className={"mini-tier tier-" + t}>{t === 1 && hedged ? "Expected" : TIER_LABEL[t]}{t === 2 && rep ? " " + PHASE_LABEL[rep].toLowerCase() : ""}{src ? " · " + src : ""}</span>;
+  return <span className={"mini-tier tier-" + t}>{t === 1 && hedged ? "Expected" : TIER_LABEL[t]}{t === 2 && rep ? " " + PHASE_LABEL[rep].toLowerCase() : ""}{uiSrc(src) ? " · " + uiSrc(src) : ""}</span>;
 }
 function BuildUp({ h }) {
   const ups = Array.isArray(h.updates) ? h.updates.filter((u) => u && u.text) : [];
@@ -1154,7 +1185,7 @@ function BuildUp({ h }) {
   return (
     <details className="buildup" onClick={stop}>
       <summary>{h.milestone && h.milestone.phase === "completed" ? `Build-up (${ups.length})` : `Earlier updates (${ups.length})`}</summary>
-      <ul>{ups.map((u, i) => <li key={i}><span className="bu-date">{entryDate(u)}</span>{u.tier ? <span className={"mini-tier tier-" + u.tier}>{TIER_LABEL[u.tier]}{u.src ? " · " + u.src : ""}</span> : null} {u.url ? <a href={u.url} target="_blank" rel="noopener noreferrer" onClick={stop}>{u.text}</a> : u.text}</li>)}</ul>
+      <ul>{ups.map((u, i) => <li key={i}><span className="bu-date">{entryDate(u)}</span>{u.tier ? <span className={"mini-tier tier-" + u.tier}>{TIER_LABEL[u.tier]}{uiSrc(u.src) ? " · " + uiSrc(u.src) : ""}</span> : null} {u.url ? <a href={u.url} target="_blank" rel="noopener noreferrer" onClick={stop}>{u.text}</a> : u.text}</li>)}</ul>
     </details>
   );
 }
@@ -1382,7 +1413,7 @@ function XMedia({ x }) {
   );
 }
 // An entry with an X post credits and links the post's author, so text, media and credit match.
-const srcOf = (h) => (h.media_override ? `@${h.media_override.author}` : h.x_post && h.x_post.author && h.x_post.author.username ? `@${h.x_post.author.username}` : h.src);
+const srcOf = (h) => (h.media_override ? `@${h.media_override.author}` : h.x_post && h.x_post.author && h.x_post.author.username ? `@${h.x_post.author.username}` : uiSrc(h.src));
 const isYouTube = (u) => /(^|\.)(youtube\.com|youtu\.be)$/i.test(hostOf(u || ""));
 const urlOf = (h) => (h.media_override && h.media_override.post_url) || (h.x_post && h.x_post.url) || (h.url && !isYouTube(h.url) ? h.url : null); // YouTube sources: not clickable
 const openUrl = (u) => window.open(u, "_blank", "noopener,noreferrer");
@@ -1397,14 +1428,13 @@ function FeedPost({ p, onPhotoTap }) {
         <span className="chip"><span className="chip-i">{cat.icon}</span>{cat.name}</span>
         <span className="post-sep">·</span>
         <span className="post-date">{entryDate(h)}</span>
-        {h.milestone && !h.hedged && <span className={"mini-phase ph-" + h.milestone.phase}>{PHASE_LABEL[h.milestone.phase]}</span>}{h.milestone && <TierTag t={h.tier} src={h.src} rep={h.reported} hedged={h.hedged} />}
-        {h.trust === "unconfirmed" && <span className="mini-unc">Unconfirmed</span>}{h.demo && <span className="mini-unc">DEMO</span>}
       </div>
-      <p className="post-text">{h.x_text || h.text}</p>
+      <Tags h={h} />
+      <p className="post-text">{scrub(h.x_text || h.text)}</p>
       {h.media_override ? <PickMedia mo={h.media_override} /> : h.media_context ? <ContextMedia mc={h.media_context} /> : !h.milestone && h.x_post && <XMedia x={h.x_post} />}
       <BuildUp h={h} />
       <div className="post-foot">
-        <span className="post-src">{srcOf(h)}</span>
+        {!(h.milestone && h.tier) && <span className="post-src">{srcOf(h)}</span>}
         {urlOf(h) && <a className="post-link" href={urlOf(h)} target="_blank" rel="noopener noreferrer" aria-label={`Open source: ${srcOf(h)}`}>{LINK_ICON}</a>}
       </div>
     </article>
@@ -1484,10 +1514,13 @@ function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap }) {
           <div className="brand">Road to<span>{`Flight ${road.flight}`}</span></div>
           <span />
         </header>
+        {rows.filter((r) => r.section).length > 1 && <nav className="feed-jump" aria-label="Jump to a flight">{rows.filter((r) => r.section).map((r) => (
+          <button key={r.section.n} onClick={(e) => { const pane = e.currentTarget.closest(".feed"), el = pane && pane.querySelector(`#fsec-${r.section.n}`), head = pane && pane.querySelector(".feed-head");
+            if (el) pane.scrollTo({ top: Math.max(0, el.offsetTop - (head ? head.offsetHeight : 0) - 8), behavior: reduceMotion() ? "auto" : "smooth" }); }}>{`Flight ${r.section.n}`}</button>))}</nav>}
         <div className="feed-list">
           {rows.map((r) => r.section
-            ? <div className="fdiv" key={"f" + r.section.n}><span><b>{`Flight ${r.section.n}`}</b>{(r.section.flown || r.section.next) && <> <i>·</i> </>}{r.section.flown
-                ? <><span className={"fdiv-" + r.section.flown.outcome}>{OUTCOME_LABEL[r.section.flown.outcome] || r.section.flown.outcome}</span> <i>·</i> {`${new Date(r.section.flown.day).getUTCDate()} ${FEED_MONTHS[new Date(r.section.flown.day).getUTCMonth()]}`}</>
+            ? <div className="fdiv" id={`fsec-${r.section.n}`} key={"f" + r.section.n}><span><b>{`Flight ${r.section.n}`}</b>{(r.section.flown || r.section.next) && <> <i>·</i> </>}{r.section.flown
+                ? <><span className={"fdiv-" + r.section.flown.outcome}>{OUTCOME_LABEL[r.section.flown.outcome] || r.section.flown.outcome}</span> <i>·</i> {ukStamp(new Date(r.section.flown.day).toISOString(), false)}</>
                 : r.section.next ? <span className="fdiv-next">Next flight</span> : null}</span></div>
             : <FeedPost key={r.post.id} p={r.post} onPhotoTap={onPhotoTap} />)}
           <p className="end">That's every update so far.</p>
@@ -1772,7 +1805,7 @@ function StarshipTracker() {
             {chip}
           </div>
           {road && Array.isArray(road.categories)
-            ? <button className="round-btn feed-btn" onClick={() => setFeedOpen(true)} aria-label="Open updates feed">{FEED_ICON}</button>
+            ? <button className="round-btn feed-btn" onClick={() => { if (!wide) return setFeedOpen(true); const p = feedScroll.current; if (p) { p.scrollTo({ top: 0, behavior: reduceMotion() ? "auto" : "smooth" }); const pane = p.closest(".feed-pane"); if (pane) { pane.classList.remove("hl"); void pane.offsetWidth; pane.classList.add("hl"); setTimeout(() => pane.classList.remove("hl"), 1600); } } }} aria-label="Open updates feed">{FEED_ICON}</button>
             : <span />}
         </header>
 
@@ -2109,7 +2142,15 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .mini-done { background: linear-gradient(100deg, rgba(61,220,132,.14), rgba(61,220,132,.05)); border-color: rgba(61,220,132,.30); box-shadow: inset 3px 0 0 rgba(61,220,132,.75); } /* the update that finished the stage */
 .mini-check { border-style: dashed; } /* "no news yet" placeholder */
 .mini-phase { margin-left: 6px; font-size: 10.5px; font-weight: 700; padding: 1px 6px; border-radius: 6px; background: rgba(170,182,214,.16); color: #AAB6D6; }
-.post-top:has(.mini-tier) { flex-wrap: wrap; row-gap: 4px; }
+.mini-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin: 5px 0 2px; }
+.mini-tags .mini-unc, .mini-tags .mini-phase, .mini-tags .mini-tier { margin: 0; }
+.mini-media { position: relative; margin: 8px 0 2px; border-radius: 10px; overflow: hidden; aspect-ratio: 16 / 9; background: #0E1424; }
+.mini-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.mini-ctx { position: absolute; left: 6px; top: 6px; font-size: 10px; padding: 2px 6px; border-radius: 6px; background: rgba(10,14,28,.7); color: #C9D4F2; }
+.mini-date { white-space: nowrap; }
+.feed-jump { display: flex; gap: 6px; justify-content: center; padding: 0 0 10px; }
+.feed-jump button { all: unset; cursor: pointer; font-size: 11.5px; font-weight: 600; color: #A9BDF0; padding: 4px 10px; border-radius: 999px; background: rgba(169,189,240,.10); }
+.feed-jump button:focus-visible { outline: 2px solid #A9BDF0; }
 .mini-tier { margin-left: 6px; font-size: 10.5px; font-weight: 600; padding: 1px 6px; border-radius: 6px; background: rgba(255,255,255,.06); color: #AAB6D6; }
 .mini-tier.tier-1 { color: #6EE7A0; } .mini-tier.tier-3 { color: #F9A8D4; font-style: italic; }
 .mini-phase.ph-completed { background: rgba(74,222,128,.16); color: #6EE7A0; }
@@ -2255,7 +2296,7 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 @media (min-width: 900px) { /* desktop: main page + feed column */
   .st-layout { display: grid; grid-template-columns: 476px 420px; justify-content: center; align-items: start; }
   .st-layout .st-wrap { width: 100%; }
-  .feed-btn { visibility: hidden; }
+  .feed-btn { visibility: visible; }
   .feed-pane { position: sticky; top: 0; height: 100vh; border-left: 1px solid rgba(170,190,245,.10); border-right: 1px solid rgba(170,190,245,.10); }
   .feed-pane .feed { height: 100%; }
   .feed-head { background: linear-gradient(180deg, rgba(44,58,94,.985) 0%, rgba(38,51,84,.975) 100%); }
