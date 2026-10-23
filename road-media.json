@@ -162,6 +162,18 @@
    "at": "2026-10-04T03:45:00.000Z",
    "context_only": true,
    "note": "Context only (never a card's own picture): clear wide aerial of Pad 2's launch mount, used for upcoming Pad 2 entries."
+  },
+  {
+   "category": "raptor",
+   "date": "14 Oct",
+   "entry": "Ship 42's Raptor engines are reportedly being reinstalled.",
+   "post_id": "2110045816983290227",
+   "post_url": "https://x.com/Flight2Starship/status/2110045816983290227",
+   "author": "Flight2Starship",
+   "media_type": "photo",
+   "image": "https://pbs.twimg.com/media/HUhjfCvWoAAeQ3A.jpg",
+   "note": "Approved by Bernardo 23 Oct: picture credit only (Photo · @Flight2Starship, photo Avidspace); the fact stays with the tiered source.",
+   "credit_only": true
   }
  ]
 }

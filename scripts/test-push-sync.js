@@ -29,7 +29,7 @@ const xReply = (posts, newest) => ({ ok: true, status: 200, json: async () => ({
   const tmp = process.env.PREVIEW_OUT || fs.mkdtempSync(path.join(os.tmpdir(), "ps-"));
   fs.mkdirSync(tmp, { recursive: true });
   const roadPath = path.join(tmp, "road.json"), appJsPath = path.join(tmp, "app.js"), logPath = path.join(tmp, "notifications.json");
-  fs.copyFileSync(path.join(ROOT, "road.json"), roadPath); fs.copyFileSync(path.join(ROOT, "app.js"), appJsPath);
+  fs.copyFileSync(path.join(__dirname, "fixtures", "road-push-sync.json"), roadPath) /* frozen 22 Oct data: live auto-commits can't change what this test expects */; fs.copyFileSync(path.join(ROOT, "app.js"), appJsPath);
   try { fs.unlinkSync(logPath); } catch {}
   let stored = { seen: [], news: { seen: [], pending: [], sent: [], count: 0, day: "2026-10-22" }, lastRun: ago(0.25) };
   const sent = [], commits = [];

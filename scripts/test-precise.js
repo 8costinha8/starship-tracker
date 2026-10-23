@@ -67,7 +67,7 @@ async function runWith(items, answer, vis) {
     check(!c.media_override, "no pick → automatic check stays");
     const n = road.notificationFor({ flight: 15 }, { box: { icon: "❄️", name: "Cryo" }, entry: a, from: "progress", to: "progress" });
     check(n.image === "https://pbs.twimg.com/pick.jpg", "push uses the picked picture");
-    check(road.loadMediaPicks().length === 14 && road.loadMediaPicks().filter((p) => p.context_only).length === 1, "repo road-media.json has the 15 picks (10 + the manual Flight 16 B23 card + the 2 backfill cards of 19 Oct + 1 context-only Pad 2 shot)");
+    check(road.loadMediaPicks().length === 15 && road.loadMediaPicks().filter((p) => p.context_only).length === 1, "repo road-media.json has the 15 picks (10 + the manual Flight 16 B23 card + the 2 backfill cards of 19 Oct + 1 context-only Pad 2 shot + the credited 14 Oct Raptor photo)");
     const appSrc = fs.readFileSync(path.join(ROOT, "app.js"), "utf8");
     check(/h\.media_override \? <PickMedia/.test(appSrc) && /media_override && !h\.media_override\.credit_only && h\.media_override\.post_url/.test(appSrc), "app: picked picture shown, card links to the picked post (a credit-only picture keeps the fact source link)");
   }
