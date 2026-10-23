@@ -1525,9 +1525,6 @@ function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap }) {
           <div className="brand">Road to<span>{`Flight ${road.flight}`}</span></div>
           <span />
         </header>
-        {rows.filter((r) => r.section).length > 1 && <nav className="feed-jump" aria-label="Jump to a flight">{rows.filter((r) => r.section).map((r) => (
-          <button key={r.section.n} onClick={(e) => { const pane = e.currentTarget.closest(".feed"), el = pane && pane.querySelector(`#fsec-${r.section.n}`), head = pane && pane.querySelector(".feed-head");
-            if (el) pane.scrollTo({ top: Math.max(0, el.offsetTop - (head ? head.offsetHeight : 0) - 8), behavior: reduceMotion() ? "auto" : "smooth" }); }}>{`Flight ${r.section.n}`}</button>))}</nav>}
         <div className="feed-list">
           {rows.map((r) => r.section
             ? <div className="fdiv" id={`fsec-${r.section.n}`} key={"f" + r.section.n}><span><b>{`Flight ${r.section.n}`}</b>{(r.section.flown || r.section.next) && <> <i>·</i> </>}{r.section.flown
@@ -2163,9 +2160,6 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .buildup .bu-top .bu-date { flex: none; }
 .buildup .bu-top .mini-tier { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 0 1 auto; margin: 0; }
 .buildup .bu-text { margin-top: 2px; }
-.feed-jump { display: flex; gap: 6px; justify-content: center; padding: 0 0 10px; }
-.feed-jump button { all: unset; cursor: pointer; font-size: 11.5px; font-weight: 600; color: #A9BDF0; padding: 4px 10px; border-radius: 999px; background: rgba(169,189,240,.10); }
-.feed-jump button:focus-visible { outline: 2px solid #A9BDF0; }
 .mini-tier { margin-left: 6px; font-size: 10.5px; font-weight: 600; padding: 1px 6px; border-radius: 6px; background: rgba(255,255,255,.06); color: #AAB6D6; }
 .mini-tier.tier-1 { color: #6EE7A0; } .mini-tier.tier-3 { color: #F9A8D4; font-style: italic; }
 .mini-phase.ph-completed { background: rgba(74,222,128,.16); color: #6EE7A0; }

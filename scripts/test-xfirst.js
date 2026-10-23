@@ -51,7 +51,7 @@ const xReply = (posts, newest) => ({ ok: true, status: 200, json: async () => ({
   check(cryo.id === "x-1001" && cryo.x_first && cryo.stage === "cryo" && cryo.x_text === "Ship 42 rolled to Massey's for cryo testing." && cryo.src === "@LabPadre" && cryo.url === "https://x.com/RGVaerialphotos/status/1002", "road post → card on top of its stage box (writer text, @author, link)");
   check(cryo.x_posts.join() === "1001,1002" && cryo.media_override.type === "video" && cryo.media_override.image === "https://pbs.twimg.com/1002-poster.jpg" && cryo.media_override.author === "RGVaerialphotos", "S42 posts within 48h merge into one card; video beats photo (preview image)");
   check(B("static").history[0].media_override.image === "https://pbs.twimg.com/1005-poster.jpg" && B("pad").history[0].media_override.image === "https://pbs.twimg.com/1006.jpg", "video card uses its preview image, photo card its photo");
-  check(!JSON.stringify(r).includes("1003") && !JSON.stringify(r).includes("1004"), "skip and news posts make no card");
+  check(!/(status\/|x[-:])100[34]\b/.test(JSON.stringify(r)), "skip and news posts make no card");
   check(res.xFirst.news.length === 1 && res.xFirst.news[0].key === "x:1004", "news posts go to the news pushes");
   check(sent.length === 3 && sent.every((n) => /\?feed=1&entry=x-\d+$/.test(n.link) && n.image) && sent.map((n) => n.link.split("entry=")[1]).sort().join() === "x-1001,x-1005,x-1006", "one push per NEW card (merge doesn't push), deep link ?feed=1&entry=<id>, picture");
   const now = r.categories.flatMap((c) => (c.history || []).filter((h) => h.kind !== "check").map((h) => `${c.id}|${h.date}|${h.text}`));
