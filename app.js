@@ -1217,7 +1217,7 @@ function BuildUp({ h, log }) {
     <details className="buildup" onClick={stop}>
       <summary>{`Earlier updates (${ups.length})`}</summary>
       <ul>{ups.map((u, i) => <li key={i}><div className="bu-top"><span className="bu-date">{log ? logDay(u) : entryDate(u)}</span></div>
-        <div className="bu-text">{u.url ? <a href={u.url} target="_blank" rel="noopener noreferrer" onClick={stop}>{scrub(log ? logLine(u) : u.text)}</a> : scrub(log ? logLine(u) : u.text)}</div></li>)}</ul>
+        <div className="bu-text">{u.url && !(log && u.handle) ? <a href={u.url} target="_blank" rel="noopener noreferrer" onClick={stop}>{scrub(log ? logLine(u) : u.text)}</a> : scrub(log ? logLine(u) : u.text)}</div></li>)}</ul>
     </details>
   );
 }
@@ -1452,9 +1452,28 @@ const linkProps = (h) => { const u = urlOf(h); return u ? { role: "link", tabInd
 // One small right-aligned line per card: "@handle · View on X ↗" (X's author credit + the link). No separate chip/icon row.
 function CreditLine({ h }) {
   const u = urlOf(h), who = srcOf(h), isX = /^https?:\/\/(x|twitter)\.com\//i.test(u || "");
-  if (!u && !who) return null;
+  if (!u) return null; // no post, no line (no standalone credit)
   return (<div className="xm-foot post-credit">{who && <span className="xm-ctx">{who}</span>}{who && u && <span className="xm-ctx">&nbsp;·&nbsp;</span>}
     {u && <a href={u} target="_blank" rel="noopener noreferrer" aria-label={`${isX ? "View on X" : "View source"}${who ? ": " + who : ""}`} onClick={(e) => e.stopPropagation()}>{isX ? "View on X" : "View source"} {LINK_ICON}</a>}</div>);
+}
+// Road page build-up: "Earlier updates" (no count). An earlier update with its own post is a
+// bordered pill that opens the post, with its own "@handle · View on X ↗" line.
+const handleOf = (u) => u && (u.handle ? String(u.handle).replace(/^@?/, "@") : ((String(u.url || "").match(/^https?:\/\/(?:x|twitter)\.com\/(\w+)\/status\//i) || [])[1] ? "@" + String(u.url).match(/^https?:\/\/(?:x|twitter)\.com\/(\w+)\//i)[1] : null));
+function FeedBuildUp({ h }) {
+  const ups = Array.isArray(h.updates) ? h.updates.filter((u) => u && u.text) : [];
+  if (!ups.length) return null;
+  const stop = (e) => e.stopPropagation();
+  return (
+    <details className="buildup feed-bu" onClick={stop}>
+      <summary>Earlier updates</summary>
+      <ul>{ups.map((u, i) => { const url = u.url && !isYouTube(u.url) ? u.url : null;
+        const body = <><div className="bu-top"><span className="bu-date">{entryDate(u)}</span></div><div className="bu-text">{scrub(u.text)}</div></>;
+        return url ? <li key={i} className="bu-pill" role="link" tabIndex={0} data-url={url} aria-label={`${u.text} — open the post on X`}
+            onClick={(e) => { e.stopPropagation(); if (!e.target.closest("a")) openUrl(url); }} onKeyDown={(e) => { if (e.key === "Enter" && e.target === e.currentTarget) openUrl(url); }}>
+            {body}<CreditLine h={{ url, src: handleOf(u) }} /></li>
+          : <li key={i}>{body}</li>; })}</ul>
+    </details>
+  );
 }
 function FeedPost({ p, onPhotoTap }) {
   const { h, cat } = p;
@@ -1468,8 +1487,8 @@ function FeedPost({ p, onPhotoTap }) {
       </div>
       <p className="post-text">{scrub(h.x_text || h.text)}</p>
       {h.media_override ? <PickMedia mo={h.media_override} /> : h.media_context ? <ContextMedia mc={h.media_context} /> : !h.milestone && h.x_post && <XMedia x={h.x_post} />}
-      <BuildUp h={h} />
       <CreditLine h={h} />
+      <FeedBuildUp h={h} />
     </article>
   );
 }
@@ -2182,6 +2201,12 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .buildup .bu-top .bu-date { flex: none; }
 .buildup .bu-top .mini-tier { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 0 1 auto; margin: 0; }
 .buildup .bu-text { margin-top: 2px; }
+.feed-bu ul { padding-left: 0; list-style: none; } /* Road page */
+.feed-bu li { padding: 0 2px; }
+.feed-bu .bu-pill { padding: 8px 10px; margin: 6px 0; border: 1px solid rgba(255,255,255,.14); border-radius: 10px; background: rgba(255,255,255,.035); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.feed-bu .bu-pill:focus-visible { outline: 2px solid #A9BDF0; outline-offset: 2px; }
+.feed-bu .bu-pill .post-credit { margin-top: 4px; }
+.post-credit .xm-ctx { margin-right: 0; } /* handle sits inline, right-aligned, before View on X */
 .mini-tier { margin-left: 6px; font-size: 10.5px; font-weight: 600; padding: 1px 6px; border-radius: 6px; background: rgba(255,255,255,.06); color: #AAB6D6; }
 .mini-tier.tier-1 { color: #6EE7A0; } .mini-tier.tier-3 { color: #F9A8D4; font-style: italic; }
 .mini-phase.ph-completed { background: rgba(74,222,128,.16); color: #6EE7A0; }

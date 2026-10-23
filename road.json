@@ -180,7 +180,9 @@
               "src": "Next Spaceflight",
               "phase": "progress",
               "tier": 2,
-              "log_text": "Ship 42 completes its first cryo tests."
+              "log_text": "Ship 42 completes its first cryo tests.",
+              "url": "https://x.com/LabPadre/status/2095620292823462214",
+              "handle": "LabPadre"
             }
           ],
           "log_text": "Ship 42 completed further cryo tests."
