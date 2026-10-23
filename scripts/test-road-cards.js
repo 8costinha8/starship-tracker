@@ -42,10 +42,27 @@ const lint = lines.map(([b, t]) => [b, t, RC.lintCopy(t)]).filter((x) => x[2].le
 check(!lint.length, `every Road line passes the copy lint (${lines.length} lines)${lint.length ? ": " + lint.map((x) => `[${x[0]}] "${x[1]}" ${x[2].join("; ")}`).join(" || ") : ""}`);
 { const s = RC.roadModel(live).sections.find((x) => x.box.id === "cryo"), S = s.cards.find((c) => c.key === "S42"), B = s.cards.find((c) => c.key === "B22");
   check(s.box.latest === "Ship 42 completed its cryo tests at Massey's." && RC.phaseOfText(s.box.latest) === "completed", "Cryo summary states the outcome: \"Ship 42 completed its cryo tests at Massey's.\"");
-  check(S && S.lines.map((l) => `${l.shown}|${l.text}`).join() === "9 Oct|Ship 42 has completed its cryo tests.,9 Sep|Ship 42 heads back to Massey's for further cryo testing.,3 Sep|Ship 42 completes its first cryo test.", "Ship 42 timeline: exact standard wording, single dates");
+  check(S && S.lines.map((l) => `${l.shown}|${l.text}`).join() === "9 Oct|Ship 42 has completed its cryo tests.,4 Sep|Ship 42 heads back to Massey's for further cryo testing.,3 Sep|Ship 42 completes its first cryo test.", "Ship 42 timeline: exact standard wording, single dates");
   check(B && B.lines.map((l) => `${l.shown}|${l.text}`).join() === "9 Sep|Booster 22 completed its cryo test at Massey's.", "Booster 22 timeline: exact standard wording, '9 Sep'");
   check(S.completed && B.completed && s.status === "completed", "preview: Cryo Completed, both cards complete (glow), Cryo dot fills");
   check(s.cards.every((c) => c.lines.some((l) => l.phase === "completed" && /\bcomplete[sd]\b/.test(l.text)) || c.assumed), "every completed card has a 'completed'/'completes' line (or an inferred reason line)"); }
+// numbered boxes (one per test/event instance), only the latest open, glow from the latest box
+{ const s = RC.roadModel(live).sections.find((x) => x.box.id === "cryo"), S = s.cards.find((c) => c.key === "S42"), B = s.cards.find((c) => c.key === "B22");
+  check(S.boxes.map((b) => `${b.title}|${b.place}|${b.date}|${b.text}`).join(" ;; ") === "Cryo test #3|Massey's|9 Oct|Ship 42 has completed its cryo tests. ;; Cryo test #2|Massey's|4 Sep|Ship 42 heads back to Massey's for further cryo testing. ;; Cryo test #1|Massey's|3 Sep|Ship 42 completes its first cryo test.", "S42: Cryo test #3, #2, #1 newest on top, 📍 Massey's, one date, Bernardo's wording");
+  check(B.boxes.length === 1 && B.boxes[0].title === "Cryo test #1" && B.boxes[0].date === "9 Sep" && B.boxes[0].place === "Massey's", "B22: Cryo test #1 · Massey's · 9 Sep");
+  check(S.boxes[0].completed && S.completed && B.completed && s.status === "completed", "latest boxes completed → both cards glow → Cryo Completed"); }
+{ const r = road([E("1", "S42", "3 Sep", "2026-09-03T12:00:00Z", "Ship 42 completes its first cryo test.", "completed"), E("2", "S42", "9 Oct", "2026-10-09T12:00:00Z", "Ship 42 heads back to Massey's for another cryo test.", "progress")], { updatedAt: "2026-10-10T12:00:00Z" });
+  const c = cryo(r).cards[0]; check(c.boxes.length === 2 && c.boxes[0].n === 2 && !c.boxes[0].completed && c.boxes[1].completed && !c.completed && cryo(r).status === "progress", "glow comes from the LATEST box: an older completed test doesn't make the card glow"); }
+{ const r = road([E("1", "S42", "3 Sep", "2026-09-03T12:00:00Z", "Ship 42 completes its first cryo test.", "completed")]);
+  const p = (id, at, t) => ({ post_id: id, url: "https://x.com/LabPadre/status/" + id, created_at: at, text: t, author: { username: "LabPadre" }, media: [] });
+  const cls = (t) => ({ kind: "road", stage: "cryo", hardware: "S42", text: t, event: "cryo_test", phase: "progress", flight: 15, media_fit: "none" });
+  xf.placePost(r, p("5", "2026-10-09T10:00:00Z", "S42 back at Massey's"), cls("Ship 42 heads back to Massey's for another cryo test."));
+  let c = cryo({ ...r, updatedAt: "2026-10-09T13:00:00Z" }).cards[0];
+  check(c.boxes.length === 2 && c.boxes[0].title === "Cryo test #2" && c.boxes[1].title === "Cryo test #1", "a new test instance adds box #2 on top; #1 becomes a collapsed toggle");
+  xf.placePost(r, p("6", "2026-10-10T10:00:00Z", "S42 cryo done"), { ...cls("Ship 42 completed its cryo test at Massey's."), phase: "completed" });
+  c = cryo({ ...r, updatedAt: "2026-10-10T13:00:00Z" }).cards[0];
+  check(c.boxes.length === 2 && c.boxes[0].text === "Ship 42 completed its cryo test at Massey's." && c.boxes[0].completed && c.completed, "an update to the same instance updates box #2 (no new box) and its completion makes the card glow");
+  check(cryo(r).cards.length === 1 && new Set(c.boxes.map((b) => b.n)).size === c.boxes.length, "no duplicate cards or boxes"); }
 // writer prompt carries the copy rules
 { const pr = xf.classifyPrompt({ flight: 15, vehicles: ["B22", "S42"] }, [], []);
   check(/vehicle \+ action \+ place/.test(pr) && /"its"/.test(pr) && /doubled words/.test(pr) && /is been/.test(pr) && /Ship 42's completes/.test(pr) && /completed has completed/.test(pr) && /filler/.test(pr), "writer prompt: one plain sentence, vehicle + action + place, grammar and duplicate-word rules"); }
