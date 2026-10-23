@@ -170,6 +170,7 @@ async function runXFirst(road, state, { token, fetchFn, ask, postCard, log = con
     const r = placePost(road, p, v, now);
     if (status && v.status) r.st = status(r.box, v.status, p, r.entry);
     if (milestone && v.event) milestone(v, p); // running per-vehicle summary (counts + dates)
+    r.post = p; // the post itself (a merge keeps the older card, but the status line uses this post's own time)
     (r.merged ? merged : cards).push(r);
     log(`X-first: road/${v.stage} ${v.hardware || "-"} @${p.author.username} ${p.post_id} → ${r.merged ? `merged into ${r.entry.id}` : `new card ${r.entry.id}`}`);
   });

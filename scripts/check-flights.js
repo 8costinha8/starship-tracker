@@ -231,7 +231,19 @@ function liveDeps() {
     writeStory,
     // data-only message, so our own service worker decides exactly what to show
     // (one banner, our exact wording, tap opens the app)
+    // Shared send path: the push is NOT sent from here. It is written to the Updates feed
+    // (road.json) and queued in the runner's temp dir; check-road.js (next step, same job)
+    // commits road.json and then sends it through push-sync's sendPush (visible first, logged).
     async push(notification) {
+      const pushSync = require("./push-sync.js");
+      const roadPath = path.join(__dirname, "..", "road.json");
+      const road = JSON.parse(fs.readFileSync(roadPath, "utf8"));
+      const n = pushSync.addFeedItem(road, { ...notification, kind: "flight", at: notification.at || new Date().toISOString() });
+      fs.writeFileSync(roadPath, JSON.stringify(road, null, 2) + "\n");
+      pushSync.queuePush(n);
+      console.log(`Queued "${notification.title}" (Updates feed entry ${n.visible.id}); check-road.js commits it, then sends.`);
+    },
+    async sendNow(notification) {
       const subs = await db.collection("subscribers").get();
       const tokens = subs.docs.map((d) => d.id);
       if (!tokens.length) { console.log(`Would have sent "${notification.title}" — but there are no subscribers yet.`); return; }

@@ -91,12 +91,12 @@ const xReply = (posts, newest) => ({ ok: true, status: 200, json: async () => ({
   sent.length = 0; xPage = xReply([P("4005", "4", 1, "Flight 15 NET 30 Oct #4005", "photo"), P("4006", "1", 0.5, "B60 static fire done #4006", "video")], "4006");
   res = await road.run({ ...base, askXFirst: ask });
   check(st("date").status === "done" && sent.some((n) => /Launch date: Confirmed/.test(n.title)), "SpaceX post confirms the Launch date");
-  check(st("static").status === "complete" && st("static").history.filter((h) => h.hardware === "B60").length === 1 && sent.some((n) => /Static fires: Done/.test(n.title) && /entry=x-4001$/.test(n.link)), "merged post that finishes the stage still moves the status and pushes");
+  check(st("static").status === "complete" && st("static").history.filter((h) => h.hardware === "B60").length === 1 && sent.some((n) => /Static fires: Done/.test(n.title) && /^Static fires: Done \(\d+ \w{3}\)$/.test(n.body) && /entry=status-static-complete-4006$/.test(n.link) && st("static").history.some((h) => h.kind === "status" && h.text === n.body)), "merged post that finishes the stage still moves the status and pushes");
   check(road.xStatus({ id: "date" }, "done") === null && road.xStatus({ id: "pad" }, "confirmed") === null, "done is not used on the Launch date; confirmed only there");
   // app
   const app = fs.readFileSync(path.join(ROOT, "app.js"), "utf8");
   check(/const PLAY_ICON = null/.test(app) && /get\("entry"\)/.test(app) && /data-entry=\{h\.id/.test(app), "app: no play badge; ?entry= scrolls to and highlights the card");
-  check(/Number\.isInteger\(h\.flight\)\) return h\.flight/.test(app) && /b\.flight - a\.flight \|\| b\.when - a\.when/.test(app) && /!\(h\.flight > road\.flight\)/.test(app), "flight sections are data-driven (entry flight tag), newest first by post date; later flights stay off the Starship card");
+  check(/Number\.isInteger\(h\.flight\)\) return h\.flight/.test(app) && /rank\(a\.flight\) - rank\(b\.flight\) \|\| b\.when - a\.when/.test(app) && /!\(h\.flight > road\.flight\)/.test(app), "flight sections are data-driven (entry flight tag), next flight on top, later flights below, newest first by post date; later flights stay off the Starship card");
   { const live = JSON.parse(fs.readFileSync(path.join(ROOT, "road.json"), "utf8")); const b23 = live.categories.find((c) => c.id === "cryo").history.find((h) => h.id === "x-2110889490336350574");
     check(b23 && b23.flight === 16 && b23.manual && b23.media_override.author === "StarshipGazer", "manual Flight 16 card (B23 cryo, @StarshipGazer)");
     const bad = JSON.parse(JSON.stringify(live)); bad.categories[0].history[0].flight = "16"; let threw = false; try { road.validateRoad(bad); } catch { threw = true; } check(threw, "a malformed flight tag is rejected"); }

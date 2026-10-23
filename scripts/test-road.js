@@ -127,7 +127,7 @@ const box = (r, id) => r.categories.find((c) => c.id === id);
     start.categories.find((c) => c.id === "static").status = "pending"; // fixture: independent of the live static-fire status
     fs.writeFileSync(roadPath, JSON.stringify(start, null, 2) + "\n");
   }
-  const opts = { xFirst: false /* legacy article path (production runs X-first; see test-xfirst.js) */, mode: "dry-run", roadPath, appJsPath, deps, commit: (f, m) => { commits.push(m); console.log(`(fake commit) ${m}`); } };
+  const opts = { xFirst: false /* legacy article path (production runs X-first; see test-xfirst.js) */, mode: "dry-run", roadPath, appJsPath, deps, commit: (f, m) => { if (f === "road.json") commits.push(m); console.log(`(fake commit) ${m}`); } };
 
   console.log("\n────────── RUN 1: normal run with a mix of posts ──────────");
   let res = await road.run(opts);

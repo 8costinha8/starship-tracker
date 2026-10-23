@@ -24,7 +24,8 @@ function applyMissionUpdate(road, flight, { topic, text, attribution, post }) {
   list.unshift(u); list.sort((a, b) => Date.parse(b.at) - Date.parse(a.at)); list.splice(MAX_LINES);
   return { changed: true, line, entry: u };
 }
-const missionPush = (flight, line) => ({ title: `Flight ${flight} update`, body: line, link: `${SITE}?flight=${flight}` });
+// Same item as the Next flight card line: text, source post link and the post's own time.
+const missionPush = (flight, line, u = {}) => ({ title: `Flight ${flight} update`, body: line, link: `${SITE}?flight=${flight}`, url: u.url || "", at: u.at, kind: "mission", visible: { where: "mission", flight } });
 function validateMission(road) {
   for (const [k, list] of Object.entries(road.mission_updates || {})) {
     if (!/^\d+$/.test(k) || !Array.isArray(list) || list.length > MAX_LINES || list.some((u) => !u || !u.topic || u.topic === "net" || !u.line || u.line.length > 200 || !u.at))

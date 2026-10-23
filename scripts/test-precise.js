@@ -16,7 +16,7 @@ const xitem = (id, text, media) => ({ key: `x:${id}`, title: "@LabPadre on X", t
 const vision = (rule) => async (prompt, url) => { visionCalls.push(url); return rule(url); };
 async function runWith(items, answer, vis) {
   pushes = []; commits = [];
-  return road.run({ mode: "live", roadPath, appJsPath, deps, next: null, commit: (f, m) => commits.push(m), sources: [{ name: "fake", fetch: async () => items }],
+  return road.run({ mode: "live", roadPath, appJsPath, deps, next: null, commit: (f, m) => { if (f === "road.json") commits.push(m); }, sources: [{ name: "fake", fetch: async () => items }],
     askClaude: async () => answer, askNews: async () => [], vision: vis });
 }
 (async () => {
@@ -31,7 +31,7 @@ async function runWith(items, answer, vis) {
   check(e1.x_post.media.length === 1 && e1.x_post.media[0].url.includes("b22-static") && e1.image_check.verdict === "shows it" && visionCalls.length === 2, "vision checks every picture; only the clear one kept");
   check(commits.length === 1, "one commit (the 15-min checker writes it automatically)");
   const p1 = pushes.find((p) => /Static/.test(p.title));
-  check(p1 && p1.body === "Booster 22 completed a static fire at Massey's." && p1.image === "https://pbs.twimg.com/b22-static.jpg" && /\?feed=1$/.test(p1.link), "push sent: same text, the verified picture, opens the Road page");
+  check(p1 && p1.body === "Booster 22 completed a static fire at Massey's." && p1.image === "https://pbs.twimg.com/b22-static.jpg" && /\?feed=1(&entry=[^&]+)?$/.test(p1.link), "push sent: same text, the verified picture, opens the Road page");
   const msg = road.fcmMessage(["t1"], p1);
   check(msg.notification.imageUrl === p1.image && msg.webpush.notification.image === p1.image && msg.webpush.fcmOptions.link === p1.link, "FCM message carries the picture (apps + web) and the link");
   console.log(`   sample push → title: "${p1.title}" | body: "${p1.body}" | image: ${p1.image} | link: ${p1.link}`);

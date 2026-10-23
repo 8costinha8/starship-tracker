@@ -48,7 +48,7 @@ const listed = (prompt) => (prompt.split("New items:")[1] || "").trim().split("\
   ]);
   check(newsPrompts.length === 1, "one Claude call for the run's new items");
   check(pushes.length === 1 && pushes[0].body === "Booster 22 completed a static fire at Massey's · SpaceX", `same story from 2 sources → 1 push: "${pushes[0] && pushes[0].body}"`);
-  check(pushes[0] && pushes[0].title === "🚀 Starship" && pushes[0].link === N.NEWS_LINK && /\?feed=1$/.test(pushes[0].link), "push format: 🚀 Starship, opens the Updates feed");
+  check(pushes[0] && pushes[0].title === "🚀 Starship" && pushes[0].link.startsWith(N.NEWS_LINK + "&item="), "push format: 🚀 Starship, opens the Updates feed");
   // same story later from another outlet → Claude flags it dup of a recent push
   await runWith([it("rss:sn1", "SpaceNews", "trusted", "SpaceX fires Booster 22 at Massey's in a static fire test for Starship", 0.2)],
     (p) => { check(/R1\. \[SpaceX\] Booster 22 completed a static fire/.test(p), "recent pushes (48h) are sent to Claude for semantic dedup"); return [{ item: 1, push: true, dup: "R1", story: "b22-static", headline: "SpaceX fired Booster 22 at Massey's" }]; });

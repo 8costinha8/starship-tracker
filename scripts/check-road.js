@@ -23,7 +23,7 @@
    source explicitly says the stage is finished; that entry gets
    complete: true and a green tint in the app; a trusted source can
    re-open it), done (legacy "Done", and the Launch date box's "Confirmed").
-   The Launch date box is not shown in the app but is still tracked and pushed.
+   The Launch date box is shown like the others (Road card + Updates feed).
    When the flight it is tracking appears in app.js's FLIGHTS list (that's
    check-flights.js logging the result), it starts a fresh Road to the next
    flight on its own. Its "🚀 Road to Flight N" push is not sent then: it is
@@ -50,6 +50,7 @@ const ROOT = path.join(__dirname, "..");
 const xFirstMod = require("./x-first.js");
 const milestones = require("./milestones.js");
 const mission = require("./mission.js");
+const pushSync = require("./push-sync.js"); // the one send path: visible first, then push, then logged
 const writer = require("./writer.js"); // WRITER=grok (default, Claude fallback) | claude
 
 const LIMITS = {
@@ -910,7 +911,7 @@ function validateRoad(road) {
     if (typeof c.latest !== "string" || c.latest.length > 160) throw new Error(`bad latest in ${c.id}`);
     for (const h of c.history || []) {
       if (!h.date || !h.text || !h.src || h.text.length > 200) throw new Error(`bad entry in ${c.id}: ${JSON.stringify(h)}`);
-      if (h.kind !== undefined && h.kind !== "check") throw new Error(`bad kind in ${c.id}: ${JSON.stringify(h)}`);
+      if (h.kind !== undefined && h.kind !== "check" && h.kind !== "status") throw new Error(`bad kind in ${c.id}: ${JSON.stringify(h)}`);
       if (h.trust !== "trusted" && h.trust !== "unconfirmed") throw new Error(`entry without trust in ${c.id}`);
       if (h.flight !== undefined && (!Number.isInteger(h.flight) || h.flight < 1)) throw new Error(`bad flight tag in ${c.id}: ${JSON.stringify(h.flight)}`);
     }
@@ -1086,11 +1087,23 @@ function refreshCheckDates(road) {
 }
 
 const FEED_LINK = "https://8costinha8.github.io/starship-tracker/?feed=1";
+// Merge-only status change: a dated line in the box ("Pad activity: Done (22 Oct)", UK day of the source post).
+function statusLine(road, box, merged, post) {
+  post = post || merged.x_post || {};
+  const at = post.created_at || merged.at || new Date().toISOString();
+  const label = box.status === "done" ? box.doneText || "Done" : STATUS_TEXT[box.status];
+  const text = `${box.name}: ${label} (${pushSync.ukDay(at)})`;
+  const id = `status-${box.id}-${box.status}-${post.post_id || Date.parse(at)}`;
+  let e = (box.history || []).find((h) => h.id === id);
+  if (!e) { e = { id, kind: "status", date: pushSync.ukDay(at), at, text, src: post.author ? `@${post.author.username}` : merged.src, trust: "trusted", flight: road.flight, ...(post.url || merged.url ? { url: post.url || merged.url } : {}), ...(box.status === "complete" ? { complete: true } : {}) }; (box.history = box.history || []).unshift(e); }
+  return e;
+}
 function notificationFor(road, ch) {
   const n = notificationText(road, ch);
   const m = ch.entry.x_post && (ch.entry.x_post.media || [])[0];
   const img = (ch.entry.media_override && ch.entry.media_override.image) || (m && imageOf(m));
-  return { ...n, ...(ch.entry.x_text ? { body: ch.entry.x_text } : {}), link: ch.entry.id ? `${FEED_LINK}&entry=${encodeURIComponent(ch.entry.id)}` : FEED_LINK, ...(img ? { image: img } : {}) };
+  return { ...n, ...(ch.entry.x_text ? { body: ch.entry.x_text } : {}), link: ch.entry.id ? `${FEED_LINK}&entry=${encodeURIComponent(ch.entry.id)}` : FEED_LINK, ...(img ? { image: img } : {}),
+    url: ch.entry.url || (ch.entry.x_post && ch.entry.x_post.url) || "", at: (ch.entry.x_post && ch.entry.x_post.created_at) || ch.entry.at || new Date().toISOString() };
 }
 function notificationText(road, ch) {
   const { box, entry } = ch;
@@ -1173,6 +1186,8 @@ async function run(opts = {}) {
   const notifications = [];
   let changed = false;
   const clock = opts.now || (() => Date.now());
+  const pushLog = []; // every push attempt this run → notifications.json
+  const notifLogPath = opts.notifLogPath || path.join(path.dirname(roadPath), "notifications.json");
 
   // 0. A push scheduled by an earlier run (the next-morning "Road to Flight N"):
   //    send it once it is due. The cleared state is saved BEFORE sending, so a
@@ -1185,7 +1200,9 @@ async function run(opts = {}) {
     else if (due) {
       delete state.pendingPush;
       await deps.saveState(state);
-      await deps.push({ title: pp.title, body: pp.body });
+      const onDisk = JSON.parse(fs.readFileSync(roadPath, "utf8")); // the committed road.json: its Updates feed already holds this item
+      const pn = pp.visible ? pp : { ...pp, at: pp.at || pp.sendAfter };
+      await pushSync.sendPush(pn, { road: onDisk, send: deps.push, save, logRows: pushLog, log, now: clock });
       scheduledSent = pp;
       log(`sent scheduled push "${pp.title}" (due ${pp.sendAfter})`);
     } else log(`scheduled push "${pp.title}" waits until ${pp.sendAfter}`);
@@ -1212,10 +1229,10 @@ async function run(opts = {}) {
     changed = rolledOver = true;
     // The push waits for 09:00 London the morning after the launch day.
     const launchedAt = loggedFlightDate(appJsText, lastN) || new Date(clock()).toISOString();
-    state.pendingPush = {
-      sendAfter: nineAmLondonDayAfter(launchedAt), flight: road.flight,
-      title: `🚀 Road to Flight ${road.flight}`, body: `Flight ${lastN} is in the log. Now tracking the road to Flight ${road.flight}.`,
-    };
+    if (old.feed_items) road.feed_items = old.feed_items;
+    const sendAfter = nineAmLondonDayAfter(launchedAt);
+    const fi = pushSync.addFeedItem(road, { kind: "notice", title: `🚀 Road to Flight ${road.flight}`, body: `Flight ${lastN} is in the log. Now tracking the road to Flight ${road.flight}.`, at: sendAfter, flight: road.flight });
+    state.pendingPush = { sendAfter, flight: road.flight, ...fi }; // already in the Updates feed (committed with this run)
     log(`"${state.pendingPush.title}" push scheduled for ${state.pendingPush.sendAfter} (09:00 London, morning after the launch day)`);
   }
 
@@ -1266,7 +1283,7 @@ async function run(opts = {}) {
     const p = m.post;
     if (r.net) { items.push({ key: `x:${p.post_id}`, title: p.text.slice(0, 200), text: p.text, url: p.url, publishedAt: p.created_at, src: `X @${p.author.username}`, source: `@${p.author.username}`, tier: xFirstMod.isOfficial(p) ? "official" : "trusted", predictOnly: true }); log(`mission-update (NET) → predicted-date check: @${p.author.username} ${p.post_id}`); continue; }
     if (!r.changed) { log(`mission-update: no change (${m.topic}, same or older)`); continue; }
-    changed = true; missionPushes.push(mission.missionPush(road.flight, r.line));
+    changed = true; missionPushes.push(mission.missionPush(road.flight, r.line, r.entry));
     log(`MISSION [${road.flight}/${m.topic}] ${r.line}`);
   }
 
@@ -1347,7 +1364,9 @@ async function run(opts = {}) {
   if (xFirst) {
     for (const it of batch) seen.add(it.key); // articles: news/date only, never a Road card
     // new cards push; a merge only pushes when it moved the status
-    if (xf) for (const r of [...xf.cards, ...xf.merged.filter((m) => m.st)]) changes.push({ box: r.box, entry: r.entry, from: r.st ? r.st.from : r.box.status, to: r.box.status, item: { key: `x:${r.entry.x_post.post_id}` } });
+    if (xf) for (const r of xf.cards) changes.push({ box: r.box, entry: r.entry, from: r.st ? r.st.from : r.box.status, to: r.box.status, item: { key: `x:${r.entry.x_post.post_id}` } });
+    // a merge that moved the status gets its own visible dated line ("Pad activity: Done (22 Oct)"), the push says the same
+    if (xf) for (const r of xf.merged.filter((m) => m.st)) changes.push({ box: r.box, entry: statusLine(road, r.box, r.entry, r.post), from: r.st.from, to: r.box.status, item: { key: `x:${r.entry.x_post.post_id}` }, merge: true });
     if (xf && xf.merged.length) changed = true;
   } else if (batch.length) {
     let updates = null;
@@ -1426,7 +1445,7 @@ async function run(opts = {}) {
       }
     } catch (e) { log(`X backfill failed: ${e.message} — tried again next run`); }
   }
-  for (const ch of changes) notifications.push(notificationFor(road, ch));
+  for (const ch of changes) { if (!ch.entry.id) ch.entry.id = `e-${ch.box.id}-${Date.parse(ch.entry.at || clock()).toString(36)}`; const n = notificationFor(road, ch); notifications.push(pushSync.stampRoadEntry(ch.box, ch.entry, { ...n, link: `${FEED_LINK}&entry=${encodeURIComponent(ch.entry.id)}` })); }
   if (typeof missionPushes !== "undefined") notifications.push(...missionPushes); // same caps (X-first run cap) and the same save-then-push step
   if (changes.length) changed = true;
 
@@ -1452,7 +1471,7 @@ async function run(opts = {}) {
       try {
         const reply = await askNews(news.buildNewsPrompt(nb, recent), log);
         nb.forEach((it) => state.news.seen.push(it.key));
-        newsPushes.push(...news.decideNews(nb, reply, state.news, clock(), log));
+        for (const np of news.decideNews(nb, reply, state.news, clock(), log)) newsPushes.push(pushSync.addFeedItem(road, np)); // Updates feed entry, same text
         log(`news: ${nb.length} new item(s) checked → ${newsPushes.length} push(es) (${state.news.count}/${news.NEWS_DAILY_CAP} today)`);
       } catch (err) {
         log(`news: Claude failed (${err.message}) — ${nb.length} item(s) retried next run`);
@@ -1461,6 +1480,10 @@ async function run(opts = {}) {
     }
   }
   news.trimNews(state.news, clock());
+  if (newsPushes.length) { changed = true; notifications.push(...newsPushes); }
+  // pushes queued by check-flights.js: their Updates feed entries are already in road.json (still to be committed)
+  const queued = opts.pushQueue || (mode === "live" ? pushSync.takeQueue() : []);
+  if (queued.length) { changed = true; notifications.push(...queued); log(`${queued.length} check-flights push(es) queued → sent after the commit`); } // saved + committed with road.json, then pushed
 
   // 4c. Predicted launch date (no push, never bumps the Road card's "Updated")
   const before = JSON.stringify([road.predicted || null, road.predicted_candidates || []]);
@@ -1486,19 +1509,18 @@ async function run(opts = {}) {
       commit("road.json", `Auto: Road to Flight ${road.flight} — ${what}`);
     } else console.log(`(not committed) Auto: Road to Flight ${road.flight} — ${notifications.length} update(s)${refreshed.length ? `, ${refreshed.length} no-news line change(s) (${road.updated})` : ""}`);
     if (!notifications.length && !rolledOver) log("no push notification for this change");
-    for (const n of notifications) {
-      if (save) await deps.push(n);
-      else console.log(`(not sent) push: ${n.title} — ${n.body}`);
-    }
+    // send only what the committed road.json shows (read back from disk; test mode checks the would-be file)
+    const shown = save ? JSON.parse(fs.readFileSync(roadPath, "utf8")) : JSON.parse(json);
+    for (const n of notifications) await pushSync.sendPush(n, { road: shown, send: deps.push, save, logRows: pushLog, log, now: clock });
     if (!save) console.log("\nroad.json would become:\n" + json);
   } else {
     log("no change to the Road card");
   }
 
-  // 5b. News pushes (no commit needed: nothing in road.json changes). In test mode: logged only.
-  for (const n of newsPushes) {
-    if (save) await deps.push(n);
-    else console.log(`(not sent) news push: ${n.title} — ${n.body}`);
+  // 5b. Push log (title, body, link, source, time, verdict) → notifications.json
+  if (save && pushLog.length) {
+    pushSync.writeLog(notifLogPath, pushLog);
+    try { commit("notifications.json", `Auto: push log — ${pushLog.length} push(es)`); } catch (e) { log(`push log commit failed: ${e.message}`); }
   }
 
   // anything not handled yet is kept, so posts from X / Launch Library (which
@@ -1508,7 +1530,7 @@ async function run(opts = {}) {
   state.seen = [...seen].slice(-LIMITS.seenKeep);
   state.lastRun = new Date().toISOString();
   if (save) await deps.saveState(state);
-  return { road, changes, notifications, refreshed, state, scheduledSent, newsPushes, xFirst: xf };
+  return { road, changes, notifications, refreshed, state, scheduledSent, newsPushes, xFirst: xf, pushLog };
 }
 
 module.exports = { archiveLaunched, milestones, statusRule, xStatus, applyMediaPicks, loadMediaPicks, pickImage, applyImageCheck, verifyImages, fcmMessage, notificationFor, judgeFeed, verifyFeed, entryDayMs, backfillX, xPostCard, xIdOf, readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, titleMatches, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };

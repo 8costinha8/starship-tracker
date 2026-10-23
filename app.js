@@ -1051,8 +1051,8 @@ function Lightbox({ src, alt, onClose }) {
 // An entry with complete: true (the update that marked the stage finished) gets a subtle green tint.
 // An entry with kind: "check" is the box's "no news yet" placeholder (dashed outline).
 // An entry with trust: "unconfirmed" gets a small "Unconfirmed" tag.
-// The "date" (Launch date) box stays in road.json and keeps sending pushes, but isn't shown here.
-const ROAD_HIDDEN = ["date"];
+// Every box is shown, the Launch date box included (it sends pushes, so it must be visible too).
+const ROAD_HIDDEN = [];
 const ROAD_URL = "road.json";
 const ROAD_CACHE_KEY = "starship-road-cache-v1";
 const ROAD_STATUS_TEXT = { none: "Not started", pending: "Pending", progress: "In progress", done: "Done", complete: "Done" };
@@ -1159,7 +1159,8 @@ function glideTo(top, ms = 450) {
 // swipe in from the right (swipe left to open, right to go back, or use the
 // button top right). Desktop (900px+): always shown as a right-hand column.
 // Tapping an entry in the Road card jumps to its post here and highlights it.
-// Same data rules as the Road card: the hidden Launch date box is left out,
+// Same data rules as the Road card (every box, Launch date included). Starship news and other
+// pushes with no Road box (road.json "feed_items") are posts here too, same text as the push;
 // "no news yet" checks (kind: "check") show as dashed placeholders.
 const FEED_WIDE_QUERY = "(min-width: 900px)";
 const FEED_SLIDE_MS = 400;
@@ -1247,9 +1248,19 @@ function buildFeed(road) {
     h, cat: c, ci, hi, id: `${c.id}-${hi}`, day: feedDay(h.date, road.updatedAt), at: Date.parse((h.x_post && h.x_post.created_at) || h.at) || 0, flight: flightOf(h, road),
     when: cardTime(h, road),
   })));
+  // pushes with no Road box (Starship news, flight-checker alerts): the push's own title, text, source link and time
+  (Array.isArray(road.feed_items) ? road.feed_items : []).forEach((f, fi) => { if (!f || !f.id || !f.body) return;
+    const t = String(f.title || ""), m = t.match(/^(\p{Extended_Pictographic}\uFE0F?)\s*(.*)$/u);
+    const at = Date.parse(f.at) || 0;
+    posts.push({ h: { id: f.id, date: f.date, text: f.body, src: "", url: f.url, publishedAt: f.at, trust: "trusted", kind: "feed" },
+      cat: { id: "feed-" + (f.kind || "news"), name: m ? m[2] : t, icon: m ? m[1] : "", color: "#AAB6D6" }, ci: 99, hi: fi, id: f.id,
+      day: at, at, flight: Number.isInteger(f.flight) ? f.flight : road.flight, when: at });
+  });
   for (let i = posts.length - 1; i >= 0; i--) if (isLaunched(posts[i].flight)) posts.splice(i, 1); // launched flights: Flight Log card only
-  // sections newest flight first; inside a section newest first by the card's post date (else its entry date)
-  posts.sort((a, b) => b.flight - a.flight || b.when - a.when || a.ci - b.ci || a.hi - b.hi);
+  // sections by date: the next flight to fly on top, then later flights in flying order (15, then 16…);
+  // inside a section newest first by the card's post date (else its entry date)
+  const rank = (n) => (n === road.flight ? -Infinity : n);
+  posts.sort((a, b) => rank(a.flight) - rank(b.flight) || b.when - a.when || a.ci - b.ci || a.hi - b.hi);
   const rows = [];
   let cur = null;
   for (const p of posts) {
@@ -1455,12 +1466,12 @@ function StarshipTracker() {
   const wide = useMedia(FEED_WIDE_QUERY);
   // ?feed=1 (tapping a "🚀 Starship" news push) opens the phone's Updates feed straight away
   // ?feed=1&entry=<id> (a Road push): open the Road page, scroll to that card and highlight it
-  const [entryReq, setEntryReq] = React.useState(() => { try { return new URLSearchParams(window.location.search).get("entry") || null; } catch { return null; } });
+  const [entryReq, setEntryReq] = React.useState(() => { try { return new URLSearchParams(window.location.search).get("entry") || new URLSearchParams(window.location.search).get("item") || null; } catch { return null; } });
   const [feedOpen, setFeedOpen] = React.useState(() => {
     try {
       const q = new URLSearchParams(window.location.search);
       if (q.get("feed") !== "1") return false;
-      q.delete("feed"); q.delete("entry"); window.history.replaceState(null, "", window.location.pathname + (q.toString() ? `?${q}` : "") + window.location.hash);
+      q.delete("feed"); q.delete("entry"); q.delete("item"); window.history.replaceState(null, "", window.location.pathname + (q.toString() ? `?${q}` : "") + window.location.hash);
       return window.innerWidth < 900;
     } catch { return false; }
   }); // phone panel
