@@ -63,6 +63,12 @@ check(!lint.length, `every Road line passes the copy lint (${lines.length} lines
   c = cryo({ ...r, updatedAt: "2026-10-10T13:00:00Z" }).cards[0];
   check(c.boxes.length === 2 && c.boxes[0].text === "Ship 42 completed its cryo test at Massey's." && c.boxes[0].completed && c.completed, "an update to the same instance updates box #2 (no new box) and its completion makes the card glow");
   check(cryo(r).cards.length === 1 && new Set(c.boxes.map((b) => b.n)).size === c.boxes.length, "no duplicate cards or boxes"); }
+// one derive layer for both views
+{ const r = require("../road.json"), a = RC.buildRoadModel(r), b = RC.buildRoadModel(r), app = require("fs").readFileSync(require("path").join(__dirname, "../app.js"), "utf8");
+  check(JSON.stringify(a.dots) === JSON.stringify(b.dots) && a.count === b.count && a.sections.every((s, i) => s.status === b.sections[i].status), "buildRoadModel is pure: same status, dots and count every call");
+  check(/count === a.done/.test("count === a.done") && a.count === a.done + " of " + a.total + " done" && a.dots.length === a.sections.length, "count and dots derived from section status");
+  check(/function FlightLogRoadView/.test(app) && /function RoadPageView/.test(app) && !/images=\{/.test(app) && !/function VehicleCards\b/.test(app), "two separate views, no page flag on the shared card list");
+  check((app.match(/buildRoadModel\(/g) || []).length >= 2 && !/RoadCards\.roadModel\(|RC\.roadModel\(/.test(app), "both views read the one derive layer"); }
 // writer prompt carries the copy rules
 { const pr = xf.classifyPrompt({ flight: 15, vehicles: ["B22", "S42"] }, [], []);
   check(/vehicle \+ action \+ place/.test(pr) && /"its"/.test(pr) && /doubled words/.test(pr) && /is been/.test(pr) && /Ship 42's completes/.test(pr) && /completed has completed/.test(pr) && /filler/.test(pr), "writer prompt: one plain sentence, vehicle + action + place, grammar and duplicate-word rules"); }

@@ -51,5 +51,12 @@ with sync_playwright() as p:
     pg.locator('.road-head').click(); pg.wait_for_timeout(600); pg.locator('.callout[data-id=cryo] .callout-head').click(); pg.wait_for_timeout(800)
     t = pg.locator('.callout[data-id=cryo] .vcard[data-card=S42] details.vb-old').first; t.locator('summary').click(); pg.wait_for_timeout(300)
     check(t.evaluate("e=>e.open") and "Massey's" in t.inner_text() and '4 Sep' in t.inner_text(), "tapping an older box opens its place and sentence")
-    s = st(pg); check(s['s42'][0][1] == 'DIV' and 'vb-done' in s['s42'][0][3], "latest S42 box open and glowing (completed)"); ctx.close()
+    s = st(pg); check(s['s42'][0][1] == 'DIV' and 'vb-done' in s['s42'][0][3], "latest S42 box open and glowing (completed)")
+    fl = pg.evaluate("()=>({imgs:document.querySelectorAll('.road .vcards img, .road .vc-img, .road .credit').length, count:document.querySelector('.road-count').innerText, dots:[...document.querySelectorAll('.road-dots .dot')].map(d=>d.className).join(','), st:[...document.querySelectorAll('.road .callout')].map(c=>c.dataset.status).join(',')})")
+    check(fl['imgs'] == 0, f"Flight Log view never renders images ({fl['imgs']})")
+    pg.locator('.hdr-right').click(); pg.wait_for_timeout(1800)
+    rp = pg.evaluate("()=>({imgs:document.querySelectorAll('.rsec .vc-img img').length, st:[...document.querySelectorAll('.rsec')].filter(e=>/post-sec-15-/.test(e.id)).map(e=>e.dataset.status).join(',')})")
+    check(rp['st'] == fl['st'] and rp['imgs'] > 0, f"Road page view: same section status as the Flight Log, with images ({rp['st']} vs {fl['st']}, imgs {rp['imgs']})")
+    import subprocess; js = subprocess.run(['node','-e',"const R=require('./road-cards.js');const m=R.buildRoadModel(JSON.parse(require('fs').readFileSync(0)));console.log(JSON.stringify([m.count,m.dots.map(d=>'dot '+d.cls).join(',')]))"], input=json.dumps(variant('both')), capture_output=True, text=True).stdout
+    check(json.loads(js) == [fl['count'], fl['dots']], f"rendered count and dots match the derive layer ({js.strip()} vs {fl['count']})"); ctx.close()
 print(f"\n{n - fails} of {n} passed"); sys.exit(1 if fails else 0)

@@ -165,5 +165,15 @@
     return { flight: f, sections, done: sections.filter((s) => s.status === "completed").length, total: sections.length };
   }
   const flightsIn = (road) => [...new Set((road.categories || []).flatMap((c) => (c.history || []).filter((h) => h && h.kind !== "check").map((h) => flightOfEntry(h, road))))].sort((a, b) => a - b);
-  return { boxesOf, placeOf, NOUN, cardDate, lintCopy, DURATIONS, roadModel, sectionCards, sectionStatus, phaseOfText, vehiclesIn, hwKey, vehicleName, similar, flightsIn, PHASES };
+  // the ONE derive layer both views read: sections -> vehicle cards -> numbered boxes, plus status, glow, inferred flags, dots and count
+  function buildRoadModel(road, flight, opts) {
+    const m = roadModel(road, flight), hidden = (opts && opts.hidden) || [];
+    m.sections = m.sections.filter((s) => !hidden.includes(s.box.id));
+    m.total = m.sections.length; m.done = m.sections.filter((s) => s.status === "completed").length;
+    m.sections.forEach((s) => { s.dot = "sdot-" + s.status; s.cards.forEach((c) => { c.glow = !!c.completed; c.inferred = !!c.assumed; }); });
+    m.dots = m.sections.map((s) => ({ id: s.box.id, cls: s.dot }));
+    m.count = m.done + " of " + m.total + " done";
+    return m;
+  }
+  return { buildRoadModel, boxesOf, placeOf, NOUN, cardDate, lintCopy, DURATIONS, roadModel, sectionCards, sectionStatus, phaseOfText, vehiclesIn, hwKey, vehicleName, similar, flightsIn, PHASES };
 });

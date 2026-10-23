@@ -105,7 +105,7 @@ const xReply = (posts, newest) => ({ ok: true, status: 200, json: async () => ({
     check(before === 2 && after === 1 && tiers.TIER2.length === 11, "proposed accounts only apply with SOURCE_TIERS_PROPOSED=1 (live list unchanged)"); }
   // app
   const app = fs.readFileSync(path.join(ROOT, "app.js"), "utf8");
-  { const vc = app.slice(app.indexOf("function VehicleCards"), app.indexOf("function RoadCard(")), rc = app.slice(app.indexOf("function RoadCard("), app.indexOf("// No \"seen\" dimming"));
+  { const vc = app.slice(app.indexOf("function VehicleCardList"), app.indexOf("function RoadCard(")), rc = app.slice(app.indexOf("function RoadCard("), app.indexOf("// No \"seen\" dimming"));
     check(!/<Tags h=|Build-up \(|Earlier photo/.test(app) && !/BuildUp|mini-tier|mini-phase|Unconfirmed|assumed/i.test(vc + rc) && /vb-old/.test(vc) && /vb-open/.test(vc) && /function tierOf/.test(fs.readFileSync(path.join(__dirname, "source-tiers.js"), "utf8")), "app: vehicle cards show no status/tier/Unconfirmed/assumed labels and numbered boxes, only the latest open (tier data kept in the backend)"); }
   check(/const PLAY_ICON = null/.test(app) && /get\("entry"\)/.test(app) && /data-entry=\{h\.id/.test(app), "app: no play badge; ?entry= scrolls to and highlights the card");
   check(/Number\.isInteger\(h\.flight\)\) return h\.flight/.test(app) && /rank\(a\.flight\) - rank\(b\.flight\) \|\| b\.when - a\.when/.test(app) && /!\(h\.flight > road\.flight\)/.test(app), "flight sections are data-driven (entry flight tag), next flight on top, later flights below, newest first by post date; later flights stay off the Starship card");
