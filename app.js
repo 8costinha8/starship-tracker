@@ -882,7 +882,7 @@ function AboutPanel({ open, onClose, onManageNotifications }) {
         <p>A personal log of every Starship flight. No ads, no tracking.</p>
         <dl>
           <dt>Photos</dt><dd>All photos by SpaceX, credited on each image.</dd>
-          <dt>Flight data</dt><dd>Last checked {DATA_CHECKED}.</dd>
+          <dt>Flight data</dt><dd>Last checked {fmtDay(String(DATA_CHECKED).replace(new RegExp(" " + new Date().getFullYear() + "$"), ""))}.</dd>
           <dt>Next flight</dt><dd>Launch dates move often. The countdown runs off the best known date and is tagged NET (estimated) until SpaceX confirms the exact time.</dd>
         </dl>
         <FeedbackForm />
