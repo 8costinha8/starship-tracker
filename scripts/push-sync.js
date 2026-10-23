@@ -46,7 +46,11 @@ function checkVisible(road, n) {
 }
 
 // Adds a push to the Updates feed (news, scheduled notices, flight-checker pushes). Returns the push with its visible pointer.
+// App text never names public data sources (credit stays in the @handle label). Idempotent.
+const SOURCE_NAMES = /\s*(?:[·•|—–-]\s*|,?\s*(?:per|via|according to)\s+)?\b(?:NSF|NASA ?Spaceflight(?:\.com)?|Spaceflight Now|SpaceNews|Teslarati|Launch Library(?: 2)?|LL2|Spaceflight News API)\b(?:\s*(?:reports?|says|said)\b)?/gi;
+const cleanText = (s) => typeof s === "string" ? s.replace(/\((?:per |via )?(?:NSF|NASA ?Spaceflight)(?:, )?/gi, "(").replace(/\(\s*\)/g, "").replace(SOURCE_NAMES, "").replace(/\(\s*,\s*/g, "(").replace(/\s{2,}/g, " ").replace(/\s+([.,;:)])/g, "$1").trim() : s;
 function addFeedItem(road, { title, body, url, at, kind, flight }) {
+  title = cleanText(title); body = cleanText(body);
   const id = `${kind || "news"}-${Date.parse(at).toString(36)}-${require("crypto").createHash("sha1").update(title + body).digest("hex").slice(0, 6)}`;
   const list = (road.feed_items = road.feed_items || []);
   if (!list.some((x) => x.id === id)) list.unshift({ id, kind: kind || "news", title, body, ...(url ? { url } : {}), at, date: ukDay(at), flight: flight || road.flight });
@@ -84,4 +88,4 @@ const QUEUE = () => path.join(process.env.RUNNER_TEMP || require("os").tmpdir(),
 function queuePush(n, file = QUEUE()) { let q = []; try { q = JSON.parse(fs.readFileSync(file, "utf8")); } catch {} q.push(n); fs.writeFileSync(file, JSON.stringify(q)); }
 function takeQueue(file = QUEUE()) { try { const q = JSON.parse(fs.readFileSync(file, "utf8")); fs.unlinkSync(file); return Array.isArray(q) ? q : []; } catch { return []; } }
 
-module.exports = { queuePush, takeQueue, sendPush, checkVisible, visibleFor, addFeedItem, stampRoadEntry, writeLog, readLog, ukDay, SITE, FEED_KEEP };
+module.exports = { cleanText, queuePush, takeQueue, sendPush, checkVisible, visibleFor, addFeedItem, stampRoadEntry, writeLog, readLog, ukDay, SITE, FEED_KEEP };

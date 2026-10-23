@@ -98,9 +98,9 @@ const xReply = (posts, newest) => ({ ok: true, status: 200, json: async () => ({
   Object.assign(cls, { "4101": { kind: "road", stage: "pad", hardware: "Pad 2", text: "Pad 2 work is done.", status: "done" } });
   sent.length = 0; xPage = xReply([P("4101", "1", 0.4, "Pad 2 done #4101", "photo")], "4101");
   res = await road.run({ ...base, askXFirst: ask });
-  check(st("pad").status === "pending" && st("pad").history.some((h) => (h.x_posts || []).includes("4101")) && !sent.some((n) => /Pad activity: Done/.test(n.title)), "Tier 2 (LabPadre) adds a reported entry but cannot change a status");
+  check(st("pad").status === "complete" && st("pad").history.some((h) => (h.x_posts || []).includes("4101")) && sent.some((n) => /Pad activity: Done/.test(n.title)), "Tier 2 (LabPadre) can now move a status (Pad activity: Done), labelled Reported");
   { const tiers = require("./source-tiers.js"); const au = (u) => ({ author: { username: u } });
-    check(tiers.tierOf(au("NASASpaceflight"), { text: "Booster 22 finished its static fire." }) === 1 && tiers.tierOf(au("LabPadre"), { text: "Ship 42 rolled out." }) === 2 && tiers.tierOf(au("SpaceX"), { text: "Booster 22 could roll out next week." }) === 3 && tiers.tierOf(au("LabPadre"), { speculative: true, text: "x" }) === 3, "tierOf: Tier 1 accounts, Tier 2 trackers, rumour wording from any account is Tier 3");
+    check(tiers.tierOf(au("NASASpaceflight"), { text: "Booster 22 finished its static fire." }) === 1 && tiers.tierOf(au("LabPadre"), { text: "Ship 42 rolled out." }) === 2 && tiers.tierOf(au("SpaceX"), { text: "Booster 22 could roll out next week." }) === 1 && tiers.tierOf(au("TrackingTheSB"), { text: "Booster 22 could roll out next week." }) === 3 && tiers.tierOf(au("LabPadre"), { speculative: true, text: "x" }) === 3, "tierOf: Tier 1 accounts, Tier 2 trackers, rumour wording from any account is Tier 3");
     const before = tiers.tierOf(au("SpaceflightNow"), { text: "x" }); process.env.SOURCE_TIERS_PROPOSED = "1"; const after = tiers.tierOf(au("SpaceflightNow"), { text: "x" }); const q = road.xfQuery ? null : null; delete process.env.SOURCE_TIERS_PROPOSED;
     check(before === 2 && after === 1 && tiers.TIER2.length === 11, "proposed accounts only apply with SOURCE_TIERS_PROPOSED=1 (live list unchanged)"); }
   // app

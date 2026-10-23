@@ -159,7 +159,7 @@ const box = (r, id) => r.categories.find((c) => c.id === id);
   res = await road.run(opts);
   r = JSON.parse(fs.readFileSync(roadPath, "utf8"));
   const pad = box(r, "pad");
-  check(pad.history[0].trust === "unconfirmed" && pad.history[0].src === "Teslarati" && pad.latest.startsWith("Pad 2 being serviced"), "Teslarati rumour → added with Unconfirmed tag, headline untouched");
+  check(pad.history[0].trust === "unconfirmed" && pad.history[0].src === "Teslarati" && pad.latest === JSON.parse(fs.readFileSync(path.join(ROOT, "road.json"), "utf8")).categories.find((c) => c.id === "pad").latest, "Teslarati rumour → added with Unconfirmed tag, headline untouched");
   check(box(r, "cryo").status === "progress" && box(r, "cryo").history[0].trust === "unconfirmed", "unconfirmed X post suggesting a cryo failure → tagged, status unchanged");
   check(sent.length === 2 && sent.every((n) => /\(unconfirmed\)$/.test(n.title)), `pushes say (unconfirmed): ${sent.map((n) => n.title).join(" | ")}`);
 

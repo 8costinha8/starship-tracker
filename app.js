@@ -124,17 +124,22 @@ const DEFAULT_SITE = "Starbase, Texas";
 const DAY = 86400000;
 const utcDay = (iso) => { const d = new Date(iso); return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()); };
 const daysBetween = (a, b) => Math.round((utcDay(b) - utcDay(a)) / DAY);
-const fmt = (iso, opts) => new Date(iso).toLocaleDateString("en-GB", { timeZone: "UTC", ...opts });
+const fmt = (iso, opts) => new Date(iso).toLocaleDateString("en-GB", { timeZone: "UTC", ...opts }).replace(/\bSept\b/, "Sep");
+// One date format across the app (Europe/London): "13 Sep · 05:02 UK", date-only "13 Sep", ranges "12–13 Sep".
+const MON3 = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+function ukParts(iso) { const p = Object.fromEntries(new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/London", year: "numeric", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false }).formatToParts(new Date(iso)).map((x) => [x.type, x.value])); return { day: Number(p.day), mon: MON3[Number(p.month) - 1], year: Number(p.year), time: `${p.hour === "24" ? "00" : p.hour}:${p.minute}` }; }
+function ukStamp(iso, withTime = true) {
+  if (!iso || !Number.isFinite(Date.parse(iso))) return "";
+  const p = ukParts(iso); const yr = p.year !== ukParts(new Date().toISOString()).year ? ` ${p.year}` : "";
+  return `${p.day} ${p.mon}${yr}${withTime && p.time !== "00:00" ? ` · ${p.time} UK` : ""}`; // 00:00 = a date-only source
+}
+const LONG_MON = { January: "Jan", February: "Feb", March: "Mar", April: "Apr", June: "Jun", July: "Jul", August: "Aug", September: "Sep", Sept: "Sep", October: "Oct", November: "Nov", December: "Dec" };
+const normDay = (s) => typeof s === "string" ? s.replace(/\b(January|February|March|April|June|July|August|September|Sept|October|November|December)\b/g, (m) => LONG_MON[m]).replace(/(\d{1,2})\s*[-–—]\s*(\d{1,2})\b/g, "$1–$2") : s;
+// An entry's date: its post time when known (full stamp), else its stored day label (date only).
+const entryDate = (h) => { const iso = h && (h.publishedAt || h.at); return iso && Number.isFinite(Date.parse(iso)) ? ukStamp(iso) : normDay(h && h.date); };
 // For the next-flight card specifically: local launch time and date together,
 // in the UK's own timezone (auto-adjusts BST/GMT), so there's no ambiguity.
-const fmtDateTimeLondon = (iso) => {
-  const d = new Date(iso);
-  const day = d.toLocaleDateString("en-GB", { timeZone: "Europe/London", day: "numeric" });
-  const month = d.toLocaleDateString("en-GB", { timeZone: "Europe/London", month: "long" });
-  const year = d.toLocaleDateString("en-GB", { timeZone: "Europe/London", year: "numeric" });
-  const time = d.toLocaleTimeString("en-GB", { timeZone: "Europe/London", hour: "2-digit", minute: "2-digit" });
-  return `${time} | ${day} ${month} ${year}`;
-};
+const fmtDateTimeLondon = (iso) => ukStamp(iso);
 // Short "Launched 13:48" line for the next-flight card while a mission is underway
 // or just finished — London time, matching the rest of the card.
 const fmtLaunchedLondon = (iso) => {
@@ -1113,10 +1118,10 @@ function RoadCard({ road, onEntryTap, openReq }) {
             <div className="callout-hist"><div className="callout-hist-inner">
               {(m.history || []).map((h, i) => isRealEntry(h) && !(h.flight > road.flight) && !isLaunched(h.flight) && ( /* later flights' cards: Road page only */
                 <div className={"mini" + (h.complete ? " mini-done" : "") + (onEntryTap ? " tappable" : "")} key={i}
-                  {...(onEntryTap ? { role: "button", tabIndex: isOpen ? 0 : -1, "aria-label": `${h.date}: ${h.text}. Show in the updates feed`,
+                  {...(onEntryTap ? { role: "button", tabIndex: isOpen ? 0 : -1, "aria-label": `${entryDate(h)}: ${h.text}. Show in the updates feed`,
                     onClick: () => onEntryTap(m.id, i), onKeyDown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onEntryTap(m.id, i); } } } : {})}>
                   <div className="mini-top">
-                    <span className="mini-date">{h.date}{h.milestone && <span className={"mini-phase ph-" + h.milestone.phase}>{PHASE_LABEL[h.milestone.phase]}</span>}{h.milestone && <TierTag t={h.tier} src={h.src} rep={h.reported} />}{h.trust === "unconfirmed" && <span className="mini-unc">Unconfirmed</span>}</span>
+                    <span className="mini-date">{entryDate(h)}{h.milestone && !h.hedged && <span className={"mini-phase ph-" + h.milestone.phase}>{PHASE_LABEL[h.milestone.phase]}</span>}{h.milestone && <TierTag t={h.tier} src={h.src} rep={h.reported} hedged={h.hedged} />}{h.trust === "unconfirmed" && <span className="mini-unc">Unconfirmed</span>}{h.demo && <span className="mini-unc">DEMO</span>}</span>
                     <span className="mini-src">{srcOf(h)}</span>
                   </div>
                   <p>{h.x_text || h.text}</p>
@@ -1137,10 +1142,10 @@ try { localStorage.removeItem("st_seen_v1"); } catch {}
 // Milestone lifecycle (road.json entry.milestone: type + flight + vehicle + phase). One entry per milestone:
 // later posts update it in place; the older lines stay under it as a collapsible build-up list.
 const PHASE_LABEL = { expected: "Expected", progress: "In progress", completed: "Completed" };
-const TIER_LABEL = { 1: "Confirmed", 2: "Reported", 3: "Rumour" }; // source tier (scripts/source-tiers.js)
-function TierTag({ t, src, rep }) {
+const TIER_LABEL = { 1: "Confirmed", 2: "Reported", 3: "Rumour" }; // Tier 3 shows only as Expected // source tier (scripts/source-tiers.js)
+function TierTag({ t, src, rep, hedged }) {
   if (!t) return null;
-  return <span className={"mini-tier tier-" + t}>{TIER_LABEL[t]}{t === 2 && rep ? " " + PHASE_LABEL[rep].toLowerCase() : ""}{src ? " · " + src : ""}</span>;
+  return <span className={"mini-tier tier-" + t}>{t === 1 && hedged ? "Expected" : TIER_LABEL[t]}{t === 2 && rep ? " " + PHASE_LABEL[rep].toLowerCase() : ""}{src ? " · " + src : ""}</span>;
 }
 function BuildUp({ h }) {
   const ups = Array.isArray(h.updates) ? h.updates.filter((u) => u && u.text) : [];
@@ -1149,7 +1154,7 @@ function BuildUp({ h }) {
   return (
     <details className="buildup" onClick={stop}>
       <summary>{h.milestone && h.milestone.phase === "completed" ? `Build-up (${ups.length})` : `Earlier updates (${ups.length})`}</summary>
-      <ul>{ups.map((u, i) => <li key={i}><span className="bu-date">{u.date}</span>{u.tier ? <span className={"mini-tier tier-" + u.tier}>{TIER_LABEL[u.tier]}{u.src ? " · " + u.src : ""}</span> : null} {u.url ? <a href={u.url} target="_blank" rel="noopener noreferrer" onClick={stop}>{u.text}</a> : u.text}</li>)}</ul>
+      <ul>{ups.map((u, i) => <li key={i}><span className="bu-date">{entryDate(u)}</span>{u.tier ? <span className={"mini-tier tier-" + u.tier}>{TIER_LABEL[u.tier]}{u.src ? " · " + u.src : ""}</span> : null} {u.url ? <a href={u.url} target="_blank" rel="noopener noreferrer" onClick={stop}>{u.text}</a> : u.text}</li>)}</ul>
     </details>
   );
 }
@@ -1391,9 +1396,9 @@ function FeedPost({ p, onPhotoTap }) {
       <div className="post-top">
         <span className="chip"><span className="chip-i">{cat.icon}</span>{cat.name}</span>
         <span className="post-sep">·</span>
-        <span className="post-date">{h.date}{feedTime(h.publishedAt || (h.milestone && h.at)) ? ` · ${feedTime(h.publishedAt || h.at)}` : ""}</span>
-        {h.milestone && <span className={"mini-phase ph-" + h.milestone.phase}>{PHASE_LABEL[h.milestone.phase]}</span>}{h.milestone && <TierTag t={h.tier} src={h.src} rep={h.reported} />}
-        {h.trust === "unconfirmed" && <span className="mini-unc">Unconfirmed</span>}
+        <span className="post-date">{entryDate(h)}</span>
+        {h.milestone && !h.hedged && <span className={"mini-phase ph-" + h.milestone.phase}>{PHASE_LABEL[h.milestone.phase]}</span>}{h.milestone && <TierTag t={h.tier} src={h.src} rep={h.reported} hedged={h.hedged} />}
+        {h.trust === "unconfirmed" && <span className="mini-unc">Unconfirmed</span>}{h.demo && <span className="mini-unc">DEMO</span>}
       </div>
       <p className="post-text">{h.x_text || h.text}</p>
       {h.media_override ? <PickMedia mo={h.media_override} /> : h.media_context ? <ContextMedia mc={h.media_context} /> : !h.milestone && h.x_post && <XMedia x={h.x_post} />}

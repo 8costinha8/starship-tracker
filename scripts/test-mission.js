@@ -60,6 +60,6 @@ const ask = async (prompt) => ({ entries: [...prompt.matchAll(/^(\d+)\. @\S+ \S+
   check(nf.indexOf('className="next-note"') < nf.indexOf("missionLines(road, f.n)") && nf.indexOf("missionLines(road, f.n)") < nf.indexOf("showWatch &&"), "Next flight card: the line(s) sit right under the mission description");
   check(!/missionLines/.test(body("FlightCard")) && !/missionLines/.test(body("FeedPost")) && !/<a |<img/.test(nf.slice(nf.indexOf("missionLines"), nf.indexOf("showWatch &&"))), "text only; no other card renders it");
   const repo = JSON.parse(fs.readFileSync(path.join(ROOT, "road.json"), "utf8"));
-  check(repo.mission_updates[15][0].line === "SpaceX plans to try catching both Booster 22 and Ship 42 (Musk confirmed, 18 Oct)." && mission.validateMission(repo) === undefined, "repo: Flight 15's catch-plan line");
+  check(repo.mission_updates[15].some((u) => u.topic === "catch" && /catch/i.test(u.line) && /^https:\/\/x\.com\//.test(u.url)) && mission.validateMission(repo) === undefined, "repo: Flight 15's catch-plan line");
   console.log(fails ? `\n${fails} FAILED` : "\n✅ All mission-update checks passed."); process.exit(fails ? 1 : 0);
 })();

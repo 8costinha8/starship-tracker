@@ -92,7 +92,7 @@ function decideNews(items, reply, news, now, log = () => {}) {
     if (news.count >= NEWS_DAILY_CAP) { log(`news: daily cap (${NEWS_DAILY_CAP}) reached — not sent: "${headline}"`); continue; }
     news.count++;
     news.sent.push({ key: it.key, url: it.url || undefined, story: sid, headline, src: it.src, at: new Date(now).toISOString() });
-    pushes.push({ title: "🚀 Starship", body: `${headline} · ${it.src}`, link: NEWS_LINK, kind: "news", url: it.url || "", at: it.publishedAt && Number.isFinite(Date.parse(it.publishedAt)) ? new Date(it.publishedAt).toISOString() : new Date(now).toISOString() }); // at: the source post's own time
+    pushes.push({ title: "🚀 Starship", body: headline, link: NEWS_LINK, kind: "news", url: it.url || "", at: it.publishedAt && Number.isFinite(Date.parse(it.publishedAt)) ? new Date(it.publishedAt).toISOString() : new Date(now).toISOString() }); // at: the source post's own time
   }
   return pushes;
 }

@@ -60,12 +60,12 @@
    "category": "raptor",
    "date": "12–13 Sep",
    "entry": "Both vehicles back to the Mega Bays for Raptor installation.",
-   "post_id": "2098642467390153040",
-   "post_url": "https://x.com/LabPadre/status/2098642467390153040",
-   "author": "LabPadre",
+   "post_id": "2098104487428694216",
+   "post_url": "https://x.com/NASASpaceflight/status/2098104487428694216",
+   "author": "NASASpaceflight",
    "media_type": "video",
-   "image": "https://pbs.twimg.com/ext_tw_video_thumb/2098642453741887497/pu/img/JdijqZ7iq6c-qq8K.jpg",
-   "note": "Booster 22 rolling from Massey's back to the production site/Mega Bay on 12 Sep."
+   "image": "https://pbs.twimg.com/amplify_video_thumb/2098104422446649344/img/RNpZZjZzOhOPObst.jpg",
+   "note": "NSF, 10 Sep: Ship 42 heading back to the production site for its six Raptors (daylight). Replaces the near-black LabPadre night frame of B22 (2098642467390153040)."
   },
   {
    "category": "pad",
@@ -149,6 +149,19 @@
    "media_type": "photo",
    "image": "https://pbs.twimg.com/media/HU4y2cUbwAE6od-.jpg",
    "note": "Manual Flight 16 card (Tusk: no Flight 16 automation). TrackingTheSB photo (NSF Starbase Live) of Booster 23 on HWY 4 heading back to the production site, 18 Oct. Cryo campaign concluded (NSF 18 Oct article; Blobifie: first full cryo done 16 Oct)."
+  },
+  {
+   "category": "pad",
+   "date": "4 Oct",
+   "entry": "Pad 2 after facing 33 Raptor engines, with its new OLM work platform.",
+   "post_id": "2106591567930925423",
+   "post_url": "https://x.com/RGVaerialphotos/status/2106591567930925423",
+   "author": "RGVaerialphotos",
+   "media_type": "photo",
+   "image": "https://pbs.twimg.com/media/HTwdsecaIAAK_9e.jpg",
+   "at": "2026-10-04T03:45:00.000Z",
+   "context_only": true,
+   "note": "Context only (never a card's own picture): clear wide aerial of Pad 2's launch mount, used for upcoming Pad 2 entries."
   }
  ]
 }

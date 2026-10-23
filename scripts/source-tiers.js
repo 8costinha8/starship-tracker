@@ -1,6 +1,7 @@
 /* Source tiers — ONE config (easy to revert). Used by x-first.js.
-   Tier 1 confirmed: can move a milestone to In progress / Completed (and a box status).
-   Tier 2 trusted trackers: build-up updates + real media, labelled "reported"; never move a phase/status.
+   Tier 1 confirmed ("Confirmed · @handle"): moves a milestone to In progress / Completed (and a box status).
+   Tier 2 trusted trackers ("Reported · @handle"): can also move a milestone to In progress / Completed and count it.
+   Only SpaceX/FAA can move a stage backwards or confirm the launch date (statusRule in check-road.js).
    Tier 3 rumour/speculation (wording from ANY account, or a Tier 3 account): "Expected/rumour" only.
    PROPOSED (preview only, needs Bernardo's OK): only active when SOURCE_TIERS_PROPOSED=1.
    The live X search list (x-first XF_ACCOUNTS) is NOT changed by this file unless PROPOSED is on. */
@@ -20,10 +21,11 @@ const RUMOUR = /\b(rumou?rs?|reportedly|hearing|speculat\w*|possibly|maybe|might
 // tier of one post + the writer's line about it
 function tierOf(post, cls = {}) {
   const u = String(post && post.author && post.author.username || "").toLowerCase();
+  if (t1().has(u)) return 1; // Tier 1 hedged wording ("hopefully", "could") stays Tier 1 but only Expected — see hedged()
   if (cls.speculative === true || RUMOUR.test(cls.text || "") || t3().has(u)) return 3;
-  if (t1().has(u)) return 1;
   return 2;
 }
+const hedged = (cls = {}) => cls.speculative === true || RUMOUR.test(cls.text || "");
 const TIER_LABEL = { 1: "confirmed", 2: "reported", 3: "Expected/rumour" };
 const extraAccounts = () => (proposedOn() ? [...PROPOSED.tier1, ...PROPOSED.tier3] : []);
-module.exports = { TIER1, TIER1_SITES, TIER2, TIER3, PROPOSED, tierOf, TIER_LABEL, RUMOUR, extraAccounts, proposedOn };
+module.exports = { hedged, TIER1, TIER1_SITES, TIER2, TIER3, PROPOSED, tierOf, TIER_LABEL, RUMOUR, extraAccounts, proposedOn };
