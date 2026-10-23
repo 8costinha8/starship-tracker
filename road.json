@@ -12,8 +12,8 @@
       "icon": "❄️",
       "name": "Cryo tests",
       "color": "#BFE6FF",
-      "status": "progress",
-      "latest": "Ship 42 back for a third cryo test",
+      "status": "done",
+      "latest": "Ship 42 completed its cryo tests at Massey's.",
       "history": [
         {
           "id": "x-2111681468724601021",
@@ -117,7 +117,7 @@
         },
         {
           "date": "9 Oct",
-          "text": "Ship 42 has been transported back to the cryo test stand at the Massey outpost for more testing.",
+          "text": "Ship 42 completed further cryo tests.",
           "src": "@LabPadre",
           "source": "nsf",
           "trust": "trusted",
@@ -168,7 +168,7 @@
             "type": "cryo_test",
             "flight": 15,
             "hardware": "S42",
-            "phase": "progress",
+            "phase": "completed",
             "migrated": true
           },
           "updates": [
@@ -181,7 +181,7 @@
             },
             {
               "date": "3–4 Sep",
-              "text": "Ship 42's first cryo test is underway.",
+              "text": "Ship 42 completes its first cryo test.",
               "src": "Next Spaceflight",
               "phase": "progress",
               "tier": 2
@@ -190,7 +190,7 @@
         },
         {
           "date": "9–10 Sep",
-          "text": "Booster 22 cryo tests at Massey's.",
+          "text": "Booster 22 completed its cryo test at Massey's.",
           "src": "Next Spaceflight",
           "source": "next-spaceflight",
           "trust": "trusted",
@@ -234,7 +234,7 @@
             "type": "cryo_test",
             "flight": 15,
             "hardware": "B22",
-            "phase": "progress",
+            "phase": "completed",
             "migrated": true
           }
         }
