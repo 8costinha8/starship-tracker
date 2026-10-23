@@ -134,9 +134,19 @@ function ukStamp(iso, withTime = true) {
   return `${p.day} ${p.mon}${yr}${withTime && p.time !== "00:00" ? ` · ${p.time} UK` : ""}`; // 00:00 = a date-only source
 }
 const LONG_MON = { January: "Jan", February: "Feb", March: "Mar", April: "Apr", June: "Jun", July: "Jul", August: "Aug", September: "Sep", Sept: "Sep", October: "Oct", November: "Nov", December: "Dec" };
-const normDay = (s) => typeof s === "string" ? s.replace(/\b(January|February|March|April|June|July|August|September|Sept|October|November|December)\b/g, (m) => LONG_MON[m]).replace(/(\d{1,2})\s*[-–—]\s*(\d{1,2})\b/g, "$1–$2") : s;
+// THE day/range formatter: "9 Sep", "9–10 Sep" (en dash, one month), "30 Sep–2 Oct" (across months).
+const MONS = "Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec";
+function normDay(s) {
+  if (typeof s !== "string") return s;
+  let t = s.replace(/\b(January|February|March|April|June|July|August|September|Sept|October|November|December)\b\.?/g, (m) => LONG_MON[m.replace(".", "")]);
+  t = t.replace(new RegExp(`\\b(${MONS}) (\\d{1,2})\\b`, "g"), "$2 $1"); // "Sep 30" → "30 Sep"
+  t = t.replace(/\s*(?:[-–—]|\bto\b)\s*/g, "–");
+  t = t.replace(new RegExp(`(\\d{1,2}) (${MONS})–(\\d{1,2}) \\2\\b`, "g"), "$1–$3 $2"); // "9 Sep–10 Sep" → "9–10 Sep"
+  t = t.replace(new RegExp(`\\b(\\d{1,2}) (${MONS})–(\\d{1,2})\\b(?! (?:${MONS}))`, "g"), "$1–$3 $2"); // "9 Sep–10" → "9–10 Sep"
+  return t.replace(/\s{2,}/g, " ").trim();
+}
 // An entry's date: its post time when known (full stamp), else its stored day label (date only).
-const postIdOf = (h) => h && ((h.media_override && (h.media_override.post_id || (String(h.media_override.post_url || "").match(/status\/(\d+)/) || [])[1])) || (h.x_post && h.x_post.post_id) || (String(h.url || "").match(/x\.com\/[^/]+\/status\/(\d+)/) || [])[1]);
+const postIdOf = (h) => h && ((h.media_override && !h.media_override.credit_only && (h.media_override.post_id || (String(h.media_override.post_url || "").match(/status\/(\d+)/) || [])[1])) || (h.x_post && h.x_post.post_id) || (String(h.url || "").match(/x\.com\/[^/]+\/status\/(\d+)/) || [])[1]);
 const sfIso = (id) => { try { return new Date(Number((BigInt(id) >> 22n) + 1288834974657n)).toISOString(); } catch { return ""; } };
 // THE date formatter: every date in the app goes through ukStamp (or fmtDay for a stored day label).
 const fmtDay = (s) => normDay(s);
@@ -1104,7 +1114,7 @@ function MiniMedia({ h }) {
   const x = h.x_post && Array.isArray(h.x_post.media) ? h.x_post.media.find((m) => m && (m.url || m.preview_image_url)) : null;
   const src = (h.media_override && h.media_override.image) || (h.media_context && h.media_context.image) || (!h.milestone && x && (x.url || x.preview_image_url)) || null;
   if (bad || !src) return null;
-  return <div className="mini-media"><img src={src} alt="" loading="lazy" referrerPolicy="no-referrer" onError={() => setBad(true)} />{h.media_context && !h.media_override && <span className="mini-ctx">Earlier photo</span>}</div>;
+  return <div className="mini-media"><img src={src} alt="" loading="lazy" referrerPolicy="no-referrer" onError={() => setBad(true)} />{h.media_context && !h.media_override && <span className="mini-ctx">Earlier photo</span>}{h.media_override && h.media_override.credit_only && <span className="mini-ctx">{`Photo · @${h.media_override.author}`}</span>}</div>;
 }
 // A box's headline comes from this flight's own entries: a later flight's post (B23 for Flight 16) never replaces it.
 function boxLatest(m, road) {
@@ -1185,7 +1195,8 @@ function BuildUp({ h }) {
   return (
     <details className="buildup" onClick={stop}>
       <summary>{h.milestone && h.milestone.phase === "completed" ? `Build-up (${ups.length})` : `Earlier updates (${ups.length})`}</summary>
-      <ul>{ups.map((u, i) => <li key={i}><span className="bu-date">{entryDate(u)}</span>{u.tier ? <span className={"mini-tier tier-" + u.tier}>{TIER_LABEL[u.tier]}{uiSrc(u.src) ? " · " + uiSrc(u.src) : ""}</span> : null} {u.url ? <a href={u.url} target="_blank" rel="noopener noreferrer" onClick={stop}>{u.text}</a> : u.text}</li>)}</ul>
+      <ul>{ups.map((u, i) => <li key={i}><div className="bu-top"><span className="bu-date">{entryDate(u)}</span>{u.tier ? <span className={"mini-tier tier-" + u.tier}>{TIER_LABEL[u.tier]}{uiSrc(u.src) ? " · " + uiSrc(u.src) : ""}</span> : null}</div>
+        <div className="bu-text">{u.url ? <a href={u.url} target="_blank" rel="noopener noreferrer" onClick={stop}>{scrub(u.text)}</a> : scrub(u.text)}</div></li>)}</ul>
     </details>
   );
 }
@@ -1388,7 +1399,7 @@ function PickMedia({ mo }) {
     <div className="xm">
       <div className="xm-grid n1"><a href={mo.post_url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
         <img src={mo.image} alt="" loading="lazy" referrerPolicy="no-referrer" onError={() => setBad(true)} />{mo.type === "video" && PLAY_ICON}</a></div>
-      <div className="xm-foot">
+      <div className="xm-foot">{mo.credit_only && <span className="xm-ctx">{`Photo · @${mo.author}`}</span>}
         <a href={mo.post_url} target="_blank" rel="noopener noreferrer" aria-label="View on X" onClick={(e) => e.stopPropagation()}>View on X {LINK_ICON}</a></div>
     </div>
   );
@@ -1413,9 +1424,9 @@ function XMedia({ x }) {
   );
 }
 // An entry with an X post credits and links the post's author, so text, media and credit match.
-const srcOf = (h) => (h.media_override ? `@${h.media_override.author}` : h.x_post && h.x_post.author && h.x_post.author.username ? `@${h.x_post.author.username}` : uiSrc(h.src));
+const srcOf = (h) => (h.media_override && !h.media_override.credit_only ? `@${h.media_override.author}` : h.x_post && h.x_post.author && h.x_post.author.username ? `@${h.x_post.author.username}` : uiSrc(h.src));
 const isYouTube = (u) => /(^|\.)(youtube\.com|youtu\.be)$/i.test(hostOf(u || ""));
-const urlOf = (h) => (h.media_override && h.media_override.post_url) || (h.x_post && h.x_post.url) || (h.url && !isYouTube(h.url) ? h.url : null); // YouTube sources: not clickable
+const urlOf = (h) => (h.media_override && !h.media_override.credit_only && h.media_override.post_url) || (h.x_post && h.x_post.url) || (h.url && !isYouTube(h.url) ? h.url : null); // YouTube sources: not clickable
 const openUrl = (u) => window.open(u, "_blank", "noopener,noreferrer");
 const linkProps = (h) => { const u = urlOf(h); return u ? { role: "link", tabIndex: 0, "aria-label": `${h.x_text || h.text} — open ${h.x_post ? "the post on X" : "the source"}`,
   onClick: (e) => { if (!e.target.closest("a, video, button, .xm-video")) openUrl(u); }, onKeyDown: (e) => { if (e.key === "Enter" && e.target === e.currentTarget) openUrl(u); } } : {}; };
@@ -2148,6 +2159,10 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .mini-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .mini-ctx { position: absolute; left: 6px; top: 6px; font-size: 10px; padding: 2px 6px; border-radius: 6px; background: rgba(10,14,28,.7); color: #C9D4F2; }
 .mini-date { white-space: nowrap; }
+.buildup .bu-top { display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; min-width: 0; white-space: nowrap; }
+.buildup .bu-top .bu-date { flex: none; }
+.buildup .bu-top .mini-tier { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 0 1 auto; margin: 0; }
+.buildup .bu-text { margin-top: 2px; }
 .feed-jump { display: flex; gap: 6px; justify-content: center; padding: 0 0 10px; }
 .feed-jump button { all: unset; cursor: pointer; font-size: 11.5px; font-weight: 600; color: #A9BDF0; padding: 4px 10px; border-radius: 999px; background: rgba(169,189,240,.10); }
 .feed-jump button:focus-visible { outline: 2px solid #A9BDF0; }
