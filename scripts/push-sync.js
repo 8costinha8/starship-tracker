@@ -23,7 +23,7 @@ function visibleFor(road, n) {
   if (v.where === "road") {
     const c = (road.categories || []).find((x) => x.id === v.box);
     const h = c && (c.history || []).find((e) => e.id === v.id);
-    return h && { title: h.push && h.push.title, body: h.x_text || h.text, url: h.push && h.push.url, at: h.push && h.push.at };
+    return h && { title: h.push && h.push.title, body: h.log_text || h.x_text || h.text, url: h.push && h.push.url, at: h.push && h.push.at };
   }
   if (v.where === "mission") {
     const u = ((road.mission_updates || {})[v.flight] || []).find((x) => x.line === n.body);

@@ -91,7 +91,8 @@ const xReply = (posts, newest) => ({ ok: true, status: 200, json: async () => ({
   sent.length = 0; xPage = xReply([P("4005", "4", 1, "Flight 15 NET 30 Oct #4005", "photo"), P("4006", "4", 0.5, "B60 static fire done #4006", "video")], "4006");
   res = await road.run({ ...base, askXFirst: ask });
   check(st("date").status === "done" && sent.some((n) => /Launch date: Confirmed/.test(n.title)), "SpaceX post confirms the Launch date");
-  check(st("static").status === "complete" && st("static").history.filter((h) => h.hardware === "B60").length === 1 && sent.some((n) => /Static fires: Done/.test(n.title) && /^Static fires: Done \(\d+ \w{3}\)$/.test(n.body) && /entry=status-static-complete-4006$/.test(n.link) && st("static").history.some((h) => h.kind === "status" && h.text === n.body)), "merged post that finishes the stage still moves the status and pushes");
+  // one vehicle finishing is not the whole stage: the section only rolls up to Done when every Flight 15 vehicle completed (test-logtext.js)
+  check(st("static").status === "progress" && st("static").history.filter((h) => h.hardware === "B60").length === 1 && !sent.some((n) => /Static fires: Done/.test(n.title)), "merged post finishing ONE vehicle's stage keeps the section In progress (no Done push)");
   check(road.xStatus({ id: "date" }, "done") === null && road.xStatus({ id: "pad" }, "confirmed") === null, "done is not used on the Launch date; confirmed only there");
   // source tiers: a Tier 2 tracker can't move a status; rumour wording is Tier 3
   { const r0 = JSON.parse(fs.readFileSync(roadPath, "utf8")); r0.categories.find((c) => c.id === "pad").status = "pending"; fs.writeFileSync(roadPath, JSON.stringify(r0, null, 2)); }

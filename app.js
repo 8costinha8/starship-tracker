@@ -1109,16 +1109,43 @@ function Tags({ h }) {
 }
 // The entry's own picture in the Road card (same picture as its feed card).
 // A box's headline comes from this flight's own entries: a later flight's post (B23 for Flight 16) never replaces it.
+// Flight Log lines (scripts/log-text.js mirrors these): the clean log_text first, then text; never the raw post.
+const logLine = (h) => (h && (h.log_text || h.text)) || "";
+const LOG_MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+// One single day, no clock time: log_date, else the entry's own day (a range → its first day), else the post's UK day.
+function logDay(h) {
+  if (!h) return "";
+  if (h.log_date) return h.log_date;
+  const m = String(h.date || "").match(/(\d{1,2})\s*(?:[–-]\s*\d{1,2}\s*)?([A-Z][a-z]{2})/);
+  if (m) return `${Number(m[1])} ${m[2]}`;
+  const iso = h.publishedAt || h.at;
+  if (!iso || !Number.isFinite(Date.parse(iso))) return "";
+  const p = Object.fromEntries(new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "numeric", timeZone: "Europe/London" }).formatToParts(new Date(iso)).map((x) => [x.type, x.value]));
+  return `${Number(p.day)} ${LOG_MON[p.month - 1]}`;
+}
+const logHw = (h) => { const m = String((h.milestone && h.milestone.hardware) || h.hardware || "").match(/^\s*(?:Ship\s*|S)(\d+)|^\s*(?:Booster\s*|B)(\d+)/i); return m ? (m[1] ? "S" + m[1] : "B" + m[2]) : null; };
+// Every current-flight vehicle's latest entry in the section is completed → the section is done.
+function rollupStatus(c, road) {
+  if (!c || !["cryo", "raptor", "static"].includes(c.id)) return c && c.status; // per-vehicle test sections only
+  const vs = (road.vehicles || []).map((v) => String(v).toUpperCase());
+  const own = (c.history || []).filter((h) => h && h.kind !== "check" && !(h.flight > road.flight) && h.trust !== "unconfirmed" && logHw(h));
+  if (!vs.length || !own.length) return c.status;
+  const fin = (h) => (h.milestone && h.milestone.phase === "completed") || h.complete === true;
+  const last = {};
+  for (const h of own) if (!last[logHw(h)]) last[logHw(h)] = h;
+  return vs.every((v) => last[v] && fin(last[v])) && Object.values(last).every(fin) ? "done" : c.status;
+}
 function boxLatest(m, road) {
   const own = (m.history || []).filter((h) => isRealEntry(h) && !(h.flight > road.flight) && !isLaunched(h.flight) && h.trust !== "unconfirmed");
   const later = (m.history || []).some((h) => h.flight > road.flight && (h.x_text || h.text || "").slice(0, 60) === String(m.latest || "").slice(0, 60));
-  return later ? (own[0] ? (own[0].x_text || own[0].text) : "Nothing reported yet") : m.latest;
+  if (m.log_latest && !later) return m.log_latest;
+  return later ? (own[0] ? logLine(own[0]) : "Nothing reported yet") : m.log_latest || m.latest;
 }
 function RoadCard({ road, onEntryTap, openReq }) {
   const [main, setMain] = React.useState(false);
   React.useEffect(() => { if (openReq) setMain(true); }, [openReq]); // header chip asks it to open
   const [open, setOpen] = React.useState(null);
-  const items = road && Array.isArray(road.categories) ? road.categories.filter((m) => !ROAD_HIDDEN.includes(m.id)) : [];
+  const items = road && Array.isArray(road.categories) ? road.categories.filter((m) => !ROAD_HIDDEN.includes(m.id)).map((m) => ({ ...m, status: rollupStatus(m, road) })) : [];
   if (!items.length) return null;
   const title = `Road to Flight ${road.flight}`;
   const done = items.filter((m) => m.status === "done" || m.status === "complete").length; // shown boxes only
@@ -1149,14 +1176,14 @@ function RoadCard({ road, onEntryTap, openReq }) {
             <div className="callout-hist"><div className="callout-hist-inner">
               {(m.history || []).map((h, i) => isRealEntry(h) && !(h.flight > road.flight) && !isLaunched(h.flight) && ( /* later flights' cards: Road page only */
                 <div className={"mini" + (onEntryTap ? " tappable" : "")} key={i}
-                  {...(onEntryTap ? { role: "button", tabIndex: isOpen ? 0 : -1, "aria-label": `${entryDate(h)}: ${h.text}. Show in the updates feed`,
+                  {...(onEntryTap ? { role: "button", tabIndex: isOpen ? 0 : -1, "aria-label": `${logDay(h)}: ${logLine(h)}. Show in the updates feed`,
                     onClick: () => onEntryTap(m.id, i), onKeyDown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onEntryTap(m.id, i); } } } : {})}>
                   <div className="mini-top">
-                    <span className="mini-date">{entryDate(h)}</span>
+                    <span className="mini-date">{logDay(h)}</span>
                     {<span className="mini-src">{srcOf(h)}</span>}
                   </div>
-                  <p>{scrub(h.x_text || h.text)}</p>
-                  <BuildUp h={h} />
+                  <p>{scrub(logLine(h))}</p>
+                  <BuildUp h={h} log />
                 </div>
               ))}
             </div></div>
@@ -1178,15 +1205,15 @@ function TierTag({ t, src, rep, hedged }) {
   if (!t) return null;
   return <span className={"mini-tier tier-" + t}>{t === 1 && hedged ? "Expected" : TIER_LABEL[t]}{t === 2 && rep ? " " + PHASE_LABEL[rep].toLowerCase() : ""}{uiSrc(src) ? " · " + uiSrc(src) : ""}</span>;
 }
-function BuildUp({ h }) {
+function BuildUp({ h, log }) {
   const ups = Array.isArray(h.updates) ? h.updates.filter((u) => u && u.text) : [];
   if (!ups.length) return null;
   const stop = (e) => e.stopPropagation();
   return (
     <details className="buildup" onClick={stop}>
       <summary>{`Earlier updates (${ups.length})`}</summary>
-      <ul>{ups.map((u, i) => <li key={i}><div className="bu-top"><span className="bu-date">{entryDate(u)}</span></div>
-        <div className="bu-text">{u.url ? <a href={u.url} target="_blank" rel="noopener noreferrer" onClick={stop}>{scrub(u.text)}</a> : scrub(u.text)}</div></li>)}</ul>
+      <ul>{ups.map((u, i) => <li key={i}><div className="bu-top"><span className="bu-date">{log ? logDay(u) : entryDate(u)}</span></div>
+        <div className="bu-text">{u.url ? <a href={u.url} target="_blank" rel="noopener noreferrer" onClick={stop}>{scrub(log ? logLine(u) : u.text)}</a> : scrub(log ? logLine(u) : u.text)}</div></li>)}</ul>
     </details>
   );
 }

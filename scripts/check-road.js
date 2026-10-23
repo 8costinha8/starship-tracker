@@ -49,6 +49,7 @@ const news = require("./news.js");
 const ROOT = path.join(__dirname, "..");
 const xFirstMod = require("./x-first.js");
 const milestones = require("./milestones.js");
+const logText = require("./log-text.js"); // Flight Log lines: style lint, single day, section roll-up
 const mission = require("./mission.js");
 const pushSync = require("./push-sync.js"); // the one send path: visible first, then push, then logged
 const writer = require("./writer.js"); // WRITER=grok (default, Claude fallback) | claude
@@ -1102,7 +1103,7 @@ function notificationFor(road, ch) {
   const n = notificationText(road, ch);
   const m = ch.entry.x_post && (ch.entry.x_post.media || [])[0];
   const img = (ch.entry.media_override && ch.entry.media_override.image) || (m && imageOf(m));
-  return { ...n, ...(ch.entry.x_text ? { body: ch.entry.x_text } : {}), link: ch.entry.id ? `${FEED_LINK}&entry=${encodeURIComponent(ch.entry.id)}` : FEED_LINK, ...(img ? { image: img } : {}),
+  return { ...n, ...(ch.entry.log_text || ch.entry.x_text ? { body: ch.entry.log_text || ch.entry.x_text } : {}), /* the push says the visible Flight Log line */ link: ch.entry.id ? `${FEED_LINK}&entry=${encodeURIComponent(ch.entry.id)}` : FEED_LINK, ...(img ? { image: img } : {}),
     url: ch.entry.url || (ch.entry.x_post && ch.entry.x_post.url) || "", at: (ch.entry.x_post && ch.entry.x_post.created_at) || ch.entry.at || new Date().toISOString() };
 }
 const PHASE_TEXT = { expected: "Expected", progress: "In progress", completed: "Completed" };
@@ -1251,10 +1252,13 @@ async function run(opts = {}) {
         ask: opts.askXFirst || ((prompt, o) => writer.askJson(prompt, { ...o, log })), log, now: clock(), maxCards: LIMITS.changesPerRun,
         milestone: (v, post) => milestones.recordMilestone(road, { hardware: v.hardware, event: v.event, at: post.created_at, src: post.url }),
         status: (box, s, post, entry) => { // trusted accounts only (all X-first accounts are trusted)
-          const want = xStatus(box, s), from = box.status, tier = entry.official ? "official" : "trusted";
+          let want = xStatus(box, s); const from = box.status;
+          const tier = entry.official ? "official" : "trusted";
+          if (want === "complete" && logText.hasVehicleEntries(box, road)) want = logText.rollupStatus(box, road) === "done" ? "done" : "progress"; // a vehicle section is done only when every vehicle completed
           if (!statusRule(box, want, tier, `@${post.author.username}`, log)) return null;
           box.status = want; box.latest = want === "complete" ? "Done" : entry.text.slice(0, 160);
-          if (want === "complete") entry.complete = true;
+          if (entry.log_text) box.log_latest = entry.log_text;
+          if (want === "complete" || want === "done") entry.complete = true;
           log(`STATUS [${box.id}] ${from} → ${want} (@${post.author.username})`);
           return { from, to: want };
         } });

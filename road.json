@@ -64,7 +64,8 @@
             "phase": "completed",
             "migrated": true
           },
-          "complete": true
+          "complete": true,
+          "log_text": "Booster 23 rolled back to the production site after cryo testing."
         },
         {
           "id": "x-2110889490336350574",
@@ -113,7 +114,8 @@
             "phase": "completed",
             "migrated": true
           },
-          "complete": true
+          "complete": true,
+          "log_text": "Booster 23 completed a cryo proof test at Massey's."
         },
         {
           "date": "9 Oct",
@@ -177,19 +179,23 @@
               "text": "Ship 42 heads back to Massey's for further cryo testing.",
               "src": "NSF (secondary)",
               "phase": "progress",
-              "tier": 2
+              "tier": 2,
+              "log_text": "Ship 42 heads back to Massey's for further cryo testing."
             },
             {
-              "date": "3–4 Sep",
+              "date": "3 Sep",
               "text": "Ship 42 completes its first cryo test.",
               "src": "Next Spaceflight",
               "phase": "progress",
-              "tier": 2
+              "tier": 2,
+              "log_text": "Ship 42 completes its first cryo test.",
+              "log_date": "3 Sep"
             }
-          ]
+          ],
+          "log_text": "Ship 42 completed further cryo tests."
         },
         {
-          "date": "9–10 Sep",
+          "date": "9 Sep",
           "text": "Booster 22 completed its cryo test at Massey's.",
           "src": "Next Spaceflight",
           "source": "next-spaceflight",
@@ -236,9 +242,12 @@
             "hardware": "B22",
             "phase": "completed",
             "migrated": true
-          }
+          },
+          "log_text": "Booster 22 completed its cryo test at Massey's.",
+          "log_date": "9 Sep"
         }
-      ]
+      ],
+      "log_latest": "Ship 42 completed its cryo tests at Massey's."
     },
     {
       "id": "raptor",
@@ -287,9 +296,11 @@
               "url": "https://www.youtube.com/watch?v=dPqDD39cBEw",
               "src": "NSF",
               "phase": "expected",
-              "tier": 1
+              "tier": 1,
+              "log_text": "Ship 42 had its Raptor engines removed ahead of Flight 15."
             }
-          ]
+          ],
+          "log_text": "Ship 42 is reportedly having its Raptor engines reinstalled."
         },
         {
           "date": "30 Sep",
@@ -308,7 +319,8 @@
             "hardware": "B22",
             "phase": "progress",
             "migrated": true
-          }
+          },
+          "log_text": "Booster 22 and Ship 42 are being fitted with Raptors in the Mega Bays."
         },
         {
           "date": "12–13 Sep",
@@ -334,9 +346,11 @@
             "hardware": null,
             "phase": "progress",
             "migrated": true
-          }
+          },
+          "log_text": "Booster 22 and Ship 42 returned to the Mega Bays for Raptor installation."
         }
-      ]
+      ],
+      "log_latest": "Ship 42 is reportedly having its Raptor engines reinstalled."
     },
     {
       "id": "static",
@@ -406,18 +420,22 @@
               "url": "https://www.nasaspaceflight.com/2026/10/ship-40-returns-ship-42-more-testing/",
               "src": "NSF",
               "phase": "expected",
-              "tier": 1
+              "tier": 1,
+              "log_text": "Booster 22 could be ready for a static fire as early as next week."
             },
             {
               "date": "30 Sep",
               "text": "B22 ready for static fire within ~2 weeks, S42 within 2–3 weeks. Estimate, not a SpaceX schedule.",
               "src": "NSF",
               "phase": "expected",
-              "tier": 1
+              "tier": 1,
+              "log_text": "Booster 22 could be ready for a static fire within two weeks."
             }
-          ]
+          ],
+          "log_text": "Booster 22 is waiting to roll out for its static fire test."
         }
-      ]
+      ],
+      "log_latest": "Booster 22 is waiting to roll out for its static fire test."
     },
     {
       "id": "pad",
@@ -480,7 +498,8 @@
             "title": "🏗️ Pad activity · Flight 15",
             "url": "https://x.com/NASASpaceflight/status/2113664154762457446",
             "at": "2026-10-23T16:09:39.000Z"
-          }
+          },
+          "log_text": "Pad 1 flame trench wall work is progressing at Starbase."
         },
         {
           "id": "x-2113617185218429437",
@@ -537,7 +556,8 @@
             "hardware": "B22",
             "phase": "progress",
             "migrated": true
-          }
+          },
+          "log_text": "Booster 22 heads to Pad 2 for a potential static fire test."
         },
         {
           "id": "x-2112967167767433728",
@@ -607,7 +627,8 @@
               "url": "https://x.com/Blobifie/status/2112679319818686934",
               "src": "@Blobifie",
               "phase": "progress",
-              "tier": 2
+              "tier": 2,
+              "log_text": "SpaceX ran more catch and deluge tests at the tower top."
             },
             {
               "date": "9 Oct",
@@ -616,23 +637,27 @@
               "url": "https://www.youtube.com/watch?v=dPqDD39cBEw",
               "src": "NSF",
               "phase": "progress",
-              "tier": 1
+              "tier": 1,
+              "log_text": "Pad 2 chopsticks are undergoing maintenance."
             },
             {
               "date": "30 Sep",
               "text": "Pad 2 clear after Flight 14. New servicing structure going in for hold-down clamp work.",
               "src": "NSF",
               "phase": "progress",
-              "tier": 2
+              "tier": 2,
+              "log_text": "Pad 2 is clear after Flight 14, with a new service structure going in."
             },
             {
               "date": "11–12 Sep",
               "text": "S42 lifted by Pad 2 chopsticks in a catch position. SQD arm connect tests.",
               "src": "NSF",
               "phase": "progress",
-              "tier": 2
+              "tier": 2,
+              "log_text": "Ship 42 was lifted by the Pad 2 chopsticks for catch and arm tests."
             }
-          ]
+          ],
+          "log_text": "Pad 2 booster quick disconnects are purging ahead of Booster 22's arrival."
         },
         {
           "id": "x-2112035558994419901",
@@ -682,9 +707,11 @@
             "hardware": "PAD2",
             "phase": "expected",
             "migrated": true
-          }
+          },
+          "log_text": "The Pad 2 launch mount work platform was removed overnight."
         }
-      ]
+      ],
+      "log_latest": "Pad 1 flame trench wall work is progressing at Starbase."
     },
     {
       "id": "faa",
@@ -718,9 +745,11 @@
             "hardware": null,
             "phase": "expected",
             "migrated": true
-          }
+          },
+          "log_text": "FAA licence issued for Flight 14 only, Flight 15 needs a modification."
         }
-      ]
+      ],
+      "log_latest": "FAA licence covers Flight 14 only, with no Flight 15 change yet."
     },
     {
       "id": "date",
@@ -760,25 +789,30 @@
               "url": "https://www.nasaspaceflight.com/2026/10/ship-40-returns-ship-42-more-testing/",
               "src": "NSF",
               "phase": "expected",
-              "tier": 1
+              "tier": 1,
+              "log_text": "A new slide suggests Ship 42 could be ready for flight NET November."
             },
             {
               "date": "30 Sep",
               "text": "B22 and S42 could be flight-ready by end of October.",
               "src": "NSF estimate",
               "phase": "expected",
-              "tier": 3
+              "tier": 3,
+              "log_text": "Booster 22 and Ship 42 could be flight-ready by the end of October."
             },
             {
               "date": "24 Sep",
               "text": "Air-traffic slide shows NET 19 Oct, labelled \"super provisional\".",
               "src": "NSF (unofficial)",
               "phase": "expected",
-              "tier": 2
+              "tier": 2,
+              "log_text": "An air-traffic slide shows a very provisional NET 19 October."
             }
-          ]
+          ],
+          "log_text": "Flight 15 is targeting NET 8 November, with plans to catch both vehicles."
         }
-      ]
+      ],
+      "log_latest": "Flight 15 targets NET 8 November."
     }
   ],
   "predicted": {

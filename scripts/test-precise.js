@@ -50,7 +50,7 @@ async function runWith(items, answer, vis) {
   check(h.x_post.media.length === 0, "vision call fails → no picture");
   // 4. app: Road card and Road page both show the rewritten text; picture only on the Road page
   const app = fs.readFileSync(path.join(ROOT, "app.js"), "utf8");
-  check(/<p>\{scrub\(h\.x_text \|\| h\.text\)\}<\/p>/.test(app) && /post-text">\{scrub\(h\.x_text \|\| h\.text\)\}/.test(app), "Road card and Road page both use the rewritten text");
+  check(/<p>\{scrub\(logLine\(h\)\)\}<\/p>/.test(app) && /const logLine = \(h\) => \(h && \(h\.log_text \|\| h\.text\)\)/.test(app) && /post-text">\{scrub\(h\.x_text \|\| h\.text\)\}/.test(app), "Flight Log card uses the clean log line (log_text, then text); the Road page keeps the post's rewritten text");
   check(/h\.x_post && <XMedia/.test(app) && !/mini[^\n]*XMedia/.test(app), "pictures only on the Road page (Road card stays text only)");
   // 4b. hand-picked pictures win over the automatic check and over a mismatched rewrite
   {
