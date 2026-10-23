@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "23 Oct",
-  "updatedAt": "2026-10-23T13:15:35.252Z",
+  "updatedAt": "2026-10-23T15:45:28.573Z",
   "categories": [
     {
       "id": "cryo",
@@ -269,7 +269,15 @@
           "publishedAt": "2026-10-14T18:59:28.000Z",
           "xChecked": true,
           "imageChecked2": true,
-          "flight": 15
+          "flight": 15,
+          "media_override": {
+            "post_url": "https://x.com/Flight2Starship/status/2110045816983290227",
+            "post_id": "2110045816983290227",
+            "author": "Flight2Starship",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HUhjfCvWoAAeQ3A.jpg",
+            "credit_only": true
+          }
         },
         {
           "date": "30 Sep",
@@ -309,11 +317,11 @@
           "source": "nsf",
           "trust": "trusted",
           "media_override": {
-            "post_url": "https://x.com/LabPadre/status/2098642467390153040",
-            "post_id": "2098642467390153040",
-            "author": "LabPadre",
+            "post_url": "https://x.com/NASASpaceflight/status/2098104487428694216",
+            "post_id": "2098104487428694216",
+            "author": "NASASpaceflight",
             "type": "video",
-            "image": "https://pbs.twimg.com/ext_tw_video_thumb/2098642453741887497/pu/img/JdijqZ7iq6c-qq8K.jpg"
+            "image": "https://pbs.twimg.com/amplify_video_thumb/2098104422446649344/img/RNpZZjZzOhOPObst.jpg"
           },
           "imageChecked2": true,
           "xChecked": true,
