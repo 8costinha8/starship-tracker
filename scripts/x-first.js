@@ -11,6 +11,8 @@ const XF_ACCOUNTS = ["SpaceX", "elonmusk", "NASASpaceflight", "LabPadre", "RGVae
 const OFFICIAL = new Set(["spacex", "faanews"]);
 const tiers = require("./source-tiers.js"); // Tier 1 confirmed / Tier 2 reported / Tier 3 rumour
 const STARSHIP_WORDS = /starship|super ?heavy|booster|\bship ?\d|\b[bs]\d{2}\b|raptor|starbase|massey|chopsticks|mechazilla|static fire|flight \d+|olp|launch pad|faa/i;
+const RoadCards = require("../road-cards.js");
+const FLIGHT_LEVEL = ["launch_date", "licence"];
 const MERGE_MS = 48 * 3600000;
 const XF_FIELDS = { "tweet.fields": "created_at,author_id,attachments,note_tweet,referenced_tweets,entities", expansions: "attachments.media_keys,author_id",
   "media.fields": "type,url,preview_image_url,variants,width,height,alt_text", "user.fields": "name,username,profile_image_url" };
@@ -51,6 +53,9 @@ const CLASSIFY_SCHEMA = { type: "object", additionalProperties: false, required:
 function classifyPrompt(road, posts, stages) {
   return `You sort new X posts for a Starship tracker's "Road to Flight ${road.flight}" page.
 Vehicles for this flight: ${(road.vehicles || []).join(", ") || "unknown"}.
+Writing rules for "text" (every section): ONE short plain sentence, pattern vehicle + action + place ("Booster 22 completed its cryo test at Massey's.").
+No filler ("is being transported", "has been seen to be"). A finished step says "completed" or "completes". Use "its" (never "it's" for possession), no doubled words,
+no "is been", no "Ship 42's completes", no repeated verb ("completed has completed"), no dates or times in the sentence.
 For EVERY post return one entry: {item, kind, stage, hardware, text, status, event, phase, flight, media_fit, speculative, inferred, topic, attribution, reason}.
 kind:
 - "road": ONLY hardware and test progress toward Flight ${road.flight}: rollouts, cryo tests, static fires, engine installs/removals, stacking, pad work. It must be real (photo/video/report of actual events, incl. a trusted report such as "all engines installed" or a rollout due).
@@ -169,9 +174,15 @@ function placePost(road, post, cls, now = Date.now(), picks = []) {
   const phase = tier <= 2 && !hedge && !cls.inferred ? claimed : "expected";
   const accurate = factsMatch(cls, post);
   const all = road.categories.flatMap((c) => (c.history || []).map((h) => ({ c, h })));
-  // lifecycle: the open entry for this (milestone type + flight + vehicle), or the same completion re-reported within 48h
+  // one card per vehicle per section per flight (road-cards.js): any later update for the same
+  // section + flight + vehicle attaches to that card as a new timeline line, never a new card.
+  // Flight-level milestones (launch date, licence) and lines with no vehicle share the section's one site card.
   const mk = type && milestoneKey(type, flight, cls.hardware);
-  const life = mk && all.find(({ c, h }) => c.id === cls.stage && h.milestone && h.milestone.key === mk && (h.milestone.phase !== "completed" || Math.abs(at - Date.parse(h.at)) <= MERGE_MS));
+  const cardOf = (h) => (FLIGHT_LEVEL.includes(type) || FLIGHT_LEVEL.includes(h.milestone && h.milestone.type) ? "SITE" : hwKey((h.milestone && h.milestone.hardware) || h.hardware) || "SITE");
+  const want = FLIGHT_LEVEL.includes(type) ? "SITE" : key || "SITE";
+  const flightOfH = (h) => (Number.isInteger(h.flight) ? h.flight : h.milestone && Number.isInteger(h.milestone.flight) ? h.milestone.flight : road.flight);
+  const life = all.find(({ c, h }) => c.id === cls.stage && h.id && h.kind !== "check" && !h.demo && flightOfH(h) === flight && cardOf(h) === want);
+  if (life && !life.h.milestone) { const ot = life.h.x_text || life.h.text || ""; life.h.milestone = { key: milestoneKey(type || "update", flight, want === "SITE" ? null : want), type: type || null, flight, hardware: want === "SITE" ? null : want, phase: RoadCards.phaseOfText(ot) }; }
   if (life) {
     const h = life.h, from = h.milestone.phase;
     h.x_posts = [...new Set([...(h.x_posts || []), post.post_id])];
@@ -182,13 +193,14 @@ function placePost(road, post, cls, now = Date.now(), picks = []) {
     }
     const to = accurate && PHASES.indexOf(phase) > PHASES.indexOf(from) ? phase : from;
     if (to !== from || h.text !== cls.text) { // build-up: the older line goes under the entry; the entry shows the latest
-      h.updates = [{ date: h.date, at: h.at, text: h.x_text || h.text, url: h.url, src: h.src, phase: from, tier: h.tier }, ...(h.updates || [])].slice(0, 20);
-      h.tier = tier; if (hedge) h.hedged = true; else delete h.hedged; if (tier === 3 && claimed !== "expected") h.reported = claimed; else delete h.reported;
+      h.updates = [{ date: h.date, at: h.at, text: h.x_text || h.text, url: h.url, src: h.src, phase: from, tier: h.tier, ...(h.media_override ? { media: h.media_override } : {}), ...(h.push ? { push: h.push } : {}) }, ...(h.updates || [])].slice(0, 20);
+      h.tier = tier; if (hedge) h.hedged = true; else delete h.hedged; if (tier === 3 && claimed !== "expected") h.reported = claimed; else delete h.reported; delete h.push; // the new line gets its own push record
       if (cls.inferred) h.trust = "unconfirmed"; // the writer inferred the step from indirect evidence: shown, never moves a phase
       Object.assign(h, { date: dayLabel(post.created_at), at: new Date(at).toISOString(), text: cls.text, x_text: cls.text, url: post.url, src: `@${post.author.username}`, x_post: post });
     }
     if (!accurate) h.updates[0] && (h.updates[0].note = "later post did not match the vehicle/pad numbers; status unchanged");
-    if (m && (claimed === "completed" || cls.media_fit === "shows-event")) { h.media_override = overrideFor(post, m); delete h.media_context; } // real media of the event itself
+    // one picture per card: the completing post's own media, else the latest post's
+    if (m && (to === "completed" && from !== "completed" || from !== "completed" || cls.media_fit === "shows-event")) { h.media_override = overrideFor(post, m); delete h.media_context; }
     else if (!h.media_override && !h.media_context) { const cx = contextImage(road, cls.stage, cls.hardware, h.id, picks); if (cx) h.media_context = cx; }
     h.milestone.phase = to;
     if (to === "completed") h.complete = true;

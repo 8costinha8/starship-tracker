@@ -13,7 +13,7 @@ const xReply = (posts, newest) => ({ ok: true, status: 200, json: async () => ({
   const roadPath = path.join(tmp, "road.json"), appJsPath = path.join(tmp, "app.js");
   fs.copyFileSync(path.join(ROOT, "road.json"), roadPath); fs.copyFileSync(path.join(ROOT, "app.js"), appJsPath);
   const before = JSON.parse(fs.readFileSync(roadPath, "utf8"));
-  const oldCards = before.categories.flatMap((c) => (c.history || []).filter((h) => h.kind !== "check").map((h) => `${c.id}|${h.date}|${h.text}`));
+  const oldCards = before.categories.flatMap((c) => (c.history || []).filter((h) => h.kind !== "check").flatMap((h) => [h, ...(h.updates || [])].map((u) => `${c.id}|${u.date}|${u.text}`)));
   const mediaBefore = fs.readFileSync(path.join(ROOT, "road-media.json"), "utf8");
   let stored = { seen: [], news: { seen: [], pending: [], sent: [], count: 0, day: "2026-10-16" }, lastRun: ago(0.25) };
   const sent = [], commits = [], urls = [], asks = [];
@@ -47,14 +47,14 @@ const xReply = (posts, newest) => ({ ok: true, status: 200, json: async () => ({
   check(urls.length === 1 && urls[0].searchParams.get("since_id") === "900", "next run reads only posts since the last id (one X call)");
   check(asks.length === 1 && !/#1007/.test(asks[0]) && /#1003/.test(asks[0]), "ONE batched writer call; Elon's non-Starship post never sent");
   check(/memes, opinions, jokes, renders/.test(asks[0]) && /"cryo"/.test(asks[0]) && /"faa"/.test(asks[0]), "prompt: road (with a stage) / news / skip, memes/opinions/renders skipped");
-  const cryo = B("cryo").history[0];
-  check(cryo.id === "x-1001" && cryo.x_first && cryo.stage === "cryo" && cryo.x_text === "Ship 42 rolled to Massey's for cryo testing." && cryo.src === "@LabPadre" && cryo.url === "https://x.com/RGVaerialphotos/status/1002", "road post → card on top of its stage box (writer text, @author, link)");
+  const cryo = B("cryo").history.find((h) => h.id === "x-1001" || (h.x_posts || []).includes("1001")) || {};
+  check((cryo.id === "x-1001" || (cryo.x_posts || []).includes("1001")) && cryo.x_first && cryo.stage === "cryo" && cryo.x_text === "Ship 42 is on the cryo stand." && (cryo.updates || []).some((u) => u.text === "Ship 42 rolled to Massey's for cryo testing.") && cryo.src === "@RGVaerialphotos" && cryo.url === "https://x.com/RGVaerialphotos/status/1002", "road post → new top line on its vehicle card (writer text, @author, link)");
   check(cryo.x_posts.join() === "1001,1002" && cryo.media_override.type === "video" && cryo.media_override.image === "https://pbs.twimg.com/1002-poster.jpg" && cryo.media_override.author === "RGVaerialphotos", "S42 posts within 48h merge into one card; video beats photo (preview image)");
-  check(B("static").history[0].media_override.image === "https://pbs.twimg.com/1005-poster.jpg" && B("pad").history[0].media_override.image === "https://pbs.twimg.com/1006.jpg", "video card uses its preview image, photo card its photo");
+  check(B("static").history[0].media_override.image === "https://pbs.twimg.com/1005-poster.jpg" && B("pad").history.find((h) => (h.x_posts || []).includes("1006")).media_override.image === "https://pbs.twimg.com/1006.jpg", "video card uses its preview image, photo card its photo");
   check(!/(status\/|x[-:])100[34]\b/.test(JSON.stringify(r)), "skip and news posts make no card");
   check(res.xFirst.news.length === 1 && res.xFirst.news[0].key === "x:1004", "news posts go to the news pushes");
-  check(sent.length === 3 && sent.every((n) => /\?feed=1&entry=x-\d+$/.test(n.link) && n.image) && sent.map((n) => n.link.split("entry=")[1]).sort().join() === "x-1001,x-1005,x-1006", "one push per NEW card (merge doesn't push), deep link ?feed=1&entry=<id>, picture");
-  const now = r.categories.flatMap((c) => (c.history || []).filter((h) => h.kind !== "check").map((h) => `${c.id}|${h.date}|${h.text}`));
+  check(sent.length === 3 && sent.every((n) => /\?feed=1&entry=x-\d+$/.test(n.link) && n.image) && sent.map((n) => n.link.split("entry=")[1]).sort().join() === "x-1001,x-1005,x-2112967167767433728", "one push per new card or new vehicle line (same-post merge doesn't push), deep link ?feed=1&entry=<id>, picture");
+  const now = r.categories.flatMap((c) => (c.history || []).filter((h) => h.kind !== "check").flatMap((h) => [h, ...(h.updates || [])].map((u) => `${c.id}|${u.date}|${u.text}`)));
   check(oldCards.every((k) => now.includes(k)) && fs.readFileSync(path.join(ROOT, "road-media.json"), "utf8") === mediaBefore, "the 14 existing cards and road-media.json stay as they are");
   check(urls.every((u) => /search\/recent/.test(u.pathname)), "no picture search / judge calls");
 
@@ -91,21 +91,22 @@ const xReply = (posts, newest) => ({ ok: true, status: 200, json: async () => ({
   sent.length = 0; xPage = xReply([P("4005", "4", 1, "Flight 15 NET 30 Oct #4005", "photo"), P("4006", "4", 0.5, "B60 static fire done #4006", "video")], "4006");
   res = await road.run({ ...base, askXFirst: ask });
   check(st("date").status === "done" && sent.some((n) => /Launch date: Confirmed/.test(n.title)), "SpaceX post confirms the Launch date");
-  check(st("static").status === "complete" && st("static").history.filter((h) => h.hardware === "B60").length === 1 && sent.some((n) => /Static fires: Done/.test(n.title) && /^Static fires: Done \(\d+ \w{3}\)$/.test(n.body) && /entry=status-static-complete-4006$/.test(n.link) && st("static").history.some((h) => h.kind === "status" && h.text === n.body)), "merged post that finishes the stage still moves the status and pushes");
+  check(st("static").status === "complete" && st("static").history.filter((h) => h.hardware === "B60").length === 1 && sent.some((n) => /Static fires: Completed/.test(n.title) && n.body === "Booster 60 finished its static fire." && /entry=x-4001$/.test(n.link) && st("static").history.some((h) => h.id === "x-4001" && h.x_text === n.body)), "a new line that finishes the stage moves the status and pushes that line (one B60 card)");
   check(road.xStatus({ id: "date" }, "done") === null && road.xStatus({ id: "pad" }, "confirmed") === null, "done is not used on the Launch date; confirmed only there");
   // source tiers: a Tier 2 tracker can't move a status; rumour wording is Tier 3
   { const r0 = JSON.parse(fs.readFileSync(roadPath, "utf8")); r0.categories.find((c) => c.id === "pad").status = "pending"; fs.writeFileSync(roadPath, JSON.stringify(r0, null, 2)); }
   Object.assign(cls, { "4101": { kind: "road", stage: "pad", hardware: "Pad 2", text: "Pad 2 work is done.", status: "done" } });
   sent.length = 0; xPage = xReply([P("4101", "1", 0.4, "Pad 2 done #4101", "photo")], "4101");
   res = await road.run({ ...base, askXFirst: ask });
-  check(st("pad").status === "complete" && st("pad").history.some((h) => (h.x_posts || []).includes("4101")) && sent.some((n) => /Pad activity: Done/.test(n.title)), "Tier 2 (LabPadre) can now move a status (Pad activity: Done), labelled Reported");
+  check(st("pad").status === "complete" && st("pad").history.some((h) => (h.x_posts || []).includes("4101")) && sent.some((n) => /Pad activity: (Done|Completed)/.test(n.title)), "Tier 2 (LabPadre) can now move a status (Pad activity: Done), labelled Reported");
   { const tiers = require("./source-tiers.js"); const au = (u) => ({ author: { username: u } });
     check(tiers.tierOf(au("NASASpaceflight"), { text: "Booster 22 finished its static fire." }) === 1 && tiers.tierOf(au("LabPadre"), { text: "Ship 42 rolled out." }) === 2 && tiers.tierOf(au("SpaceX"), { text: "Booster 22 could roll out next week." }) === 1 && tiers.tierOf(au("TrackingTheSB"), { text: "Booster 22 could roll out next week." }) === 3 && tiers.tierOf(au("LabPadre"), { speculative: true, text: "x" }) === 3, "tierOf: Tier 1 accounts, Tier 2 trackers, rumour wording from any account is Tier 3");
     const before = tiers.tierOf(au("SpaceflightNow"), { text: "x" }); process.env.SOURCE_TIERS_PROPOSED = "1"; const after = tiers.tierOf(au("SpaceflightNow"), { text: "x" }); const q = road.xfQuery ? null : null; delete process.env.SOURCE_TIERS_PROPOSED;
     check(before === 2 && after === 1 && tiers.TIER2.length === 11, "proposed accounts only apply with SOURCE_TIERS_PROPOSED=1 (live list unchanged)"); }
   // app
   const app = fs.readFileSync(path.join(ROOT, "app.js"), "utf8");
-  check(!/<Tags h=|Build-up \(|Earlier photo/.test(app) && /mini-src">\{srcOf\(h\)\}/.test(app) && /`Earlier updates \(\$\{ups\.length\}\)`/.test(app) && /function tierOf/.test(fs.readFileSync(path.join(__dirname, "source-tiers.js"), "utf8")), "app: no status/tier/Unconfirmed/Earlier photo labels on cards (tier data kept in the backend); quiet 'Earlier updates (N)' toggle");
+  { const vc = app.slice(app.indexOf("function VehicleCards"), app.indexOf("function RoadCard(")), rc = app.slice(app.indexOf("function RoadCard("), app.indexOf("// No \"seen\" dimming"));
+    check(!/<Tags h=|Build-up \(|Earlier photo/.test(app) && !/BuildUp|mini-tier|mini-phase|Unconfirmed|assumed/i.test(vc + rc) && /vc-tl/.test(vc) && /function tierOf/.test(fs.readFileSync(path.join(__dirname, "source-tiers.js"), "utf8")), "app: vehicle cards show no status/tier/Unconfirmed/assumed labels and no toggle: an open dated timeline (tier data kept in the backend)"); }
   check(/const PLAY_ICON = null/.test(app) && /get\("entry"\)/.test(app) && /data-entry=\{h\.id/.test(app), "app: no play badge; ?entry= scrolls to and highlights the card");
   check(/Number\.isInteger\(h\.flight\)\) return h\.flight/.test(app) && /rank\(a\.flight\) - rank\(b\.flight\) \|\| b\.when - a\.when/.test(app) && /!\(h\.flight > road\.flight\)/.test(app), "flight sections are data-driven (entry flight tag), next flight on top, later flights below, newest first by post date; later flights stay off the Starship card");
   { const live = JSON.parse(fs.readFileSync(path.join(ROOT, "road.json"), "utf8")); const b23 = live.categories.find((c) => c.id === "cryo").history.find((h) => h.id === "x-2110889490336350574");

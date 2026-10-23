@@ -31,7 +31,7 @@ const ask = async (prompt) => ({ entries: [...prompt.matchAll(/^(\d+)\. @\S+ \S+
   const mu = out.mission_updates && out.mission_updates[15];
   check(mu && mu.length === 1 && mu[0].topic === "catch" && mu[0].line === "SpaceX plans to try catching both Booster 22 and Ship 42 (Musk confirmed, 19 Oct).", "mission-update → a line on Flight 15's mission_updates, written as 'fact (who, UK day).'");
   check(!out.categories.some((c) => c.history.some((h) => ["x-203", "x-205"].includes(h.id))), "mission updates never create Road cards");
-  check(out.categories.find((c) => c.id === "static").history.some((h) => h.id === "x-204"), "road verdicts (hardware/tests) still make Road cards");
+  check(out.categories.find((c) => c.id === "static").history.some((h) => h.id === "x-204" || (h.x_posts || []).includes("204")), "road verdicts (hardware/tests) still reach the Road (new card, or a new line on that vehicle's card)");
   const mp = res.notifications.filter((n) => n.title === "Flight 15 update");
   check(mp.length === 1 && mp[0].body === mu[0].line && mp[0].link === "https://8costinha8.github.io/starship-tracker/?flight=15", "push: 'Flight 15 update', body = the line, deep link ?flight=15");
   check(!mu.some((u) => u.topic === "net") && datesAsked.some((p) => /November 8/.test(p)), "a NET mission-update is not a line: it goes to the predicted-date check (which owns the date display)");

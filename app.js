@@ -1114,51 +1114,72 @@ function boxLatest(m, road) {
   const later = (m.history || []).some((h) => h.flight > road.flight && (h.x_text || h.text || "").slice(0, 60) === String(m.latest || "").slice(0, 60));
   return later ? (own[0] ? (own[0].x_text || own[0].text) : "Nothing reported yet") : m.latest;
 }
+// Road display model (road-cards.js, shared with the scripts): one card per vehicle per section,
+// open dated timeline (newest first), section status rolled up from its cards.
+const SEC_TEXT = { expected: "Expected", progress: "In progress", completed: "Completed" };
+const DOT_FILL = (() => { try { return new URLSearchParams(location.search).get("dot") === "colour" ? "colour" : "white"; } catch { return "white"; } })(); // preview: ?dot=colour variant
+function VehicleCards({ sec, images, road }) {
+  if (!sec.cards.length) return <p className="vc-none">Nothing reported yet.</p>;
+  return (<div className="vcards">{sec.cards.map((c) => {
+    const ids = [...new Set(c.lines.map((l) => l.entry && l.entry.id).filter(Boolean))];
+    const ml = c.mediaLine, mh = ml && ml.entry ? { ...ml.entry, url: (c.media && c.media.post_url) || ml.url, src: c.media && c.media.author ? "@" + c.media.author : ml.src } : null;
+    return (
+      <div key={c.key} className={"vcard" + (c.completed ? " vc-done" : "")} style={{ "--c": sec.box.color }} data-card={c.key} data-status={c.status}
+        id={ids[0] ? "post-" + ids[0] : undefined} data-entry={ids.join(" ") || undefined}>
+        <div className="vc-name">{c.name}</div>
+        <ul className="vc-tl">{c.lines.map((l, k) => <li key={k}><span className="vc-date">{l.shown}</span><span className="vc-text">{scrub(l.text)}</span></li>)}</ul>
+        {images && c.media && !c.media.credit_only && <VcImage m={c.media} />}
+        {images && mh && <CreditLine h={mh} />}
+      </div>);
+  })}</div>);
+}
+function VcImage({ m }) {
+  const [bad, setBad] = React.useState(false);
+  if (bad || !m.image) return null;
+  return (<div className="xm vc-img"><div className="xm-grid n1"><a href={m.post_url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
+    <img src={m.image} alt="" loading="lazy" referrerPolicy="no-referrer" onError={() => setBad(true)} /></a></div></div>);
+}
+// Section summary: the current outcome in one sentence (the box headline the checker writes = the push wording),
+// else the newest line; never a later flight's line
+function sectionSummary(x) {
+  const RC = window.RoadCards, top = x.cards[0] && x.cards[0].lines[0], latest = String(x.box.latest || "");
+  if (latest && RC.phaseOfText(latest) === x.status) return latest;
+  return top ? top.text : "Nothing reported yet";
+}
 function RoadCard({ road, onEntryTap, openReq }) {
   const [main, setMain] = React.useState(false);
   React.useEffect(() => { if (openReq) setMain(true); }, [openReq]); // header chip asks it to open
   const [open, setOpen] = React.useState(null);
-  const items = road && Array.isArray(road.categories) ? road.categories.filter((m) => !ROAD_HIDDEN.includes(m.id)) : [];
+  const model = React.useMemo(() => (road && Array.isArray(road.categories) && window.RoadCards ? window.RoadCards.roadModel(road) : null), [road]);
+  const items = model ? model.sections.filter((x) => !ROAD_HIDDEN.includes(x.box.id)) : [];
   if (!items.length) return null;
   const title = `Road to Flight ${road.flight}`;
-  const done = items.filter((m) => m.status === "done" || m.status === "complete").length; // shown boxes only
-  const label = (m) => (m.status === "done" ? m.doneText || "Done" : ROAD_STATUS_TEXT[m.status] || m.status);
+  const done = items.filter((x) => x.status === "completed").length;
   return (
     <section className={"road" + (main ? " main-open" : "")} aria-label={title}>
       <button className="road-head" aria-expanded={main} onClick={() => { setMain(!main); setOpen(null); }}>
         <span className="road-title"><h2>{title}</h2>{road.updated && <span className="road-upd">{`Updated ${road.updated}`}</span>}</span>
         <span className="road-sum">
-          <span className="road-dots">{items.map((m) => <i key={m.id} className={"dot dot-" + m.status} style={{ "--c": m.color }} title={m.name + ": " + label(m)} aria-label={m.name + ": " + label(m)} role="img" />)}</span>
+          <span className={"road-dots fill-" + DOT_FILL}>{items.map((x) => <i key={x.box.id} className={"dot sdot-" + x.status} data-id={x.box.id} style={{ "--c": x.box.color }} title={x.box.name + ": " + SEC_TEXT[x.status]} aria-label={x.box.name + ": " + SEC_TEXT[x.status]} role="img" />)}</span>
           <span className="road-count">{done} of {items.length} done</span>
           <svg className="road-chev" width="20" height="20" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5l4 4 4-4" stroke="currentColor" strokeWidth="1.7" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </span>
       </button>
       <div className="road-list"><div className="road-list-inner">
-      {items.map((m) => {
-        const isOpen = open === m.id;
+      {items.map((x) => {
+        const m = x.box, isOpen = open === m.id, top = x.cards[0] && x.cards[0].lines[0];
         return (
-          <div key={m.id} className={"callout" + (isOpen ? " open" : "")} style={{ "--c": m.color }} data-id={m.id}>
+          <div key={m.id} className={"callout" + (isOpen ? " open" : "")} style={{ "--c": m.color }} data-id={m.id} data-status={x.status}>
             <button className="callout-head" tabIndex={main ? 0 : -1} aria-expanded={isOpen} onClick={() => setOpen(isOpen ? null : m.id)}>
               <span className="callout-icon">{m.icon}</span>
               <span className="callout-body">
                 <span className="callout-name">{m.name}</span>
-                <span className="callout-latest">{m.status === "complete" ? "Done" : scrub(boxLatest(m, road))}</span>
+                <span className="callout-latest">{scrub(sectionSummary(x))}</span>
               </span>
-              <span className={"badge badge-" + m.status}>{label(m)}</span>
+              <span className={"badge sbadge-" + x.status}>{SEC_TEXT[x.status]}</span>
             </button>
             <div className="callout-hist"><div className="callout-hist-inner">
-              {(m.history || []).map((h, i) => isRealEntry(h) && !(h.flight > road.flight) && !isLaunched(h.flight) && ( /* later flights' cards: Road page only */
-                <div className={"mini" + (onEntryTap ? " tappable" : "")} key={i}
-                  {...(onEntryTap ? { role: "button", tabIndex: isOpen ? 0 : -1, "aria-label": `${entryDate(h)}: ${h.text}. Show in the updates feed`,
-                    onClick: () => onEntryTap(m.id, i), onKeyDown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onEntryTap(m.id, i); } } } : {})}>
-                  <div className="mini-top">
-                    <span className="mini-date">{entryDate(h)}</span>
-                    {<span className="mini-src">{srcOf(h)}</span>}
-                  </div>
-                  <p>{scrub(h.x_text || h.text)}</p>
-                  <BuildUp h={h} />
-                </div>
-              ))}
+              <VehicleCards sec={x} images={false} road={road} /> {/* Flight Log box: text only */}
             </div></div>
           </div>
         );
@@ -1314,10 +1335,11 @@ const isLaunched = (n) => FLIGHTS.some((x) => x.n === n);
 function buildFeed(road) {
   if (!road || !Array.isArray(road.categories)) return { posts: [], rows: [] };
   const posts = [];
-  road.categories.filter((c) => !ROAD_HIDDEN.includes(c.id)).forEach((c, ci) => (c.history || []).forEach((h, hi) => isRealEntry(h) && posts.push({
-    h, cat: c, ci, hi, id: `${c.id}-${hi}`, day: feedDay(h.date, road.updatedAt), at: Date.parse((h.x_post && h.x_post.created_at) || h.at) || 0, flight: flightOf(h, road),
-    when: cardTime(h, road),
-  })));
+  // Road milestones: one block per section per flight (vehicle cards with one image each), placed in the flight's
+  // section by its newest line; ordered by the Road's own section order
+  const RC = window.RoadCards, flights = RC ? [...new Set([road.flight, ...RC.flightsIn(road)])] : [];
+  flights.forEach((n) => RC.roadModel(road, n).sections.forEach((sec, ci) => { if (ROAD_HIDDEN.includes(sec.box.id) || !sec.cards.length) return;
+    posts.push({ sec, cat: sec.box, ci, hi: 0, id: `sec-${n}-${sec.box.id}`, flight: n, when: 1e15 - ci, at: Math.max(...sec.cards.map((c) => c.at)) }); }));
   // pushes with no Road box (Starship news, flight-checker alerts): the push's own title, text, source link and time
   (Array.isArray(road.feed_items) ? road.feed_items : []).forEach((f, fi) => { if (!f || !f.id || !f.body) return;
     const t = String(f.title || ""), m = t.match(/^(\p{Extended_Pictographic}\uFE0F?)\s*(.*)$/u);
@@ -1425,6 +1447,15 @@ function CreditLine({ h }) {
   return (<div className="xm-foot post-credit">{who && <span className="xm-ctx">{who}</span>}{who && u && <span className="xm-ctx">&nbsp;·&nbsp;</span>}
     {u && <a href={u} target="_blank" rel="noopener noreferrer" aria-label={`${isX ? "View on X" : "View source"}${who ? ": " + who : ""}`} onClick={(e) => e.stopPropagation()}>{isX ? "View on X" : "View source"} {LINK_ICON}</a>}</div>);
 }
+function RoadSection({ p, road }) {
+  const { sec } = p;
+  return (
+    <article className="post rsec" id={`post-${p.id}`} data-id={p.id} data-sec={sec.box.id} data-status={sec.status} style={{ "--c": sec.box.color }}>
+      <div className="post-top"><span className="chip"><span className="chip-i">{sec.box.icon}</span>{sec.box.name}</span>
+        <span className={"badge sbadge-" + sec.status}>{SEC_TEXT[sec.status]}</span></div>
+      <VehicleCards sec={sec} images={true} road={road} />
+    </article>);
+}
 function FeedPost({ p, onPhotoTap }) {
   const { h, cat } = p;
   return (
@@ -1521,7 +1552,7 @@ function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap }) {
             ? <div className="fdiv" id={`fsec-${r.section.n}`} key={"f" + r.section.n}><span><b>{`Flight ${r.section.n}`}</b>{(r.section.flown || r.section.next) && <> <i>·</i> </>}{r.section.flown
                 ? <><span className={"fdiv-" + r.section.flown.outcome}>{OUTCOME_LABEL[r.section.flown.outcome] || r.section.flown.outcome}</span> <i>·</i> {ukStamp(new Date(r.section.flown.day).toISOString(), false)}</>
                 : r.section.next ? <span className="fdiv-next">Next flight</span> : null}</span></div>
-            : <FeedPost key={r.post.id} p={r.post} onPhotoTap={onPhotoTap} />)}
+            : r.post.sec ? <RoadSection key={r.post.id} p={r.post} road={road} /> : <FeedPost key={r.post.id} p={r.post} onPhotoTap={onPhotoTap} />)}
           <p className="end">That's every update so far.</p>
         </div>
       </div>
@@ -2102,6 +2133,24 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .dot-none { border: 2px dotted var(--c); } /* dotted = not started */
 .dot-done, .dot-complete { background: var(--c); } /* filled = done / confirmed */
 .road-count { flex: 1; }
+.dot.sdot-expected { border: 1.5px solid color-mix(in srgb, var(--c) 55%, transparent); }
+.dot.sdot-progress { border: 1.5px solid var(--c); }
+.fill-white .dot.sdot-completed { background: #fff; border-color: #fff; box-shadow: 0 0 6px rgba(255,255,255,.55); } /* solid white = section done */
+.fill-colour .dot.sdot-completed { background: var(--c); border-color: var(--c); box-shadow: 0 0 6px color-mix(in srgb, var(--c) 60%, transparent); }
+.badge.sbadge-completed { background: var(--c); color: #141B2D; border: 1px solid var(--c); }
+.badge.sbadge-progress { background: transparent; color: var(--c); border: 1px solid color-mix(in srgb, var(--c) 70%, transparent); }
+.badge.sbadge-expected { background: transparent; color: var(--muted); border: 1px solid rgba(170,190,245,.25); }
+.vcards { display: flex; flex-direction: column; gap: 8px; padding-top: 8px; }
+.vcard { background: #1A2338; border: 1px solid rgba(170,190,245,.12); border-radius: 12px; padding: 10px 12px; transition: box-shadow .4s; }
+.vcard.vc-done { border-color: color-mix(in srgb, var(--c) 45%, transparent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--c) 22%, transparent), 0 0 18px -2px color-mix(in srgb, var(--c) 45%, transparent); } /* subtle glow in the section colour */
+.vc-name { font-weight: 700; font-size: 14px; color: var(--text); margin-bottom: 4px; }
+.vc-tl { list-style: none; margin: 0; padding: 0; }
+.vc-tl li { display: flex; gap: 10px; font-size: 13px; line-height: 1.4; padding: 3px 0; }
+.vc-date { flex: 0 0 46px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.vc-text { flex: 1; }
+.vc-img { margin-top: 8px; }
+.vc-none { color: var(--muted); font-size: 13px; margin: 8px 0 0; }
+.rsec .post-top { display: flex; justify-content: space-between; align-items: center; }
 .road-chev { transition: transform .35s; }
 .main-open .road-chev { transform: rotate(180deg); }
 .road-list { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .5s cubic-bezier(.2,.8,.2,1); }

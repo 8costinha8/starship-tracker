@@ -5,7 +5,7 @@ const road = { flight: 15, categories: [{ id: "pad", name: "Pad activity", statu
 const post = (id, user, iso, text, img) => ({ post_id: id, url: `https://x.com/${user}/status/${id}`, created_at: iso, text, author: { username: user, name: user }, media: img ? [{ type: "photo", url: `https://pbs.twimg.com/${img}.jpg` }] : [] });
 const c = (phase, text, extra = {}) => ({ kind: "road", stage: "pad", hardware: "S42", event: "pad_work", phase, flight: 15, text, media_fit: "shows-event", speculative: false, ...extra });
 // 1. Tier 1 expected (no media) → context image from an earlier trusted photo of the same thing
-road.categories[0].history.push({ id: "x-old", x_first: true, stage: "pad", hardware: "S42", at: "2026-09-01T10:00:00Z", trust: "trusted", text: "Ship 42 at Pad 2.", media_override: { type: "photo", image: "https://pbs.twimg.com/old.jpg", author: "efraser77", post_url: "https://x.com/efraser77/status/1" } });
+road.categories[0].history.push({ id: "x-old", x_first: true, stage: "pad", hardware: "S42", flight: 14, at: "2026-09-01T10:00:00Z", trust: "trusted", text: "Ship 42 at Pad 2.", media_override: { type: "photo", image: "https://pbs.twimg.com/old.jpg", author: "efraser77", post_url: "https://x.com/efraser77/status/1" } });
 let r = xf.placePost(road, post("11", "NASASpaceflight", "2026-09-11T00:41:01Z", "Ship 42 heading to the launch site for catch testing."), c("expected", "Ship 42 is heading to Pad 2 for catch tests.", { media_fit: "none" }));
 const e = r.entry;
 check(e.milestone && e.milestone.phase === "expected" && e.tier === 1 && e.media_context && /old\.jpg/.test(e.media_context.image) && !e.media_override, "upcoming: Expected entry uses a context image of the same ship from an earlier trusted post");
