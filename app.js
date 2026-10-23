@@ -1100,7 +1100,7 @@ function useRoad() {
   return road;
 }
 
-// Lifecycle + tier tags on their own row under the date (never squeezed into the date line).
+// Lifecycle/tier tags: data only, never shown in the app (Bernardo, 23 Oct). Kept for previews/tests.
 function Tags({ h }) {
   const phase = h.milestone && !h.hedged, tier = h.milestone && h.tier, unc = h.trust === "unconfirmed";
   if (!phase && !tier && !unc && !h.demo) return null;
@@ -1153,9 +1153,8 @@ function RoadCard({ road, onEntryTap, openReq }) {
                     onClick: () => onEntryTap(m.id, i), onKeyDown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onEntryTap(m.id, i); } } } : {})}>
                   <div className="mini-top">
                     <span className="mini-date">{entryDate(h)}</span>
-                    {!(h.milestone && h.tier) && <span className="mini-src">{srcOf(h)}</span>}
+                    {<span className="mini-src">{srcOf(h)}</span>}
                   </div>
-                  <Tags h={h} />
                   <p>{scrub(h.x_text || h.text)}</p>
                   <BuildUp h={h} />
                 </div>
@@ -1185,8 +1184,8 @@ function BuildUp({ h }) {
   const stop = (e) => e.stopPropagation();
   return (
     <details className="buildup" onClick={stop}>
-      <summary>{h.milestone && h.milestone.phase === "completed" ? `Build-up (${ups.length})` : `Earlier updates (${ups.length})`}</summary>
-      <ul>{ups.map((u, i) => <li key={i}><div className="bu-top"><span className="bu-date">{entryDate(u)}</span>{u.tier ? <span className={"mini-tier tier-" + u.tier}>{TIER_LABEL[u.tier]}{uiSrc(u.src) ? " · " + uiSrc(u.src) : ""}</span> : null}</div>
+      <summary>{`Earlier updates (${ups.length})`}</summary>
+      <ul>{ups.map((u, i) => <li key={i}><div className="bu-top"><span className="bu-date">{entryDate(u)}</span></div>
         <div className="bu-text">{u.url ? <a href={u.url} target="_blank" rel="noopener noreferrer" onClick={stop}>{scrub(u.text)}</a> : scrub(u.text)}</div></li>)}</ul>
     </details>
   );
@@ -1199,7 +1198,7 @@ function ContextMedia({ mc }) {
     <div className="xm xm-context">
       <div className="xm-grid n1"><a href={mc.post_url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
         <img src={mc.image} alt="" loading="lazy" referrerPolicy="no-referrer" onError={() => setBad(true)} /></a></div>
-      <div className="xm-foot"><span className="xm-ctx">Earlier photo{mc.author ? ` · @${mc.author}` : ""}</span>
+      <div className="xm-foot">
         <a href={mc.post_url} target="_blank" rel="noopener noreferrer" aria-label="View on X" onClick={(e) => e.stopPropagation()}>View on X {LINK_ICON}</a></div>
     </div>
   );
@@ -1436,7 +1435,6 @@ function FeedPost({ p, onPhotoTap }) {
         <span className="post-sep">·</span>
         <span className="post-date">{entryDate(h)}</span>
       </div>
-      <Tags h={h} />
       <p className="post-text">{scrub(h.x_text || h.text)}</p>
       {h.media_override ? <PickMedia mo={h.media_override} /> : h.media_context ? <ContextMedia mc={h.media_context} /> : !h.milestone && h.x_post && <XMedia x={h.x_post} />}
       <BuildUp h={h} />
@@ -2157,7 +2155,10 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .mini-phase.ph-completed { background: rgba(74,222,128,.16); color: #6EE7A0; }
 .mini-phase.ph-progress { background: rgba(250,204,21,.14); color: #FACC15; }
 .buildup { margin-top: 6px; font-size: 12.5px; color: var(--muted, #AAB6D6); }
-.buildup summary { cursor: pointer; font-weight: 600; list-style: revert; }
+.buildup summary { cursor: pointer; font-weight: 500; font-size: 11.5px; color: var(--faint, #8592B5); list-style: none; }
+.buildup summary::after { content: " ⌄"; }
+.buildup[open] summary::after { content: " ⌃"; }
+.buildup summary::-webkit-details-marker { display: none; }
 .buildup ul { margin: 6px 0 0; padding-left: 16px; }
 .buildup li { margin: 3px 0; }
 .buildup a { color: inherit; }
