@@ -1339,7 +1339,7 @@ async function run(opts = {}) {
   const cutoff = practiceHours > 0
     ? Date.now() - practiceHours * 3600000
     : Math.max(Date.now() - LIMITS.staleHours * 3600000, firstRun ? new Date(road.updatedAt || 0).getTime() : 0);
-  const knownUrls = new Set(road.categories.flatMap((c) => (c.history || []).flatMap((h) => [h.url, h.url_original]).filter(Boolean)));
+  const knownUrls = new Set(road.categories.flatMap((c) => (c.history || []).flatMap((h) => [h.url, h.url_original, ...(h.updates || []).map((u) => u && u.url)]).filter(Boolean)));
   const urlsThisRun = new Set();
   const counts = { stale: 0, seen: 0, dupe: 0, offTopic: 0 };
   const candidates = [];

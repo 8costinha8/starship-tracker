@@ -46,7 +46,7 @@ check(/catching both the booster and the Ship/.test(lead) && /all of its engines
   const e = c.cards[0] && c.cards[0].entry;
   check(e && e.media_override && /news_img/.test(e.media_override.image) && e.media_override.author === "NASASpaceflight" && e.src === "@NASASpaceflight", "a road card from a teaser post: link image, @NASASpaceflight");
   { const app = require("fs").readFileSync(__dirname + "/../app.js", "utf8"); const body = (n) => app.slice(app.indexOf(`function ${n}(`), app.indexOf("\n}\n", app.indexOf(`function ${n}(`)));
-    check(!/@\{/.test(body("PickMedia")) && !/@\{/.test(body("XMedia")) && /post-src">\{srcOf\(h\)\}/.test(body("FeedPost")), "single credit: @author once per card (card foot), the picture keeps only View on X"); }
+    check(!/@\{/.test(body("PickMedia")) && !/@\{/.test(body("XMedia")) && /<CreditLine h=\{h\} \/>/.test(body("FeedPost")) && /srcOf\(h\)/.test(body("CreditLine")), "single credit: @author once per card (card foot), (credit line), the picture keeps no @"); }
   check(xf.xfQuery().length <= 512, `X query fits the 512-char search limit (${xf.xfQuery().length} chars)`);
   { // the 3 backfill cards: valid, sections right, and a normal run keeps them and sends no push
     const fs = require("fs"), os = require("os"), path = require("path"); const ROOT = path.join(__dirname, "..");

@@ -54,7 +54,17 @@
             "author": "TrackingTheSB",
             "type": "photo",
             "image": "https://pbs.twimg.com/media/HU4y2cUbwAE6od-.jpg"
-          }
+          },
+          "tier": 2,
+          "milestone": {
+            "key": "cryo_test|16|B23",
+            "type": "cryo_test",
+            "flight": 16,
+            "hardware": "B23",
+            "phase": "completed",
+            "migrated": true
+          },
+          "complete": true
         },
         {
           "id": "x-2110889490336350574",
@@ -93,7 +103,17 @@
             "author": "StarshipGazer",
             "type": "photo",
             "image": "https://pbs.twimg.com/media/HUtiVIybkAAu4_E.jpg"
-          }
+          },
+          "tier": 2,
+          "milestone": {
+            "key": "cryo_test|16|B23",
+            "type": "cryo_test",
+            "flight": 16,
+            "hardware": "B23",
+            "phase": "completed",
+            "migrated": true
+          },
+          "complete": true
         },
         {
           "date": "9 Oct",
@@ -141,7 +161,32 @@
             "image": "https://pbs.twimg.com/amplify_video_thumb/2108486743485792256/img/_Y2lLbcCzwdiu7HC.jpg"
           },
           "imageChecked2": true,
-          "flight": 15
+          "flight": 15,
+          "tier": 2,
+          "milestone": {
+            "key": "cryo_test|15|S42",
+            "type": "cryo_test",
+            "flight": 15,
+            "hardware": "S42",
+            "phase": "progress",
+            "migrated": true
+          },
+          "updates": [
+            {
+              "date": "9 Sep",
+              "text": "Ship 42 heads back to Massey's for further cryo testing.",
+              "src": "NSF (secondary)",
+              "phase": "progress",
+              "tier": 2
+            },
+            {
+              "date": "3–4 Sep",
+              "text": "Ship 42's first cryo test is underway.",
+              "src": "Next Spaceflight",
+              "phase": "progress",
+              "tier": 2
+            }
+          ]
         },
         {
           "date": "9–10 Sep",
@@ -182,70 +227,16 @@
             "image": "https://pbs.twimg.com/amplify_video_thumb/2098045351559131140/img/1-Fe_-VnJa8yKMza.jpg"
           },
           "imageChecked2": true,
-          "flight": 15
-        },
-        {
-          "date": "9 Sep",
-          "text": "Ship 42 heads back to Massey's for further cryo testing.",
-          "src": "NSF (secondary)",
-          "source": "nsf",
-          "trust": "trusted",
-          "xChecked": true,
-          "media_override": {
-            "post_url": "https://x.com/RGVaerialphotos/status/2097784884957778276",
-            "post_id": "2097784884957778276",
-            "author": "RGVaerialphotos",
-            "type": "photo",
-            "image": "https://pbs.twimg.com/media/HRzT1OnWYAEDCml.jpg"
-          },
-          "imageChecked2": true,
-          "flight": 15
-        },
-        {
-          "date": "3–4 Sep",
-          "text": "Ship 42 completes two cryo proof tests at Massey's.",
-          "src": "Next Spaceflight",
-          "source": "next-spaceflight",
-          "trust": "trusted",
-          "xChecked": true,
-          "x_post": {
-            "post_id": "2095620292823462214",
-            "url": "https://x.com/LabPadre/status/2095620292823462214",
-            "created_at": "2026-09-03T21:09:47.000Z",
-            "text": "Ship 42's 1st cryo test is underway!",
-            "author": {
-              "name": "Avid Space",
-              "username": "LabPadre",
-              "avatar": "https://pbs.twimg.com/profile_images/2018042465932988416/LR5UN4G0_normal.png"
-            },
-            "media": [
-              {
-                "type": "photo",
-                "url": "https://pbs.twimg.com/media/HRUjjSMWsAMkvu6.jpg"
-              }
-            ],
-            "media_all": [
-              {
-                "type": "photo",
-                "url": "https://pbs.twimg.com/media/HRUjjSMWsAMkvu6.jpg"
-              }
-            ]
-          },
-          "x_text": "Ship 42's first cryo test is underway.",
-          "image_check": {
-            "verdict": "shows it",
-            "seen": "Ship 42 on the Massey test stand during the cryo test (distant but recognisable)",
-            "by": "manual preview review (Grok vision re-checks on the first live run)"
-          },
-          "media_override": {
-            "post_url": "https://x.com/LabPadre/status/2095620292823462214",
-            "post_id": "2095620292823462214",
-            "author": "LabPadre",
-            "type": "photo",
-            "image": "https://pbs.twimg.com/media/HRUjjSMWsAMkvu6.jpg"
-          },
-          "imageChecked2": true,
-          "flight": 15
+          "flight": 15,
+          "tier": 2,
+          "milestone": {
+            "key": "cryo_test|15|B22",
+            "type": "cryo_test",
+            "flight": 15,
+            "hardware": "B22",
+            "phase": "progress",
+            "migrated": true
+          }
         }
       ]
     },
@@ -277,28 +268,28 @@
             "type": "photo",
             "image": "https://pbs.twimg.com/media/HUhjfCvWoAAeQ3A.jpg",
             "credit_only": true
-          }
-        },
-        {
-          "date": "30 Sep",
-          "text": "Ship 42's Raptor engines have been removed ahead of Flight 15.",
-          "src": "NSF",
-          "source": "nsf-youtube",
-          "trust": "trusted",
-          "url": "https://www.youtube.com/watch?v=dPqDD39cBEw",
-          "at": "2026-09-30T17:35:00.000Z",
-          "key": "rss:yt:video:dPqDD39cBEw",
-          "publishedAt": "2026-09-30T17:35:00.000Z",
-          "xChecked": true,
-          "media_override": {
-            "post_url": "https://x.com/LabPadre/status/2105350891859501311",
-            "post_id": "2105350891859501311",
-            "author": "LabPadre",
-            "type": "video",
-            "image": "https://pbs.twimg.com/ext_tw_video_thumb/2105350874126065664/pu/img/_hEgqyI82ZPVnywD.jpg"
           },
-          "imageChecked2": true,
-          "flight": 15
+          "tier": 1,
+          "hedged": true,
+          "milestone": {
+            "key": "engines_installed|15|S42",
+            "type": "engines_installed",
+            "flight": 15,
+            "hardware": "S42",
+            "phase": "expected",
+            "migrated": true
+          },
+          "updates": [
+            {
+              "date": "30 Sep",
+              "at": "2026-09-30T17:35:00.000Z",
+              "text": "Ship 42's Raptor engines have been removed ahead of Flight 15.",
+              "url": "https://www.youtube.com/watch?v=dPqDD39cBEw",
+              "src": "NSF",
+              "phase": "expected",
+              "tier": 1
+            }
+          ]
         },
         {
           "date": "30 Sep",
@@ -308,7 +299,16 @@
           "trust": "trusted",
           "xChecked": true,
           "imageChecked2": true,
-          "flight": 15
+          "flight": 15,
+          "tier": 1,
+          "milestone": {
+            "key": "engines_installed|15|B22",
+            "type": "engines_installed",
+            "flight": 15,
+            "hardware": "B22",
+            "phase": "progress",
+            "migrated": true
+          }
         },
         {
           "date": "12–13 Sep",
@@ -325,7 +325,16 @@
           },
           "imageChecked2": true,
           "xChecked": true,
-          "flight": 15
+          "flight": 15,
+          "tier": 1,
+          "milestone": {
+            "key": "engines_installed|15|-",
+            "type": "engines_installed",
+            "flight": 15,
+            "hardware": null,
+            "phase": "progress",
+            "migrated": true
+          }
         }
       ]
     },
@@ -379,31 +388,34 @@
             "type": "photo",
             "image": "https://pbs.twimg.com/media/HUzwveqbQAA5V8W.jpg"
           },
-          "flight": 15
-        },
-        {
-          "date": "9 Oct",
-          "text": "Booster 22 could be ready for a static fire as early as next week.",
-          "src": "NSF",
-          "source": "nsf",
-          "trust": "trusted",
-          "url": "https://www.nasaspaceflight.com/2026/10/ship-40-returns-ship-42-more-testing/",
-          "at": "2026-10-09T14:36:44.000Z",
-          "key": "rss:https://www.nasaspaceflight.com/?p=115411",
-          "publishedAt": "2026-10-09T14:36:44.000Z",
-          "xChecked": true,
-          "imageChecked2": true,
-          "flight": 15
-        },
-        {
-          "date": "30 Sep",
-          "text": "B22 ready for static fire within ~2 weeks, S42 within 2–3 weeks. Estimate, not a SpaceX schedule.",
-          "src": "NSF",
-          "source": "nsf",
-          "trust": "trusted",
-          "xChecked": true,
-          "imageChecked2": true,
-          "flight": 15
+          "flight": 15,
+          "tier": 2,
+          "milestone": {
+            "key": "static_fire|15|B22",
+            "type": "static_fire",
+            "flight": 15,
+            "hardware": "B22",
+            "phase": "expected",
+            "migrated": true
+          },
+          "updates": [
+            {
+              "date": "9 Oct",
+              "at": "2026-10-09T14:36:44.000Z",
+              "text": "Booster 22 could be ready for a static fire as early as next week.",
+              "url": "https://www.nasaspaceflight.com/2026/10/ship-40-returns-ship-42-more-testing/",
+              "src": "NSF",
+              "phase": "expected",
+              "tier": 1
+            },
+            {
+              "date": "30 Sep",
+              "text": "B22 ready for static fire within ~2 weeks, S42 within 2–3 weeks. Estimate, not a SpaceX schedule.",
+              "src": "NSF",
+              "phase": "expected",
+              "tier": 1
+            }
+          ]
         }
       ]
     },
@@ -461,6 +473,15 @@
             "author": "NASASpaceflight",
             "type": "photo",
             "image": "https://pbs.twimg.com/media/HVUTjfpWMAAhboa.jpg"
+          },
+          "tier": 1,
+          "milestone": {
+            "key": "rollout|15|-",
+            "type": "rollout",
+            "flight": 15,
+            "hardware": "B22",
+            "phase": "progress",
+            "migrated": true
           }
         },
         {
@@ -502,7 +523,8 @@
           "x_posts": [
             "2112967167767433728",
             "2113057179523760370",
-            "2113193182276309126"
+            "2113193182276309126",
+            "2112679319818686934"
           ],
           "xChecked": true,
           "imageChecked2": true,
@@ -513,60 +535,49 @@
             "type": "video",
             "image": "https://pbs.twimg.com/amplify_video_thumb/2112967085047369728/img/mvvPfdSAuw24PHag.jpg"
           },
-          "complete": true
-        },
-        {
-          "id": "x-2112679319818686934",
-          "date": "20 Oct",
-          "at": "2026-10-20T22:56:16.000Z",
-          "text": "SpaceX performing more catch testing at tower top with launch and landing deluge tests.",
-          "x_text": "SpaceX performing more catch testing at tower top with launch and landing deluge tests.",
-          "url": "https://x.com/Blobifie/status/2112679319818686934",
-          "src": "@Blobifie",
-          "trust": "trusted",
-          "x_first": true,
-          "stage": "pad",
-          "hardware": "Tower",
-          "x_post": {
-            "post_id": "2112679319818686934",
-            "url": "https://x.com/Blobifie/status/2112679319818686934",
-            "created_at": "2026-10-20T22:56:16.000Z",
-            "text": "SpaceX is performing more catch testing at the top of the tower and has performed both a launch and landing deluge test. https://t.co/xmAgZcRRoe",
-            "author": {
-              "name": "Blobifi",
-              "username": "Blobifie",
-              "avatar": "https://pbs.twimg.com/profile_images/2091766013562159104/xgHLFjBX_normal.jpg"
-            },
-            "media": [
-              {
-                "type": "video",
-                "poster": "https://pbs.twimg.com/amplify_video_thumb/2112678295435464704/img/9a4tS6nMnzIHT1_6.jpg",
-                "video_url": "https://video.twimg.com/amplify_video/2112678295435464704/vid/avc1/1280x720/hIJeUPTzUct39HHB.mp4?tag=14"
-              },
-              {
-                "type": "video",
-                "poster": "https://pbs.twimg.com/amplify_video_thumb/2112678706091302912/img/RTXpeIJYPa2YhUAR.jpg",
-                "video_url": "https://video.twimg.com/amplify_video/2112678706091302912/vid/avc1/1280x720/MgNN4yvfRUvInuYs.mp4?tag=14"
-              },
-              {
-                "type": "video",
-                "poster": "https://pbs.twimg.com/amplify_video_thumb/2112679203716149248/img/Yn65E82-8TkmkoZw.jpg",
-                "video_url": "https://video.twimg.com/amplify_video/2112679203716149248/vid/avc1/1284x720/LtrjGAZJ23Q2tDMx.mp4?tag=14"
-              }
-            ]
+          "tier": 1,
+          "milestone": {
+            "key": "pad_work|15|-",
+            "type": "pad_work",
+            "flight": 15,
+            "hardware": "PAD2",
+            "phase": "expected",
+            "migrated": true
           },
-          "x_posts": [
-            "2112679319818686934"
-          ],
-          "xChecked": true,
-          "imageChecked2": true,
-          "media_override": {
-            "post_url": "https://x.com/Blobifie/status/2112679319818686934",
-            "post_id": "2112679319818686934",
-            "author": "Blobifie",
-            "type": "video",
-            "image": "https://pbs.twimg.com/amplify_video_thumb/2112678295435464704/img/9a4tS6nMnzIHT1_6.jpg"
-          }
+          "updates": [
+            {
+              "date": "20 Oct",
+              "at": "2026-10-20T22:56:16.000Z",
+              "text": "SpaceX performing more catch testing at tower top with launch and landing deluge tests.",
+              "url": "https://x.com/Blobifie/status/2112679319818686934",
+              "src": "@Blobifie",
+              "phase": "progress",
+              "tier": 2
+            },
+            {
+              "date": "9 Oct",
+              "at": "2026-10-08T23:00:08.000Z",
+              "text": "Pad 2's chopsticks are undergoing maintenance.",
+              "url": "https://www.youtube.com/watch?v=dPqDD39cBEw",
+              "src": "NSF",
+              "phase": "progress",
+              "tier": 1
+            },
+            {
+              "date": "30 Sep",
+              "text": "Pad 2 clear after Flight 14. New servicing structure going in for hold-down clamp work.",
+              "src": "NSF",
+              "phase": "progress",
+              "tier": 2
+            },
+            {
+              "date": "11–12 Sep",
+              "text": "S42 lifted by Pad 2 chopsticks in a catch position. SQD arm connect tests.",
+              "src": "NSF",
+              "phase": "progress",
+              "tier": 2
+            }
+          ]
         },
         {
           "id": "x-2112035558994419901",
@@ -607,118 +618,16 @@
             "author": "efraser77",
             "type": "video",
             "image": "https://pbs.twimg.com/amplify_video_thumb/2112035083679043584/img/dw7Zle9xo9YHSp0k.jpg"
+          },
+          "tier": 3,
+          "milestone": {
+            "key": "rollout|15|-",
+            "type": "rollout",
+            "flight": 15,
+            "hardware": "PAD2",
+            "phase": "expected",
+            "migrated": true
           }
-        },
-        {
-          "date": "9 Oct",
-          "text": "Pad 2's chopsticks are undergoing maintenance.",
-          "src": "NSF",
-          "source": "nsf-youtube",
-          "trust": "trusted",
-          "url": "https://www.youtube.com/watch?v=dPqDD39cBEw",
-          "at": "2026-10-08T23:00:08.000Z",
-          "key": "rss:yt:video:dPqDD39cBEw",
-          "publishedAt": "2026-10-08T23:00:08.000Z",
-          "xChecked": true,
-          "media_override": {
-            "post_url": "https://x.com/LabPadre/status/2107896796424835482",
-            "post_id": "2107896796424835482",
-            "author": "LabPadre",
-            "type": "video",
-            "image": "https://pbs.twimg.com/ext_tw_video_thumb/2107896783682625537/pu/img/18FR3ZuZ82Tz2gNw.jpg"
-          },
-          "imageChecked2": true,
-          "flight": 15
-        },
-        {
-          "date": "30 Sep",
-          "text": "Pad 2 clear after Flight 14. New servicing structure going in for hold-down clamp work.",
-          "src": "NSF",
-          "source": "nsf",
-          "trust": "trusted",
-          "xChecked": true,
-          "x_post": {
-            "post_id": "2104953832895615155",
-            "url": "https://x.com/LabPadre/status/2104953832895615155",
-            "created_at": "2026-09-29T15:17:56.000Z",
-            "text": "New OLM work platform is being installed in the Pad 2 Mount",
-            "author": {
-              "name": "Avid Space",
-              "username": "LabPadre",
-              "avatar": "https://pbs.twimg.com/profile_images/2018042465932988416/LR5UN4G0_normal.png"
-            },
-            "media": [
-              {
-                "type": "photo",
-                "url": "https://pbs.twimg.com/media/HTZMWubWIAAnONr.jpg"
-              }
-            ],
-            "media_all": [
-              {
-                "type": "photo",
-                "url": "https://pbs.twimg.com/media/HTZMWubWIAAnONr.jpg"
-              }
-            ]
-          },
-          "image_check": {
-            "verdict": "shows it",
-            "seen": "the new OLM work platform being lifted into the Pad 2 mount",
-            "by": "manual preview review (Grok vision re-checks on the first live run)"
-          },
-          "media_override": {
-            "post_url": "https://x.com/LabPadre/status/2104953832895615155",
-            "post_id": "2104953832895615155",
-            "author": "LabPadre",
-            "type": "photo",
-            "image": "https://pbs.twimg.com/media/HTZMWubWIAAnONr.jpg"
-          },
-          "imageChecked2": true,
-          "flight": 15
-        },
-        {
-          "date": "11–12 Sep",
-          "text": "S42 lifted by Pad 2 chopsticks in a catch position. SQD arm connect tests.",
-          "src": "NSF",
-          "source": "nsf",
-          "trust": "trusted",
-          "xChecked": true,
-          "x_post": {
-            "post_id": "2098797005585911983",
-            "url": "https://x.com/RGVaerialphotos/status/2098797005585911983",
-            "created_at": "2026-09-12T15:32:54.000Z",
-            "text": "Ship 42 is going up!",
-            "author": {
-              "name": "RGV Aerial Photography",
-              "username": "RGVaerialphotos",
-              "avatar": "https://pbs.twimg.com/profile_images/2019953617743097856/PJqBBhpU_normal.jpg"
-            },
-            "media": [
-              {
-                "type": "photo",
-                "url": "https://pbs.twimg.com/media/HSBsusxacAAij-F.jpg"
-              }
-            ],
-            "media_all": [
-              {
-                "type": "photo",
-                "url": "https://pbs.twimg.com/media/HSBsusxacAAij-F.jpg"
-              }
-            ]
-          },
-          "image_check": {
-            "verdict": "shows it",
-            "seen": "Ship 42 held by the Pad 2 chopsticks",
-            "by": "manual preview review (Grok vision re-checks on the first live run)"
-          },
-          "media_override": {
-            "post_url": "https://x.com/RGVaerialphotos/status/2099008859134374365",
-            "post_id": "2099008859134374365",
-            "author": "RGVaerialphotos",
-            "type": "video",
-            "image": "https://pbs.twimg.com/amplify_video_thumb/2099008701491535872/img/I7qk6Tawvh4EgZDs.jpg"
-          },
-          "imageChecked2": true,
-          "flight": 15
         }
       ]
     },
@@ -745,7 +654,16 @@
             "image": "https://pbs.twimg.com/media/HTK-2HuXwAIKtUN.png"
           },
           "imageChecked2": true,
-          "flight": 15
+          "flight": 15,
+          "tier": 1,
+          "milestone": {
+            "key": "licence|15|-",
+            "type": "licence",
+            "flight": 15,
+            "hardware": null,
+            "phase": "expected",
+            "migrated": true
+          }
         }
       ]
     },
@@ -769,38 +687,41 @@
           "key": "rss:yt:video:eeS1nYInJ2w",
           "publishedAt": "2026-10-14T18:22:50.000Z",
           "xChecked": true,
-          "flight": 15
-        },
-        {
-          "date": "9 Oct",
-          "text": "A new slide suggests Ship 42 could be ready for flight NET November.",
-          "src": "NSF",
-          "source": "nsf",
-          "trust": "trusted",
-          "url": "https://www.nasaspaceflight.com/2026/10/ship-40-returns-ship-42-more-testing/",
-          "at": "2026-10-09T14:36:44.000Z",
-          "key": "rss:https://www.nasaspaceflight.com/?p=115411",
-          "publishedAt": "2026-10-09T14:36:44.000Z",
-          "xChecked": true,
-          "flight": 15
-        },
-        {
-          "date": "30 Sep",
-          "text": "B22 and S42 could be flight-ready by end of October.",
-          "src": "NSF estimate",
-          "source": "nsf",
-          "trust": "trusted",
-          "xChecked": true,
-          "flight": 15
-        },
-        {
-          "date": "24 Sep",
-          "text": "Air-traffic slide shows NET 19 Oct, labelled \"super provisional\".",
-          "src": "NSF (unofficial)",
-          "source": "nsf",
-          "trust": "trusted",
-          "xChecked": true,
-          "flight": 15
+          "flight": 15,
+          "tier": 1,
+          "milestone": {
+            "key": "launch_date|15|-",
+            "type": "launch_date",
+            "flight": 15,
+            "hardware": null,
+            "phase": "expected",
+            "migrated": true
+          },
+          "updates": [
+            {
+              "date": "9 Oct",
+              "at": "2026-10-09T14:36:44.000Z",
+              "text": "A new slide suggests Ship 42 could be ready for flight NET November.",
+              "url": "https://www.nasaspaceflight.com/2026/10/ship-40-returns-ship-42-more-testing/",
+              "src": "NSF",
+              "phase": "expected",
+              "tier": 1
+            },
+            {
+              "date": "30 Sep",
+              "text": "B22 and S42 could be flight-ready by end of October.",
+              "src": "NSF estimate",
+              "phase": "expected",
+              "tier": 3
+            },
+            {
+              "date": "24 Sep",
+              "text": "Air-traffic slide shows NET 19 Oct, labelled \"super provisional\".",
+              "src": "NSF (unofficial)",
+              "phase": "expected",
+              "tier": 2
+            }
+          ]
         }
       ]
     }

@@ -1071,7 +1071,6 @@ function Lightbox({ src, alt, onClose }) {
 // to date on its own; this card just shows whatever is in that file.
 // status: "none" (Not started, dotted) | "pending" / "progress" (outline) | "done" (filled; label is doneText, e.g. "Confirmed", else "Done")
 //   | "complete" (a stage the source says is finished: shown exactly like "done", label and headline "Done")
-// An entry with complete: true (the update that marked the stage finished) gets a subtle green tint.
 // An entry with kind: "check" is the box's "no news yet" placeholder (dashed outline).
 // An entry with trust: "unconfirmed" gets a small "Unconfirmed" tag.
 // Every box is shown, the Launch date box included (it sends pushes, so it must be visible too).
@@ -1109,13 +1108,6 @@ function Tags({ h }) {
     {tier && <TierTag t={h.tier} src={srcOf(h)} rep={h.reported} hedged={h.hedged} />}{unc && <span className="mini-unc">Unconfirmed</span>}{h.demo && <span className="mini-unc">DEMO</span>}</div>);
 }
 // The entry's own picture in the Road card (same picture as its feed card).
-function MiniMedia({ h }) {
-  const [bad, setBad] = React.useState(false);
-  const x = h.x_post && Array.isArray(h.x_post.media) ? h.x_post.media.find((m) => m && (m.url || m.preview_image_url)) : null;
-  const src = (h.media_override && h.media_override.image) || (h.media_context && h.media_context.image) || (!h.milestone && x && (x.url || x.preview_image_url)) || null;
-  if (bad || !src) return null;
-  return <div className="mini-media"><img src={src} alt="" loading="lazy" referrerPolicy="no-referrer" onError={() => setBad(true)} />{h.media_context && !h.media_override && <span className="mini-ctx">Earlier photo</span>}{h.media_override && h.media_override.credit_only && <span className="mini-ctx">{`Photo · @${h.media_override.author}`}</span>}</div>;
-}
 // A box's headline comes from this flight's own entries: a later flight's post (B23 for Flight 16) never replaces it.
 function boxLatest(m, road) {
   const own = (m.history || []).filter((h) => isRealEntry(h) && !(h.flight > road.flight) && !isLaunched(h.flight) && h.trust !== "unconfirmed");
@@ -1156,7 +1148,7 @@ function RoadCard({ road, onEntryTap, openReq }) {
             </button>
             <div className="callout-hist"><div className="callout-hist-inner">
               {(m.history || []).map((h, i) => isRealEntry(h) && !(h.flight > road.flight) && !isLaunched(h.flight) && ( /* later flights' cards: Road page only */
-                <div className={"mini" + (h.complete ? " mini-done" : "") + (onEntryTap ? " tappable" : "")} key={i}
+                <div className={"mini" + (onEntryTap ? " tappable" : "")} key={i}
                   {...(onEntryTap ? { role: "button", tabIndex: isOpen ? 0 : -1, "aria-label": `${entryDate(h)}: ${h.text}. Show in the updates feed`,
                     onClick: () => onEntryTap(m.id, i), onKeyDown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onEntryTap(m.id, i); } } } : {})}>
                   <div className="mini-top">
@@ -1165,7 +1157,6 @@ function RoadCard({ road, onEntryTap, openReq }) {
                   </div>
                   <Tags h={h} />
                   <p>{scrub(h.x_text || h.text)}</p>
-                  <MiniMedia h={h} />
                   <BuildUp h={h} />
                 </div>
               ))}
@@ -1399,8 +1390,8 @@ function PickMedia({ mo }) {
     <div className="xm">
       <div className="xm-grid n1"><a href={mo.post_url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
         <img src={mo.image} alt="" loading="lazy" referrerPolicy="no-referrer" onError={() => setBad(true)} />{mo.type === "video" && PLAY_ICON}</a></div>
-      <div className="xm-foot">{mo.credit_only && <span className="xm-ctx">{`Photo · @${mo.author}`}</span>}
-        <a href={mo.post_url} target="_blank" rel="noopener noreferrer" aria-label="View on X" onClick={(e) => e.stopPropagation()}>View on X {LINK_ICON}</a></div>
+      {mo.credit_only && <div className="xm-foot"><span className="xm-ctx">{`Photo · @${mo.author}`}</span>
+        <a href={mo.post_url} target="_blank" rel="noopener noreferrer" aria-label="View on X" onClick={(e) => e.stopPropagation()}>View on X {LINK_ICON}</a></div>}
     </div>
   );
 }
@@ -1418,8 +1409,6 @@ function XMedia({ x }) {
           ? <XVideo key={m.i} m={m} url={x.url} />
           : <a key={m.i} href={x.url} target="_blank" rel="noopener noreferrer"><img src={m.poster} alt="" loading="lazy" referrerPolicy="no-referrer" onError={off(m.i)} />{PLAY_ICON}</a>)}
       </div>
-      <div className="xm-foot">
-        <a href={x.url} target="_blank" rel="noopener noreferrer" aria-label="View on X">View on X {LINK_ICON}</a></div>
     </div>
   );
 }
@@ -1430,10 +1419,17 @@ const urlOf = (h) => (h.media_override && !h.media_override.credit_only && h.med
 const openUrl = (u) => window.open(u, "_blank", "noopener,noreferrer");
 const linkProps = (h) => { const u = urlOf(h); return u ? { role: "link", tabIndex: 0, "aria-label": `${h.x_text || h.text} — open ${h.x_post ? "the post on X" : "the source"}`,
   onClick: (e) => { if (!e.target.closest("a, video, button, .xm-video")) openUrl(u); }, onKeyDown: (e) => { if (e.key === "Enter" && e.target === e.currentTarget) openUrl(u); } } : {}; };
+// One small right-aligned line per card: "@handle · View on X ↗" (X's author credit + the link). No separate chip/icon row.
+function CreditLine({ h }) {
+  const u = urlOf(h), who = srcOf(h), isX = /^https?:\/\/(x|twitter)\.com\//i.test(u || "");
+  if (!u && !who) return null;
+  return (<div className="xm-foot post-credit">{who && <span className="xm-ctx">{who}</span>}{who && u && <span className="xm-ctx">&nbsp;·&nbsp;</span>}
+    {u && <a href={u} target="_blank" rel="noopener noreferrer" aria-label={`${isX ? "View on X" : "View source"}${who ? ": " + who : ""}`} onClick={(e) => e.stopPropagation()}>{isX ? "View on X" : "View source"} {LINK_ICON}</a>}</div>);
+}
 function FeedPost({ p, onPhotoTap }) {
   const { h, cat } = p;
   return (
-    <article className={"post" + (urlOf(h) ? " post-tap" : "") + (h.complete ? " post-done" : "")} id={`post-${p.id}`} data-id={p.id} data-entry={h.id || undefined} style={{ "--c": cat.color }}
+    <article className={"post" + (urlOf(h) ? " post-tap" : "")} id={`post-${p.id}`} data-id={p.id} data-entry={h.id || undefined} style={{ "--c": cat.color }}
       {...linkProps(h)}>
       <div className="post-top">
         <span className="chip"><span className="chip-i">{cat.icon}</span>{cat.name}</span>
@@ -1444,10 +1440,7 @@ function FeedPost({ p, onPhotoTap }) {
       <p className="post-text">{scrub(h.x_text || h.text)}</p>
       {h.media_override ? <PickMedia mo={h.media_override} /> : h.media_context ? <ContextMedia mc={h.media_context} /> : !h.milestone && h.x_post && <XMedia x={h.x_post} />}
       <BuildUp h={h} />
-      <div className="post-foot">
-        {!(h.milestone && h.tier) && <span className="post-src">{srcOf(h)}</span>}
-        {urlOf(h) && <a className="post-link" href={urlOf(h)} target="_blank" rel="noopener noreferrer" aria-label={`Open source: ${srcOf(h)}`}>{LINK_ICON}</a>}
-      </div>
+      <CreditLine h={h} />
     </article>
   );
 }
@@ -2146,8 +2139,7 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .mini-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .mini-date { font-size: 12px; font-weight: 700; color: var(--c); }
 .mini-src { font-size: 10.5px; color: var(--muted); background: rgba(255,255,255,.07); padding: 2px 7px; border-radius: 6px; }
-.mini p { margin: 4px 0 0; font-size: 13px; line-height: 1.4; }
-.mini-done { background: linear-gradient(100deg, rgba(61,220,132,.14), rgba(61,220,132,.05)); border-color: rgba(61,220,132,.30); box-shadow: inset 3px 0 0 rgba(61,220,132,.75); } /* the update that finished the stage */
+.mini p { margin: 4px 0 0; font-size: 13px; line-height: 1.4; } /* the update that finished the stage */
 .mini-check { border-style: dashed; } /* "no news yet" placeholder */
 .mini-phase { margin-left: 6px; font-size: 10.5px; font-weight: 700; padding: 1px 6px; border-radius: 6px; background: rgba(170,182,214,.16); color: #AAB6D6; }
 .mini-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin: 5px 0 2px; }
@@ -2212,7 +2204,7 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .post-top .mini-unc { margin-left: auto; vertical-align: 0; }
 .post-text { margin: 9px 0 0; font-size: 14.5px; line-height: 1.5; color: var(--text); }
 .post-photo { margin-top: 10px; }
-.post-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; min-height: 28px; }
+.post-credit { margin-top: 10px; }
 .post-src { font-size: 10.5px; color: var(--muted); background: rgba(255,255,255,.07); padding: 2px 7px; border-radius: 6px; }
 .post-link {
   width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; flex: none;
@@ -2221,10 +2213,6 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .post-link:focus-visible, .mini.tappable:focus-visible { outline: 2px solid #A9BDF0; outline-offset: 3px; }
 .post-check { border-style: dashed; border-color: rgba(170,190,245,.22); background: rgba(34,45,70,.6); }
 .post-check .post-text { color: var(--muted); }
-.post-done { /* same recipe as .mini-done */
-  background: linear-gradient(100deg, rgba(61,220,132,.14), rgba(61,220,132,.05)), var(--card);
-  border-color: rgba(61,220,132,.30); box-shadow: inset 3px 0 0 rgba(61,220,132,.75), 0 18px 40px -28px rgba(8,12,28,.9);
-}
 .fdiv { display: flex; align-items: center; gap: 12px; margin: 18px 2px 16px; font-size: 12px; color: var(--faint); white-space: nowrap; }
 .fdiv::before, .fdiv::after { content: ""; flex: 1; height: 1px; background: var(--line); }
 .fdiv b { font-weight: 600; color: var(--muted); }
