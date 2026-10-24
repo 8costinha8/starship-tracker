@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "24 Oct",
-  "updatedAt": "2026-10-24T08:31:08.215Z",
+  "updatedAt": "2026-10-24T09:00:32.593Z",
   "categories": [
     {
       "id": "cryo",
@@ -489,8 +489,62 @@
       "name": "Pad activity",
       "color": "#A88BFF",
       "status": "progress",
-      "latest": "Booster 22 has left Mega Bay 1 preparing to roll out to the launch site for testing.",
+      "latest": "Booster 22 lifted onto transport stand ahead of rollout.",
       "history": [
+        {
+          "id": "x-2113914954801889326",
+          "date": "24 Oct",
+          "log_date": "24 Oct",
+          "at": "2026-10-24T08:46:14.000Z",
+          "text": "Booster 22 lifted onto transport stand ahead of rollout.",
+          "x_text": "Booster 22 lifted onto transport stand ahead of rollout.",
+          "log_text": "Booster 22 lifted onto transport stand ahead of rollout to launch site.",
+          "url": "https://x.com/Blobifie/status/2113914954801889326",
+          "src": "@Blobifie",
+          "trust": "trusted",
+          "x_first": true,
+          "stage": "pad",
+          "hardware": "B22",
+          "x_post": {
+            "post_id": "2113914954801889326",
+            "url": "https://x.com/Blobifie/status/2113914954801889326",
+            "created_at": "2026-10-24T08:46:14.000Z",
+            "text": "Booster 22 has been lifted onto a transport stand ahead of its roll out to the launch site!! https://t.co/8SKSDLLF86",
+            "author": {
+              "name": "Blobifi",
+              "username": "Blobifie",
+              "avatar": "https://pbs.twimg.com/profile_images/2091766013562159104/xgHLFjBX_normal.jpg"
+            },
+            "media": [
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HVYiW5GbMAE8vTP.jpg"
+              },
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HVYicaKaQAA_hAX.jpg"
+              }
+            ]
+          },
+          "x_posts": [
+            "2113914954801889326"
+          ],
+          "xChecked": true,
+          "imageChecked2": true,
+          "media_override": {
+            "post_url": "https://x.com/Blobifie/status/2113914954801889326",
+            "post_id": "2113914954801889326",
+            "author": "Blobifie",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HVYiW5GbMAE8vTP.jpg"
+          },
+          "tier": 2,
+          "push": {
+            "title": "🏗️ Pad activity · Flight 15",
+            "url": "https://x.com/Blobifie/status/2113914954801889326",
+            "at": "2026-10-24T08:46:14.000Z"
+          }
+        },
         {
           "id": "x-2113907865060819060",
           "date": "24 Oct",
@@ -836,7 +890,7 @@
           "log_text": "The Pad 2 launch mount work platform was removed overnight."
         }
       ],
-      "log_latest": "Booster 22 heads to the launch site."
+      "log_latest": "Booster 22 lifted onto transport stand ahead of rollout to launch site."
     },
     {
       "id": "faa",
