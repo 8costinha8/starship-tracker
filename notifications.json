@@ -89,6 +89,16 @@
       "sent_at": "2026-10-24T14:01:17.447Z",
       "where": "feed",
       "verdict": "sent"
+    },
+    {
+      "title": "🏗️ Pad activity: Done",
+      "body": "Booster 22 stacked on the OLM at Pad 1.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2114016319679201462",
+      "url": "https://x.com/Blobifie/status/2114016319679201462",
+      "at": "2026-10-24T15:29:01.000Z",
+      "sent_at": "2026-10-24T15:30:38.670Z",
+      "where": "road",
+      "verdict": "sent"
     }
   ]
 }
