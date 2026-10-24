@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "24 Oct",
-  "updatedAt": "2026-10-24T09:00:32.593Z",
+  "updatedAt": "2026-10-24T09:45:40.503Z",
   "categories": [
     {
       "id": "cryo",
@@ -549,55 +549,49 @@
           "id": "x-2113907865060819060",
           "date": "24 Oct",
           "log_date": "24 Oct",
-          "at": "2026-10-24T08:15:33.000Z",
-          "text": "Booster 22 has left Mega Bay 1 preparing to roll out to the launch site.",
-          "x_text": "Booster 22 has left Mega Bay 1 preparing to roll out to the launch site.",
-          "log_text": "Booster 22 heads to the launch site.",
-          "url": "https://x.com/NASASpaceflight/status/2113907231293128970",
-          "src": "@NASASpaceflight",
+          "at": "2026-10-24T09:38:00.000Z",
+          "text": "Booster 22 rolls out on highway 4.",
+          "x_text": "Booster 22 rolls out on highway 4.",
+          "log_text": "Booster 22 heads to the launch site on highway 4.",
+          "url": "https://x.com/Blobifie/status/2113927981609689591",
+          "src": "@Blobifie",
           "trust": "trusted",
           "x_first": true,
           "stage": "pad",
           "hardware": "B22",
           "flight": 15,
           "x_post": {
-            "post_id": "2113907231293128970",
-            "url": "https://x.com/NASASpaceflight/status/2113907231293128970",
-            "created_at": "2026-10-24T08:15:33.000Z",
-            "text": "Starship Booster 22 has left Mega Bay 1 as it prepares to roll out to the launch site https://t.co/HSumkyMNOs",
+            "post_id": "2113927981609689591",
+            "url": "https://x.com/Blobifie/status/2113927981609689591",
+            "created_at": "2026-10-24T09:38:00.000Z",
+            "text": "Booster 22 is entering highway 4! https://t.co/lhBCERD5Xm",
             "author": {
-              "name": "NSF - NASASpaceflight.com",
-              "username": "NASASpaceflight",
-              "avatar": "https://pbs.twimg.com/profile_images/1637919260298158080/kRT8BkYf_normal.jpg"
+              "name": "Blobifi",
+              "username": "Blobifie",
+              "avatar": "https://pbs.twimg.com/profile_images/2091766013562159104/xgHLFjBX_normal.jpg"
             },
             "media": [
               {
-                "type": "video",
-                "poster": "https://pbs.twimg.com/amplify_video_thumb/2113906748075438081/img/qAqvBGNZ9o-h0558.jpg",
-                "video_url": "https://video.twimg.com/amplify_video/2113906748075438081/vid/avc1/1920x1080/Iw_jvUt1_DIwo1mS.mp4"
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HVYuOcUbEAAtiTE.jpg"
               }
-            ],
-            "link": {
-              "url": "https://www.youtube.com/watch?v=mhJRzQsLZGg",
-              "title": "Starbase Live: 24/7 Starship & Super Heavy Development From SpaceX's Boca Chica Facility",
-              "description": "Starship is SpaceX's fully reusable launch system which is being de...",
-              "image": "https://pbs.twimg.com/news_img/2111802046466973698/IAIT5BI6?format=jpg&name=orig"
-            }
+            ]
           },
           "x_posts": [
             "2113907865060819060",
-            "2113907231293128970"
+            "2113907231293128970",
+            "2113927981609689591"
           ],
           "xChecked": true,
           "imageChecked2": true,
           "media_override": {
-            "post_url": "https://x.com/NASASpaceflight/status/2113907231293128970",
-            "post_id": "2113907231293128970",
-            "author": "NASASpaceflight",
-            "type": "video",
-            "image": "https://pbs.twimg.com/amplify_video_thumb/2113906748075438081/img/qAqvBGNZ9o-h0558.jpg"
+            "post_url": "https://x.com/Blobifie/status/2113927981609689591",
+            "post_id": "2113927981609689591",
+            "author": "Blobifie",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HVYuOcUbEAAtiTE.jpg"
           },
-          "tier": 1,
+          "tier": 2,
           "milestone": {
             "key": "rollout|15|B22",
             "type": "rollout",
@@ -606,6 +600,17 @@
             "phase": "progress"
           },
           "updates": [
+            {
+              "date": "24 Oct",
+              "log_date": "24 Oct",
+              "at": "2026-10-24T08:15:33.000Z",
+              "text": "Booster 22 has left Mega Bay 1 preparing to roll out to the launch site.",
+              "log_text": "Booster 22 heads to the launch site.",
+              "url": "https://x.com/NASASpaceflight/status/2113907231293128970",
+              "src": "@NASASpaceflight",
+              "phase": "progress",
+              "tier": 1
+            },
             {
               "date": "24 Oct",
               "log_date": "24 Oct",
@@ -890,7 +895,7 @@
           "log_text": "The Pad 2 launch mount work platform was removed overnight."
         }
       ],
-      "log_latest": "Booster 22 lifted onto transport stand ahead of rollout to launch site."
+      "log_latest": "Booster 22 heads to the launch site on highway 4."
     },
     {
       "id": "faa",
