@@ -59,6 +59,26 @@
       "sent_at": "2026-10-24T09:00:33.880Z",
       "where": "road",
       "verdict": "sent"
+    },
+    {
+      "title": "💥 Static fires · Flight 15",
+      "body": "Booster 22 rolls to the launch site for static fire campaign.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2113955770337550391",
+      "url": "https://x.com/Blobifie/status/2113955770337550391",
+      "at": "2026-10-24T11:28:25.000Z",
+      "sent_at": "2026-10-24T11:30:41.168Z",
+      "where": "road",
+      "verdict": "sent"
+    },
+    {
+      "title": "🏗️ Pad activity: Completed",
+      "body": "Booster 22 rolls to Launch Pad 2.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2113907865060819060",
+      "url": "https://x.com/NASASpaceflight/status/2113954013615952349",
+      "at": "2026-10-24T11:21:26.000Z",
+      "sent_at": "2026-10-24T11:30:41.672Z",
+      "where": "road",
+      "verdict": "sent"
     }
   ]
 }
