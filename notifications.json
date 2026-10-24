@@ -19,6 +19,16 @@
       "sent_at": "2026-10-24T03:30:49.362Z",
       "where": "road",
       "verdict": "sent"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "SpaceX conducts static fire of booster 22 at pad 2 ahead of flight 15",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mvltvvb4-2ad013",
+      "url": "https://www.youtube.com/watch?v=BlyqwOjCJzA",
+      "at": "2026-10-24T03:17:28.000Z",
+      "sent_at": "2026-10-24T07:00:58.598Z",
+      "where": "feed",
+      "verdict": "sent"
     }
   ]
 }
