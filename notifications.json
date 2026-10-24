@@ -49,6 +49,16 @@
       "sent_at": "2026-10-24T08:31:09.961Z",
       "where": "feed",
       "verdict": "sent"
+    },
+    {
+      "title": "🏗️ Pad activity · Flight 15",
+      "body": "Booster 22 lifted onto transport stand ahead of rollout to launch site.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2113914954801889326",
+      "url": "https://x.com/Blobifie/status/2113914954801889326",
+      "at": "2026-10-24T08:46:14.000Z",
+      "sent_at": "2026-10-24T09:00:33.880Z",
+      "where": "road",
+      "verdict": "sent"
     }
   ]
 }
