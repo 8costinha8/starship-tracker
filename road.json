@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "24 Oct",
-  "updatedAt": "2026-10-24T14:01:16.239Z",
+  "updatedAt": "2026-10-24T15:30:37.494Z",
   "categories": [
     {
       "id": "cryo",
@@ -547,9 +547,68 @@
       "icon": "🏗️",
       "name": "Pad activity",
       "color": "#A88BFF",
-      "status": "progress",
-      "latest": "Booster 22 lifted onto transport stand ahead of rollout.",
+      "status": "complete",
+      "latest": "Done",
       "history": [
+        {
+          "id": "x-2114016319679201462",
+          "date": "24 Oct",
+          "log_date": "24 Oct",
+          "at": "2026-10-24T15:29:01.000Z",
+          "text": "Booster 22 has been lowered onto the OLM.",
+          "x_text": "Booster 22 has been lowered onto the OLM.",
+          "log_text": "Booster 22 stacked on the OLM at Pad 1.",
+          "url": "https://x.com/Blobifie/status/2114016319679201462",
+          "src": "@Blobifie",
+          "trust": "trusted",
+          "x_first": true,
+          "stage": "pad",
+          "hardware": "B22",
+          "flight": 15,
+          "x_post": {
+            "post_id": "2114016319679201462",
+            "url": "https://x.com/Blobifie/status/2114016319679201462",
+            "created_at": "2026-10-24T15:29:01.000Z",
+            "text": "Booster 22 has been lowered onto the OLM! https://t.co/CpgCc4jcrx",
+            "author": {
+              "name": "Blobifi",
+              "username": "Blobifie",
+              "avatar": "https://pbs.twimg.com/profile_images/2091766013562159104/xgHLFjBX_normal.jpg"
+            },
+            "media": [
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HVZ-m1SbkAA6z44.jpg"
+              }
+            ]
+          },
+          "x_posts": [
+            "2114016319679201462"
+          ],
+          "xChecked": true,
+          "imageChecked2": true,
+          "media_override": {
+            "post_url": "https://x.com/Blobifie/status/2114016319679201462",
+            "post_id": "2114016319679201462",
+            "author": "Blobifie",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HVZ-m1SbkAA6z44.jpg"
+          },
+          "tier": 2,
+          "milestone": {
+            "key": "stacked|15|B22",
+            "type": "stacked",
+            "flight": 15,
+            "hardware": "B22",
+            "phase": "completed"
+          },
+          "complete": true,
+          "push": {
+            "title": "🏗️ Pad activity: Done",
+            "url": "https://x.com/Blobifie/status/2114016319679201462",
+            "at": "2026-10-24T15:29:01.000Z"
+          }
+        },
         {
           "id": "x-2113914954801889326",
           "date": "24 Oct",
@@ -995,7 +1054,7 @@
           "log_text": "The Pad 2 launch mount work platform was removed overnight."
         }
       ],
-      "log_latest": "Booster 22 rolled to Pad 2."
+      "log_latest": "Booster 22 stacked on the OLM at Pad 1."
     },
     {
       "id": "faa",
@@ -1301,5 +1360,18 @@
       "date": "24 Oct",
       "flight": 15
     }
-  ]
+  ],
+  "milestones": {
+    "flight": {
+      "stacked": {
+        "count": 1,
+        "dates": [
+          "2026-10-24T15:29:01.000Z"
+        ],
+        "src": [
+          "https://x.com/Blobifie/status/2114016319679201462"
+        ]
+      }
+    }
+  }
 }
