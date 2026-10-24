@@ -1445,6 +1445,15 @@ async function run(opts = {}) {
   }
   // 4a-pick. Hand-picked pictures win over the automatic check
   if (!opts.sources || opts.mediaPicks) { const np = applyMediaPicks(road, opts.mediaPicks || loadMediaPicks()); if (np) { log(`media picks: ${np} change(s) from road-media.json`); changed = true; } }
+  // 4a-mw. Media upgrade watch (hourly, ≤ 2 X calls): a clearly better picture of the same event replaces a card's
+  // picture; text unchanged, never a push (it never touches `changes`/notifications); ship cryo = proposal only
+  if ((!opts.sources && mode === "live") || opts.mediaWatch) {
+    try {
+      const mw = await require("./media-watch.js").runMediaWatch(road, state, { token: process.env.X_BEARER_TOKEN, picks: opts.mediaPicks || loadMediaPicks(), ...(opts.mediaWatch || {}), log });
+      if (mw.ran) log(`media watch: ${mw.calls} X call(s), ${mw.swapped.length} swap(s), ${mw.proposals.length} proposal(s)`);
+      if (mw.swapped.length) changed = true;
+    } catch (e) { log(`media watch failed (${e.message}) — tried again next hour`); }
+  }
   // 4a-img. New entries with an X post: keep only a picture that clearly shows the update
   for (const ch of changes) {
     if (xFirst || !ch.entry.x_post || ch.entry.media_override || (opts.sources && !opts.vision)) continue; // tests without a fake vision skip the check

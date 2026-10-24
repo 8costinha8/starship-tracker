@@ -122,6 +122,8 @@ function bestMedia(media) {
 const mediaRank = (m) => (!m ? 0 : m.type === "video" ? 2 : 1);
 const hwKey = (s) => String(s || "").toUpperCase().replace(/^SHIP\s*/, "S").replace(/^BOOSTER\s*/, "B").replace(/\s+/g, "");
 
+// media upgrade watch (media-watch.js): an upgraded or keep_image picture is never replaced by a later merge (no downgrade)
+const lockedMedia = (h) => !!(h.media_override && (h.media_override.auto || h.media_override.keep_image));
 function overrideFor(post, m) {
   return { post_url: post.url, post_id: post.post_id, author: post.author.username, type: m.type === "video" ? "video" : "photo", image: m.type === "video" ? m.poster : m.url, ...(m.type === "video" && m.video_url ? { video_url: m.video_url } : {}) };
 }
@@ -196,7 +198,7 @@ function placePost(road, post, cls, now = Date.now(), picks = []) {
     }
     if (h.updates) h.updates = h.updates.filter((u) => !logText_.isRejected(road, life.c.id, u) && !logText_.isMonthMixup(h, u)); // a rejected or month-mixed-up line never comes back
     if (!accurate) h.updates[0] && (h.updates[0].note = "later post did not match the vehicle/pad numbers; status unchanged");
-    if (m && (claimed === "completed" || cls.media_fit === "shows-event")) { if (!(h.media_override && h.media_override.keep_image)) { h.media_override = overrideFor(post, m); delete h.frameChecked; } delete h.media_context; } // real media of the event itself
+    if (m && (claimed === "completed" || cls.media_fit === "shows-event")) { if (!lockedMedia(h)) { h.media_override = overrideFor(post, m); delete h.frameChecked; } delete h.media_context; } // real media of the event itself
     else if (!h.media_override && !h.media_context) { const cx = contextImage(road, cls.stage, cls.hardware, h.id, picks); if (cx) h.media_context = cx; }
     h.milestone.phase = to;
     if (to === "completed") { h.complete = true; if (!h.completed_at && claimed === "completed") { h.completed_at = new Date(at).toISOString(); h.completed_src = post.url; } } // header time: the first post reporting the completion
@@ -208,7 +210,7 @@ function placePost(road, post, cls, now = Date.now(), picks = []) {
     const h = prev.h;
     h.x_posts = [...new Set([...(h.x_posts || []), post.post_id])];
     const cur = h.media_override ? { type: h.media_override.type } : null;
-    if (m && mediaRank(m) > mediaRank(cur) && !(h.media_override && h.media_override.keep_image)) { h.media_override = overrideFor(post, m); delete h.frameChecked; h.x_post = post; h.url = post.url; }
+    if (m && mediaRank(m) > mediaRank(cur) && !lockedMedia(h)) { h.media_override = overrideFor(post, m); delete h.frameChecked; h.x_post = post; h.url = post.url; }
     return { box: prev.c, entry: h, merged: true, accurate, tier };
   }
   const official = OFFICIAL.has(post.author.username.toLowerCase());
