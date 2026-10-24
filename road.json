@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "24 Oct",
-  "updatedAt": "2026-10-24T03:30:48.214Z",
+  "updatedAt": "2026-10-24T07:00:57.356Z",
   "categories": [
     {
       "id": "cryo",
@@ -1030,6 +1030,18 @@
       "date": "9 Sep",
       "text": "Ship 42 heads back to Massey's for further cryo testing.",
       "why": "Seed line from 7 Oct (no link, 'NSF (secondary)'): the 9 Oct NSF story mis-dated 9 Sep. S42 had no cryo test on 9 Sep."
+    }
+  ],
+  "feed_items": [
+    {
+      "id": "news-mvltvvb4-2ad013",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "SpaceX conducts static fire of booster 22 at pad 2 ahead of flight 15",
+      "url": "https://www.youtube.com/watch?v=BlyqwOjCJzA",
+      "at": "2026-10-24T03:17:28.000Z",
+      "date": "24 Oct",
+      "flight": 15
     }
   ]
 }
