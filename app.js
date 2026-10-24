@@ -1475,8 +1475,15 @@ function FeedBuildUp({ h }) {
     </details>
   );
 }
+// Ship cryo test cards: Bernardo's standing photo (images/ship-cryo.jpg) replaces any X/video thumbnail;
+// the card still opens the original X post. A manual pick with keep_image: true (road-media.json) wins.
+const SHIP_CRYO_IMAGE = "images/ship-cryo.jpg";
+const isShipCryo = (h, cat) => { const t = `${h.x_text || ""} ${h.text || ""} ${h.log_text || ""}`; return !!cat && cat.id === "cryo" && /\b(ship|s)\s?\d{2}\b/i.test(t) && !/\bbooster\b|\bb\d{2}\b/i.test(t); };
+const roadMediaOf = (h, cat) => (isShipCryo(h, cat) && !(h.media_override && h.media_override.keep_image)
+  ? { post_url: urlOf(h), author: (h.media_override && h.media_override.author) || "", type: "photo", image: SHIP_CRYO_IMAGE } : h.media_override);
 function FeedPost({ p, onPhotoTap }) {
   const { h, cat } = p;
+  const mo = roadMediaOf(h, cat);
   return (
     <article className={"post" + (urlOf(h) ? " post-tap" : "")} id={`post-${p.id}`} data-id={p.id} data-entry={h.id || undefined} style={{ "--c": cat.color }}
       {...linkProps(h)}>
@@ -1486,7 +1493,7 @@ function FeedPost({ p, onPhotoTap }) {
         <span className="post-date">{entryDate(h)}</span>
       </div>
       <p className="post-text">{scrub(h.x_text || h.text)}</p>
-      {h.media_override ? <PickMedia mo={h.media_override} /> : h.media_context ? <ContextMedia mc={h.media_context} /> : !h.milestone && h.x_post && <XMedia x={h.x_post} />}
+      {mo ? <PickMedia mo={mo} /> : h.media_context ? <ContextMedia mc={h.media_context} /> : !h.milestone && h.x_post && <XMedia x={h.x_post} />}
       <CreditLine h={h} />
       <FeedBuildUp h={h} />
     </article>

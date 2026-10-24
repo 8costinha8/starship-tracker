@@ -38,5 +38,15 @@ const cssLog = app.split("\n").filter((l) => /^\.road[ .{]|^\.mini|^\.buildup/.t
 check(crypto.createHash("sha1").update(fn("RoadCard") + cssLog).digest("hex") === "de296c94e36b0c9faa3595f69043966201f45bbc", "Flight Log card code and CSS byte-identical to 04a48c2");
 check(/<summary>\{`Earlier updates \(\$\{ups\.length\}\)`\}<\/summary>/.test(fn("BuildUp")) && /u\.url && !\(log && u\.handle\)/.test(fn("BuildUp")), "Flight Log build-up keeps its count; a new X url doesn't turn its line into a link");
 
+// 6. ship cryo cards: standing default photo, still linking to the X post; booster cryo unchanged
+const R = new Function(`const isYouTube = (u) => /youtube|youtu\\.be/.test(u || ""); ${app.slice(app.indexOf("const urlOf ="), app.indexOf("\n", app.indexOf("const urlOf =")))}\n${app.slice(app.indexOf("const SHIP_CRYO_IMAGE ="), app.indexOf("function FeedPost("))} return roadMediaOf;`)();
+const cc = { id: "cryo" }, s42m = R(s42, cc);
+check(fs.existsSync(path.join(ROOT, "images/ship-cryo.jpg")) && s42m && s42m.image === "images/ship-cryo.jpg" && s42m.type === "photo" && s42m.post_url === "https://x.com/LabPadre/status/2108486994401825101", "S42 cryo card shows images/ship-cryo.jpg and still links to its X post");
+check(R({ text: "Ship 43 completed a cryo proof test.", x_post: { url: "https://x.com/a/status/1" } }, cc).image === "images/ship-cryo.jpg", "a future auto-created ship cryo card gets the default photo");
+const b23 = cryo.history.find((h) => /Booster 23 completed/.test(h.text));
+check(R(b23, cc) === b23.media_override && R({ text: "Ship 42 raptors", media_override: b23.media_override }, { id: "raptor" }) === b23.media_override, "booster cryo and non-cryo cards keep their own picture");
+check(R({ text: "Ship 42 cryo", media_override: { image: "x.jpg", keep_image: true } }, cc).image === "x.jpg" && /keep_image: true/.test(fs.readFileSync(path.join(__dirname, "check-road.js"), "utf8")), "a manual pick with keep_image overrides the default");
+check(/\{mo \? <PickMedia mo=\{mo\} \/>/.test(post) && !/roadMediaOf|SHIP_CRYO/.test(fn("RoadCard")), "Road page uses it; Flight Log box untouched");
+
 console.log(fails ? `❌ ${fails} failed` : "✅ All Road page checks passed.");
 process.exit(fails ? 1 : 0);

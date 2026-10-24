@@ -69,7 +69,7 @@ async function runWith(items, answer, vis) {
     check(n.image === "https://pbs.twimg.com/pick.jpg", "push uses the picked picture");
     check(road.loadMediaPicks().length === 15 && road.loadMediaPicks().filter((p) => p.context_only).length === 1, "repo road-media.json has the 15 picks (10 + the manual Flight 16 B23 card + the 2 backfill cards of 19 Oct + 1 context-only Pad 2 shot + the credited 14 Oct Raptor photo)");
     const appSrc = fs.readFileSync(path.join(ROOT, "app.js"), "utf8");
-    check(/h\.media_override \? <PickMedia/.test(appSrc) && /media_override && !h\.media_override\.credit_only && h\.media_override\.post_url/.test(appSrc), "app: picked picture shown, card links to the picked post (a credit-only picture keeps the fact source link)");
+    check(/\{mo \? <PickMedia mo=\{mo\} \/>/.test(appSrc) && /: h\.media_override\);/.test(appSrc) && /media_override && !h\.media_override\.credit_only && h\.media_override\.post_url/.test(appSrc), "app: picked picture shown, card links to the picked post (a credit-only picture keeps the fact source link)");
   }
   // 5. writer sends the picture to Grok (input_image) and to Claude on fallback (image block)
   {
