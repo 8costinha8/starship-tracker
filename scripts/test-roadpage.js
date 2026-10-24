@@ -49,8 +49,9 @@ check(R({ text: "Ship 42 cryo", media_override: { image: "x.jpg", keep_image: tr
 check(/\{mo \? <PickMedia mo=\{mo\} \/>/.test(post) && !/roadMediaOf|SHIP_CRYO/.test(fn("RoadCard")), "Road page uses it; Flight Log box untouched");
 
 // 7. main View on X shares the Earlier updates row (toggle left, link right), 8px under the image; pills padded 13px
-check(/\.post > \.post-credit \{ margin-top: 8px;/.test(app) && /\.post > \.post-credit:has\(\+ \.feed-bu\) \{ float: right;/.test(app) && /\.post > \.buildup\.feed-bu > summary \{ display: flex; align-items: center; justify-content: space-between;/.test(app), "View on X on the Earlier updates row, right-aligned; alone it stays right under the image (8px)");
-check(/\.buildup\.feed-bu li\.bu-pill \{ padding: 13px;/.test(app) && /\.feed-bu \.bu-pill \{ box-sizing: border-box; width: 100%; \}/.test(app), "earlier-update pills have 13px inner padding and keep the image width");
+check(/\.post > \.post-credit \{ margin-top: 10px;/.test(app) && /\.post > \.post-credit:has\(\+ \.feed-bu\) \{ float: right;/.test(app) && /\.post > \.buildup\.feed-bu > summary \{ display: flex; align-items: center; justify-content: space-between;/.test(app), "View on X on the Earlier updates row, right-aligned; alone it stays right under the image (8px)");
+check(/\.buildup\.feed-bu li\.bu-pill \{ padding: 11px 13px;/.test(app) && /\.feed-bu \.bu-pill \{ box-sizing: border-box; width: 100%; \}/.test(app), "earlier-update pills have 13px inner padding and keep the image width");
 
+check(/li\.bu-pill \{ display: grid; grid-template-columns: minmax\(0, 1fr\) auto;/.test(app) && /\.bu-pill > \.post-credit \{ grid-column: 2;/.test(app) && /\.post > \.xm \{ margin-top: 14px; \}/.test(app), "compact pill: View on X on the text line, right; image centred");
 console.log(fails ? `❌ ${fails} failed` : "✅ All Road page checks passed.");
 process.exit(fails ? 1 : 0);
