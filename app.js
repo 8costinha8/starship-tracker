@@ -1215,7 +1215,7 @@ function BuildUp({ h, log }) {
   const stop = (e) => e.stopPropagation();
   return (
     <details className="buildup" onClick={stop}>
-      <summary>{`Earlier updates (${ups.length})`}</summary>
+      <summary>Earlier updates</summary>
       <ul>{ups.map((u, i) => <li key={i}><div className="bu-top"><span className="bu-date">{log ? logDay(u) : entryDate(u)}</span></div>
         <div className="bu-text">{u.url && !(log && u.handle) ? <a href={u.url} target="_blank" rel="noopener noreferrer" onClick={stop}>{scrub(log ? logLine(u) : u.text)}</a> : scrub(log ? logLine(u) : u.text)}</div></li>)}</ul>
     </details>
@@ -2222,6 +2222,10 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .buildup summary { cursor: pointer; font-weight: 500; font-size: 11.5px; color: var(--faint, #8592B5); list-style: none; }
 .buildup summary::after { content: " ⌄"; }
 .buildup[open] summary::after { content: " ⌃"; }
+.buildup:not(.feed-bu) summary { display: inline-flex; align-items: center; gap: 4px; line-height: 1.2; } /* Flight Log: chevron at text height */
+.buildup:not(.feed-bu) summary::-webkit-details-marker { display: none; }
+.buildup:not(.feed-bu) summary::after { content: "⌄"; display: inline-block; line-height: 1; transform: translateY(-0.2em); }
+.buildup:not(.feed-bu)[open] summary::after { content: "⌃"; transform: translateY(0.15em); }
 .buildup summary::-webkit-details-marker { display: none; }
 .buildup ul { margin: 6px 0 0; padding-left: 16px; }
 .buildup li { margin: 3px 0; }

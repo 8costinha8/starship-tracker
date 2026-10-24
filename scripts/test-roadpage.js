@@ -36,7 +36,7 @@ check(urls.every((x) => /^https:\/\/x\.com\/\w+\/status\/\d+$/.test(x)), `every 
 // 5. the Flight Log is unchanged
 const cssLog = app.split("\n").filter((l) => /^\.road[ .{]|^\.mini|^\.buildup/.test(l) && !/feed-bu/.test(l)).join("\n");
 check(crypto.createHash("sha1").update(fn("RoadCard") + cssLog).digest("hex") === "de296c94e36b0c9faa3595f69043966201f45bbc", "Flight Log card code and CSS byte-identical to 04a48c2");
-check(/<summary>\{`Earlier updates \(\$\{ups\.length\}\)`\}<\/summary>/.test(fn("BuildUp")) && /u\.url && !\(log && u\.handle\)/.test(fn("BuildUp")), "Flight Log build-up keeps its count; a new X url doesn't turn its line into a link");
+check(/<summary>Earlier updates<\/summary>/.test(fn("BuildUp")) && /\.buildup:not\(\.feed-bu\) summary \{ display: inline-flex; align-items: center; gap: 4px;/.test(app) && /u\.url && !\(log && u\.handle\)/.test(fn("BuildUp")), "Flight Log build-up has no count, chevron inline at text height; a new X url doesn't turn its line into a link");
 
 // 6. ship cryo cards: standing default photo, still linking to the X post; booster cryo unchanged
 const R = new Function(`const isYouTube = (u) => /youtube|youtu\\.be/.test(u || ""); ${app.slice(app.indexOf("const urlOf ="), app.indexOf("\n", app.indexOf("const urlOf =")))}\n${app.slice(app.indexOf("const SHIP_CRYO_IMAGE ="), app.indexOf("function FeedPost("))} return roadMediaOf;`)();
