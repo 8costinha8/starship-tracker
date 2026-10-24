@@ -4,8 +4,8 @@
     "B22",
     "S42"
   ],
-  "updated": "23 Oct",
-  "updatedAt": "2026-10-23T16:15:52.243Z",
+  "updated": "24 Oct",
+  "updatedAt": "2026-10-24T03:30:48.214Z",
   "categories": [
     {
       "id": "cryo",
@@ -247,8 +247,62 @@
       "name": "Raptor engines",
       "color": "#FF9A3D",
       "status": "progress",
-      "latest": "Ship 42 Raptor engines being reinstalled",
+      "latest": "Lifting jig raised for Booster 22 engine testing in Megabay 1.",
       "history": [
+        {
+          "id": "x-2113834862339617215",
+          "date": "24 Oct",
+          "log_date": "24 Oct",
+          "at": "2026-10-24T03:27:58.000Z",
+          "text": "Lifting jig raised for Booster 22 engine testing in Megabay 1.",
+          "x_text": "Lifting jig raised for Booster 22 engine testing in Megabay 1.",
+          "log_text": "Booster 22 lifting jig raised in Megabay 1.",
+          "url": "https://x.com/RGVaerialphotos/status/2113834862339617215",
+          "src": "@RGVaerialphotos",
+          "trust": "trusted",
+          "x_first": true,
+          "stage": "raptor",
+          "hardware": "B22",
+          "x_post": {
+            "post_id": "2113834862339617215",
+            "url": "https://x.com/RGVaerialphotos/status/2113834862339617215",
+            "created_at": "2026-10-24T03:27:58.000Z",
+            "text": "In other news, the ship static fire stand was moved back to the production site on the 22nd. It is almost Ship 42's time for engine testing! We also saw the booster lifting jig being raised in Megabay 1 today ahead of being attached to Booster 22 for its engine testing campaign down at the launch site. The booster transport ringwall is seen sitting right outside.",
+            "author": {
+              "name": "RGV Aerial Photography",
+              "username": "RGVaerialphotos",
+              "avatar": "https://pbs.twimg.com/profile_images/2019953617743097856/PJqBBhpU_normal.jpg"
+            },
+            "media": [
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HVXY5SCacAADfbX.jpg"
+              },
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HVXY5R-bQAAsW_R.jpg"
+              }
+            ]
+          },
+          "x_posts": [
+            "2113834862339617215"
+          ],
+          "xChecked": true,
+          "imageChecked2": true,
+          "media_override": {
+            "post_url": "https://x.com/RGVaerialphotos/status/2113834862339617215",
+            "post_id": "2113834862339617215",
+            "author": "RGVaerialphotos",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HVXY5SCacAADfbX.jpg"
+          },
+          "tier": 2,
+          "push": {
+            "title": "🔥 Raptor engines · Flight 15",
+            "url": "https://x.com/RGVaerialphotos/status/2113834862339617215",
+            "at": "2026-10-24T03:27:58.000Z"
+          }
+        },
         {
           "date": "14 Oct",
           "text": "Ship 42's Raptor engines are reportedly being reinstalled.",
@@ -342,7 +396,7 @@
           "log_text": "Booster 22 and Ship 42 returned to the Mega Bays for Raptor installation."
         }
       ],
-      "log_latest": "Ship 42 is reportedly having its Raptor engines reinstalled."
+      "log_latest": "Booster 22 lifting jig raised in Megabay 1."
     },
     {
       "id": "static",
