@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "24 Oct",
-  "updatedAt": "2026-10-24T11:30:39.998Z",
+  "updatedAt": "2026-10-24T14:01:16.239Z",
   "categories": [
     {
       "id": "cryo",
@@ -608,57 +608,56 @@
           "id": "x-2113907865060819060",
           "date": "24 Oct",
           "log_date": "24 Oct",
-          "at": "2026-10-24T11:21:26.000Z",
-          "text": "Booster 22 arrives at Launch Pad 2.",
-          "x_text": "Booster 22 arrives at Launch Pad 2.",
-          "log_text": "Booster 22 rolls to Launch Pad 2.",
-          "url": "https://x.com/NASASpaceflight/status/2113954013615952349",
-          "src": "@NASASpaceflight",
+          "at": "2026-10-24T13:51:46.000Z",
+          "text": "Booster 22 is being lifted onto Pad-2.",
+          "x_text": "Booster 22 is being lifted onto Pad-2.",
+          "log_text": "Booster 22 rolled to Pad 2.",
+          "url": "https://x.com/Blobifie/status/2113991846187934011",
+          "src": "@Blobifie",
           "trust": "trusted",
           "x_first": true,
           "stage": "pad",
           "hardware": "B22",
           "flight": 15,
           "x_post": {
-            "post_id": "2113954013615952349",
-            "url": "https://x.com/NASASpaceflight/status/2113954013615952349",
-            "created_at": "2026-10-24T11:21:26.000Z",
-            "text": "Welcome to Launch Pad 2 Starship Booster 22 https://t.co/HSumkyMfYU",
+            "post_id": "2113991846187934011",
+            "url": "https://x.com/Blobifie/status/2113991846187934011",
+            "created_at": "2026-10-24T13:51:46.000Z",
+            "text": "Booster 22 is being lifted onto Pad-2 https://t.co/q1lPQBSUjp",
             "author": {
-              "name": "NSF - NASASpaceflight.com",
-              "username": "NASASpaceflight",
-              "avatar": "https://pbs.twimg.com/profile_images/1637919260298158080/kRT8BkYf_normal.jpg"
+              "name": "Blobifi",
+              "username": "Blobifie",
+              "avatar": "https://pbs.twimg.com/profile_images/2091766013562159104/xgHLFjBX_normal.jpg"
             },
             "media": [
               {
-                "type": "video",
-                "poster": "https://pbs.twimg.com/amplify_video_thumb/2113953826986217472/img/0NDlwEn5BVzCRtBl.jpg",
-                "video_url": "https://video.twimg.com/amplify_video/2113953826986217472/vid/avc1/1920x1080/joqhJqu0GIrHt1GL.mp4"
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HVZoSvdakAAst89.jpg"
+              },
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HVZoTTFaIAAL6aX.jpg"
               }
-            ],
-            "link": {
-              "url": "https://www.youtube.com/watch?v=mhJRzQsLZGg",
-              "title": "Starbase Live: 24/7 Starship & Super Heavy Development From SpaceX's Boca Chica Facility",
-              "description": "Starship is SpaceX's fully reusable launch system which is being de...",
-              "image": "https://pbs.twimg.com/news_img/2111802046466973698/IAIT5BI6?format=jpg&name=orig"
-            }
+            ]
           },
           "x_posts": [
             "2113907865060819060",
             "2113907231293128970",
             "2113927981609689591",
-            "2113954013615952349"
+            "2113954013615952349",
+            "2113992853093601306",
+            "2113991846187934011"
           ],
           "xChecked": true,
           "imageChecked2": true,
           "media_override": {
-            "post_url": "https://x.com/NASASpaceflight/status/2113954013615952349",
-            "post_id": "2113954013615952349",
-            "author": "NASASpaceflight",
-            "type": "video",
-            "image": "https://pbs.twimg.com/amplify_video_thumb/2113953826986217472/img/0NDlwEn5BVzCRtBl.jpg"
+            "post_url": "https://x.com/Blobifie/status/2113991846187934011",
+            "post_id": "2113991846187934011",
+            "author": "Blobifie",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HVZoSvdakAAst89.jpg"
           },
-          "tier": 1,
+          "tier": 2,
           "milestone": {
             "key": "rollout|15|B22",
             "type": "rollout",
@@ -667,6 +666,28 @@
             "phase": "completed"
           },
           "updates": [
+            {
+              "date": "24 Oct",
+              "log_date": "24 Oct",
+              "at": "2026-10-24T13:55:46.000Z",
+              "text": "Booster 22 is being lifted onto Pad 2 OLM.",
+              "log_text": "Booster 22 rolled to Pad 2.",
+              "url": "https://x.com/NASASpaceflight/status/2113992853093601306",
+              "src": "@NASASpaceflight",
+              "phase": "completed",
+              "tier": 1
+            },
+            {
+              "date": "24 Oct",
+              "log_date": "24 Oct",
+              "at": "2026-10-24T11:21:26.000Z",
+              "text": "Booster 22 arrives at Launch Pad 2.",
+              "log_text": "Booster 22 rolls to Launch Pad 2.",
+              "url": "https://x.com/NASASpaceflight/status/2113954013615952349",
+              "src": "@NASASpaceflight",
+              "phase": "completed",
+              "tier": 1
+            },
             {
               "date": "24 Oct",
               "log_date": "24 Oct",
@@ -974,7 +995,7 @@
           "log_text": "The Pad 2 launch mount work platform was removed overnight."
         }
       ],
-      "log_latest": "Booster 22 rolls to Launch Pad 2."
+      "log_latest": "Booster 22 rolled to Pad 2."
     },
     {
       "id": "faa",
@@ -1250,6 +1271,16 @@
     }
   ],
   "feed_items": [
+    {
+      "id": "news-mvmgoq8g-00233b",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Booster 22 is being lifted onto launch pad 2",
+      "url": "https://x.com/NASASpaceflight/status/2113992853093601306",
+      "at": "2026-10-24T13:55:46.000Z",
+      "date": "24 Oct",
+      "flight": 15
+    },
     {
       "id": "news-mvm4mfz4-21e7ea",
       "kind": "news",
