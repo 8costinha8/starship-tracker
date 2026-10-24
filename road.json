@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "24 Oct",
-  "updatedAt": "2026-10-24T15:30:37.494Z",
+  "updatedAt": "2026-10-24T18:45:40.422Z",
   "categories": [
     {
       "id": "cryo",
@@ -554,45 +554,47 @@
           "id": "x-2114016319679201462",
           "date": "24 Oct",
           "log_date": "24 Oct",
-          "at": "2026-10-24T15:29:01.000Z",
-          "text": "Booster 22 has been lowered onto the OLM.",
-          "x_text": "Booster 22 has been lowered onto the OLM.",
-          "log_text": "Booster 22 stacked on the OLM at Pad 1.",
-          "url": "https://x.com/Blobifie/status/2114016319679201462",
-          "src": "@Blobifie",
+          "at": "2026-10-24T18:36:46.000Z",
+          "text": "Booster 22 lifted onto the launch mount after pad move.",
+          "x_text": "Booster 22 lifted onto the launch mount after pad move.",
+          "log_text": "Booster 22 rolled to Pad 2 and stacked on the launch mount.",
+          "url": "https://x.com/LabPadre/status/2114063568735768864",
+          "src": "@LabPadre",
           "trust": "trusted",
           "x_first": true,
           "stage": "pad",
           "hardware": "B22",
           "flight": 15,
           "x_post": {
-            "post_id": "2114016319679201462",
-            "url": "https://x.com/Blobifie/status/2114016319679201462",
-            "created_at": "2026-10-24T15:29:01.000Z",
-            "text": "Booster 22 has been lowered onto the OLM! https://t.co/CpgCc4jcrx",
+            "post_id": "2114063568735768864",
+            "url": "https://x.com/LabPadre/status/2114063568735768864",
+            "created_at": "2026-10-24T18:36:46.000Z",
+            "text": "Following an overnight move to the Pad, Booster 22 has been lifted onto the launch mount. There is a Mayor's Order in place for a testing closure tomorrow, with a back-up for Monday.",
             "author": {
-              "name": "Blobifi",
-              "username": "Blobifie",
-              "avatar": "https://pbs.twimg.com/profile_images/2091766013562159104/xgHLFjBX_normal.jpg"
+              "name": "Avid Space",
+              "username": "LabPadre",
+              "avatar": "https://pbs.twimg.com/profile_images/2018042465932988416/LR5UN4G0_normal.png"
             },
             "media": [
               {
-                "type": "photo",
-                "url": "https://pbs.twimg.com/media/HVZ-m1SbkAA6z44.jpg"
+                "type": "video",
+                "poster": "https://pbs.twimg.com/amplify_video_thumb/2114063107282583552/img/uMyR4JT7EZ7gOP-t.jpg",
+                "video_url": "https://video.twimg.com/amplify_video/2114063107282583552/vid/avc1/1280x720/R0u8dn40uPsASZYG.mp4"
               }
             ]
           },
           "x_posts": [
-            "2114016319679201462"
+            "2114016319679201462",
+            "2114063568735768864"
           ],
           "xChecked": true,
           "imageChecked2": true,
           "media_override": {
-            "post_url": "https://x.com/Blobifie/status/2114016319679201462",
-            "post_id": "2114016319679201462",
-            "author": "Blobifie",
-            "type": "photo",
-            "image": "https://pbs.twimg.com/media/HVZ-m1SbkAA6z44.jpg"
+            "post_url": "https://x.com/LabPadre/status/2114063568735768864",
+            "post_id": "2114063568735768864",
+            "author": "LabPadre",
+            "type": "video",
+            "image": "https://pbs.twimg.com/amplify_video_thumb/2114063107282583552/img/uMyR4JT7EZ7gOP-t.jpg"
           },
           "tier": 2,
           "milestone": {
@@ -607,7 +609,20 @@
             "title": "🏗️ Pad activity: Done",
             "url": "https://x.com/Blobifie/status/2114016319679201462",
             "at": "2026-10-24T15:29:01.000Z"
-          }
+          },
+          "updates": [
+            {
+              "date": "24 Oct",
+              "log_date": "24 Oct",
+              "at": "2026-10-24T15:29:01.000Z",
+              "text": "Booster 22 has been lowered onto the OLM.",
+              "log_text": "Booster 22 stacked on the OLM at Pad 1.",
+              "url": "https://x.com/Blobifie/status/2114016319679201462",
+              "src": "@Blobifie",
+              "phase": "completed",
+              "tier": 2
+            }
+          ]
         },
         {
           "id": "x-2113914954801889326",
@@ -1054,7 +1069,7 @@
           "log_text": "The Pad 2 launch mount work platform was removed overnight."
         }
       ],
-      "log_latest": "Booster 22 stacked on the OLM at Pad 1."
+      "log_latest": "Booster 22 rolled to Pad 2 and stacked on the launch mount."
     },
     {
       "id": "faa",
