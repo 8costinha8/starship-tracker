@@ -2211,7 +2211,7 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .buildup.feed-bu ul { padding-left: 0; margin-left: 0; margin-right: 0; list-style: none; } /* Road page */
 .buildup.feed-bu li { padding: 0 2px; margin-left: 0; margin-right: 0; }
 .feed-bu .bu-pill { box-sizing: border-box; width: 100%; } /* same left/right edges as the post image */
-.feed-bu .bu-pill { padding: 8px 10px; margin: 6px 0; border: 1px solid rgba(255,255,255,.14); border-radius: 10px; background: rgba(255,255,255,.035); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.buildup.feed-bu li.bu-pill { padding: 13px; margin: 6px 0; border: 1px solid rgba(255,255,255,.14); border-radius: 10px; background: rgba(255,255,255,.035); cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .feed-bu .bu-pill:focus-visible { outline: 2px solid #A9BDF0; outline-offset: 2px; }
 .feed-bu .bu-pill .post-credit { margin-top: 4px; }
 .mini-tier { margin-left: 6px; font-size: 10.5px; font-weight: 600; padding: 1px 6px; border-radius: 6px; background: rgba(255,255,255,.06); color: #AAB6D6; }
@@ -2274,6 +2274,13 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .post-text { margin: 9px 0 0; font-size: 14.5px; line-height: 1.5; color: var(--text); }
 .post-photo { margin-top: 10px; }
 .post-credit { margin-top: 10px; }
+/* Road page: main View on X sits 8px under the image; with Earlier updates it shares that row (toggle left, link right) */
+.post > .post-credit { margin-top: 8px; min-height: 20px; line-height: 20px; }
+.post > .post-credit:has(+ .feed-bu) { float: right; position: relative; z-index: 1; margin-left: 12px; }
+.post > .post-credit + .buildup.feed-bu { margin-top: 8px; }
+.post > .buildup.feed-bu > summary { display: flex; align-items: center; justify-content: space-between; min-height: 20px; line-height: 20px; }
+.post > .buildup.feed-bu > summary::after { margin-left: 4px; margin-right: auto; }
+.feed-bu .bu-pill .post-credit { margin-top: 6px; }
 .post-src { font-size: 10.5px; color: var(--muted); background: rgba(255,255,255,.07); padding: 2px 7px; border-radius: 6px; }
 .post-link {
   width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; flex: none;

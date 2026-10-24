@@ -29,7 +29,7 @@ check(H({ url: "https://x.com/LabPadre/status/1" }) === "@LabPadre" && H({ handl
 const cryo = live.categories.find((c) => c.id === "cryo"), s42 = cryo.history.find((h) => h.date && h.date.startsWith("9 Oct"));
 const u = s42.updates.find((x) => x.date === "3–4 Sep");
 check(u && u.url === "https://x.com/LabPadre/status/2095620292823462214" && u.handle === "LabPadre", "3–4 Sep S42 update carries LabPadre's 3 Sep post (url + handle)");
-check(/className="bu-pill" role="link" tabIndex=\{0\} data-url=\{url\}/.test(fbu) && /openUrl\(url\)/.test(fbu) && /\.feed-bu \.bu-pill \{[^}]*border: 1px solid/.test(app), "a whole bordered pill opens its own post (click + Enter)");
+check(/className="bu-pill" role="link" tabIndex=\{0\} data-url=\{url\}/.test(fbu) && /openUrl\(url\)/.test(fbu) && /\.feed-bu li\.bu-pill \{[^}]*border: 1px solid/.test(app), "a whole bordered pill opens its own post (click + Enter)");
 const urls = live.categories.flatMap((c) => (c.history || []).flatMap((h) => h.updates || [])).map((x) => x.url).filter((x) => /x\.com\//.test(x || ""));
 check(urls.every((x) => /^https:\/\/x\.com\/\w+\/status\/\d+$/.test(x)), `every X url on an update is a real status link (${urls.length})`);
 
@@ -47,6 +47,10 @@ const b23 = cryo.history.find((h) => /Booster 23 completed/.test(h.text));
 check(R(b23, cc) === b23.media_override && R({ text: "Ship 42 raptors", media_override: b23.media_override }, { id: "raptor" }) === b23.media_override, "booster cryo and non-cryo cards keep their own picture");
 check(R({ text: "Ship 42 cryo", media_override: { image: "x.jpg", keep_image: true } }, cc).image === "x.jpg" && /keep_image: true/.test(fs.readFileSync(path.join(__dirname, "check-road.js"), "utf8")), "a manual pick with keep_image overrides the default");
 check(/\{mo \? <PickMedia mo=\{mo\} \/>/.test(post) && !/roadMediaOf|SHIP_CRYO/.test(fn("RoadCard")), "Road page uses it; Flight Log box untouched");
+
+// 7. main View on X shares the Earlier updates row (toggle left, link right), 8px under the image; pills padded 13px
+check(/\.post > \.post-credit \{ margin-top: 8px;/.test(app) && /\.post > \.post-credit:has\(\+ \.feed-bu\) \{ float: right;/.test(app) && /\.post > \.buildup\.feed-bu > summary \{ display: flex; align-items: center; justify-content: space-between;/.test(app), "View on X on the Earlier updates row, right-aligned; alone it stays right under the image (8px)");
+check(/\.buildup\.feed-bu li\.bu-pill \{ padding: 13px;/.test(app) && /\.feed-bu \.bu-pill \{ box-sizing: border-box; width: 100%; \}/.test(app), "earlier-update pills have 13px inner padding and keep the image width");
 
 console.log(fails ? `❌ ${fails} failed` : "✅ All Road page checks passed.");
 process.exit(fails ? 1 : 0);
