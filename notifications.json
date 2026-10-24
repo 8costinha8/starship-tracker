@@ -29,6 +29,26 @@
       "sent_at": "2026-10-24T07:00:58.598Z",
       "where": "feed",
       "verdict": "sent"
+    },
+    {
+      "title": "🏗️ Pad activity · Flight 15",
+      "body": "Booster 22 heads to the launch site.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2113907865060819060",
+      "url": "https://x.com/NASASpaceflight/status/2113907231293128970",
+      "at": "2026-10-24T08:15:33.000Z",
+      "sent_at": "2026-10-24T08:31:09.436Z",
+      "where": "road",
+      "verdict": "sent"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Booster 22 has left Mega Bay 1 preparing to roll out to the launch site for testing",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mvm4mfz4-21e7ea",
+      "url": "https://x.com/NASASpaceflight/status/2113907865060819060",
+      "at": "2026-10-24T08:18:04.000Z",
+      "sent_at": "2026-10-24T08:31:09.961Z",
+      "where": "feed",
+      "verdict": "sent"
     }
   ]
 }
