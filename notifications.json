@@ -79,6 +79,16 @@
       "sent_at": "2026-10-24T11:30:41.672Z",
       "where": "road",
       "verdict": "sent"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Booster 22 is being lifted onto launch pad 2",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mvmgoq8g-00233b",
+      "url": "https://x.com/NASASpaceflight/status/2113992853093601306",
+      "at": "2026-10-24T13:55:46.000Z",
+      "sent_at": "2026-10-24T14:01:17.447Z",
+      "where": "feed",
+      "verdict": "sent"
     }
   ]
 }
