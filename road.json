@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "25 Oct",
-  "updatedAt": "2026-10-25T18:54:27.485Z",
+  "updatedAt": "2026-10-25T20:11:23.812Z",
   "categories": [
     {
       "id": "cryo",
@@ -1659,6 +1659,16 @@
   ],
   "feed_items": [
     {
+      "id": "news-mvo8qv2g-e23cc6",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Full duration static fire completed for booster preparing for flight 15",
+      "url": "https://x.com/SpaceX/status/2114444137067844004",
+      "at": "2026-10-25T19:49:01.000Z",
+      "date": "25 Oct",
+      "flight": 15
+    },
+    {
       "id": "news-mvntvaz4-93c869",
       "kind": "news",
       "title": "🚀 Starship",
@@ -1735,5 +1745,14 @@
         "why": "Booster 22 is heading to its static fire, so all 33 Raptors are installed."
       }
     }
-  }
+  },
+  "predicted_candidates": [
+    {
+      "flight": 15,
+      "source": "X @TrackingTheSB",
+      "url": "https://x.com/TrackingTheSB/status/2114448734549319868",
+      "date": "2026-11-08",
+      "seen_at": "2026-10-25T20:07:17.000Z"
+    }
+  ]
 }
