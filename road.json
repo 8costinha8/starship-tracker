@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "25 Oct",
-  "updatedAt": "2026-10-25T14:15:38.942Z",
+  "updatedAt": "2026-10-25T15:00:57.744Z",
   "categories": [
     {
       "id": "cryo",
@@ -409,31 +409,25 @@
         {
           "id": "x-2111327584122437857",
           "date": "25 Oct",
-          "at": "2026-10-25T14:05:23.000Z",
-          "text": "Booster 22 completed its static fire at the launch site.",
-          "url": "https://x.com/LabPadre/status/2114357660262781218",
-          "src": "@LabPadre",
+          "at": "2026-10-25T14:49:08.000Z",
+          "text": "Booster 22 completed a full duration static fire test.",
+          "url": "https://x.com/CSI_Starbase/status/2114368667559563715",
+          "src": "@CSI_Starbase",
           "trust": "trusted",
           "x_first": true,
           "stage": "static",
           "hardware": "B22",
           "x_post": {
-            "post_id": "2114357660262781218",
-            "url": "https://x.com/LabPadre/status/2114357660262781218",
-            "created_at": "2026-10-25T14:05:23.000Z",
-            "text": "Booster 22 has conducted a Static Fire test today on Pad-2.",
+            "post_id": "2114368667559563715",
+            "url": "https://x.com/CSI_Starbase/status/2114368667559563715",
+            "created_at": "2026-10-25T14:49:08.000Z",
+            "text": "Starting Sunday off with a bang! Waking up to a full duration static fire test from Booster 22. Flight 15 is going to be epic.",
             "author": {
-              "name": "Avid Space",
-              "username": "LabPadre",
-              "avatar": "https://pbs.twimg.com/profile_images/2018042465932988416/LR5UN4G0_normal.png"
+              "name": "Zack Golden",
+              "username": "CSI_Starbase",
+              "avatar": "https://pbs.twimg.com/profile_images/1597348837588353031/2JTg9lFE_normal.jpg"
             },
-            "media": [
-              {
-                "type": "video",
-                "poster": "https://pbs.twimg.com/amplify_video_thumb/2114357556395102208/img/pn-EPNrP9ZX5N0t8.jpg",
-                "video_url": "https://video.twimg.com/amplify_video/2114357556395102208/vid/avc1/1280x720/mjdQUGfY3ObpJhgr.mp4"
-              }
-            ]
+            "media": []
           },
           "x_posts": [
             "2111327584122437857",
@@ -443,7 +437,8 @@
             "2114329117210656842",
             "2114347696932942132",
             "2114347288739098706",
-            "2114357660262781218"
+            "2114357660262781218",
+            "2114368667559563715"
           ],
           "xChecked": true,
           "imageChecked2": true,
@@ -466,6 +461,17 @@
             "migrated": true
           },
           "updates": [
+            {
+              "date": "25 Oct",
+              "log_date": "25 Oct",
+              "at": "2026-10-25T14:05:23.000Z",
+              "text": "Booster 22 completed its static fire at the launch site.",
+              "log_text": "Booster 22 completed its static fire at the launch site.",
+              "url": "https://x.com/LabPadre/status/2114357660262781218",
+              "src": "@LabPadre",
+              "phase": "completed",
+              "tier": 2
+            },
             {
               "date": "25 Oct",
               "log_date": "25 Oct",
@@ -552,7 +558,7 @@
               "log_text": "Booster 22 could be ready for a static fire within two weeks."
             }
           ],
-          "log_text": "Booster 22 completed its static fire at the launch site.",
+          "log_text": "Booster 22 completed its static fire test at Pad 2.",
           "log_date": "25 Oct",
           "complete": true,
           "push": {
@@ -561,7 +567,8 @@
             "at": "2026-10-25T11:38:18.000Z"
           },
           "completed_at": "2026-10-25T13:24:10.000Z",
-          "completed_src": "https://x.com/NASASpaceflight/status/2114347288739098706"
+          "completed_src": "https://x.com/NASASpaceflight/status/2114347288739098706",
+          "x_text": "Booster 22 completed a full duration static fire test."
         },
         {
           "id": "x-2114335419785679308",
@@ -1182,7 +1189,7 @@
         }
       ],
       "doneText": "Completed",
-      "log_latest": "Booster 22 completed its static fire at the launch site."
+      "log_latest": "Booster 22 completed its static fire test at Pad 2."
     },
     {
       "id": "pad",
