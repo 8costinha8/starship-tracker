@@ -802,7 +802,8 @@
             "post_id": "2113991846187934011",
             "author": "Blobifie",
             "type": "photo",
-            "image": "https://pbs.twimg.com/media/HVZoSvdakAAst89.jpg"
+            "image": "https://pbs.twimg.com/media/HVZoSvdakAAst89.jpg",
+            "show": true
           },
           "media_override": {
             "post_url": "https://x.com/colleenadastra/status/2114005088653963704",

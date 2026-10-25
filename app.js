@@ -1447,7 +1447,30 @@ function XVideo({ m, url }) {
   );
 }
 // Hand-picked picture (road-media.json): the image and a View on X link; the post opens on tap. The @author credit shows once, in the card foot.
+// Two-photo split (Road cards): left = alt_media (show: true), right = the main picture. Never more than 2;
+// a ship cryo standing photo or a missing/identical second image falls back to one picture.
+const splitOf = (h, mo) => (mo && h.alt_media && h.alt_media.show === true && h.alt_media.image && h.alt_media.image !== mo.image && mo.image !== SHIP_CRYO_IMAGE
+  ? [h.alt_media, mo].slice(0, 2) : null);
+function SplitMedia({ pair, onPhotoTap, alt }) {
+  const [bad, setBad] = React.useState({});
+  const ok = pair.filter((m, i) => !bad[i]);
+  if (ok.length < 2) return <OneMedia mo={pair.find((m, i) => !bad[i]) || pair[1]} />;
+  return (
+    <div className="xm">
+      <div className="xm-split">
+        {pair.map((m, i) => (
+          <a key={i} href={m.image} target="_blank" rel="noopener noreferrer" aria-label={`${alt} \u2014 photo ${i + 1}`}
+            onClick={(e) => { e.stopPropagation(); if (onPhotoTap) { e.preventDefault(); onPhotoTap(m.image, `${alt} \u2014 photo ${i + 1}`); } }}>
+            <img src={m.image} alt="" loading="lazy" referrerPolicy="no-referrer" onError={() => setBad((b) => ({ ...b, [i]: true }))} /></a>))}
+      </div>
+    </div>
+  );
+}
 function PickMedia({ mo }) {
+  if (mo.pair) return <SplitMedia pair={mo.pair} onPhotoTap={mo.onPhotoTap} alt={mo.alt} />;
+  return <OneMedia mo={mo} />;
+}
+function OneMedia({ mo }) {
   const [bad, setBad] = React.useState(false);
   if (bad) return null;
   return (
@@ -1553,7 +1576,8 @@ const roadMediaOf = (h, cat) => (isShipCryo(h, cat) && !(h.media_override && h.m
   ? { post_url: urlOf(h), author: (h.media_override && h.media_override.author) || "", type: "photo", image: SHIP_CRYO_IMAGE } : h.media_override);
 function FeedPost({ p, onPhotoTap, idx }) {
   const { h, cat } = p;
-  const mo = roadMediaOf(h, cat);
+  const mo1 = roadMediaOf(h, cat), pair = splitOf(h, mo1);
+  const mo = pair ? { ...mo1, pair, onPhotoTap, alt: scrub(h.x_text || h.text) } : mo1; // two-photo split rides on the picked picture
   return (
     <article className={"post" + (urlOf(h) ? " post-tap" : "")} id={`post-${p.id}`} data-id={p.id} data-entry={h.id || undefined} style={catVars(cat.id, cat.color)}
       {...linkProps(h)}>
@@ -2495,6 +2519,9 @@ textarea.feedback-field { resize: none; min-height: 112px; }
   background: linear-gradient(165deg, #34466E 0%, #1C263D 100%); border: 1px solid rgba(255,255,255,.06); }
 .xm { margin-top: 10px; }
 .xm-grid { display: grid; gap: 3px; border-radius: 12px; overflow: hidden; aspect-ratio: 16 / 9; background: #0E1424; }
+.xm-split { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; aspect-ratio: 16 / 9; }
+.xm-split > a { display: block; min-width: 0; min-height: 0; border-radius: 12px; overflow: hidden; background: #0E1424; }
+.xm-split img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .xm-grid.n2, .xm-grid.n4 { grid-template-columns: 1fr 1fr; }
 .xm-grid.n3 { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
 .xm-grid.n3 > :first-child { grid-row: span 2; }

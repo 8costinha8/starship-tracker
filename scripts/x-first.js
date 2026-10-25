@@ -198,7 +198,7 @@ function placePost(road, post, cls, now = Date.now(), picks = []) {
     }
     if (h.updates) h.updates = h.updates.filter((u) => !logText_.isRejected(road, life.c.id, u) && !logText_.isMonthMixup(h, u)); // a rejected or month-mixed-up line never comes back
     if (!accurate) h.updates[0] && (h.updates[0].note = "later post did not match the vehicle/pad numbers; status unchanged");
-    if (m && (claimed === "completed" || cls.media_fit === "shows-event")) { if (!lockedMedia(h)) { h.media_override = overrideFor(post, m); delete h.frameChecked; } delete h.media_context; } // real media of the event itself
+    if (m && (claimed === "completed" || cls.media_fit === "shows-event")) { if (!lockedMedia(h)) { h.media_override = overrideFor(post, m); delete h.frameChecked; if (h.alt_media) h.alt_media.show = false; } delete h.media_context; } // real media of the event itself
     else if (!h.media_override && !h.media_context) { const cx = contextImage(road, cls.stage, cls.hardware, h.id, picks); if (cx) h.media_context = cx; }
     h.milestone.phase = to;
     if (to === "completed") { h.complete = true; if (!h.completed_at && claimed === "completed") { h.completed_at = new Date(at).toISOString(); h.completed_src = post.url; } } // header time: the first post reporting the completion
@@ -210,7 +210,7 @@ function placePost(road, post, cls, now = Date.now(), picks = []) {
     const h = prev.h;
     h.x_posts = [...new Set([...(h.x_posts || []), post.post_id])];
     const cur = h.media_override ? { type: h.media_override.type } : null;
-    if (m && mediaRank(m) > mediaRank(cur) && !lockedMedia(h)) { h.media_override = overrideFor(post, m); delete h.frameChecked; h.x_post = post; h.url = post.url; }
+    if (m && mediaRank(m) > mediaRank(cur) && !lockedMedia(h)) { h.media_override = overrideFor(post, m); delete h.frameChecked; if (h.alt_media) h.alt_media.show = false; h.x_post = post; h.url = post.url; }
     return { box: prev.c, entry: h, merged: true, accurate, tier };
   }
   const official = OFFICIAL.has(post.author.username.toLowerCase());

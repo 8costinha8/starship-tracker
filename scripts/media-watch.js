@@ -2,7 +2,7 @@
    Published Road cards (last 7 days) keep watching X for a better picture of the SAME event:
    Tier 1/2 accounts + MEDIA_TRACKERS, above an engagement minimum. A card's picture is swapped
    only when the candidate clearly wins (score ≥ 1.5× the current one AND quality not lower):
-   never a downgrade, text unchanged, never a push, one image per card, original X image (natural
+   never a downgrade, text unchanged, never a push, one image per card (two only for a sure, clearly different angle — see decidePair), original X image (natural
    brightness). Manual picks (road-media.json) and keep_image are never touched; a ship cryo card
    (Bernardo's standing photo) only gets a logged PROPOSAL. Credit: the card links to the
    creator's post; the handle stays in the View on X aria label (no visible line).
@@ -78,10 +78,38 @@ This picture is ${m.type === "video" ? "the poster frame of the post's video" : 
 const SAME = { type: "object", additionalProperties: false, required: ["same"], properties: { same: { type: "boolean" }, reason: { type: "string" } } };
 const samePrompt = (entry, post) => `Card: "${entry}"\nX post: "${post.text}"\n"same": true ONLY if the post shows the same event as the card (same vehicle AND same activity, e.g. the same lift or rollout). Reply with JSON only.`;
 
+// ── two-photo split: default 1 picture; 2 only when the second shows a clearly different, relevant angle
+// the first can't (e.g. a wide pad/chopsticks shot + an engine close-up), at high confidence. Single-shot
+// events (static fire, rollout, cryo, spin prime, WDR, launch) always get 1 — in the prompt AND in this guard.
+const PAIR_CONF = 0.9, MAX_IMAGES = 2;
+const SINGLE_SHOT = /static[\s-]*fire|\bfiring\b|\bfired\b|spin[\s-]*prime|roll(?:ed|s|ing)?[\s-]*(?:out|back)|rollout|cryo|\bwdr\b|wet dress|propellant load|launch(?:ed|es)?\b|lift[\s-]*off/i;
+const SINGLE_CATS = new Set(["cryo", "launch"]);
+function singleShot(h, catId) {
+  const t = `${h.x_text || ""} ${h.text || ""} ${h.log_text || ""}`;
+  return SINGLE_CATS.has(catId) || SINGLE_SHOT.test(t);
+}
+const PAIR = { type: "object", additionalProperties: false, required: ["two", "confidence", "reason"], properties: { two: { type: "boolean" }, confidence: { type: "number" }, reason: { type: "string" } } };
+const pairPrompt = (entry, catName) => `Two photos of the same Starship tracker update. Decide if the card should show BOTH side by side.
+Update (${catName}): ${entry}
+Default: false (one picture). "two": true ONLY if photo 2 shows a clearly DIFFERENT, relevant angle that photo 1 cannot
+(e.g. a wide pad/chopsticks shot plus a close-up of the engines or the booster being lifted). Near-duplicates, the same angle,
+crops of each other, or a weaker shot: false. Obvious single-shot events ALWAYS false: a static fire / engines firing,
+a rollout or rollback, a cryo test, spin prime, wet dress rehearsal, launch.
+"confidence": 0 to 1 (how sure two photos is better). Reply with JSON only.`;
+// true only when the guard allows it, both images differ, and the model says two at ≥ PAIR_CONF
+async function decidePair(A, h, cat, first, second) {
+  if (!first || !second || !first.image || !second.image || first.image === second.image) return false;
+  if (singleShot(h, cat && cat.id)) return false;
+  if (!A.pair) return false;
+  let v; try { v = await A.pair(pairPrompt(h.x_text || h.text, (cat && (cat.name || cat.id)) || ""), [first.image, second.image]); } catch { return false; }
+  return !!(v && v.two === true && Number(v.confidence) >= PAIR_CONF);
+}
+
 function defaultAsk() {
   const writer = require("./writer.js");
   return {
     vision: (prompt, url) => writer.askJson(prompt, { images: [url], schema: VISION, schemaName: "media_upgrade", maxTokens: 2000, claudeMaxTokens: 300, attempts: 1, log: () => {} }),
+    pair: (prompt, urls) => writer.askJson(prompt, { images: urls.slice(0, MAX_IMAGES), schema: PAIR, schemaName: "media_pair", maxTokens: 1000, claudeMaxTokens: 200, attempts: 1, log: () => {} }),
     same: (prompt) => writer.askJson(prompt, { schema: SAME, schemaName: "same_event", maxTokens: 1000, claudeMaxTokens: 200, attempts: 1, log: () => {} }),
   };
 }
@@ -144,10 +172,11 @@ async function runMediaWatch(road, state, { token, fetchFn = fetch, ask = null, 
       if (Math.abs(Date.parse(post.created_at) - at) > WINDOW_MS) { res.skipped.push(`@${post.author}: outside 48h of "${h.text}"`); continue; }
       let same; try { same = await A.same(samePrompt(h.x_text || h.text, post)); } catch { same = null; }
       if (!same || !same.same) continue;
-      let best = null;
+      let best = null; const ok = [];
       for (const m of post.media.slice(0, 4)) {
         let v; try { v = await A.vision(visionPrompt(h.x_text || h.text, c.name || c.id, post, m), m.image); } catch { continue; }
         if (!v || !v.shows || v.confidence < MIN_CONF || v.collage) continue;
+        ok.push({ m, v });
         if (!best || v.quality > best.v.quality) best = { m, v };
       }
       if (!best) continue;
@@ -161,7 +190,13 @@ async function runMediaWatch(road, state, { token, fetchFn = fetch, ask = null, 
       const label = `[${c.id}] ${h.date} "${h.text}" ← @${post.author} ${best.m.image} (score ${cand.score.toFixed(0)} vs ${cur ? cur.score.toFixed(0) : "none"})`;
       if (lock && /propose/.test(lock)) { res.proposals.push(label); mw.proposals = [...(mw.proposals || []).filter((x) => x.post_url !== post.url), { card: h.id || h.text, post_url: post.url, image: best.m.image, score: Math.round(cand.score), at: mw.lastAt }].slice(-20); log(`media watch PROPOSAL (no swap): ${label}`); continue; }
       if (lock) { res.skipped.push(`${lock}: "${h.text}"`); continue; }
+      const prevMo = h.media_override && !h.media_override.credit_only ? { post_url: h.media_override.post_url, post_id: h.media_override.post_id, author: h.media_override.author, type: h.media_override.type, image: h.media_override.image } : null;
       h.media_override = { post_url: post.url, post_id: post.post_id, author: post.author, type: best.m.type, image: best.m.image, auto: true, quality: best.v.quality, media_score: Math.round(cand.score), checked_at: mw.lastAt };
+      // second picture (left): a strong other photo from this post, else the picture it replaces — only if Grok is sure
+      const other = ok.filter((x) => x.m.image !== best.m.image && x.m.type === "photo" && x.v.quality >= 4).sort((a, b) => b.v.quality - a.v.quality)[0];
+      const second = other ? { post_url: post.url, post_id: post.post_id, author: post.author, type: "photo", image: other.m.image } : prevMo;
+      if (second && (await decidePair(A, h, c, second, h.media_override))) { h.alt_media = { ...second, show: true }; log(`media watch: two-photo split for "${h.text}"`); }
+      else if (second) h.alt_media = { ...second, show: false }; else if (h.alt_media) h.alt_media.show = false;
       delete h.media_context;
       res.swapped.push(label); log(`media watch SWAP (no push): ${label}`);
     }
@@ -169,4 +204,4 @@ async function runMediaWatch(road, state, { token, fetchFn = fetch, ask = null, 
   return res;
 }
 
-module.exports = { MEDIA_TRACKERS, GATE, WEIGHT, RATIO, EVERY_MS, WINDOW_MS, sourceTier, engagement, passesGate, score, isBetter, vehiclesOf, isShipCryo, lockedReason, watchedCards, searchQuery, runMediaWatch, watchAccounts };
+module.exports = { PAIR_CONF, MAX_IMAGES, SINGLE_SHOT, singleShot, pairPrompt, decidePair, MEDIA_TRACKERS, GATE, WEIGHT, RATIO, EVERY_MS, WINDOW_MS, sourceTier, engagement, passesGate, score, isBetter, vehiclesOf, isShipCryo, lockedReason, watchedCards, searchQuery, runMediaWatch, watchAccounts };
