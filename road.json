@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "25 Oct",
-  "updatedAt": "2026-10-25T20:15:35.363Z",
+  "updatedAt": "2026-10-25T22:22:36.731Z",
   "categories": [
     {
       "id": "cryo",
@@ -409,31 +409,36 @@
         {
           "id": "x-2111327584122437857",
           "date": "25 Oct",
-          "at": "2026-10-25T18:24:21.000Z",
-          "text": "Booster 22 completed its static fire test at Starbase.",
-          "url": "https://x.com/NASASpaceflight/status/2114422831907807365",
+          "at": "2026-10-25T22:07:27.000Z",
+          "text": "Booster 22 completed a full-duration static fire test on Pad 2.",
+          "url": "https://x.com/NASASpaceflight/status/2114478974818459882",
           "src": "@NASASpaceflight",
           "trust": "trusted",
           "x_first": true,
           "stage": "static",
           "hardware": "B22",
           "x_post": {
-            "post_id": "2114422831907807365",
-            "url": "https://x.com/NASASpaceflight/status/2114422831907807365",
-            "created_at": "2026-10-25T18:24:21.000Z",
-            "text": "We've been covering Starship Flight 15 preparations with Booster 22's Static Fire, but Flight 16 is also being readied and set to be Starship's Florida debut! Ryan Weber (@rweb11742) with the status, along with fresh flyover photos of the facilities:",
+            "post_id": "2114478974818459882",
+            "url": "https://x.com/NASASpaceflight/status/2114478974818459882",
+            "created_at": "2026-10-25T22:07:27.000Z",
+            "text": "Booster 22 completed a full-duration static fire test on Pad 2 ahead of November's Flight 15, while several future vehicles undergo preparation for their upcoming missions. https://t.co/axCohMQKom",
             "author": {
               "name": "NSF - NASASpaceflight.com",
               "username": "NASASpaceflight",
               "avatar": "https://pbs.twimg.com/profile_images/1637919260298158080/kRT8BkYf_normal.jpg"
             },
-            "media": [],
+            "media": [
+              {
+                "type": "video",
+                "poster": "https://pbs.twimg.com/amplify_video_thumb/2114478861119332353/img/AXpDlOdlSig_Jp5J.jpg",
+                "video_url": "https://video.twimg.com/amplify_video/2114478861119332353/vid/avc1/1920x1080/McwXvHbXbugSBtKF.mp4"
+              }
+            ],
             "link": {
-              "url": "https://www.nasaspaceflight.com/2026/10/roberts-road-expansion-flight-16/",
-              "title": "Possible Roberts Road Expansion as SpaceX pushes for Flight 16 - NASASpaceFlight.com",
-              "description": "As SpaceX prepares to fly Flight 15 in November, with a successful Static Fire test…",
-              "image": "https://pbs.twimg.com/news_img/2114422832285310976/095DmFQN?format=jpg&name=orig",
-              "lead": "As SpaceX prepares to fly Flight 15 in November, with a successful Static Fire test occurring at Starbase on Sunday, the company is pushing to launch Flight 16 from LC-39A as soon as possible and expand operations at Kennedy Space Center. To do that, the Gigabay and pad must be ready to host Booster 23 and Ship 43, both of which have completed cryo-proof testing. Roberts Road has been a staple for SpaceX operations at Kennedy Space Center since 2021, with the first phase of Hangar X. This is where SpaceX started to store and refurbish Falcon 9 boosters after flight when the pad hangars became overcrowded. Over time, SpaceX expanded this hangar to house more Falcon 9s and refurbish fairings. After a few years, SpaceX got another extension to its footprint at Roberts Road to the west to make a Starfactory for Starship with two Mega Bays. SpaceX axed plans to build those for Starship as it "
+              "url": "https://www.youtube.com/watch?v=-JqfrRfbCs8&feature=youtu.be",
+              "title": "Booster 22 FIRES UP ahead of Flight 15 - Starbase Summary",
+              "description": "Booster 22 completed a full-duration static fire test on Pad 2 ahea...",
+              "image": "https://pbs.twimg.com/news_img/2114478980120145921/9bFZYsFn?format=jpg&name=orig"
             }
           },
           "x_posts": [
@@ -448,7 +453,8 @@
             "2114368667559563715",
             "2114378296981172616",
             "2114405714722763056",
-            "2114422831907807365"
+            "2114422831907807365",
+            "2114478974818459882"
           ],
           "xChecked": true,
           "imageChecked2": true,
@@ -471,6 +477,17 @@
             "migrated": true
           },
           "updates": [
+            {
+              "date": "25 Oct",
+              "log_date": "25 Oct",
+              "at": "2026-10-25T18:24:21.000Z",
+              "text": "Booster 22 completed its static fire test at Starbase.",
+              "log_text": "Booster 22 completed its static fire test at Starbase.",
+              "url": "https://x.com/NASASpaceflight/status/2114422831907807365",
+              "src": "@NASASpaceflight",
+              "phase": "completed",
+              "tier": 1
+            },
             {
               "date": "25 Oct",
               "log_date": "25 Oct",
@@ -603,7 +620,7 @@
               "at": "2026-09-30T15:17:00Z"
             }
           ],
-          "log_text": "Booster 22 completed its static fire test at Starbase.",
+          "log_text": "Booster 22 completed its static fire test at Pad 2.",
           "log_date": "25 Oct",
           "complete": true,
           "push": {
@@ -613,7 +630,7 @@
           },
           "completed_at": "2026-10-25T13:24:10.000Z",
           "completed_src": "https://x.com/NASASpaceflight/status/2114347288739098706",
-          "x_text": "Booster 22 completed its static fire test at Starbase.",
+          "x_text": "Booster 22 completed a full-duration static fire test on Pad 2.",
           "status_line": "Booster 22 static fire done."
         },
         {
