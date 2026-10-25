@@ -1340,7 +1340,7 @@ function cardTime(h, road) {
 // pill): road.archive[n].summary.items, one small box per vehicle per category (written by hand for
 // Flight 14, frozen by the checker when later flights launch). The internal sources list is never shown.
 const PAST_LABEL = { cryo: "Cryo", raptor: "Raptor", static: "Static fire", pad: "Pad", faa: "FAA licence", date: "Launch date" };
-const PAST_COLOR = { cryo: "#BFE6FF", raptor: "#FF9A3D", static: "#FF5A36", pad: "#A88BFF", faa: "#2FD3B0", date: "#FFC93D" };
+const PAST_COLOR = { cryo: "#BFE6FF", raptor: "#FF5A36", static: "#FF9A3D", pad: "#A88BFF", faa: "#2FD3B0", date: "#FFC93D" };
 function pastSummary(road, n) {
   if (!road || !Array.isArray(road.categories)) return [];
   const a = road.archive && road.archive[n], items = (a && a.summary && a.summary.items) || [];

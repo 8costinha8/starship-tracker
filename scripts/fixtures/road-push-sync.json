@@ -253,7 +253,7 @@
       "id": "raptor",
       "icon": "🔥",
       "name": "Raptor engines",
-      "color": "#FF9A3D",
+      "color": "#FF5A36",
       "status": "progress",
       "latest": "Ship 42 Raptor engines being reinstalled",
       "history": [
@@ -325,7 +325,7 @@
       "id": "static",
       "icon": "💥",
       "name": "Static fires",
-      "color": "#FF5A36",
+      "color": "#FF9A3D",
       "status": "progress",
       "latest": "Booster 22 waiting to roll out for pre-flight static fire testing.",
       "history": [
