@@ -129,6 +129,26 @@
       "sent_at": "2026-10-25T12:45:36.937Z",
       "where": "road",
       "verdict": "sent"
+    },
+    {
+      "title": "❄️ Cryo tests: In progress",
+      "body": "Booster 22 undergoing cryo tests at the launch site.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2114339995121332263",
+      "url": "https://x.com/Blobifie/status/2114339995121332263",
+      "at": "2026-10-25T12:55:12.000Z",
+      "sent_at": "2026-10-25T13:01:16.904Z",
+      "where": "road",
+      "verdict": "sent"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Booster 22 propellant loading has begun for static fire test",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mvntvaz4-93c869",
+      "url": "https://x.com/NASASpaceflight/status/2114339334753284398",
+      "at": "2026-10-25T12:52:34.000Z",
+      "sent_at": "2026-10-25T13:01:17.465Z",
+      "where": "feed",
+      "verdict": "sent"
     }
   ]
 }
