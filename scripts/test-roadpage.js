@@ -13,7 +13,7 @@ const post = fn("FeedPost"), fbu = fn("FeedBuildUp"), credit = fn("CreditLine");
 
 // 1. no count in the label
 check(/<summary>Earlier updates<\/summary>/.test(fbu) && !/\(\$\{|\.length\}?\)/.test(fbu.split("\n").find((l) => /summary/.test(l))), "Road page: label reads 'Earlier updates' with no count");
-check(/<FeedBuildUp h=\{h\}( plain=\{ONE_CARD\.includes\(cat\.id\)\})? \/>/.test(post) && !/<BuildUp /.test(post), "Road page cards use the Road build-up, not the Flight Log one");
+check(/<FeedBuildUp h=\{h\}( plain=\{ONE_CARD\.includes\(cat\.id\)\})? idx=\{idx\} \/>/.test(post) && !/<BuildUp /.test(post), "Road page cards use the Road build-up, not the Flight Log one");
 
 // 2. no standalone credit row
 check(/if \(!u\) return null;/.test(credit) && (post.match(/<CreditLine /g) || []).length === 1 && !/post-src|mini-src|srcOf\(h\)\}<\/span>/.test(post), "no standalone @handle credit row: a credit only ever sits in a View on X line");
@@ -22,7 +22,7 @@ check(/\.buildup\.feed-bu ul \{ padding-left: 0; margin-left: 0; margin-right: 0
 
 // 3. one View on X line per post with a url: under the main post (above Earlier updates), and in each update pill
 check(post.indexOf("<CreditLine h={h} />") > 0 && post.indexOf("<CreditLine h={h} />") < post.indexOf("<FeedBuildUp"), "main post's View on X line sits under its media, above Earlier updates");
-check(/url \? <li[^]*?<CreditLine h=\{\{ url, src: handleOf\(u\) \}\} \/><\/li>\s*: <li key=\{i\} className="bu-pill bu-nolink">\{body\}<\/li>/.test(fbu), "each earlier update with a url gets its own line; one without a url gets none (still boxed, not tappable)");
+check(/return to \? <li[^]*?>\{body\}<\/li>\s*: <li key=\{i\} className="bu-pill bu-nolink">\{body\}<\/li>/.test(fbu) && !/CreditLine/.test(fbu), "each earlier update with its own card gets a tappable box (no link text); one without gets a plain box (not tappable)");
 const H = new Function(`const isYouTube = (u) => /youtube|youtu\\.be/.test(u || ""); ${app.slice(app.indexOf("const handleOf ="), app.indexOf("function FeedBuildUp("))} return handleOf;`)();
 check(H({ url: "https://x.com/LabPadre/status/1" }) === "@LabPadre" && H({ handle: "LabPadre", url: "https://x.com/a/status/1" }) === "@LabPadre" && H({ url: "https://www.nasaspaceflight.com/x" }) === null, "handle from the update's handle, else its x.com url");
 
@@ -30,7 +30,7 @@ check(H({ url: "https://x.com/LabPadre/status/1" }) === "@LabPadre" && H({ handl
 const cryo = live.categories.find((c) => c.id === "cryo"), s42 = cryo.history.find((h) => h.date && h.date.startsWith("9 Oct"));
 const u = s42.updates.find((x) => x.date === "3–4 Sep");
 check(u && u.url === "https://x.com/LabPadre/status/2095620292823462214" && u.handle === "LabPadre", "3–4 Sep S42 update carries LabPadre's 3 Sep post (url + handle)");
-check(/className="bu-pill" role="link" tabIndex=\{0\} data-url=\{url\}/.test(fbu) && /openUrl\(url\)/.test(fbu) && /\.feed-bu li\.bu-pill \{[^}]*border: 1px solid/.test(app), "a whole bordered pill opens its own post (click + Enter)");
+check(/className="bu-pill" role="link" tabIndex=\{0\} data-to=\{to\}/.test(fbu) && /goToEntry\(to\)/.test(fbu) && !/openUrl\(/.test(fbu) && /\.feed-bu li\.bu-pill \{[^}]*border: 1px solid/.test(app), "a whole bordered pill opens its own Road card in-app (click + Enter)");
 const urls = live.categories.flatMap((c) => (c.history || []).flatMap((h) => h.updates || [])).map((x) => x.url).filter((x) => /x\.com\//.test(x || ""));
 check(urls.every((x) => /^https:\/\/x\.com\/\w+\/status\/\d+$/.test(x)), `every X url on an update is a real status link (${urls.length})`);
 

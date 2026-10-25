@@ -559,7 +559,9 @@
             "title": "💥 Static fires: Completed",
             "url": "https://x.com/NASASpaceflight/status/2114320643470549259",
             "at": "2026-10-25T11:38:18.000Z"
-          }
+          },
+          "completed_at": "2026-10-25T13:24:10.000Z",
+          "completed_src": "https://x.com/NASASpaceflight/status/2114347288739098706"
         },
         {
           "id": "x-2114335419785679308",

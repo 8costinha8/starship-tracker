@@ -1479,6 +1479,22 @@ const handleOf = (u) => u && (u.handle ? String(u.handle).replace(/^@?/, "@") : 
 // Road page "Earlier updates": repeat completion lines (the card's main line already says it) are folded,
 // newest first; when 2+ lines share a day each shows its post time ("25 Oct · 11:42", 24h Europe/London, no "UK").
 const upIso = (u) => (u && u.at && Number.isFinite(Date.parse(u.at)) ? u.at : (String((u && u.url) || "").match(/(?:x|twitter)\.com\/\w+\/status\/(\d{15,})/) || [])[1] ? sfIso(String(u.url).match(/status\/(\d+)/)[1]) : "");
+// Completed cards: the header shows when it happened ("25 Oct · 13:24", 24h Europe/London, no "UK"):
+// completed_at (earliest trusted post showing the event itself), else the completing post's time.
+const isDoneCard = (h) => !!(h && (h.complete || (h.milestone && h.milestone.phase === "completed")));
+const cardDate = (h) => { const iso = isDoneCard(h) && (h.completed_at || h.at); return iso && Number.isFinite(Date.parse(iso)) ? `${ukStamp(iso, false)} · ${feedTime(iso)}` : entryDate(h); };
+// Earlier updates box → that update's OWN card in the Road feed (never X or an outside source directly).
+const statusIdOf = (u) => (String(u || "").match(/status\/(\d{15,})/) || [])[1] || null;
+function entryIndex(road) {
+  const m = new Map();
+  for (const c of (road && road.categories) || []) for (const x of c.history || []) {
+    if (!x || !x.id || x.feed_hide || x.log_only || x.kind === "check") continue;
+    for (const k of [x.url, x.x_post && x.x_post.url, statusIdOf(x.url), x.x_post && x.x_post.post_id, (String(x.id).match(/^x-(\d+)$/) || [])[1]]) if (k && !m.has(k)) m.set(k, x.id);
+  }
+  return m;
+}
+const updateTarget = (u, idx, selfId) => { if (!u || !idx) return null; const id = (u.url && idx.get(u.url)) || (statusIdOf(u.url) && idx.get(statusIdOf(u.url))) || null; return id && id !== selfId ? id : null; };
+const goToEntry = (id) => window.dispatchEvent(new CustomEvent("st-entry", { detail: id }));
 function roadUpdates(h) {
   const done = !!(h.complete || (h.milestone && h.milestone.phase === "completed"));
   const yr = Number.isFinite(Date.parse(h.at || "")) ? new Date(h.at).getUTCFullYear() : new Date().getUTCFullYear();
@@ -1490,19 +1506,17 @@ function roadUpdates(h) {
   const n = {}; sorted.forEach((u) => { n[day(u)] = (n[day(u)] || 0) + 1; });
   return sorted.map((u) => { const iso = upIso(u); return { u, when: n[day(u)] > 1 && iso ? `${day(u)} · ${feedTime(iso)}` : null }; });
 }
-function FeedBuildUp({ h, plain }) {
+function FeedBuildUp({ h, plain, idx }) {
   const rows = roadUpdates(h);
-  const ups = rows.map((r) => r.u);
-  if (!ups.length) return null;
+  if (!rows.length) return null;
   const stop = (e) => e.stopPropagation();
   return (
     <details className="buildup feed-bu" onClick={stop}>
       <summary>Earlier updates</summary>
-      <ul>{ups.map((u, i) => { const url = u.url && !isYouTube(u.url) ? u.url : null;
-        const body = <><div className="bu-top"><span className="bu-date">{rows[i].when || (plain ? logDay(u) : entryDate(u))}</span></div><div className="bu-text">{scrub(plain ? logLine(u) : u.text)}</div></>;
-        return url ? <li key={i} className="bu-pill" role="link" tabIndex={0} data-url={url} aria-label={`${u.text} — open the post on X`}
-            onClick={(e) => { e.stopPropagation(); if (!e.target.closest("a")) openUrl(url); }} onKeyDown={(e) => { if (e.key === "Enter" && e.target === e.currentTarget) openUrl(url); }}>
-            {body}<CreditLine h={{ url, src: handleOf(u) }} /></li>
+      <ul>{rows.map(({ u, when }, i) => { const to = updateTarget(u, idx, h.id);
+        const body = <><div className="bu-top"><span className="bu-date">{when || (plain ? logDay(u) : entryDate(u))}</span></div><div className="bu-text">{scrub(plain ? logLine(u) : u.text)}</div></>;
+        return to ? <li key={i} className="bu-pill" role="link" tabIndex={0} data-to={to} aria-label={`${u.text} — show its card`}
+            onClick={(e) => { e.stopPropagation(); goToEntry(to); }} onKeyDown={(e) => { if (e.key === "Enter" && e.target === e.currentTarget) goToEntry(to); }}>{body}</li>
           : <li key={i} className="bu-pill bu-nolink">{body}</li>; })}</ul>
     </details>
   );
@@ -1513,7 +1527,7 @@ const SHIP_CRYO_IMAGE = "images/ship-cryo.jpg";
 const isShipCryo = (h, cat) => { const t = `${h.x_text || ""} ${h.text || ""} ${h.log_text || ""}`; return !!cat && cat.id === "cryo" && /\b(ship|s)\s?\d{2}\b/i.test(t) && !/\bbooster\b|\bb\d{2}\b/i.test(t); };
 const roadMediaOf = (h, cat) => (isShipCryo(h, cat) && !(h.media_override && h.media_override.keep_image)
   ? { post_url: urlOf(h), author: (h.media_override && h.media_override.author) || "", type: "photo", image: SHIP_CRYO_IMAGE } : h.media_override);
-function FeedPost({ p, onPhotoTap }) {
+function FeedPost({ p, onPhotoTap, idx }) {
   const { h, cat } = p;
   const mo = roadMediaOf(h, cat);
   return (
@@ -1522,12 +1536,12 @@ function FeedPost({ p, onPhotoTap }) {
       <div className="post-top">
         <span className="chip"><span className="chip-i">{cat.icon}</span>{cat.name}</span>
         <span className="post-sep">·</span>
-        <span className="post-date">{entryDate(h)}</span>
+        <span className="post-date">{cardDate(h)}</span>
       </div>
       <p className="post-text">{scrub(h.x_text || h.text)}</p>
       {mo ? <PickMedia mo={mo} /> : h.media_context ? <ContextMedia mc={h.media_context} /> : !h.milestone && h.x_post && <XMedia x={h.x_post} />}
       <CreditLine h={h} />
-      <FeedBuildUp h={h} />
+      <FeedBuildUp h={h} idx={idx} />
     </article>
   );
 }
@@ -1596,6 +1610,7 @@ function PhoneHeader({ road, feedOpen, onAbout, onFeed, onBack, onHint }) {
 
 function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap }) {
   const { posts, rows } = React.useMemo(() => buildFeed(road), [road]);
+  const idx = React.useMemo(() => entryIndex(road), [road]);
   if (!posts.length) return null;
   return (
     <aside className="feed-pane" aria-label="Updates feed" aria-hidden={!wide && !shown}>
@@ -1610,7 +1625,7 @@ function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap }) {
             ? <div className="fdiv" id={`fsec-${r.section.n}`} key={"f" + r.section.n}><span><b>{`Flight ${r.section.n}`}</b>{(r.section.flown || r.section.next) && <> <i>·</i> </>}{r.section.flown
                 ? <><span className={"fdiv-" + r.section.flown.outcome}>{OUTCOME_LABEL[r.section.flown.outcome] || r.section.flown.outcome}</span> <i>·</i> {ukStamp(new Date(r.section.flown.day).toISOString(), false)}</>
                 : r.section.next ? <span className="fdiv-next">Next flight</span> : null}</span></div>
-            : <FeedPost key={r.post.id} p={r.post} onPhotoTap={onPhotoTap} />)}
+            : <FeedPost key={r.post.id} p={r.post} onPhotoTap={onPhotoTap} idx={idx} />)}
           <p className="end">That's every update so far.</p>
         </div>
       </div>
@@ -1847,6 +1862,8 @@ function StarshipTracker() {
       onFeed={() => setFeedOpen(true)} onBack={() => setFeedOpen(false)} onHint={openRoad} />
   ) : null;
 
+  // Tap an Earlier updates box: same deep-link path (scroll to that card, highlight it).
+  React.useEffect(() => { const on = (e) => e.detail && setEntryReq(e.detail); window.addEventListener("st-entry", on); return () => window.removeEventListener("st-entry", on); }, []);
   // Tap an entry in the Road card: show its post in the feed and light it up.
   React.useEffect(() => {
     if (!entryReq || !road) return;

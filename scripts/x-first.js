@@ -199,7 +199,7 @@ function placePost(road, post, cls, now = Date.now(), picks = []) {
     if (m && (claimed === "completed" || cls.media_fit === "shows-event")) { if (!(h.media_override && h.media_override.keep_image)) { h.media_override = overrideFor(post, m); delete h.frameChecked; } delete h.media_context; } // real media of the event itself
     else if (!h.media_override && !h.media_context) { const cx = contextImage(road, cls.stage, cls.hardware, h.id, picks); if (cx) h.media_context = cx; }
     h.milestone.phase = to;
-    if (to === "completed") h.complete = true;
+    if (to === "completed") { h.complete = true; if (!h.completed_at && claimed === "completed") { h.completed_at = new Date(at).toISOString(); h.completed_src = post.url; } } // header time: the first post reporting the completion
     if (h.log_text && h.trust !== "unconfirmed" && !(h.flight > road.flight)) life.c.log_latest = h.log_text; // the section's current outcome
     return { box: life.c, entry: h, merged: true, phase: to !== from ? { from, to } : null, accurate, tier };
   }

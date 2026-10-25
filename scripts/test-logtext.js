@@ -18,7 +18,7 @@ check(A.logDay({ date: "9–10 Sep" }) === "9–10 Sep" && A.logDay({ date: "30 
 check(A.logDay({ date: "3–4 Sep" }) === L.logDay({ date: "3–4 Sep" }) && A.logDay({ at: "2026-10-23T23:30:00Z" }) === L.logDay({ at: "2026-10-23T23:30:00Z" }), "app and scripts agree on the day");
 const cryo = live.categories.find((c) => c.id === "cryo"), e = (t) => cur(cryo).find((h) => (h.log_text || "").startsWith(t));
 check(A.logDay(e("Booster 22")) === "9–10 Sep" && A.logDay(e("Ship 42")) === "9 Oct" && e("Ship 42").updates.length === 1 && A.logDay(e("Ship 42").updates[0]) === "3–4 Sep", "Cryo: S42 9 Oct with one earlier update 3–4 Sep; B22 9–10 Sep");
-check(/<span className="mini-date">\{logDay\(h\)\}<\/span>/.test(app) && /log \? <li key=\{i\} \{\.\.\.tapProps\(u\)\}><div className="bu-top"><span className="bu-date">\{logDay\(u\)\}/.test(app) && /post-date">\{(ONE_CARD\.includes\(cat\.id\) \? logDay\(h\) : )?entryDate\(h\)\}/.test(app), "Flight Log uses the plain day; the Updates feed keeps its times");
+check(/<span className="mini-date">\{logDay\(h\)\}<\/span>/.test(app) && /log \? <li key=\{i\} \{\.\.\.tapProps\(u\)\}><div className="bu-top"><span className="bu-date">\{logDay\(u\)\}/.test(app) && /post-date">\{(ONE_CARD\.includes\(cat\.id\) \? logDay\(h\) : )?(entryDate|cardDate)\(h\)\}/.test(app), "Flight Log uses the plain day; the Updates feed keeps its times");
 
 // 2. the Flight Log prefers log_text and never shows raw post text
 check(A.logLine({ log_text: "Clean.", x_text: "X text", text: "Text", x_post: { text: "RAW" } }) === "Clean." && A.logLine({ x_text: "X text", text: "Text" }) === "Text", "logLine: log_text first, then text (never x_text)");
