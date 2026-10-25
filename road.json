@@ -500,6 +500,30 @@
               "tier": 1
             },
             {
+              "date": "25 Oct",
+              "log_date": "25 Oct",
+              "at": "2026-10-25T12:37:01.000Z",
+              "text": "Transport ring relocated ahead of the static fire.",
+              "log_text": "Transport ring relocated ahead of the static fire.",
+              "url": "https://x.com/LabPadre/status/2114335419785679308",
+              "src": "@LabPadre",
+              "phase": "progress",
+              "tier": 3,
+              "step_of": "x-2114335419785679308"
+            },
+            {
+              "date": "25 Oct",
+              "log_date": "25 Oct",
+              "at": "2026-10-25T11:27:16.000Z",
+              "text": "Road closed ahead of the static fire test.",
+              "log_text": "Road closed ahead of the static fire test.",
+              "url": "https://x.com/Blobifie/status/2114317866409595106",
+              "src": "@Blobifie",
+              "phase": "progress",
+              "tier": 2,
+              "step_of": "x-2114317866409595106"
+            },
+            {
               "date": "17 Oct",
               "at": "2026-10-17T05:24:57.000Z",
               "text": "Booster 22 waiting to roll out for pre-flight static fire testing.",
@@ -521,7 +545,7 @@
             },
             {
               "date": "30 Sep",
-              "text": "B22 ready for static fire within ~2 weeks, S42 within 2–3 weeks. Estimate, not a SpaceX schedule.",
+              "text": "Booster 22 could be ready for a static fire within two weeks.",
               "src": "NSF",
               "phase": "expected",
               "tier": 1,

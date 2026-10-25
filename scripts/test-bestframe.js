@@ -62,7 +62,7 @@ const LIT = [6.5, 9.5];
   check(!bad.length, `no clock time in any Road card date (${bad.join(", ") || "none"})`);
   const app = fs.readFileSync(path.join(ROOT, "app.js"), "utf8"); const fn = (n) => { const i = app.indexOf(`function ${n}(`); return i < 0 ? "" : app.slice(i, app.indexOf("\n}\n", i) + 2); };
   const paths = ["FeedPost", "FeedBuildUp", "CreditLine"].map(fn).join("\n");
-  check(paths.length > 200 && !/feedTime\(|fmtTimeLondon\(|fmtDateTimeLondon\(|ukStamp\([^)]*\)(?<!false\))/.test(paths), "Road card render paths (card, earlier updates, credit) never format a clock time");
+  check(paths.length > 200 && !/feedTime\(|fmtTimeLondon\(|fmtDateTimeLondon\(|ukStamp\([^)]*\)(?<!false\))/.test(paths), "Road card render paths (card, earlier updates, credit) never format a clock time themselves (same-day Earlier updates times come only from roadUpdates)");
   check(/ukStamp\(iso, false\)/.test(app.match(/const entryDate = [^\n]+/)[0]), "entryDate: single day, e.g. '25 Oct'");
   fs.rmSync(tmp, { recursive: true, force: true }); fs.rmSync(root, { recursive: true, force: true });
   console.log(fails ? `\n❌ ${fails} failed` : "\n✅ all passed"); process.exit(fails ? 1 : 0);

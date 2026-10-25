@@ -1476,19 +1476,34 @@ function CreditLine({ h }) {
 // Road page build-up: "Earlier updates" (no count). An earlier update with its own post is a
 // bordered pill that opens the post, with its own "@handle · View on X ↗" line.
 const handleOf = (u) => u && (u.handle ? String(u.handle).replace(/^@?/, "@") : ((String(u.url || "").match(/^https?:\/\/(?:x|twitter)\.com\/(\w+)\/status\//i) || [])[1] ? "@" + String(u.url).match(/^https?:\/\/(?:x|twitter)\.com\/(\w+)\//i)[1] : null));
+// Road page "Earlier updates": repeat completion lines (the card's main line already says it) are folded,
+// newest first; when 2+ lines share a day each shows its post time ("25 Oct · 11:42", 24h Europe/London, no "UK").
+const upIso = (u) => (u && u.at && Number.isFinite(Date.parse(u.at)) ? u.at : (String((u && u.url) || "").match(/(?:x|twitter)\.com\/\w+\/status\/(\d{15,})/) || [])[1] ? sfIso(String(u.url).match(/status\/(\d+)/)[1]) : "");
+function roadUpdates(h) {
+  const done = !!(h.complete || (h.milestone && h.milestone.phase === "completed"));
+  const yr = Number.isFinite(Date.parse(h.at || "")) ? new Date(h.at).getUTCFullYear() : new Date().getUTCFullYear();
+  const dayMs = (u) => { const m = String(u.log_date || u.date || "").match(/(\d{1,2})(?:[–-]\d{1,2})? ([A-Z][a-z]{2})/); return m ? Date.UTC(yr, MON3.indexOf(m[2]), Number(m[1]), 23, 59) : 0; };
+  const ups = (Array.isArray(h.updates) ? h.updates : []).filter((u) => u && u.text && !(done && (u.phase === "completed" || u.reported === "completed")));
+  const ms = (u) => Date.parse(upIso(u)) || dayMs(u);
+  const sorted = ups.map((u, i) => ({ u, i })).sort((a, b) => ms(b.u) - ms(a.u) || a.i - b.i).map((x) => x.u);
+  const day = (u) => { const iso = upIso(u); return iso ? ukStamp(iso, false) : fmtDay(u.log_date || u.date); };
+  const n = {}; sorted.forEach((u) => { n[day(u)] = (n[day(u)] || 0) + 1; });
+  return sorted.map((u) => { const iso = upIso(u); return { u, when: n[day(u)] > 1 && iso ? `${day(u)} · ${feedTime(iso)}` : null }; });
+}
 function FeedBuildUp({ h, plain }) {
-  const ups = Array.isArray(h.updates) ? h.updates.filter((u) => u && u.text) : [];
+  const rows = roadUpdates(h);
+  const ups = rows.map((r) => r.u);
   if (!ups.length) return null;
   const stop = (e) => e.stopPropagation();
   return (
     <details className="buildup feed-bu" onClick={stop}>
       <summary>Earlier updates</summary>
       <ul>{ups.map((u, i) => { const url = u.url && !isYouTube(u.url) ? u.url : null;
-        const body = <><div className="bu-top"><span className="bu-date">{plain ? logDay(u) : entryDate(u)}</span></div><div className="bu-text">{scrub(plain ? logLine(u) : u.text)}</div></>;
+        const body = <><div className="bu-top"><span className="bu-date">{rows[i].when || (plain ? logDay(u) : entryDate(u))}</span></div><div className="bu-text">{scrub(plain ? logLine(u) : u.text)}</div></>;
         return url ? <li key={i} className="bu-pill" role="link" tabIndex={0} data-url={url} aria-label={`${u.text} — open the post on X`}
             onClick={(e) => { e.stopPropagation(); if (!e.target.closest("a")) openUrl(url); }} onKeyDown={(e) => { if (e.key === "Enter" && e.target === e.currentTarget) openUrl(url); }}>
             {body}<CreditLine h={{ url, src: handleOf(u) }} /></li>
-          : <li key={i}>{body}</li>; })}</ul>
+          : <li key={i} className="bu-pill bu-nolink">{body}</li>; })}</ul>
     </details>
   );
 }
@@ -2239,6 +2254,7 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .feed-bu .bu-pill { box-sizing: border-box; width: 100%; } /* same left/right edges as the post image */
 .buildup.feed-bu li.bu-pill { padding: 12px 16px; margin: 6px 0; border: 1px solid rgba(255,255,255,.14); border-radius: 10px; background: rgba(255,255,255,.035); cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .feed-bu .bu-pill:focus-visible { outline: 2px solid #A9BDF0; outline-offset: 2px; }
+.buildup.feed-bu li.bu-pill.bu-nolink { cursor: default; } /* boxed like the others, no link */
 .feed-bu .bu-pill .post-credit { margin-top: 4px; }
 .mini-tier { margin-left: 6px; font-size: 10.5px; font-weight: 600; padding: 1px 6px; border-radius: 6px; background: rgba(255,255,255,.06); color: #AAB6D6; }
 .mini-tier.tier-1 { color: #6EE7A0; } .mini-tier.tier-3 { color: #F9A8D4; font-style: italic; }
