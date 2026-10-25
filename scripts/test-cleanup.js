@@ -62,7 +62,7 @@ const live = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "road.json"),
 const ls = live.categories.find((x) => x.id === "static");
 const ids = ls.history.map((h) => h.id);
 check(["x-2114335419785679308", "x-2114317866409595106", "x-2113955770337550391", "x-2111327584122437857"].every((id) => ids.includes(id)), "road.json: transport ring, road closure, rollout and completion posts all restored");
-check(ls.history.find((h) => h.id === "x-2111327584122437857").updates.length === 5, "road.json: the completion keeps all 5 earlier updates (both repeats, all 3 predictions)");
+check(ls.history.find((h) => h.id === "x-2111327584122437857").updates.length >= 5, "road.json: the completion keeps all its earlier updates (repeats and all 3 predictions; the bot may add more)");
 check(!live.categories.find((x) => x.id === "cryo").history.some((h) => /B22|Booster 22/.test(h.text) && h.date === "25 Oct"), "the wrong 25 Oct B22 cryo card stays removed");
 const lv = c.flightLogView(ls, live).history.filter((h) => !(h.flight > live.flight));
 check(lv.length === 2 && lv[0].log_text === "Booster 22 completed its static fire at the launch site." && lines(lv[0]).length === 7 && /two to three weeks/.test(lv[1].log_text), "live Flight Log view: Booster 22 completed + 7 key steps (incl. the re-filed pad steps), one line per step per day, Ship 42 earliest prediction");

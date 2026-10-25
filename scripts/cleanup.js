@@ -38,7 +38,7 @@
   const words = (t) => new Set(String(t).toLowerCase().replace(/booster|ship|\b[bs]\d{2}\b|\d+/g, " ").match(/[a-z]{4,}/g) || []);
   const same = (a, b) => { const A = words(line(a)), B = words(line(b)); if (!A.size || !B.size) return false; let n = 0; for (const w of A) if (B.has(w)) n++; return n / Math.min(A.size, B.size) >= 0.8; };
   // same day, same kind of vehicle step ("heads to the launch site" / "rolls to Pad 2" / "arrives at Pad 2") → one line
-  const FAMILY = [["move", /\b(roll(s|ed|ing)?( out| to)?|heads?|arriv\w*|left|leaves|highway|en route)\b/i], ["lift", /\b(lift\w*|lowered|stacked|onto the (launch )?mount|olm)\b/i]];
+  const FAMILY = [["move", /\b(roll(s|ed|ing)?( out| to)?|heads?|arriv\w*|left|leaves|highway|en route)\b/i], ["lift", /\b(lift\w*|lowered|stacked|onto the (launch )?mount|olm)\b/i], ["engines-seen", /\b(deliver\w*|spotted)\b/i]];
   const fam = (h) => { const t = line(h); const f = FAMILY.find(([, re]) => re.test(t)); return f ? f[0] + "|" + named(t).join(",") : null; };
   const sameStep = (a, b) => same(a, b) || (fam(a) && fam(a) === fam(b));
   const STEP_KEYS = ["date", "log_date", "at", "text", "log_text", "url", "src", "handle", "phase", "tier"];
@@ -56,8 +56,98 @@
   // Every card / earlier line keeps _hi = its source entry's index in the section, so a tap can open that post.
   const MINOR = /\btransport ring\b|\bwaiting to\b|\bpreparing to\b|\blikely\b/i;
   const clone = (o) => JSON.parse(JSON.stringify(o));
+  // Raptor engines: one card per vehicle (booster 33 Raptors, ship 6: 3 sea-level + 3 vacuum), any flight.
+  //   all installed (a Tier 1/2 source says so) → "<V> has all N Raptors installed.", glow
+  //   assumed (internal flag, no push): a rollout for a static fire or a completed static fire implies all engines are in;
+  //     a reason line says so. A trusted confirmation upgrades it (assumed flag gone).
+  //   engines removed / swapped after completion → "<V> has a Raptor swapped." (not complete) until reinstalled
+  //   install steps (or back in the Mega Bay after cryo) → "<V> is getting its Raptors installed."
+  //   Earlier updates: spotted / delivered, install steps (only the latest partial count), removals / swaps, one prediction.
+  const ENG_DONE = /\ball (?:\d+ )?(?:raptors?|engines?|rvacs?)\b[^.]{0,30}\b(?:installed|fitted|in|on)\b|\b(?:raptors?|engines?) (?:are |were |have been )?(?:all |fully )?installed\b|\bfully (?:fitted|installed)\b|engine install\w* (?:is )?complete/i;
+  const ENG_OUT = /\b(?:removed|removal|swap\w*|pulled|taken off|replac\w*)\b/i;
+  const ENG_IN = /\b(?:install\w*|reinstall\w*|fitted|fitting|being fitted|going in)\b/i;
+  const ENG_SEEN = /\b(?:deliver\w*|spotted|arriv\w*|jig|engine testing|seen)\b/i;
+  const HEDGE = /\b(?:reportedly|could|may|might|rumou?r|hearing|expected|likely)\b/i;
+  const PART = /\b(\d{1,2})\s+(?:of\s+\d+\s+)?(?:raptors?|engines?)\b/i;
+  const vName = (v) => (v[0] === "B" ? "Booster " : "Ship ") + v.slice(1);
+  const nEng = (v) => (v[0] === "B" ? 33 : 6);
+  const tierOk = (h) => h.trust === "trusted" && !(Number(h.tier) > 2);
+  function raptorView(cat, road) {
+    const flight = road.flight, vs = (road.vehicles || []).map((v) => String(v).toUpperCase());
+    const cur = (h) => h && h.kind !== "check" && !(h.flight > flight) && h.trust !== "unconfirmed";
+    const steps = {}; for (const v of vs) steps[v] = [];
+    cat.history.forEach((h, hi) => {
+      if (!cur(h)) return;
+      const who = [...new Set([hwOf(h), ...named(line(h) + " " + (h.text || ""))].filter((x) => x && vs.includes(x)))];
+      const list = [{ ...asStep(h), _hi: hi, _trusted: tierOk(h) }, ...(h.updates || []).filter((u) => u && line(u)).map((u) => ({ ...u, log_text: tidy(line(u)), _hi: hi, _trusted: tierOk(h) }))];
+      for (const u of list) { const n = named(line(u)); for (const v of (n.length ? n.filter((x) => vs.includes(x)) : who)) if (steps[v]) steps[v].push({ ...u }); }
+    });
+    // what the other sections imply (static fire rollout / completion; cryo rollback → Mega Bay)
+    const imply = {};
+    for (const v of vs) imply[v] = { installed: null, progress: null };
+    for (const c of road.categories || []) for (const h of c.history || []) {
+      if (!cur(h) || c.id === "raptor") continue;
+      const t = `${h.text || ""} ${h.log_text || ""}`, mine = [...new Set([hwOf(h), ...named(t)].filter((x) => x && vs.includes(x)))];
+      for (const v of mine) {
+        const d = dayNum(h);
+        const fired = c.id === "static" && ((h.milestone && h.milestone.type === "static_fire" && h.milestone.phase === "completed") || (/static fire/i.test(t) && /\b(complet\w*|conduct\w*)\b/i.test(t) && !HEDGE.test(h.text || "")));
+        const rolled = c.id === "static" && /\broll\w*|heads? to (?:the )?pad|arriv\w* at (?:the )?(?:launch|pad)/i.test(t) && /static/i.test(t) && !HEDGE.test(h.text || "");
+        if ((fired || rolled) && (imply[v].installed == null || d < imply[v].installed.day)) imply[v].installed = { day: d, date: h.log_date || h.date, why: fired ? `${vName(v)} completed its static fire, so all ${nEng(v)} Raptors are assumed installed.` : `${vName(v)} rolled out for its static fire, so all ${nEng(v)} Raptors are assumed installed.` };
+        if (c.id === "cryo" && /roll\w* back|returned|back to (?:the )?(?:mega ?bay|production)/i.test(t) && (imply[v].progress == null || d > imply[v].progress.day)) imply[v].progress = { day: d };
+      }
+    }
+    const cards = [];
+    for (const v of vs) {
+      const all = steps[v].slice().sort((a, b) => dayNum(b) - dayNum(a) || atNum(b) - atNum(a));
+      const newest = (re, f = () => true) => all.find((u) => re.test(line(u)) && f(u));
+      const engDone = (t) => { const m = String(t).match(PART); return ENG_DONE.test(t) && !(m && Number(m[1]) < nEng(v)); };
+      const conf = all.find((u) => engDone(line(u)) && u._trusted && !HEDGE.test(line(u)));
+      const out = newest(ENG_OUT);
+      const ins = newest(ENG_IN);
+      const inf = imply[v].installed;
+      const doneDay = Math.max(conf ? dayNum(conf) : -Infinity, inf ? inf.day : -Infinity);
+      const base = { hardware: v, flight, trust: "trusted", _hi: all[0] ? all[0]._hi : undefined };
+      let card;
+      if (Number.isFinite(doneDay) && !(out && dayNum(out) > doneDay && !(ins && dayNum(ins) > dayNum(out) && engDone(line(ins))))) {
+        card = { ...base, log_text: `${vName(v)} has all ${nEng(v)} Raptors installed.`, log_date: conf && (!inf || dayNum(conf) >= inf.day || true) ? (conf.log_date || conf.date) : inf.date,
+          complete: true, milestone: { type: "engines_installed", hardware: v, flight, phase: "completed" } };
+        if (conf) card._hi = conf._hi; else { card.assumed = true; card.assumed_reason = inf.why; card.log_date = inf.date; }
+      } else if (out && Number.isFinite(doneDay) && dayNum(out) > doneDay) {
+        card = { ...base, log_text: `${vName(v)} has a Raptor swapped.`, log_date: out.log_date || out.date, _hi: out._hi, milestone: { type: "engines_installed", hardware: v, flight, phase: "progress" } };
+      } else if (ins || out || imply[v].progress) {
+        const src = ins || out || all[0];
+        card = { ...base, log_text: `${vName(v)} is getting its Raptors installed.`, log_date: src ? (src.log_date || src.date) : undefined, _hi: src ? src._hi : undefined, milestone: { type: "engines_installed", hardware: v, flight, phase: "progress" } };
+      } else if (all.length) {
+        const pred = all.filter(isPrediction).sort((a, b) => dayNum(a) - dayNum(b))[0] || all[0];
+        cards.push({ ...base, log_text: tidy(line(pred)), log_date: pred.log_date || pred.date, _hi: pred._hi }); continue;
+      } else continue;
+      // Earlier updates: key engine steps only, newest first
+      let rest = all.filter((u) => ENG_SEEN.test(line(u)) || ENG_IN.test(line(u)) || ENG_OUT.test(line(u)) || /raptor|engine/i.test(line(u)));
+      const preds = rest.filter(isPrediction).sort((a, b) => dayNum(a) - dayNum(b));
+      rest = rest.filter((u) => !isPrediction(u));
+      rest = rest.filter((u) => u !== conf);
+      const partials = rest.filter((u) => PART.test(line(u)) && !engDone(line(u)));
+      rest = rest.filter((u) => !partials.includes(u) || u === partials[0]); // only the latest partial count
+      if (preds[0]) rest.push(preds[0]);
+      if (card.assumed) rest.unshift({ log_text: card.assumed_reason, log_date: inf.date, date: inf.date, assumed: true });
+      const kept = [];
+      for (const u of rest) if (line(u) && tidy(line(u)) !== card.log_text && !kept.some((k) => dayNum(k) === dayNum(u) && sameStep(k, u))) kept.push(u);
+      kept.sort((a, b) => dayNum(b) - dayNum(a) || (b.assumed ? 1 : 0) - (a.assumed ? 1 : 0));
+      card.updates = kept.map((u) => { const o = { ...u, log_text: tidy(line(u)) }; delete o._trusted; return o; });
+      if (!card.updates.length) delete card.updates;
+      card.text = card.x_text = card.log_text; card.date = card.log_date;
+      cards.push(card);
+    }
+    if (!cards.length) return cat;
+    cards.sort((a, b) => dayNum(b) - dayNum(a));
+    const later = cat.history.map((h, hi) => ({ h, hi })).filter(({ h }) => h && h.flight > flight).map(({ h, hi }) => ({ ...h, _hi: hi }));
+    const top = cards.find((c) => c.complete) || cards[0];
+    return { ...cat, history: [...cards, ...later], latest: top.log_text, log_latest: top.log_text, view: "flightlog" };
+  }
   function flightLogView(cat, road, opts = {}) {
     if (!cat || !(opts.sections || SECTIONS).includes(cat.id) || !Array.isArray(cat.history)) return cat;
+    if (cat.view === "flightlog") return cat; // already the Flight Log view (idempotent)
+    if (cat.id === "raptor" && road && (road.vehicles || []).length && !opts.generic) return raptorView(cat, road);
     const flight = road && road.flight, vs = ((road && road.vehicles) || []).map((v) => String(v).toUpperCase());
     if (!vs.length) return cat;
     const hist = cat.history.map((h, hi) => ({ h, hi }));
@@ -129,5 +219,5 @@
     const done = vs.filter((v) => (cat.history || []).some((h) => hwOf(h) === v && !(h.flight > road.flight) && h.trust !== "unconfirmed" && ((h.milestone && h.milestone.phase === "completed") || h.complete === true)));
     return { done: done.length, total: vs.length };
   }
-  return { flightLogView, vehicleProgress, tidy, isCompletion, isPrediction, isKey, hwOf, dayNum };
+  return { flightLogView, raptorView, vehicleProgress, named, tidy, isCompletion, isPrediction, isKey, hwOf, dayNum };
 });

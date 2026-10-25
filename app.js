@@ -1340,10 +1340,10 @@ function cardTime(h, road) {
 // pill): road.archive[n].summary.items, one small box per vehicle per category (written by hand for
 // Flight 14, frozen by the checker when later flights launch). The internal sources list is never shown.
 const PAST_LABEL = { cryo: "Cryo", raptor: "Raptor", static: "Static fire", pad: "Pad", faa: "FAA licence", date: "Launch date" };
-// Category CSS vars. Raptor engines is matte black: near-black fill, graphite/silver edge, glow and text (--c).
-const CAT_FILL = { raptor: { "--fill": "#111113", "--bg": "#111113", "--on": "#9AA0A6" } };
+// Category CSS vars. Raptor engines is matte engine-bell black (#34363C): ring, fill, border and glow share it; --t is a slightly lighter text tint.
+const CAT_FILL = { raptor: { "--bg": "#1A1C22", "--on": "#C9CBD1", "--t": "#5A5C63" } }; // Raptor: one matte engine-bell black #34363C for ring, fill, border and glow; text a touch lighter
 const catVars = (id, c) => Object.assign({ "--c": c }, CAT_FILL[id] || {});
-const PAST_COLOR = { cryo: "#BFE6FF", raptor: "#9AA0A6", static: "#FF9A3D", pad: "#A88BFF", faa: "#2FD3B0", date: "#FFC93D" };
+const PAST_COLOR = { cryo: "#BFE6FF", raptor: "#34363C", static: "#FF9A3D", pad: "#A88BFF", faa: "#2FD3B0", date: "#FFC93D" };
 function pastSummary(road, n) {
   if (!road || !Array.isArray(road.categories)) return [];
   const a = road.archive && road.archive[n], items = (a && a.summary && a.summary.items) || [];
@@ -2077,7 +2077,7 @@ a.watch-badge-live:active { transform: scale(.96); }
 .past-veh { font-size: 11.5px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .past-box p { margin: 5px 0 0; font-size: 12px; line-height: 1.38; color: #C9D2E6; }
 .past-pill { font-size: 9.5px; font-weight: 700; letter-spacing: .02em; padding: 2px 7px; border-radius: 999px; white-space: nowrap;
-  color: var(--c); background: var(--bg, color-mix(in srgb, var(--c) 14%, transparent)); border: 1px solid color-mix(in srgb, var(--c) 38%, transparent); }
+  color: var(--t, var(--c)); background: var(--bg, color-mix(in srgb, var(--c) 14%, transparent)); border: 1px solid color-mix(in srgb, var(--c) 38%, transparent); }
 .highlights-link {
   display: flex; align-items: center; justify-content: center; gap: 7px;
   margin-top: 12px; padding: 9px 14px; border-radius: 11px;
@@ -2174,7 +2174,7 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .road-dots { display: flex; gap: 6px; }
 .dot { width: 11px; height: 11px; border-radius: 50%; display: block; border: 1.5px solid var(--c); background: transparent; } /* outline = pending / in progress */
 .dot-none { border: 2px dotted var(--c); } /* dotted = not started */
-.dot-done, .dot-complete { background: var(--fill, var(--c)); } /* filled = done / confirmed */
+.dot-done, .dot-complete { background: var(--c); } /* filled = done; ring and fill always the same colour */
 .road-count { flex: 1; }
 .road-chev { transition: transform .35s; }
 .main-open .road-chev { transform: rotate(180deg); }
@@ -2195,12 +2195,12 @@ textarea.feedback-field { resize: none; min-height: 112px; }
   grid-template-columns: 34px 1fr auto; gap: 10px; align-items: start; padding: 14px 14px 14px 18px;
 }
 .callout-icon { font-size: 22px; line-height: 1.2; }
-.callout-name { display: block; font-weight: 700; font-size: 15px; color: var(--c); }
+.callout-name { display: block; font-weight: 700; font-size: 15px; color: var(--t, var(--c)); }
 .callout-latest { display: block; font-size: 13px; color: var(--text); margin-top: 3px; line-height: 1.35; }
 .badge { font-size: 11px; font-weight: 700; padding: 4px 9px; border-radius: 999px; white-space: nowrap; letter-spacing: .02em; }
-.badge-done, .badge-complete { background: var(--fill, var(--c)); color: var(--on, #141B2D); border: 1px solid var(--c); } /* filled = done / confirmed */
-.badge-progress, .badge-pending { background: transparent; color: var(--c); border: 1px solid color-mix(in srgb, var(--c) 70%, transparent); } /* outline */
-.badge-none { background: transparent; color: var(--c); border: 1.5px dotted var(--c); } /* dotted = not started */
+.badge-done, .badge-complete { background: var(--c); color: var(--on, #141B2D); border: 1px solid var(--c); } /* filled = done / confirmed */
+.badge-progress, .badge-pending { background: transparent; color: var(--t, var(--c)); border: 1px solid color-mix(in srgb, var(--c) 70%, transparent); } /* outline */
+.badge-none { background: transparent; color: var(--t, var(--c)); border: 1.5px dotted var(--c); } /* dotted = not started */
 .callout-hist { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .45s cubic-bezier(.2,.8,.2,1); }
 .callout.open .callout-hist { grid-template-rows: 1fr; }
 .callout-hist-inner { overflow: hidden; padding: 0 14px 0 30px; position: relative; }
@@ -2209,9 +2209,9 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .mini { position: relative; background: #1A2338; border: 1px solid rgba(170,190,245,.12); border-radius: 12px; padding: 9px 11px; margin-top: 8px; }
 .road .mini.glow { border-color: color-mix(in srgb, var(--c) 45%, transparent); box-shadow: 0 0 12px -2px color-mix(in srgb, var(--c) 45%, transparent); } /* Flight Log only: finished vehicle box, soft glow in the section colour */
 .mini::before { content: ""; position: absolute; left: -12px; top: 14px; width: 8px; height: 8px; box-sizing: border-box; border-radius: 50%; background: transparent; border: 1.5px solid var(--c); } /* hollow = this vehicle has not completed the category */
-.mini.done::before { background: var(--fill, var(--c)); } /* filled = completed (Raptor: black fill, graphite ring) */
+.mini.done::before { background: var(--c); } /* filled = completed; ring and fill always the same colour */
 .mini-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-.mini-date { font-size: 12px; font-weight: 700; color: var(--c); }
+.mini-date { font-size: 12px; font-weight: 700; color: var(--t, var(--c)); }
 .mini-src { font-size: 10.5px; color: var(--muted); background: rgba(255,255,255,.07); padding: 2px 7px; border-radius: 6px; }
 .mini p { margin: 4px 0 0; font-size: 13px; line-height: 1.4; } /* the update that finished the stage */
 .mini-check { border-style: dashed; } /* "no news yet" placeholder */
@@ -2286,7 +2286,7 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .post-top { display: flex; align-items: center; gap: 7px; min-height: 24px; }
 .chip {
   display: inline-flex; align-items: center; gap: 5px; height: 24px; padding: 0 9px 0 7px;
-  border-radius: 999px; font-size: 11.5px; font-weight: 700; letter-spacing: .02em; white-space: nowrap; color: var(--c);
+  border-radius: 999px; font-size: 11.5px; font-weight: 700; letter-spacing: .02em; white-space: nowrap; color: var(--t, var(--c));
   background: var(--bg, color-mix(in srgb, var(--c) 13%, transparent)); border: 1px solid color-mix(in srgb, var(--c) 30%, transparent);
 }
 .chip-i { font-size: 12px; line-height: 1; letter-spacing: 0; }

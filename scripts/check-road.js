@@ -85,7 +85,7 @@ const CHECK_TEXT = {
 // The six boxes. Used to start a fresh Road when the tracked flight flies.
 const BOXES = [
   { id: "cryo", icon: "❄️", name: "Cryo tests", color: "#BFE6FF" },
-  { id: "raptor", icon: "🔥", name: "Raptor engines", color: "#9AA0A6" },
+  { id: "raptor", icon: "🔥", name: "Raptor engines", color: "#34363C" },
   { id: "static", icon: "💥", name: "Static fires", color: "#FF9A3D", doneText: "Completed" },
   { id: "pad", icon: "🏗️", name: "Pad activity", color: "#A88BFF" },
   { id: "faa", icon: "📜", name: "FAA licence", color: "#2FD3B0" },
