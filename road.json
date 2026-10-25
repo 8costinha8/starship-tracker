@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "25 Oct",
-  "updatedAt": "2026-10-25T15:54:11.573Z",
+  "updatedAt": "2026-10-25T17:52:51.289Z",
   "categories": [
     {
       "id": "cryo",
@@ -409,29 +409,28 @@
         {
           "id": "x-2111327584122437857",
           "date": "25 Oct",
-          "at": "2026-10-25T15:27:23.000Z",
-          "text": "Booster 22 completed its static fire test.",
-          "url": "https://x.com/RGVaerialphotos/status/2114378296981172616",
-          "src": "@RGVaerialphotos",
+          "at": "2026-10-25T17:16:20.000Z",
+          "text": "Booster 22 detanked after static fire.",
+          "url": "https://x.com/Blobifie/status/2114405714722763056",
+          "src": "@Blobifie",
           "trust": "trusted",
           "x_first": true,
           "stage": "static",
           "hardware": "B22",
           "x_post": {
-            "post_id": "2114378296981172616",
-            "url": "https://x.com/RGVaerialphotos/status/2114378296981172616",
-            "created_at": "2026-10-25T15:27:23.000Z",
-            "text": "Booster 22 sf",
+            "post_id": "2114405714722763056",
+            "url": "https://x.com/Blobifie/status/2114405714722763056",
+            "created_at": "2026-10-25T17:16:20.000Z",
+            "text": "Booster 22 has been detanked following its static fire! https://t.co/yUy5G5w448",
             "author": {
-              "name": "RGV Aerial Photography",
-              "username": "RGVaerialphotos",
-              "avatar": "https://pbs.twimg.com/profile_images/2019953617743097856/PJqBBhpU_normal.jpg"
+              "name": "Blobifi",
+              "username": "Blobifie",
+              "avatar": "https://pbs.twimg.com/profile_images/2091766013562159104/xgHLFjBX_normal.jpg"
             },
             "media": [
               {
-                "type": "video",
-                "poster": "https://pbs.twimg.com/amplify_video_thumb/2114378235454619648/img/1rc4vHsNV_KJoIsn.jpg",
-                "video_url": "https://video.twimg.com/amplify_video/2114378235454619648/vid/avc1/2824x1466/5sl7PP0ybPLzNmqI.mp4"
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HVfgvqvaIAAadQT.jpg"
               }
             ]
           },
@@ -445,7 +444,8 @@
             "2114347288739098706",
             "2114357660262781218",
             "2114368667559563715",
-            "2114378296981172616"
+            "2114378296981172616",
+            "2114405714722763056"
           ],
           "xChecked": true,
           "imageChecked2": true,
@@ -468,6 +468,17 @@
             "migrated": true
           },
           "updates": [
+            {
+              "date": "25 Oct",
+              "log_date": "25 Oct",
+              "at": "2026-10-25T15:27:23.000Z",
+              "text": "Booster 22 completed its static fire test.",
+              "log_text": "Booster 22 completed its static fire test at Pad 2.",
+              "url": "https://x.com/RGVaerialphotos/status/2114378296981172616",
+              "src": "@RGVaerialphotos",
+              "phase": "completed",
+              "tier": 2
+            },
             {
               "date": "25 Oct",
               "log_date": "25 Oct",
@@ -578,7 +589,7 @@
               "at": "2026-09-30T15:17:00Z"
             }
           ],
-          "log_text": "Booster 22 completed its static fire test at Pad 2.",
+          "log_text": "Booster 22 completed its static fire at Pad 2.",
           "log_date": "25 Oct",
           "complete": true,
           "push": {
@@ -588,7 +599,8 @@
           },
           "completed_at": "2026-10-25T13:24:10.000Z",
           "completed_src": "https://x.com/NASASpaceflight/status/2114347288739098706",
-          "x_text": "Booster 22 completed its static fire test."
+          "x_text": "Booster 22 detanked after static fire.",
+          "status_line": "Booster 22 static fire done."
         },
         {
           "id": "x-2114335419785679308",
@@ -1248,7 +1260,7 @@
         }
       ],
       "doneText": "Completed",
-      "log_latest": "Booster 22 completed its static fire test at Pad 2."
+      "log_latest": "Booster 22 static fire done."
     },
     {
       "id": "pad",
