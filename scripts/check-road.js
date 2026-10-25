@@ -53,7 +53,8 @@ const milestones = require("./milestones.js");
 const logText = require("./log-text.js"); // Flight Log lines: style lint, single day, section roll-up
 const mission = require("./mission.js");
 const pushSync = require("./push-sync.js"); // the one send path: visible first, then push, then logged
-const writer = require("./writer.js"); // WRITER=grok (default, Claude fallback) | claude
+const writer = require("./writer.js");
+const bestFrame = require("./best-frame.js"); // best video frame / photo per card (no push) // WRITER=grok (default, Claude fallback) | claude
 
 const LIMITS = {
   itemsToClaude: 12,     // most posts sent to Claude in one run
@@ -1461,6 +1462,13 @@ async function run(opts = {}) {
   }
   for (const ch of changes) { if (!ch.entry.id) ch.entry.id = `e-${ch.box.id}-${Date.parse(ch.entry.at || clock()).toString(36)}`; const n = notificationFor(road, ch); notifications.push(pushSync.stampRoadEntry(ch.box, ch.entry, { ...n, link: `${FEED_LINK}&entry=${encodeURIComponent(ch.entry.id)}` })); }
   if (typeof missionPushes !== "undefined") notifications.push(...missionPushes); // same caps (X-first run cap) and the same save-then-push step
+  // 4a-frame. Best frame / photo for the new cards (scripts/best-frame.js): runs AFTER the pushes are built, so an
+  // image swap never adds or changes a push; only an upgrade Grok picks with confidence >= 0.7 is swapped in.
+  let frameFiles = [];
+  if (changes.length && (!opts.sources || opts.bestFrame)) {
+    try { frameFiles = await bestFrame.upgradeCards(road, changes.filter((ch) => !ch.merge).map((ch) => ({ box: ch.box, entry: ch.entry })), { root: ROOT, log, ...(opts.bestFrame || {}) }); if (frameFiles.length) log(`best frame: ${frameFiles.length} picture(s) upgraded (no push)`); }
+    catch (e) { log(`best frame failed (${e.message}) — thumbnails kept`); }
+  }
   if (changes.length) changed = true;
 
   // 4b. Clear out any old "no news yet" lines (no push for this)
@@ -1521,7 +1529,7 @@ async function run(opts = {}) {
     if (save) {
       fs.writeFileSync(roadPath, json);
       const what = [rolledOver ? "new Road" : "", notifications.length ? `${notifications.length} update(s)` : "", refreshed.length ? `no-news lines tidied (${road.updated})` : "", predChanged ? `predicted date ${road.predicted ? `NET ${road.predicted.net}` : "cleared"}` : ""].filter(Boolean).join(", ") || "card details updated (no push)";
-      commit("road.json", `Auto: Road to Flight ${road.flight} — ${what}`);
+      commit(["road.json", ...frameFiles].join(" "), `Auto: Road to Flight ${road.flight} — ${what}`);
     } else console.log(`(not committed) Auto: Road to Flight ${road.flight} — ${notifications.length} update(s)${refreshed.length ? `, ${refreshed.length} no-news line change(s) (${road.updated})` : ""}`);
     if (!notifications.length && !rolledOver) log("no push notification for this change");
     // send only what the committed road.json shows (read back from disk; test mode checks the would-be file)

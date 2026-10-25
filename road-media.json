@@ -174,6 +174,42 @@
    "image": "https://pbs.twimg.com/media/HUhjfCvWoAAeQ3A.jpg",
    "note": "Approved by Bernardo 23 Oct: picture credit only (Photo · @Flight2Starship, photo Avidspace); the fact stays with the tiered source.",
    "credit_only": true
+  },
+  {
+   "category": "static",
+   "date": "25 Oct",
+   "entry": "Booster 22 completed its static fire at the launch site.",
+   "post_id": "2114347288739098706",
+   "post_url": "https://x.com/NASASpaceflight/status/2114347288739098706",
+   "author": "NASASpaceflight",
+   "media_type": "video",
+   "image": "images/b22-static-fire.jpg",
+   "keep_image": true,
+   "note": "Frame at 0:07 of the NSF clip: B22 engines lit on Pad 2 (thumbnail showed only steam/deluge). Overlay clock cropped off."
+  },
+  {
+   "category": "static",
+   "date": "24 Oct",
+   "entry": "Booster 22 lifted onto the launch mount after pad move.",
+   "post_id": "2114063568735768864",
+   "post_url": "https://x.com/LabPadre/status/2114063568735768864",
+   "author": "LabPadre",
+   "media_type": "video",
+   "image": "images/2114063568735768864-frame.jpg",
+   "keep_image": true,
+   "note": "Frame at 0:04 of the LabPadre clip: B22 held in the chopsticks above the Pad 2 mount (thumbnail: far view, booster already on the mount)."
+  },
+  {
+   "category": "static",
+   "date": "24 Oct",
+   "entry": "Booster 22 arrives at the launch site ahead of static fire campaign.",
+   "post_id": "2113955770337550391",
+   "post_url": "https://x.com/Blobifie/status/2113955770337550391",
+   "author": "Blobifie",
+   "media_type": "video",
+   "image": "images/2113955770337550391-frame.jpg",
+   "keep_image": true,
+   "note": "Frame at 0:51 of the NSF clip: B22 standing at the pad on its transport stand, main camera only (thumbnail: dark multi-cam view of the Megabay). Overlay clock and ticker cropped off."
   }
  ]
 }

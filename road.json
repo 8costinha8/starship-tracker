@@ -410,8 +410,7 @@
           "id": "x-2111327584122437857",
           "date": "25 Oct",
           "at": "2026-10-25T14:05:23.000Z",
-          "text": "Booster 22 completed a static fire test on Pad 2.",
-          "x_text": "Booster 22 completed a static fire test on Pad 2.",
+          "text": "Booster 22 completed its static fire at the launch site.",
           "url": "https://x.com/LabPadre/status/2114357660262781218",
           "src": "@LabPadre",
           "trust": "trusted",
@@ -449,11 +448,12 @@
           "xChecked": true,
           "imageChecked2": true,
           "media_override": {
-            "post_url": "https://x.com/LabPadre/status/2114357660262781218",
-            "post_id": "2114357660262781218",
-            "author": "LabPadre",
+            "post_url": "https://x.com/NASASpaceflight/status/2114347288739098706",
+            "post_id": "2114347288739098706",
+            "author": "NASASpaceflight",
             "type": "video",
-            "image": "https://pbs.twimg.com/amplify_video_thumb/2114357556395102208/img/pn-EPNrP9ZX5N0t8.jpg"
+            "image": "images/b22-static-fire.jpg",
+            "keep_image": true
           },
           "flight": 15,
           "tier": 2,
@@ -528,7 +528,7 @@
               "log_text": "Booster 22 could be ready for a static fire within two weeks."
             }
           ],
-          "log_text": "Booster 22 completed its static fire test at Pad 2.",
+          "log_text": "Booster 22 completed its static fire at the launch site.",
           "log_date": "25 Oct",
           "complete": true,
           "push": {
@@ -684,7 +684,8 @@
             "post_id": "2114063568735768864",
             "author": "LabPadre",
             "type": "video",
-            "image": "https://pbs.twimg.com/amplify_video_thumb/2114063107282583552/img/uMyR4JT7EZ7gOP-t.jpg"
+            "image": "images/2114063568735768864-frame.jpg",
+            "keep_image": true
           },
           "tier": 2,
           "milestone": {
@@ -884,7 +885,8 @@
             "post_id": "2113955770337550391",
             "author": "Blobifie",
             "type": "video",
-            "image": "https://pbs.twimg.com/amplify_video_thumb/2113954930210025472/img/cDbF7Rqfljguu3GS.jpg"
+            "image": "images/2113955770337550391-frame.jpg",
+            "keep_image": true
           },
           "tier": 2,
           "milestone": {
@@ -1154,7 +1156,7 @@
         }
       ],
       "doneText": "Completed",
-      "log_latest": "Booster 22 completed its static fire test at Pad 2."
+      "log_latest": "Booster 22 completed its static fire at the launch site."
     },
     {
       "id": "pad",
