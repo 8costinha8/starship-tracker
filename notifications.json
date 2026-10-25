@@ -99,6 +99,16 @@
       "sent_at": "2026-10-24T15:30:38.670Z",
       "where": "road",
       "verdict": "sent"
+    },
+    {
+      "title": "💥 Static fires · Flight 15",
+      "body": "Road closed ahead of static fire test.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2114317866409595106",
+      "url": "https://x.com/Blobifie/status/2114317866409595106",
+      "at": "2026-10-25T11:27:16.000Z",
+      "sent_at": "2026-10-25T11:30:37.763Z",
+      "where": "road",
+      "verdict": "sent"
     }
   ]
 }
