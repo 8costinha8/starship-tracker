@@ -803,7 +803,8 @@
             "author": "Blobifie",
             "type": "photo",
             "image": "https://pbs.twimg.com/media/HVZoSvdakAAst89.jpg",
-            "show": true
+            "show": true,
+            "side": "right"
           },
           "media_override": {
             "post_url": "https://x.com/colleenadastra/status/2114005088653963704",

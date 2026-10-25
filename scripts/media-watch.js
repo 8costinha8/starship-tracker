@@ -88,21 +88,24 @@ function singleShot(h, catId) {
   const t = `${h.x_text || ""} ${h.text || ""} ${h.log_text || ""}`;
   return SINGLE_CATS.has(catId) || SINGLE_SHOT.test(t);
 }
-const PAIR = { type: "object", additionalProperties: false, required: ["two", "confidence", "reason"], properties: { two: { type: "boolean" }, confidence: { type: "number" }, reason: { type: "string" } } };
+const PAIR = { type: "object", additionalProperties: false, required: ["two", "confidence", "wide", "reason"], properties: { two: { type: "boolean" }, wide: { type: "integer" }, confidence: { type: "number" }, reason: { type: "string" } } };
 const pairPrompt = (entry, catName) => `Two photos of the same Starship tracker update. Decide if the card should show BOTH side by side.
 Update (${catName}): ${entry}
 Default: false (one picture). "two": true ONLY if photo 2 shows a clearly DIFFERENT, relevant angle that photo 1 cannot
 (e.g. a wide pad/chopsticks shot plus a close-up of the engines or the booster being lifted). Near-duplicates, the same angle,
 crops of each other, or a weaker shot: false. Obvious single-shot events ALWAYS false: a static fire / engines firing,
 a rollout or rollback, a cryo test, spin prime, wet dress rehearsal, launch.
-"confidence": 0 to 1 (how sure two photos is better). Reply with JSON only.`;
-// true only when the guard allows it, both images differ, and the model says two at ≥ PAIR_CONF
+"confidence": 0 to 1 (how sure two photos is better).
+"wide": 1 or 2 — which photo is the wide/context shot (pad, chopsticks, whole vehicle); the other is the close-up.
+The wide shot is shown LEFT, the close-up RIGHT. Reply with JSON only.`;
+// { secondSide } only when the guard allows it, both images differ, and the model says two at ≥ PAIR_CONF
 async function decidePair(A, h, cat, first, second) {
   if (!first || !second || !first.image || !second.image || first.image === second.image) return false;
   if (singleShot(h, cat && cat.id)) return false;
   if (!A.pair) return false;
   let v; try { v = await A.pair(pairPrompt(h.x_text || h.text, (cat && (cat.name || cat.id)) || ""), [first.image, second.image]); } catch { return false; }
-  return !!(v && v.two === true && Number(v.confidence) >= PAIR_CONF);
+  if (!(v && v.two === true && Number(v.confidence) >= PAIR_CONF)) return false;
+  return { secondSide: Number(v.wide) === 2 ? "right" : "left" }; // first = the second picture; wide shot goes left
 }
 
 function defaultAsk() {
@@ -195,7 +198,8 @@ async function runMediaWatch(road, state, { token, fetchFn = fetch, ask = null, 
       // second picture (left): a strong other photo from this post, else the picture it replaces — only if Grok is sure
       const other = ok.filter((x) => x.m.image !== best.m.image && x.m.type === "photo" && x.v.quality >= 4).sort((a, b) => b.v.quality - a.v.quality)[0];
       const second = other ? { post_url: post.url, post_id: post.post_id, author: post.author, type: "photo", image: other.m.image } : prevMo;
-      if (second && (await decidePair(A, h, c, second, h.media_override))) { h.alt_media = { ...second, show: true }; log(`media watch: two-photo split for "${h.text}"`); }
+      const pr = second && (await decidePair(A, h, c, second, h.media_override));
+      if (pr) { h.alt_media = { ...second, show: true, side: pr.secondSide }; log(`media watch: two-photo split for "${h.text}"`); }
       else if (second) h.alt_media = { ...second, show: false }; else if (h.alt_media) h.alt_media.show = false;
       delete h.media_context;
       res.swapped.push(label); log(`media watch SWAP (no push): ${label}`);

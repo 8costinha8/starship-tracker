@@ -1447,10 +1447,11 @@ function XVideo({ m, url }) {
   );
 }
 // Hand-picked picture (road-media.json): the image and a View on X link; the post opens on tap. The @author credit shows once, in the card foot.
-// Two-photo split (Road cards): left = alt_media (show: true), right = the main picture. Never more than 2;
+// Two-photo split (Road cards): the wide/context shot goes LEFT, the close-up RIGHT; alt_media.side says where
+// the second picture sits (default left). Never more than 2;
 // a ship cryo standing photo or a missing/identical second image falls back to one picture.
 const splitOf = (h, mo) => (mo && h.alt_media && h.alt_media.show === true && h.alt_media.image && h.alt_media.image !== mo.image && mo.image !== SHIP_CRYO_IMAGE
-  ? [h.alt_media, mo].slice(0, 2) : null);
+  ? (h.alt_media.side === "right" ? [mo, h.alt_media] : [h.alt_media, mo]).slice(0, 2) : null); // wide/context shot left, close-up right
 function SplitMedia({ pair, onPhotoTap, alt }) {
   const [bad, setBad] = React.useState({});
   const ok = pair.filter((m, i) => !bad[i]);

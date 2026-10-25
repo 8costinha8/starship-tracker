@@ -7,10 +7,10 @@ let pass = 0, fail = 0; const check = (ok, msg) => { ok ? pass++ : fail++; conso
 const road = JSON.parse(fs.readFileSync(path.join(root, "road.json"), "utf8"));
 const all = road.categories.flatMap((c) => (c.history || []).map((h) => ({ c, h })));
 const b22 = all.find((x) => x.h.id === "x-2113907865060819060");
-check(b22 && b22.h.alt_media && b22.h.alt_media.show === true && /HVZoSvdakAAst89/.test(b22.h.alt_media.image) && /Blobifie/.test(b22.h.alt_media.post_url)
-  && /HVZzuQbXQAAUzqy/.test(b22.h.media_override.image) && b22.h.media_override.author === "colleenadastra", "B22 Pad-2 card: LEFT Blobifie wide shot, RIGHT Colleen close-up");
+check(b22 && b22.h.alt_media && b22.h.alt_media.show === true && b22.h.alt_media.side === "right" && /HVZoSvdakAAst89/.test(b22.h.alt_media.image) && /Blobifie/.test(b22.h.alt_media.post_url)
+  && /HVZzuQbXQAAUzqy/.test(b22.h.media_override.image) && b22.h.media_override.author === "colleenadastra", "B22 Pad-2 card: Blobifie close-up as alt_media on the RIGHT, Colleen wide shot (main) on the LEFT");
 check(all.filter((x) => x.h.alt_media && x.h.alt_media.show === true).length >= 1 && all.every((x) => !x.h.media2), "second picture lives in alt_media (show flag); no third field");
-check(/\[h\.alt_media, mo\]\.slice\(0, 2\)/.test(app) && mwm.MAX_IMAGES === 2, "cap: never more than 2 pictures");
+check(/\[mo, h\.alt_media\] : \[h\.alt_media, mo\]\)\.slice\(0, 2\)/.test(app) && mwm.MAX_IMAGES === 2, "cap: never more than 2 pictures");
 check(/mo \? <PickMedia mo=\{mo\} \/>/.test(app), "single-image cards keep the same PickMedia path");
 (async () => {
   // code guards: static fire / rollout / cryo never get 2, whatever the model says
@@ -19,7 +19,10 @@ check(/mo \? <PickMedia mo=\{mo\} \/>/.test(app), "single-image cards keep the s
   for (const t of ["Booster 22 completed its static fire at the launch site.", "Ship 43 rolled out to Massey's.", "Ship 43 cryo test underway.", "Booster 23 spin prime."])
     check(!(await mwm.decidePair(yes, { text: t }, { id: "static" }, A, B)), `guard: "${t}" → 1 picture`);
   check(!(await mwm.decidePair(yes, { text: "Ship 43 on the stand." }, { id: "cryo" }, A, B)), "guard: cryo section → 1 picture");
-  check(await mwm.decidePair(yes, { text: "Booster 22 is being lifted onto Pad-2." }, { id: "static" }, A, B), "lift with a sure, different angle → 2");
+  check((await mwm.decidePair(yes, { text: "Booster 22 is being lifted onto Pad-2." }, { id: "static" }, A, B)).secondSide === "left", "lift with a sure, different angle → 2");
+  const w = (n) => ({ pair: async () => ({ two: true, confidence: 0.95, wide: n, reason: "x" }) });
+  check((await mwm.decidePair(w(1), { text: "Booster 22 lift." }, { id: "pad" }, A, B)).secondSide === "left" && (await mwm.decidePair(w(2), { text: "Booster 22 lift." }, { id: "pad" }, A, B)).secondSide === "right", "model's 'wide' answer: wide shot goes left, close-up right");
+  check(/"wide"/.test(mwm.pairPrompt("x", "y")) && /LEFT/.test(mwm.pairPrompt("x", "y")), "prompt asks which photo is the wide shot (left)");
   check(!(await mwm.decidePair({ pair: async () => ({ two: true, confidence: 0.8 }) }, { text: "Booster 22 is being lifted onto Pad-2." }, { id: "pad" }, A, B)), "confidence below 0.9 → 1");
   check(!(await mwm.decidePair(yes, { text: "Booster 22 lift." }, { id: "pad" }, A, A)), "same image twice → 1");
   check(/static fire/.test(mwm.pairPrompt("x", "y")) && /Default: false/.test(mwm.pairPrompt("x", "y")) && /rollout/.test(mwm.pairPrompt("x", "y")) && /cryo/.test(mwm.pairPrompt("x", "y")), "prompt: default 1, single-shot events always 1");
@@ -46,12 +49,14 @@ check(/mo \? <PickMedia mo=\{mo\} \/>/.test(app), "single-image cards keep the s
       const sp = art.querySelector(".xm-split"); if (!sp) return { art: true };
       const as = [...sp.children].map((a) => a.getBoundingClientRect()), s = sp.getBoundingClientRect(), ar = art.getBoundingClientRect();
       const single = [...document.querySelectorAll(".post .xm-grid.n1")].map((g) => g.getBoundingClientRect());
-      return { n: as.length, w: as.map((x) => x.width), h: as.map((x) => x.height), gap: as[1].left - as[0].right, left: s.left, right: s.right, ar: [ar.left, ar.right], sh: s.height, sw: s.width,
+      const srcs = [...sp.querySelectorAll("img")].map((i) => i.getAttribute("src"));
+      return { srcs, n: as.length, w: as.map((x) => x.width), h: as.map((x) => x.height), gap: as[1].left - as[0].right, left: s.left, right: s.right, ar: [ar.left, ar.right], sh: s.height, sw: s.width,
         rad: [...sp.children].map((a) => getComputedStyle(a).borderRadius), single: single.slice(0, 3).map((g) => ({ w: g.width, h: g.height })), docW: document.documentElement.scrollWidth,
         splits: document.querySelectorAll(".xm-split").length, maxImgs: Math.max(...[...document.querySelectorAll(".xm-split")].map((x) => x.querySelectorAll("img").length)) };
     });
     check(r && r.n === 2, "390x844: B22 Pad card shows 2 photos");
     if (r && r.n === 2) {
+      check(/HVZzuQbXQAAUzqy/.test(r.srcs[0]) && /HVZoSvdakAAst89/.test(r.srcs[1]), "B22: Colleen's wide chopsticks shot LEFT, Blobifie's engine close-up RIGHT");
       check(Math.abs(r.w[0] - r.w[1]) <= 1 && r.gap >= 2 && r.gap <= 8, `equal halves (${r.w.map((x) => x.toFixed(1))}) with a small gap (${r.gap.toFixed(1)}px)`);
       check(r.rad.every((x) => x === "12px"), "matching rounded corners (12px)");
       check(r.left >= r.ar[0] - 0.5 && r.right <= r.ar[1] + 0.5 && r.docW <= 390, "no overflow at 390 wide");
@@ -60,9 +65,9 @@ check(/mo \? <PickMedia mo=\{mo\} \/>/.test(app), "single-image cards keep the s
       check(r.maxImgs <= 2, "no split shows more than 2");
       if (process.env.SHOT) { await pg.evaluate(() => { const m = [...document.querySelectorAll("button")].find((x) => /Maybe later/.test(x.textContent)); if (m) m.click(); const d = document.querySelector(".notif-prompt, [role=dialog]"); if (d && !m) d.remove(); document.querySelector('[data-entry="x-2113907865060819060"]').scrollIntoView({ block: "center" }); }); await pg.waitForTimeout(2500); await pg.screenshot({ path: process.env.SHOT }); }
       // tap → lightbox with that photo
-      await pg.evaluate(() => document.querySelectorAll('[data-entry="x-2113907865060819060"] .xm-split a')[0].click()); await pg.waitForTimeout(600);
+      await pg.evaluate(() => document.querySelectorAll('[data-entry="x-2113907865060819060"] .xm-split a')[1].click()); await pg.waitForTimeout(600);
       const lb = await pg.evaluate(() => [...document.querySelectorAll("img")].some((i) => /HVZoSvdakAAst89/.test(i.src) && !i.closest(".xm-split") && i.getBoundingClientRect().width > 300));
-      check(lb, "tapping the left photo opens it full size");
+      check(lb, "tapping the right photo (Blobifie) opens it full size");
     }
   } finally { await b.close(); srv.close(); }
   done();
