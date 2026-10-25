@@ -70,7 +70,7 @@ check(lv.length === 2 && lv[0].log_text === "Booster 22 completed its static fir
 const app = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8"), cr = fs.readFileSync(path.join(__dirname, "check-road.js"), "utf8");
 const fn = (name) => { const i = app.indexOf(`function ${name}(`); return app.slice(i, app.indexOf("\n}\n", i) + 2); };
 check(/logView\(m, road\)/.test(fn("RoadCard")) && !/logView|RoadCleanup/.test(fn("buildFeed")) && !/RoadCleanup/.test(fn("useRoad")), "only the Flight Log Road box uses the view; the shared list and Road page get raw data");
-check(!/cleanup/.test(cr), "check-road.js never folds or rewrites entries before saving");
+check(!/flightLogView|raptorView/.test(cr), "check-road.js never folds or rewrites entries before saving (it only reads cleanup's prerequisite model + short lines)");
 check(/!h\.log_only/.test(fn("buildFeed")), "log_only entries (sourced estimates with no post) feed the Flight Log only");
 console.log(`\n${n - fails}/${n} checks passed`);
 process.exit(fails ? 1 : 0);

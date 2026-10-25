@@ -36,6 +36,23 @@ function cleanLogText(s) {
   t = t.charAt(0).toUpperCase() + t.slice(1);
   return lintLogText(t).length ? null : t;
 }
+// Overview status line (Road box): short, direct, plain state, ~6 words, max 8, one sentence, ≤ 48 chars.
+function lintStatusLine(s) {
+  const t = String(s || ""), e = [];
+  if (!t.trim()) return ["empty"];
+  const w = t.trim().split(/\s+/).length;
+  if (w > 8) e.push("more than 8 words");
+  if (t.length > 48) e.push("longer than one line");
+  if (/\b(only|with|because|since|although|however|currently|still)\b/i.test(t)) e.push("not plain state (reasons/fillers)");
+  if (/,/.test(t)) e.push("one clause only");
+  return [...e, ...lintLogText(t).filter((x) => x !== "too long")];
+}
+function cleanStatusLine(s) {
+  if (!s) return null;
+  let t = String(s).replace(/[\r\n]+/g, " ").replace(/\s+/g, " ").trim().replace(/^["'“]|["'”]$/g, "").replace(/[.\s]+$/, "") + ".";
+  t = t.charAt(0).toUpperCase() + t.slice(1);
+  return lintStatusLine(t).length ? null : t;
+}
 // The Flight Log day: the source's own day or day range ("3–4 Sep", "9–10 Sep"), never a clock time.
 // log_date, else the entry's date with any time stripped, else the post's UK day.
 const DAY_RE = /^(\d{1,2}(?: [A-Z][a-z]{2})?\s*[–-]\s*)?\d{1,2} [A-Z][a-z]{2}/;
@@ -90,4 +107,4 @@ function sectionLatest(c, road) {
   const h = (c.history || []).find((x) => x && x.kind !== "check" && !(x.flight > road.flight) && x.trust !== "unconfirmed" && x.log_text);
   return h ? h.log_text : c.log_latest || null;
 }
-module.exports = { scrubRejected, logDone, isRejected, isMonthMixup, lintLogText, cleanLogText, logDay, rollupStatus, hasVehicleEntries, sectionLatest, hwOf, ukDay };
+module.exports = { lintStatusLine, cleanStatusLine, scrubRejected, logDone, isRejected, isMonthMixup, lintLogText, cleanLogText, logDay, rollupStatus, hasVehicleEntries, sectionLatest, hwOf, ukDay };

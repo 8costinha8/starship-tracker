@@ -827,7 +827,7 @@ ${recent}
 For each item below, decide if it reports something concrete about Flight ${road.flight}'s vehicles, pad work, launch site, FAA licence or launch date. Most items won't; skip those. An item can give up to 3 separate facts: add one entry per fact, each with its own box, line and reason.
 
 "line": simplify what the item says into one short plain sentence, max 100 characters. Only reword and shorten. No facts, framing or contrasts the item doesn't state (e.g. not "…, not Florida" when it only says a later flight may go there), no guesses, totals or numbers it doesn't give, and no hype. Keep every hedge: if the item says potentially, may, might, could, expected, planned (when hedged) or reportedly, the line keeps that hedge; never turn it into certainty. British English. Payloads are "deployed", never "released".
-"short": the same in 4-9 words, no full stop.
+"short": the box's overview status line: short and direct, about 6 words (max 8), the plain current state, no reasons or fillers, no full stop, same rules for ships and boosters, e.g. "No Flight 15 licence yet", "Booster 22 static fire done", "Ship 42 Raptors installed".
 "status": the status this item shows for that box, or null if it doesn't change it. Use "complete" ONLY when the item explicitly says that stage is finished for Flight ${road.flight}'s vehicles (e.g. "both vehicles have completed cryo testing"); never infer or invent it (one vehicle done, a test happening, or an estimate is "progress"). If a completed stage restarts or needs more work (e.g. the booster goes back for more cryo), say "progress". For the Launch date box, "done" means SpaceX has announced the date; never use "complete" there, and never use "done" for the other boxes.
 "supersedes": true only if this clearly replaces the box's current headline (e.g. a later step of the same thing), otherwise false.
 "reason": why, in max 12 words. For each item you skip, add {"item": n, "skip": true, "reason": "..."}.${road.vehicles && road.vehicles.length ? "" : `
@@ -1197,6 +1197,20 @@ function readNextFlight(handoffPath, state, road, now) {
 
 /* ───────────── main ───────────── */
 
+function applyPrereqs(road, log = () => {}) {
+  const cl = require("./cleanup.js"), inf = cl.inferred(road), vs = (road.vehicles || []).map((v) => String(v).toUpperCase());
+  let changed = false;
+  const prev = JSON.stringify(road.inferred || {});
+  const next = {}; for (const v of vs) for (const [cat, x] of Object.entries(inf[v] || {})) (next[v] = next[v] || {})[cat] = { date: x.date, by: x.by, why: x.why };
+  if (JSON.stringify(next) !== prev) { if (Object.keys(next).length) road.inferred = next; else delete road.inferred; changed = true; for (const v of Object.keys(next)) for (const c of Object.keys(next[v])) log(`inferred (no push) ${v} ${c}: ${next[v][c].why}`); }
+  for (const rule of cl.PREREQS) {
+    const box = road.categories.find((c) => c.id === rule.target); if (!box || !vs.length) continue;
+    const all = vs.every((v) => inf[v] && inf[v][rule.target]);
+    const want = all ? "done" : vs.some((v) => inf[v] && inf[v][rule.target]) || box.status === "done" ? "progress" : box.status;
+    if (want !== box.status) { log(`STATUS [${box.id}] ${box.status} → ${want} (inferred, no push)`); box.status = want; changed = true; }
+  }
+  return changed;
+}
 async function run(opts = {}) {
   const mode = opts.mode || (process.env.ROAD_MODE === "preview" || process.env.TEST_MODE === "true" ? "preview" : "live");
   const roadPath = opts.roadPath || path.join(ROOT, "road.json");
@@ -1272,6 +1286,10 @@ async function run(opts = {}) {
   { const mv = purpose.refile(road); if (mv.length) { for (const x of mv) log(`re-filed (no push) ${x.id}: ${x.from} → ${x.to}`); changed = true; } }
   if (!rolledOver && lastN) { const mv = archiveLaunched(road, lastN); if (mv) { log(`archived ${mv} Road entr${mv === 1 ? "y" : "ies"} of launched flights to the Flight Log`); changed = true; } }
 
+  // 1c. Real-world prerequisites (scripts/cleanup.js PREREQS, ships and boosters alike): a later step implies its hard
+  // prerequisites are complete, e.g. a static fire (heading / in progress / done) ⇒ that vehicle's Raptors installed.
+  // Inferred flag only: never a push (nothing is added to `changes`).
+  changed = applyPrereqs(road, log) || changed;
   // X-first (production default): new posts from the trusted X accounts are the Road cards.
   // Articles never create Road cards; the old article → card path only runs for legacy tests.
   const xFirst = opts.xFirst !== undefined ? !!opts.xFirst : !opts.sources;
@@ -1287,7 +1305,7 @@ async function run(opts = {}) {
           if (want === "complete" && logText.hasVehicleEntries(box, road)) want = logText.rollupStatus(box, road) === "done" ? "done" : "progress"; // a vehicle section is done only when every vehicle completed
           if (!statusRule(box, want, tier, `@${post.author.username}`, log)) return null;
           box.status = want; box.latest = want === "complete" ? "Done" : entry.text.slice(0, 160);
-          if (entry.log_text) box.log_latest = entry.log_text;
+          if (entry.status_line || entry.log_text) box.log_latest = entry.status_line || require("./cleanup.js").shortLine(entry.log_text); // overview: short plain state
           if (want === "complete" || want === "done") entry.complete = true;
           log(`STATUS [${box.id}] ${from} → ${want} (@${post.author.username})`);
           return { from, to: want };
@@ -1588,7 +1606,7 @@ async function run(opts = {}) {
   return { road, changes, notifications, refreshed, state, scheduledSent, newsPushes, xFirst: xf, pushLog };
 }
 
-module.exports = { searchVehicleWords, archiveLaunched, milestones, statusRule, xStatus, applyMediaPicks, loadMediaPicks, pickImage, applyImageCheck, verifyImages, fcmMessage, notificationFor, judgeFeed, verifyFeed, entryDayMs, backfillX, xPostCard, xIdOf, readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, titleMatches, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
+module.exports = { applyPrereqs, searchVehicleWords, archiveLaunched, milestones, statusRule, xStatus, applyMediaPicks, loadMediaPicks, pickImage, applyImageCheck, verifyImages, fcmMessage, notificationFor, judgeFeed, verifyFeed, entryDayMs, backfillX, xPostCard, xIdOf, readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, titleMatches, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
 
 if (require.main === module) {
   run().catch((err) => {

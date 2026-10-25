@@ -1155,26 +1155,14 @@ function RoadCard({ road, onEntryTap, openReq }) {
   const [open, setOpen] = React.useState(null);
   const items = road && Array.isArray(road.categories) ? road.categories.filter((m) => !ROAD_HIDDEN.includes(m.id)).map((m) => logView(m, road)).map((m) => ({ ...m, status: rollupStatus(m, road) })) : [];
   const listRef = React.useRef(null);
-  const pillKey = items.map((m) => m.id + ":" + m.status + ":" + (m.doneText || "")).join("|");
-  // Equal-width status pills: every pill takes the widest pill's natural width (--pill-w on the list), re-measured on render, resize and font load.
-  React.useLayoutEffect(() => {
-    const box = listRef.current; if (!box) return;
-    let busy = false;
-    const fit = () => { if (busy) return; busy = true;
-      box.style.setProperty("--pill-w", "0px");
-      const w = Math.max(0, ...[...box.querySelectorAll(".callout-head .badge")].map((b) => b.getBoundingClientRect().width));
-      box.style.setProperty("--pill-w", Math.ceil(w) + "px"); busy = false; };
-    fit();
-    const ro = typeof ResizeObserver === "function" ? new ResizeObserver(() => requestAnimationFrame(fit)) : null;
-    if (ro) box.querySelectorAll(".callout-head .badge").forEach((b) => ro.observe(b));
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
-    window.addEventListener("resize", fit);
-    return () => { if (ro) ro.disconnect(); window.removeEventListener("resize", fit); };
-  }, [pillKey]);
   if (!items.length) return null;
   const title = `Road to Flight ${road.flight}`;
   const done = items.filter((m) => m.status === "done" || m.status === "complete").length; // shown boxes only
   const label = (m) => (m.status === "done" ? m.doneText || "Done" : ROAD_STATUS_TEXT[m.status] || m.status);
+  // Equal-width status pills, pure CSS: every pill stacks ALL of this card's labels in one grid cell (others
+  // invisible), so each pill's width = the widest label + the same padding + the same border. No measuring.
+  const pillLabels = [...new Set(items.map(label))];
+  const pill = (m) => <span className={"badge badge-" + m.status}><span className="badge-stack">{pillLabels.map((l) => <span key={l} className="badge-ghost" aria-hidden="true">{l}</span>)}<span className="badge-txt">{label(m)}</span></span></span>;
   const count = (m) => { if (!ONE_CARD.includes(m.id) || m.status === "done" || !window.RoadCleanup) return null;
     const vp = window.RoadCleanup.vehicleProgress(m, road); return vp.total && vp.done ? `${vp.done} of ${vp.total}` : null; };
   return (
@@ -1196,10 +1184,10 @@ function RoadCard({ road, onEntryTap, openReq }) {
               <span className="callout-icon">{m.icon}</span>
               <span className="callout-body">
                 <span className="callout-name">{m.name}</span>
-                <span className="callout-latest">{m.status === "complete" ? "Done" : scrub(boxLatest(m, road))}</span>
+                <span className="callout-latest">{m.status === "complete" ? "Done" : scrub(window.RoadCleanup ? window.RoadCleanup.shortLine(boxLatest(m, road)) : boxLatest(m, road))}</span>
               </span>
-              {count(m) ? <span className="badge-wrap"><span className={"badge badge-" + m.status}>{label(m)}</span><span className="badge-count">{count(m)}</span></span>
-                : <span className={"badge badge-" + m.status}>{label(m)}</span>}
+              {count(m) ? <span className="badge-wrap">{pill(m)}<span className="badge-count">{count(m)}</span></span>
+                : pill(m)}
             </button>
             <div className="callout-hist"><div className="callout-hist-inner">
               {(m.history || []).map((h, i) => isRealEntry(h) && !(h.flight > road.flight) && !isLaunched(h.flight) && ( /* later flights' cards: Road page only */
@@ -2342,7 +2330,10 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .buildup a { color: inherit; }
 .buildup li.bu-tap { cursor: pointer; -webkit-tap-highlight-color: transparent; outline: none; } /* invisible tap area: no box, border or underline */
 .buildup li.bu-tap:focus-visible { outline: 2px solid #A9BDF0; outline-offset: 2px; border-radius: 4px; }
-.road .callout-head .badge { display: inline-block; box-sizing: border-box; min-width: var(--pill-w, 0px); text-align: center; flex: none; } /* all status pills share the widest pill's width (--pill-w, set in RoadCard) */
+.road .callout-head .badge { display: inline-block; box-sizing: border-box; width: auto; min-width: 0; max-width: none; text-align: center; flex: none; border-width: 1.5px; } /* same border on every pill (filled, outline, dotted, Raptor) */
+.badge-stack { display: inline-grid; justify-items: center; }
+.badge-stack > span { grid-area: 1 / 1; white-space: nowrap; }
+.badge-ghost { visibility: hidden; } /* sizes every pill to the widest label in the card */
 .badge-wrap { display: inline-flex; flex-direction: column; align-items: center; gap: 3px; flex: none; }
 .badge-count { font-size: 10.5px; color: var(--muted, #AAB6D6); }
 .bu-date { font-weight: 700; margin-right: 4px; }

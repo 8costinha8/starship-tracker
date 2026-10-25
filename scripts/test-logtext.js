@@ -97,7 +97,7 @@ check(L.cleanLogText("Ship 42 completed it's cryo test at Massey's") === "Ship 4
   check(/log_text \(road only, else null\)/.test(prompts[0]) && /"completed" or "completes"/.test(prompts[0]) && /never "it's"/.test(prompts[0]) && require("./x-first.js").CLASSIFY_SCHEMA.properties.entries.items.required.includes("log_text"), "the Grok classify call asks for log_text in the Flight Log style");
   check(b22 && b22.log_text === "Booster 22 completed its static fire at Pad 2." && b22.log_date === "24 Oct" && b22.milestone.phase === "completed" && b22.complete === true, "new post → log_text + single day stored on the entry, milestone Completed");
   check(L.lintLogText(b22.log_text).length === 0 && b22.updates[0].log_text === "Booster 22 is waiting to roll out for its static fire test.", "the older line keeps its own log_text under Earlier updates");
-  check(s.log_latest === b22.log_text && s.status === "progress" && A.rollupStatus(s, { ...live, vehicles: ["B22", "S42"] }) === "progress", "section latest refreshed; one of two vehicles done → still In progress");
+  check(s.log_latest === require("./cleanup.js").shortLine(b22.log_text) && s.status === "progress" && A.rollupStatus(s, { ...live, vehicles: ["B22", "S42"] }) === "progress", "section latest refreshed; one of two vehicles done → still In progress");
   const p1 = events.find((x) => x.push);
   check(p1 && p1.push.body === b22.log_text && p1.visible && events.findIndex((x) => x.commit === "road.json") < events.indexOf(p1), "the push says the visible log line, sent only after road.json is committed");
 
@@ -106,7 +106,7 @@ check(L.cleanLogText("Ship 42 completed it's cryo test at Massey's") === "Ship 4
   await road.run(base);
   s = st(); const s42 = s.history.find((h) => h.milestone && h.milestone.hardware === "S42");
   check(s42 && s42.log_text === "Ship 42 completes its static fire at Massey's." && L.lintLogText(s42.log_text).length === 0, "a writer slip (\"Ship 42's completes\") is fixed before it is stored");
-  check(s.status === "done" && s.log_latest === s42.log_text && A.rollupStatus(s, live) === "done", "every Flight 15 vehicle completed → section Done (pill Done, filled dot)");
+  check(s.status === "done" && s.log_latest === require("./cleanup.js").shortLine(s42.log_text) && s.log_latest === "Ship 42 static fire done." && A.rollupStatus(s, live) === "done", "every Flight 15 vehicle completed → section Done (pill Done, filled dot)");
   const p2 = events.find((x) => x.push && /Static fires: (Done|Completed)/.test(x.push.title));
   check(p2 && p2.push.body === s42.log_text && p2.visible, "Done push wording = the visible log line");
   check(A.rollupStatus(cryo, live) === "done" && A.rollupStatus(live.categories.find((c) => c.id === "pad"), live) === live.categories.find((c) => c.id === "pad").status, "live Cryo rolls up to Done; pad work never rolls up");

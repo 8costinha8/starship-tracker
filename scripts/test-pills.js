@@ -3,11 +3,9 @@
 const fs = require("fs"), path = require("path"), http = require("http");
 const root = path.join(__dirname, ".."), app = fs.readFileSync(path.join(root, "app.js"), "utf8");
 let pass = 0, fail = 0; const check = (ok, msg) => { ok ? pass++ : fail++; console.log((ok ? "✅ " : "❌ ") + msg); };
-check(/\.road \.callout-head \.badge \{[^}]*min-width: var\(--pill-w, 0px\); text-align: center;/.test(app), "pills share min-width var(--pill-w) and centre their text");
-check(/box\.style\.setProperty\("--pill-w", Math\.ceil\(w\) \+ "px"\)/.test(app) && /querySelectorAll\("\.callout-head \.badge"\)/.test(app), "RoadCard sets --pill-w to the widest pill");
-check(/new ResizeObserver/.test(app) && /document\.fonts\.ready\.then\(fit\)/.test(app) && /\}, \[pillKey\]\);/.test(app), "re-measures on resize, font load and any label/status change");
-check(/className="road-list-inner" ref=\{listRef\}/.test(app), "the variable lives on the Road list container");
-check(/\.badge-wrap \{ display: inline-flex; flex-direction: column; align-items: center;/.test(app), "'1 of 2' stays centred under its pill");
+check(/\.badge-stack \{ display: inline-grid;/.test(app) && /\.badge-stack > span \{ grid-area: 1 \/ 1;/.test(app) && /\.badge-ghost \{ visibility: hidden; \}/.test(app), "pure CSS: every pill stacks all the card's labels in one grid cell (widest sets the width)");
+check(/pillLabels = \[\.\.\.new Set\(items\.map\(label\)\)\]/.test(app) && !/--pill-w/.test(app) && !/min-width: var\(/.test(app), "no JS measuring and no min-width hack left");
+check(/\.road \.callout-head \.badge \{[^}]*box-sizing: border-box;[^}]*border-width: 1\.5px;/.test(app), "same border width on every pill (filled, outline, dotted, Raptor)");
 (async () => {
   let pw = null; try { pw = require(process.env.PLAYWRIGHT_PATH || "playwright"); } catch (e) {}
   const chrome = process.env.CHROME || "/usr/bin/google-chrome";
@@ -18,19 +16,27 @@ check(/\.badge-wrap \{ display: inline-flex; flex-direction: column; align-items
   await new Promise((ok) => srv.listen(0, ok));
   const b = await pw.chromium.launch({ executablePath: chrome, args: ["--no-sandbox"] });
   try {
-    const pg = await (await b.newContext({ viewport: { width: 390, height: 844 } })).newPage();
-    await pg.goto(`http://localhost:${srv.address().port}/`, { waitUntil: "networkidle" });
-    await pg.waitForSelector(".road-head", { state: "attached", timeout: 30000 });
-    await pg.evaluate(() => document.querySelector(".road-head").click()); await pg.waitForTimeout(2500);
-    const r = await pg.evaluate(() => [...document.querySelectorAll(".road .callout-head .badge")].map((e) => { const b = e.getBoundingClientRect(), h = e.closest(".callout-head").getBoundingClientRect();
-      return { w: b.width, h: b.height, right: b.right, hr: h.right, sw: e.scrollWidth, cw: e.clientWidth }; }));
-    const ws = r.map((x) => x.w);
-    check(r.length >= 3 && Math.max(...ws) - Math.min(...ws) <= 1, `390px: all ${r.length} pills the same width within 1px (${ws.map((w) => w.toFixed(1)).join(", ")})`);
-    check(r.every((x) => x.h < 30 && x.sw <= x.cw + 1 && x.right <= x.hr + 0.5), "390px: no pill wraps or overflows its card");
-    // live: lengthen one label, the others follow
-    const live = await pg.evaluate(async () => { const p = document.querySelector(".road .callout-head .badge"); p.textContent = "Confirmed again"; await new Promise((ok) => setTimeout(ok, 1000));
-      const ws = [...document.querySelectorAll(".road .callout-head .badge")].map((e) => e.getBoundingClientRect().width); return ws; });
-    check(Math.max(...live) - Math.min(...live) <= 1 && Math.max(...live) > Math.max(...ws) + 5, "a longer label widens every pill automatically");
+    const url = process.env.PILLS_URL || `http://localhost:${srv.address().port}/`;
+    for (const W of [360, 390, 430]) {
+      const pg = await (await b.newContext({ viewport: { width: W, height: 844 }, deviceScaleFactor: 3 })).newPage();
+      await pg.goto(url, { waitUntil: "networkidle" });
+      await pg.waitForSelector(".road-head", { state: "attached", timeout: 30000 });
+      await pg.evaluate(() => document.fonts && document.fonts.ready);
+      await pg.evaluate(() => { const h = document.querySelector(".road-head"); if (h.getAttribute("aria-expanded") !== "true") h.click(); }); await pg.waitForTimeout(1500); // the box expanded, as the user sees it
+      const r = await pg.evaluate(() => [...document.querySelectorAll(".road .callout-head .badge")].map((e) => { const b = e.getBoundingClientRect(), h = e.closest(".callout-head").getBoundingClientRect();
+        return { t: e.querySelector(".badge-txt").textContent, w: b.width, h: b.height, right: b.right, hr: h.right, vis: b.width > 0 }; }));
+      const ws = r.map((x) => x.w);
+      console.log(`   ${W}px: ${r.map((x) => `${x.t}=${x.w.toFixed(2)}`).join(", ")}`);
+      check(r.length >= 3 && r.every((x) => x.vis) && Math.max(...ws) - Math.min(...ws) <= 1, `${W}px expanded: all ${r.length} pills equal within 1px (${Math.min(...ws).toFixed(2)}–${Math.max(...ws).toFixed(2)})`);
+      check(r.every((x) => x.h < 30 && x.right <= x.hr + 0.5), `${W}px: no pill wraps or overflows its card`);
+      if (W === 390 && !process.env.PILLS_URL) { // live: a longer label → every pill follows, no script
+        const live = await pg.evaluate(async () => { document.querySelectorAll(".road .badge-txt")[0].textContent = "Confirmed again"; document.querySelectorAll(".road .badge-stack").forEach((s) => { const g = document.createElement("span"); g.className = "badge-ghost"; g.textContent = "Confirmed again"; s.prepend(g); });
+          await new Promise((ok) => setTimeout(ok, 300)); return [...document.querySelectorAll(".road .callout-head .badge")].map((e) => e.getBoundingClientRect().width); });
+        check(Math.max(...live) - Math.min(...live) <= 1 && Math.max(...live) > Math.max(...ws) + 5, "a longer label widens every pill (CSS only)");
+      }
+      if (process.env.SHOT && W === 390) await pg.screenshot({ path: process.env.SHOT });
+      await pg.context().close();
+    }
   } finally { await b.close(); srv.close(); }
   done();
 })().catch((e) => { check(false, "browser check crashed: " + e.message); done(); });

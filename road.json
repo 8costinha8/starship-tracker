@@ -1314,7 +1314,7 @@
           ]
         }
       ],
-      "log_latest": "Pad 1 flame trench wall work is progressing at Starbase."
+      "log_latest": "Pad 1 flame trench work ongoing."
     },
     {
       "id": "faa",
@@ -1352,7 +1352,7 @@
           "log_text": "FAA licence issued for Flight 14 only, Flight 15 needs a modification."
         }
       ],
-      "log_latest": "FAA licence covers Flight 14 only, with no Flight 15 change yet."
+      "log_latest": "No Flight 15 licence yet."
     },
     {
       "id": "date",
@@ -1415,7 +1415,7 @@
           "log_text": "Flight 15 is targeting NET 8 November, with plans to catch both vehicles."
         }
       ],
-      "log_latest": "Flight 15 targets NET 8 November."
+      "log_latest": "Flight 15 NET 8 November."
     }
   ],
   "predicted": {
@@ -1656,6 +1656,15 @@
         "src": [
           "https://x.com/NASASpaceflight/status/2114320643470549259"
         ]
+      }
+    }
+  },
+  "inferred": {
+    "B22": {
+      "raptor": {
+        "date": "23 Oct",
+        "by": "static fire",
+        "why": "Booster 22 is heading to its static fire, so all 33 Raptors are installed."
       }
     }
   }

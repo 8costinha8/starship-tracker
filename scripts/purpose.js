@@ -107,7 +107,7 @@ function refile(road) {
         c.history.push(pe); c.history.sort((a, b) => C.dayNum(b) - C.dayNum(a));
         moves.push({ id: pe.id, text: pe.text, from: c.id, to: c.id, split: true });
       }
-      if (c.latest === h.text || c.log_latest === (h.log_text || h.text)) { const n = (c.history || []).find((x) => x.kind !== "check"); if (n) { c.latest = n.text; c.log_latest = n.log_text || n.text; } }
+      if (c.latest === h.text || c.log_latest === (h.log_text || h.text) || c.log_latest === (h.status_line || require("./cleanup.js").shortLine(h.log_text || h.text))) { const n = (c.history || []).find((x) => x.kind !== "check"); if (n) { c.latest = n.text; c.log_latest = n.status_line || require("./cleanup.js").shortLine(n.log_text || n.text); } }
     }
   }
   for (const f of road.feed_items || []) {

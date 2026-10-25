@@ -71,6 +71,60 @@
   const PART = /\b(\d{1,2})\s+(?:of\s+\d+\s+)?(?:raptors?|engines?)\b/i;
   const vName = (v) => (v[0] === "B" ? "Booster " : "Ship ") + v.slice(1);
   const nEng = (v) => (v[0] === "B" ? 33 : 6);
+  // ── Real-world prerequisite model (ships AND boosters alike). A later step implies its HARD prerequisites are
+  // complete: inferred flag, never a push. Only physically certain implications (cryo vs Raptors can go either way,
+  // so neither implies the other).
+  //   Raptors installed ⇐ heading/rolling to a static fire, static fire in progress or completed, spin prime, launch.
+  const SF_HEAD = /\b(?:roll\w*(?: out| back)?|heads?|heading|mov\w*|arriv\w*|transport\w*|lifted onto)\b[^.]{0,60}\bstatic[\s-]*fire|\bstatic[\s-]*fire\b[^.]{0,40}\b(?:rollout|campaign (?:begins|starts|underway))/i;
+  const SF_DOING = /\bstatic[\s-]*fire\b[^.]{0,30}\b(?:underway|in progress|attempt\w*|testing|begins|starts)\b|\b(?:fir(?:es|ed|ing)|lit|light\w*)\b[^.]{0,30}\b(?:all )?(?:\d+ )?(?:raptors?|engines?)\b/i;
+  const SF_DONE = /\bstatic[\s-]*fire\b[^.]{0,40}\b(?:complet\w*|conduct\w*|done)\b|\b(?:complet\w*|conduct\w*)\b[^.]{0,30}\bstatic[\s-]*fire/i;
+  const SPIN = /\bspin[\s-]*prime\b[^.]{0,30}\b(?:complet\w*|conduct\w*|done|underway|test\w*)\b|\b(?:complet\w*|conduct\w*)\b[^.]{0,20}\bspin[\s-]*prime/i;
+  const LAUNCHED = /\b(?:launch(?:ed|es)|lift(?:s|ed)? ?off|liftoff)\b/i;
+  const PREREQS = [
+    { target: "raptor", label: "Raptors installed", steps: [
+      { name: "static fire", test: (c, h, t, m) => (c.id === "static" || /static[\s-]*fire/i.test(t)) && ((m && m.type === "static_fire" && /completed|progress/.test(m.phase || "")) || SF_DONE.test(t) || SF_DOING.test(t) || SF_HEAD.test(t)),
+        why: (v, t) => `${vName(v)} ${SF_DONE.test(t) ? "completed its static fire" : SF_DOING.test(t) ? "is in static fire testing" : "is heading to its static fire"}, so all ${nEng(v)} Raptors are installed.` },
+      { name: "spin prime", test: (c, h, t) => SPIN.test(t), why: (v) => `${vName(v)} did a spin prime, so all ${nEng(v)} Raptors are installed.` },
+      { name: "launch", test: (c, h, t, m) => (m && m.type === "launch" && m.phase === "completed") || (c.id === "launch" && LAUNCHED.test(t) && !/\b(?:could|may|might|expected|planned|targets?|NET)\b/i.test(t)), why: (v) => `${vName(v)} launched, so all ${nEng(v)} Raptors were installed.` },
+    ] },
+  ];
+  // { B22: { raptor: { day, date, why, by } }, S42: {...} } for road.vehicles; earliest qualifying step wins
+  function inferred(road) {
+    const flight = road && road.flight, vs = ((road && road.vehicles) || []).map((v) => String(v).toUpperCase());
+    const out = {}; for (const v of vs) out[v] = {};
+    for (const c of (road && road.categories) || []) for (const h of c.history || []) {
+      if (!h || h.kind === "check" || h.flight > flight || h.trust === "unconfirmed") continue;
+      for (const u of [h, ...(h.updates || [])]) {
+        const t = `${u.text || ""} ${u.log_text || ""}`;
+        if (HEDGE.test(u.text || "") || /\b(?:waiting|preparing|prepares|set|planned|scheduled|due) to\b|\bnot yet\b/i.test(t) || /\b(?:ready for|ahead of|before|could|as early as|within)\b[^.]{0,20}static/i.test(t) && !SF_HEAD.test(t)) continue;
+        const mine = [...new Set([u === h ? hwOf(h) : null, ...named(t)].filter((x) => x && vs.includes(x)))];
+        const ms = u === h ? h.milestone : null;
+        for (const rule of PREREQS) {
+          if (c.id === rule.target) continue;
+          const st = rule.steps.find((s) => s.test(c, u, t, ms)); if (!st) continue;
+          for (const v of mine) { const d = dayNum(u); const cur = out[v][rule.target];
+            if (!cur || d < cur.day) out[v][rule.target] = { day: d, date: u.log_date || u.date, why: st.why(v, t), by: st.name, cat: c.id }; }
+        }
+      }
+    }
+    return out;
+  }
+  // Overview status line: short, direct, plain current state (about 6 words, one line). Deterministic rewrites
+  // for the per-vehicle sections (any vehicle, ship or booster); other lines pass through (written short already).
+  const V = "((?:Booster|Ship) \\d+)";
+  const SHORT = [
+    [new RegExp(`^${V} has all \\d+ Raptors installed\\.?$`, "i"), "$1 Raptors installed."],
+    [new RegExp(`^${V} is getting its Raptors installed\\.?$`, "i"), "$1 Raptors going in."],
+    [new RegExp(`^${V} has a Raptor swapped\\.?$`, "i"), "$1 Raptor swapped."],
+    [new RegExp(`^${V} (?:completed|completes) (?:its |a |further |more )?static[\\s-]*fires?(?: tests?)?\\b.*$`, "i"), "$1 static fire done."],
+    [new RegExp(`^${V} (?:completed|completes) (?:its |a |further |more )?cryo(?:genic)?(?: proof)? tests?\\b.*$`, "i"), "$1 cryo tests done."],
+    [new RegExp(`^${V} (?:heads?|rolls?|rolled|is rolling|moves?) (?:out )?to (?:the )?(Pad \\d|launch site|Massey's)\\b.*$`, "i"), "$1 heading to $2."],
+  ];
+  function shortLine(t) {
+    let s = String(t || "").trim(); if (!s) return s;
+    for (const [re, to] of SHORT) if (re.test(s)) { s = s.replace(re, to); break; }
+    return s;
+  }
   const tierOk = (h) => h.trust === "trusted" && !(Number(h.tier) > 2);
   function raptorView(cat, road) {
     const flight = road.flight, vs = (road.vehicles || []).map((v) => String(v).toUpperCase());
@@ -82,28 +136,23 @@
       const list = [{ ...asStep(h), _hi: hi, _trusted: tierOk(h) }, ...(h.updates || []).filter((u) => u && line(u)).map((u) => ({ ...u, log_text: tidy(line(u)), _hi: hi, _trusted: tierOk(h) }))];
       for (const u of list) { const n = named(line(u)); for (const v of (n.length ? n.filter((x) => vs.includes(x)) : who)) if (steps[v]) steps[v].push({ ...u }); }
     });
-    // what the other sections imply (static fire rollout / completion; cryo rollback → Mega Bay)
+    // what the other sections imply (real-world prerequisites, see PREREQS) + cryo rollback → Mega Bay
     const imply = {};
-    for (const v of vs) imply[v] = { installed: null, progress: null };
+    for (const v of vs) imply[v] = { installed: (inferred(road)[v] || {}).raptor || null, progress: null };
     for (const c of road.categories || []) for (const h of c.history || []) {
-      if (!cur(h) || c.id === "raptor") continue;
+      if (!cur(h) || c.id !== "cryo") continue;
       const t = `${h.text || ""} ${h.log_text || ""}`, mine = [...new Set([hwOf(h), ...named(t)].filter((x) => x && vs.includes(x)))];
-      for (const v of mine) {
-        const d = dayNum(h);
-        const fired = c.id === "static" && ((h.milestone && h.milestone.type === "static_fire" && h.milestone.phase === "completed") || (/static fire/i.test(t) && /\b(complet\w*|conduct\w*)\b/i.test(t) && !HEDGE.test(h.text || "")));
-        const rolled = c.id === "static" && /\broll\w*|heads? to (?:the )?pad|arriv\w* at (?:the )?(?:launch|pad)/i.test(t) && /static/i.test(t) && !HEDGE.test(h.text || "");
-        if ((fired || rolled) && (imply[v].installed == null || d < imply[v].installed.day)) imply[v].installed = { day: d, date: h.log_date || h.date, why: fired ? `${vName(v)} completed its static fire, so all ${nEng(v)} Raptors are assumed installed.` : `${vName(v)} rolled out for its static fire, so all ${nEng(v)} Raptors are assumed installed.` };
-        if (c.id === "cryo" && /roll\w* back|returned|back to (?:the )?(?:mega ?bay|production)/i.test(t) && (imply[v].progress == null || d > imply[v].progress.day)) imply[v].progress = { day: d };
-      }
+      for (const v of mine) { const d = dayNum(h); if (/roll\w* back|returned|back to (?:the )?(?:mega ?bay|production)/i.test(t) && (imply[v].progress == null || d > imply[v].progress.day)) imply[v].progress = { day: d }; }
     }
     const cards = [];
     for (const v of vs) {
       const all = steps[v].slice().sort((a, b) => dayNum(b) - dayNum(a) || atNum(b) - atNum(a));
       const newest = (re, f = () => true) => all.find((u) => re.test(line(u)) && f(u));
       const engDone = (t) => { const m = String(t).match(PART); return ENG_DONE.test(t) && !(m && Number(m[1]) < nEng(v)); };
-      const conf = all.find((u) => engDone(line(u)) && u._trusted && !HEDGE.test(line(u)));
+      const conf = null; // install reports alone never finish the card: only a physically certain later step does (PREREQS)
+      const said = all.find((u) => engDone(line(u)) && !HEDGE.test(line(u))); // shown as progress
       const out = newest(ENG_OUT);
-      const ins = newest(ENG_IN);
+      const ins = newest(ENG_IN) || said;
       const inf = imply[v].installed;
       const doneDay = Math.max(conf ? dayNum(conf) : -Infinity, inf ? inf.day : -Infinity);
       const base = { hardware: v, flight, trust: "trusted", _hi: all[0] ? all[0]._hi : undefined };
@@ -111,7 +160,7 @@
       if (Number.isFinite(doneDay) && !(out && dayNum(out) > doneDay && !(ins && dayNum(ins) > dayNum(out) && engDone(line(ins))))) {
         card = { ...base, log_text: `${vName(v)} has all ${nEng(v)} Raptors installed.`, log_date: conf && (!inf || dayNum(conf) >= inf.day || true) ? (conf.log_date || conf.date) : inf.date,
           complete: true, milestone: { type: "engines_installed", hardware: v, flight, phase: "completed" } };
-        if (conf) card._hi = conf._hi; else { card.assumed = true; card.assumed_reason = inf.why; card.log_date = inf.date; }
+        card.assumed = true; card.inferred = true; card.assumed_reason = inf.why; card.log_date = inf.date; card._hi = inf._hi != null && inf.cat === "raptor" ? inf._hi : card._hi;
       } else if (out && Number.isFinite(doneDay) && dayNum(out) > doneDay) {
         card = { ...base, log_text: `${vName(v)} has a Raptor swapped.`, log_date: out.log_date || out.date, _hi: out._hi, milestone: { type: "engines_installed", hardware: v, flight, phase: "progress" } };
       } else if (ins || out || imply[v].progress) {
@@ -219,5 +268,5 @@
     const done = vs.filter((v) => (cat.history || []).some((h) => hwOf(h) === v && !(h.flight > road.flight) && h.trust !== "unconfirmed" && ((h.milestone && h.milestone.phase === "completed") || h.complete === true)));
     return { done: done.length, total: vs.length };
   }
-  return { flightLogView, raptorView, vehicleProgress, named, tidy, isCompletion, isPrediction, isKey, hwOf, dayNum };
+  return { PREREQS, inferred, shortLine, flightLogView, raptorView, vehicleProgress, named, tidy, isCompletion, isPrediction, isKey, hwOf, dayNum };
 });
