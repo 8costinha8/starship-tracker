@@ -7,12 +7,13 @@ const ROOT = path.join(__dirname, "..");
 let fails = 0; const check = (ok, m) => { console.log((ok ? "✅ " : "❌ ") + m); if (!ok) fails++; };
 const live = JSON.parse(fs.readFileSync(path.join(ROOT, "road.json"), "utf8"));
 const app = fs.readFileSync(path.join(ROOT, "app.js"), "utf8");
+const A_buLinked = (u) => { const src = app.match(/const buLinked = ([^\n]+);/)[1]; const isYouTube = (x) => /(^|\.)(youtube\.com|youtu\.be)$/i.test((() => { try { return new URL(x).hostname.replace(/^www\./, ""); } catch { return ""; } })()); return eval(src)(u); };
 const fn = (name) => { const i = app.indexOf(`function ${name}(`); return i < 0 ? "" : app.slice(i, app.indexOf("\n}\n", i) + 2); };
 const post = fn("FeedPost"), fbu = fn("FeedBuildUp"), credit = fn("CreditLine");
 
 // 1. no count in the label
 check(/<summary>Earlier updates<\/summary>/.test(fbu) && !/\(\$\{|\.length\}?\)/.test(fbu.split("\n").find((l) => /summary/.test(l))), "Road page: label reads 'Earlier updates' with no count");
-check(/<FeedBuildUp h=\{h\} \/>/.test(post) && !/<BuildUp /.test(post), "Road page cards use the Road build-up, not the Flight Log one");
+check(/<FeedBuildUp h=\{h\}( plain=\{ONE_CARD\.includes\(cat\.id\)\})? \/>/.test(post) && !/<BuildUp /.test(post), "Road page cards use the Road build-up, not the Flight Log one");
 
 // 2. no standalone credit row
 check(/if \(!u\) return null;/.test(credit) && (post.match(/<CreditLine /g) || []).length === 1 && !/post-src|mini-src|srcOf\(h\)\}<\/span>/.test(post), "no standalone @handle credit row: a credit only ever sits in a View on X line");
@@ -35,8 +36,17 @@ check(urls.every((x) => /^https:\/\/x\.com\/\w+\/status\/\d+$/.test(x)), `every 
 
 // 5. the Flight Log is unchanged
 const cssLog = app.split("\n").filter((l) => /^\.road[ .{]|^\.mini|^\.buildup/.test(l) && !/feed-bu/.test(l)).join("\n");
-check(crypto.createHash("sha1").update(fn("RoadCard") + cssLog).digest("hex") === "de296c94e36b0c9faa3595f69043966201f45bbc", "Flight Log card code and CSS byte-identical to 04a48c2");
-check(/<summary>Earlier updates<\/summary>/.test(fn("BuildUp")) && /\.buildup:not\(\.feed-bu\) summary \{ display: inline-flex; align-items: center; gap: 4px;/.test(app) && /u\.url && !\(log && u\.handle\)/.test(fn("BuildUp")), "Flight Log build-up has no count, chevron inline at text height; a new X url doesn't turn its line into a link");
+const logHash = crypto.createHash("sha1").update(fn("RoadCard") + cssLog).digest("hex"); if (process.env.SHOW_HASH) console.log(logHash);
+check(logHash === "1f5e7a39c931c2e4ed567f85dace973717a3eb0c", "Flight Log card code and CSS byte-identical to the static-fires one-card-per-vehicle redesign (was 04a48c2)");
+check(/<summary>Earlier updates<\/summary>/.test(fn("BuildUp")) && /\.buildup:not\(\.feed-bu\) summary \{ display: inline-flex; align-items: center; gap: 4px;/.test(app) && !/<a /.test(fn("BuildUp").split(": <li key={i}><div")[0]), "Flight Log build-up has no count, chevron inline at text height; a new X url doesn't turn its line into a link");
+// Flight Log earlier updates: no @handle chips; a post-backed line is an invisible tap area → Road to Flight card; others inert
+{ const B = fn("BuildUp"), css = app.split("\n").filter((l) => /li\.bu-tap/.test(l)).join("\n");
+  check(!/mini-src|handleOf/.test(B), "Flight Log earlier updates: no @handle chips on any category");
+  check(/log && onTap && buLinked\(u\)/.test(B) && /onTap\(\)/.test(B) && /className: "bu-plain" \}/.test(B), "post-backed line taps through to the Road to Flight card; a line with no post gets no handler");
+  check(/e\.stopPropagation\(\); e\.preventDefault\(\); onTap\(\)/.test(B), "tapping a line never toggles the Earlier updates collapse or the card");
+  check(/cursor: pointer/.test(css) && !/border:|background:|text-decoration: underline|box-shadow/.test(css.split("\n").filter((l) => !/focus-visible/.test(l)).join("")), "tap area is invisible: pointer only, no box, border or underline");
+  check(!/cursor/.test(app.split("\n").filter((l) => /li\.bu-plain/.test(l)).join("")), "lines with no linked post: no pointer cursor");
+  check(A_buLinked({ url: "https://x.com/a/status/1" }) && A_buLinked({ handle: "x" }) && !A_buLinked({ url: "https://www.youtube.com/watch?v=1" }) && !A_buLinked({ text: "no post" }), "linked = an X/post url or handle (YouTube and source-less lines are inert)"); }
 
 // 6. ship cryo cards: standing default photo, still linking to the X post; booster cryo unchanged
 const R = new Function(`const isYouTube = (u) => /youtube|youtu\\.be/.test(u || ""); ${app.slice(app.indexOf("const urlOf ="), app.indexOf("\n", app.indexOf("const urlOf =")))}\n${app.slice(app.indexOf("const SHIP_CRYO_IMAGE ="), app.indexOf("function FeedPost("))} return roadMediaOf;`)();

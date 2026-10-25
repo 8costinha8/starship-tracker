@@ -18,12 +18,12 @@ check(A.logDay({ date: "9–10 Sep" }) === "9–10 Sep" && A.logDay({ date: "30 
 check(A.logDay({ date: "3–4 Sep" }) === L.logDay({ date: "3–4 Sep" }) && A.logDay({ at: "2026-10-23T23:30:00Z" }) === L.logDay({ at: "2026-10-23T23:30:00Z" }), "app and scripts agree on the day");
 const cryo = live.categories.find((c) => c.id === "cryo"), e = (t) => cur(cryo).find((h) => (h.log_text || "").startsWith(t));
 check(A.logDay(e("Booster 22")) === "9–10 Sep" && A.logDay(e("Ship 42")) === "9 Oct" && e("Ship 42").updates.length === 1 && A.logDay(e("Ship 42").updates[0]) === "3–4 Sep", "Cryo: S42 9 Oct with one earlier update 3–4 Sep; B22 9–10 Sep");
-check(/<span className="mini-date">\{logDay\(h\)\}<\/span>/.test(app) && /bu-date">\{log \? logDay\(u\) : entryDate\(u\)\}/.test(app) && /post-date">\{entryDate\(h\)\}/.test(app), "Flight Log uses the plain day; the Updates feed keeps its times");
+check(/<span className="mini-date">\{logDay\(h\)\}<\/span>/.test(app) && /log \? <li key=\{i\} \{\.\.\.tapProps\(u\)\}><div className="bu-top"><span className="bu-date">\{logDay\(u\)\}/.test(app) && /post-date">\{(ONE_CARD\.includes\(cat\.id\) \? logDay\(h\) : )?entryDate\(h\)\}/.test(app), "Flight Log uses the plain day; the Updates feed keeps its times");
 
 // 2. the Flight Log prefers log_text and never shows raw post text
 check(A.logLine({ log_text: "Clean.", x_text: "X text", text: "Text", x_post: { text: "RAW" } }) === "Clean." && A.logLine({ x_text: "X text", text: "Text" }) === "Text", "logLine: log_text first, then text (never x_text)");
 const card = fn("RoadCard"), bu = fn("BuildUp");
-check(!/x_text|x_post/.test(card) && /<p>\{scrub\(logLine\(h\)\)\}<\/p>/.test(card) && /<BuildUp h=\{h\} log \/>/.test(card) && /log \? logLine\(u\) : u\.text/.test(bu), "Road to Flight N card never reads x_text / x_post.text");
+check(!/x_text|x_post/.test(card) && /<p>\{scrub\(logLine\(h\)\)\}<\/p>/.test(card) && /<BuildUp h=\{h\} log onTap=\{onEntryTap \? \(\) => onEntryTap\(m\.id, i\) : null\} \/>/.test(card) && /bu-text">\{scrub\(logLine\(u\)\)\}/.test(bu), "Road to Flight N card never reads x_text / x_post.text");
 check(/if \(m\.log_latest && !later\) return m\.log_latest;/.test(fn("boxLatest")) && !/x_text/.test(fn("boxLatest").split("\n").filter((l) => !/const later/.test(l)).join("\n")), "box headline: log_latest, else the clean line");
 check(cryo.log_latest === "Ship 42 completed its cryo tests at Massey's." && e("Ship 42").log_text === "Ship 42 completed further cryo tests." && e("Ship 42").updates.map((u) => u.log_text).join("|") === "Ship 42 completes its first cryo tests." && e("Booster 22").log_text === "Booster 22 completed its cryo test at Massey's.", "Cryo matches the target wording");
 
@@ -107,7 +107,7 @@ check(L.cleanLogText("Ship 42 completed it's cryo test at Massey's") === "Ship 4
   s = st(); const s42 = s.history.find((h) => h.milestone && h.milestone.hardware === "S42");
   check(s42 && s42.log_text === "Ship 42 completes its static fire at Massey's." && L.lintLogText(s42.log_text).length === 0, "a writer slip (\"Ship 42's completes\") is fixed before it is stored");
   check(s.status === "done" && s.log_latest === s42.log_text && A.rollupStatus(s, live) === "done", "every Flight 15 vehicle completed → section Done (pill Done, filled dot)");
-  const p2 = events.find((x) => x.push && /Static fires: Done/.test(x.push.title));
+  const p2 = events.find((x) => x.push && /Static fires: (Done|Completed)/.test(x.push.title));
   check(p2 && p2.push.body === s42.log_text && p2.visible, "Done push wording = the visible log line");
   check(A.rollupStatus(cryo, live) === "done" && A.rollupStatus(live.categories.find((c) => c.id === "pad"), live) === live.categories.find((c) => c.id === "pad").status, "live Cryo rolls up to Done; pad work never rolls up");
   const reopened = JSON.parse(JSON.stringify(cryo)); reopened.history.unshift({ log_text: "Ship 42 heads back to Massey's.", flight: 15, trust: "trusted", milestone: { hardware: "S42", phase: "progress" } });

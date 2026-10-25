@@ -404,176 +404,14 @@
       "name": "Static fires",
       "color": "#FF5A36",
       "status": "progress",
-      "latest": "Booster 22 transport ring relocated ahead of static fire test.",
+      "latest": "Booster 22 completed its static fire at the launch site.",
       "history": [
-        {
-          "id": "x-2114335419785679308",
-          "date": "25 Oct",
-          "log_date": "25 Oct",
-          "at": "2026-10-25T12:37:01.000Z",
-          "text": "Booster 22 transport ring relocated ahead of static fire test.",
-          "x_text": "Booster 22 transport ring relocated ahead of static fire test.",
-          "log_text": "Booster 22 transport ring relocated at launch site ahead of static fire.",
-          "url": "https://x.com/LabPadre/status/2114335419785679308",
-          "src": "@LabPadre",
-          "trust": "trusted",
-          "x_first": true,
-          "stage": "static",
-          "hardware": "B22",
-          "flight": 15,
-          "x_post": {
-            "post_id": "2114335419785679308",
-            "url": "https://x.com/LabPadre/status/2114335419785679308",
-            "created_at": "2026-10-25T12:37:01.000Z",
-            "text": "The Booster transport ring has relocated, ahead of what is likely to be a Static Fire test of Booster 22 this morning.",
-            "author": {
-              "name": "Avid Space",
-              "username": "LabPadre",
-              "avatar": "https://pbs.twimg.com/profile_images/2018042465932988416/LR5UN4G0_normal.png"
-            },
-            "media": [
-              {
-                "type": "video",
-                "poster": "https://pbs.twimg.com/amplify_video_thumb/2114335137450143744/img/hdkbpWHvz5KOQq-M.jpg",
-                "video_url": "https://video.twimg.com/amplify_video/2114335137450143744/vid/avc1/1280x720/wtrLCrvJc_Ty2tfY.mp4"
-              }
-            ]
-          },
-          "x_posts": [
-            "2114335419785679308",
-            "2114339334753284398"
-          ],
-          "xChecked": true,
-          "imageChecked2": true,
-          "media_override": {
-            "post_url": "https://x.com/LabPadre/status/2114335419785679308",
-            "post_id": "2114335419785679308",
-            "author": "LabPadre",
-            "type": "video",
-            "image": "https://pbs.twimg.com/amplify_video_thumb/2114335137450143744/img/hdkbpWHvz5KOQq-M.jpg"
-          },
-          "tier": 3,
-          "push": {
-            "title": "💥 Static fires · Flight 15",
-            "url": "https://x.com/LabPadre/status/2114335419785679308",
-            "at": "2026-10-25T12:37:01.000Z"
-          }
-        },
-        {
-          "id": "x-2114317866409595106",
-          "date": "25 Oct",
-          "log_date": "25 Oct",
-          "at": "2026-10-25T11:27:16.000Z",
-          "text": "Road closed ahead of static fire test.",
-          "x_text": "Road closed ahead of static fire test.",
-          "log_text": "Road closed ahead of static fire test.",
-          "url": "https://x.com/Blobifie/status/2114317866409595106",
-          "src": "@Blobifie",
-          "trust": "trusted",
-          "x_first": true,
-          "stage": "static",
-          "hardware": null,
-          "x_post": {
-            "post_id": "2114317866409595106",
-            "url": "https://x.com/Blobifie/status/2114317866409595106",
-            "created_at": "2026-10-25T11:27:16.000Z",
-            "text": "The road has been closed ahead of todays static fire test!! https://t.co/apvZ1Dvifd",
-            "author": {
-              "name": "Blobifi",
-              "username": "Blobifie",
-              "avatar": "https://pbs.twimg.com/profile_images/2091766013562159104/xgHLFjBX_normal.jpg"
-            },
-            "media": [
-              {
-                "type": "photo",
-                "url": "https://pbs.twimg.com/media/HVeQ1S4bIAARYFp.jpg"
-              }
-            ]
-          },
-          "x_posts": [
-            "2114317866409595106"
-          ],
-          "xChecked": true,
-          "imageChecked2": true,
-          "media_override": {
-            "post_url": "https://x.com/Blobifie/status/2114317866409595106",
-            "post_id": "2114317866409595106",
-            "author": "Blobifie",
-            "type": "photo",
-            "image": "https://pbs.twimg.com/media/HVeQ1S4bIAARYFp.jpg"
-          },
-          "tier": 2,
-          "push": {
-            "title": "💥 Static fires · Flight 15",
-            "url": "https://x.com/Blobifie/status/2114317866409595106",
-            "at": "2026-10-25T11:27:16.000Z"
-          }
-        },
-        {
-          "id": "x-2113955770337550391",
-          "date": "24 Oct",
-          "log_date": "24 Oct",
-          "at": "2026-10-24T11:28:25.000Z",
-          "text": "Booster 22 arrives at the launch site ahead of static fire campaign.",
-          "x_text": "Booster 22 arrives at the launch site ahead of static fire campaign.",
-          "log_text": "Booster 22 rolls to the launch site for static fire campaign.",
-          "url": "https://x.com/Blobifie/status/2113955770337550391",
-          "src": "@Blobifie",
-          "trust": "trusted",
-          "x_first": true,
-          "stage": "static",
-          "hardware": "B22",
-          "flight": 15,
-          "x_post": {
-            "post_id": "2113955770337550391",
-            "url": "https://x.com/Blobifie/status/2113955770337550391",
-            "created_at": "2026-10-24T11:28:25.000Z",
-            "text": "Booster 22 has arrived at the launch site ahead of its static fire campaign!! A source within spaceX has confirmed they do not currently plan on blowing up the booster during the static fire https://t.co/HuuE4MCmzB",
-            "author": {
-              "name": "Blobifi",
-              "username": "Blobifie",
-              "avatar": "https://pbs.twimg.com/profile_images/2091766013562159104/xgHLFjBX_normal.jpg"
-            },
-            "media": [
-              {
-                "type": "video",
-                "poster": "https://pbs.twimg.com/amplify_video_thumb/2113954930210025472/img/cDbF7Rqfljguu3GS.jpg",
-                "video_url": "https://video.twimg.com/amplify_video/2113954930210025472/vid/avc1/1280x720/kggVJxKORzmPlxQ3.mp4?tag=14"
-              }
-            ]
-          },
-          "x_posts": [
-            "2113955770337550391"
-          ],
-          "xChecked": true,
-          "imageChecked2": true,
-          "media_override": {
-            "post_url": "https://x.com/Blobifie/status/2113955770337550391",
-            "post_id": "2113955770337550391",
-            "author": "Blobifie",
-            "type": "video",
-            "image": "https://pbs.twimg.com/amplify_video_thumb/2113954930210025472/img/cDbF7Rqfljguu3GS.jpg"
-          },
-          "tier": 2,
-          "milestone": {
-            "key": "rollout|15|B22",
-            "type": "rollout",
-            "flight": 15,
-            "hardware": "B22",
-            "phase": "progress"
-          },
-          "push": {
-            "title": "💥 Static fires · Flight 15",
-            "url": "https://x.com/Blobifie/status/2113955770337550391",
-            "at": "2026-10-24T11:28:25.000Z"
-          }
-        },
         {
           "id": "x-2111327584122437857",
           "date": "25 Oct",
           "at": "2026-10-25T13:25:48.000Z",
-          "text": "Booster 22 completed a static fire test.",
-          "x_text": "Booster 22 completed a static fire test.",
+          "text": "Booster 22 completed its static fire at the launch site.",
+          "x_text": "Booster 22 completed its static fire at the launch site.",
           "url": "https://x.com/Blobifie/status/2114347696932942132",
           "src": "@Blobifie",
           "trust": "trusted",
@@ -630,44 +468,24 @@
             {
               "date": "25 Oct",
               "log_date": "25 Oct",
-              "at": "2026-10-25T12:11:58.000Z",
-              "text": "Booster 22 conducts a static fire test at Pad 2.",
-              "log_text": "Booster 22 completes its static fire at Pad 2.",
-              "url": "https://x.com/NASASpaceflight/status/2114329117210656842",
-              "src": "@NASASpaceflight",
-              "phase": "completed",
-              "tier": 1
+              "at": "2026-10-25T11:27:16.000Z",
+              "text": "Road closed ahead of static fire test.",
+              "log_text": "Road closed ahead of the static fire.",
+              "url": "https://x.com/Blobifie/status/2114317866409595106",
+              "src": "@Blobifie",
+              "tier": 2,
+              "handle": "Blobifie"
             },
             {
-              "date": "25 Oct",
-              "log_date": "25 Oct",
-              "at": "2026-10-25T11:38:18.000Z",
-              "text": "Booster 22 conducted a static fire test.",
-              "log_text": "Booster 22 completed its static fire at the launch site.",
-              "url": "https://x.com/NASASpaceflight/status/2114320643470549259",
-              "src": "@NASASpaceflight",
-              "phase": "completed",
-              "tier": 1
-            },
-            {
-              "date": "17 Oct",
-              "at": "2026-10-17T05:24:57.000Z",
-              "text": "Booster 22 waiting to roll out for pre-flight static fire testing.",
-              "log_text": "Booster 22 is waiting to roll out for its static fire test.",
-              "url": "https://x.com/RGVaerialphotos/status/2111327584122437857",
-              "src": "@RGVaerialphotos",
-              "phase": "expected",
-              "tier": 2
-            },
-            {
-              "date": "9 Oct",
-              "at": "2026-10-09T14:36:44.000Z",
-              "text": "Booster 22 could be ready for a static fire as early as next week.",
-              "url": "https://www.nasaspaceflight.com/2026/10/ship-40-returns-ship-42-more-testing/",
-              "src": "NSF",
-              "phase": "expected",
-              "tier": 1,
-              "log_text": "Booster 22 could be ready for a static fire as early as next week."
+              "date": "24 Oct",
+              "log_date": "24 Oct",
+              "at": "2026-10-24T11:28:25.000Z",
+              "text": "Booster 22 arrives at the launch site ahead of static fire campaign.",
+              "log_text": "Booster 22 rolls to the launch site for its static fire campaign.",
+              "url": "https://x.com/Blobifie/status/2113955770337550391",
+              "src": "@Blobifie",
+              "tier": 2,
+              "handle": "Blobifie"
             },
             {
               "date": "30 Sep",
@@ -678,17 +496,41 @@
               "log_text": "Booster 22 could be ready for a static fire within two weeks."
             }
           ],
-          "log_text": "Booster 22 completed a static fire at Pad 2.",
+          "log_text": "Booster 22 completed its static fire at the launch site.",
           "log_date": "25 Oct",
           "complete": true,
           "push": {
             "title": "💥 Static fires: Completed",
             "url": "https://x.com/NASASpaceflight/status/2114320643470549259",
             "at": "2026-10-25T11:38:18.000Z"
+          },
+          "cleaned": true
+        },
+        {
+          "id": "s42-sf-estimate",
+          "date": "30 Sep",
+          "log_date": "30 Sep",
+          "text": "Ship 42 could be ready for a static fire within two to three weeks.",
+          "x_text": "Ship 42 could be ready for a static fire within two to three weeks.",
+          "log_text": "Ship 42 could be ready for a static fire within two to three weeks.",
+          "src": "NSF",
+          "trust": "trusted",
+          "flight": 15,
+          "stage": "static",
+          "hardware": "S42",
+          "tier": 1,
+          "hedged": true,
+          "milestone": {
+            "key": "static_fire|15|S42",
+            "type": "static_fire",
+            "flight": 15,
+            "hardware": "S42",
+            "phase": "expected"
           }
         }
       ],
-      "log_latest": "Booster 22 completed a static fire at Pad 2."
+      "log_latest": "Booster 22 completed its static fire at the launch site.",
+      "doneText": "Completed"
     },
     {
       "id": "pad",

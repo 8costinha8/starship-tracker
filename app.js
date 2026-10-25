@@ -1081,9 +1081,14 @@ const ROAD_STATUS_TEXT = { none: "Not started", pending: "Pending", progress: "I
 
 // Shows the last copy we saw straight away (no flicker on reopen), then
 // fetches a fresh one, skipping the browser cache, and swaps it in.
+// One shared list for both views (Road page + Flight Log Road box): scripts/cleanup.js folds a finished vehicle's
+// earlier steps into its card (same code the pipeline runs before saving road.json).
+const tidyRoad = (d) => { try { if (d && window.RoadCleanup) window.RoadCleanup.cleanupRoad(d); } catch {} return d; };
+// Sections drawn as one card per vehicle with plain day-only lines (no clock times, no underlined links).
+const ONE_CARD = ["static"];
 function useRoad() {
   const [road, setRoad] = React.useState(() => {
-    try { return JSON.parse(localStorage.getItem(ROAD_CACHE_KEY)) || null; } catch { return null; }
+    try { return tidyRoad(JSON.parse(localStorage.getItem(ROAD_CACHE_KEY))) || null; } catch { return null; }
   });
   React.useEffect(() => {
     let alive = true;
@@ -1091,7 +1096,7 @@ function useRoad() {
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (!alive || !data || !Array.isArray(data.categories)) return;
-        setRoad(data);
+        setRoad(tidyRoad(data));
         try { localStorage.setItem(ROAD_CACHE_KEY, JSON.stringify(data)); } catch {}
       })
       .catch(() => {});
@@ -1154,6 +1159,8 @@ function RoadCard({ road, onEntryTap, openReq }) {
   const title = `Road to Flight ${road.flight}`;
   const done = items.filter((m) => m.status === "done" || m.status === "complete").length; // shown boxes only
   const label = (m) => (m.status === "done" ? m.doneText || "Done" : ROAD_STATUS_TEXT[m.status] || m.status);
+  const count = (m) => { if (!ONE_CARD.includes(m.id) || m.status === "done" || !window.RoadCleanup) return null;
+    const vp = window.RoadCleanup.vehicleProgress(m, road); return vp.total && vp.done ? `${vp.done} of ${vp.total}` : null; };
   return (
     <section className={"road" + (main ? " main-open" : "")} aria-label={title}>
       <button className="road-head" aria-expanded={main} onClick={() => { setMain(!main); setOpen(null); }}>
@@ -1175,7 +1182,8 @@ function RoadCard({ road, onEntryTap, openReq }) {
                 <span className="callout-name">{m.name}</span>
                 <span className="callout-latest">{m.status === "complete" ? "Done" : scrub(boxLatest(m, road))}</span>
               </span>
-              <span className={"badge badge-" + m.status}>{label(m)}</span>
+              {count(m) ? <span className="badge-wrap"><span className={"badge badge-" + m.status}>{label(m)}</span><span className="badge-count">{count(m)}</span></span>
+                : <span className={"badge badge-" + m.status}>{label(m)}</span>}
             </button>
             <div className="callout-hist"><div className="callout-hist-inner">
               {(m.history || []).map((h, i) => isRealEntry(h) && !(h.flight > road.flight) && !isLaunched(h.flight) && ( /* later flights' cards: Road page only */
@@ -1184,10 +1192,10 @@ function RoadCard({ road, onEntryTap, openReq }) {
                     onClick: () => onEntryTap(m.id, i), onKeyDown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onEntryTap(m.id, i); } } } : {})}>
                   <div className="mini-top">
                     <span className="mini-date">{logDay(h)}</span>
-                    {<span className="mini-src">{srcOf(h)}</span>}
+                    {(srcOf(h) || !ONE_CARD.includes(m.id)) && <span className="mini-src">{srcOf(h)}</span>}
                   </div>
                   <p>{scrub(logLine(h))}</p>
-                  <BuildUp h={h} log />
+                  <BuildUp h={h} log onTap={onEntryTap ? () => onEntryTap(m.id, i) : null} />
                 </div>
               ))}
             </div></div>
@@ -1209,15 +1217,21 @@ function TierTag({ t, src, rep, hedged }) {
   if (!t) return null;
   return <span className={"mini-tier tier-" + t}>{t === 1 && hedged ? "Expected" : TIER_LABEL[t]}{t === 2 && rep ? " " + PHASE_LABEL[rep].toLowerCase() : ""}{uiSrc(src) ? " · " + uiSrc(src) : ""}</span>;
 }
-function BuildUp({ h, log }) {
+// Flight Log "Earlier updates": plain day + line, no @handle chips, no links. A line backed by a post is an invisible
+// tap area that opens the Road to Flight page on this card (same jump as tapping the card); other lines do nothing.
+const buLinked = (u) => !!(u && ((u.url && !isYouTube(u.url)) || u.handle));
+function BuildUp({ h, log, onTap }) {
   const ups = Array.isArray(h.updates) ? h.updates.filter((u) => u && u.text) : [];
   if (!ups.length) return null;
   const stop = (e) => e.stopPropagation();
+  const tapProps = (u) => (log && onTap && buLinked(u) ? { className: "bu-plain bu-tap", role: "link", tabIndex: 0, "aria-label": `${logDay(u)}: ${logLine(u)}. Show in Road to Flight`,
+    onClick: (e) => { e.stopPropagation(); e.preventDefault(); onTap(); }, onKeyDown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); onTap(); } } } : { className: "bu-plain" });
   return (
     <details className="buildup" onClick={stop}>
       <summary>Earlier updates</summary>
-      <ul>{ups.map((u, i) => <li key={i}><div className="bu-top"><span className="bu-date">{log ? logDay(u) : entryDate(u)}</span></div>
-        <div className="bu-text">{u.url && !(log && u.handle) ? <a href={u.url} target="_blank" rel="noopener noreferrer" onClick={stop}>{scrub(log ? logLine(u) : u.text)}</a> : scrub(log ? logLine(u) : u.text)}</div></li>)}</ul>
+      <ul>{ups.map((u, i) => log ? <li key={i} {...tapProps(u)}><div className="bu-top"><span className="bu-date">{logDay(u)}</span></div><div className="bu-text">{scrub(logLine(u))}</div></li>
+        : <li key={i}><div className="bu-top"><span className="bu-date">{entryDate(u)}</span></div>
+        <div className="bu-text">{u.url ? <a href={u.url} target="_blank" rel="noopener noreferrer" onClick={stop}>{scrub(u.text)}</a> : scrub(u.text)}</div></li>)}</ul>
     </details>
   );
 }
@@ -1459,7 +1473,7 @@ function CreditLine({ h }) {
 // Road page build-up: "Earlier updates" (no count). An earlier update with its own post is a
 // bordered pill that opens the post, with its own "@handle · View on X ↗" line.
 const handleOf = (u) => u && (u.handle ? String(u.handle).replace(/^@?/, "@") : ((String(u.url || "").match(/^https?:\/\/(?:x|twitter)\.com\/(\w+)\/status\//i) || [])[1] ? "@" + String(u.url).match(/^https?:\/\/(?:x|twitter)\.com\/(\w+)\//i)[1] : null));
-function FeedBuildUp({ h }) {
+function FeedBuildUp({ h, plain }) {
   const ups = Array.isArray(h.updates) ? h.updates.filter((u) => u && u.text) : [];
   if (!ups.length) return null;
   const stop = (e) => e.stopPropagation();
@@ -1467,7 +1481,7 @@ function FeedBuildUp({ h }) {
     <details className="buildup feed-bu" onClick={stop}>
       <summary>Earlier updates</summary>
       <ul>{ups.map((u, i) => { const url = u.url && !isYouTube(u.url) ? u.url : null;
-        const body = <><div className="bu-top"><span className="bu-date">{entryDate(u)}</span></div><div className="bu-text">{scrub(u.text)}</div></>;
+        const body = <><div className="bu-top"><span className="bu-date">{plain ? logDay(u) : entryDate(u)}</span></div><div className="bu-text">{scrub(plain ? logLine(u) : u.text)}</div></>;
         return url ? <li key={i} className="bu-pill" role="link" tabIndex={0} data-url={url} aria-label={`${u.text} — open the post on X`}
             onClick={(e) => { e.stopPropagation(); if (!e.target.closest("a")) openUrl(url); }} onKeyDown={(e) => { if (e.key === "Enter" && e.target === e.currentTarget) openUrl(url); }}>
             {body}<CreditLine h={{ url, src: handleOf(u) }} /></li>
@@ -1490,12 +1504,12 @@ function FeedPost({ p, onPhotoTap }) {
       <div className="post-top">
         <span className="chip"><span className="chip-i">{cat.icon}</span>{cat.name}</span>
         <span className="post-sep">·</span>
-        <span className="post-date">{entryDate(h)}</span>
+        <span className="post-date">{ONE_CARD.includes(cat.id) ? logDay(h) : entryDate(h)}</span>
       </div>
       <p className="post-text">{scrub(h.x_text || h.text)}</p>
       {mo ? <PickMedia mo={mo} /> : h.media_context ? <ContextMedia mc={h.media_context} /> : !h.milestone && h.x_post && <XMedia x={h.x_post} />}
       <CreditLine h={h} />
-      <FeedBuildUp h={h} />
+      <FeedBuildUp h={h} plain={ONE_CARD.includes(cat.id)} />
     </article>
   );
 }
@@ -2230,6 +2244,10 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .buildup ul { margin: 6px 0 0; padding-left: 16px; }
 .buildup li { margin: 3px 0; }
 .buildup a { color: inherit; }
+.buildup li.bu-tap { cursor: pointer; -webkit-tap-highlight-color: transparent; outline: none; } /* invisible tap area: no box, border or underline */
+.buildup li.bu-tap:focus-visible { outline: 2px solid #A9BDF0; outline-offset: 2px; border-radius: 4px; }
+.badge-wrap { display: inline-flex; flex-direction: column; align-items: center; gap: 3px; flex: none; }
+.badge-count { font-size: 10.5px; color: var(--muted, #AAB6D6); }
 .bu-date { font-weight: 700; margin-right: 4px; }
 .xm-ctx { font-size: 11px; opacity: .75; margin-right: auto; }
 .mini-unc { margin-left: 7px; font-size: 10px; font-weight: 700; letter-spacing: .02em; color: #FFC93D; border: 1px dashed rgba(255,201,61,.65); padding: 1px 6px; border-radius: 6px; vertical-align: 1px; } /* single smaller source: never shown as fact */
