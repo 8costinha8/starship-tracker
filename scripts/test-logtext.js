@@ -72,6 +72,12 @@ check(L.cleanLogText("Ship 42 completed it's cryo test at Massey's") === "Ship 4
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "lt-"));
   const roadPath = path.join(tmp, "road.json"), appJsPath = path.join(tmp, "app.js");
   fs.copyFileSync(path.join(ROOT, "road.json"), roadPath); fs.copyFileSync(path.join(ROOT, "app.js"), appJsPath);
+  { // seed a fixed Static fires state (live road.json moves on every 15 min): B22 static fire in progress, S42 none yet
+    const r0 = JSON.parse(fs.readFileSync(roadPath, "utf8")), sc = r0.categories.find((c) => c.id === "static");
+    sc.status = "progress"; sc.latest = sc.log_latest = "Booster 22 is waiting to roll out for its static fire test.";
+    sc.history = [{ id: "x-seed-b22-sf", date: "23 Oct", log_date: "23 Oct", at: ago(30), text: "Booster 22 waits to roll out for its static fire.", x_text: "Booster 22 waits to roll out for its static fire.", log_text: "Booster 22 is waiting to roll out for its static fire test.",
+      url: "https://x.com/SpaceX/status/4999", src: "@SpaceX", trust: "trusted", x_first: true, stage: "static", hardware: "B22", tier: 1, x_posts: ["4999"], milestone: { key: "static_fire|15|B22", type: "static_fire", flight: 15, hardware: "B22", phase: "progress" } }];
+    fs.writeFileSync(roadPath, JSON.stringify(r0, null, 2)); }
   let stored = { seen: [], news: { seen: [], pending: [], sent: [], count: 0, day: "2026-10-24" }, lastRun: ago(0.25), xFirst: { sinceId: "900", seen: [], pending: [] } };
   const events = [], prompts = [];
   const deps = { loadState: async () => JSON.parse(JSON.stringify(stored)), saveState: async (s) => { stored = JSON.parse(JSON.stringify(s)); },
@@ -87,7 +93,7 @@ check(L.cleanLogText("Ship 42 completed it's cryo test at Massey's") === "Ship 4
 
   xPage = xReply([P("5001", 3, "Booster 22 static fire complete on Pad 2 #5001")], "5001");
   await road.run(base);
-  let s = st(), b22 = s.history.find((h) => h.milestone && h.milestone.hardware === "B22");
+  let s = st(), b22 = s.history.find((h) => h.milestone && h.milestone.hardware === "B22" && h.milestone.type === "static_fire");
   check(/log_text \(road only, else null\)/.test(prompts[0]) && /"completed" or "completes"/.test(prompts[0]) && /never "it's"/.test(prompts[0]) && require("./x-first.js").CLASSIFY_SCHEMA.properties.entries.items.required.includes("log_text"), "the Grok classify call asks for log_text in the Flight Log style");
   check(b22 && b22.log_text === "Booster 22 completed its static fire at Pad 2." && b22.log_date === "24 Oct" && b22.milestone.phase === "completed" && b22.complete === true, "new post → log_text + single day stored on the entry, milestone Completed");
   check(L.lintLogText(b22.log_text).length === 0 && b22.updates[0].log_text === "Booster 22 is waiting to roll out for its static fire test.", "the older line keeps its own log_text under Earlier updates");

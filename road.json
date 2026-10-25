@@ -12,67 +12,9 @@
       "icon": "❄️",
       "name": "Cryo tests",
       "color": "#BFE6FF",
-      "status": "progress",
-      "latest": "Frost forming on Booster 22 LOX tank.",
+      "status": "done",
+      "latest": "Ship 42 completed its cryo tests at Massey's.",
       "history": [
-        {
-          "id": "x-2114339995121332263",
-          "date": "25 Oct",
-          "log_date": "25 Oct",
-          "at": "2026-10-25T12:55:12.000Z",
-          "text": "Frost forming on Booster 22 LOX tank.",
-          "x_text": "Frost forming on Booster 22 LOX tank.",
-          "log_text": "Booster 22 undergoing cryo tests at the launch site.",
-          "url": "https://x.com/Blobifie/status/2114339995121332263",
-          "src": "@Blobifie",
-          "trust": "trusted",
-          "x_first": true,
-          "stage": "cryo",
-          "hardware": "B22",
-          "flight": 15,
-          "x_post": {
-            "post_id": "2114339995121332263",
-            "url": "https://x.com/Blobifie/status/2114339995121332263",
-            "created_at": "2026-10-25T12:55:12.000Z",
-            "text": "Frost is forming on B22's lox tank! https://t.co/PgOnR4GXa9",
-            "author": {
-              "name": "Blobifi",
-              "username": "Blobifie",
-              "avatar": "https://pbs.twimg.com/profile_images/2091766013562159104/xgHLFjBX_normal.jpg"
-            },
-            "media": [
-              {
-                "type": "photo",
-                "url": "https://pbs.twimg.com/media/HVek8pRbQAAXF1x.jpg"
-              }
-            ]
-          },
-          "x_posts": [
-            "2114339995121332263"
-          ],
-          "xChecked": true,
-          "imageChecked2": true,
-          "media_override": {
-            "post_url": "https://x.com/Blobifie/status/2114339995121332263",
-            "post_id": "2114339995121332263",
-            "author": "Blobifie",
-            "type": "photo",
-            "image": "https://pbs.twimg.com/media/HVek8pRbQAAXF1x.jpg"
-          },
-          "tier": 2,
-          "milestone": {
-            "key": "cryo_test|15|B22",
-            "type": "cryo_test",
-            "flight": 15,
-            "hardware": "B22",
-            "phase": "progress"
-          },
-          "push": {
-            "title": "❄️ Cryo tests: In progress",
-            "url": "https://x.com/Blobifie/status/2114339995121332263",
-            "at": "2026-10-25T12:55:12.000Z"
-          }
-        },
         {
           "id": "x-2111681468724601021",
           "date": "18 Oct",
@@ -297,7 +239,7 @@
           "log_text": "Booster 22 completed its cryo test at Massey's."
         }
       ],
-      "log_latest": "Booster 22 undergoing cryo tests at the launch site."
+      "log_latest": "Ship 42 completed its cryo tests at Massey's."
     },
     {
       "id": "raptor",

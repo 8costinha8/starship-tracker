@@ -224,6 +224,44 @@ function placePost(road, post, cls, now = Date.now(), picks = []) {
   return { box, entry, merged: false, accurate, tier, phase: type ? { from: null, to: phase } : null };
 }
 
+
+// Guards run before a road post becomes a card (no card → no push).
+// 1. Propellant loading / chill-down / frost on a vehicle that already finished cryo, or that is in its
+//    static fire campaign, is the static fire flow — never a new cryo test.
+const CHILL = /\b(frost\w*|propellant|prop[- ]?load\w*|loading|chill[- ]?down|chilling|lox|ch4|methane|detank\w*|vent\w*|tanking)\b/i;
+const EXPLICIT_CRYO = /\b(cryo\w*|proof[- ]?test\w*|massey'?s)\b/i;
+const EVENT_WORDS = { cryo_test: /\b(cryo\w*|proof[- ]?test\w*)\b/i, static_fire: /\bstatic[- ]?fir\w*|\bspin[- ]?prime\b/i, engines_installed: /\b(raptors?|engines?)\b/i, stacked: /\bstack\w*/i, wdr: /\b(wdr|wet dress)\b/i, licence: /\blicen[cs]e\b/i };
+const NEW_TEST = /\b(new|another|second|third|again|repeat\w*|re-?test\w*|additional|more)\b/i;
+const sentences = (t) => String(t || "").replace(/https?:\/\/\S+/g, " ").split(/(?<=[.!?])\s+|\n+/).map((x) => x.trim()).filter(Boolean);
+const doneFor = (road, type, flight, hw) => { const mk = milestoneKey(type, flight, hw); return road.categories.some((c) => (c.history || []).some((h) => h.milestone && h.milestone.key === mk && h.milestone.phase === "completed")); };
+const staticBox = (road) => road.categories.find((c) => c.id === "static") || road.categories.find((c) => /static/i.test(c.name || ""));
+function guardPost(road, post, v) {
+  if (!v || v.kind !== "road") return { v };
+  const flight = Number.isInteger(v.flight) ? v.flight : road.flight, hw = v.hardware, text = post.text || "";
+  const tier = tiers.tierOf(post, v);
+  const isCryo = v.event === "cryo_test" || v.stage === "cryo";
+  // (1) chill-down / prop load → static fire
+  if (isCryo && hw && CHILL.test(text) && !EXPLICIT_CRYO.test(text)) {
+    const sb = staticBox(road);
+    const inStatic = /static/i.test(text) || doneFor(road, "cryo_test", flight, hw) || (sb && (sb.history || []).some((h) => hwKey(h.hardware) === hwKey(hw)));
+    if (sb && inStatic) v = { ...v, stage: sb.id, event: "static_fire", phase: v.phase === "completed" ? "progress" : v.phase, status: v.status === "done" ? "progress" : v.status, reason: `${v.reason || ""} [guard: propellant load/chill-down during static fire → static fire, not cryo]` };
+  }
+  const type = MILESTONE_TYPES.includes(v.event) ? v.event : null;
+  // (2) vehicle and event from the SAME sentence of the post
+  if (type && hw && EVENT_WORDS[type]) {
+    const key = hwKey(hw), ss = sentences(text);
+    const has = (s) => normIds(s).includes(key.replace(/^PAD/, "P"));
+    if (ss.some((s) => EVENT_WORDS[type].test(s)) && !ss.some((s) => has(s) && EVENT_WORDS[type].test(s))) return { skip: `vehicle ${hw} and ${type} are not in the same sentence of the post` };
+  }
+  // (3) a vehicle that already completed this section: no card, no push — unless a Tier 1 source explicitly says a new test
+  if (type && hw && doneFor(road, type, flight, hw)) {
+    const explicitNew = tier === 1 && sentences(text).some((s) => EVENT_WORDS[type] && EVENT_WORDS[type].test(s) && NEW_TEST.test(s));
+    const sameReport = phaseOf(v) === "completed"; // a re-report of the completion merges as before (no status move)
+    if (!explicitNew && !sameReport) return { skip: `${hw} already completed ${type} for Flight ${flight}; only a Tier 1 post explicitly saying a new test re-opens it` };
+  }
+  return { v };
+}
+
 // The whole step. ask(prompt, opts) → JSON (writer.askJson). Returns cards, news items, state.
 async function runXFirst(road, state, { token, fetchFn, ask, postCard, log = console.log, now = Date.now(), maxCards = 5, status = null, milestone = null, linkFetch = null, picks = [] }) {
   const xs = state.xFirst || {};
@@ -241,7 +279,7 @@ async function runXFirst(road, state, { token, fetchFn, ask, postCard, log = con
   }
   const cards = [], merged = [], newsItems = [], missions = [];
   posts.forEach((p, i) => {
-    const v = verdicts[i];
+    let v = verdicts[i];
     seen.add(p.post_id);
     if (v.reason === "no verdict" && !p.retry) { seen.delete(p.post_id); waiting.push({ ...p, retry: 1 }); return log(`X-first: no verdict for @${p.author.username} ${p.post_id} — retried next run`); } // the writer skipped it: one more try
     if (v.kind === "mission-update") { // that flight's mission line (no Road card); shares the per-run cap
@@ -251,6 +289,9 @@ async function runXFirst(road, state, { token, fetchFn, ask, postCard, log = con
     }
     if (v.kind === "starship-news") newsItems.push({ key: `x:${p.post_id}`, title: p.text.slice(0, 200), text: p.text, url: p.url, publishedAt: p.created_at, src: `X @${p.author.username}`, source: `@${p.author.username}`, tier: OFFICIAL.has(p.author.username.toLowerCase()) ? "official" : "trusted" });
     if (v.kind !== "road") return log(`X-first: ${v.kind} @${p.author.username} ${p.post_id} — ${v.reason || ""}`);
+    const g = guardPost(road, p, v);
+    if (g.skip) return log(`X-first: guard skipped @${p.author.username} ${p.post_id} — ${g.skip}`);
+    if (g.v !== v) { log(`X-first: guard re-staged @${p.author.username} ${p.post_id} ${v.stage} → ${g.v.stage}`); v = g.v; verdicts[i] = v; }
     if (cards.length + missions.length >= maxCards) { seen.delete(p.post_id); waiting.push(p); return log(`X-first: card cap reached — @${p.author.username} ${p.post_id} waits`); }
     const r = placePost(road, p, v, now, picks);
     if (status && v.status && r.accurate !== false && r.tier <= 2 && !v.inferred && (!Number.isInteger(r.entry.flight) || r.entry.flight === road.flight)) r.st = status(r.box, v.status, p, r.entry); // unverified numbers never move a status
@@ -264,4 +305,4 @@ async function runXFirst(road, state, { token, fetchFn, ask, postCard, log = con
 }
 
 const isOfficial = (p) => OFFICIAL.has(String(p.author && p.author.username).toLowerCase());
-module.exports = { MILESTONE_TYPES, PHASES, factsMatch, contextImage, milestoneKey, phaseOf, isOfficial, MISSION_TOPICS, runXFirst, fetchNewPosts, classifyPosts, classifyPrompt, placePost, bestMedia, postMedia, articleLead, readLinks, hwKey, xfQuery, XF_ACCOUNTS, CLASSIFY_SCHEMA, MERGE_MS };
+module.exports = { guardPost, MILESTONE_TYPES, PHASES, factsMatch, contextImage, milestoneKey, phaseOf, isOfficial, MISSION_TOPICS, runXFirst, fetchNewPosts, classifyPosts, classifyPrompt, placePost, bestMedia, postMedia, articleLead, readLinks, hwKey, xfQuery, XF_ACCOUNTS, CLASSIFY_SCHEMA, MERGE_MS };

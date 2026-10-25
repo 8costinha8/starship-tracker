@@ -125,6 +125,7 @@ const box = (r, id) => r.categories.find((c) => c.id === id);
     const start = JSON.parse(fs.readFileSync(roadPath, "utf8"));
     start.categories.find((c) => c.id === "cryo").status = "done";
     start.categories.find((c) => c.id === "static").status = "pending"; // fixture: independent of the live static-fire status
+    start.categories.find((c) => c.id === "static").history = []; // fixture: no live static-fire entries either (they change every 15 min)
     fs.writeFileSync(roadPath, JSON.stringify(start, null, 2) + "\n");
   }
   const opts = { xFirst: false /* legacy article path (production runs X-first; see test-xfirst.js) */, mode: "dry-run", roadPath, appJsPath, deps, commit: (f, m) => { if (f === "road.json") commits.push(m); console.log(`(fake commit) ${m}`); } };
@@ -364,6 +365,7 @@ const box = (r, id) => r.categories.find((c) => c.id === id);
   const road8 = JSON.parse(fs.readFileSync(path.join(ROOT, "road.json"), "utf8"));
   const pad8 = road8.categories.find((c) => c.id === "pad");
   pad8.history = [ck("1 Oct", "No new pad news since the last update."), ...pad8.history.filter((h) => h.kind !== "check")];
+  { const st0 = road8.categories.find((c) => c.id === "static"); st0.history = []; st0.status = "pending"; } // fixture: independent of the live static-fire entries
   road8.updated = "1 Oct"; road8.updatedAt = "2026-10-01T10:00:00Z";
   fs.writeFileSync(path.join(tmp8, "road.json"), JSON.stringify(road8, null, 2) + "\n");
   fs.copyFileSync(path.join(ROOT, "app.js"), path.join(tmp8, "app.js"));
