@@ -109,6 +109,16 @@
       "sent_at": "2026-10-25T11:30:37.763Z",
       "where": "road",
       "verdict": "sent"
+    },
+    {
+      "title": "💥 Static fires: Completed",
+      "body": "Booster 22 completed its static fire at the launch site.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2111327584122437857",
+      "url": "https://x.com/NASASpaceflight/status/2114320643470549259",
+      "at": "2026-10-25T11:38:18.000Z",
+      "sent_at": "2026-10-25T11:45:42.010Z",
+      "where": "road",
+      "verdict": "sent"
     }
   ]
 }
