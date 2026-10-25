@@ -149,6 +149,16 @@
       "sent_at": "2026-10-25T13:01:17.465Z",
       "where": "feed",
       "verdict": "sent"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Full duration static fire completed for booster preparing for flight 15",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mvo8qv2g-e23cc6",
+      "url": "https://x.com/SpaceX/status/2114444137067844004",
+      "at": "2026-10-25T19:49:01.000Z",
+      "sent_at": "2026-10-25T20:11:25.016Z",
+      "where": "feed",
+      "verdict": "sent"
     }
   ]
 }
