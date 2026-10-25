@@ -340,7 +340,7 @@ async function verifyFeed(road, { token, fetchFn = fetch, rewrite = null, log = 
   const dated = todo.filter((t) => Number.isFinite(t.day)).sort((a, b) => a.day - b.day);
   const clusters = [];
   for (const t of dated) { const last = clusters[clusters.length - 1]; if (last && t.day - last.max <= 3 * DAY_MS) { last.items.push(t); last.max = t.day; } else clusters.push({ min: t.day, max: t.day, items: [t] }); }
-  const vwords = [...new Set([...vehicleWords(road), "S43", "B23", "S44", "B24", "Ship 43", "Booster 23"])].map((w) => (w.includes(" ") ? `"${w}"` : w));
+  const vwords = searchVehicleWords(road).map((w) => (w.includes(" ") ? `"${w}"` : w));
   const query = `(${Object.keys(X_ACCOUNTS).map((h) => `from:${h}`).join(" OR ")}) (${[...vwords, `"Pad 2"`, `"Flight ${road.flight}"`, `"Flight ${road.flight + 1}"`, `"Flight ${road.flight + 2}"`].join(" OR ")}) -is:retweet -is:reply`;
   const trusted = new Set(Object.values(X_ACCOUNTS).map((a) => a.id).filter(Boolean));
   const auth = { authorization: `Bearer ${token}`, "user-agent": UA };
@@ -605,6 +605,28 @@ function relevantSnippet(text, road, max = 1200) {
   for (const s of sentences) { if (len >= max) break; if (!picked.has(s) && has(s, second)) { picked.add(s); len += s.length + 1; } }
   const out = [...picked].join(" "); // this flight's sentences first
   return (out || clean).slice(0, max);
+}
+// Vehicle search terms, derived from road.json (no hard-coded serials): the current flight's vehicles, every booster/ship
+// named in the Road's cards (upcoming flights' hardware included), plus the next 2 numbers after the highest known booster
+// and ship so new hardware is caught before it's assigned. Short + long form: "B25", "Booster 25", "S45", "Ship 45".
+// After a launch is archived, the archive still counts toward the highest number, so the next serials keep coming.
+function searchVehicleWords(road, ahead = 2) {
+  const re = /\b(?:(?:Booster\s*|B)(\d{2,3})|(?:Ship\s*|S)(\d{2,3}))\b/gi, seen = { B: new Set(), S: new Set() };
+  const add = (t) => String(t || "").replace(re, (_, b, sh) => { seen[b ? "B" : "S"].add(Number(b || sh)); return _; });
+  (road.vehicles || []).forEach(add);
+  for (const c of road.categories || []) for (const h of c.history || []) {
+    if (h.kind === "check") continue;
+    [h.hardware, h.milestone && h.milestone.hardware, h.text, h.x_text, h.log_text].forEach(add);
+  }
+  for (const a of Object.values(road.archive || {})) for (const e of [...((a && a.entries) || []), ...((a && a.summary && a.summary.items) || [])]) [e.vehicle, e.text].forEach(add);
+  const cur = new Set((road.vehicles || []).map((v) => String(v).toUpperCase()));
+  const out = [];
+  for (const k of ["B", "S"]) {
+    const nums = [...seen[k]], curNums = nums.filter((n) => cur.has(k + n)), lo = curNums.length ? Math.min(...curNums) : Math.max(0, ...nums);
+    const max = Math.max(0, ...nums); if (!max) continue;
+    for (let n = lo; n <= max + ahead; n++) out.push(k + n, (k === "B" ? "Booster " : "Ship ") + n);
+  }
+  return [...new Set([...vehicleWords(road), ...out])];
 }
 function vehicleWords(road) {
   const out = [];
@@ -1557,7 +1579,7 @@ async function run(opts = {}) {
   return { road, changes, notifications, refreshed, state, scheduledSent, newsPushes, xFirst: xf, pushLog };
 }
 
-module.exports = { archiveLaunched, milestones, statusRule, xStatus, applyMediaPicks, loadMediaPicks, pickImage, applyImageCheck, verifyImages, fcmMessage, notificationFor, judgeFeed, verifyFeed, entryDayMs, backfillX, xPostCard, xIdOf, readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, titleMatches, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
+module.exports = { searchVehicleWords, archiveLaunched, milestones, statusRule, xStatus, applyMediaPicks, loadMediaPicks, pickImage, applyImageCheck, verifyImages, fcmMessage, notificationFor, judgeFeed, verifyFeed, entryDayMs, backfillX, xPostCard, xIdOf, readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, titleMatches, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
 
 if (require.main === module) {
   run().catch((err) => {
