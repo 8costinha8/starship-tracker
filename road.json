@@ -4,8 +4,8 @@
     "B22",
     "S42"
   ],
-  "updated": "24 Oct",
-  "updatedAt": "2026-10-24T18:45:40.422Z",
+  "updated": "25 Oct",
+  "updatedAt": "2026-10-25T11:30:36.532Z",
   "categories": [
     {
       "id": "cryo",
@@ -404,8 +404,58 @@
       "name": "Static fires",
       "color": "#FF5A36",
       "status": "progress",
-      "latest": "Booster 22 arrives at the launch site ahead of static fire campaign.",
+      "latest": "Road closed ahead of static fire test.",
       "history": [
+        {
+          "id": "x-2114317866409595106",
+          "date": "25 Oct",
+          "log_date": "25 Oct",
+          "at": "2026-10-25T11:27:16.000Z",
+          "text": "Road closed ahead of static fire test.",
+          "x_text": "Road closed ahead of static fire test.",
+          "log_text": "Road closed ahead of static fire test.",
+          "url": "https://x.com/Blobifie/status/2114317866409595106",
+          "src": "@Blobifie",
+          "trust": "trusted",
+          "x_first": true,
+          "stage": "static",
+          "hardware": null,
+          "x_post": {
+            "post_id": "2114317866409595106",
+            "url": "https://x.com/Blobifie/status/2114317866409595106",
+            "created_at": "2026-10-25T11:27:16.000Z",
+            "text": "The road has been closed ahead of todays static fire test!! https://t.co/apvZ1Dvifd",
+            "author": {
+              "name": "Blobifi",
+              "username": "Blobifie",
+              "avatar": "https://pbs.twimg.com/profile_images/2091766013562159104/xgHLFjBX_normal.jpg"
+            },
+            "media": [
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HVeQ1S4bIAARYFp.jpg"
+              }
+            ]
+          },
+          "x_posts": [
+            "2114317866409595106"
+          ],
+          "xChecked": true,
+          "imageChecked2": true,
+          "media_override": {
+            "post_url": "https://x.com/Blobifie/status/2114317866409595106",
+            "post_id": "2114317866409595106",
+            "author": "Blobifie",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HVeQ1S4bIAARYFp.jpg"
+          },
+          "tier": 2,
+          "push": {
+            "title": "💥 Static fires · Flight 15",
+            "url": "https://x.com/Blobifie/status/2114317866409595106",
+            "at": "2026-10-25T11:27:16.000Z"
+          }
+        },
         {
           "id": "x-2113955770337550391",
           "date": "24 Oct",
@@ -540,7 +590,7 @@
           "log_text": "Booster 22 is waiting to roll out for its static fire test."
         }
       ],
-      "log_latest": "Booster 22 rolls to the launch site for static fire campaign."
+      "log_latest": "Road closed ahead of static fire test."
     },
     {
       "id": "pad",
