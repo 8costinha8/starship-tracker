@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "25 Oct",
-  "updatedAt": "2026-10-25T15:00:57.744Z",
+  "updatedAt": "2026-10-25T15:54:11.573Z",
   "categories": [
     {
       "id": "cryo",
@@ -409,25 +409,31 @@
         {
           "id": "x-2111327584122437857",
           "date": "25 Oct",
-          "at": "2026-10-25T14:49:08.000Z",
-          "text": "Booster 22 completed a full duration static fire test.",
-          "url": "https://x.com/CSI_Starbase/status/2114368667559563715",
-          "src": "@CSI_Starbase",
+          "at": "2026-10-25T15:27:23.000Z",
+          "text": "Booster 22 completed its static fire test.",
+          "url": "https://x.com/RGVaerialphotos/status/2114378296981172616",
+          "src": "@RGVaerialphotos",
           "trust": "trusted",
           "x_first": true,
           "stage": "static",
           "hardware": "B22",
           "x_post": {
-            "post_id": "2114368667559563715",
-            "url": "https://x.com/CSI_Starbase/status/2114368667559563715",
-            "created_at": "2026-10-25T14:49:08.000Z",
-            "text": "Starting Sunday off with a bang! Waking up to a full duration static fire test from Booster 22. Flight 15 is going to be epic.",
+            "post_id": "2114378296981172616",
+            "url": "https://x.com/RGVaerialphotos/status/2114378296981172616",
+            "created_at": "2026-10-25T15:27:23.000Z",
+            "text": "Booster 22 sf",
             "author": {
-              "name": "Zack Golden",
-              "username": "CSI_Starbase",
-              "avatar": "https://pbs.twimg.com/profile_images/1597348837588353031/2JTg9lFE_normal.jpg"
+              "name": "RGV Aerial Photography",
+              "username": "RGVaerialphotos",
+              "avatar": "https://pbs.twimg.com/profile_images/2019953617743097856/PJqBBhpU_normal.jpg"
             },
-            "media": []
+            "media": [
+              {
+                "type": "video",
+                "poster": "https://pbs.twimg.com/amplify_video_thumb/2114378235454619648/img/1rc4vHsNV_KJoIsn.jpg",
+                "video_url": "https://video.twimg.com/amplify_video/2114378235454619648/vid/avc1/2824x1466/5sl7PP0ybPLzNmqI.mp4"
+              }
+            ]
           },
           "x_posts": [
             "2111327584122437857",
@@ -438,7 +444,8 @@
             "2114347696932942132",
             "2114347288739098706",
             "2114357660262781218",
-            "2114368667559563715"
+            "2114368667559563715",
+            "2114378296981172616"
           ],
           "xChecked": true,
           "imageChecked2": true,
@@ -461,6 +468,17 @@
             "migrated": true
           },
           "updates": [
+            {
+              "date": "25 Oct",
+              "log_date": "25 Oct",
+              "at": "2026-10-25T14:49:08.000Z",
+              "text": "Booster 22 completed a full duration static fire test.",
+              "log_text": "Booster 22 completed its static fire test at Pad 2.",
+              "url": "https://x.com/CSI_Starbase/status/2114368667559563715",
+              "src": "@CSI_Starbase",
+              "phase": "completed",
+              "tier": 2
+            },
             {
               "date": "25 Oct",
               "log_date": "25 Oct",
@@ -570,7 +588,7 @@
           },
           "completed_at": "2026-10-25T13:24:10.000Z",
           "completed_src": "https://x.com/NASASpaceflight/status/2114347288739098706",
-          "x_text": "Booster 22 completed a full duration static fire test."
+          "x_text": "Booster 22 completed its static fire test."
         },
         {
           "id": "x-2114335419785679308",
@@ -612,17 +630,29 @@
           "xChecked": true,
           "imageChecked2": true,
           "media_override": {
-            "post_url": "https://x.com/LabPadre/status/2114335419785679308",
-            "post_id": "2114335419785679308",
-            "author": "LabPadre",
-            "type": "video",
-            "image": "https://pbs.twimg.com/amplify_video_thumb/2114335137450143744/img/hdkbpWHvz5KOQq-M.jpg"
+            "post_url": "https://x.com/RGVaerialphotos/status/2113834862339617215",
+            "post_id": "2113834862339617215",
+            "author": "RGVaerialphotos",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HVXY5SCacAADfbX.jpg",
+            "auto": true,
+            "quality": 4,
+            "media_score": 438,
+            "checked_at": "2026-10-25T15:30:38.107Z"
           },
           "tier": 3,
           "push": {
             "title": "💥 Static fires · Flight 15",
             "url": "https://x.com/LabPadre/status/2114335419785679308",
             "at": "2026-10-25T12:37:01.000Z"
+          },
+          "alt_media": {
+            "post_url": "https://x.com/RGVaerialphotos/status/2113834862339617215",
+            "post_id": "2113834862339617215",
+            "author": "RGVaerialphotos",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HVXY5R-bQAAsW_R.jpg",
+            "show": false
           }
         },
         {
@@ -1046,11 +1076,15 @@
           "xChecked": true,
           "imageChecked2": true,
           "media_override": {
-            "post_url": "https://x.com/NASASpaceflight/status/2113617185218429437",
-            "post_id": "2113617185218429437",
-            "author": "NASASpaceflight",
+            "post_url": "https://x.com/colleenadastra/status/2114005088653963704",
+            "post_id": "2114005088653963704",
+            "author": "colleenadastra",
             "type": "photo",
-            "image": "https://pbs.twimg.com/media/HVUTjfpWMAAhboa.jpg"
+            "image": "https://pbs.twimg.com/media/HVZzspJWEAA6PjD.jpg",
+            "auto": true,
+            "quality": 5,
+            "media_score": 1263,
+            "checked_at": "2026-10-25T15:30:38.107Z"
           },
           "tier": 1,
           "milestone": {
@@ -1062,7 +1096,15 @@
             "migrated": true
           },
           "log_text": "Booster 22 heads to Pad 2 for a potential static fire test.",
-          "refiled_from": "pad"
+          "refiled_from": "pad",
+          "alt_media": {
+            "post_url": "https://x.com/colleenadastra/status/2114005088653963704",
+            "post_id": "2114005088653963704",
+            "author": "colleenadastra",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HVZzuQbXQAAUzqy.jpg",
+            "show": false
+          }
         },
         {
           "id": "x-2112967167767433728",
