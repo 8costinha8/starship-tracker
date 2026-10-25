@@ -29,7 +29,7 @@ check(cryo.log_latest === "Ship 42 completed its cryo tests at Massey's." && e("
 
 // glow: Flight Log only, on completed vehicle boxes, and the same rule as the dot
 { const rp = app.indexOf("// Road to Flight N page"), page = app.slice(rp, app.indexOf("\n}\n", app.indexOf("function", rp)));
-  const glowLines = app.split("\n").filter((l) => /\.glow\b|" glow"|logGlows/.test(l) && !/^\s*\/\//.test(l));
+  const glowLines = app.split("\n").filter((l) => /\.glow\b|" glow"|logGlows/.test(l) && !/^\s*\/\//.test(l) && !/data-id="raptor"/.test(l)); // the Raptor A2 halo override is styling, not a new glow rule
   check(/\.road \.mini\.glow \{[^}]*box-shadow: 0 0 12px -2px color-mix\(in srgb, var\(--c\)/.test(app) && rp > 0 && !/glow/i.test(page) && glowLines.length === 3 && /logGlows\(m, h, road\) \? " glow done"/.test(card), "soft glow in the section colour, Flight Log card only (Road page untouched)"); }
 check(cur(cryo).filter((h) => A.logGlows(cryo, h, live)).map((h) => h.log_text).join("|") === "Ship 42 completed further cryo tests.|Booster 22 completed its cryo test at Massey's." && A.rollupStatus(cryo, live) === "done", "Cryo: S42 and B22 boxes glow → the Cryo dot fills");
 for (const c of live.categories) {

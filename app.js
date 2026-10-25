@@ -1340,10 +1340,10 @@ function cardTime(h, road) {
 // pill): road.archive[n].summary.items, one small box per vehicle per category (written by hand for
 // Flight 14, frozen by the checker when later flights launch). The internal sources list is never shown.
 const PAST_LABEL = { cryo: "Cryo", raptor: "Raptor", static: "Static fire", pad: "Pad", faa: "FAA licence", date: "Launch date" };
-// Category CSS vars. Raptor engines is matte engine-bell black (#34363C): ring, fill, border and glow share it; --t is a slightly lighter text tint.
-const CAT_FILL = { raptor: { "--bg": "#1A1C22", "--on": "#C9CBD1", "--t": "#5A5C63" } }; // Raptor: one matte engine-bell black #34363C for ring, fill, border and glow; text a touch lighter
+// Category CSS vars. Raptor engines is near-black #0E0F11 (option A2): ring and fill identical, light rims and a graphite halo keep it visible on navy.
+const CAT_FILL = { raptor: { "--bg": "#0E0F11", "--on": "#E8EAEE", "--t": "#0E0F11" } }; // Raptor (A2): near-black #0E0F11 ring, fill, accent and connector; white title, see-through pill (CSS below)
 const catVars = (id, c) => Object.assign({ "--c": c }, CAT_FILL[id] || {});
-const PAST_COLOR = { cryo: "#BFE6FF", raptor: "#34363C", static: "#FF9A3D", pad: "#A88BFF", faa: "#2FD3B0", date: "#FFC93D" };
+const PAST_COLOR = { cryo: "#BFE6FF", raptor: "#0E0F11", static: "#FF9A3D", pad: "#A88BFF", faa: "#2FD3B0", date: "#FFC93D" };
 function pastSummary(road, n) {
   if (!road || !Array.isArray(road.categories)) return [];
   const a = road.archive && road.archive[n], items = (a && a.summary && a.summary.items) || [];
@@ -2210,6 +2210,14 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .road .mini.glow { border-color: color-mix(in srgb, var(--c) 45%, transparent); box-shadow: 0 0 12px -2px color-mix(in srgb, var(--c) 45%, transparent); } /* Flight Log only: finished vehicle box, soft glow in the section colour */
 .mini::before { content: ""; position: absolute; left: -12px; top: 14px; width: 8px; height: 8px; box-sizing: border-box; border-radius: 50%; background: transparent; border: 1.5px solid var(--c); } /* hollow = this vehicle has not completed the category */
 .mini.done::before { background: var(--c); } /* filled = completed; ring and fill always the same colour */
+/* Raptor (A2): near-black #0E0F11 accent bar with a light rim, graphite halo, white title, see-through pill with a dark border + light rim, solid black connector line */
+.callout[data-id="raptor"] { border-color: rgba(255,255,255,.22) !important; box-shadow: inset 4px 0 0 #0E0F11, inset 5px 0 0 rgba(255,255,255,.4), 0 0 22px 1px rgba(200,210,230,.32) !important; }
+.callout[data-id="raptor"] .callout-name { color: #F2F4F8; }
+.callout[data-id="raptor"] .mini-date { color: #C9CDD6; }
+.callout[data-id="raptor"] .badge { color: #E8EAEE; background: rgba(14,15,17,.35); border: 1.5px solid #0E0F11; box-shadow: 0 0 0 1px rgba(255,255,255,.35); }
+.callout[data-id="raptor"] .mini::before { box-shadow: 0 0 0 1px rgba(255,255,255,.5); }
+.callout[data-id="raptor"] .mini.glow { border-color: rgba(255,255,255,.18); box-shadow: 0 0 12px -2px rgba(200,210,230,.25); }
+.callout[data-id="raptor"] .callout-hist-inner::before { background: #0E0F11; } /* main connector line: solid black */
 .mini-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .mini-date { font-size: 12px; font-weight: 700; color: var(--t, var(--c)); }
 .mini-src { font-size: 10.5px; color: var(--muted); background: rgba(255,255,255,.07); padding: 2px 7px; border-radius: 6px; }
