@@ -1081,14 +1081,13 @@ const ROAD_STATUS_TEXT = { none: "Not started", pending: "Pending", progress: "I
 
 // Shows the last copy we saw straight away (no flicker on reopen), then
 // fetches a fresh one, skipping the browser cache, and swaps it in.
-// One shared list for both views (Road page + Flight Log Road box): scripts/cleanup.js folds a finished vehicle's
-// earlier steps into its card (same code the pipeline runs before saving road.json).
-const tidyRoad = (d) => { try { if (d && window.RoadCleanup) window.RoadCleanup.cleanupRoad(d); } catch {} return d; };
-// Sections drawn as one card per vehicle with plain day-only lines (no clock times, no underlined links).
-const ONE_CARD = ["static"];
+// Flight Log Road box only: scripts/cleanup.js turns a per-vehicle section into one clean card per vehicle (a pure view;
+// road.json and the Road to Flight page keep every post). Cards keep _hi = the source entry index for taps.
+const ONE_CARD = ["static", "cryo", "raptor"];
+const logView = (m, road) => { try { return window.RoadCleanup ? window.RoadCleanup.flightLogView(m, road) : m; } catch { return m; } };
 function useRoad() {
   const [road, setRoad] = React.useState(() => {
-    try { return tidyRoad(JSON.parse(localStorage.getItem(ROAD_CACHE_KEY))) || null; } catch { return null; }
+    try { return JSON.parse(localStorage.getItem(ROAD_CACHE_KEY)) || null; } catch { return null; }
   });
   React.useEffect(() => {
     let alive = true;
@@ -1096,7 +1095,7 @@ function useRoad() {
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (!alive || !data || !Array.isArray(data.categories)) return;
-        setRoad(tidyRoad(data));
+        setRoad(data);
         try { localStorage.setItem(ROAD_CACHE_KEY, JSON.stringify(data)); } catch {}
       })
       .catch(() => {});
@@ -1154,7 +1153,7 @@ function RoadCard({ road, onEntryTap, openReq }) {
   const [main, setMain] = React.useState(false);
   React.useEffect(() => { if (openReq) setMain(true); }, [openReq]); // header chip asks it to open
   const [open, setOpen] = React.useState(null);
-  const items = road && Array.isArray(road.categories) ? road.categories.filter((m) => !ROAD_HIDDEN.includes(m.id)).map((m) => ({ ...m, status: rollupStatus(m, road) })) : [];
+  const items = road && Array.isArray(road.categories) ? road.categories.filter((m) => !ROAD_HIDDEN.includes(m.id)).map((m) => logView(m, road)).map((m) => ({ ...m, status: rollupStatus(m, road) })) : [];
   if (!items.length) return null;
   const title = `Road to Flight ${road.flight}`;
   const done = items.filter((m) => m.status === "done" || m.status === "complete").length; // shown boxes only
@@ -1189,13 +1188,13 @@ function RoadCard({ road, onEntryTap, openReq }) {
               {(m.history || []).map((h, i) => isRealEntry(h) && !(h.flight > road.flight) && !isLaunched(h.flight) && ( /* later flights' cards: Road page only */
                 <div className={"mini" + (onEntryTap ? " tappable" : "") + (logGlows(m, h, road) ? " glow" : "")} key={i}
                   {...(onEntryTap ? { role: "button", tabIndex: isOpen ? 0 : -1, "aria-label": `${logDay(h)}: ${logLine(h)}. Show in the updates feed`,
-                    onClick: () => onEntryTap(m.id, i), onKeyDown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onEntryTap(m.id, i); } } } : {})}>
+                    onClick: () => onEntryTap(m.id, h._hi ?? i), onKeyDown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onEntryTap(m.id, h._hi ?? i); } } } : {})}>
                   <div className="mini-top">
                     <span className="mini-date">{logDay(h)}</span>
                     {(srcOf(h) || !ONE_CARD.includes(m.id)) && <span className="mini-src">{srcOf(h)}</span>}
                   </div>
                   <p>{scrub(logLine(h))}</p>
-                  <BuildUp h={h} log onTap={onEntryTap ? () => onEntryTap(m.id, i) : null} />
+                  <BuildUp h={h} log onTap={onEntryTap ? (u) => onEntryTap(m.id, u && u._hi != null ? u._hi : (h._hi ?? i)) : null} />
                 </div>
               ))}
             </div></div>
@@ -1225,7 +1224,7 @@ function BuildUp({ h, log, onTap }) {
   if (!ups.length) return null;
   const stop = (e) => e.stopPropagation();
   const tapProps = (u) => (log && onTap && buLinked(u) ? { className: "bu-plain bu-tap", role: "link", tabIndex: 0, "aria-label": `${logDay(u)}: ${logLine(u)}. Show in Road to Flight`,
-    onClick: (e) => { e.stopPropagation(); e.preventDefault(); onTap(); }, onKeyDown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); onTap(); } } } : { className: "bu-plain" });
+    onClick: (e) => { e.stopPropagation(); e.preventDefault(); onTap(u); }, onKeyDown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); onTap(u); } } } : { className: "bu-plain" });
   return (
     <details className="buildup" onClick={stop}>
       <summary>Earlier updates</summary>
@@ -1359,7 +1358,7 @@ const isLaunched = (n) => FLIGHTS.some((x) => x.n === n);
 function buildFeed(road) {
   if (!road || !Array.isArray(road.categories)) return { posts: [], rows: [] };
   const posts = [];
-  road.categories.filter((c) => !ROAD_HIDDEN.includes(c.id)).forEach((c, ci) => (c.history || []).forEach((h, hi) => isRealEntry(h) && posts.push({
+  road.categories.filter((c) => !ROAD_HIDDEN.includes(c.id)).forEach((c, ci) => (c.history || []).forEach((h, hi) => isRealEntry(h) && !h.log_only && posts.push({
     h, cat: c, ci, hi, id: `${c.id}-${hi}`, day: feedDay(h.date, road.updatedAt), at: Date.parse((h.x_post && h.x_post.created_at) || h.at) || 0, flight: flightOf(h, road),
     when: cardTime(h, road),
   })));
@@ -1504,12 +1503,12 @@ function FeedPost({ p, onPhotoTap }) {
       <div className="post-top">
         <span className="chip"><span className="chip-i">{cat.icon}</span>{cat.name}</span>
         <span className="post-sep">·</span>
-        <span className="post-date">{ONE_CARD.includes(cat.id) ? logDay(h) : entryDate(h)}</span>
+        <span className="post-date">{entryDate(h)}</span>
       </div>
       <p className="post-text">{scrub(h.x_text || h.text)}</p>
       {mo ? <PickMedia mo={mo} /> : h.media_context ? <ContextMedia mc={h.media_context} /> : !h.milestone && h.x_post && <XMedia x={h.x_post} />}
       <CreditLine h={h} />
-      <FeedBuildUp h={h} plain={ONE_CARD.includes(cat.id)} />
+      <FeedBuildUp h={h} />
     </article>
   );
 }

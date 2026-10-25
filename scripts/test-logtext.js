@@ -23,7 +23,7 @@ check(/<span className="mini-date">\{logDay\(h\)\}<\/span>/.test(app) && /log \?
 // 2. the Flight Log prefers log_text and never shows raw post text
 check(A.logLine({ log_text: "Clean.", x_text: "X text", text: "Text", x_post: { text: "RAW" } }) === "Clean." && A.logLine({ x_text: "X text", text: "Text" }) === "Text", "logLine: log_text first, then text (never x_text)");
 const card = fn("RoadCard"), bu = fn("BuildUp");
-check(!/x_text|x_post/.test(card) && /<p>\{scrub\(logLine\(h\)\)\}<\/p>/.test(card) && /<BuildUp h=\{h\} log onTap=\{onEntryTap \? \(\) => onEntryTap\(m\.id, i\) : null\} \/>/.test(card) && /bu-text">\{scrub\(logLine\(u\)\)\}/.test(bu), "Road to Flight N card never reads x_text / x_post.text");
+check(!/x_text|x_post/.test(card) && /<p>\{scrub\(logLine\(h\)\)\}<\/p>/.test(card) && /<BuildUp h=\{h\} log onTap=\{onEntryTap \? \(u\) => onEntryTap\(m\.id, /.test(card) && /bu-text">\{scrub\(logLine\(u\)\)\}/.test(bu), "Road to Flight N card never reads x_text / x_post.text");
 check(/if \(m\.log_latest && !later\) return m\.log_latest;/.test(fn("boxLatest")) && !/x_text/.test(fn("boxLatest").split("\n").filter((l) => !/const later/.test(l)).join("\n")), "box headline: log_latest, else the clean line");
 check(cryo.log_latest === "Ship 42 completed its cryo tests at Massey's." && e("Ship 42").log_text === "Ship 42 completed further cryo tests." && e("Ship 42").updates.map((u) => u.log_text).join("|") === "Ship 42 completes its first cryo tests." && e("Booster 22").log_text === "Booster 22 completed its cryo test at Massey's.", "Cryo matches the target wording");
 

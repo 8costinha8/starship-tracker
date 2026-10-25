@@ -82,7 +82,6 @@ const CHECK_TEXT = {
 };
 
 // The six boxes. Used to start a fresh Road when the tracked flight flies.
-const cleanup = require("./cleanup.js");
 const BOXES = [
   { id: "cryo", icon: "❄️", name: "Cryo tests", color: "#BFE6FF" },
   { id: "raptor", icon: "🔥", name: "Raptor engines", color: "#FF9A3D" },
@@ -1502,12 +1501,8 @@ async function run(opts = {}) {
   const predChanged = JSON.stringify([road.predicted || null, road.predicted_candidates || []]) !== before;
   if (predChanged) log(`predicted date: ${road.predicted ? `${road.predicted.mode} NET ${road.predicted.net} (${road.predicted.basis})` : "none"} — ${pr.reason} (no push)`);
 
-  // 4b. Section cleanup (scripts/cleanup.js, same code the app runs): once a vehicle's test completes, its earlier
-  // steps fold into that card's "Earlier updates" (first prediction + key milestones), duplicates dropped. No push.
-  const tidied = cleanup.cleanupRoad(road, { keep: new Set((typeof changes !== "undefined" ? changes : []).map((ch) => ch.entry && ch.entry.id).filter(Boolean)) });
-  if (tidied.changed) log(`section cleanup: ${tidied.folded} loose card(s) folded into their vehicle card (no push)`);
   // 5. Save, commit, then notify (so the app already has the new card when the push lands)
-  if (changed || predChanged || tidied.changed) {
+  if (changed || predChanged) {
     if (changed) {
       road.updated = fmtDay();
       road.updatedAt = new Date().toISOString();

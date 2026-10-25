@@ -37,13 +37,13 @@ check(urls.every((x) => /^https:\/\/x\.com\/\w+\/status\/\d+$/.test(x)), `every 
 // 5. the Flight Log is unchanged
 const cssLog = app.split("\n").filter((l) => /^\.road[ .{]|^\.mini|^\.buildup/.test(l) && !/feed-bu/.test(l)).join("\n");
 const logHash = crypto.createHash("sha1").update(fn("RoadCard") + cssLog).digest("hex"); if (process.env.SHOW_HASH) console.log(logHash);
-check(logHash === "1f5e7a39c931c2e4ed567f85dace973717a3eb0c", "Flight Log card code and CSS byte-identical to the static-fires one-card-per-vehicle redesign (was 04a48c2)");
+check(logHash === "45c86bca767bb71e8e582e47501956ae2d240f4b", "Flight Log card code and CSS byte-identical to the Flight Log view redesign (was 04a48c2)");
 check(/<summary>Earlier updates<\/summary>/.test(fn("BuildUp")) && /\.buildup:not\(\.feed-bu\) summary \{ display: inline-flex; align-items: center; gap: 4px;/.test(app) && !/<a /.test(fn("BuildUp").split(": <li key={i}><div")[0]), "Flight Log build-up has no count, chevron inline at text height; a new X url doesn't turn its line into a link");
 // Flight Log earlier updates: no @handle chips; a post-backed line is an invisible tap area → Road to Flight card; others inert
 { const B = fn("BuildUp"), css = app.split("\n").filter((l) => /li\.bu-tap/.test(l)).join("\n");
   check(!/mini-src|handleOf/.test(B), "Flight Log earlier updates: no @handle chips on any category");
-  check(/log && onTap && buLinked\(u\)/.test(B) && /onTap\(\)/.test(B) && /className: "bu-plain" \}/.test(B), "post-backed line taps through to the Road to Flight card; a line with no post gets no handler");
-  check(/e\.stopPropagation\(\); e\.preventDefault\(\); onTap\(\)/.test(B), "tapping a line never toggles the Earlier updates collapse or the card");
+  check(/log && onTap && buLinked\(u\)/.test(B) && /onTap\(u\)/.test(B) && /className: "bu-plain" \}/.test(B), "post-backed line taps through to the Road to Flight card; a line with no post gets no handler");
+  check(/e\.stopPropagation\(\); e\.preventDefault\(\); onTap\(u\)/.test(B), "tapping a line never toggles the Earlier updates collapse or the card");
   check(/cursor: pointer/.test(css) && !/border:|background:|text-decoration: underline|box-shadow/.test(css.split("\n").filter((l) => !/focus-visible/.test(l)).join("")), "tap area is invisible: pointer only, no box, border or underline");
   check(!/cursor/.test(app.split("\n").filter((l) => /li\.bu-plain/.test(l)).join("")), "lines with no linked post: no pointer cursor");
   check(A_buLinked({ url: "https://x.com/a/status/1" }) && A_buLinked({ handle: "x" }) && !A_buLinked({ url: "https://www.youtube.com/watch?v=1" }) && !A_buLinked({ text: "no post" }), "linked = an X/post url or handle (YouTube and source-less lines are inert)"); }
