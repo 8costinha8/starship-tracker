@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "25 Oct",
-  "updatedAt": "2026-10-25T20:11:23.812Z",
+  "updatedAt": "2026-10-25T20:15:35.363Z",
   "categories": [
     {
       "id": "cryo",
@@ -1666,7 +1666,8 @@
       "url": "https://x.com/SpaceX/status/2114444137067844004",
       "at": "2026-10-25T19:49:01.000Z",
       "date": "25 Oct",
-      "flight": 15
+      "flight": 15,
+      "box": "static"
     },
     {
       "id": "news-mvntvaz4-93c869",
