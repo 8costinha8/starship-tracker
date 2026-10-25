@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "25 Oct",
-  "updatedAt": "2026-10-25T12:15:39.027Z",
+  "updatedAt": "2026-10-25T12:45:35.586Z",
   "categories": [
     {
       "id": "cryo",
@@ -404,8 +404,60 @@
       "name": "Static fires",
       "color": "#FF5A36",
       "status": "progress",
-      "latest": "Road closed ahead of static fire test.",
+      "latest": "Booster 22 transport ring relocated ahead of static fire test.",
       "history": [
+        {
+          "id": "x-2114335419785679308",
+          "date": "25 Oct",
+          "log_date": "25 Oct",
+          "at": "2026-10-25T12:37:01.000Z",
+          "text": "Booster 22 transport ring relocated ahead of static fire test.",
+          "x_text": "Booster 22 transport ring relocated ahead of static fire test.",
+          "log_text": "Booster 22 transport ring relocated at launch site ahead of static fire.",
+          "url": "https://x.com/LabPadre/status/2114335419785679308",
+          "src": "@LabPadre",
+          "trust": "trusted",
+          "x_first": true,
+          "stage": "static",
+          "hardware": "B22",
+          "flight": 15,
+          "x_post": {
+            "post_id": "2114335419785679308",
+            "url": "https://x.com/LabPadre/status/2114335419785679308",
+            "created_at": "2026-10-25T12:37:01.000Z",
+            "text": "The Booster transport ring has relocated, ahead of what is likely to be a Static Fire test of Booster 22 this morning.",
+            "author": {
+              "name": "Avid Space",
+              "username": "LabPadre",
+              "avatar": "https://pbs.twimg.com/profile_images/2018042465932988416/LR5UN4G0_normal.png"
+            },
+            "media": [
+              {
+                "type": "video",
+                "poster": "https://pbs.twimg.com/amplify_video_thumb/2114335137450143744/img/hdkbpWHvz5KOQq-M.jpg",
+                "video_url": "https://video.twimg.com/amplify_video/2114335137450143744/vid/avc1/1280x720/wtrLCrvJc_Ty2tfY.mp4"
+              }
+            ]
+          },
+          "x_posts": [
+            "2114335419785679308"
+          ],
+          "xChecked": true,
+          "imageChecked2": true,
+          "media_override": {
+            "post_url": "https://x.com/LabPadre/status/2114335419785679308",
+            "post_id": "2114335419785679308",
+            "author": "LabPadre",
+            "type": "video",
+            "image": "https://pbs.twimg.com/amplify_video_thumb/2114335137450143744/img/hdkbpWHvz5KOQq-M.jpg"
+          },
+          "tier": 3,
+          "push": {
+            "title": "💥 Static fires · Flight 15",
+            "url": "https://x.com/LabPadre/status/2114335419785679308",
+            "at": "2026-10-25T12:37:01.000Z"
+          }
+        },
         {
           "id": "x-2114317866409595106",
           "date": "25 Oct",
@@ -628,7 +680,7 @@
           }
         }
       ],
-      "log_latest": "Booster 22 completes its static fire at Pad 2."
+      "log_latest": "Booster 22 transport ring relocated at launch site ahead of static fire."
     },
     {
       "id": "pad",
