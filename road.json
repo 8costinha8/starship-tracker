@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "25 Oct",
-  "updatedAt": "2026-10-25T11:30:36.532Z",
+  "updatedAt": "2026-10-25T11:45:40.775Z",
   "categories": [
     {
       "id": "cryo",
@@ -517,36 +517,33 @@
         },
         {
           "id": "x-2111327584122437857",
-          "date": "17 Oct",
-          "at": "2026-10-17T05:24:57.000Z",
-          "text": "Booster 22 waiting to roll out for pre-flight static fire testing.",
-          "x_text": "Booster 22 waiting to roll out for pre-flight static fire testing.",
-          "url": "https://x.com/RGVaerialphotos/status/2111327584122437857",
-          "src": "@RGVaerialphotos",
+          "date": "25 Oct",
+          "at": "2026-10-25T11:38:18.000Z",
+          "text": "Booster 22 conducted a static fire test.",
+          "x_text": "Booster 22 conducted a static fire test.",
+          "url": "https://x.com/NASASpaceflight/status/2114320643470549259",
+          "src": "@NASASpaceflight",
           "trust": "trusted",
           "x_first": true,
           "stage": "static",
           "hardware": "B22",
           "x_post": {
-            "post_id": "2111327584122437857",
-            "url": "https://x.com/RGVaerialphotos/status/2111327584122437857",
-            "created_at": "2026-10-17T05:24:57.000Z",
-            "text": "Booster 24 was getting its LOX landing tank installed during this flyover while Booster 22 sat behind it, waiting to roll out for pre-flight static fire testing.",
+            "post_id": "2114320643470549259",
+            "url": "https://x.com/NASASpaceflight/status/2114320643470549259",
+            "created_at": "2026-10-25T11:38:18.000Z",
+            "text": "SpaceX conducts Static Fire of Booster 22",
             "author": {
-              "name": "RGV Aerial Photography",
-              "username": "RGVaerialphotos",
-              "avatar": "https://pbs.twimg.com/profile_images/2019953617743097856/PJqBBhpU_normal.jpg"
+              "name": "NSF - NASASpaceflight.com",
+              "username": "NASASpaceflight",
+              "avatar": "https://pbs.twimg.com/profile_images/1637919260298158080/kRT8BkYf_normal.jpg"
             },
-            "media": [
-              {
-                "type": "photo",
-                "url": "https://pbs.twimg.com/media/HUzwveqbQAA5V8W.jpg"
-              }
-            ]
+            "media": []
           },
           "x_posts": [
             "2111327584122437857",
-            "2111816175478870437"
+            "2111816175478870437",
+            "2114320643470549259",
+            "2114320605348823120"
           ],
           "xChecked": true,
           "imageChecked2": true,
@@ -558,16 +555,26 @@
             "image": "https://pbs.twimg.com/media/HUzwveqbQAA5V8W.jpg"
           },
           "flight": 15,
-          "tier": 2,
+          "tier": 1,
           "milestone": {
             "key": "static_fire|15|B22",
             "type": "static_fire",
             "flight": 15,
             "hardware": "B22",
-            "phase": "expected",
+            "phase": "completed",
             "migrated": true
           },
           "updates": [
+            {
+              "date": "17 Oct",
+              "at": "2026-10-17T05:24:57.000Z",
+              "text": "Booster 22 waiting to roll out for pre-flight static fire testing.",
+              "log_text": "Booster 22 is waiting to roll out for its static fire test.",
+              "url": "https://x.com/RGVaerialphotos/status/2111327584122437857",
+              "src": "@RGVaerialphotos",
+              "phase": "expected",
+              "tier": 2
+            },
             {
               "date": "9 Oct",
               "at": "2026-10-09T14:36:44.000Z",
@@ -587,10 +594,17 @@
               "log_text": "Booster 22 could be ready for a static fire within two weeks."
             }
           ],
-          "log_text": "Booster 22 is waiting to roll out for its static fire test."
+          "log_text": "Booster 22 completed its static fire at the launch site.",
+          "log_date": "25 Oct",
+          "complete": true,
+          "push": {
+            "title": "💥 Static fires: Completed",
+            "url": "https://x.com/NASASpaceflight/status/2114320643470549259",
+            "at": "2026-10-25T11:38:18.000Z"
+          }
         }
       ],
-      "log_latest": "Road closed ahead of static fire test."
+      "log_latest": "Booster 22 completed its static fire at the launch site."
     },
     {
       "id": "pad",
@@ -1435,6 +1449,17 @@
         ],
         "src": [
           "https://x.com/Blobifie/status/2114016319679201462"
+        ]
+      }
+    },
+    "B22": {
+      "static_fire": {
+        "count": 1,
+        "dates": [
+          "2026-10-25T11:38:18.000Z"
+        ],
+        "src": [
+          "https://x.com/NASASpaceflight/status/2114320643470549259"
         ]
       }
     }
