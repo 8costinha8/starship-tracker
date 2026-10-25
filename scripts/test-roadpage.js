@@ -22,7 +22,7 @@ check(/\.buildup\.feed-bu ul \{ padding-left: 0; margin-left: 0; margin-right: 0
 
 // 3. one View on X line per post with a url: under the main post (above Earlier updates), and in each update pill
 check(post.indexOf("<CreditLine h={h} />") > 0 && post.indexOf("<CreditLine h={h} />") < post.indexOf("<FeedBuildUp"), "main post's View on X line sits under its media, above Earlier updates");
-check(/return to \? <li[^]*?>\{body\}<\/li>\s*: <li key=\{i\} className="bu-pill bu-nolink">\{body\}<\/li>/.test(fbu) && !/CreditLine/.test(fbu), "each earlier update with its own card gets a tappable box (no link text); one without gets a plain box (not tappable)");
+check(/return to \? <li[^]*?>\{body\}<\/li>\s*: extOf\(u\) \? <li key=\{i\} className="bu-pill bu-ext"><a [^\n]*>\{body\}<\/a><\/li>\s*: <li key=\{i\} className="bu-pill bu-nolink">\{body\}<\/li>/.test(fbu) && !/CreditLine/.test(fbu), "each earlier update with its own card gets a tappable box (no link text); one without a card opens its source; no source → plain box");
 const H = new Function(`const isYouTube = (u) => /youtube|youtu\\.be/.test(u || ""); ${app.slice(app.indexOf("const handleOf ="), app.indexOf("function FeedBuildUp("))} return handleOf;`)();
 check(H({ url: "https://x.com/LabPadre/status/1" }) === "@LabPadre" && H({ handle: "LabPadre", url: "https://x.com/a/status/1" }) === "@LabPadre" && H({ url: "https://www.nasaspaceflight.com/x" }) === null, "handle from the update's handle, else its x.com url");
 

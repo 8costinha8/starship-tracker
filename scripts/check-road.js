@@ -1018,6 +1018,7 @@ function applyUpdates(road, items, updates, log, limit) {
     // The source's real publish time (shown in the Updates feed). Left out when the
     // source only gives a day (SpaceX updates, FAA) or no time at all (launches page).
     if (it.publishedAt && it.timeKnown !== false) entry.publishedAt = it.publishedAt;
+    else if (it.timeKnown === false) entry.time_known = false; // day-only source: the Road card shows the date, no time
     // the full trusted X post behind the entry (Road to Flight N page), same strict match
     if (it.xpost && isTrusted(it.tier) && titleMatches(it.xpost.text, line, box.id)) {
       entry.x_post = it.xpost; entry.x_text = line;

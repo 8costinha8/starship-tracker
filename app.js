@@ -1499,8 +1499,12 @@ const upIso = (u) => (u && u.at && Number.isFinite(Date.parse(u.at)) ? u.at : (S
 // Completed cards: the header shows when it happened ("25 Oct · 13:24", 24h Europe/London, no "UK"):
 // completed_at (earliest trusted post showing the event itself), else the completing post's time.
 const isDoneCard = (h) => !!(h && (h.complete || (h.milestone && h.milestone.phase === "completed")));
-const cardDate = (h) => { const iso = isDoneCard(h) && (h.completed_at || h.at); return iso && Number.isFinite(Date.parse(iso)) ? `${ukStamp(iso, false)} · ${feedTime(iso)}` : entryDate(h); };
-// Earlier updates box → that update's OWN card in the Road feed (never X or an outside source directly).
+// Every Road card header: "25 Oct · 13:24" (24h Europe/London, no "UK"). Time from: completed_at (completed cards), the stored at,
+// the X status id (snowflake) in the card's url, then an article's stored publishedAt. time_known: false (day-only source) or none → date only.
+const cardIso = (h) => { if (!h || h.time_known === false) return ""; const sid = (String(h.url || "").match(/(?:x|twitter)\.com\/\w+\/status\/(\d{15,})/) || [])[1];
+  for (const v of [isDoneCard(h) && h.completed_at, h.at, sid && sfIso(sid), h.publishedAt]) if (v && Number.isFinite(Date.parse(v))) return v; return ""; };
+const cardDate = (h) => { const iso = cardIso(h); return iso ? `${ukStamp(iso, false)} · ${feedTime(iso)}` : entryDate(h); };
+// Earlier updates box → that update's OWN card in the Road feed when it has one; else its source (see extOf).
 const statusIdOf = (u) => (String(u || "").match(/status\/(\d{15,})/) || [])[1] || null;
 function entryIndex(road) {
   const m = new Map();
@@ -1511,6 +1515,8 @@ function entryIndex(road) {
   return m;
 }
 const updateTarget = (u, idx, selfId) => { if (!u || !idx) return null; const id = (u.url && idx.get(u.url)) || (statusIdOf(u.url) && idx.get(statusIdOf(u.url))) || null; return id && id !== selfId ? id : null; };
+// No card of its own → the box opens the update's own source (X post or article) in a new tab; no source → plain box.
+const extOf = (u) => (u && /^https?:\/\//i.test(String(u.url || "")) ? u.url : null);
 const goToEntry = (id) => window.dispatchEvent(new CustomEvent("st-entry", { detail: id }));
 function roadUpdates(h) {
   const done = !!(h.complete || (h.milestone && h.milestone.phase === "completed"));
@@ -1534,6 +1540,7 @@ function FeedBuildUp({ h, plain, idx }) {
         const body = <><div className="bu-top"><span className="bu-date">{when || (plain ? logDay(u) : entryDate(u))}</span></div><div className="bu-text">{scrub(plain ? logLine(u) : u.text)}</div></>;
         return to ? <li key={i} className="bu-pill" role="link" tabIndex={0} data-to={to} aria-label={`${u.text} — show its card`}
             onClick={(e) => { e.stopPropagation(); goToEntry(to); }} onKeyDown={(e) => { if (e.key === "Enter" && e.target === e.currentTarget) goToEntry(to); }}>{body}</li>
+          : extOf(u) ? <li key={i} className="bu-pill bu-ext"><a href={extOf(u)} target="_blank" rel="noopener noreferrer" aria-label={`${u.text} — open its source`} onClick={stop}>{body}</a></li>
           : <li key={i} className="bu-pill bu-nolink">{body}</li>; })}</ul>
     </details>
   );
@@ -1551,8 +1558,7 @@ function FeedPost({ p, onPhotoTap, idx }) {
     <article className={"post" + (urlOf(h) ? " post-tap" : "")} id={`post-${p.id}`} data-id={p.id} data-entry={h.id || undefined} style={catVars(cat.id, cat.color)}
       {...linkProps(h)}>
       <div className="post-top">
-        <span className="chip"><span className="chip-i">{cat.icon}</span>{cat.name}</span>
-        <span className="post-sep">·</span>
+        <span className={"chip chip-" + cat.id}><span className="chip-i">{cat.icon}</span>{cat.name}</span>
         <span className="post-date">{cardDate(h)}</span>
       </div>
       <p className="post-text">{scrub(h.x_text || h.text)}</p>
@@ -2290,6 +2296,9 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .feed-bu .bu-pill:focus-visible { outline: 2px solid #A9BDF0; outline-offset: 2px; }
 .buildup.feed-bu li.bu-pill.bu-nolink { cursor: default; } /* boxed like the others, no link */
 .feed-bu .bu-pill .post-credit { margin-top: 4px; }
+.buildup.feed-bu li.bu-pill.bu-ext { padding: 0; }
+.feed-bu .bu-pill.bu-ext > a { grid-column: 1 / -1; display: block; padding: 12px 16px; color: inherit; text-decoration: none; border-radius: 10px; -webkit-tap-highlight-color: transparent; }
+.feed-bu .bu-pill.bu-ext > a:focus-visible { outline: 2px solid #A9BDF0; outline-offset: 2px; }
 .mini-tier { margin-left: 6px; font-size: 10.5px; font-weight: 600; padding: 1px 6px; border-radius: 6px; background: rgba(255,255,255,.06); color: #AAB6D6; }
 .mini-tier.tier-1 { color: #6EE7A0; } .mini-tier.tier-3 { color: #F9A8D4; font-style: italic; }
 .mini-phase.ph-completed { background: rgba(74,222,128,.16); color: #6EE7A0; }
@@ -2342,12 +2351,13 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 }
 .post.hl::after { animation: post-hl 2.2s forwards; }
 @keyframes post-hl { 0% { opacity: 0; } 11% { opacity: 1; animation-timing-function: linear; } 45% { opacity: 1; animation-timing-function: cubic-bezier(.45,0,.25,1); } 100% { opacity: 0; } }
-.post-top { display: flex; align-items: center; gap: 7px; min-height: 24px; }
+.post-top { display: flex; align-items: center; gap: 8px; min-height: 24px; }
 .chip {
   display: inline-flex; align-items: center; gap: 5px; height: 24px; padding: 0 9px 0 7px;
   border-radius: 999px; font-size: 11.5px; font-weight: 700; letter-spacing: .02em; white-space: nowrap; color: var(--t, var(--c));
   background: var(--bg, color-mix(in srgb, var(--c) 13%, transparent)); border: 1px solid color-mix(in srgb, var(--c) 30%, transparent);
 }
+.chip.chip-raptor { color: #F2F4F8; background: rgba(14,15,17,.35); border: 1.5px solid #0E0F11; box-shadow: 0 0 0 1px rgba(255,255,255,.35); } /* Raptor (A2): same as the In progress pill, white label */
 .chip-i { font-size: 12px; line-height: 1; letter-spacing: 0; }
 .post-sep { color: var(--faint); font-size: 12.5px; }
 .post-date { font-size: 12.5px; font-weight: 600; color: var(--muted); white-space: nowrap; }
