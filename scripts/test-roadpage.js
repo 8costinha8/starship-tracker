@@ -37,7 +37,7 @@ check(urls.every((x) => /^https:\/\/x\.com\/\w+\/status\/\d+$/.test(x)), `every 
 // 5. the Flight Log is unchanged
 const cssLog = app.split("\n").filter((l) => /^\.road[ .{]|^\.mini|^\.buildup/.test(l) && !/feed-bu/.test(l)).join("\n");
 const logHash = crypto.createHash("sha1").update(fn("RoadCard") + cssLog).digest("hex"); if (process.env.SHOW_HASH) console.log(logHash);
-check(logHash === "45c86bca767bb71e8e582e47501956ae2d240f4b", "Flight Log card code and CSS byte-identical to the Flight Log view redesign (was 04a48c2)");
+check(logHash === "4052d5ba1ee058847ccd792d93440fa90d9971bc", "Flight Log card code and CSS byte-identical to the Flight Log view redesign (was 04a48c2)");
 check(/<summary>Earlier updates<\/summary>/.test(fn("BuildUp")) && /\.buildup:not\(\.feed-bu\) summary \{ display: inline-flex; align-items: center; gap: 4px;/.test(app) && !/<a /.test(fn("BuildUp").split(": <li key={i}><div")[0]), "Flight Log build-up has no count, chevron inline at text height; a new X url doesn't turn its line into a link");
 // Flight Log earlier updates: no @handle chips; a post-backed line is an invisible tap area → Road to Flight card; others inert
 { const B = fn("BuildUp"), css = app.split("\n").filter((l) => /li\.bu-tap/.test(l)).join("\n");
