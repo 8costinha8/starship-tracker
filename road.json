@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "25 Oct",
-  "updatedAt": "2026-10-25T17:52:51.289Z",
+  "updatedAt": "2026-10-25T18:54:27.485Z",
   "categories": [
     {
       "id": "cryo",
@@ -409,30 +409,32 @@
         {
           "id": "x-2111327584122437857",
           "date": "25 Oct",
-          "at": "2026-10-25T17:16:20.000Z",
-          "text": "Booster 22 detanked after static fire.",
-          "url": "https://x.com/Blobifie/status/2114405714722763056",
-          "src": "@Blobifie",
+          "at": "2026-10-25T18:24:21.000Z",
+          "text": "Booster 22 completed its static fire test at Starbase.",
+          "url": "https://x.com/NASASpaceflight/status/2114422831907807365",
+          "src": "@NASASpaceflight",
           "trust": "trusted",
           "x_first": true,
           "stage": "static",
           "hardware": "B22",
           "x_post": {
-            "post_id": "2114405714722763056",
-            "url": "https://x.com/Blobifie/status/2114405714722763056",
-            "created_at": "2026-10-25T17:16:20.000Z",
-            "text": "Booster 22 has been detanked following its static fire! https://t.co/yUy5G5w448",
+            "post_id": "2114422831907807365",
+            "url": "https://x.com/NASASpaceflight/status/2114422831907807365",
+            "created_at": "2026-10-25T18:24:21.000Z",
+            "text": "We've been covering Starship Flight 15 preparations with Booster 22's Static Fire, but Flight 16 is also being readied and set to be Starship's Florida debut! Ryan Weber (@rweb11742) with the status, along with fresh flyover photos of the facilities:",
             "author": {
-              "name": "Blobifi",
-              "username": "Blobifie",
-              "avatar": "https://pbs.twimg.com/profile_images/2091766013562159104/xgHLFjBX_normal.jpg"
+              "name": "NSF - NASASpaceflight.com",
+              "username": "NASASpaceflight",
+              "avatar": "https://pbs.twimg.com/profile_images/1637919260298158080/kRT8BkYf_normal.jpg"
             },
-            "media": [
-              {
-                "type": "photo",
-                "url": "https://pbs.twimg.com/media/HVfgvqvaIAAadQT.jpg"
-              }
-            ]
+            "media": [],
+            "link": {
+              "url": "https://www.nasaspaceflight.com/2026/10/roberts-road-expansion-flight-16/",
+              "title": "Possible Roberts Road Expansion as SpaceX pushes for Flight 16 - NASASpaceFlight.com",
+              "description": "As SpaceX prepares to fly Flight 15 in November, with a successful Static Fire test…",
+              "image": "https://pbs.twimg.com/news_img/2114422832285310976/095DmFQN?format=jpg&name=orig",
+              "lead": "As SpaceX prepares to fly Flight 15 in November, with a successful Static Fire test occurring at Starbase on Sunday, the company is pushing to launch Flight 16 from LC-39A as soon as possible and expand operations at Kennedy Space Center. To do that, the Gigabay and pad must be ready to host Booster 23 and Ship 43, both of which have completed cryo-proof testing. Roberts Road has been a staple for SpaceX operations at Kennedy Space Center since 2021, with the first phase of Hangar X. This is where SpaceX started to store and refurbish Falcon 9 boosters after flight when the pad hangars became overcrowded. Over time, SpaceX expanded this hangar to house more Falcon 9s and refurbish fairings. After a few years, SpaceX got another extension to its footprint at Roberts Road to the west to make a Starfactory for Starship with two Mega Bays. SpaceX axed plans to build those for Starship as it "
+            }
           },
           "x_posts": [
             "2111327584122437857",
@@ -445,7 +447,8 @@
             "2114357660262781218",
             "2114368667559563715",
             "2114378296981172616",
-            "2114405714722763056"
+            "2114405714722763056",
+            "2114422831907807365"
           ],
           "xChecked": true,
           "imageChecked2": true,
@@ -458,7 +461,7 @@
             "keep_image": true
           },
           "flight": 15,
-          "tier": 2,
+          "tier": 1,
           "milestone": {
             "key": "static_fire|15|B22",
             "type": "static_fire",
@@ -468,6 +471,17 @@
             "migrated": true
           },
           "updates": [
+            {
+              "date": "25 Oct",
+              "log_date": "25 Oct",
+              "at": "2026-10-25T17:16:20.000Z",
+              "text": "Booster 22 detanked after static fire.",
+              "log_text": "Booster 22 completed its static fire at Pad 2.",
+              "url": "https://x.com/Blobifie/status/2114405714722763056",
+              "src": "@Blobifie",
+              "phase": "completed",
+              "tier": 2
+            },
             {
               "date": "25 Oct",
               "log_date": "25 Oct",
@@ -589,7 +603,7 @@
               "at": "2026-09-30T15:17:00Z"
             }
           ],
-          "log_text": "Booster 22 completed its static fire at Pad 2.",
+          "log_text": "Booster 22 completed its static fire test at Starbase.",
           "log_date": "25 Oct",
           "complete": true,
           "push": {
@@ -599,7 +613,7 @@
           },
           "completed_at": "2026-10-25T13:24:10.000Z",
           "completed_src": "https://x.com/NASASpaceflight/status/2114347288739098706",
-          "x_text": "Booster 22 detanked after static fire.",
+          "x_text": "Booster 22 completed its static fire test at Starbase.",
           "status_line": "Booster 22 static fire done."
         },
         {
