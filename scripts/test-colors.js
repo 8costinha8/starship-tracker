@@ -18,7 +18,8 @@ check(/CAT_FILL = \{ raptor: \{ "--fill": "#111113", "--bg": "#111113", "--on": 
 for (const site of ["catVars(e.box, e.color)", "catVars(m.id, m.color)} title", "catVars(m.id, m.color)} data-id", "catVars(cat.id, cat.color)"]) check(app.includes(site), "category vars applied at " + site.split(")")[0] + ")");
 check(!/"--c": (e|m|cat)\.color/.test(app), "no category style bypasses catVars");
 check(/\.dot-done, \.dot-complete \{ background: var\(--fill, var\(--c\)\)/.test(app) && /\.badge-done, \.badge-complete \{ background: var\(--fill, var\(--c\)\); color: var\(--on, #141B2D\)/.test(app), "filled dots/badges use the fill (black for Raptor)");
-check(/\.mini::before \{[^}]*background: var\(--fill, var\(--c\)\); box-shadow: 0 0 0 1px var\(--c\)/.test(app), "Flight Log dot: black fill with graphite edge");
+check(/\.mini::before \{[^}]*background: transparent; border: 1\.5px solid var\(--c\); \}/.test(app) && /\.mini\.done::before \{ background: var\(--fill, var\(--c\)\); \}/.test(app), "Flight Log dot: hollow ring in the category colour until the vehicle completes it, then filled (Raptor: black fill, graphite ring)");
+check(/logGlows\(m, h, road\) \? " glow done" : ""/.test(app), "Flight Log dot fills on the same rule as the glow (that vehicle completed the category)");
 check((app.match(/background: var\(--bg, color-mix\(in srgb, var\(--c\)/g) || []).length === 3, "pills / glow card / chips take the matte fill");
 check(/\.mini\.glow \{ border-color: color-mix\(in srgb, var\(--c\) 45%[^}]*box-shadow: 0 0 12px -2px color-mix\(in srgb, var\(--c\)/.test(app), "glow stays driven by --c (graphite glow for Raptor)");
 console.log(`\n${pass}/${pass + fail} checks passed`); process.exit(fail ? 1 : 0);

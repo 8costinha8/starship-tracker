@@ -407,168 +407,6 @@
       "latest": "Booster 22 transport ring relocated ahead of static fire test.",
       "history": [
         {
-          "id": "x-2114335419785679308",
-          "date": "25 Oct",
-          "log_date": "25 Oct",
-          "at": "2026-10-25T12:37:01.000Z",
-          "text": "Booster 22 transport ring relocated ahead of static fire test.",
-          "x_text": "Booster 22 transport ring relocated ahead of static fire test.",
-          "log_text": "Booster 22 transport ring relocated at launch site ahead of static fire.",
-          "url": "https://x.com/LabPadre/status/2114335419785679308",
-          "src": "@LabPadre",
-          "trust": "trusted",
-          "x_first": true,
-          "stage": "static",
-          "hardware": "B22",
-          "flight": 15,
-          "x_post": {
-            "post_id": "2114335419785679308",
-            "url": "https://x.com/LabPadre/status/2114335419785679308",
-            "created_at": "2026-10-25T12:37:01.000Z",
-            "text": "The Booster transport ring has relocated, ahead of what is likely to be a Static Fire test of Booster 22 this morning.",
-            "author": {
-              "name": "Avid Space",
-              "username": "LabPadre",
-              "avatar": "https://pbs.twimg.com/profile_images/2018042465932988416/LR5UN4G0_normal.png"
-            },
-            "media": [
-              {
-                "type": "video",
-                "poster": "https://pbs.twimg.com/amplify_video_thumb/2114335137450143744/img/hdkbpWHvz5KOQq-M.jpg",
-                "video_url": "https://video.twimg.com/amplify_video/2114335137450143744/vid/avc1/1280x720/wtrLCrvJc_Ty2tfY.mp4"
-              }
-            ]
-          },
-          "x_posts": [
-            "2114335419785679308",
-            "2114339334753284398"
-          ],
-          "xChecked": true,
-          "imageChecked2": true,
-          "media_override": {
-            "post_url": "https://x.com/LabPadre/status/2114335419785679308",
-            "post_id": "2114335419785679308",
-            "author": "LabPadre",
-            "type": "video",
-            "image": "https://pbs.twimg.com/amplify_video_thumb/2114335137450143744/img/hdkbpWHvz5KOQq-M.jpg"
-          },
-          "tier": 3,
-          "push": {
-            "title": "💥 Static fires · Flight 15",
-            "url": "https://x.com/LabPadre/status/2114335419785679308",
-            "at": "2026-10-25T12:37:01.000Z"
-          }
-        },
-        {
-          "id": "x-2114317866409595106",
-          "date": "25 Oct",
-          "log_date": "25 Oct",
-          "at": "2026-10-25T11:27:16.000Z",
-          "text": "Road closed ahead of static fire test.",
-          "x_text": "Road closed ahead of static fire test.",
-          "log_text": "Road closed ahead of static fire test.",
-          "url": "https://x.com/Blobifie/status/2114317866409595106",
-          "src": "@Blobifie",
-          "trust": "trusted",
-          "x_first": true,
-          "stage": "static",
-          "hardware": null,
-          "x_post": {
-            "post_id": "2114317866409595106",
-            "url": "https://x.com/Blobifie/status/2114317866409595106",
-            "created_at": "2026-10-25T11:27:16.000Z",
-            "text": "The road has been closed ahead of todays static fire test!! https://t.co/apvZ1Dvifd",
-            "author": {
-              "name": "Blobifi",
-              "username": "Blobifie",
-              "avatar": "https://pbs.twimg.com/profile_images/2091766013562159104/xgHLFjBX_normal.jpg"
-            },
-            "media": [
-              {
-                "type": "photo",
-                "url": "https://pbs.twimg.com/media/HVeQ1S4bIAARYFp.jpg"
-              }
-            ]
-          },
-          "x_posts": [
-            "2114317866409595106"
-          ],
-          "xChecked": true,
-          "imageChecked2": true,
-          "media_override": {
-            "post_url": "https://x.com/Blobifie/status/2114317866409595106",
-            "post_id": "2114317866409595106",
-            "author": "Blobifie",
-            "type": "photo",
-            "image": "https://pbs.twimg.com/media/HVeQ1S4bIAARYFp.jpg"
-          },
-          "tier": 2,
-          "push": {
-            "title": "💥 Static fires · Flight 15",
-            "url": "https://x.com/Blobifie/status/2114317866409595106",
-            "at": "2026-10-25T11:27:16.000Z"
-          }
-        },
-        {
-          "id": "x-2113955770337550391",
-          "date": "24 Oct",
-          "log_date": "24 Oct",
-          "at": "2026-10-24T11:28:25.000Z",
-          "text": "Booster 22 arrives at the launch site ahead of static fire campaign.",
-          "x_text": "Booster 22 arrives at the launch site ahead of static fire campaign.",
-          "log_text": "Booster 22 rolls to the launch site for static fire campaign.",
-          "url": "https://x.com/Blobifie/status/2113955770337550391",
-          "src": "@Blobifie",
-          "trust": "trusted",
-          "x_first": true,
-          "stage": "static",
-          "hardware": "B22",
-          "flight": 15,
-          "x_post": {
-            "post_id": "2113955770337550391",
-            "url": "https://x.com/Blobifie/status/2113955770337550391",
-            "created_at": "2026-10-24T11:28:25.000Z",
-            "text": "Booster 22 has arrived at the launch site ahead of its static fire campaign!! A source within spaceX has confirmed they do not currently plan on blowing up the booster during the static fire https://t.co/HuuE4MCmzB",
-            "author": {
-              "name": "Blobifi",
-              "username": "Blobifie",
-              "avatar": "https://pbs.twimg.com/profile_images/2091766013562159104/xgHLFjBX_normal.jpg"
-            },
-            "media": [
-              {
-                "type": "video",
-                "poster": "https://pbs.twimg.com/amplify_video_thumb/2113954930210025472/img/cDbF7Rqfljguu3GS.jpg",
-                "video_url": "https://video.twimg.com/amplify_video/2113954930210025472/vid/avc1/1280x720/kggVJxKORzmPlxQ3.mp4?tag=14"
-              }
-            ]
-          },
-          "x_posts": [
-            "2113955770337550391"
-          ],
-          "xChecked": true,
-          "imageChecked2": true,
-          "media_override": {
-            "post_url": "https://x.com/Blobifie/status/2113955770337550391",
-            "post_id": "2113955770337550391",
-            "author": "Blobifie",
-            "type": "video",
-            "image": "https://pbs.twimg.com/amplify_video_thumb/2113954930210025472/img/cDbF7Rqfljguu3GS.jpg"
-          },
-          "tier": 2,
-          "milestone": {
-            "key": "rollout|15|B22",
-            "type": "rollout",
-            "flight": 15,
-            "hardware": "B22",
-            "phase": "progress"
-          },
-          "push": {
-            "title": "💥 Static fires · Flight 15",
-            "url": "https://x.com/Blobifie/status/2113955770337550391",
-            "at": "2026-10-24T11:28:25.000Z"
-          }
-        },
-        {
           "id": "x-2111327584122437857",
           "date": "25 Oct",
           "at": "2026-10-25T13:25:48.000Z",
@@ -688,40 +526,108 @@
           }
         },
         {
-          "id": "s42-sf-estimate",
-          "date": "30 Sep",
-          "log_date": "30 Sep",
-          "text": "Ship 42 could be ready for a static fire within two to three weeks.",
-          "x_text": "Ship 42 could be ready for a static fire within two to three weeks.",
-          "log_text": "Ship 42 could be ready for a static fire within two to three weeks.",
-          "src": "NSF",
+          "id": "x-2114335419785679308",
+          "date": "25 Oct",
+          "log_date": "25 Oct",
+          "at": "2026-10-25T12:37:01.000Z",
+          "text": "Booster 22 transport ring relocated ahead of static fire test.",
+          "x_text": "Booster 22 transport ring relocated ahead of static fire test.",
+          "log_text": "Booster 22 transport ring relocated at launch site ahead of static fire.",
+          "url": "https://x.com/LabPadre/status/2114335419785679308",
+          "src": "@LabPadre",
           "trust": "trusted",
-          "flight": 15,
+          "x_first": true,
           "stage": "static",
-          "hardware": "S42",
-          "tier": 1,
-          "hedged": true,
-          "milestone": {
-            "key": "static_fire|15|S42",
-            "type": "static_fire",
-            "flight": 15,
-            "hardware": "S42",
-            "phase": "expected"
+          "hardware": "B22",
+          "flight": 15,
+          "x_post": {
+            "post_id": "2114335419785679308",
+            "url": "https://x.com/LabPadre/status/2114335419785679308",
+            "created_at": "2026-10-25T12:37:01.000Z",
+            "text": "The Booster transport ring has relocated, ahead of what is likely to be a Static Fire test of Booster 22 this morning.",
+            "author": {
+              "name": "Avid Space",
+              "username": "LabPadre",
+              "avatar": "https://pbs.twimg.com/profile_images/2018042465932988416/LR5UN4G0_normal.png"
+            },
+            "media": [
+              {
+                "type": "video",
+                "poster": "https://pbs.twimg.com/amplify_video_thumb/2114335137450143744/img/hdkbpWHvz5KOQq-M.jpg",
+                "video_url": "https://video.twimg.com/amplify_video/2114335137450143744/vid/avc1/1280x720/wtrLCrvJc_Ty2tfY.mp4"
+              }
+            ]
           },
-          "log_only": true
-        }
-      ],
-      "doneText": "Completed",
-      "log_latest": "Booster 22 completed a static fire at Pad 2."
-    },
-    {
-      "id": "pad",
-      "icon": "🏗️",
-      "name": "Pad activity",
-      "color": "#A88BFF",
-      "status": "complete",
-      "latest": "Done",
-      "history": [
+          "x_posts": [
+            "2114335419785679308",
+            "2114339334753284398"
+          ],
+          "xChecked": true,
+          "imageChecked2": true,
+          "media_override": {
+            "post_url": "https://x.com/LabPadre/status/2114335419785679308",
+            "post_id": "2114335419785679308",
+            "author": "LabPadre",
+            "type": "video",
+            "image": "https://pbs.twimg.com/amplify_video_thumb/2114335137450143744/img/hdkbpWHvz5KOQq-M.jpg"
+          },
+          "tier": 3,
+          "push": {
+            "title": "💥 Static fires · Flight 15",
+            "url": "https://x.com/LabPadre/status/2114335419785679308",
+            "at": "2026-10-25T12:37:01.000Z"
+          }
+        },
+        {
+          "id": "x-2114317866409595106",
+          "date": "25 Oct",
+          "log_date": "25 Oct",
+          "at": "2026-10-25T11:27:16.000Z",
+          "text": "Road closed ahead of static fire test.",
+          "x_text": "Road closed ahead of static fire test.",
+          "log_text": "Road closed ahead of static fire test.",
+          "url": "https://x.com/Blobifie/status/2114317866409595106",
+          "src": "@Blobifie",
+          "trust": "trusted",
+          "x_first": true,
+          "stage": "static",
+          "hardware": null,
+          "x_post": {
+            "post_id": "2114317866409595106",
+            "url": "https://x.com/Blobifie/status/2114317866409595106",
+            "created_at": "2026-10-25T11:27:16.000Z",
+            "text": "The road has been closed ahead of todays static fire test!! https://t.co/apvZ1Dvifd",
+            "author": {
+              "name": "Blobifi",
+              "username": "Blobifie",
+              "avatar": "https://pbs.twimg.com/profile_images/2091766013562159104/xgHLFjBX_normal.jpg"
+            },
+            "media": [
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HVeQ1S4bIAARYFp.jpg"
+              }
+            ]
+          },
+          "x_posts": [
+            "2114317866409595106"
+          ],
+          "xChecked": true,
+          "imageChecked2": true,
+          "media_override": {
+            "post_url": "https://x.com/Blobifie/status/2114317866409595106",
+            "post_id": "2114317866409595106",
+            "author": "Blobifie",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HVeQ1S4bIAARYFp.jpg"
+          },
+          "tier": 2,
+          "push": {
+            "title": "💥 Static fires · Flight 15",
+            "url": "https://x.com/Blobifie/status/2114317866409595106",
+            "at": "2026-10-25T11:27:16.000Z"
+          }
+        },
         {
           "id": "x-2114016319679201462",
           "date": "24 Oct",
@@ -734,7 +640,7 @@
           "src": "@LabPadre",
           "trust": "trusted",
           "x_first": true,
-          "stage": "pad",
+          "stage": "static",
           "hardware": "B22",
           "flight": 15,
           "x_post": {
@@ -794,61 +700,8 @@
               "phase": "completed",
               "tier": 2
             }
-          ]
-        },
-        {
-          "id": "x-2113914954801889326",
-          "date": "24 Oct",
-          "log_date": "24 Oct",
-          "at": "2026-10-24T08:46:14.000Z",
-          "text": "Booster 22 lifted onto transport stand ahead of rollout.",
-          "x_text": "Booster 22 lifted onto transport stand ahead of rollout.",
-          "log_text": "Booster 22 lifted onto transport stand ahead of rollout to launch site.",
-          "url": "https://x.com/Blobifie/status/2113914954801889326",
-          "src": "@Blobifie",
-          "trust": "trusted",
-          "x_first": true,
-          "stage": "pad",
-          "hardware": "B22",
-          "x_post": {
-            "post_id": "2113914954801889326",
-            "url": "https://x.com/Blobifie/status/2113914954801889326",
-            "created_at": "2026-10-24T08:46:14.000Z",
-            "text": "Booster 22 has been lifted onto a transport stand ahead of its roll out to the launch site!! https://t.co/8SKSDLLF86",
-            "author": {
-              "name": "Blobifi",
-              "username": "Blobifie",
-              "avatar": "https://pbs.twimg.com/profile_images/2091766013562159104/xgHLFjBX_normal.jpg"
-            },
-            "media": [
-              {
-                "type": "photo",
-                "url": "https://pbs.twimg.com/media/HVYiW5GbMAE8vTP.jpg"
-              },
-              {
-                "type": "photo",
-                "url": "https://pbs.twimg.com/media/HVYicaKaQAA_hAX.jpg"
-              }
-            ]
-          },
-          "x_posts": [
-            "2113914954801889326"
           ],
-          "xChecked": true,
-          "imageChecked2": true,
-          "media_override": {
-            "post_url": "https://x.com/Blobifie/status/2113914954801889326",
-            "post_id": "2113914954801889326",
-            "author": "Blobifie",
-            "type": "photo",
-            "image": "https://pbs.twimg.com/media/HVYiW5GbMAE8vTP.jpg"
-          },
-          "tier": 2,
-          "push": {
-            "title": "🏗️ Pad activity · Flight 15",
-            "url": "https://x.com/Blobifie/status/2113914954801889326",
-            "at": "2026-10-24T08:46:14.000Z"
-          }
+          "refiled_from": "pad"
         },
         {
           "id": "x-2113907865060819060",
@@ -862,7 +715,7 @@
           "src": "@Blobifie",
           "trust": "trusted",
           "x_first": true,
-          "stage": "pad",
+          "stage": "static",
           "hardware": "B22",
           "flight": 15,
           "x_post": {
@@ -973,8 +826,332 @@
             "url": "https://x.com/NASASpaceflight/status/2113954013615952349",
             "at": "2026-10-24T11:21:26.000Z"
           },
-          "complete": true
+          "complete": true,
+          "refiled_from": "pad"
         },
+        {
+          "id": "x-2113955770337550391",
+          "date": "24 Oct",
+          "log_date": "24 Oct",
+          "at": "2026-10-24T11:28:25.000Z",
+          "text": "Booster 22 arrives at the launch site ahead of static fire campaign.",
+          "x_text": "Booster 22 arrives at the launch site ahead of static fire campaign.",
+          "log_text": "Booster 22 rolls to the launch site for static fire campaign.",
+          "url": "https://x.com/Blobifie/status/2113955770337550391",
+          "src": "@Blobifie",
+          "trust": "trusted",
+          "x_first": true,
+          "stage": "static",
+          "hardware": "B22",
+          "flight": 15,
+          "x_post": {
+            "post_id": "2113955770337550391",
+            "url": "https://x.com/Blobifie/status/2113955770337550391",
+            "created_at": "2026-10-24T11:28:25.000Z",
+            "text": "Booster 22 has arrived at the launch site ahead of its static fire campaign!! A source within spaceX has confirmed they do not currently plan on blowing up the booster during the static fire https://t.co/HuuE4MCmzB",
+            "author": {
+              "name": "Blobifi",
+              "username": "Blobifie",
+              "avatar": "https://pbs.twimg.com/profile_images/2091766013562159104/xgHLFjBX_normal.jpg"
+            },
+            "media": [
+              {
+                "type": "video",
+                "poster": "https://pbs.twimg.com/amplify_video_thumb/2113954930210025472/img/cDbF7Rqfljguu3GS.jpg",
+                "video_url": "https://video.twimg.com/amplify_video/2113954930210025472/vid/avc1/1280x720/kggVJxKORzmPlxQ3.mp4?tag=14"
+              }
+            ]
+          },
+          "x_posts": [
+            "2113955770337550391"
+          ],
+          "xChecked": true,
+          "imageChecked2": true,
+          "media_override": {
+            "post_url": "https://x.com/Blobifie/status/2113955770337550391",
+            "post_id": "2113955770337550391",
+            "author": "Blobifie",
+            "type": "video",
+            "image": "https://pbs.twimg.com/amplify_video_thumb/2113954930210025472/img/cDbF7Rqfljguu3GS.jpg"
+          },
+          "tier": 2,
+          "milestone": {
+            "key": "rollout|15|B22",
+            "type": "rollout",
+            "flight": 15,
+            "hardware": "B22",
+            "phase": "progress"
+          },
+          "push": {
+            "title": "💥 Static fires · Flight 15",
+            "url": "https://x.com/Blobifie/status/2113955770337550391",
+            "at": "2026-10-24T11:28:25.000Z"
+          }
+        },
+        {
+          "id": "x-2113914954801889326",
+          "date": "24 Oct",
+          "log_date": "24 Oct",
+          "at": "2026-10-24T08:46:14.000Z",
+          "text": "Booster 22 lifted onto transport stand ahead of rollout.",
+          "x_text": "Booster 22 lifted onto transport stand ahead of rollout.",
+          "log_text": "Booster 22 lifted onto transport stand ahead of rollout to launch site.",
+          "url": "https://x.com/Blobifie/status/2113914954801889326",
+          "src": "@Blobifie",
+          "trust": "trusted",
+          "x_first": true,
+          "stage": "static",
+          "hardware": "B22",
+          "x_post": {
+            "post_id": "2113914954801889326",
+            "url": "https://x.com/Blobifie/status/2113914954801889326",
+            "created_at": "2026-10-24T08:46:14.000Z",
+            "text": "Booster 22 has been lifted onto a transport stand ahead of its roll out to the launch site!! https://t.co/8SKSDLLF86",
+            "author": {
+              "name": "Blobifi",
+              "username": "Blobifie",
+              "avatar": "https://pbs.twimg.com/profile_images/2091766013562159104/xgHLFjBX_normal.jpg"
+            },
+            "media": [
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HVYiW5GbMAE8vTP.jpg"
+              },
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HVYicaKaQAA_hAX.jpg"
+              }
+            ]
+          },
+          "x_posts": [
+            "2113914954801889326"
+          ],
+          "xChecked": true,
+          "imageChecked2": true,
+          "media_override": {
+            "post_url": "https://x.com/Blobifie/status/2113914954801889326",
+            "post_id": "2113914954801889326",
+            "author": "Blobifie",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HVYiW5GbMAE8vTP.jpg"
+          },
+          "tier": 2,
+          "push": {
+            "title": "🏗️ Pad activity · Flight 15",
+            "url": "https://x.com/Blobifie/status/2113914954801889326",
+            "at": "2026-10-24T08:46:14.000Z"
+          },
+          "refiled_from": "pad"
+        },
+        {
+          "id": "x-2113617185218429437",
+          "date": "23 Oct",
+          "at": "2026-10-23T13:03:00.000Z",
+          "text": "Booster 22 heads to Pad 2 for potential static fire test.",
+          "x_text": "Booster 22 heads to Pad 2 for potential static fire test.",
+          "url": "https://x.com/NASASpaceflight/status/2113617185218429437",
+          "src": "@NASASpaceflight",
+          "trust": "trusted",
+          "x_first": true,
+          "stage": "static",
+          "hardware": "B22",
+          "x_post": {
+            "post_id": "2113617185218429437",
+            "url": "https://x.com/NASASpaceflight/status/2113617185218429437",
+            "created_at": "2026-10-23T13:03:00.000Z",
+            "text": "Starship Flight 15: Booster 22 heads to Pad 2 tonight for a potential weekend Static-Fire test. \"Road delay tonight Prod to Pad 11:59 PM - 04:00 AM CDT\" https://t.co/HSumkyMNOs",
+            "author": {
+              "name": "NSF - NASASpaceflight.com",
+              "username": "NASASpaceflight",
+              "avatar": "https://pbs.twimg.com/profile_images/1637919260298158080/kRT8BkYf_normal.jpg"
+            },
+            "media": [
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HVUTjfpWMAAhboa.jpg"
+              }
+            ],
+            "link": {
+              "url": "https://www.youtube.com/watch?v=mhJRzQsLZGg",
+              "title": "Starbase Live: 24/7 Starship & Super Heavy Development From SpaceX's Boca Chica Facility",
+              "description": "Starship is SpaceX's fully reusable launch system which is being de...",
+              "image": "https://pbs.twimg.com/news_img/2111802046466973698/IAIT5BI6?format=jpg&name=orig"
+            }
+          },
+          "x_posts": [
+            "2113617185218429437"
+          ],
+          "xChecked": true,
+          "imageChecked2": true,
+          "media_override": {
+            "post_url": "https://x.com/NASASpaceflight/status/2113617185218429437",
+            "post_id": "2113617185218429437",
+            "author": "NASASpaceflight",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HVUTjfpWMAAhboa.jpg"
+          },
+          "tier": 1,
+          "milestone": {
+            "key": "rollout|15|-",
+            "type": "rollout",
+            "flight": 15,
+            "hardware": "B22",
+            "phase": "progress",
+            "migrated": true
+          },
+          "log_text": "Booster 22 heads to Pad 2 for a potential static fire test.",
+          "refiled_from": "pad"
+        },
+        {
+          "id": "x-2112967167767433728",
+          "date": "21 Oct",
+          "at": "2026-10-21T18:00:04.000Z",
+          "text": "Starbase Pad 2 BQDs purging ahead of Booster 22 arrival.",
+          "x_text": "Starbase Pad 2 BQDs purging ahead of Booster 22 arrival.",
+          "url": "https://x.com/NASASpaceflight/status/2112967167767433728",
+          "src": "@NASASpaceflight",
+          "trust": "trusted",
+          "x_first": true,
+          "stage": "static",
+          "hardware": "Pad 2",
+          "x_post": {
+            "post_id": "2112967167767433728",
+            "url": "https://x.com/NASASpaceflight/status/2112967167767433728",
+            "created_at": "2026-10-21T18:00:04.000Z",
+            "text": "Starbase Pad 2 BQDs (Booster Quick Disconnect) purging. Hopefully ahead of Booster 22 arriving soon. https://t.co/HSumkyMfYU",
+            "author": {
+              "name": "NSF - NASASpaceflight.com",
+              "username": "NASASpaceflight",
+              "avatar": "https://pbs.twimg.com/profile_images/1637919260298158080/kRT8BkYf_normal.jpg"
+            },
+            "media": [
+              {
+                "type": "video",
+                "poster": "https://pbs.twimg.com/amplify_video_thumb/2112967085047369728/img/mvvPfdSAuw24PHag.jpg",
+                "video_url": "https://video.twimg.com/amplify_video/2112967085047369728/vid/avc1/1104x628/f4_kx_BSb3HL7S26.mp4"
+              }
+            ],
+            "link": {
+              "url": "https://www.youtube.com/watch?v=mhJRzQsLZGg",
+              "title": "Starbase Live: 24/7 Starship & Super Heavy Development From SpaceX's Boca Chica Facility",
+              "description": "Starship is SpaceX's fully reusable launch system which is being de...",
+              "image": "https://pbs.twimg.com/news_img/2111802046466973698/IAIT5BI6?format=jpg&name=orig"
+            }
+          },
+          "x_posts": [
+            "2112967167767433728",
+            "2113057179523760370",
+            "2113193182276309126",
+            "2112679319818686934"
+          ],
+          "xChecked": true,
+          "imageChecked2": true,
+          "media_override": {
+            "post_url": "https://x.com/NASASpaceflight/status/2112967167767433728",
+            "post_id": "2112967167767433728",
+            "author": "NASASpaceflight",
+            "type": "video",
+            "image": "https://pbs.twimg.com/amplify_video_thumb/2112967085047369728/img/mvvPfdSAuw24PHag.jpg"
+          },
+          "tier": 1,
+          "milestone": {
+            "key": "pad_work|15|-",
+            "type": "pad_work",
+            "flight": 15,
+            "hardware": "PAD2",
+            "phase": "expected",
+            "migrated": true
+          },
+          "log_text": "Pad 2 booster quick disconnects are purging ahead of Booster 22's arrival.",
+          "refiled_from": "pad"
+        },
+        {
+          "id": "x-2112035558994419901",
+          "date": "19 Oct",
+          "at": "2026-10-19T04:18:11.000Z",
+          "text": "Pad 2's launch mount work platform removed overnight as Booster 22, reportedly with all engines in, nears static fire rollout.",
+          "x_text": "Pad 2's launch mount work platform removed overnight as Booster 22, reportedly with all engines in, nears static fire rollout.",
+          "src": "@efraser77",
+          "source": "efraser77",
+          "trust": "trusted",
+          "manual": true,
+          "backfill": "2026-10-19",
+          "flight": 15,
+          "stage": "static",
+          "hardware": "Pad 2",
+          "url": "https://x.com/efraser77/status/2112035558994419901",
+          "x_post": {
+            "post_id": "2112035558994419901",
+            "url": "https://x.com/efraser77/status/2112035558994419901",
+            "created_at": "2026-10-19T04:18:11.000Z",
+            "text": "The \"Dancefloor 2.0\" service structure has been removed from the Pad 2 OLM this evening. There is a road delay scheduled for 10am-2pm CDT Monday. Will we get a booster rollout?",
+            "author": {
+              "name": "Eric Fraser",
+              "username": "efraser77"
+            },
+            "media": [
+              {
+                "type": "video",
+                "poster": "https://pbs.twimg.com/amplify_video_thumb/2112035083679043584/img/dw7Zle9xo9YHSp0k.jpg"
+              }
+            ]
+          },
+          "xChecked": true,
+          "imageChecked2": true,
+          "media_override": {
+            "post_url": "https://x.com/efraser77/status/2112035558994419901",
+            "post_id": "2112035558994419901",
+            "author": "efraser77",
+            "type": "video",
+            "image": "https://pbs.twimg.com/amplify_video_thumb/2112035083679043584/img/dw7Zle9xo9YHSp0k.jpg"
+          },
+          "tier": 3,
+          "milestone": {
+            "key": "rollout|15|-",
+            "type": "rollout",
+            "flight": 15,
+            "hardware": "PAD2",
+            "phase": "expected",
+            "migrated": true
+          },
+          "log_text": "The Pad 2 launch mount work platform was removed overnight.",
+          "refiled_from": "pad"
+        },
+        {
+          "id": "s42-sf-estimate",
+          "date": "30 Sep",
+          "log_date": "30 Sep",
+          "text": "Ship 42 could be ready for a static fire within two to three weeks.",
+          "x_text": "Ship 42 could be ready for a static fire within two to three weeks.",
+          "log_text": "Ship 42 could be ready for a static fire within two to three weeks.",
+          "src": "NSF",
+          "trust": "trusted",
+          "flight": 15,
+          "stage": "static",
+          "hardware": "S42",
+          "tier": 1,
+          "hedged": true,
+          "milestone": {
+            "key": "static_fire|15|S42",
+            "type": "static_fire",
+            "flight": 15,
+            "hardware": "S42",
+            "phase": "expected"
+          },
+          "log_only": true
+        }
+      ],
+      "doneText": "Completed",
+      "log_latest": "Booster 22 completed a static fire at Pad 2."
+    },
+    {
+      "id": "pad",
+      "icon": "🏗️",
+      "name": "Pad activity",
+      "color": "#A88BFF",
+      "status": "complete",
+      "latest": "Starbase Pad 1 Flame Trench wall work is progressing.",
+      "history": [
         {
           "id": "x-2113664154762457446",
           "date": "23 Oct",
@@ -1032,134 +1209,18 @@
           "log_text": "Pad 1 flame trench wall work is progressing at Starbase."
         },
         {
-          "id": "x-2113617185218429437",
-          "date": "23 Oct",
-          "at": "2026-10-23T13:03:00.000Z",
-          "text": "Booster 22 heads to Pad 2 for potential static fire test.",
-          "x_text": "Booster 22 heads to Pad 2 for potential static fire test.",
-          "url": "https://x.com/NASASpaceflight/status/2113617185218429437",
-          "src": "@NASASpaceflight",
           "trust": "trusted",
-          "x_first": true,
-          "stage": "pad",
-          "hardware": "B22",
-          "x_post": {
-            "post_id": "2113617185218429437",
-            "url": "https://x.com/NASASpaceflight/status/2113617185218429437",
-            "created_at": "2026-10-23T13:03:00.000Z",
-            "text": "Starship Flight 15: Booster 22 heads to Pad 2 tonight for a potential weekend Static-Fire test. \"Road delay tonight Prod to Pad 11:59 PM - 04:00 AM CDT\" https://t.co/HSumkyMNOs",
-            "author": {
-              "name": "NSF - NASASpaceflight.com",
-              "username": "NASASpaceflight",
-              "avatar": "https://pbs.twimg.com/profile_images/1637919260298158080/kRT8BkYf_normal.jpg"
-            },
-            "media": [
-              {
-                "type": "photo",
-                "url": "https://pbs.twimg.com/media/HVUTjfpWMAAhboa.jpg"
-              }
-            ],
-            "link": {
-              "url": "https://www.youtube.com/watch?v=mhJRzQsLZGg",
-              "title": "Starbase Live: 24/7 Starship & Super Heavy Development From SpaceX's Boca Chica Facility",
-              "description": "Starship is SpaceX's fully reusable launch system which is being de...",
-              "image": "https://pbs.twimg.com/news_img/2111802046466973698/IAIT5BI6?format=jpg&name=orig"
-            }
-          },
-          "x_posts": [
-            "2113617185218429437"
-          ],
-          "xChecked": true,
-          "imageChecked2": true,
-          "media_override": {
-            "post_url": "https://x.com/NASASpaceflight/status/2113617185218429437",
-            "post_id": "2113617185218429437",
-            "author": "NASASpaceflight",
-            "type": "photo",
-            "image": "https://pbs.twimg.com/media/HVUTjfpWMAAhboa.jpg"
-          },
-          "tier": 1,
-          "milestone": {
-            "key": "rollout|15|-",
-            "type": "rollout",
-            "flight": 15,
-            "hardware": "B22",
-            "phase": "progress",
-            "migrated": true
-          },
-          "log_text": "Booster 22 heads to Pad 2 for a potential static fire test."
-        },
-        {
-          "id": "x-2112967167767433728",
-          "date": "21 Oct",
-          "at": "2026-10-21T18:00:04.000Z",
-          "text": "Starbase Pad 2 BQDs purging ahead of Booster 22 arrival.",
-          "x_text": "Starbase Pad 2 BQDs purging ahead of Booster 22 arrival.",
-          "url": "https://x.com/NASASpaceflight/status/2112967167767433728",
-          "src": "@NASASpaceflight",
-          "trust": "trusted",
-          "x_first": true,
-          "stage": "pad",
-          "hardware": "Pad 2",
-          "x_post": {
-            "post_id": "2112967167767433728",
-            "url": "https://x.com/NASASpaceflight/status/2112967167767433728",
-            "created_at": "2026-10-21T18:00:04.000Z",
-            "text": "Starbase Pad 2 BQDs (Booster Quick Disconnect) purging. Hopefully ahead of Booster 22 arriving soon. https://t.co/HSumkyMfYU",
-            "author": {
-              "name": "NSF - NASASpaceflight.com",
-              "username": "NASASpaceflight",
-              "avatar": "https://pbs.twimg.com/profile_images/1637919260298158080/kRT8BkYf_normal.jpg"
-            },
-            "media": [
-              {
-                "type": "video",
-                "poster": "https://pbs.twimg.com/amplify_video_thumb/2112967085047369728/img/mvvPfdSAuw24PHag.jpg",
-                "video_url": "https://video.twimg.com/amplify_video/2112967085047369728/vid/avc1/1104x628/f4_kx_BSb3HL7S26.mp4"
-              }
-            ],
-            "link": {
-              "url": "https://www.youtube.com/watch?v=mhJRzQsLZGg",
-              "title": "Starbase Live: 24/7 Starship & Super Heavy Development From SpaceX's Boca Chica Facility",
-              "description": "Starship is SpaceX's fully reusable launch system which is being de...",
-              "image": "https://pbs.twimg.com/news_img/2111802046466973698/IAIT5BI6?format=jpg&name=orig"
-            }
-          },
-          "x_posts": [
-            "2112967167767433728",
-            "2113057179523760370",
-            "2113193182276309126",
-            "2112679319818686934"
-          ],
-          "xChecked": true,
-          "imageChecked2": true,
-          "media_override": {
-            "post_url": "https://x.com/NASASpaceflight/status/2112967167767433728",
-            "post_id": "2112967167767433728",
-            "author": "NASASpaceflight",
-            "type": "video",
-            "image": "https://pbs.twimg.com/amplify_video_thumb/2112967085047369728/img/mvvPfdSAuw24PHag.jpg"
-          },
-          "tier": 1,
-          "milestone": {
-            "key": "pad_work|15|-",
-            "type": "pad_work",
-            "flight": 15,
-            "hardware": "PAD2",
-            "phase": "expected",
-            "migrated": true
-          },
+          "src": "@Blobifie",
+          "tier": 2,
+          "date": "20 Oct",
+          "at": "2026-10-20T22:56:16.000Z",
+          "text": "SpaceX performing more catch testing at tower top with launch and landing deluge tests.",
+          "url": "https://x.com/Blobifie/status/2112679319818686934",
+          "phase": "progress",
+          "log_text": "SpaceX ran more catch and deluge tests at the tower top.",
+          "id": "x-2112967167767433728-pad",
+          "split_from": "x-2112967167767433728",
           "updates": [
-            {
-              "date": "20 Oct",
-              "at": "2026-10-20T22:56:16.000Z",
-              "text": "SpaceX performing more catch testing at tower top with launch and landing deluge tests.",
-              "url": "https://x.com/Blobifie/status/2112679319818686934",
-              "src": "@Blobifie",
-              "phase": "progress",
-              "tier": 2,
-              "log_text": "SpaceX ran more catch and deluge tests at the tower top."
-            },
             {
               "date": "9 Oct",
               "at": "2026-10-08T23:00:08.000Z",
@@ -1186,62 +1247,10 @@
               "tier": 2,
               "log_text": "Ship 42 was lifted by the Pad 2 chopsticks for catch and arm tests."
             }
-          ],
-          "log_text": "Pad 2 booster quick disconnects are purging ahead of Booster 22's arrival."
-        },
-        {
-          "id": "x-2112035558994419901",
-          "date": "19 Oct",
-          "at": "2026-10-19T04:18:11.000Z",
-          "text": "Pad 2's launch mount work platform removed overnight as Booster 22, reportedly with all engines in, nears static fire rollout.",
-          "x_text": "Pad 2's launch mount work platform removed overnight as Booster 22, reportedly with all engines in, nears static fire rollout.",
-          "src": "@efraser77",
-          "source": "efraser77",
-          "trust": "trusted",
-          "manual": true,
-          "backfill": "2026-10-19",
-          "flight": 15,
-          "stage": "pad",
-          "hardware": "Pad 2",
-          "url": "https://x.com/efraser77/status/2112035558994419901",
-          "x_post": {
-            "post_id": "2112035558994419901",
-            "url": "https://x.com/efraser77/status/2112035558994419901",
-            "created_at": "2026-10-19T04:18:11.000Z",
-            "text": "The \"Dancefloor 2.0\" service structure has been removed from the Pad 2 OLM this evening. There is a road delay scheduled for 10am-2pm CDT Monday. Will we get a booster rollout?",
-            "author": {
-              "name": "Eric Fraser",
-              "username": "efraser77"
-            },
-            "media": [
-              {
-                "type": "video",
-                "poster": "https://pbs.twimg.com/amplify_video_thumb/2112035083679043584/img/dw7Zle9xo9YHSp0k.jpg"
-              }
-            ]
-          },
-          "xChecked": true,
-          "imageChecked2": true,
-          "media_override": {
-            "post_url": "https://x.com/efraser77/status/2112035558994419901",
-            "post_id": "2112035558994419901",
-            "author": "efraser77",
-            "type": "video",
-            "image": "https://pbs.twimg.com/amplify_video_thumb/2112035083679043584/img/dw7Zle9xo9YHSp0k.jpg"
-          },
-          "tier": 3,
-          "milestone": {
-            "key": "rollout|15|-",
-            "type": "rollout",
-            "flight": 15,
-            "hardware": "PAD2",
-            "phase": "expected",
-            "migrated": true
-          },
-          "log_text": "The Pad 2 launch mount work platform was removed overnight."
+          ]
         }
       ],
-      "log_latest": "Booster 22 rolled to Pad 2 and stacked on the launch mount."
+      "log_latest": "Pad 1 flame trench wall work is progressing at Starbase."
     },
     {
       "id": "faa",
@@ -1525,7 +1534,8 @@
       "url": "https://x.com/NASASpaceflight/status/2114339334753284398",
       "at": "2026-10-25T12:52:34.000Z",
       "date": "25 Oct",
-      "flight": 15
+      "flight": 15,
+      "box": "static"
     },
     {
       "id": "news-mvmgoq8g-00233b",
@@ -1535,7 +1545,8 @@
       "url": "https://x.com/NASASpaceflight/status/2113992853093601306",
       "at": "2026-10-24T13:55:46.000Z",
       "date": "24 Oct",
-      "flight": 15
+      "flight": 15,
+      "box": "static"
     },
     {
       "id": "news-mvm4mfz4-21e7ea",
@@ -1545,7 +1556,8 @@
       "url": "https://x.com/NASASpaceflight/status/2113907865060819060",
       "at": "2026-10-24T08:18:04.000Z",
       "date": "24 Oct",
-      "flight": 15
+      "flight": 15,
+      "box": "static"
     },
     {
       "id": "news-mvltvvb4-2ad013",
@@ -1555,7 +1567,8 @@
       "url": "https://www.youtube.com/watch?v=BlyqwOjCJzA",
       "at": "2026-10-24T03:17:28.000Z",
       "date": "24 Oct",
-      "flight": 15
+      "flight": 15,
+      "box": "static"
     }
   ],
   "milestones": {

@@ -159,9 +159,9 @@ const box = (r, id) => r.categories.find((c) => c.id === id);
   claudeDown = false;
   res = await road.run(opts);
   r = JSON.parse(fs.readFileSync(roadPath, "utf8"));
-  const pad = box(r, "pad");
+  const pad = box(r, "static"); // purpose rule: S42 rolling to Pad 2 serves its open static fire campaign
   const tes = pad.history.find((h) => h.src === "Teslarati") || {};
-  check(tes.trust === "unconfirmed" && pad.latest === JSON.parse(fs.readFileSync(path.join(ROOT, "road.json"), "utf8")).categories.find((c) => c.id === "pad").latest, "Teslarati rumour → added with Unconfirmed tag, headline untouched");
+  check(tes.trust === "unconfirmed" && pad.latest !== tes.text, "Teslarati rumour → added with Unconfirmed tag (Static fires by purpose), headline untouched");
   check(box(r, "cryo").status === "progress" && box(r, "cryo").history[0].trust === "unconfirmed", "unconfirmed X post suggesting a cryo failure → tagged, status unchanged");
   check(sent.length === 2 && sent.every((n) => /\(unconfirmed\)$/.test(n.title)), `pushes say (unconfirmed): ${sent.map((n) => n.title).join(" | ")}`);
 
@@ -236,11 +236,11 @@ const box = (r, id) => r.categories.find((c) => c.id === id);
   check(hpad.latest === "Pad 2 being serviced", "new fact without supersedes → headline kept");
   road.applyUpdates(hr, items, [{ item: 2, box: "pad", line: "Pad 2 servicing finished.", short: "Pad 2 servicing finished", status: null, supersedes: true }], () => {}, 5);
   check(hpad.latest === "Pad 2 servicing finished", "supersedes: true → headline replaced");
-  road.applyUpdates(hr, items, [{ item: 3, box: "pad", line: "Ship 42 rolled to Pad 2.", short: "S42 at Pad 2", status: "progress" }], () => {}, 5);
+  road.applyUpdates(hr, items, [{ item: 3, box: "pad", line: "Pad 2 deluge system tested.", short: "Pad 2 deluge tested", status: "progress" }], () => {}, 5);
   check(hpad.latest === "Pad 2 servicing finished" && hpad.status === "progress", "same status → headline kept");
   hpad.status = "pending";
-  road.applyUpdates(hr, items, [{ item: 4, box: "pad", line: "Ship 42 rolled to Pad 2 again.", short: "S42 at Pad 2", status: "progress" }], () => {}, 5);
-  check(hpad.latest === "S42 at Pad 2" && hpad.status === "progress", "status change → headline replaced");
+  road.applyUpdates(hr, items, [{ item: 4, box: "pad", line: "Pad 2 deluge system tested again.", short: "Pad 2 deluge retested", status: "progress" }], () => {}, 5);
+  check(hpad.latest === "Pad 2 deluge retested" && hpad.status === "progress", "status change → headline replaced");
 
   console.log("\n────────── RUN 6: several facts from one item, empty Claude replies ──────────");
   road.LIMITS.claudeRetryMs = 0;
@@ -260,11 +260,11 @@ const box = (r, id) => r.categories.find((c) => c.id === id);
   const r6 = () => JSON.parse(fs.readFileSync(opts6.roadPath, "utf8"));
 
   // a) one item, several facts: 3 kept, a duplicate and a 4th fact dropped
-  feed6 = [item6("multi", "Ship 42 rolls to Pad 2 as Booster 22 static fire nears")];
+  feed6 = [item6("multi", "Pad 2 tower crane removed as Booster 22 static fire nears")];
   claudeScript = [textReply([
-    { item: 1, box: "pad", line: "Ship 42 rolled to Pad 2.", short: "S42 at Pad 2", status: null, reason: "vehicle move" },
+    { item: 1, box: "pad", line: "Pad 2 tower crane removed.", short: "Pad 2 crane removed", status: null, reason: "pad work" },
     { item: 1, box: "static", line: "Booster 22 may static fire next week.", short: "B22 static fire may come next week", status: null, reason: "hedged plan" },
-    { item: 1, box: "pad", line: "Ship 42 rolled to Pad 2.", short: "dup", status: null, reason: "same fact again" },
+    { item: 1, box: "pad", line: "Pad 2 tower crane removed.", short: "dup", status: null, reason: "same fact again" },
     { item: 1, box: "faa", line: "The FAA could reportedly modify the licence soon.", short: "FAA change reportedly soon", status: null, reason: "hedged" },
     { item: 1, box: "date", line: "A fourth fact that must be dropped.", short: "fourth", status: null, reason: "over the limit" },
   ])];

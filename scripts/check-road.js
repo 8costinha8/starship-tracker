@@ -41,6 +41,7 @@
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
+const purpose = require("./purpose.js");
 const { execSync } = require("child_process");
 const os = require("os");
 const predict = require("./predicted.js");
@@ -809,6 +810,8 @@ For each item below, decide if it reports something concrete about Flight ${road
 "reason": why, in max 12 words. For each item you skip, add {"item": n, "skip": true, "reason": "..."}.${road.vehicles && road.vehicles.length ? "" : `
 If an item says which booster and ship will fly Flight ${road.flight}, also add {"item": n, "vehicles": ["B23", "S43"]}.`}
 
+${purpose.promptRules(road)}
+
 Reply with ONLY a JSON array, one or more entries per item, e.g. [{"item": 1, "box": "static", "line": "...", "short": "...", "status": "progress", "supersedes": false, "reason": "..."}, {"item": 2, "skip": true, "reason": "about Flight 14, not ${road.flight}"}].
 
 Items:
@@ -825,7 +828,7 @@ const entriesSchema = (props) => ({
 });
 const ROAD_SCHEMA = entriesSchema({
   item: { type: "integer" }, skip: nul("boolean"), box: nul("string"), line: nul("string"), short: nul("string"),
-  status: nul("string"), supersedes: nul("boolean"), reason: nul("string"), vehicles: { type: ["array", "null"], items: { type: "string" } },
+  status: nul("string"), confidence: nul("number"), supersedes: nul("boolean"), reason: nul("string"), vehicles: { type: ["array", "null"], items: { type: "string" } },
 });
 const DATES_SCHEMA = entriesSchema({ item: { type: "integer" }, date: nul("string") });
 const NEWS_SCHEMA = entriesSchema({ item: { type: "integer" }, push: { type: "boolean" }, dup: nul("string"), story: nul("string"), headline: nul("string"), reason: nul("string") });
@@ -977,8 +980,9 @@ function applyUpdates(road, items, updates, log, limit) {
       else log(`ignored vehicles ${JSON.stringify(u.vehicles)} from ${it.src} (${it.tier})`);
       continue;
     }
-    const box = road.categories.find((c) => c.id === u.box);
     const line = cleanLine(u.line, { fullStop: true });
+    if (line && u.box !== "faa" && u.box !== "date") { const pb = purpose.purposeFor(road, line, `${it.title || ""} ${it.text || ""}`, { box: u.box, confidence: u.confidence, at: it.publishedAt }).box; if (pb !== u.box) { log(`purpose: ${u.box} → ${pb}: ${line}`); u.box = pb; } }
+    const box = road.categories.find((c) => c.id === u.box);
     if (!box || !line) { log(`skipped malformed update ${JSON.stringify(u)}`); continue; }
     if (appliedKeys.has(it.key)) { log(`skipped: "${it.title}" was already applied in an earlier run`); continue; }
     const dupeKey = `${box.id}|${line.toLowerCase()}`;
@@ -1240,6 +1244,8 @@ async function run(opts = {}) {
   }
 
   // 1b. Entries for a flight that's already in the log (e.g. Flight 14 notes) → that flight's card (no push)
+  // 1a. Re-file by purpose (static fire / cryo / Raptors / launch / pad work): same ids, NO push
+  { const mv = purpose.refile(road); if (mv.length) { for (const x of mv) log(`re-filed (no push) ${x.id}: ${x.from} → ${x.to}`); changed = true; } }
   if (!rolledOver && lastN) { const mv = archiveLaunched(road, lastN); if (mv) { log(`archived ${mv} Road entr${mv === 1 ? "y" : "ies"} of launched flights to the Flight Log`); changed = true; } }
 
   // X-first (production default): new posts from the trusted X accounts are the Road cards.

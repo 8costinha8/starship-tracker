@@ -37,6 +37,10 @@
     .replace(/([^.!?])$/, "$1.");
   const words = (t) => new Set(String(t).toLowerCase().replace(/booster|ship|\b[bs]\d{2}\b|\d+/g, " ").match(/[a-z]{4,}/g) || []);
   const same = (a, b) => { const A = words(line(a)), B = words(line(b)); if (!A.size || !B.size) return false; let n = 0; for (const w of A) if (B.has(w)) n++; return n / Math.min(A.size, B.size) >= 0.8; };
+  // same day, same kind of vehicle step ("heads to the launch site" / "rolls to Pad 2" / "arrives at Pad 2") → one line
+  const FAMILY = [["move", /\b(roll(s|ed|ing)?( out| to)?|heads?|arriv\w*|left|leaves|highway|en route)\b/i], ["lift", /\b(lift\w*|lowered|stacked|onto the (launch )?mount|olm)\b/i]];
+  const fam = (h) => { const t = line(h); const f = FAMILY.find(([, re]) => re.test(t)); return f ? f[0] + "|" + named(t).join(",") : null; };
+  const sameStep = (a, b) => same(a, b) || (fam(a) && fam(a) === fam(b));
   const STEP_KEYS = ["date", "log_date", "at", "text", "log_text", "url", "src", "handle", "phase", "tier"];
   const asStep = (h) => { const u = {}; for (const k of STEP_KEYS) if (h[k] != null) u[k] = h[k];
     if (!u.handle && h.x_post && h.x_post.author && h.x_post.author.username) u.handle = h.x_post.author.username;
@@ -97,7 +101,7 @@
         card = { ...clone(top._entry || top), log_text: tidy(line(top)), log_date: top.log_date || top.date, hardware: v };
         delete card.complete; if (card.milestone) card.milestone = { ...card.milestone, phase: card.milestone.phase === "completed" ? "progress" : card.milestone.phase };
         card._hi = top._hi;
-        rest = sorted.slice(1).filter((u) => !MINOR.test(line(u)) && dayNum(u) <= dayNum(top) && !(dayNum(u) === dayNum(top) && same(u, top)));
+        rest = sorted.slice(1).filter((u) => !MINOR.test(line(u)) && dayNum(u) <= dayNum(top) && !(dayNum(u) === dayNum(top) && sameStep(u, top)));
       } else {
         card = { ...clone(firstPred._entry || firstPred), log_text: tidy(line(firstPred)), log_date: firstPred.log_date || firstPred.date, hardware: v };
         delete card.complete; card._hi = firstPred._hi; card.updates = undefined; delete card.updates;
@@ -105,7 +109,7 @@
       }
       if (firstPred) rest.push(firstPred);
       const kept = [];
-      for (const u of rest) if (line(u) && tidy(line(u)) !== card.log_text && !kept.some((k) => dayNum(k) === dayNum(u) && same(k, u))) kept.push(u);
+      for (const u of rest) if (line(u) && tidy(line(u)) !== card.log_text && !kept.some((k) => dayNum(k) === dayNum(u) && sameStep(k, u))) kept.push(u);
       kept.sort((a, b) => dayNum(b) - dayNum(a) || atNum(b) - atNum(a));
       card.updates = kept.map((u) => { const o = { ...u, log_text: tidy(line(u)) }; delete o._entry; return o; });
       if (!card.updates.length) delete card.updates;

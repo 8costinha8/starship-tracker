@@ -45,8 +45,8 @@ const MILESTONE_TYPES = ["cryo_test", "proof_test", "static_fire", "engines_inst
 const PHASES = ["expected", "progress", "completed"];
 const MISSION_TOPICS = ["net", "catch", "objectives", "payload", "trajectory", "landing", "licence", "other"];
 const CLASSIFY_SCHEMA = { type: "object", additionalProperties: false, required: ["entries"], properties: { entries: { type: "array", items: {
-  type: "object", additionalProperties: false, required: ["item", "kind", "stage", "hardware", "text", "log_text", "status", "event", "phase", "flight", "media_fit", "speculative", "inferred", "topic", "attribution", "reason"],
-  properties: { item: { type: "integer" }, kind: { type: "string", enum: ["road", "mission-update", "starship-news", "skip"] }, stage: { type: ["string", "null"] },
+  type: "object", additionalProperties: false, required: ["item", "kind", "stage", "hardware", "text", "log_text", "status", "event", "phase", "flight", "media_fit", "speculative", "inferred", "topic", "attribution", "confidence", "reason"],
+  properties: { item: { type: "integer" }, kind: { type: "string", enum: ["road", "mission-update", "starship-news", "skip"] }, stage: { type: ["string", "null"] }, confidence: { type: ["number", "null"] },
     hardware: { type: ["string", "null"] }, text: { type: ["string", "null"] }, log_text: { type: ["string", "null"] }, status: { type: ["string", "null"], enum: ["progress", "done", "confirmed", null] }, event: { type: ["string", "null"], enum: [...MILESTONE_TYPES, null] }, phase: { type: ["string", "null"], enum: ["expected", "progress", "completed", null] }, flight: { type: ["integer", "null"] }, media_fit: { type: ["string", "null"], enum: ["shows-event", "unrelated", "none", null] }, speculative: { type: ["boolean", "null"] }, inferred: { type: ["boolean", "null"] }, topic: { type: ["string", "null"], enum: [...MISSION_TOPICS, null] }, attribution: { type: ["string", "null"] }, reason: { type: "string" } } } } } };
 
 function classifyPrompt(road, posts, stages) {
@@ -60,6 +60,7 @@ kind:
 - "skip": anything else — memes, opinions, jokes, renders/artwork, polls, merch, livestream ads, vague hype, unrelated topics.
 Read the post's [link: ...] title/description too: a teaser post linking an article counts for what the article reports about Flight ${road.flight}. If a post mixes long-term plans with a concrete Flight ${road.flight} item, classify it by that item.
 stage (road only): one of ${stages.map((s) => `"${s.id}" (${s.name})`).join(", ")}; null otherwise.
+${require("./purpose.js").promptRules(road)}
 hardware (road only): the main hardware id in short form, e.g. "S42", "B22", "Pad 2", "FAA"; null if none.
 status (road only, else null): "progress" if the post shows the stage is now under way (or restarted), "done" ONLY if it clearly says the stage is finished (e.g. static fire completed, licence issued), "confirmed" ONLY for an official launch date confirmation (Launch date stage); null if the post doesn't change the stage's status.
 event (road only, else null): the concrete milestone the post shows actually HAPPENING: "cryo_test" (a cryo/proof test was done), "static_fire" (a static fire was done), "engines_installed" (Raptors fully installed), "stacked" (ship stacked on booster), "wdr" (wet dress rehearsal), "licence" (FAA launch licence issued); null for anything else (rollouts, plans, forecasts, removals).
@@ -158,6 +159,7 @@ function placePost(road, post, cls, now = Date.now(), picks = []) {
   cls = { ...cls, text: require("./push-sync.js").cleanText(cls.text) }; // no public source names in app text
   const logText = logText_.cleanLogText(cls.log_text) || logText_.cleanLogText(cls.text); // Flight Log line; falls back to text only when it passes the style lint
   const logDate = dayLabel(post.created_at); // the source post's own day, no time
+  if (cls.stage !== "faa" && cls.stage !== "date") { const pb = require("./purpose.js").purposeFor(road, cls.text || "", post.text || "", { hardware: cls.hardware, box: cls.stage, confidence: cls.confidence, at: post.created_at }).box; if (pb !== cls.stage && road.categories.some((c) => c.id === pb)) cls = { ...cls, stage: pb }; }
   const box = road.categories.find((c) => c.id === cls.stage);
   let m = postMedia(post);
   if (cls.media_fit === "unrelated") m = null; // a picture that contradicts the text is worse than none
