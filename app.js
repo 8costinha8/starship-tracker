@@ -1154,6 +1154,23 @@ function RoadCard({ road, onEntryTap, openReq }) {
   React.useEffect(() => { if (openReq) setMain(true); }, [openReq]); // header chip asks it to open
   const [open, setOpen] = React.useState(null);
   const items = road && Array.isArray(road.categories) ? road.categories.filter((m) => !ROAD_HIDDEN.includes(m.id)).map((m) => logView(m, road)).map((m) => ({ ...m, status: rollupStatus(m, road) })) : [];
+  const listRef = React.useRef(null);
+  const pillKey = items.map((m) => m.id + ":" + m.status + ":" + (m.doneText || "")).join("|");
+  // Equal-width status pills: every pill takes the widest pill's natural width (--pill-w on the list), re-measured on render, resize and font load.
+  React.useLayoutEffect(() => {
+    const box = listRef.current; if (!box) return;
+    let busy = false;
+    const fit = () => { if (busy) return; busy = true;
+      box.style.setProperty("--pill-w", "0px");
+      const w = Math.max(0, ...[...box.querySelectorAll(".callout-head .badge")].map((b) => b.getBoundingClientRect().width));
+      box.style.setProperty("--pill-w", Math.ceil(w) + "px"); busy = false; };
+    fit();
+    const ro = typeof ResizeObserver === "function" ? new ResizeObserver(() => requestAnimationFrame(fit)) : null;
+    if (ro) box.querySelectorAll(".callout-head .badge").forEach((b) => ro.observe(b));
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+    window.addEventListener("resize", fit);
+    return () => { if (ro) ro.disconnect(); window.removeEventListener("resize", fit); };
+  }, [pillKey]);
   if (!items.length) return null;
   const title = `Road to Flight ${road.flight}`;
   const done = items.filter((m) => m.status === "done" || m.status === "complete").length; // shown boxes only
@@ -1170,7 +1187,7 @@ function RoadCard({ road, onEntryTap, openReq }) {
           <svg className="road-chev" width="20" height="20" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5l4 4 4-4" stroke="currentColor" strokeWidth="1.7" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </span>
       </button>
-      <div className="road-list"><div className="road-list-inner">
+      <div className="road-list"><div className="road-list-inner" ref={listRef}>
       {items.map((m) => {
         const isOpen = open === m.id;
         return (
@@ -2291,6 +2308,7 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .buildup a { color: inherit; }
 .buildup li.bu-tap { cursor: pointer; -webkit-tap-highlight-color: transparent; outline: none; } /* invisible tap area: no box, border or underline */
 .buildup li.bu-tap:focus-visible { outline: 2px solid #A9BDF0; outline-offset: 2px; border-radius: 4px; }
+.road .callout-head .badge { display: inline-block; box-sizing: border-box; min-width: var(--pill-w, 0px); text-align: center; flex: none; } /* all status pills share the widest pill's width (--pill-w, set in RoadCard) */
 .badge-wrap { display: inline-flex; flex-direction: column; align-items: center; gap: 3px; flex: none; }
 .badge-count { font-size: 10.5px; color: var(--muted, #AAB6D6); }
 .bu-date { font-weight: 700; margin-right: 4px; }
