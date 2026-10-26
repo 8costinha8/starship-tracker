@@ -229,6 +229,16 @@
       "sent_at": "2026-10-26T07:02:19.219Z",
       "where": "feed",
       "verdict": "sent"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Ship 42 is being transported to the Massey's test site, with an engine section in tow",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mvozi9xs-e0267f",
+      "url": "https://x.com/RGVaerialphotos/status/2114632668461900071",
+      "at": "2026-10-26T08:18:10.000Z",
+      "sent_at": "2026-10-26T08:30:51.372Z",
+      "where": "feed",
+      "verdict": "sent"
     }
   ]
 }
