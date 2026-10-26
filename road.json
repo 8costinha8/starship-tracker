@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "26 Oct",
-  "updatedAt": "2026-10-26T02:36:55.833Z",
+  "updatedAt": "2026-10-26T04:21:11.093Z",
   "categories": [
     {
       "id": "cryo",
@@ -13,8 +13,67 @@
       "name": "Cryo tests",
       "color": "#BFE6FF",
       "status": "progress",
-      "latest": "Booster 23 rolled back to the production site after its cryo testing at Massey's.",
+      "latest": "Ship 42 is moving into position at Massey's as Ship 43 departs.",
       "history": [
+        {
+          "id": "x-2114568166651428965",
+          "date": "26 Oct",
+          "log_date": "26 Oct",
+          "at": "2026-10-26T04:01:52.000Z",
+          "text": "Ship 42 is moving into position at Massey's as Ship 43 departs.",
+          "x_text": "Ship 42 is moving into position at Massey's as Ship 43 departs.",
+          "log_text": "Ship 42 arrives at Massey's test site as Ship 43 departs.",
+          "url": "https://x.com/NASASpaceflight/status/2114568166651428965",
+          "src": "@NASASpaceflight",
+          "trust": "trusted",
+          "x_first": true,
+          "stage": "cryo",
+          "hardware": "S42",
+          "flight": 15,
+          "x_post": {
+            "post_id": "2114568166651428965",
+            "url": "https://x.com/NASASpaceflight/status/2114568166651428965",
+            "created_at": "2026-10-26T04:01:52.000Z",
+            "text": "Ship at the double! Starship Flight 16: Ship 43 returning from Massey's. Starship Flight 15: Ship 42 taking its place. https://t.co/HSumkyMNOs",
+            "author": {
+              "name": "NSF - NASASpaceflight.com",
+              "username": "NASASpaceflight",
+              "avatar": "https://pbs.twimg.com/profile_images/1637919260298158080/kRT8BkYf_normal.jpg"
+            },
+            "media": [
+              {
+                "type": "video",
+                "poster": "https://pbs.twimg.com/amplify_video_thumb/2114567980231053312/img/EitC83F_WspGNa1A.jpg",
+                "video_url": "https://video.twimg.com/amplify_video/2114567980231053312/vid/avc1/1112x620/qE2pzsDpyqd7NXFh.mp4"
+              }
+            ],
+            "link": {
+              "url": "https://www.youtube.com/watch?v=mhJRzQsLZGg",
+              "title": "Starbase Live: 24/7 Starship & Super Heavy Development From SpaceX's Boca Chica Facility",
+              "description": "Starship is SpaceX's fully reusable launch system which is being de...",
+              "image": "https://pbs.twimg.com/news_img/2114361700900012032/w-GLAO_c?format=jpg&name=orig"
+            }
+          },
+          "x_posts": [
+            "2114568166651428965"
+          ],
+          "xChecked": true,
+          "imageChecked2": true,
+          "media_override": {
+            "post_url": "https://x.com/NASASpaceflight/status/2114568166651428965",
+            "post_id": "2114568166651428965",
+            "author": "NASASpaceflight",
+            "type": "video",
+            "image": "https://pbs.twimg.com/amplify_video_thumb/2114567980231053312/img/EitC83F_WspGNa1A.jpg",
+            "video_url": "https://video.twimg.com/amplify_video/2114567980231053312/vid/avc1/1112x620/qE2pzsDpyqd7NXFh.mp4"
+          },
+          "tier": 1,
+          "push": {
+            "title": "❄️ Cryo tests · Flight 15",
+            "url": "https://x.com/NASASpaceflight/status/2114568166651428965",
+            "at": "2026-10-26T04:01:52.000Z"
+          }
+        },
         {
           "id": "x-2111681468724601021",
           "date": "18 Oct",
@@ -239,7 +298,7 @@
           "log_text": "Booster 22 completed its cryo test at Massey's."
         }
       ],
-      "log_latest": "Booster 23 rolled back to the production site after cryo testing."
+      "log_latest": "Ship 42 arrives at Massey's test site as Ship 43 departs."
     },
     {
       "id": "raptor",
@@ -415,7 +474,7 @@
           "x_text": "Ship 42 is heading to Massey's for cryo tests.",
           "log_text": "Ship 42 heads to Massey's for cryo tests.",
           "status_line": "Ship 42 heading to Massey's.",
-          "url": "https://x.com/Blobifie/status/2114535368758542634",
+          "url": "https://x.com/Blobifie/status/2114569092879499433",
           "src": "@Blobifie",
           "trust": "trusted",
           "x_first": true,
@@ -423,10 +482,10 @@
           "hardware": "S42",
           "flight": 15,
           "x_post": {
-            "post_id": "2114535368758542634",
-            "url": "https://x.com/Blobifie/status/2114535368758542634",
-            "created_at": "2026-10-26T01:51:32.000Z",
-            "text": "The ship static fire stand has been moved into Megabay 2 and a closure for S43's return from and S42's trip to masseys has been posted!! https://t.co/ldAswTFqc9",
+            "post_id": "2114569092879499433",
+            "url": "https://x.com/Blobifie/status/2114569092879499433",
+            "created_at": "2026-10-26T04:05:33.000Z",
+            "text": "Ship 42 has been lifted onto the static fire stand and has left Megabay 2! https://t.co/GiQXrHIU23",
             "author": {
               "name": "Blobifi",
               "username": "Blobifie",
@@ -435,12 +494,17 @@
             "media": [
               {
                 "type": "photo",
-                "url": "https://pbs.twimg.com/media/HVhWjARbcAAAZKK.jpg"
+                "url": "https://pbs.twimg.com/media/HVh1QkNbAAA3z4-.jpg"
+              },
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HVh1RxfbEAA7GmW.jpg"
               }
             ]
           },
           "x_posts": [
-            "2114535368758542634"
+            "2114535368758542634",
+            "2114569092879499433"
           ],
           "xChecked": true,
           "imageChecked2": true,
@@ -450,7 +514,14 @@
             "url": "https://x.com/Blobifie/status/2114535368758542634",
             "at": "2026-10-26T01:51:32.000Z"
           },
-          "refiled_from": "cryo"
+          "refiled_from": "cryo",
+          "media_override": {
+            "post_url": "https://x.com/Blobifie/status/2114569092879499433",
+            "post_id": "2114569092879499433",
+            "author": "Blobifie",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HVh1QkNbAAA3z4-.jpg"
+          }
         },
         {
           "id": "x-2114513919566033266",
@@ -1768,6 +1839,16 @@
     }
   ],
   "feed_items": [
+    {
+      "id": "news-mvopynkg-826d56",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Ship 43 is being transported by road to the production site",
+      "url": "https://x.com/TrackingTheSB/status/2114565423912108360",
+      "at": "2026-10-26T03:50:58.000Z",
+      "date": "26 Oct",
+      "flight": 15
+    },
     {
       "id": "news-mvo8qv2g-e23cc6",
       "kind": "news",
