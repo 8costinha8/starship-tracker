@@ -159,6 +159,16 @@
       "sent_at": "2026-10-25T20:11:25.016Z",
       "where": "feed",
       "verdict": "sent"
+    },
+    {
+      "title": "💥 Static fires (unconfirmed)",
+      "body": "Starship Flight 15 static fire activity noted.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2114513919566033266",
+      "url": "https://x.com/elonmusk/status/2114513919566033266",
+      "at": "2026-10-26T00:26:18.000Z",
+      "sent_at": "2026-10-26T00:30:55.582Z",
+      "where": "road",
+      "verdict": "sent"
     }
   ]
 }
