@@ -1175,6 +1175,11 @@ function firebaseDeps() {
   };
 }
 
+function syncToMain(log = console.log) {
+  try { execSync("git pull --rebase --quiet", { cwd: ROOT, stdio: "pipe" }); }
+  catch (e) { log(`could not catch up with main before the run (carrying on): ${String(e.message).split("\n")[0]}`); }
+}
+
 function commitAndPush(file, message) {
   const run = (cmd) => execSync(cmd, { cwd: ROOT, stdio: "pipe" });
   run(`git config user.name "Starship Tracker Bot"`);
@@ -1223,6 +1228,9 @@ async function run(opts = {}) {
 
   console.log(`=== Road checker (${mode}) ${new Date().toISOString()} ===`);
   console.log(`writer: ${writer.writerLabel()} (${writer.writerModel()})${writer.writerName() === "grok" ? ", Claude fallback on any Grok failure" : ""}`);
+  // A queued run checks out the commit it was dispatched at, which can be behind main by the
+  // time it starts (the run before it may have pushed). Catch up first so the commit rebases cleanly.
+  if (mode === "live" && !opts.roadPath) syncToMain(log);
   let road = JSON.parse(fs.readFileSync(roadPath, "utf8"));
   const prevState = await deps.loadState();
   const state = prevState || { seen: [] };

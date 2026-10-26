@@ -160,7 +160,8 @@ function commitAndPush(flightN, label) {
   execSync(`git config user.email "actions@github.com"`);
   execSync(`git add app.js`);
   execSync(`git commit -m "Auto: log Flight ${flightN} (${label})"`);
-  execSync(`git push`);
+  // a queued run can start behind main; catch up and retry once (same as the Road checker)
+  try { execSync(`git push`, { stdio: "pipe" }); } catch { execSync(`git pull --rebase`); execSync(`git push`); }
 }
 
 
