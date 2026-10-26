@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "26 Oct",
-  "updatedAt": "2026-10-26T05:01:04.788Z",
+  "updatedAt": "2026-10-26T05:15:41.650Z",
   "categories": [
     {
       "id": "cryo",
@@ -465,6 +465,62 @@
       "status": "progress",
       "latest": "Booster 22 transport ring relocated ahead of static fire test.",
       "history": [
+        {
+          "id": "x-2114578590792859900",
+          "date": "26 Oct",
+          "log_date": "26 Oct",
+          "at": "2026-10-26T04:43:17.000Z",
+          "text": "Booster 22 was lifted to catch height on the launch mount.",
+          "x_text": "Booster 22 was lifted to catch height on the launch mount.",
+          "log_text": "Booster 22 lifts to catch height at the launch mount.",
+          "status_line": "Booster 22 lifted to catch height.",
+          "url": "https://x.com/RGVaerialphotos/status/2114578590792859900",
+          "src": "@RGVaerialphotos",
+          "trust": "trusted",
+          "x_first": true,
+          "stage": "static",
+          "hardware": "B22",
+          "flight": 15,
+          "x_post": {
+            "post_id": "2114578590792859900",
+            "url": "https://x.com/RGVaerialphotos/status/2114578590792859900",
+            "created_at": "2026-10-26T04:43:17.000Z",
+            "text": "Booster 22 has been lifted to catch height! We haven't seen something like this since Booster 15.",
+            "author": {
+              "name": "RGV Aerial Photography",
+              "username": "RGVaerialphotos",
+              "avatar": "https://pbs.twimg.com/profile_images/2019953617743097856/PJqBBhpU_normal.jpg"
+            },
+            "media": [
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HVh97ShaIAAhZ2k.jpg"
+              }
+            ],
+            "retry": 1
+          },
+          "x_posts": [
+            "2114578590792859900",
+            "2114580247240982591"
+          ],
+          "xChecked": true,
+          "imageChecked2": true,
+          "media_override": {
+            "post_url": "https://x.com/RGVaerialphotos/status/2114578590792859900",
+            "post_id": "2114578590792859900",
+            "author": "RGVaerialphotos",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HVh97ShaIAAhZ2k.jpg"
+          },
+          "tier": 2,
+          "push": {
+            "title": "🏗️ Pad activity: In progress",
+            "url": "https://x.com/RGVaerialphotos/status/2114578590792859900",
+            "at": "2026-10-26T04:43:17.000Z"
+          },
+          "frameChecked": true,
+          "refiled_from": "pad"
+        },
         {
           "id": "x-2114535368758542634",
           "date": "26 Oct",
@@ -1466,63 +1522,8 @@
       "name": "Pad activity",
       "color": "#A88BFF",
       "status": "progress",
-      "latest": "Booster 22 was lifted to catch height on the launch mount.",
+      "latest": "Starbase Pad 1 Flame Trench wall work is progressing.",
       "history": [
-        {
-          "id": "x-2114578590792859900",
-          "date": "26 Oct",
-          "log_date": "26 Oct",
-          "at": "2026-10-26T04:43:17.000Z",
-          "text": "Booster 22 was lifted to catch height on the launch mount.",
-          "x_text": "Booster 22 was lifted to catch height on the launch mount.",
-          "log_text": "Booster 22 lifts to catch height at the launch mount.",
-          "status_line": "Booster 22 lifted to catch height.",
-          "url": "https://x.com/RGVaerialphotos/status/2114578590792859900",
-          "src": "@RGVaerialphotos",
-          "trust": "trusted",
-          "x_first": true,
-          "stage": "pad",
-          "hardware": "B22",
-          "flight": 15,
-          "x_post": {
-            "post_id": "2114578590792859900",
-            "url": "https://x.com/RGVaerialphotos/status/2114578590792859900",
-            "created_at": "2026-10-26T04:43:17.000Z",
-            "text": "Booster 22 has been lifted to catch height! We haven't seen something like this since Booster 15.",
-            "author": {
-              "name": "RGV Aerial Photography",
-              "username": "RGVaerialphotos",
-              "avatar": "https://pbs.twimg.com/profile_images/2019953617743097856/PJqBBhpU_normal.jpg"
-            },
-            "media": [
-              {
-                "type": "photo",
-                "url": "https://pbs.twimg.com/media/HVh97ShaIAAhZ2k.jpg"
-              }
-            ],
-            "retry": 1
-          },
-          "x_posts": [
-            "2114578590792859900",
-            "2114580247240982591"
-          ],
-          "xChecked": true,
-          "imageChecked2": true,
-          "media_override": {
-            "post_url": "https://x.com/RGVaerialphotos/status/2114578590792859900",
-            "post_id": "2114578590792859900",
-            "author": "RGVaerialphotos",
-            "type": "photo",
-            "image": "https://pbs.twimg.com/media/HVh97ShaIAAhZ2k.jpg"
-          },
-          "tier": 2,
-          "push": {
-            "title": "🏗️ Pad activity: In progress",
-            "url": "https://x.com/RGVaerialphotos/status/2114578590792859900",
-            "at": "2026-10-26T04:43:17.000Z"
-          },
-          "frameChecked": true
-        },
         {
           "id": "x-2113664154762457446",
           "date": "23 Oct",
@@ -1621,7 +1622,7 @@
           ]
         }
       ],
-      "log_latest": "Booster 22 lifted to catch height."
+      "log_latest": "Pad 1 flame trench wall work is progressing at Starbase."
     },
     {
       "id": "faa",
