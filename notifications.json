@@ -239,6 +239,16 @@
       "sent_at": "2026-10-26T08:30:51.372Z",
       "where": "feed",
       "verdict": "sent"
+    },
+    {
+      "title": "🏗️ Pad activity · Flight 15",
+      "body": "Booster 22 returns to Megabay 2 for final preflight work.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2114686191627030843",
+      "url": "https://x.com/Blobifie/status/2114686191627030843",
+      "at": "2026-10-26T11:50:51.000Z",
+      "sent_at": "2026-10-26T12:20:03.172Z",
+      "where": "road",
+      "verdict": "sent"
     }
   ]
 }
