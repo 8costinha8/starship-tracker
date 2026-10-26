@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "26 Oct",
-  "updatedAt": "2026-10-26T08:45:22.143Z",
+  "updatedAt": "2026-10-26T12:20:01.852Z",
   "categories": [
     {
       "id": "cryo",
@@ -510,15 +510,15 @@
           "xChecked": true,
           "imageChecked2": true,
           "media_override": {
-            "post_url": "https://x.com/RGVaerialphotos/status/2114580247240982591",
-            "post_id": "2114580247240982591",
-            "author": "RGVaerialphotos",
+            "post_url": "https://x.com/colleenadastra/status/2114586836236743107",
+            "post_id": "2114586836236743107",
+            "author": "colleenadastra",
             "type": "photo",
-            "image": "https://pbs.twimg.com/media/HVh97ShaIAAhZ2k.jpg",
+            "image": "https://pbs.twimg.com/media/HViFe94XIAAgDdT.jpg",
             "auto": true,
-            "quality": 3,
-            "media_score": 61,
-            "checked_at": "2026-10-26T05:31:30.533Z"
+            "quality": 4,
+            "media_score": 592,
+            "checked_at": "2026-10-26T12:15:52.446Z"
           },
           "tier": 2,
           "push": {
@@ -529,8 +529,8 @@
           "frameChecked": true,
           "refiled_from": "pad",
           "alt_media": {
-            "post_url": "https://x.com/RGVaerialphotos/status/2114578590792859900",
-            "post_id": "2114578590792859900",
+            "post_url": "https://x.com/RGVaerialphotos/status/2114580247240982591",
+            "post_id": "2114580247240982591",
             "author": "RGVaerialphotos",
             "type": "photo",
             "image": "https://pbs.twimg.com/media/HVh97ShaIAAhZ2k.jpg",
@@ -546,7 +546,7 @@
           "x_text": "Ship 42 is heading to Massey's for cryo tests.",
           "log_text": "Ship 42 heads to Massey's for cryo tests.",
           "status_line": "Ship 42 heading to Massey's.",
-          "url": "https://x.com/Blobifie/status/2114569092879499433",
+          "url": "https://x.com/Blobifie/status/2114691485337850020",
           "src": "@Blobifie",
           "trust": "trusted",
           "x_first": true,
@@ -554,10 +554,10 @@
           "hardware": "S42",
           "flight": 15,
           "x_post": {
-            "post_id": "2114569092879499433",
-            "url": "https://x.com/Blobifie/status/2114569092879499433",
-            "created_at": "2026-10-26T04:05:33.000Z",
-            "text": "Ship 42 has been lifted onto the static fire stand and has left Megabay 2! https://t.co/GiQXrHIU23",
+            "post_id": "2114691485337850020",
+            "url": "https://x.com/Blobifie/status/2114691485337850020",
+            "created_at": "2026-10-26T12:11:53.000Z",
+            "text": "Ship 42 has arrived at masseys ahead of its static fire campaign!! Following S42 was some random ship aft section with a some tiles on it for some reason. https://t.co/pyLcSVjo3m",
             "author": {
               "name": "Blobifi",
               "username": "Blobifie",
@@ -565,18 +565,16 @@
             },
             "media": [
               {
-                "type": "photo",
-                "url": "https://pbs.twimg.com/media/HVh1QkNbAAA3z4-.jpg"
-              },
-              {
-                "type": "photo",
-                "url": "https://pbs.twimg.com/media/HVh1RxfbEAA7GmW.jpg"
+                "type": "video",
+                "poster": "https://pbs.twimg.com/amplify_video_thumb/2114691314495418368/img/yaSu0o2nwISYaNZ-.jpg",
+                "video_url": "https://video.twimg.com/amplify_video/2114691314495418368/vid/avc1/1280x720/iyt31CYSvFt1wUAO.mp4?tag=14"
               }
             ]
           },
           "x_posts": [
             "2114535368758542634",
-            "2114569092879499433"
+            "2114569092879499433",
+            "2114691485337850020"
           ],
           "xChecked": true,
           "imageChecked2": true,
@@ -588,11 +586,12 @@
           },
           "refiled_from": "cryo",
           "media_override": {
-            "post_url": "https://x.com/Blobifie/status/2114569092879499433",
-            "post_id": "2114569092879499433",
+            "post_url": "https://x.com/Blobifie/status/2114691485337850020",
+            "post_id": "2114691485337850020",
             "author": "Blobifie",
-            "type": "photo",
-            "image": "https://pbs.twimg.com/media/HVh1QkNbAAA3z4-.jpg"
+            "type": "video",
+            "image": "https://pbs.twimg.com/amplify_video_thumb/2114691314495418368/img/yaSu0o2nwISYaNZ-.jpg",
+            "video_url": "https://video.twimg.com/amplify_video/2114691314495418368/vid/avc1/1280x720/iyt31CYSvFt1wUAO.mp4?tag=14"
           }
         },
         {
@@ -1538,8 +1537,64 @@
       "name": "Pad activity",
       "color": "#A88BFF",
       "status": "progress",
-      "latest": "Starbase Pad 1 Flame Trench wall work is progressing.",
+      "latest": "Booster 22 returned to Megabay 2 for final preflight work.",
       "history": [
+        {
+          "id": "x-2114686191627030843",
+          "date": "26 Oct",
+          "log_date": "26 Oct",
+          "at": "2026-10-26T11:50:51.000Z",
+          "text": "Booster 22 returned to Megabay 2 for final preflight work.",
+          "x_text": "Booster 22 returned to Megabay 2 for final preflight work.",
+          "log_text": "Booster 22 returns to Megabay 2 for final preflight work.",
+          "status_line": "Booster 22 back in Megabay for prep.",
+          "url": "https://x.com/Blobifie/status/2114686191627030843",
+          "src": "@Blobifie",
+          "trust": "trusted",
+          "x_first": true,
+          "stage": "pad",
+          "hardware": "B22",
+          "flight": 15,
+          "x_post": {
+            "post_id": "2114686191627030843",
+            "url": "https://x.com/Blobifie/status/2114686191627030843",
+            "created_at": "2026-10-26T11:50:51.000Z",
+            "text": "Booster 22 has returned to Megabay 2 for final preflight work! https://t.co/7WRpfler1U",
+            "author": {
+              "name": "Blobifi",
+              "username": "Blobifie",
+              "avatar": "https://pbs.twimg.com/profile_images/2091766013562159104/xgHLFjBX_normal.jpg"
+            },
+            "media": [
+              {
+                "type": "video",
+                "poster": "https://pbs.twimg.com/amplify_video_thumb/2114686073846837248/img/uEHvSZZHMQwvHU0S.jpg",
+                "video_url": "https://video.twimg.com/amplify_video/2114686073846837248/vid/avc1/1280x720/6qjZOzFGc4aH-ZQA.mp4?tag=14"
+              }
+            ],
+            "retry": 1
+          },
+          "x_posts": [
+            "2114686191627030843"
+          ],
+          "xChecked": true,
+          "imageChecked2": true,
+          "media_override": {
+            "post_url": "https://x.com/Blobifie/status/2114686191627030843",
+            "post_id": "2114686191627030843",
+            "author": "Blobifie",
+            "type": "video",
+            "image": "https://pbs.twimg.com/amplify_video_thumb/2114686073846837248/img/uEHvSZZHMQwvHU0S.jpg",
+            "video_url": "https://video.twimg.com/amplify_video/2114686073846837248/vid/avc1/1280x720/6qjZOzFGc4aH-ZQA.mp4?tag=14"
+          },
+          "tier": 2,
+          "push": {
+            "title": "🏗️ Pad activity · Flight 15",
+            "url": "https://x.com/Blobifie/status/2114686191627030843",
+            "at": "2026-10-26T11:50:51.000Z"
+          },
+          "frameChecked": true
+        },
         {
           "id": "x-2113664154762457446",
           "date": "23 Oct",
@@ -1638,7 +1693,7 @@
           ]
         }
       ],
-      "log_latest": "Pad 1 flame trench wall work is progressing at Starbase."
+      "log_latest": "Booster 22 back in Megabay for prep."
     },
     {
       "id": "faa",
