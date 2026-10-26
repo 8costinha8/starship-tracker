@@ -179,6 +179,26 @@
       "sent_at": "2026-10-26T02:01:07.330Z",
       "where": "road",
       "verdict": "sent"
+    },
+    {
+      "title": "❄️ Cryo tests · Flight 15",
+      "body": "Ship 42 arrives at Massey's test site as Ship 43 departs.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2114568166651428965",
+      "url": "https://x.com/NASASpaceflight/status/2114568166651428965",
+      "at": "2026-10-26T04:01:52.000Z",
+      "sent_at": "2026-10-26T04:21:12.493Z",
+      "where": "road",
+      "verdict": "sent"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Ship 43 is being transported by road to the production site",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mvopynkg-826d56",
+      "url": "https://x.com/TrackingTheSB/status/2114565423912108360",
+      "at": "2026-10-26T03:50:58.000Z",
+      "sent_at": "2026-10-26T04:21:13.768Z",
+      "where": "feed",
+      "verdict": "sent"
     }
   ]
 }
