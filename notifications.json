@@ -209,6 +209,16 @@
       "sent_at": "2026-10-26T04:45:51.376Z",
       "where": "feed",
       "verdict": "sent"
+    },
+    {
+      "title": "🏗️ Pad activity: In progress",
+      "body": "Booster 22 lifts to catch height at the launch mount.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2114578590792859900",
+      "url": "https://x.com/RGVaerialphotos/status/2114578590792859900",
+      "at": "2026-10-26T04:43:17.000Z",
+      "sent_at": "2026-10-26T05:01:06.032Z",
+      "where": "road",
+      "verdict": "sent"
     }
   ]
 }
