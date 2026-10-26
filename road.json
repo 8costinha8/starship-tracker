@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "26 Oct",
-  "updatedAt": "2026-10-26T12:30:28.946Z",
+  "updatedAt": "2026-10-26T15:47:49.703Z",
   "categories": [
     {
       "id": "cryo",
@@ -643,12 +643,23 @@
           },
           "refiled_from": "cryo",
           "media_override": {
+            "post_url": "https://x.com/RGVaerialphotos/status/2114632668461900071",
+            "post_id": "2114632668461900071",
+            "author": "RGVaerialphotos",
+            "type": "video",
+            "image": "https://pbs.twimg.com/amplify_video_thumb/2114632408607989761/img/lWazRdhDO3bb_sfk.jpg",
+            "auto": true,
+            "quality": 3,
+            "media_score": 457,
+            "checked_at": "2026-10-26T15:45:24.754Z"
+          },
+          "alt_media": {
             "post_url": "https://x.com/Blobifie/status/2114691485337850020",
             "post_id": "2114691485337850020",
             "author": "Blobifie",
             "type": "video",
             "image": "https://pbs.twimg.com/amplify_video_thumb/2114691314495418368/img/yaSu0o2nwISYaNZ-.jpg",
-            "video_url": "https://video.twimg.com/amplify_video/2114691314495418368/vid/avc1/1280x720/iyt31CYSvFt1wUAO.mp4?tag=14"
+            "show": false
           }
         },
         {
