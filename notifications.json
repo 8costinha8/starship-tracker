@@ -281,6 +281,17 @@
       "where": "feed",
       "verdict": "sent",
       "key": "S43|other|28 Oct"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Ship 42 completes full duration six-engine static fire and deorbit burn simulation",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mvsb9c8o-97f884",
+      "url": "https://x.com/SpaceX/status/2115476295169814978",
+      "at": "2026-10-28T16:10:27.000Z",
+      "sent_at": "2026-10-28T16:17:51.715Z",
+      "where": "feed",
+      "verdict": "sent",
+      "key": "S42|static_fire|28 Oct"
     }
   ]
 }
