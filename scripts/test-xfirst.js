@@ -15,6 +15,8 @@ const xReply = (posts, newest) => ({ ok: true, status: 200, json: async () => ({
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "xf-"));
   const roadPath = path.join(tmp, "road.json"), appJsPath = path.join(tmp, "app.js");
   fs.copyFileSync(path.join(ROOT, "road.json"), roadPath); fs.copyFileSync(path.join(ROOT, "app.js"), appJsPath);
+  { // this scenario is "S43 with no cryo done yet": drop the real Flight 16 audit cards (Road page only) from the fixture copy
+    const rj = JSON.parse(fs.readFileSync(roadPath, "utf8")); for (const c of rj.categories) c.history = (c.history || []).filter((h) => !(h.audit && h.flight === 16)); fs.writeFileSync(roadPath, JSON.stringify(rj, null, 2) + "\n"); }
   const before = JSON.parse(fs.readFileSync(roadPath, "utf8"));
   const oldCards = before.categories.flatMap((c) => (c.history || []).filter((h) => h.kind !== "check").map((h) => `${c.id}|${h.date}|${h.text}`));
   const mediaBefore = fs.readFileSync(path.join(ROOT, "road-media.json"), "utf8");
