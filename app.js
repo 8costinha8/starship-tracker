@@ -1378,9 +1378,19 @@ function pastSummary(road, n) {
 }
 // Mission updates for the upcoming flight (road.json "mission_updates", written by the checker
 // from X posts about the mission itself: catch plans, objectives, payload…). Text lines only.
+// The text never repeats the credited name: "Elon Musk says X (Elon Musk, 22 Oct)." → "X (Elon Musk, 22 Oct)."
+function noCreditRepeat(line) {
+  const m = String(line).match(/^(.+?)(?:'s)?\s+(?:says|said|confirms|confirmed|announces|announced|reports|reported)(?:\s+that)?[:,]?\s+(.+)\s\(([^,()]+)(,[^()]*)?\)\.?$/i);
+  if (!m) return line;
+  const who = m[1].trim().toLowerCase(), cred = m[3].trim().toLowerCase();
+  if (!(cred === who || cred.includes(who) || who.endsWith(" " + cred.split(/\s+/)[0]) || who.split(/\s+/).pop() === cred.split(/\s+/).pop())) return line;
+  return `${m[2].charAt(0).toUpperCase() + m[2].slice(1).replace(/[.\s]+$/, "")} (${m[3]}${m[4] || ""}).`;
+}
 function missionLines(road, n) {
   const list = road && road.mission_updates && road.mission_updates[n];
-  return Array.isArray(list) ? list.filter((u) => u && typeof u.line === "string" && u.line).slice(0, 5) : [];
+  const rej = ((road && road.rejected_lines) || []).filter((r) => r && r.box === "mission");
+  return Array.isArray(list) ? list.filter((u) => u && typeof u.line === "string" && u.line && !rej.some((r) => r.post_id === u.post_id))
+    .map((u) => ({ ...u, line: noCreditRepeat(u.line) })).slice(0, 5) : [];
 }
 const isLaunched = (n) => FLIGHTS.some((x) => x.n === n);
 // Road to Flight N page: only cards backed by a trusted X post, in sections by flight (newest flight first).
@@ -2284,6 +2294,11 @@ textarea.feedback-field { resize: none; min-height: 112px; }
   grid-template-columns: 34px 1fr auto; gap: 10px; align-items: start; padding: 14px 14px 14px 18px;
 }
 .callout-icon { font-size: 22px; line-height: 1.2; }
+/* Same size everywhere: every box head is the same height (summary clamped to 2 lines), every vehicle sub-card
+   is full width with the same padding and minimum height. */
+section.road .callout-head { min-height: 82px; }
+section.road .callout-latest { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: calc(2 * 1.35em); }
+.mini.flog-card { box-sizing: border-box; width: 100%; min-height: 96px; padding: 10px 12px; }
 .callout-name { display: block; font-weight: 700; font-size: 15px; color: var(--t, var(--c)); }
 .callout-latest { display: block; font-size: 13px; color: var(--text); margin-top: 3px; line-height: 1.35; }
 .badge { font-size: 11px; font-weight: 700; padding: 4px 9px; border-radius: 999px; white-space: nowrap; letter-spacing: .02em; }

@@ -40,7 +40,7 @@ const ask = async (prompt) => ({ entries: [...prompt.matchAll(/^(\d+)\. @\S+ \S+
   xPage = page([P("206", "1", 0.5, "again #m1")]);
   const r2 = await road.run(base);
   check(r2.notifications.length === 0 && JSON.parse(fs.readFileSync(roadPath, "utf8")).mission_updates[15].length === 1, "the same line again: no change, no push (dedup)");
-  xPage = page([P("207", "2", 0.2, "update #m3")]);
+  xPage = page([P("207", "2", 0.2, "Flight 15 catch update #m3")]);
   const r3 = await road.run(base);
   const mu3 = JSON.parse(fs.readFileSync(roadPath, "utf8")).mission_updates[15];
   check(mu3.length === 1 && /Booster 22 only \(SpaceX, 19 Oct\)\.$/.test(mu3[0].line) && r3.notifications.filter((n) => n.title === "Flight 15 update").length === 1, "a newer post on the same topic replaces the line (newest wins), one push");

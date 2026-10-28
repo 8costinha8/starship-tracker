@@ -110,13 +110,13 @@
         if (id === "pad") {
           const wdr = road.milestones && road.milestones.flight && road.milestones.flight.wdr;
           status = wdr ? "done" : cards.length ? "progress" : "none"; statusText = wdr ? "Done" : cards.length ? "In progress" : "Not yet";
-          latest = wdr ? `Wet dress rehearsal done.` : (newestFirst(cards.map((k) => k.lines[0]))[0] || {}).text || "Nothing reported yet";
+          latest = wdr ? `Wet dress rehearsal done.` : cards.length ? `${road.pad || "Pad"} tests in progress.` : "Nothing reported yet"; // short: box heads stay one size
         } else {
           const done = vs.filter((v) => cards.some((k) => k.vehicle === v));
           status = vs.length && done.length === vs.length ? "done" : done.length ? "progress" : "none";
           statusText = status === "done" ? "Done" : status === "progress" ? "In progress" : "Not yet";
           const what = { cryo: "cryo tests", raptor: "Raptors installed", static: "static fires" }[id] || c.name;
-          latest = done.length ? `${done.map(vName).join(" and ")} ${what} done.`.replace("Raptors installed done", "Raptors installed") : "Nothing reported yet";
+          latest = status === "done" ? (vs.length > 1 ? "Both vehicles done." : `${vName(vs[0])} done.`) : done.length ? `${done.map(vName).join(" and ")} done.` : "Nothing reported yet"; void what;
         }
       }
       out[id] = { id, status, statusText, latest, cards };

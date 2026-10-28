@@ -3029,19 +3029,11 @@
     "15": [
       {
         "topic": "catch",
-        "line": "Elon Musk says SpaceX is go for double catch on Flight 15 (Elon Musk, 22 Oct).",
+        "line": "SpaceX is attempting a double catch on Flight 15 (Elon Musk, 22 Oct).",
         "at": "2026-10-21T23:05:30.000Z",
         "src": "@NASASpaceflight",
         "url": "https://x.com/NASASpaceflight/status/2113044031638741321",
         "post_id": "2113044031638741321"
-      },
-      {
-        "topic": "payload",
-        "line": "Payload deployment sequence is complete (SpaceX, 20 Oct).",
-        "at": "2026-10-20T13:56:40.000Z",
-        "src": "@SpaceX",
-        "url": "https://x.com/SpaceX/status/2112543527481876848",
-        "post_id": "2112543527481876848"
       }
     ]
   },
@@ -3052,6 +3044,12 @@
       "date": "9 Sep",
       "text": "Ship 42 heads back to Massey's for further cryo testing.",
       "why": "Seed line from 7 Oct (no link, 'NSF (secondary)'): the 9 Oct NSF story mis-dated 9 Sep. S42 had no cryo test on 9 Sep."
+    },
+    {
+      "box": "mission",
+      "post_id": "2112543527481876848",
+      "text": "Payload deployment sequence is complete",
+      "why": "Falcon 9 / Starlink post, not Starship (removed 28 Oct)"
     }
   ],
   "feed_items": [
