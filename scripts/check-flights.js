@@ -6,7 +6,7 @@
 
    It also watches for a flight's FINAL result (Success / Failure /
    Partial Failure). The first time that shows up for a flight, it:
-     1. Asks Claude to write that flight's story (using the two most
+     1. Asks the writer (xAI Grok) to write that flight's story (using the two most
         recent flights in app.js as a style reference)
      2. Adds the new flight into app.js's FLIGHTS list itself
      3. Commits and pushes that change straight to the repo
@@ -34,7 +34,7 @@ const { execSync } = require("child_process");
 
 const LL2_ENDPOINT = "https://ll.thespacedevs.com/2.3.0/launches/upcoming/?search=Starship&limit=1&mode=list";
 const APP_JS_PATH = path.join(__dirname, "..", "app.js");
-const writer = require("./writer.js"); // WRITER=grok (default, Claude fallback) | claude
+const writer = require("./writer.js"); // xAI Grok only
 
 function mapLL2Status(abbrev) {
   if (abbrev === "Go") return "confirmed";
@@ -90,7 +90,7 @@ function fmtEstimate(iso, precision) {
 }
 
 // Pulls the last N `story:` blocks out of app.js as-is, just to give
-// Claude a feel for the voice — not a full parse, doesn't need to be.
+// the writer a feel for the voice — not a full parse, doesn't need to be.
 function recentStories(appJsText, count) {
   // only look inside the FLIGHTS list, and accept "…", '…' or `…`
   const start = appJsText.indexOf("const FLIGHTS = [");
@@ -102,7 +102,7 @@ function recentStories(appJsText, count) {
   return out;
 }
 
-// Writes Flight N's headline + story using Claude, in the same voice
+// Writes Flight N's headline + story using Grok, in the same voice
 // as the existing flights.
 async function writeStory({ n, outcome, date, pad, block, booster, ship, missionDescription, styleExamples }) {
   const prompt = `Write a short recap for a real SpaceX Starship test flight, for a personal tracking app.
@@ -126,7 +126,7 @@ Reply with ONLY valid JSON, nothing else, in this exact shape:
 {"headline": "a short 4-8 word caption, no period", "story": "the 2-4 sentence recap"}`;
 
   // Same prompt for either writer; Grok also gets the shape as a strict JSON schema.
-  // Grok fails → Claude (writer.js). One attempt each: if both fail, run() retries next run.
+  // Grok only (writer.js). One attempt: if it fails, run() retries next run.
   const story = await writer.askJson(prompt, {
     maxTokens: 4096, claudeMaxTokens: 1024, attempts: 1, schemaName: "flight_story",
     schema: { type: "object", additionalProperties: false, properties: { headline: { type: "string" }, story: { type: "string" } }, required: ["headline", "story"] },

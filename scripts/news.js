@@ -2,19 +2,19 @@
    News pushes ("🚀 Starship"), kept by check-road.js. Pure helpers, no network.
    Each run: trusted items already fetched (X incl. SpaceX / NSF / Elon, the
    trusted news feeds) that this module hasn't seen → cheap prefilter → ONE
-   Claude call that picks genuinely new Starship stories, groups items about
+   Grok call that picks genuinely new Starship stories, groups items about
    the same story, and compares them with what was pushed in the last 48h.
    - First run (no state.news yet): every current item is seeded as seen,
      nothing is pushed.
    - Max NEWS_DAILY_CAP pushes per London day (state.news.day / count).
-   - A story is pushed once: same group in this batch → one push; Claude
+   - A story is pushed once: same group in this batch → one push; Grok
      "dup" of a recent push, or same URL/key → skipped.
    - Headline must be grounded in the item text (numbers and vehicle names
      must appear in it; most words too). Ungrounded → skipped, not rewritten.
    ───────────────────────────────────────────────────────────── */
 
 const NEWS_DAILY_CAP = 6;
-const NEWS_MAX_ITEMS = 10;     // items per Claude call
+const NEWS_MAX_ITEMS = 10;     // items per Grok call
 const NEWS_FRESH_H = 12;       // older items are never "new"
 const NEWS_MEMORY_H = 48;      // pushed stories compared against
 const NEWS_SEEN_KEEP = 1500;
@@ -26,7 +26,7 @@ function freshNewsState(now) {
   return { seen: [], sent: [], day: londonDay(now), count: 0, pending: [], seededAt: new Date(now).toISOString() };
 }
 
-// Cheap filter before Claude: trusted, fresh, not seen, about Starship, not a reply/RT.
+// Cheap filter before Grok: trusted, fresh, not seen, about Starship, not a reply/RT.
 function newsCandidates(items, news, { isTrusted, looksStarship, now }) {
   const seen = new Set(news.seen), sentKeys = new Set(news.sent.flatMap((s) => [s.key, s.url].filter(Boolean)));
   const out = [], skipped = [];
@@ -73,7 +73,7 @@ function grounded(headline, text) {
   return hit / words.length >= 0.6;
 }
 
-// Claude's reply → pushes to send (respecting dedup + the daily cap). Mutates news.
+// Grok's reply → pushes to send (respecting dedup + the daily cap). Mutates news.
 function decideNews(items, reply, news, now, log = () => {}) {
   if (news.day !== londonDay(now)) { news.day = londonDay(now); news.count = 0; }
   const byItem = new Map((Array.isArray(reply) ? reply : []).filter((r) => r && Number.isInteger(r.item)).map((r) => [r.item, r]));

@@ -1,77 +1,32 @@
 /* ─────────────────────────────────────────────────────────────
    The "writer": the AI model that check-road.js and check-flights.js
-   send their prompts to. Picked by env vars, read on every call:
-     WRITER=grok (default) | claude
-     WRITER_MODEL=...   optional model override for the chosen writer
-                        (defaults: claude-sonnet-5 / grok-4.3)
-   Claude: Anthropic Messages API, key ANTHROPIC_API_KEY. The prompt asks
-           for JSON and the reply text is parsed.
+   send their prompts to. xAI Grok is the ONLY model (no other provider):
+     WRITER_MODEL=...   optional model override (default grok-4.3)
    Grok:   xAI Responses API (POST https://api.x.ai/v1/responses), key
            XAI_API_KEY, with schema-enforced JSON (text.format json_schema).
            Schemas must be objects, so arrays come back wrapped, e.g.
            {"entries": [...]}; askJson unwraps them via opts.unwrap.
-   Both get the SAME prompt text. An empty or unparseable reply is retried
-   (attempts, default 2); after the last one the error has err.empty = true.
-   Grok first: ANY Grok failure (HTTP/API error, empty reply, invalid JSON, a
-   reply the caller's extract() rejects) falls back to Claude for that call.
+   An empty or unparseable reply is retried (attempts, default 2); after the
+   last one the error has err.empty = true. A Grok failure surfaces to the
+   caller (which retries next run); the watchdog alarms on xAI credit faults.
    ───────────────────────────────────────────────────────────── */
 
-const DEFAULT_MODELS = { claude: "claude-sonnet-5", grok: "grok-4.3" };
-const LABELS = { claude: "Claude", grok: "Grok" };
+const DEFAULT_MODELS = { grok: "grok-4.3" };
+const LABELS = { grok: "Grok" };
 
-// WRITER=grok without an XAI_API_KEY falls back to Claude for the whole run
-// (warned once per process), so a missing secret never costs a run's news.
+// Only "grok" is supported; any other WRITER value (e.g. a leftover "claude") is ignored with one warning.
 let warnedFallback = false;
-function fallingBack() {
-  const w = String(process.env.WRITER || "grok").trim().toLowerCase();
-  return w === "grok" && !String(process.env.XAI_API_KEY || "").trim();
-}
 function writerName() {
-  const w = String(process.env.WRITER || "grok").trim().toLowerCase() || "claude";
-  if (!DEFAULT_MODELS[w]) throw new Error(`Unknown WRITER "${process.env.WRITER}" (use claude or grok)`);
-  if (fallingBack()) {
-    if (!warnedFallback) {
-      warnedFallback = true;
-      console.warn("⚠️ WRITER=grok but XAI_API_KEY not set — falling back to Claude");
-      if (process.env.GITHUB_ACTIONS) console.log("::warning::WRITER=grok but XAI_API_KEY not set — falling back to Claude");
-    }
-    return "claude";
+  const w = String(process.env.WRITER || "grok").trim().toLowerCase();
+  if (w && w !== "grok" && !warnedFallback) {
+    warnedFallback = true;
+    console.warn(`⚠️ WRITER="${w}" is not supported — using Grok (the only writer)`);
   }
-  return w;
+  return "grok";
 }
-const writerLabel = () => LABELS[writerName()];
-// On a fallback, WRITER_MODEL (meant for Grok) is ignored and Claude's default is used.
-const writerModel = () => {
-  const w = writerName();
-  if (fallingBack()) return DEFAULT_MODELS.claude;
-  return (process.env.WRITER_MODEL || "").trim() || DEFAULT_MODELS[w];
-};
+const writerLabel = () => LABELS.grok;
+const writerModel = () => (process.env.WRITER_MODEL || "").trim() || DEFAULT_MODELS.grok;
 const resetFallbackWarning = () => { warnedFallback = false; }; // for tests
-
-/* one HTTP call; returns { text, status, summary, body } (never throws for an empty reply) */
-async function callClaude({ prompt, model, maxTokens, images }) {
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: { "x-api-key": process.env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-    body: JSON.stringify({ model, max_tokens: maxTokens, messages: [{ role: "user", content: images && images.length ? [...images.map((url) => ({ type: "image", source: { type: "url", url } })), { type: "text", text: prompt }] : prompt }] }),
-  });
-  let json;
-  try { json = await res.json(); } catch { json = { error: { type: "http_error", message: `HTTP ${res.status}` } }; }
-  if (json.error || (res.status && !res.ok && res.status >= 400)) {
-    const e = json.error || { type: "http_error", message: `HTTP ${res.status}` };
-    throw Object.assign(new Error(`Anthropic API error (${e.type}): ${String(e.message).slice(0, 2000)}`), { status: res.status, provider: "claude" });
-  }
-  const blocks = (json.content || []).map((b) => b.type).join(",") || "none";
-  const text = json.content?.find((b) => b.type === "text")?.text;
-  // thinking signatures are long base64; show their size instead
-  const body = JSON.stringify({ ...json, content: (json.content || []).map((b) => (b.signature ? { ...b, signature: `[${b.signature.length} chars]` } : b)) });
-  return {
-    text,
-    summary: `stop_reason: ${json.stop_reason}`,
-    details: `blocks: ${blocks}, input tokens: ${json.usage?.input_tokens ?? "?"}, output tokens: ${json.usage?.output_tokens ?? "?"}`,
-    body,
-  };
-}
 
 // Pulls the reply text out of a Responses API body: output[] items of type
 // "message" hold content[] parts of type "output_text" (reasoning items are skipped).
@@ -114,8 +69,8 @@ async function callGrok({ prompt, model, maxTokens, schema, schemaName, images }
 
 /* Provider faults the watchdog must act on at the FIRST occurrence: HTTP 401/402/403, or any credit, quota
    or spending-limit error. Recorded per process as { provider, reason } — a short, fixed reason, never the
-   raw body or any header (no secrets). The fallback still runs; watchdog.providerCheck decides warn vs fail. */
-const PROVIDER = { grok: "xAI", claude: "Anthropic" };
+   raw body or any header (no secrets). watchdog.providerCheck turns it into an alarm. */
+const PROVIDER = { grok: "xAI" };
 function providerFault(provider, err) {
   const m = String((err && err.message) || ""), st = Number(err && err.status) || Number((m.match(/HTTP (\d{3})/) || [])[1]) || 0;
   let reason = null;
@@ -144,18 +99,8 @@ const sleep = (ms) => new Promise((ok) => setTimeout(ok, ms));
          extract(text) → value (throws if not usable; default JSON.parse after
          stripping ``` fences), attempts (default 2), retryMs, log. */
 async function askJson(prompt, opts = {}) {
-  const w = writerName();
-  const log = opts.log || console.log;
-  if (w !== "grok") return noteFault("claude", () => askWith("claude", DEFAULT_MODELS.claude, prompt, opts));
-  try {
-    return await noteFault("grok", () => askWith("grok", writerModel(), prompt, opts));
-  } catch (err) {
-    log(`⚠️ Grok failed (${String(err.message).slice(0, 300)}) — falling back to Claude for this call`);
-    if (process.env.GITHUB_ACTIONS) console.log(`::warning::Grok failed — fell back to Claude (${String(err.message).slice(0, 200)})`);
-    const v = await noteFault("claude", () => askWith("claude", DEFAULT_MODELS.claude, prompt, { ...opts, maxTokens: opts.claudeMaxTokens || opts.maxTokens }));
-    if (v && typeof v === "object") Object.defineProperty(v, "writer", { value: "claude (fallback)", enumerable: false, configurable: true });
-    return v;
-  }
+  writerName();
+  return noteFault("grok", () => askWith("grok", writerModel(), prompt, opts));
 }
 
 async function askWith(w, model, prompt, opts) {
@@ -164,9 +109,7 @@ async function askWith(w, model, prompt, opts) {
   const attempts = opts.attempts || 2;
   const extract = opts.extract || ((t) => JSON.parse(t.replace(/```json|```/g, "").trim()));
   for (let attempt = 1; attempt <= attempts; attempt++) {
-    const r = w === "grok"
-      ? await callGrok({ prompt, model, maxTokens: opts.maxTokens || 16000, schema: opts.schema, schemaName: opts.schemaName, images: opts.images })
-      : await callClaude({ prompt, model, maxTokens: opts.maxTokens || 16000, images: opts.images });
+    const r = await callGrok({ prompt, model, maxTokens: opts.maxTokens || 16000, schema: opts.schema, schemaName: opts.schemaName, images: opts.images });
     log(`${label} ${r.summary} (attempt ${attempt}, model: ${model}, ${r.details})`);
     let problem;
     if (!r.text || !r.text.trim()) problem = "no text in the reply";

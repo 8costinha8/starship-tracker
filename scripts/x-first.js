@@ -1,6 +1,6 @@
 /* X-first Road pipeline.
    Each run: read NEW posts (since_id) from the trusted accounts in ONE X search call, classify
-   them all in ONE batched writer call (Grok, Claude fallback) as road (with a stage), news or skip,
+   them all in ONE batched writer call (xAI Grok) as road (with a stage), news or skip,
    and turn every road post into a Road card of its own: the post's own photo (or a video's
    preview image), its link, @author credit and a short writer text. Posts within 48h about the
    same hardware merge into one card; the best media wins (video over photo). Articles never

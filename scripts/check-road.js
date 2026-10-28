@@ -7,7 +7,7 @@
         SpaceNews, Spaceflight News API, NSF / LabPadre / SpaceX YouTube,
         Launch Library updates) plus X posts if X_BEARER_TOKEN is set.
      2. Drops anything old, already seen, or clearly not about Starship.
-     3. Asks Claude to boil each remaining post down to one short line,
+     3. Asks Grok to boil each remaining post down to one short line,
         pick its box (Cryo, Raptor engines, Static fires, Pad activity,
         FAA licence, Launch date) and say if it changes that box's status.
      4. Trust: SpaceX/FAA (official) and big established outlets/trackers
@@ -32,10 +32,10 @@
 
    Modes:
      node scripts/check-road.js            live (used by the workflow)
-     TEST_MODE=true / ROAD_MODE=preview    real sources + real Claude, but
+     TEST_MODE=true / ROAD_MODE=preview    real sources + real Grok, but
                                            nothing saved, committed or sent
      node scripts/test-road.js             full dry run: fake sources,
-                                           fake Claude, fake Firebase
+                                           fake Grok, fake Firebase
    ───────────────────────────────────────────────────────────── */
 
 const fs = require("fs");
@@ -54,10 +54,10 @@ const logText = require("./log-text.js"); // Flight Log lines: style lint, singl
 const mission = require("./mission.js");
 const pushSync = require("./push-sync.js"); // the one send path: visible first, then push, then logged
 const writer = require("./writer.js");
-const bestFrame = require("./best-frame.js"); // best video frame / photo per card (no push) // WRITER=grok (default, Claude fallback) | claude
+const bestFrame = require("./best-frame.js"); // best video frame / photo per card (no push) // writer: xAI Grok only
 
 const LIMITS = {
-  itemsToClaude: 12,     // most posts sent to Claude in one run
+  itemsToClaude: 12,     // most posts sent to Grok in one run
   changesPerRun: 5,      // most card changes (and so pushes) per run; the rest wait for the next run
   updatesPerItem: 3,     // one item can give at most 3 separate facts
   claudeMaxTokens: 16000, // hard cap on thinking + answer (Sonnet 5 thinks adaptively, no fixed budget)
@@ -130,7 +130,7 @@ const X_ACCOUNTS = {
 };
 // Accounts read ONLY for the predicted launch date (road.json "predicted"), in the
 // same single X search as above (no extra call). Their posts never reach the Road
-// card, the feed or Claude's Road prompt, and never send a push.
+// card, the feed or Grok's Road prompt, and never send a push.
 const PREDICT_X_ACCOUNTS = {
   elonmusk: { src: "Elon Musk", tier: "trusted", id: "44196397" },
 };
@@ -450,7 +450,7 @@ Reply with JSON: {"same": true|false, "line": "..."}`;
 /* ───────────── image precision (vision check) ─────────────
    An entry only keeps an X photo / video (poster frame) that CLEARLY shows the entry's subject:
    the same vehicle (ship / booster number, or the pad) AND the same kind of event (cryo test,
-   static fire, rollout, lift, engine work…). Grok vision (grok-4.3, Claude fallback) looks at
+   static fire, rollout, lift, engine work…). Grok vision (grok-4.3) looks at
    each candidate image with the entry text, the post text and the alt text; it must say
    shows=true with confidence ≥ 0.8. Otherwise the entry is text only (still linking to its post). */
 const VISION_SCHEMA = { type: "object", additionalProperties: false, required: ["shows", "confidence", "seen", "reason"],
@@ -593,7 +593,7 @@ function stripBoilerplate(text) {
 }
 
 // Long articles: keep the sentences about this flight's vehicles first, then
-// other Starship-prep sentences, so Claude sees the relevant bits only.
+// other Starship-prep sentences, so Grok sees the relevant bits only.
 function relevantSnippet(text, road, max = 1200) {
   const clean = stripBoilerplate(text);
   const first = vehicleWords(road).concat([`flight ${road.flight}`]).map((w) => w.toLowerCase());
@@ -817,7 +817,7 @@ function snowflakeMs(id) {
   try { return Number(BigInt(String(id)) >> 22n) + 1288834974657; } catch { return NaN; }
 }
 
-/* ───────────── Claude: simplify + classify ───────────── */
+/* ───────────── Grok: simplify + classify ───────────── */
 
 function buildPrompt(road, items) {
   const v = road.vehicles && road.vehicles.length ? road.vehicles.join(" and ") : "not yet known";
@@ -850,7 +850,7 @@ Items:
 ${list}`;
 }
 
-// The writer (scripts/writer.js): Grok by default, with an automatic Claude fallback
+// The writer (scripts/writer.js): xAI Grok only
 // on any Grok error / empty / invalid reply. Both get the same prompt; Grok also gets
 // a strict JSON schema ({"entries": [...]}, unwrapped back to the array).
 const nul = (t) => ({ type: [t, "null"] });
@@ -976,7 +976,7 @@ function lastLoggedFlight(appJsText) {
   return nums.length ? Math.max(...nums) : null;
 }
 
-// Applies Claude's updates with the trust rules. Returns the list of changes.
+// Applies Grok's updates with the trust rules. Returns the list of changes.
 // The status rules (shared by the article path and X-first): trusted sources only (callers check);
 // moving backwards needs SpaceX/FAA unless a finished stage re-opens; only SpaceX/FAA confirm the date.
 function statusRule(box, want, tier, src, log) {
@@ -1063,7 +1063,7 @@ function applyUpdates(road, items, updates, log, limit) {
       log(`UNCONFIRMED [${box.id}] ${line} (${it.src}) — added with tag; status/headline left alone${want && want !== box.status ? ` (it suggested ${want})` : ""}`);
     } else {
       if (statusRule(box, want, it.tier, it.src, log)) { change.to = want; box.status = want; }
-      // headline: keep it unless Claude says this supersedes it, the status moved, or it's still the placeholder
+      // headline: keep it unless Grok says this supersedes it, the status moved, or it's still the placeholder
       const short = cleanLine(u.short, { fullStop: false });
       const replace = u.supersedes === true || change.to !== change.from || !box.latest || box.latest === "Nothing reported yet";
       if (box.status === "complete" && change.to === "complete" && change.from !== "complete") { box.latest = "Done"; change.headline = "replaced"; }
@@ -1236,7 +1236,7 @@ async function run(opts = {}) {
   const save = mode !== "preview";
 
   console.log(`=== Road checker (${mode}) ${new Date().toISOString()} ===`);
-  console.log(`writer: ${writer.writerLabel()} (${writer.writerModel()})${writer.writerName() === "grok" ? ", Claude fallback on any Grok failure" : ""}`);
+  console.log(`writer: ${writer.writerLabel()} (${writer.writerModel()})`);
   // A queued run checks out the commit it was dispatched at, which can be behind main by the
   // time it starts (the run before it may have pushed). Catch up first so the commit rebases cleanly.
   if (mode === "live" && !opts.roadPath) syncToMain(log);
@@ -1250,7 +1250,7 @@ async function run(opts = {}) {
   const clock = opts.now || (() => Date.now());
   try { require("./writer.js").resetProviderFaults(); } catch {}
   const providerFaultsNow = () => { try { return require("./writer.js").providerFaults(); } catch { return []; } };
-  let writerFailedRun = false; // news/article writer (Grok + Claude) failed this run → watchdog
+  let writerFailedRun = false; // news/article writer (Grok) failed this run → watchdog
   const pushLog = []; // every push attempt this run → notifications.json
   const notifLogPath = opts.notifLogPath || path.join(path.dirname(roadPath), "notifications.json");
 
@@ -1346,7 +1346,7 @@ async function run(opts = {}) {
     }
   }
 
-  // posts that were waiting (cap reached, or Claude was down last time)
+  // posts that were waiting (cap reached, or Grok was down last time)
   items.push(...(state.pending || []));
   if (xf) items.push(...xf.news); // X posts classified as Starship news go to the news pushes
   // X posts classified as mission updates: a line on the Next flight card (+ one push each); a
@@ -1380,7 +1380,7 @@ async function run(opts = {}) {
   state.predPending = [];
   if (predBatch.length) {
     const batchP = predBatch.slice(0, 8);
-    const askDates = opts.askDates || (opts.askClaude ? async () => [] : askDatesWriter); // test-road's fake Claude only knows the Road prompt
+    const askDates = opts.askDates || (opts.askClaude ? async () => [] : askDatesWriter); // test-road's fake Grok only knows the Road prompt
     try {
       const reply = await askDates(predict.buildDatePrompt(target, batchP), log);
       mentions = predict.mentionsFromReply(batchP, reply, target, clock());
@@ -1426,14 +1426,14 @@ async function run(opts = {}) {
     if (it.url) urlsThisRun.add(it.url);
     candidates.push(it);
   }
-  log(`filtered: ${counts.seen} already seen, ${counts.stale} stale, ${counts.dupe} duplicate, ${counts.offTopic} not about Starship → ${candidates.length} for Claude`);
+  log(`filtered: ${counts.seen} already seen, ${counts.stale} stale, ${counts.dupe} duplicate, ${counts.offTopic} not about Starship → ${candidates.length} for Grok`);
 
   // newest first up to the cap; anything beyond waits (not marked seen)
   candidates.sort((a, b) => (b.publishedAt || "").localeCompare(a.publishedAt || ""));
   const batch = candidates.slice(0, LIMITS.itemsToClaude);
   if (candidates.length > batch.length) log(`${candidates.length - batch.length} older candidate(s) wait for the next run`);
 
-  // 4. Claude simplifies + classifies, then the trust rules decide what changes
+  // 4. Grok simplifies + classifies, then the trust rules decide what changes
   let changes = [];
   if (xFirst) {
     for (const it of batch) seen.add(it.key); // articles: news/date only, never a Road card
@@ -1451,13 +1451,13 @@ async function run(opts = {}) {
       log(`${updates.writer || "writer"} returned ${updates.filter((u) => !isSkip(u)).length} update(s) and ${updates.filter(isSkip).length} skip(s) for ${batch.length} item(s)`);
     } catch (err) {
       if (err.empty) {
-        log(`‼️ CLAUDE EMPTY REPLY — items NOT marked seen (${batch.length} will be retried next run): ${err.message}`);
-        if (process.env.GITHUB_ACTIONS) console.log(`::error::CLAUDE EMPTY REPLY — items NOT marked seen (${err.message})`);
-      } else { writerFailedRun = true; log(`Claude failed (${err.message}) — nothing changed, these posts will be retried next run`); }
+        log(`‼️ WRITER EMPTY REPLY — items NOT marked seen (${batch.length} will be retried next run): ${err.message}`);
+        if (process.env.GITHUB_ACTIONS) console.log(`::error::WRITER EMPTY REPLY — items NOT marked seen (${err.message})`);
+      } else { writerFailedRun = true; log(`writer failed (${err.message}) — nothing changed, these posts will be retried next run`); }
     }
     if (updates) {
       const accepted = updates.filter((u) => !isSkip(u));
-      if (mode === "preview") console.log(`\n--- Claude raw reply ---\n${updates.raw || JSON.stringify(updates)}\n--- end raw reply ---`);
+      if (mode === "preview") console.log(`\n--- Grok raw reply ---\n${updates.raw || JSON.stringify(updates)}\n--- end raw reply ---`);
       changes = applyUpdates(road, batch, accepted, log, LIMITS.changesPerRun - notifications.length);
       for (const it of batch) if (!it.deferred) seen.add(it.key);
       const used = new Set(accepted.map((u) => u.item));
@@ -1472,8 +1472,8 @@ async function run(opts = {}) {
             const box = road.categories.find((c) => c.id === u.box);
             const ch = changes.find((c) => c.u === u);
             if (u.vehicles) log(`DECISION ${head} → vehicles ${JSON.stringify(u.vehicles)}${why(u)}`);
-            else if (ch) log(`DECISION ${head} → accepted: ${box.name}, status ${ch.from} → ${ch.to}${u.status && u.status !== ch.to ? ` (Claude suggested ${u.status})` : ""}, ${ch.entry.trust}, headline ${ch.headline || "kept"}: "${ch.entry.text}"${why(u)}`);
-            else log(`DECISION ${head} → Claude accepted for ${box ? box.name : u.box} but not applied (duplicate, malformed or cap — see above)${why(u)}`);
+            else if (ch) log(`DECISION ${head} → accepted: ${box.name}, status ${ch.from} → ${ch.to}${u.status && u.status !== ch.to ? ` (Grok suggested ${u.status})` : ""}, ${ch.entry.trust}, headline ${ch.headline || "kept"}: "${ch.entry.text}"${why(u)}`);
+            else log(`DECISION ${head} → Grok accepted for ${box ? box.name : u.box} but not applied (duplicate, malformed or cap — see above)${why(u)}`);
           }
         });
       } else {
@@ -1558,7 +1558,7 @@ async function run(opts = {}) {
     : `NO-NEWS LINE REMOVED [${m.box.id}] ${m.from}: "${m.text}" (no push)`);
   if (refreshed.length) changed = true;
 
-  // 4b2. News: one Claude call for this run's new trusted items (items that just made a
+  // 4b2. News: one Grok call for this run's new trusted items (items that just made a
   //      Road change already get that push, so they're not pushed twice)
   const newsPushes = [];
   if (newsCands.length) {
@@ -1576,7 +1576,7 @@ async function run(opts = {}) {
         for (const np of news.decideNews(nb, reply, state.news, clock(), log)) newsPushes.push(pushSync.addFeedItem(road, np)); // Updates feed entry, same text
         log(`news: ${nb.length} new item(s) checked → ${newsPushes.length} push(es) (${state.news.count}/${news.NEWS_DAILY_CAP} today)`);
       } catch (err) {
-        writerFailedRun = true; log(`news: Claude failed (${err.message}) — ${nb.length} item(s) retried next run`);
+        writerFailedRun = true; log(`news: writer failed (${err.message}) — ${nb.length} item(s) retried next run`);
         state.news.pending = [...nb, ...state.news.pending].slice(0, 15).map(({ key, title, text, url, publishedAt, src, source, tier }) => ({ key, title, text, url, publishedAt, src, source, tier }));
       }
     }

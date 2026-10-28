@@ -1,6 +1,6 @@
 /* ─────────────────────────────────────────────────────────────
    Full dry run of check-road.js with NO real network:
-   every source, Claude and Firebase are faked, road.json and app.js are
+   every source, the Grok writer and Firebase are faked, road.json and app.js are
    temporary copies, nothing is committed or sent.
      node scripts/test-road.js
    It runs the real parsers, filters, trust rules, cap and rollover, and
@@ -13,6 +13,7 @@
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
+process.env.XAI_API_KEY = "fake-xai"; delete process.env.WRITER; // fake Grok below; never a real key
 const road = require("./check-road.js");
 
 const ROOT = path.join(__dirname, "..");
@@ -87,7 +88,15 @@ function fakeClaude(prompt) {
 global.fetch = async (url, opts = {}) => {
   url = String(url);
   const reply = (body, status = 200) => ({ ok: status < 400, status, text: async () => body, json: async () => JSON.parse(body) });
-  if (url.startsWith("https://api.anthropic.com/")) return reply(JSON.stringify(fakeClaude(JSON.parse(opts.body).messages[0].content)));
+  if (url.startsWith("https://api.anthropic.com/")) throw new Error("Anthropic must never be called");
+  if (url.startsWith("https://api.x.ai/v1/responses")) { // fake Grok: same canned replies, in Responses API shape
+    const c = JSON.parse(opts.body).input[0].content, r = fakeClaude(typeof c === "string" ? c : c.map((p) => p.text || "").join(""));
+    if (r.error) return reply(JSON.stringify({ error: r.error.message }), 503);
+    const text = (r.content || []).filter((b) => b.type === "text").map((b) => b.text).join("");
+    return reply(JSON.stringify(text
+      ? { status: "completed", output: [{ type: "message", content: [{ type: "output_text", text }] }], usage: r.usage || {} }
+      : { status: "incomplete", incomplete_details: { reason: "max_output_tokens" }, output: [{ type: "reasoning" }], usage: r.usage || {} }));
+  }
   if (url.startsWith("https://api.x.com/2/users/by")) calls.xUsers++;
   if (url.startsWith("https://api.x.com/2/users/by")) return reply(JSON.stringify({ data: [{ id: "1", username: "SpaceX" }, { id: "2", username: "NASASpaceflight" }] }));
   if (url.startsWith("https://api.x.com/2/tweets/search/recent")) {
@@ -306,7 +315,7 @@ const box = (r, id) => r.categories.find((c) => c.id === id);
   res = await road.run(opts6);
   console.log = realLog;
   check(calls.claude - before6 === 2 && res.changes.length === 0, "empty reply twice → 2 calls, no change");
-  check(logs6.some((l) => l.includes("CLAUDE EMPTY REPLY — items NOT marked seen")) && logs6.some((l) => /stop_reason: max_tokens/.test(l)), "loud CLAUDE EMPTY REPLY error and stop_reason logged");
+  check(logs6.some((l) => l.includes("WRITER EMPTY REPLY — items NOT marked seen")) && logs6.some((l) => /max_output_tokens/.test(l)), "loud WRITER EMPTY REPLY error and incomplete reason logged");
   check(!state6.seen.includes("rss:e2") && state6.pending.some((p) => p.key === "rss:e2"), "the item is NOT marked seen and waits in pending");
   feed6 = [];
   claudeScript = [textReply([{ item: 1, box: "pad", line: "Booster 22 rolled to Massey's.", short: "B22 at Massey's", status: null, reason: "move" }])];

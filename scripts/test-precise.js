@@ -74,17 +74,18 @@ async function runWith(items, answer, vis) {
     const appSrc = fs.readFileSync(path.join(ROOT, "app.js"), "utf8");
     check(/\{mo \? <PickMedia mo=\{mo\} \/>/.test(appSrc) && /: h\.media_override\);/.test(appSrc) && /media_override && !h\.media_override\.credit_only && h\.media_override\.post_url/.test(appSrc), "app: picked picture shown, card links to the picked post (a credit-only picture keeps the fact source link)");
   }
-  // 5. writer sends the picture to Grok (input_image) and to Claude on fallback (image block)
+  // 5. writer sends the picture to Grok (input_image); Anthropic is never called
   {
     const writer = require("./writer.js"); const realFetch = global.fetch; const bodies = [];
-    const env = { ...process.env }; process.env.XAI_API_KEY = "test"; process.env.ANTHROPIC_API_KEY = "test"; process.env.WRITER = "grok";
+    const env = { ...process.env }; process.env.XAI_API_KEY = "test"; process.env.WRITER = "grok";
     global.fetch = async (url, o) => { const b = JSON.parse(o.body); bodies.push([url, b]);
-      if (/x\.ai/.test(url)) return { ok: false, status: 500, text: async () => JSON.stringify({ error: "boom" }) };
-      return { json: async () => ({ content: [{ type: "text", text: '{"shows":true,"confidence":0.9,"seen":"S42","reason":"r"}' }], stop_reason: "end_turn", usage: {} }) }; };
+      if (!/x\.ai/.test(url)) throw new Error("unexpected provider");
+      const raw = JSON.stringify({ status: "completed", output: [{ type: "message", content: [{ type: "output_text", text: '{"shows":true,"confidence":0.9,"seen":"S42","reason":"r"}' }] }], usage: {} });
+      return { ok: true, status: 200, text: async () => raw }; };
     const v = await writer.askJson("p", { images: ["https://pbs.twimg.com/x.jpg"], attempts: 1, log: () => {} });
-    global.fetch = realFetch; Object.assign(process.env, env); if (!env.XAI_API_KEY) delete process.env.XAI_API_KEY; if (!env.ANTHROPIC_API_KEY) delete process.env.ANTHROPIC_API_KEY;
-    const g = bodies[0][1].input[0].content, c = bodies[1][1].messages[0].content;
-    check(g[0].type === "input_image" && g[0].image_url === "https://pbs.twimg.com/x.jpg" && c[0].type === "image" && c[0].source.url === "https://pbs.twimg.com/x.jpg" && v.shows === true, "vision: picture sent to Grok, Claude fallback gets it too");
+    global.fetch = realFetch; Object.assign(process.env, env); if (!env.XAI_API_KEY) delete process.env.XAI_API_KEY;
+    const g = bodies[0][1].input[0].content;
+    check(bodies.length === 1 && g[0].type === "input_image" && g[0].image_url === "https://pbs.twimg.com/x.jpg" && v.shows === true, "vision: picture sent to Grok only");
   }
   console.log(failed ? `\n❌ ${failed} failed` : "\n✅ All precise-image checks passed."); process.exit(failed ? 1 : 0);
 })();
