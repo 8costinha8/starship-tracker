@@ -65,7 +65,9 @@
             "migrated": true
           },
           "complete": true,
-          "log_text": "Booster 23 rolled back to the production site after cryo testing."
+          "log_text": "Booster 23 rolled back to the production site after cryo testing.",
+          "log_only": true,
+          "hidden_why": "Bernardo 28 Oct: B23 off the Flight 15 Road until the Flight 16 section"
         },
         {
           "id": "x-2110889490336350574",
@@ -115,7 +117,9 @@
             "migrated": true
           },
           "complete": true,
-          "log_text": "Booster 23 completed a cryo proof test at Massey's."
+          "log_text": "Booster 23 completed a cryo proof test at Massey's.",
+          "log_only": true,
+          "hidden_why": "Bernardo 28 Oct: B23 off the Flight 15 Road until the Flight 16 section"
         },
         {
           "date": "9 Oct",
