@@ -1614,12 +1614,38 @@ function FeedPost({ p, onPhotoTap, idx }) {
       </div>
       <p className="post-text">{scrub(h.x_text || h.text)}</p>
       {mo ? <PickMedia mo={mo} /> : h.media_context ? <ContextMedia mc={h.media_context} /> : !h.milestone && h.x_post && <XMedia x={h.x_post} />}
-      <CreditLine h={h} />
-      <FeedBuildUp h={h} idx={idx} />
+      {String(h.id || "").startsWith("rtf-") ? <RtfCredit h={h} /> : <CreditLine h={h} />}
+      {String(h.id || "").startsWith("rtf-") ? <RtfBuildUp h={h} /> : <FeedBuildUp h={h} idx={idx} />}
     </article>
   );
 }
 
+// Source link wording: X → "@handle · View on X"; YouTube → "NSF · View video"; anything else → "NSF · View article".
+const rtfIsX = (u) => /^https?:\/\/(x|twitter)\.com\//i.test(u || "");
+const rtfLinkText = (u) => (rtfIsX(u) ? "View on X" : isYouTube(u) ? "View video" : "View article");
+const rtfWho = (u, hd) => { const w = rtfIsX(u.url) ? (hd ? String(hd).replace(/^@?/, "@") : "") : String(u.src || "").replace(/^@/, "").trim() || hostOf(u.url); return w ? `${w} · ` : ""; };
+// Main post of a two-cards card: same View on X line; a source CreditLine can't link (YouTube) still opens its stored url.
+function RtfCredit({ h }) {
+  if (urlOf(h) || !h.url) return <CreditLine h={h} />;
+  return (<div className="xm-foot post-credit"><a href={h.url} target="_blank" rel="noopener noreferrer" aria-label={rtfLinkText(h.url)} onClick={(e) => e.stopPropagation()}>{rtfWho(h, null)}{rtfLinkText(h.url)} {LINK_ICON}</a></div>);
+}
+// Two-cards layout: every post of this vehicle + category, newest first, no pictures; date · time + text, the whole pill opens the post.
+function RtfBuildUp({ h }) {
+  const rows = (h.updates || []).slice().sort((a, b) => (Date.parse(upIso(b)) || 0) - (Date.parse(upIso(a)) || 0));
+  if (!rows.length) return null;
+  const stop = (e) => e.stopPropagation();
+  return (
+    <details className="buildup feed-bu" onClick={stop}>
+      <summary>Earlier updates</summary>
+      <ul>{rows.map((u, i) => {
+      const iso = upIso(u);
+      const body = <><div className="bu-top"><span className="bu-date">{iso ? `${ukStamp(iso, false)} · ${feedTime(iso)}` : fmtDay(u.date)}</span></div><div className="bu-text">{scrub(u.text).replace(/^\d{1,2}(?:[–-]\d{1,2})? [A-Z][a-z]{2}:\s*/, "")}</div></>;
+      return extOf(u) ? <li key={i} className="bu-pill bu-ext"><a href={extOf(u)} target="_blank" rel="noopener noreferrer" aria-label={`${u.text} — ${rtfLinkText(u.url).toLowerCase()}${rtfHandle(u) ? " (" + rtfHandle(u) + ")" : ""}`} onClick={stop}>{body}</a></li>
+        : <li key={i} className="bu-pill bu-nolink">{body}</li>;
+      })}</ul>
+    </details>
+  );
+}
 // Phone header: an opaque, blurred bar fixed over both pages (and the status bar
 // area). Each page has its own two-line title: "Starship / Flight Log" (with a small
 // "Road to / Flight N ›" hint at the right) and "Road to / Flight N". Everything is
@@ -1682,8 +1708,82 @@ function PhoneHeader({ road, feedOpen, onAbout, onFeed, onBack, onHint }) {
   );
 }
 
+// ---- PROTOTYPE (local only): Road to Flight N as two cards per category (Ship, Booster; Pad adds Launch pad) ----
+const RTF_PLACEHOLDER = "images/rtf-placeholder.jpg";
+const RTF_CATS = { cryo: /cryo/i, raptor: /raptor|engine/i, static: /static[- ]fire/i };
+const rtfVeh = (s, road) => { const out = []; const t = String(s || "");
+  const ship = (road.vehicles || []).find((v) => /^S/i.test(v)), boo = (road.vehicles || []).find((v) => /^B/i.test(v));
+  if (ship && new RegExp(`\\b(ship\\s*|s)${ship.slice(1)}\\b`, "i").test(t)) out.push(ship);
+  if (boo && new RegExp(`\\b(booster\\s*|b)${boo.slice(1)}\\b`, "i").test(t)) out.push(boo);
+  return out; };
+const rtfPad = (h, road) => new RegExp(`\\b${String(road.pad || "Pad 2").replace(/\s+/, "[- ]?")}\\b`, "i").test(`${h.hardware || ""} ${h.text || ""}`);
+const rtfHandle = (u) => handleOf(u) || (u.src && /^@/.test(u.src) ? u.src : null);
+const rtfIsDone = (h, cid) => isDoneCard(h) && (!RTF_CATS[cid] || RTF_CATS[cid].test(`${h.text || ""} ${h.x_text || ""}`)) && !/ahead|could|expected/i.test(h.text || "");
+function rtfCards(road) {
+  const cats = Object.fromEntries((road.categories || []).map((c) => [c.id, c]));
+  const vs = road.vehicles || [];
+  const ship = vs.find((v) => /^S/i.test(v)), boo = vs.find((v) => /^B/i.test(v));
+  const vname = (v) => (v === ship ? `Ship ${v.slice(1)}` : v === boo ? `Booster ${v.slice(1)}` : "Launch pad");
+  const mine = (h) => isRealEntry(h) && !h.feed_hide && !(h.flight > road.flight) && flightOf(h, road) === road.flight && h.trust !== "unconfirmed";
+  const bucket = {}, loose = []; // "cid|veh" -> entries
+  const put = (cid, v, h) => { (bucket[cid + "|" + v] = bucket[cid + "|" + v] || []).push(h); };
+  for (const cid of ["cryo", "raptor", "static", "pad"]) for (const h of ((cats[cid] && cats[cid].history) || []).filter(mine)) {
+    const padHw = /^\s*pad/i.test(h.hardware || ""), hw = logHw(h), tv = rtfVeh(h.text, road), vv = padHw ? [] : tv.length ? tv : hw && vs.map(String).includes(hw) ? [hw] : [];
+    const otherPad = /\bpad[- ]?(\d)\b/i.test(`${h.hardware || ""} ${h.text || ""}`) && !rtfPad(h, road);
+    if (vv.length) vv.forEach((v) => put(cid, v, h));
+    else if (otherPad) continue;                                           // another pad (e.g. Pad 1): stays in the data, not on this page
+    else if (rtfPad(h, road) || cid === "pad") put("pad", "pad", h);      // Pad 2 / tower work (also when filed under Static fires)
+    else loose.push([cid, h]);                                             // no vehicle named: goes to the nearest-in-time vehicle card below
+  }
+  // Starship news pushes filed to a box (road.json feed_items) are posts too: same text and link as the push
+  for (const f of Array.isArray(road.feed_items) ? road.feed_items : []) {
+    if (!f || !f.body || !["cryo", "raptor", "static", "pad"].includes(f.box) || (Number.isInteger(f.flight) ? f.flight : road.flight) !== road.flight) continue;
+    const h = { id: f.id, date: f.date, at: f.at, text: f.body, url: f.url, src: (String(f.url || "").match(/(?:x|twitter)\.com\/(\w+)\//) || [])[1] ? "@" + String(f.url).match(/(?:x|twitter)\.com\/(\w+)\//)[1] : "", kind: "feed" };
+    const vv = rtfVeh(h.text, road);
+    if (vv.length) vv.forEach((v) => put(f.box, v, h)); else if (rtfPad(h, road) || f.box === "pad") put("pad", "pad", h); else loose.push([f.box, h]);
+  }
+  for (const [cid, h] of loose) { const t = Date.parse(cardIso(h)) || 0; let best = null;
+    for (const v of vs) for (const e of bucket[cid + "|" + v] || []) { const d = Math.abs((Date.parse(cardIso(e)) || 0) - t); if (!best || d < best.d) best = { d, v }; }
+    if (best) put(cid, best.v, h); }
+  const out = [];
+  for (const cid of ["cryo", "raptor", "static", "pad"]) for (const v of cid === "pad" ? [ship, boo, "pad"] : [ship, boo]) {
+    const cat = cats[cid]; const list = (bucket[cid + "|" + v] || []).slice().sort((a, b) => (Date.parse(cardIso(b)) || 0) - (Date.parse(cardIso(a)) || 0));
+    const doneOne = cid === "pad" ? list.find((h) => isDoneCard(h) && /wet dress/i.test(h.text || "")) : list.find((h) => rtfIsDone(h, cid));
+    const main = doneOne || list[0];
+    if (!main) { out.push({ empty: true, cat, v, name: vname(v) }); continue; }
+    // every post for this vehicle + category except the milestone's own, newest first; text + time + credit only
+    const rows = [], seen = new Set([urlOf(main), main.url].filter(Boolean));
+    const add = (u) => { const k = u.url || u.text; if (!u.text || seen.has(k)) return; seen.add(k); rows.push(u); };
+    for (const h of list) {
+      if (h !== main) add({ text: h.text, at: cardIso(h) || h.at, date: h.date, url: urlOf(h) || h.url, src: h.src, handle: (h.x_post && h.x_post.author && h.x_post.author.username) || (h.media_override && h.media_override.author) || (String(h.src || "").startsWith("@") ? h.src : null) });
+      for (const u of h.updates || []) { const uv = rtfVeh(u.text, road); if (v === "pad" || !uv.length || uv.includes(v)) add({ text: u.text, at: u.at, date: u.date, url: u.url, src: u.src, handle: u.handle || (String(u.src || "").startsWith("@") ? u.src : null) }); }
+    }
+    const h = { ...main, id: `rtf-${cid}-${v}`, updates: rows, alt_media: null, complete: !!doneOne, milestone: doneOne ? main.milestone : { phase: "progress" } };
+    // picture: newest event (incomplete) or the completing event (done); best photo among that event's posts (scripts/road-pick.js)
+    const pic = window.RoadPick ? window.RoadPick.cardPicture(list, { cid, done: doneOne || null }) : null;
+    if (pic) h.media_override = { image: pic.image, type: pic.type, post_url: pic.post_url, author: String(pic.author || "").replace(/^@/, ""), keep_image: pic.manual, credit_only: pic.from !== main && !!pic.author };
+    else if (!doneOne) h.media_override = { image: RTF_PLACEHOLDER, type: "photo", post_url: urlOf(main) };
+    h.rtf_pic = pic ? pic.from : null; h.media_context = null;
+    out.push({ h, cat: { ...cat, name: `${cat.name} · ${vname(v)}` }, ci: 0, hi: 0, id: h.id, flight: road.flight, done: !!doneOne });
+  }
+  return out;
+}
+function rtfRows(road) {
+  const { posts, rows } = buildFeed(road);
+  const res = []; let inCur = false, tail = [];
+  // fixed real-world order for the next flight: Cryo, Raptor, Static fires, Pad (cards above), then FAA licence, then Launch date last
+  const flush = () => { tail.sort((x, y) => (x.post.cat.id === "date") - (y.post.cat.id === "date")); res.push(...tail); tail = []; };
+  for (const r of rows) {
+    if (r.section) { flush(); inCur = r.section.n === road.flight; res.push(r); if (inCur) { rtfCards(road).forEach((p) => res.push(p.empty ? { empty: p } : { post: p })); } continue; }
+    if (inCur && ["faa", "date"].includes(r.post.cat.id)) { tail.push(r); continue; } // FAA and Launch date: unchanged single cards, at the bottom
+    if (inCur) continue;
+    flush(); res.push(r);
+  }
+  flush();
+  return { posts, rows: res };
+}
 function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap }) {
-  const { posts, rows } = React.useMemo(() => buildFeed(road), [road]);
+  const { posts, rows } = React.useMemo(() => rtfRows(road), [road]);
   const idx = React.useMemo(() => entryIndex(road), [road]);
   if (!posts.length) return null;
   return (
@@ -1699,7 +1799,7 @@ function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap }) {
             ? <div className="fdiv" id={`fsec-${r.section.n}`} key={"f" + r.section.n}><span><b>{`Flight ${r.section.n}`}</b>{(r.section.flown || r.section.next) && <> <i>·</i> </>}{r.section.flown
                 ? <><span className={"fdiv-" + r.section.flown.outcome}>{OUTCOME_LABEL[r.section.flown.outcome] || r.section.flown.outcome}</span> <i>·</i> {ukStamp(new Date(r.section.flown.day).toISOString(), false)}</>
                 : r.section.next ? <span className="fdiv-next">Next flight</span> : null}</span></div>
-            : <FeedPost key={r.post.id} p={r.post} onPhotoTap={onPhotoTap} idx={idx} />)}
+            : r.empty ? null : <FeedPost key={r.post.id} p={r.post} onPhotoTap={onPhotoTap} idx={idx} />)}
           <p className="end">That's every update so far.</p>
         </div>
       </div>

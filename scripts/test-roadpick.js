@@ -1,0 +1,25 @@
+// Road to Flight card picture: newest event with a picture, best photo among that event's posts.
+const assert = require("assert");
+const { cardPicture, kindOf } = require("./road-pick.js");
+const post = (id, at, text, handle, media) => ({ id, at, text, x_post: { url: `https://x.com/${handle}/status/${id}`, author: { username: handle }, media } });
+const photo = (u) => ({ type: "photo", url: u }), video = (u) => ({ type: "video", poster: u });
+const a = post("1", "2026-10-24T08:00:00Z", "Booster 22 rolled out to Pad 2.", "Blobifie", [video("v1")]);
+const b = post("2", "2026-10-24T09:00:00Z", "Booster 22 rolling out to the pad.", "randomfan", [photo("p2")]);
+const c = post("3", "2026-10-24T10:00:00Z", "Booster 22 rollout to Pad 2 underway.", "NASASpaceflight", [photo("p3")]);
+const old = post("4", "2026-10-20T10:00:00Z", "Booster 22 arrived at Massey's.", "LabPadre", [photo("p4")]);
+let r = cardPicture([old, a, b, c], { cid: "static" });
+assert.strictEqual(r.image, "p3", "same event: tier 2 photo beats tier 3 photo and a video thumbnail");
+r = cardPicture([old, a], { cid: "static" });
+assert.strictEqual(r.image, "v1", "only a video thumbnail in the newest event: use it");
+const none = post("5", "2026-10-25T10:00:00Z", "Booster 22 lifted onto the launch mount.", "LabPadre", []);
+r = cardPicture([old, none], { cid: "pad" });
+assert.strictEqual(r.image, "p4", "newest event without a picture: next newest event that has one");
+assert.strictEqual(cardPicture([none], { cid: "pad" }), null, "no picture anywhere: null (placeholder)");
+const sf1 = post("6", "2026-10-25T13:00:00Z", "Booster 22 conducted a static fire test.", "Blobifie", [video("v6")]);
+const sf2 = post("7", "2026-10-25T14:00:00Z", "Booster 22 static fire on Pad 2.", "SpaceX", [photo("p7")]);
+r = cardPicture([sf1, sf2, c], { cid: "static", done: sf1 });
+assert.strictEqual(r.image, "p7", "completed: best of the completing event's posts (SpaceX photo)");
+const man = { ...sf1, media_override: { image: "images/pick.jpg", keep_image: true, author: "Blobifie" } };
+assert.strictEqual(cardPicture([man, sf2], { cid: "static", done: man }).image, "images/pick.jpg", "a manual keep_image pick always wins");
+assert.strictEqual(kindOf("cryo", "Frost on Ship 42's tanks"), "cryo");
+console.log("test-roadpick: all passed");
