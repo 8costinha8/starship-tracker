@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "28 Oct",
-  "updatedAt": "2026-10-28T17:28:18.171Z",
+  "updatedAt": "2026-10-28T19:59:16.711Z",
   "categories": [
     {
       "id": "cryo",
@@ -3085,6 +3085,15 @@
     }
   ],
   "feed_items": [
+    {
+      "id": "flight-mvsjfivy-8b129a",
+      "kind": "flight",
+      "title": "📅 New estimated date",
+      "body": "NET Nov 2026",
+      "at": "2026-10-28T19:59:12.478Z",
+      "date": "28 Oct",
+      "flight": 15
+    },
     {
       "id": "news-mvsb9c8o-97f884",
       "kind": "news",
