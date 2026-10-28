@@ -47,6 +47,7 @@ const cardMs = (h) => Date.parse(h.at || "") || Date.parse((h.x_post && h.x_post
 function lockedReason(h, catId, pickIds) {
   const mo = h.media_override;
   if (mo && mo.keep_image) return "keep_image";
+  if (mo && mo.cascade) return "milestone cascade manages this card";
   if (mo && !mo.auto && mo.post_id && pickIds.has(String(mo.post_id))) return "manual pick";
   if (isShipCryo(h, catId)) return "ship cryo default (propose only)";
   return null;

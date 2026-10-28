@@ -195,9 +195,12 @@ function placePost(road, post, cls, now = Date.now(), picks = []) {
       h.updates = [{ date: h.date, ...(h.log_date ? { log_date: h.log_date } : {}), at: h.at, text: h.x_text || h.text, ...(h.log_text ? { log_text: h.log_text } : {}), url: h.url, src: h.src, phase: from, tier: h.tier }, ...(h.updates || [])].slice(0, 20);
       h.tier = tier; if (hedge) h.hedged = true; else delete h.hedged; if (tier === 3 && claimed !== "expected") h.reported = claimed; else delete h.reported;
       if (cls.inferred) h.trust = "unconfirmed"; // the writer inferred the step from indirect evidence: shown, never moves a phase
+      // a confirmed milestone card (media-cascade text_locked): wording, time, link and source post stay; only the phase moves
+      if (h.text_locked) { h.updates.shift(); } else {
       if (logText) h.log_text = logText; else delete h.log_text;
       if (statusLine) h.status_line = statusLine; else delete h.status_line;
       Object.assign(h, { date: dayLabel(post.created_at), log_date: logDate, at: new Date(at).toISOString(), text: cls.text, x_text: cls.text, url: post.url, src: `@${post.author.username}`, x_post: post });
+      }
     }
     if (h.updates) h.updates = h.updates.filter((u) => !logText_.isRejected(road, life.c.id, u) && !logText_.isMonthMixup(h, u)); // a rejected or month-mixed-up line never comes back
     if (!accurate) h.updates[0] && (h.updates[0].note = "later post did not match the vehicle/pad numbers; status unchanged");
@@ -306,7 +309,7 @@ async function runXFirst(road, state, { token, fetchFn, ask, postCard, log = con
   if (posts.length && linkFetch) await readLinks(posts, linkFetch, log);
   if (posts.length) {
     try { verdicts = await classifyPosts(road, posts, stages, ask); }
-    catch (e) { log(`X-first: writer failed (${e.message}) — posts retried next run`); return { cards: [], merged: [], news: [], missions: [], state: { ...xs }, calls: got.calls, read: got.read || 0, retry: true }; /* since_id not advanced */ }
+    catch (e) { log(`X-first: writer failed (${e.message}) — posts retried next run`); return { cards: [], merged: [], news: [], missions: [], state: { ...xs }, calls: got.calls, read: got.read || 0, retry: true, posts: got.posts || [] }; /* since_id not advanced */ }
   }
   const cards = [], merged = [], newsItems = [], missions = [];
   posts.forEach((p, i) => {
@@ -332,7 +335,7 @@ async function runXFirst(road, state, { token, fetchFn, ask, postCard, log = con
     (r.merged ? merged : cards).push(r);
     log(`X-first: road/${v.stage} ${v.hardware || "-"} @${p.author.username} ${p.post_id} → ${r.merged ? `merged into ${r.entry.id}` : `new card ${r.entry.id}`}`);
   });
-  return { cards, merged, news: newsItems, missions, state: { sinceId: got.sinceId, seen: [...seen].slice(-500), pending: waiting.slice(0, 20) }, calls: got.calls, read: got.read || 0 };
+  return { cards, merged, news: newsItems, missions, state: { sinceId: got.sinceId, seen: [...seen].slice(-500), pending: waiting.slice(0, 20) }, calls: got.calls, read: got.read || 0, posts: got.posts || [] };
 }
 
 const isOfficial = (p) => OFFICIAL.has(String(p.author && p.author.username).toLowerCase());

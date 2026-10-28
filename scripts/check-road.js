@@ -1492,6 +1492,16 @@ async function run(opts = {}) {
       if (mw.swapped.length) changed = true;
     } catch (e) { log(`media watch failed (${e.message}) — tried again next hour`); }
   }
+  // 4a-mc. Milestone media cascade: the posts X-first already fetched this run (no extra X call, no writer):
+  // a confirmed milestone card follows its best source (image + link + source post). Never a push (no `changes`).
+  let cascadeFiles = [];
+  if (xf && xf.posts && xf.posts.length && opts.cascade !== false) {
+    try {
+      const mc = await require("./media-cascade.js").runCascade(road, xf.posts, { picks: opts.mediaPicks || loadMediaPicks(), ...(opts.cascade || {}), log });
+      cascadeFiles = mc.files;
+      if (mc.swapped.length || mc.confirmed.length) { changed = true; log(`media cascade: ${mc.swapped.length} swap(s), ${mc.confirmed.length} confirmed (no push)`); }
+    } catch (e) { log(`media cascade failed (${e.message}) — tried again next run`); }
+  }
   // 4a-img. New entries with an X post: keep only a picture that clearly shows the update
   for (const ch of changes) {
     if (xFirst || !ch.entry.x_post || ch.entry.media_override || (opts.sources && !opts.vision)) continue; // tests without a fake vision skip the check
@@ -1599,7 +1609,7 @@ async function run(opts = {}) {
     if (save) {
       fs.writeFileSync(roadPath, json);
       const what = [rolledOver ? "new Road" : "", notifications.length ? `${notifications.length} update(s)` : "", refreshed.length ? `no-news lines tidied (${road.updated})` : "", predChanged ? `predicted date ${road.predicted ? `NET ${road.predicted.net}` : "cleared"}` : ""].filter(Boolean).join(", ") || "card details updated (no push)";
-      commit(["road.json", ...frameFiles].join(" "), `Auto: Road to Flight ${road.flight} — ${what}`);
+      commit(["road.json", ...frameFiles, ...cascadeFiles].join(" "), `Auto: Road to Flight ${road.flight} — ${what}`);
     } else console.log(`(not committed) Auto: Road to Flight ${road.flight} — ${notifications.length} update(s)${refreshed.length ? `, ${refreshed.length} no-news line change(s) (${road.updated})` : ""}`);
     if (!notifications.length && !rolledOver) log("no push notification for this change");
     // send only what the committed road.json shows (read back from disk; test mode checks the would-be file)
