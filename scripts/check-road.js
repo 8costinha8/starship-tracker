@@ -1248,6 +1248,8 @@ async function run(opts = {}) {
   const notifications = [];
   let changed = false;
   const clock = opts.now || (() => Date.now());
+  try { require("./writer.js").resetProviderFaults(); } catch {}
+  const providerFaultsNow = () => { try { return require("./writer.js").providerFaults(); } catch { return []; } };
   let writerFailedRun = false; // news/article writer (Grok + Claude) failed this run → watchdog
   const pushLog = []; // every push attempt this run → notifications.json
   const notifLogPath = opts.notifLogPath || path.join(path.dirname(roadPath), "notifications.json");
@@ -1621,7 +1623,8 @@ async function run(opts = {}) {
     .map(({ key, title, text, url, publishedAt, src, source, tier }) => ({ key, title, text, url, publishedAt, src, source, tier }));
   state.seen = [...seen].slice(-LIMITS.seenKeep);
   state.lastRun = new Date().toISOString();
-  const alarms = require("./watchdog.js").check(state, { terms: searchVehicleWords(road), candidates: (xf ? xf.read || 0 : 0) + candidates.length + counts.seen + counts.stale + counts.dupe + counts.offTopic, writerFailed: !!(xf && xf.retry) || writerFailedRun });
+  const alarms = require("./watchdog.js").check(state, { terms: searchVehicleWords(road), candidates: (xf ? xf.read || 0 : 0) + candidates.length + counts.seen + counts.stale + counts.dupe + counts.offTopic, writerFailed: !!(xf && xf.retry) || writerFailedRun, providerFaults: providerFaultsNow() });
+  for (const wn of require("./watchdog.js").check.warnings || []) { log(`⚠️ WATCHDOG: ${wn}`); console.log(`::warning::Watchdog: ${wn}`); }
   for (const a of alarms) { log(`🚨 WATCHDOG: ${a}`); console.log(`::error::Watchdog: ${a}`); }
   if (save) await deps.saveState(state);
   if (alarms.length && save && opts.watchdog !== false) throw new Error(`watchdog: ${alarms.join("; ")}`);

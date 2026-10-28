@@ -55,8 +55,12 @@ async function callClaude({ prompt, model, maxTokens, images }) {
     headers: { "x-api-key": process.env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json" },
     body: JSON.stringify({ model, max_tokens: maxTokens, messages: [{ role: "user", content: images && images.length ? [...images.map((url) => ({ type: "image", source: { type: "url", url } })), { type: "text", text: prompt }] : prompt }] }),
   });
-  const json = await res.json();
-  if (json.error) throw new Error(`Anthropic API error (${json.error.type}): ${String(json.error.message).slice(0, 2000)}`);
+  let json;
+  try { json = await res.json(); } catch { json = { error: { type: "http_error", message: `HTTP ${res.status}` } }; }
+  if (json.error || (res.status && !res.ok && res.status >= 400)) {
+    const e = json.error || { type: "http_error", message: `HTTP ${res.status}` };
+    throw Object.assign(new Error(`Anthropic API error (${e.type}): ${String(e.message).slice(0, 2000)}`), { status: res.status, provider: "claude" });
+  }
   const blocks = (json.content || []).map((b) => b.type).join(",") || "none";
   const text = json.content?.find((b) => b.type === "text")?.text;
   // thinking signatures are long base64; show their size instead
@@ -91,11 +95,11 @@ async function callGrok({ prompt, model, maxTokens, schema, schemaName, images }
   });
   const raw = await res.text();
   let json;
-  try { json = JSON.parse(raw); } catch { throw new Error(`xAI API error (HTTP ${res.status}): ${raw.slice(0, 2000)}`); }
+  try { json = JSON.parse(raw); } catch { throw Object.assign(new Error(`xAI API error (HTTP ${res.status}): ${raw.slice(0, 2000)}`), { status: res.status, provider: "grok" }); }
   if (!res.ok || (json.error && !json.output)) {
     const e = json.error;
     const msg = typeof e === "string" ? e : (e && (e.message || JSON.stringify(e))) || raw;
-    throw new Error(`xAI API error (HTTP ${res.status}${json.code ? `, ${json.code}` : ""}): ${String(msg).slice(0, 2000)}`);
+    throw Object.assign(new Error(`xAI API error (HTTP ${res.status}${json.code ? `, ${json.code}` : ""}): ${String(msg).slice(0, 2000)}`), { status: res.status, provider: "grok" });
   }
   const u = json.usage || {};
   const kinds = (json.output || []).map((o) => o.type).join(",") || "none";
@@ -108,6 +112,30 @@ async function callGrok({ prompt, model, maxTokens, schema, schemaName, images }
   };
 }
 
+/* Provider faults the watchdog must act on at the FIRST occurrence: HTTP 401/402/403, or any credit, quota
+   or spending-limit error. Recorded per process as { provider, reason } — a short, fixed reason, never the
+   raw body or any header (no secrets). The fallback still runs; watchdog.providerCheck decides warn vs fail. */
+const PROVIDER = { grok: "xAI", claude: "Anthropic" };
+function providerFault(provider, err) {
+  const m = String((err && err.message) || ""), st = Number(err && err.status) || Number((m.match(/HTTP (\d{3})/) || [])[1]) || 0;
+  let reason = null;
+  if (/credit balance is too low/i.test(m)) reason = "credit balance too low";
+  else if (/used all available credits|out of credits|credits? (?:exhausted|depleted)|insufficient (?:credits|funds|balance)/i.test(m)) reason = "credits exhausted";
+  else if (/spending limit/i.test(m)) reason = "spending limit reached";
+  else if (/quota/i.test(m)) reason = "quota exceeded";
+  else if (st === 401) reason = "authentication failed";
+  else if (st === 402) reason = "payment required";
+  else if (st === 403) reason = "access forbidden";
+  if (!reason) return null;
+  return { provider: PROVIDER[provider] || provider, reason: `${reason}${st ? ` (HTTP ${st})` : ""}` };
+}
+const faults = new Map();
+async function noteFault(provider, fn) {
+  try { return await fn(); } catch (err) { const f = providerFault(provider, err); if (f && !faults.has(f.provider)) faults.set(f.provider, f); throw err; }
+}
+const providerFaults = () => [...faults.values()];
+const resetProviderFaults = () => faults.clear();
+
 const sleep = (ms) => new Promise((ok) => setTimeout(ok, ms));
 
 /* Ask the writer for JSON.
@@ -118,13 +146,13 @@ const sleep = (ms) => new Promise((ok) => setTimeout(ok, ms));
 async function askJson(prompt, opts = {}) {
   const w = writerName();
   const log = opts.log || console.log;
-  if (w !== "grok") return askWith("claude", DEFAULT_MODELS.claude, prompt, opts);
+  if (w !== "grok") return noteFault("claude", () => askWith("claude", DEFAULT_MODELS.claude, prompt, opts));
   try {
-    return await askWith("grok", writerModel(), prompt, opts);
+    return await noteFault("grok", () => askWith("grok", writerModel(), prompt, opts));
   } catch (err) {
     log(`⚠️ Grok failed (${String(err.message).slice(0, 300)}) — falling back to Claude for this call`);
     if (process.env.GITHUB_ACTIONS) console.log(`::warning::Grok failed — fell back to Claude (${String(err.message).slice(0, 200)})`);
-    const v = await askWith("claude", DEFAULT_MODELS.claude, prompt, { ...opts, maxTokens: opts.claudeMaxTokens || opts.maxTokens });
+    const v = await noteFault("claude", () => askWith("claude", DEFAULT_MODELS.claude, prompt, { ...opts, maxTokens: opts.claudeMaxTokens || opts.maxTokens }));
     if (v && typeof v === "object") Object.defineProperty(v, "writer", { value: "claude (fallback)", enumerable: false, configurable: true });
     return v;
   }
@@ -165,4 +193,4 @@ async function askWith(w, model, prompt, opts) {
   }
 }
 
-module.exports = { askJson, writerName, writerLabel, writerModel, responsesText, resetFallbackWarning, DEFAULT_MODELS };
+module.exports = { providerFault, providerFaults, resetProviderFaults, askJson, writerName, writerLabel, writerModel, responsesText, resetFallbackWarning, DEFAULT_MODELS };
