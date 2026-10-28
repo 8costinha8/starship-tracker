@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "28 Oct",
-  "updatedAt": "2026-10-28T10:00:53.003Z",
+  "updatedAt": "2026-10-28T13:36:19.905Z",
   "categories": [
     {
       "id": "cryo",
@@ -1011,7 +1011,7 @@
           "stage": "static",
           "hardware": "S42",
           "flight": 15,
-          "tier": 1,
+          "tier": 2,
           "x_post": {
             "post_id": "2115231900961005856",
             "url": "https://x.com/NASASpaceflight/status/2115231900961005856",
@@ -1036,32 +1036,32 @@
             }
           },
           "x_posts": [
-            "2114904512217694216"
+            "2114904512217694216",
+            "2115404622638837866",
+            "2115231900961005856",
+            "2115203155206279459",
+            "2115203133152330182",
+            "2115202175924121987",
+            "2115199662361874568"
           ],
           "xChecked": true,
           "backfill": "2026-10-28",
           "no_push": true,
           "media_override": {
-            "post_url": "https://x.com/NASASpaceflight/status/2115231900961005856",
-            "post_id": "2115231900961005856",
-            "author": "NASASpaceflight",
+            "post_url": "https://x.com/Blobifie/status/2115199662361874568",
+            "post_id": "2115199662361874568",
+            "author": "Blobifie",
             "type": "video",
-            "image": "images/2115231900961005856-frame.jpg",
-            "video_url": "https://video.twimg.com/amplify_video/2115231105422884864/vid/avc1/1920x1080/ncdRzJE_E9ksyMza.mp4",
-            "thumb": "https://pbs.twimg.com/amplify_video_thumb/2115231105422884864/img/xIBecFpqcVGmoaTE.jpg",
-            "frame": {
-              "t": 9,
-              "by": "pixel-rank (best-frame.js) over the S42 firing segment (0–17s), overlay-free frame picked by eye; Grok out of credits"
-            }
+            "image": "https://pbs.twimg.com/amplify_video_thumb/2115199518606258176/img/dSZqkhoRxVk1OeFh.jpg",
+            "video_url": "https://video.twimg.com/amplify_video/2115199518606258176/vid/avc1/1280x720/5O6KkJ7Atn61UlOU.mp4?tag=14"
           },
           "milestone": {
             "key": "static_fire|15|S42",
             "type": "static_fire",
             "flight": 15,
             "hardware": "S42",
-            "phase": "progress"
+            "phase": "completed"
           },
-          "frameChecked": true,
           "firings": [
             {
               "engines": 1,
@@ -1164,12 +1164,26 @@
                 "author": "NASASpaceflight",
                 "tier": 2,
                 "at": "2026-10-27T21:46:34.000Z"
+              },
+              {
+                "post_id": "2115404622638837866",
+                "author": "LabPadre",
+                "tier": 2,
+                "at": "2026-10-28T11:25:39.000Z"
               }
             ],
             "confirmed": true,
             "confirmed_at": "2026-10-28T10:00:52.669Z"
           },
-          "text_locked": true
+          "text_locked": true,
+          "complete": true,
+          "completed_at": "2026-10-28T11:25:39.000Z",
+          "completed_src": "https://x.com/LabPadre/status/2115404622638837866",
+          "push": {
+            "title": "💥 Static fires: Completed",
+            "url": "https://x.com/NASASpaceflight/status/2115231900961005856",
+            "at": "2026-10-27T23:59:18.000Z"
+          }
         },
         {
           "id": "x-2114535368758542634",
@@ -2271,7 +2285,7 @@
         }
       ],
       "doneText": "Completed",
-      "log_latest": "Ship 42 completed both static fires."
+      "log_latest": "Ship 42 static fires done."
     },
     {
       "id": "pad",
@@ -3054,6 +3068,16 @@
   ],
   "feed_items": [
     {
+      "id": "news-mvrm1w14-668ed2",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Ship 43 has returned to the production site from chopstick tests",
+      "url": "https://x.com/NASASpaceflight/status/2115298718035370428",
+      "at": "2026-10-28T04:24:49.000Z",
+      "date": "28 Oct",
+      "flight": 15
+    },
+    {
       "id": "news-mvozi9xs-e0267f",
       "kind": "news",
       "title": "🚀 Starship",
@@ -3159,14 +3183,16 @@
     },
     "S42": {
       "static_fire": {
-        "count": 2,
+        "count": 3,
         "dates": [
           "2026-10-27T02:17:24.000Z",
-          "2026-10-27T21:45:25.000Z"
+          "2026-10-27T21:45:25.000Z",
+          "2026-10-28T11:25:39.000Z"
         ],
         "src": [
           "https://x.com/NASASpaceflight/status/2114904512217694216",
-          "https://x.com/NASASpaceflight/status/2115198496521195971"
+          "https://x.com/NASASpaceflight/status/2115198496521195971",
+          "https://x.com/LabPadre/status/2115404622638837866"
         ]
       }
     }
