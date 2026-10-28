@@ -249,6 +249,16 @@
       "sent_at": "2026-10-26T12:20:03.172Z",
       "where": "road",
       "verdict": "sent"
+    },
+    {
+      "title": "💥 Static fires · Flight 15",
+      "body": "Ship 42 completed both its single- and six-engine static fire tests at Massey's.",
+      "url": "https://x.com/NASASpaceflight/status/2115231900961005856",
+      "at": "2026-10-27T21:45:25.000Z",
+      "where": "road",
+      "verdict": "silent: backfill (no push)",
+      "dedupe_only": true,
+      "key": "S42|static_fire|27 Oct"
     }
   ]
 }

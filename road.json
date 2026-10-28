@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "27 Oct",
-  "updatedAt": "2026-10-27T02:17:24.000Z",
+  "updatedAt": "2026-10-27T21:45:25.000Z",
   "categories": [
     {
       "id": "cryo",
@@ -403,19 +403,19 @@
       "icon": "💥",
       "name": "Static fires",
       "color": "#FF9A3D",
-      "status": "progress",
-      "latest": "Ship 42 conducted a single-engine static fire test at Massey's.",
+      "status": "done",
+      "latest": "Ship 42 completed both its single- and six-engine static fire tests at Massey's.",
       "history": [
         {
           "id": "x-2114904512217694216",
           "date": "27 Oct",
           "log_date": "27 Oct",
-          "at": "2026-10-27T02:17:24.000Z",
-          "text": "Ship 42 conducted a single-engine static fire test at Massey's.",
-          "x_text": "Ship 42 conducted a single-engine static fire test at Massey's.",
-          "log_text": "Ship 42 completed a single-engine static fire.",
-          "status_line": "Ship 42 single-engine static fire done.",
-          "url": "https://x.com/NASASpaceflight/status/2114904512217694216",
+          "at": "2026-10-27T21:45:25.000Z",
+          "text": "Ship 42 completed both its single- and six-engine static fire tests at Massey's.",
+          "x_text": "Ship 42 completed both its single- and six-engine static fire tests at Massey's.",
+          "log_text": "Ship 42 completed both static fires.",
+          "status_line": "Ship 42 static fires done.",
+          "url": "https://x.com/NASASpaceflight/status/2115231900961005856",
           "src": "@NASASpaceflight",
           "trust": "trusted",
           "x_first": true,
@@ -424,10 +424,10 @@
           "flight": 15,
           "tier": 1,
           "x_post": {
-            "post_id": "2114904512217694216",
-            "url": "https://x.com/NASASpaceflight/status/2114904512217694216",
-            "created_at": "2026-10-27T02:18:23.000Z",
-            "text": "Starship Flight 15: Ship 42 conducts a single-engine static fire test at SpaceX Massey's.\n\nhttps://t.co/k6ExB7hQyy https://t.co/hGqsLQL5WP",
+            "post_id": "2115231900961005856",
+            "url": "https://x.com/NASASpaceflight/status/2115231900961005856",
+            "created_at": "2026-10-27T23:59:18.000Z",
+            "text": "Ship 42 has completed both its single- and six-engine static fire tests, paving the way for Flight 15 in November. These events occurred during a busy period at Starbase that included Ship 43 testing ahead of Flight 16.",
             "author": {
               "name": "NSF - NASASpaceflight.com",
               "username": "NASASpaceflight",
@@ -436,8 +436,8 @@
             "media": [
               {
                 "type": "video",
-                "poster": "https://pbs.twimg.com/amplify_video_thumb/2114904475424923648/img/Ine5Xn_yKwSH7oC9.jpg",
-                "video_url": "https://video.twimg.com/amplify_video/2114904475424923648/vid/avc1/1112x624/iaxaxI83f81cN0Lw.mp4"
+                "poster": "https://pbs.twimg.com/amplify_video_thumb/2115231105422884864/img/xIBecFpqcVGmoaTE.jpg",
+                "video_url": "https://video.twimg.com/amplify_video/2115231105422884864/vid/avc1/1920x1080/ncdRzJE_E9ksyMza.mp4"
               }
             ],
             "link": {
@@ -453,17 +453,16 @@
           "backfill": "2026-10-28",
           "no_push": true,
           "media_override": {
-            "post_url": "https://x.com/NASASpaceflight/status/2114904512217694216",
-            "post_id": "2114904512217694216",
+            "post_url": "https://x.com/NASASpaceflight/status/2115231900961005856",
+            "post_id": "2115231900961005856",
             "author": "NASASpaceflight",
             "type": "video",
-            "image": "images/2114904512217694216-frame.jpg",
-            "video_url": "https://video.twimg.com/amplify_video/2114904475424923648/vid/avc1/1112x624/iaxaxI83f81cN0Lw.mp4",
-            "thumb": "https://pbs.twimg.com/amplify_video_thumb/2114904475424923648/img/Ine5Xn_yKwSH7oC9.jpg",
+            "image": "images/2115231900961005856-frame.jpg",
+            "video_url": "https://video.twimg.com/amplify_video/2115231105422884864/vid/avc1/1920x1080/ncdRzJE_E9ksyMza.mp4",
+            "thumb": "https://pbs.twimg.com/amplify_video_thumb/2115231105422884864/img/xIBecFpqcVGmoaTE.jpg",
             "frame": {
-              "t": 17,
-              "by": "pixel-rank (best-frame.js), pick checked by eye; Grok out of credits",
-              "confidence": 0.9
+              "t": 9,
+              "by": "pixel-rank (best-frame.js) over the S42 firing segment (0–17s), overlay-free frame picked by eye; Grok out of credits"
             }
           },
           "milestone": {
@@ -473,7 +472,25 @@
             "hardware": "S42",
             "phase": "progress"
           },
-          "frameChecked": true
+          "frameChecked": true,
+          "firings": [
+            {
+              "engines": 1,
+              "at": "2026-10-27T02:17:24.000Z",
+              "src": "https://x.com/NASASpaceflight/status/2114904512217694216"
+            },
+            {
+              "engines": 6,
+              "at": "2026-10-27T21:45:25.000Z",
+              "src": "https://x.com/NASASpaceflight/status/2115198496521195971"
+            }
+          ],
+          "also_posts": [
+            "2114904512217694216",
+            "2115198496521195971",
+            "2115199662361874568",
+            "2115203155206279459"
+          ]
         },
         {
           "id": "x-2114686191627030843",
@@ -1667,7 +1684,7 @@
         }
       ],
       "doneText": "Completed",
-      "log_latest": "Ship 42 single-engine static fire done."
+      "log_latest": "Ship 42 completed both static fires."
     },
     {
       "id": "pad",
@@ -2176,12 +2193,14 @@
     },
     "S42": {
       "static_fire": {
-        "count": 1,
+        "count": 2,
         "dates": [
-          "2026-10-27T02:17:24.000Z"
+          "2026-10-27T02:17:24.000Z",
+          "2026-10-27T21:45:25.000Z"
         ],
         "src": [
-          "https://x.com/NASASpaceflight/status/2114904512217694216"
+          "https://x.com/NASASpaceflight/status/2114904512217694216",
+          "https://x.com/NASASpaceflight/status/2115198496521195971"
         ]
       }
     }

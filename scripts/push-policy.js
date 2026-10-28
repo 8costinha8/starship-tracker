@@ -59,11 +59,13 @@ function classify(n, { vehicles = [] } = {}) {
   return { vehicle, type, milestone, rank: milestone ? 100 : MINOR_RANK[type] || 1, date, key: `${vehicle}|${type}|${date}` };
 }
 const sentRows = (h) => (h || []).filter((r) => r && r.verdict === "sent");
+// a silent backfill leaves a dedupe_only row: it blocks a later push of the same vehicle|event|date, but is not a push (quiet window ignores it)
+const dedupeRows = (h) => (h || []).filter((r) => r && (r.verdict === "sent" || r.dedupe_only === true));
 // history: earlier log rows (notifications.json + this run). now: ms. Returns { push, reason, cls }
 function decide(n, history, { now = Date.now(), vehicles = [] } = {}) {
   const cls = classify(n, { vehicles });
   const sent = sentRows(history);
-  if (sent.some((r) => (r.key || classify(r, { vehicles }).key) === cls.key)) return { push: false, reason: `duplicate ${cls.key}`, cls };
+  if (dedupeRows(history).some((r) => (r.key || classify(r, { vehicles }).key) === cls.key)) return { push: false, reason: `duplicate ${cls.key}`, cls };
   if (cls.milestone) return { push: true, reason: `milestone ${cls.type}`, cls };
   const last = Math.max(-Infinity, ...sent.map((r) => Date.parse(r.sent_at)).filter(Number.isFinite));
   const quietH = (now - last) / 3600000;

@@ -43,3 +43,13 @@ ok(!sent.some((b) => /Massey/.test(b)), "no S42 Massey's push (minor, inside qui
   ok(out.length === 1 && rows[1].verdict.startsWith("silent: duplicate"), `sendPush: Road + news of the same B22 static fire → 1 push (${rows.map((r) => r.verdict).join(" | ")})`);
   console.log(fail ? `\n❌ ${fail} check(s) failed` : "\nAll push-policy checks passed."); process.exit(fail ? 1 : 0);
 })();
+
+// silent backfill marker: blocks a later push of the same milestone, does not count as a push for the quiet window
+{
+  const pp2 = require("./push-policy.js");
+  const marker = [{ title: "Static fires", body: "Ship 42 completed its static fires.", at: "2026-10-27T21:45:25Z", verdict: "silent: backfill (no push)", dedupe_only: true, key: "S42|static_fire|27 Oct" }];
+  const d1 = pp2.decide({ title: "💥 Static fires · Flight 15", body: "Ship 42 completed a six-engine static fire.", at: "2026-10-27T21:46:34Z" }, marker, { now: Date.parse("2026-10-28T10:00:00Z") });
+  console.log(d1.push === false && /duplicate/.test(d1.reason) ? "PASS backfill marker dedupes the six-engine re-report" : "FAIL backfill marker dedupe: " + d1.reason); if (d1.push !== false) process.exitCode = 1;
+  const d2 = pp2.decide({ title: "Pad activity", body: "Ship 43 moves to Massey's.", at: "2026-10-28T09:00:00Z" }, marker, { now: Date.parse("2026-10-28T10:00:00Z") });
+  console.log(d2.push === true ? "PASS backfill marker is not a push for the quiet window" : "FAIL marker counted as a push: " + d2.reason); if (d2.push !== true) process.exitCode = 1;
+}
