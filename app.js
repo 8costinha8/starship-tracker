@@ -1153,17 +1153,20 @@ function RoadCard({ road, onEntryTap, openReq }) {
   const [main, setMain] = React.useState(false);
   React.useEffect(() => { if (openReq) setMain(true); }, [openReq]); // header chip asks it to open
   const [open, setOpen] = React.useState(null);
-  const items = road && Array.isArray(road.categories) ? road.categories.filter((m) => !ROAD_HIDDEN.includes(m.id)).map((m) => logView(m, road)).map((m) => ({ ...m, status: rollupStatus(m, road) })) : [];
+  // Flight Log boxes: completed milestones only, one sub-card per vehicle (scripts/flightlog.js, same rules every flight).
+  const flogBoxes = road && window.RoadFlightLog ? window.RoadFlightLog.boxes(road) : null;
+  const items = road && Array.isArray(road.categories) ? road.categories.filter((m) => !ROAD_HIDDEN.includes(m.id)).map((m) => logView(m, road)).map((m) => ({ ...m, status: rollupStatus(m, road) }))
+    .map((m) => { const f = flogBoxes && flogBoxes[m.id]; return f ? { ...m, status: f.status, flog: f } : m; }) : [];
   const listRef = React.useRef(null);
   if (!items.length) return null;
   const title = `Road to Flight ${road.flight}`;
   const done = items.filter((m) => m.status === "done" || m.status === "complete").length; // shown boxes only
-  const label = (m) => (m.status === "done" ? m.doneText || "Done" : ROAD_STATUS_TEXT[m.status] || m.status);
+  const label = (m) => (m.flog ? m.flog.statusText : m.status === "done" ? m.doneText || "Done" : ROAD_STATUS_TEXT[m.status] || m.status);
   // Equal-width status pills, pure CSS: every pill stacks ALL of this card's labels in one grid cell (others
   // invisible), so each pill's width = the widest label + the same padding + the same border. No measuring.
   const pillLabels = [...new Set(items.map(label))];
   const pill = (m) => <span className={"badge badge-" + m.status}><span className="badge-stack">{pillLabels.map((l) => <span key={l} className="badge-ghost" aria-hidden="true">{l}</span>)}<span className="badge-txt">{label(m)}</span></span></span>;
-  const count = (m) => { if (!ONE_CARD.includes(m.id) || m.status === "done" || !window.RoadCleanup) return null;
+  const count = (m) => { if (m.flog || !ONE_CARD.includes(m.id) || m.status === "done" || !window.RoadCleanup) return null;
     const vp = window.RoadCleanup.vehicleProgress(m, road); return vp.total && vp.done ? `${vp.done} of ${vp.total}` : null; };
   return (
     <section className={"road" + (main ? " main-open" : "")} aria-label={title}>
@@ -1184,13 +1187,13 @@ function RoadCard({ road, onEntryTap, openReq }) {
               <span className="callout-icon">{m.icon}</span>
               <span className="callout-body">
                 <span className="callout-name">{m.name}</span>
-                <span className="callout-latest">{m.status === "complete" ? "Done" : scrub(window.RoadCleanup ? window.RoadCleanup.shortLine(boxLatest(m, road)) : boxLatest(m, road))}</span>
+                <span className="callout-latest">{m.flog ? scrub(m.flog.latest) : m.status === "complete" ? "Done" : scrub(window.RoadCleanup ? window.RoadCleanup.shortLine(boxLatest(m, road)) : boxLatest(m, road))}</span>
               </span>
               {count(m) ? <span className="badge-wrap">{pill(m)}<span className="badge-count">{count(m)}</span></span>
                 : pill(m)}
             </button>
             <div className="callout-hist"><div className="callout-hist-inner">
-              {(m.history || []).map((h, i) => isRealEntry(h) && !(h.flight > road.flight) && !isLaunched(h.flight) && ( /* later flights' cards: Road page only */
+              {m.flog ? m.flog.cards.map((c) => <FlogCard key={c.vehicle} c={c} />) : (m.history || []).map((h, i) => isRealEntry(h) && !(h.flight > road.flight) && !isLaunched(h.flight) && ( /* later flights' cards: Road page only */
                 <div className={"mini" + (onEntryTap ? " tappable" : "") + (logGlows(m, h, road) ? " glow done" : "")} key={i}
                   {...(onEntryTap ? { role: "button", tabIndex: isOpen ? 0 : -1, "aria-label": `${logDay(h)}: ${logLine(h)}. Show in the updates feed`,
                     onClick: () => onEntryTap(m.id, h._hi ?? i), onKeyDown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onEntryTap(m.id, h._hi ?? i); } } } : {})}>
@@ -1211,6 +1214,24 @@ function RoadCard({ road, onEntryTap, openReq }) {
   );
 }
 
+// One vehicle's sub-card in a Flight Log box: name, then the latest line (date · time, text on the next line);
+// older lines behind "Earlier updates", newest first.
+const flogWhen = (l) => (l.time ? `${l.day} · ${l.time}` : l.day);
+function FlogCard({ c }) {
+  const [top, ...rest] = c.lines;
+  if (!top) return null;
+  return (
+    <div className="mini flog-card" data-vehicle={c.vehicle}>
+      <div className="flog-name">{c.name}</div>
+      <div className="mini-top"><span className="mini-date">{flogWhen(top)}</span></div>
+      <p>{scrub(top.text)}</p>
+      {rest.length > 0 && <details className="buildup" onClick={(e) => e.stopPropagation()}>
+        <summary>Earlier updates</summary>
+        <ul>{rest.map((u, i) => <li key={i} className="bu-plain"><div className="bu-top"><span className="bu-date">{flogWhen(u)}</span></div><div className="bu-text">{scrub(u.text)}</div></li>)}</ul>
+      </details>}
+    </div>
+  );
+}
 // No "seen" dimming anywhere: every card stays full strength. The old per-device seen list is cleared.
 try { localStorage.removeItem("st_seen_v1"); } catch {}
 // Milestone lifecycle (road.json entry.milestone: type + flight + vehicle + phase). One entry per milestone:
@@ -2286,6 +2307,7 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .callout[data-id="raptor"] .mini::before { box-shadow: 0 0 0 1px rgba(255,255,255,.5); }
 .callout[data-id="raptor"] .mini.glow { border-color: rgba(255,255,255,.18); box-shadow: 0 0 12px -2px rgba(200,210,230,.25); }
 .callout[data-id="raptor"] .callout-hist-inner::before { background: #0E0F11; } /* main connector line: solid black */
+.flog-name { font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #8E9AB8; margin-bottom: 3px; }
 .mini-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .mini-date { font-size: 12px; font-weight: 700; color: var(--t, var(--c)); }
 .mini-src { font-size: 10.5px; color: var(--muted); background: rgba(255,255,255,.07); padding: 2px 7px; border-radius: 6px; }

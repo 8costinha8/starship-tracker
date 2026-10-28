@@ -126,7 +126,8 @@ const promptRules = (road) => `Purpose rule: file each step under the milestone 
 - ${launchBox(road)}: after static fires are done: lift onto the mount for launch, stacking, WDR, launch closure.
 - pad: ONLY pad work with no vehicle campaign behind it (tower, chopsticks, QD arm, deluge, OLM repairs, tank farm, pad builds).
 Current section states per vehicle: ${describeStates(road) || "unknown"}.
-"confidence": 0-1, how sure you are of the section; below 0.7 the tracker uses the campaign window instead.`;
+"confidence": 0-1, how sure you are of the section; below 0.7 the tracker uses the campaign window instead.
+${require("./flightlog.js").RULES}`;
 // The line decides; the source's own words only help when the line alone has no signal.
 function purposeFor(road, line, source, step = {}) {
   const a = purposeOf(road, { ...step, text: line });

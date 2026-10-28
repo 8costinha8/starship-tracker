@@ -3197,5 +3197,247 @@
       "date": "2026-11-08",
       "seen_at": "2026-10-25T20:07:17.000Z"
     }
-  ]
+  ],
+  "pad": "Pad 2",
+  "flightlog_pins": {
+    "flight": 15,
+    "as_of": "2026-10-28",
+    "note": "Agreed Flight 15 Flight Log lines (28 Oct). Pinned so the classifier cannot change them; newer items are still added on top automatically.",
+    "boxes": {
+      "cryo": {
+        "cards": [
+          {
+            "vehicle": "S42",
+            "lines": [
+              {
+                "day": "9 Oct",
+                "time": "21:30",
+                "text": "Ship 42 completed its third cryo proof test.",
+                "at": "2026-10-09T20:30:00Z",
+                "url": "https://x.com/TrackingTheSB/status/2108656416366202950"
+              },
+              {
+                "day": "3–4 Sep",
+                "time": "09:59",
+                "text": "Two back-to-back cryo proof tests.",
+                "at": "2026-09-04T08:59:00Z",
+                "url": "https://x.com/Blobifie/status/2095798869431066772"
+              }
+            ]
+          },
+          {
+            "vehicle": "B22",
+            "lines": [
+              {
+                "day": "9–10 Sep",
+                "time": "08:02",
+                "text": "Booster 22 completed its first full cryo proof test.",
+                "at": "2026-09-10T07:02:00Z",
+                "url": "https://x.com/Blobifie/status/2097943705911193755"
+              }
+            ]
+          }
+        ]
+      },
+      "raptor": {
+        "cards": [
+          {
+            "vehicle": "S42",
+            "lines": [
+              {
+                "day": "26 Oct",
+                "time": "",
+                "text": "Ship 42 ready with all 6 Raptors.",
+                "at": "2026-10-26T12:00:00Z"
+              }
+            ]
+          },
+          {
+            "vehicle": "B22",
+            "lines": [
+              {
+                "day": "24 Oct",
+                "time": "",
+                "text": "Booster 22 ready with all 33 Raptors.",
+                "at": "2026-10-24T12:00:00Z"
+              }
+            ]
+          }
+        ]
+      },
+      "static": {
+        "cards": [
+          {
+            "vehicle": "S42",
+            "lines": [
+              {
+                "day": "27 Oct",
+                "time": "21:45",
+                "text": "Ship 42 fired all 6 Raptors.",
+                "at": "2026-10-27T21:45:25Z",
+                "url": "https://x.com/NASASpaceflight/status/2115198496521195971"
+              },
+              {
+                "day": "27 Oct",
+                "time": "02:17",
+                "text": "Ship 42 fired 1 Raptor.",
+                "at": "2026-10-27T02:17:24Z",
+                "url": "https://x.com/NASASpaceflight/status/2114904512217694216"
+              }
+            ]
+          },
+          {
+            "vehicle": "B22",
+            "lines": [
+              {
+                "day": "25 Oct",
+                "time": "13:22",
+                "text": "Booster 22 completed a full-duration 33-engine static fire.",
+                "at": "2026-10-25T13:22:00Z",
+                "url": "https://x.com/SpaceflightNow/status/2114349246803587110"
+              }
+            ]
+          }
+        ]
+      },
+      "pad": {
+        "cards": [
+          {
+            "vehicle": "S42",
+            "lines": [
+              {
+                "day": "13 Sep",
+                "time": "05:02",
+                "text": "Ship 42 released from the Pad 2 chopsticks after its tests.",
+                "at": "2026-09-13T04:02:00Z",
+                "url": "https://x.com/NASASpaceflight/status/2098985653849542753"
+              },
+              {
+                "day": "12 Sep",
+                "time": "16:39",
+                "text": "Chopsticks lifted Ship 42 to catch height, and its quick-disconnect arm connected several times.",
+                "at": "2026-09-12T15:39:00Z",
+                "url": "https://x.com/TrackingTheSB/status/2098798758335225974"
+              },
+              {
+                "day": "11 Sep",
+                "time": "17:07",
+                "text": "Pad 2 chopsticks lifted Ship 42 without the stabiliser arms.",
+                "at": "2026-09-11T16:07:00Z",
+                "url": "https://x.com/Blobifie/status/2098443279763464572"
+              }
+            ]
+          },
+          {
+            "vehicle": "B22",
+            "lines": [
+              {
+                "day": "26 Oct",
+                "time": "04:43",
+                "text": "Chopsticks lifted Booster 22 off the launch mount to catch height.",
+                "at": "2026-10-26T04:43:00Z",
+                "url": "https://x.com/RGVaerialphotos/status/2114578590792859900"
+              }
+            ]
+          },
+          {
+            "vehicle": "pad",
+            "lines": [
+              {
+                "day": "21 Oct",
+                "time": "19:00",
+                "text": "Pad 2 booster quick disconnects purging, likely ahead of Booster 22.",
+                "at": "2026-10-21T18:00:00Z",
+                "url": "https://x.com/NASASpaceflight/status/2112967167767433728"
+              },
+              {
+                "day": "20 Oct",
+                "time": "23:56",
+                "text": "More catch tests at the tower top, plus launch and landing deluge tests.",
+                "at": "2026-10-20T22:56:00Z",
+                "url": "https://x.com/Blobifie/status/2112679319818686934"
+              },
+              {
+                "day": "19 Oct",
+                "time": "05:06",
+                "text": "Pad 2 launch mount service structure removed.",
+                "at": "2026-10-19T04:06:00Z",
+                "url": "https://x.com/Blobifie/status/2112032729302966636"
+              },
+              {
+                "day": "16 Oct",
+                "time": "04:23",
+                "text": "Catch testing with the Pad 2 chopsticks at the top of the tower.",
+                "at": "2026-10-16T03:23:00Z",
+                "url": "https://x.com/Blobifie/status/2110934634871799820"
+              },
+              {
+                "day": "9 Oct",
+                "time": "",
+                "text": "Pad 2 chopsticks under maintenance.",
+                "at": "2026-10-09T12:00:00Z",
+                "url": "https://www.youtube.com/watch?v=dPqDD39cBEw"
+              },
+              {
+                "day": "30 Sep",
+                "time": "",
+                "text": "Pad 2 cleared after Flight 14, with a new service structure going in.",
+                "at": "2026-09-30T12:00:00Z",
+                "url": "https://www.nasaspaceflight.com/2026/09/starship-14-orbit-flight-15/"
+              }
+            ]
+          }
+        ]
+      },
+      "faa": {
+        "cards": [
+          {
+            "vehicle": "pad",
+            "lines": []
+          }
+        ]
+      },
+      "date": {
+        "cards": [
+          {
+            "vehicle": "pad",
+            "lines": [
+              {
+                "day": "20 Oct",
+                "time": "",
+                "text": "On SpaceX's Q3 call, Elon said Flight 15 is next month and will try to catch both vehicles.",
+                "at": "2026-10-20T23:00:00Z"
+              },
+              {
+                "day": "14 Oct",
+                "time": "",
+                "text": "Reports say Flight 15 is targeting NET 8 November.",
+                "at": "2026-10-14T18:22:50Z",
+                "url": "https://www.youtube.com/watch?v=eeS1nYInJ2w"
+              },
+              {
+                "day": "9 Oct",
+                "time": "",
+                "text": "A slide suggests Ship 42 is ready for flight NET November.",
+                "at": "2026-10-09T12:00:00Z",
+                "url": "https://www.nasaspaceflight.com/2026/10/ship-40-returns-ship-42-more-testing/"
+              },
+              {
+                "day": "30 Sep",
+                "time": "",
+                "text": "Both vehicles could be flight-ready by the end of October.",
+                "at": "2026-09-30T12:00:00Z"
+              },
+              {
+                "day": "24 Sep",
+                "time": "",
+                "text": "An air-traffic slide shows a very provisional NET 19 October.",
+                "at": "2026-09-24T12:00:00Z"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
 }
