@@ -1101,7 +1101,9 @@ function useRoad() {
       .catch(() => {});
     return () => { alive = false; };
   }, []);
-  return road;
+  // Raptor engines box shows the custom engine image instead of its data emoji (road.json and push text keep the emoji).
+  return React.useMemo(() => (road && Array.isArray(road.categories)
+    ? { ...road, categories: road.categories.map((c) => (isRaptorCat(c) ? { ...c, icon: <CatIcon c={c} /> } : c)) } : road), [road]);
 }
 
 // Lifecycle/tier tags: data only, never shown in the app (Bernardo, 23 Oct). Kept for previews/tests.
@@ -1217,6 +1219,11 @@ function RoadCard({ road, onEntryTap, openReq }) {
 // One vehicle's sub-card in a Flight Log box: name, then the latest line (date · time, text on the next line);
 // older lines behind "Earlier updates", newest first.
 const flogWhen = (l) => (l.time ? `${l.day} · ${l.time}` : l.day);
+// Category icon: Raptor engines uses a custom engine image instead of its data emoji (push text keeps the emoji).
+const isRaptorCat = (c) => !!c && (c.id === "raptor" || c.name === "Raptor engines");
+function CatIcon({ c }) {
+  return isRaptorCat(c) ? <img className="cat-img" src="icons/raptor-icon.png" alt="" aria-hidden="true" /> : (c && c.icon) || null;
+}
 function FlogCard({ c }) {
   const [top, ...rest] = c.lines;
   if (!top) return null;
@@ -1602,7 +1609,7 @@ function FeedPost({ p, onPhotoTap, idx }) {
     <article className={"post" + (urlOf(h) ? " post-tap" : "")} id={`post-${p.id}`} data-id={p.id} data-entry={h.id || undefined} style={catVars(cat.id, cat.color)}
       {...linkProps(h)}>
       <div className="post-top">
-        <span className={"chip chip-" + cat.id}><span className="chip-i">{cat.icon}</span>{cat.name}</span>
+        <span className={"chip chip-" + cat.id}><span className="chip-i"><CatIcon c={cat} /></span>{cat.name}</span>
         <span className="post-date">{cardDate(h)}</span>
       </div>
       <p className="post-text">{scrub(h.x_text || h.text)}</p>
@@ -2411,6 +2418,7 @@ section.road .callout-latest { display: -webkit-box; -webkit-line-clamp: 2; -web
   background: var(--bg, color-mix(in srgb, var(--c) 13%, transparent)); border: 1px solid color-mix(in srgb, var(--c) 30%, transparent);
 }
 .chip.chip-raptor { color: #F2F4F8; background: rgba(14,15,17,.35); border: 1.5px solid #0E0F11; box-shadow: 0 0 0 1px rgba(255,255,255,.35); } /* Raptor (A2): same as the In progress pill, white label */
+.cat-img { height: 1.2em; width: auto; vertical-align: middle; display: inline-block; }
 .chip-i { font-size: 12px; line-height: 1; letter-spacing: 0; }
 .post-sep { color: var(--faint); font-size: 12.5px; }
 .post-date { font-size: 12.5px; font-weight: 600; color: var(--muted); white-space: nowrap; }
