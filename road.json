@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "28 Oct",
-  "updatedAt": "2026-10-28T14:00:36.248Z",
+  "updatedAt": "2026-10-28T16:17:50.025Z",
   "categories": [
     {
       "id": "cryo",
@@ -1011,7 +1011,7 @@
           "stage": "static",
           "hardware": "S42",
           "flight": 15,
-          "tier": 2,
+          "tier": 1,
           "x_post": {
             "post_id": "2115231900961005856",
             "url": "https://x.com/NASASpaceflight/status/2115231900961005856",
@@ -1042,7 +1042,8 @@
             "2115203155206279459",
             "2115203133152330182",
             "2115202175924121987",
-            "2115199662361874568"
+            "2115199662361874568",
+            "2115476295169814978"
           ],
           "xChecked": true,
           "backfill": "2026-10-28",
@@ -1173,6 +1174,12 @@
                 "author": "LabPadre",
                 "tier": 2,
                 "at": "2026-10-28T11:25:39.000Z"
+              },
+              {
+                "post_id": "2115476295169814978",
+                "author": "SpaceX",
+                "tier": 1,
+                "at": "2026-10-28T16:10:27.000Z"
               }
             ],
             "confirmed": true,
@@ -3078,6 +3085,16 @@
     }
   ],
   "feed_items": [
+    {
+      "id": "news-mvsb9c8o-97f884",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Ship 42 completes full duration six-engine static fire and deorbit burn simulation",
+      "url": "https://x.com/SpaceX/status/2115476295169814978",
+      "at": "2026-10-28T16:10:27.000Z",
+      "date": "28 Oct",
+      "flight": 15
+    },
     {
       "id": "news-mvrm1w14-668ed2",
       "kind": "news",
