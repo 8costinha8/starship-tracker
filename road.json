@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "28 Oct",
-  "updatedAt": "2026-10-28T16:30:43.278Z",
+  "updatedAt": "2026-10-28T17:28:18.171Z",
   "categories": [
     {
       "id": "cryo",
@@ -1049,15 +1049,15 @@
           "backfill": "2026-10-28",
           "no_push": true,
           "media_override": {
-            "post_url": "https://x.com/colleenadastra/status/2115202804075860134",
-            "post_id": "2115202804075860134",
-            "author": "colleenadastra",
-            "type": "photo",
-            "image": "https://pbs.twimg.com/media/HVq1gQrXUAAWAUv.jpg",
+            "post_url": "https://x.com/SpaceX/status/2115476295169814978",
+            "post_id": "2115476295169814978",
+            "author": "SpaceX",
+            "type": "video",
+            "image": "https://pbs.twimg.com/amplify_video_thumb/2115475875122569216/img/05QhG1ixlpBhow6m.jpg",
             "auto": true,
             "quality": 4,
-            "media_score": 279,
-            "checked_at": "2026-10-28T13:45:52.720Z"
+            "media_score": 6872,
+            "checked_at": "2026-10-28T17:15:43.049Z"
           },
           "milestone": {
             "key": "static_fire|15|S42",
@@ -1195,11 +1195,11 @@
             "at": "2026-10-27T23:59:18.000Z"
           },
           "alt_media": {
-            "post_url": "https://x.com/TrackingTheSB/status/2115203133152330182",
-            "post_id": "2115203133152330182",
-            "author": "TrackingTheSB",
+            "post_url": "https://x.com/colleenadastra/status/2115202804075860134",
+            "post_id": "2115202804075860134",
+            "author": "colleenadastra",
             "type": "photo",
-            "image": "https://pbs.twimg.com/media/HVq0WAHXkAAOb7q.jpg",
+            "image": "https://pbs.twimg.com/media/HVq1gQrXUAAWAUv.jpg",
             "show": false
           }
         },
