@@ -490,6 +490,30 @@
             "2115198496521195971",
             "2115199662361874568",
             "2115203155206279459"
+          ],
+          "updates": [
+            {
+              "date": "27 Oct",
+              "at": "2026-10-27T21:45:25.000Z",
+              "text": "Ship 42 fired all 6 Raptors.",
+              "src": "NASASpaceflight",
+              "phase": "progress",
+              "tier": 1,
+              "log_text": "Ship 42 fired all 6 Raptors.",
+              "url": "https://x.com/NASASpaceflight/status/2115198496521195971",
+              "handle": "NASASpaceflight"
+            },
+            {
+              "date": "27 Oct",
+              "at": "2026-10-27T02:17:24.000Z",
+              "text": "Ship 42 fired 1 Raptor.",
+              "src": "NASASpaceflight",
+              "phase": "progress",
+              "tier": 1,
+              "log_text": "Ship 42 fired 1 Raptor.",
+              "url": "https://x.com/NASASpaceflight/status/2114904512217694216",
+              "handle": "NASASpaceflight"
+            }
           ]
         },
         {
@@ -591,15 +615,13 @@
           "xChecked": true,
           "imageChecked2": true,
           "media_override": {
-            "post_url": "https://x.com/colleenadastra/status/2114586836236743107",
-            "post_id": "2114586836236743107",
-            "author": "colleenadastra",
+            "post_url": "https://x.com/RGVaerialphotos/status/2114578590792859900",
+            "post_id": "2114578590792859900",
+            "author": "RGVaerialphotos",
             "type": "photo",
-            "image": "https://pbs.twimg.com/media/HViFe94XIAAgDdT.jpg",
-            "auto": true,
-            "quality": 4,
-            "media_score": 592,
-            "checked_at": "2026-10-26T12:15:52.446Z"
+            "image": "https://pbs.twimg.com/media/HVh97ShaIAAhZ2k.jpg",
+            "keep_image": true,
+            "fixed": "2026-10-28 own-post media (was 2114586836236743107)"
           },
           "tier": 2,
           "push": {
@@ -608,15 +630,7 @@
             "at": "2026-10-26T04:43:17.000Z"
           },
           "frameChecked": true,
-          "refiled_from": "pad",
-          "alt_media": {
-            "post_url": "https://x.com/RGVaerialphotos/status/2114580247240982591",
-            "post_id": "2114580247240982591",
-            "author": "RGVaerialphotos",
-            "type": "photo",
-            "image": "https://pbs.twimg.com/media/HVh97ShaIAAhZ2k.jpg",
-            "show": false
-          }
+          "refiled_from": "pad"
         },
         {
           "id": "x-2114568166651428965",
@@ -686,9 +700,9 @@
           "date": "26 Oct",
           "log_date": "26 Oct",
           "at": "2026-10-26T01:51:32.000Z",
-          "text": "Ship 42 is heading to Massey's for its static fire campaign.",
-          "x_text": "Ship 42 is heading to Massey's for its static fire campaign.",
-          "log_text": "Ship 42 heads to Massey's for its static fire campaign.",
+          "text": "Ship 42 arrived at Massey's ahead of its static fire campaign.",
+          "x_text": "Ship 42 arrived at Massey's ahead of its static fire campaign.",
+          "log_text": "Ship 42 arrives at Massey's for its static fire campaign.",
           "status_line": "Ship 42 heading to Massey's.",
           "url": "https://x.com/Blobifie/status/2114691485337850020",
           "src": "@Blobifie",
@@ -730,23 +744,13 @@
           },
           "refiled_from": "cryo",
           "media_override": {
-            "post_url": "https://x.com/RGVaerialphotos/status/2114632668461900071",
-            "post_id": "2114632668461900071",
-            "author": "RGVaerialphotos",
-            "type": "video",
-            "image": "https://pbs.twimg.com/amplify_video_thumb/2114632408607989761/img/lWazRdhDO3bb_sfk.jpg",
-            "auto": true,
-            "quality": 3,
-            "media_score": 457,
-            "checked_at": "2026-10-26T15:45:24.754Z"
-          },
-          "alt_media": {
             "post_url": "https://x.com/Blobifie/status/2114691485337850020",
             "post_id": "2114691485337850020",
             "author": "Blobifie",
             "type": "video",
             "image": "https://pbs.twimg.com/amplify_video_thumb/2114691314495418368/img/yaSu0o2nwISYaNZ-.jpg",
-            "show": false
+            "keep_image": true,
+            "fixed": "2026-10-28 own-post media (was 2114632668461900071)"
           }
         },
         {
@@ -800,18 +804,18 @@
           "id": "x-2111327584122437857",
           "date": "25 Oct",
           "at": "2026-10-25T22:07:27.000Z",
-          "text": "Booster 22 completed a full-duration static fire test on Pad 2.",
-          "url": "https://x.com/NASASpaceflight/status/2114478974818459882",
+          "text": "Booster 22 conducted a static fire test on Pad 2.",
+          "url": "https://x.com/NASASpaceflight/status/2114347288739098706",
           "src": "@NASASpaceflight",
           "trust": "trusted",
           "x_first": true,
           "stage": "static",
           "hardware": "B22",
           "x_post": {
-            "post_id": "2114478974818459882",
-            "url": "https://x.com/NASASpaceflight/status/2114478974818459882",
-            "created_at": "2026-10-25T22:07:27.000Z",
-            "text": "Booster 22 completed a full-duration static fire test on Pad 2 ahead of November's Flight 15, while several future vehicles undergo preparation for their upcoming missions. https://t.co/axCohMQKom",
+            "post_id": "2114347288739098706",
+            "url": "https://x.com/NASASpaceflight/status/2114347288739098706",
+            "created_at": "2026-10-25T13:24:10.000Z",
+            "text": "Starship Flight 15: Booster 22 Static Fire!",
             "author": {
               "name": "NSF - NASASpaceflight.com",
               "username": "NASASpaceflight",
@@ -1020,7 +1024,7 @@
           },
           "completed_at": "2026-10-25T13:24:10.000Z",
           "completed_src": "https://x.com/NASASpaceflight/status/2114347288739098706",
-          "x_text": "Booster 22 completed a full-duration static fire test on Pad 2.",
+          "x_text": "Booster 22 conducted a static fire test on Pad 2.",
           "status_line": "Booster 22 static fire done."
         },
         {
@@ -1066,29 +1070,19 @@
           "xChecked": true,
           "imageChecked2": true,
           "media_override": {
-            "post_url": "https://x.com/RGVaerialphotos/status/2113834862339617215",
-            "post_id": "2113834862339617215",
-            "author": "RGVaerialphotos",
-            "type": "photo",
-            "image": "https://pbs.twimg.com/media/HVXY5SCacAADfbX.jpg",
-            "auto": true,
-            "quality": 4,
-            "media_score": 438,
-            "checked_at": "2026-10-25T15:30:38.107Z"
+            "post_url": "https://x.com/LabPadre/status/2114335419785679308",
+            "post_id": "2114335419785679308",
+            "author": "LabPadre",
+            "type": "video",
+            "image": "https://pbs.twimg.com/amplify_video_thumb/2114335137450143744/img/hdkbpWHvz5KOQq-M.jpg",
+            "keep_image": true,
+            "fixed": "2026-10-28 own-post media (was 2113834862339617215)"
           },
           "tier": 3,
           "push": {
             "title": "💥 Static fires · Flight 15",
             "url": "https://x.com/LabPadre/status/2114335419785679308",
             "at": "2026-10-25T12:37:01.000Z"
-          },
-          "alt_media": {
-            "post_url": "https://x.com/RGVaerialphotos/status/2113834862339617215",
-            "post_id": "2113834862339617215",
-            "author": "RGVaerialphotos",
-            "type": "photo",
-            "image": "https://pbs.twimg.com/media/HVXY5R-bQAAsW_R.jpg",
-            "show": false
           }
         },
         {
@@ -1263,15 +1257,6 @@
           ],
           "xChecked": true,
           "imageChecked2": true,
-          "alt_media": {
-            "post_url": "https://x.com/Blobifie/status/2113991846187934011",
-            "post_id": "2113991846187934011",
-            "author": "Blobifie",
-            "type": "photo",
-            "image": "https://pbs.twimg.com/media/HVZoSvdakAAst89.jpg",
-            "show": true,
-            "side": "right"
-          },
           "media_override": {
             "post_url": "https://x.com/colleenadastra/status/2114005088653963704",
             "post_id": "2114005088653963704",
@@ -1354,7 +1339,16 @@
             "at": "2026-10-24T11:21:26.000Z"
           },
           "complete": true,
-          "refiled_from": "pad"
+          "refiled_from": "pad",
+          "alt_media": {
+            "post_url": "https://x.com/Blobifie/status/2113991846187934011",
+            "post_id": "2113991846187934011",
+            "author": "Blobifie",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HVZoSvdakAAst89.jpg",
+            "show": true,
+            "side": "right"
+          }
         },
         {
           "id": "x-2113955770337550391",
@@ -1512,15 +1506,13 @@
           "xChecked": true,
           "imageChecked2": true,
           "media_override": {
-            "post_url": "https://x.com/colleenadastra/status/2114005088653963704",
-            "post_id": "2114005088653963704",
-            "author": "colleenadastra",
+            "post_url": "https://x.com/NASASpaceflight/status/2113617185218429437",
+            "post_id": "2113617185218429437",
+            "author": "NASASpaceflight",
             "type": "photo",
-            "image": "https://pbs.twimg.com/media/HVZzspJWEAA6PjD.jpg",
-            "auto": true,
-            "quality": 5,
-            "media_score": 1263,
-            "checked_at": "2026-10-25T15:30:38.107Z"
+            "image": "https://pbs.twimg.com/media/HVUTjfpWMAAhboa.jpg",
+            "keep_image": true,
+            "fixed": "2026-10-28 own-post media (was 2114005088653963704)"
           },
           "tier": 1,
           "milestone": {
@@ -1532,15 +1524,7 @@
             "migrated": true
           },
           "log_text": "Booster 22 heads to Pad 2 for a potential static fire test.",
-          "refiled_from": "pad",
-          "alt_media": {
-            "post_url": "https://x.com/colleenadastra/status/2114005088653963704",
-            "post_id": "2114005088653963704",
-            "author": "colleenadastra",
-            "type": "photo",
-            "image": "https://pbs.twimg.com/media/HVZzuQbXQAAUzqy.jpg",
-            "show": false
-          }
+          "refiled_from": "pad"
         },
         {
           "id": "x-2112967167767433728",
@@ -1609,8 +1593,8 @@
           "id": "x-2112035558994419901",
           "date": "19 Oct",
           "at": "2026-10-19T04:18:11.000Z",
-          "text": "Pad 2's launch mount work platform removed overnight as Booster 22, reportedly with all engines in, nears static fire rollout.",
-          "x_text": "Pad 2's launch mount work platform removed overnight as Booster 22, reportedly with all engines in, nears static fire rollout.",
+          "text": "Pad 2's launch mount service structure was removed overnight.",
+          "x_text": "Pad 2's launch mount service structure was removed overnight.",
           "src": "@efraser77",
           "source": "efraser77",
           "trust": "trusted",
@@ -1654,7 +1638,7 @@
             "phase": "expected",
             "migrated": true
           },
-          "log_text": "The Pad 2 launch mount work platform was removed overnight.",
+          "log_text": "Pad 2 launch mount service structure removed.",
           "refiled_from": "pad"
         },
         {
