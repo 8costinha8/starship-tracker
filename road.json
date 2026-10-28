@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "28 Oct",
-  "updatedAt": "2026-10-28T13:36:19.905Z",
+  "updatedAt": "2026-10-28T14:00:36.248Z",
   "categories": [
     {
       "id": "cryo",
@@ -1048,12 +1048,15 @@
           "backfill": "2026-10-28",
           "no_push": true,
           "media_override": {
-            "post_url": "https://x.com/Blobifie/status/2115199662361874568",
-            "post_id": "2115199662361874568",
-            "author": "Blobifie",
-            "type": "video",
-            "image": "https://pbs.twimg.com/amplify_video_thumb/2115199518606258176/img/dSZqkhoRxVk1OeFh.jpg",
-            "video_url": "https://video.twimg.com/amplify_video/2115199518606258176/vid/avc1/1280x720/5O6KkJ7Atn61UlOU.mp4?tag=14"
+            "post_url": "https://x.com/colleenadastra/status/2115202804075860134",
+            "post_id": "2115202804075860134",
+            "author": "colleenadastra",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HVq1gQrXUAAWAUv.jpg",
+            "auto": true,
+            "quality": 4,
+            "media_score": 279,
+            "checked_at": "2026-10-28T13:45:52.720Z"
           },
           "milestone": {
             "key": "static_fire|15|S42",
@@ -1183,6 +1186,14 @@
             "title": "💥 Static fires: Completed",
             "url": "https://x.com/NASASpaceflight/status/2115231900961005856",
             "at": "2026-10-27T23:59:18.000Z"
+          },
+          "alt_media": {
+            "post_url": "https://x.com/TrackingTheSB/status/2115203133152330182",
+            "post_id": "2115203133152330182",
+            "author": "TrackingTheSB",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HVq0WAHXkAAOb7q.jpg",
+            "show": false
           }
         },
         {
@@ -3075,7 +3086,8 @@
       "url": "https://x.com/NASASpaceflight/status/2115298718035370428",
       "at": "2026-10-28T04:24:49.000Z",
       "date": "28 Oct",
-      "flight": 15
+      "flight": 15,
+      "box": "pad"
     },
     {
       "id": "news-mvozi9xs-e0267f",
