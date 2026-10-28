@@ -3,6 +3,9 @@
    where the app shows it, and every attempt is logged to notifications.json.
      node scripts/test-push-sync.js        (PREVIEW_OUT=<dir> also keeps the simulated road.json + log)
    Fake X, fake writer, fake Firebase: nothing is fetched, committed or sent. */
+
+// Legacy send-path checks predate the milestone-only push policy (tested in test-push-policy.js): policy off here.
+{ const pp = require("./push-policy.js"); pp.decide = (n) => ({ push: true, reason: "policy off (legacy test)", cls: pp.classify(n) }); pp.orderBatch = (l) => l; }
 const fs = require("fs"), os = require("os"), path = require("path");
 const road = require("./check-road.js"), ps = require("./push-sync.js"), mission = require("./mission.js");
 const ROOT = path.join(__dirname, "..");

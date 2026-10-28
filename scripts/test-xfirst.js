@@ -1,3 +1,6 @@
+
+// Legacy send-path checks predate the milestone-only push policy (tested in test-push-policy.js): policy off here.
+{ const pp = require("./push-policy.js"); pp.decide = (n) => ({ push: true, reason: "policy off (legacy test)", cls: pp.classify(n) }); pp.orderBatch = (l) => l; }
 // Offline tests for the X-first Road pipeline (no network, fake X + fake writer + fake Firebase).
 const fs = require("fs"), os = require("os"), path = require("path");
 const road = require("./check-road.js"), xf = require("./x-first.js");
@@ -23,8 +26,9 @@ const xReply = (posts, newest) => ({ ok: true, status: 200, json: async () => ({
   const base = { xFirst: true, mode: "dry-run", roadPath, appJsPath, deps, sources: [article], commit: (f, m) => commits.push(m), now: () => NOW, next: null, xToken: "fake",
     askClaude: async () => { throw new Error("article path must not run"); }, askNews: async () => [], askDates: async () => [],
     xFetch: async (u) => { urls.push(new URL(u)); return xPage; } };
-  const cls = { "1001": { kind: "road", stage: "cryo", hardware: "S42", text: "Ship 42 rolled to Massey's for cryo testing." },
-    "1002": { kind: "road", stage: "cryo", hardware: "Ship 42", text: "Ship 42 is on the cryo stand." },
+  // Massey's posts use Ship 43 (cryo not yet done in live road.json): Ship 42 finished cryo, so its Massey's trips now file under Static fires (test-massey.js).
+  const cls = { "1001": { kind: "road", stage: "cryo", hardware: "S43", text: "Ship 43 rolled to Massey's for cryo testing." },
+    "1002": { kind: "road", stage: "cryo", hardware: "Ship 43", text: "Ship 43 is on the cryo stand." },
     "1003": { kind: "skip", reason: "meme" }, "1004": { kind: "news", reason: "programme news" },
     "1005": { kind: "road", stage: "static", hardware: "B70", text: "Booster 22 rolled to the static fire site." },
     "1006": { kind: "road", stage: "pad", hardware: "Pad 2", text: "Pad 2's chopsticks were tested." } };
@@ -39,7 +43,7 @@ const xReply = (posts, newest) => ({ ok: true, status: 200, json: async () => ({
 
   // run 2: new posts
   urls.length = 0; sent.length = 0;
-  xPage = xReply([P("1001", "1", 30, "S42 rolling to Massey's #1001", "photo"), P("1002", "2", 5, "Ship 42 on the cryo stand #1002", "video"), P("1003", "1", 4, "lol meme #1003", "photo"),
+  xPage = xReply([P("1001", "1", 30, "S43 rolling to Massey's #1001", "photo"), P("1002", "2", 5, "Ship 43 on the cryo stand #1002", "video"), P("1003", "1", 4, "lol meme #1003", "photo"),
     P("1004", "4", 3, "Starship programme update #1004"), P("1005", "1", 2, "B70 rolling to Massey's #1005", "video"), P("1006", "2", 1, "Pad 2 chopsticks test #1006", "photo"),
     P("1007", "3", 1, "Tesla Q3 numbers #1007", "photo")], "1007");
   res = await road.run({ ...base, askXFirst: ask });
@@ -48,8 +52,8 @@ const xReply = (posts, newest) => ({ ok: true, status: 200, json: async () => ({
   check(asks.length === 1 && !/#1007/.test(asks[0]) && /#1003/.test(asks[0]), "ONE batched writer call; Elon's non-Starship post never sent");
   check(/memes, opinions, jokes, renders/.test(asks[0]) && /"cryo"/.test(asks[0]) && /"faa"/.test(asks[0]), "prompt: road (with a stage) / news / skip, memes/opinions/renders skipped");
   const cryo = B("cryo").history[0];
-  check(cryo.id === "x-1001" && cryo.x_first && cryo.stage === "cryo" && cryo.x_text === "Ship 42 rolled to Massey's for cryo testing." && cryo.src === "@LabPadre" && cryo.url === "https://x.com/RGVaerialphotos/status/1002", "road post → card on top of its stage box (writer text, @author, link)");
-  check(cryo.x_posts.join() === "1001,1002" && cryo.media_override.type === "video" && cryo.media_override.image === "https://pbs.twimg.com/1002-poster.jpg" && cryo.media_override.author === "RGVaerialphotos", "S42 posts within 48h merge into one card; video beats photo (preview image)");
+  check(cryo.id === "x-1001" && cryo.x_first && cryo.stage === "cryo" && cryo.x_text === "Ship 43 rolled to Massey's for cryo testing." && cryo.src === "@LabPadre" && cryo.url === "https://x.com/RGVaerialphotos/status/1002", "road post → card on top of its stage box (writer text, @author, link)");
+  check(cryo.x_posts.join() === "1001,1002" && cryo.media_override.type === "video" && cryo.media_override.image === "https://pbs.twimg.com/1002-poster.jpg" && cryo.media_override.author === "RGVaerialphotos", "S43 (no cryo done yet) posts within 48h merge into one card; video beats photo (preview image)");
   check(B("static").history[0].media_override.image === "https://pbs.twimg.com/1005-poster.jpg" && B("pad").history[0].media_override.image === "https://pbs.twimg.com/1006.jpg", "video card uses its preview image, photo card its photo");
   check(!/(status\/|x[-:])100[34]\b/.test(JSON.stringify(r)), "skip and news posts make no card");
   check(res.xFirst.news.length === 1 && res.xFirst.news[0].key === "x:1004", "news posts go to the news pushes");

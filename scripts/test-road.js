@@ -7,6 +7,9 @@
    prints ✅ / ❌ for each check. Exit code 1 if any check fails.
    ───────────────────────────────────────────────────────────── */
 
+
+// Legacy send-path checks predate the milestone-only push policy (tested in test-push-policy.js): policy off here.
+{ const pp = require("./push-policy.js"); pp.decide = (n) => ({ push: true, reason: "policy off (legacy test)", cls: pp.classify(n) }); pp.orderBatch = (l) => l; }
 const fs = require("fs");
 const os = require("os");
 const path = require("path");

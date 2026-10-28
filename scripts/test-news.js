@@ -1,5 +1,8 @@
 /* Offline tests for "🚀 Starship" news pushes (scripts/news.js via check-road.js run()).
      node scripts/test-news.js        exit 1 if any check fails */
+
+// Legacy send-path checks predate the milestone-only push policy (tested in test-push-policy.js): policy off here.
+{ const pp = require("./push-policy.js"); pp.decide = (n) => ({ push: true, reason: "policy off (legacy test)", cls: pp.classify(n) }); pp.orderBatch = (l) => l; }
 const fs = require("fs");
 const os = require("os");
 const path = require("path");

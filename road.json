@@ -4,8 +4,8 @@
     "B22",
     "S42"
   ],
-  "updated": "26 Oct",
-  "updatedAt": "2026-10-26T15:47:49.703Z",
+  "updated": "27 Oct",
+  "updatedAt": "2026-10-27T02:17:24.000Z",
   "categories": [
     {
       "id": "cryo",
@@ -13,70 +13,8 @@
       "name": "Cryo tests",
       "color": "#BFE6FF",
       "status": "progress",
-      "latest": "Ship 42 is moving into position at Massey's as Ship 43 departs.",
+      "latest": "Booster 23 rolled back to the production site after its cryo testing at Massey's.",
       "history": [
-        {
-          "id": "x-2114568166651428965",
-          "date": "26 Oct",
-          "log_date": "26 Oct",
-          "at": "2026-10-26T04:01:52.000Z",
-          "text": "Ship 42 is moving into position at Massey's as Ship 43 departs.",
-          "x_text": "Ship 42 is moving into position at Massey's as Ship 43 departs.",
-          "log_text": "Ship 42 arrives at Massey's test site as Ship 43 departs.",
-          "url": "https://x.com/NASASpaceflight/status/2114568166651428965",
-          "src": "@NASASpaceflight",
-          "trust": "trusted",
-          "x_first": true,
-          "stage": "cryo",
-          "hardware": "S42",
-          "flight": 15,
-          "x_post": {
-            "post_id": "2114568166651428965",
-            "url": "https://x.com/NASASpaceflight/status/2114568166651428965",
-            "created_at": "2026-10-26T04:01:52.000Z",
-            "text": "Ship at the double! Starship Flight 16: Ship 43 returning from Massey's. Starship Flight 15: Ship 42 taking its place. https://t.co/HSumkyMNOs",
-            "author": {
-              "name": "NSF - NASASpaceflight.com",
-              "username": "NASASpaceflight",
-              "avatar": "https://pbs.twimg.com/profile_images/1637919260298158080/kRT8BkYf_normal.jpg"
-            },
-            "media": [
-              {
-                "type": "video",
-                "poster": "https://pbs.twimg.com/amplify_video_thumb/2114567980231053312/img/EitC83F_WspGNa1A.jpg",
-                "video_url": "https://video.twimg.com/amplify_video/2114567980231053312/vid/avc1/1112x620/qE2pzsDpyqd7NXFh.mp4"
-              }
-            ],
-            "link": {
-              "url": "https://www.youtube.com/watch?v=mhJRzQsLZGg",
-              "title": "Starbase Live: 24/7 Starship & Super Heavy Development From SpaceX's Boca Chica Facility",
-              "description": "Starship is SpaceX's fully reusable launch system which is being de...",
-              "image": "https://pbs.twimg.com/news_img/2114361700900012032/w-GLAO_c?format=jpg&name=orig"
-            }
-          },
-          "x_posts": [
-            "2114568166651428965",
-            "2114609355538714943",
-            "2114633896134606890",
-            "2114632668461900071"
-          ],
-          "xChecked": true,
-          "imageChecked2": true,
-          "media_override": {
-            "post_url": "https://x.com/NASASpaceflight/status/2114568166651428965",
-            "post_id": "2114568166651428965",
-            "author": "NASASpaceflight",
-            "type": "video",
-            "image": "https://pbs.twimg.com/amplify_video_thumb/2114567980231053312/img/EitC83F_WspGNa1A.jpg",
-            "video_url": "https://video.twimg.com/amplify_video/2114567980231053312/vid/avc1/1112x620/qE2pzsDpyqd7NXFh.mp4"
-          },
-          "tier": 1,
-          "push": {
-            "title": "❄️ Cryo tests · Flight 15",
-            "url": "https://x.com/NASASpaceflight/status/2114568166651428965",
-            "at": "2026-10-26T04:01:52.000Z"
-          }
-        },
         {
           "id": "x-2111681468724601021",
           "date": "18 Oct",
@@ -301,14 +239,14 @@
           "log_text": "Booster 22 completed its cryo test at Massey's."
         }
       ],
-      "log_latest": "Ship 42 arrives at Massey's test site as Ship 43 departs."
+      "log_latest": "Booster 23 rolled back to the production site after cryo testing."
     },
     {
       "id": "raptor",
       "icon": "🔥",
       "name": "Raptor engines",
       "color": "#0E0F11",
-      "status": "progress",
+      "status": "done",
       "latest": "Lifting jig raised for Booster 22 engine testing in Megabay 1.",
       "history": [
         {
@@ -466,8 +404,77 @@
       "name": "Static fires",
       "color": "#FF9A3D",
       "status": "progress",
-      "latest": "Booster 22 transport ring relocated ahead of static fire test.",
+      "latest": "Ship 42 conducted a single-engine static fire test at Massey's.",
       "history": [
+        {
+          "id": "x-2114904512217694216",
+          "date": "27 Oct",
+          "log_date": "27 Oct",
+          "at": "2026-10-27T02:17:24.000Z",
+          "text": "Ship 42 conducted a single-engine static fire test at Massey's.",
+          "x_text": "Ship 42 conducted a single-engine static fire test at Massey's.",
+          "log_text": "Ship 42 completed a single-engine static fire.",
+          "status_line": "Ship 42 single-engine static fire done.",
+          "url": "https://x.com/NASASpaceflight/status/2114904512217694216",
+          "src": "@NASASpaceflight",
+          "trust": "trusted",
+          "x_first": true,
+          "stage": "static",
+          "hardware": "S42",
+          "flight": 15,
+          "tier": 1,
+          "x_post": {
+            "post_id": "2114904512217694216",
+            "url": "https://x.com/NASASpaceflight/status/2114904512217694216",
+            "created_at": "2026-10-27T02:18:23.000Z",
+            "text": "Starship Flight 15: Ship 42 conducts a single-engine static fire test at SpaceX Massey's.\n\nhttps://t.co/k6ExB7hQyy https://t.co/hGqsLQL5WP",
+            "author": {
+              "name": "NSF - NASASpaceflight.com",
+              "username": "NASASpaceflight",
+              "avatar": "https://pbs.twimg.com/profile_images/1637919260298158080/kRT8BkYf_normal.jpg"
+            },
+            "media": [
+              {
+                "type": "video",
+                "poster": "https://pbs.twimg.com/amplify_video_thumb/2114904475424923648/img/Ine5Xn_yKwSH7oC9.jpg",
+                "video_url": "https://video.twimg.com/amplify_video/2114904475424923648/vid/avc1/1112x624/iaxaxI83f81cN0Lw.mp4"
+              }
+            ],
+            "link": {
+              "url": "https://www.youtube.com/live/t8RZHIfgQ3A",
+              "title": "SpaceX conducts Static Fire of Ship 42",
+              "image": "https://pbs.twimg.com/news_img/2114888626270048257/6zK3Jl8V?format=jpg&name=orig"
+            }
+          },
+          "x_posts": [
+            "2114904512217694216"
+          ],
+          "xChecked": true,
+          "backfill": "2026-10-28",
+          "no_push": true,
+          "media_override": {
+            "post_url": "https://x.com/NASASpaceflight/status/2114904512217694216",
+            "post_id": "2114904512217694216",
+            "author": "NASASpaceflight",
+            "type": "video",
+            "image": "images/2114904512217694216-frame.jpg",
+            "video_url": "https://video.twimg.com/amplify_video/2114904475424923648/vid/avc1/1112x624/iaxaxI83f81cN0Lw.mp4",
+            "thumb": "https://pbs.twimg.com/amplify_video_thumb/2114904475424923648/img/Ine5Xn_yKwSH7oC9.jpg",
+            "frame": {
+              "t": 17,
+              "by": "pixel-rank (best-frame.js), pick checked by eye; Grok out of credits",
+              "confidence": 0.9
+            }
+          },
+          "milestone": {
+            "key": "static_fire|15|S42",
+            "type": "static_fire",
+            "flight": 15,
+            "hardware": "S42",
+            "phase": "progress"
+          },
+          "frameChecked": true
+        },
         {
           "id": "x-2114686191627030843",
           "date": "26 Oct",
@@ -595,13 +602,76 @@
           }
         },
         {
+          "id": "x-2114568166651428965",
+          "date": "26 Oct",
+          "log_date": "26 Oct",
+          "at": "2026-10-26T04:01:52.000Z",
+          "text": "Ship 42 is moving into position at Massey's for static fire testing as Ship 43 departs.",
+          "x_text": "Ship 42 is moving into position at Massey's for static fire testing as Ship 43 departs.",
+          "log_text": "Ship 42 arrives at Massey's for static fire testing as Ship 43 departs.",
+          "url": "https://x.com/NASASpaceflight/status/2114568166651428965",
+          "src": "@NASASpaceflight",
+          "trust": "trusted",
+          "x_first": true,
+          "stage": "static",
+          "hardware": "S42",
+          "flight": 15,
+          "x_post": {
+            "post_id": "2114568166651428965",
+            "url": "https://x.com/NASASpaceflight/status/2114568166651428965",
+            "created_at": "2026-10-26T04:01:52.000Z",
+            "text": "Ship at the double! Starship Flight 16: Ship 43 returning from Massey's. Starship Flight 15: Ship 42 taking its place. https://t.co/HSumkyMNOs",
+            "author": {
+              "name": "NSF - NASASpaceflight.com",
+              "username": "NASASpaceflight",
+              "avatar": "https://pbs.twimg.com/profile_images/1637919260298158080/kRT8BkYf_normal.jpg"
+            },
+            "media": [
+              {
+                "type": "video",
+                "poster": "https://pbs.twimg.com/amplify_video_thumb/2114567980231053312/img/EitC83F_WspGNa1A.jpg",
+                "video_url": "https://video.twimg.com/amplify_video/2114567980231053312/vid/avc1/1112x620/qE2pzsDpyqd7NXFh.mp4"
+              }
+            ],
+            "link": {
+              "url": "https://www.youtube.com/watch?v=mhJRzQsLZGg",
+              "title": "Starbase Live: 24/7 Starship & Super Heavy Development From SpaceX's Boca Chica Facility",
+              "description": "Starship is SpaceX's fully reusable launch system which is being de...",
+              "image": "https://pbs.twimg.com/news_img/2114361700900012032/w-GLAO_c?format=jpg&name=orig"
+            }
+          },
+          "x_posts": [
+            "2114568166651428965",
+            "2114609355538714943",
+            "2114633896134606890",
+            "2114632668461900071"
+          ],
+          "xChecked": true,
+          "imageChecked2": true,
+          "media_override": {
+            "post_url": "https://x.com/NASASpaceflight/status/2114568166651428965",
+            "post_id": "2114568166651428965",
+            "author": "NASASpaceflight",
+            "type": "video",
+            "image": "https://pbs.twimg.com/amplify_video_thumb/2114567980231053312/img/EitC83F_WspGNa1A.jpg",
+            "video_url": "https://video.twimg.com/amplify_video/2114567980231053312/vid/avc1/1112x620/qE2pzsDpyqd7NXFh.mp4"
+          },
+          "tier": 1,
+          "push": {
+            "title": "❄️ Cryo tests · Flight 15",
+            "url": "https://x.com/NASASpaceflight/status/2114568166651428965",
+            "at": "2026-10-26T04:01:52.000Z"
+          },
+          "refiled_from": "cryo"
+        },
+        {
           "id": "x-2114535368758542634",
           "date": "26 Oct",
           "log_date": "26 Oct",
           "at": "2026-10-26T01:51:32.000Z",
-          "text": "Ship 42 is heading to Massey's for cryo tests.",
-          "x_text": "Ship 42 is heading to Massey's for cryo tests.",
-          "log_text": "Ship 42 heads to Massey's for cryo tests.",
+          "text": "Ship 42 is heading to Massey's for its static fire campaign.",
+          "x_text": "Ship 42 is heading to Massey's for its static fire campaign.",
+          "log_text": "Ship 42 heads to Massey's for its static fire campaign.",
           "status_line": "Ship 42 heading to Massey's.",
           "url": "https://x.com/Blobifie/status/2114691485337850020",
           "src": "@Blobifie",
@@ -1597,7 +1667,7 @@
         }
       ],
       "doneText": "Completed",
-      "log_latest": "Booster 22 static fire done."
+      "log_latest": "Ship 42 single-engine static fire done."
     },
     {
       "id": "pad",
@@ -2103,6 +2173,17 @@
           "https://x.com/NASASpaceflight/status/2114320643470549259"
         ]
       }
+    },
+    "S42": {
+      "static_fire": {
+        "count": 1,
+        "dates": [
+          "2026-10-27T02:17:24.000Z"
+        ],
+        "src": [
+          "https://x.com/NASASpaceflight/status/2114904512217694216"
+        ]
+      }
     }
   },
   "inferred": {
@@ -2111,6 +2192,13 @@
         "date": "23 Oct",
         "by": "static fire",
         "why": "Booster 22 is heading to its static fire, so all 33 Raptors are installed."
+      }
+    },
+    "S42": {
+      "raptor": {
+        "date": "26 Oct",
+        "by": "static fire",
+        "why": "Ship 42 is in static fire testing, so all 6 Raptors are installed."
       }
     }
   },

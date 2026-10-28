@@ -610,7 +610,16 @@ function relevantSnippet(text, road, max = 1200) {
 // named in the Road's cards (upcoming flights' hardware included), plus the next 2 numbers after the highest known booster
 // and ship so new hardware is caught before it's assigned. Short + long form: "B25", "Booster 25", "S45", "Ship 45".
 // After a launch is archived, the archive still counts toward the highest number, so the next serials keep coming.
+// Fallback when derivation fails or yields nothing: the Flight 15 hardware plus the next serials.
+const STATIC_VEHICLES = ["B22", "S42", "B23", "S43", "B24", "S44"];
+const longForm = (v) => { const m = String(v).match(/^([BS])(\d+)$/i); return m ? [v, (m[1].toUpperCase() === "B" ? "Booster " : "Ship ") + m[2]] : [v]; };
 function searchVehicleWords(road, ahead = 2) {
+  let out = [];
+  try { out = deriveVehicleWords(road, ahead); } catch (e) { console.log(`• search terms: derivation failed (${e.message}) — static vehicle list used`); }
+  if (!out.length) { out = STATIC_VEHICLES.flatMap(longForm); console.log("• search terms: derivation empty — static vehicle list used"); }
+  return out;
+}
+function deriveVehicleWords(road, ahead = 2) {
   const re = /\b(?:(?:Booster\s*|B)(\d{2,3})|(?:Ship\s*|S)(\d{2,3}))\b/gi, seen = { B: new Set(), S: new Set() };
   const add = (t) => String(t || "").replace(re, (_, b, sh) => { seen[b ? "B" : "S"].add(Number(b || sh)); return _; });
   (road.vehicles || []).forEach(add);
@@ -1239,6 +1248,7 @@ async function run(opts = {}) {
   const notifications = [];
   let changed = false;
   const clock = opts.now || (() => Date.now());
+  let writerFailedRun = false; // news/article writer (Grok + Claude) failed this run → watchdog
   const pushLog = []; // every push attempt this run → notifications.json
   const notifLogPath = opts.notifLogPath || path.join(path.dirname(roadPath), "notifications.json");
 
@@ -1255,7 +1265,7 @@ async function run(opts = {}) {
       await deps.saveState(state);
       const onDisk = JSON.parse(fs.readFileSync(roadPath, "utf8")); // the committed road.json: its Updates feed already holds this item
       const pn = pp.visible ? pp : { ...pp, at: pp.at || pp.sendAfter };
-      await pushSync.sendPush(pn, { road: onDisk, send: deps.push, save, logRows: pushLog, log, now: clock });
+      await pushSync.sendPush(pn, { road: onDisk, send: deps.push, save, logRows: pushLog, log, now: clock, history: pushSync.readLog(notifLogPath).pushes, policy: opts.pushPolicy !== false });
       scheduledSent = pp;
       log(`sent scheduled push "${pp.title}" (due ${pp.sendAfter})`);
     } else log(`scheduled push "${pp.title}" waits until ${pp.sendAfter}`);
@@ -1441,7 +1451,7 @@ async function run(opts = {}) {
       if (err.empty) {
         log(`‼️ CLAUDE EMPTY REPLY — items NOT marked seen (${batch.length} will be retried next run): ${err.message}`);
         if (process.env.GITHUB_ACTIONS) console.log(`::error::CLAUDE EMPTY REPLY — items NOT marked seen (${err.message})`);
-      } else log(`Claude failed (${err.message}) — nothing changed, these posts will be retried next run`);
+      } else { writerFailedRun = true; log(`Claude failed (${err.message}) — nothing changed, these posts will be retried next run`); }
     }
     if (updates) {
       const accepted = updates.filter((u) => !isSkip(u));
@@ -1554,7 +1564,7 @@ async function run(opts = {}) {
         for (const np of news.decideNews(nb, reply, state.news, clock(), log)) newsPushes.push(pushSync.addFeedItem(road, np)); // Updates feed entry, same text
         log(`news: ${nb.length} new item(s) checked → ${newsPushes.length} push(es) (${state.news.count}/${news.NEWS_DAILY_CAP} today)`);
       } catch (err) {
-        log(`news: Claude failed (${err.message}) — ${nb.length} item(s) retried next run`);
+        writerFailedRun = true; log(`news: Claude failed (${err.message}) — ${nb.length} item(s) retried next run`);
         state.news.pending = [...nb, ...state.news.pending].slice(0, 15).map(({ key, title, text, url, publishedAt, src, source, tier }) => ({ key, title, text, url, publishedAt, src, source, tier }));
       }
     }
@@ -1592,7 +1602,8 @@ async function run(opts = {}) {
     if (!notifications.length && !rolledOver) log("no push notification for this change");
     // send only what the committed road.json shows (read back from disk; test mode checks the would-be file)
     const shown = save ? JSON.parse(fs.readFileSync(roadPath, "utf8")) : JSON.parse(json);
-    for (const n of notifications) await pushSync.sendPush(n, { road: shown, send: deps.push, save, logRows: pushLog, log, now: clock });
+    const hist = pushSync.readLog(notifLogPath).pushes; notifications.splice(0, notifications.length, ...require("./push-policy.js").orderBatch(notifications, { vehicles: shown.vehicles })); // milestones first, then the most significant minor
+    for (const n of notifications) await pushSync.sendPush(n, { road: shown, send: deps.push, save, logRows: pushLog, log, now: clock, history: hist, policy: opts.pushPolicy !== false });
     if (!save) console.log("\nroad.json would become:\n" + json);
   } else {
     log("no change to the Road card");
@@ -1610,11 +1621,14 @@ async function run(opts = {}) {
     .map(({ key, title, text, url, publishedAt, src, source, tier }) => ({ key, title, text, url, publishedAt, src, source, tier }));
   state.seen = [...seen].slice(-LIMITS.seenKeep);
   state.lastRun = new Date().toISOString();
+  const alarms = require("./watchdog.js").check(state, { terms: searchVehicleWords(road), candidates: (xf ? xf.read || 0 : 0) + candidates.length + counts.seen + counts.stale + counts.dupe + counts.offTopic, writerFailed: !!(xf && xf.retry) || writerFailedRun });
+  for (const a of alarms) { log(`🚨 WATCHDOG: ${a}`); console.log(`::error::Watchdog: ${a}`); }
   if (save) await deps.saveState(state);
+  if (alarms.length && save && opts.watchdog !== false) throw new Error(`watchdog: ${alarms.join("; ")}`);
   return { road, changes, notifications, refreshed, state, scheduledSent, newsPushes, xFirst: xf, pushLog };
 }
 
-module.exports = { applyPrereqs, searchVehicleWords, archiveLaunched, milestones, statusRule, xStatus, applyMediaPicks, loadMediaPicks, pickImage, applyImageCheck, verifyImages, fcmMessage, notificationFor, judgeFeed, verifyFeed, entryDayMs, backfillX, xPostCard, xIdOf, readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, titleMatches, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
+module.exports = { STATIC_VEHICLES, applyPrereqs, searchVehicleWords, archiveLaunched, milestones, statusRule, xStatus, applyMediaPicks, loadMediaPicks, pickImage, applyImageCheck, verifyImages, fcmMessage, notificationFor, judgeFeed, verifyFeed, entryDayMs, backfillX, xPostCard, xIdOf, readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, titleMatches, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
 
 if (require.main === module) {
   run().catch((err) => {

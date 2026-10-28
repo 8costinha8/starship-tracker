@@ -71,10 +71,14 @@ function writeLog(p, rows) {
 
 /* sendPush: the only function allowed to call the real sender.
    road = the road.json that is ALREADY saved/committed (read it back from disk in live runs). */
-async function sendPush(n, { road, send, save = true, logRows, log = console.log, now = Date.now }) {
+async function sendPush(n, { road, send, save = true, logRows, log = console.log, now = Date.now, history = [], policy = true }) {
   const why = checkVisible(road, n);
   const row = { title: n.title, body: n.body, link: n.link || "", url: n.url || "", at: n.at || "", sent_at: new Date(now()).toISOString(), where: (n.visible || {}).where || "", verdict: "" };
-  if (why) { row.verdict = `blocked: ${why}`; log(`PUSH BLOCKED "${n.title}" — ${why}`); }
+  // shared policy for every feed: dedupe (vehicle + event type + UK day), milestones push, minor updates silent unless 24h quiet
+  const pol = policy && !why ? require("./push-policy.js").decide(n, [...(history || []), ...(logRows || [])], { now: now(), vehicles: (road && road.vehicles) || [] }) : null;
+  if (pol) row.key = pol.cls.key;
+  if (pol && !pol.push) { row.verdict = `silent: ${pol.reason}`; log(`(silent, in-app only) "${n.title}" — ${pol.reason}`); }
+  else if (why) { row.verdict = `blocked: ${why}`; log(`PUSH BLOCKED "${n.title}" — ${why}`); }
   else if (!save) { row.verdict = "not sent (test mode)"; log(`(not sent) push: ${n.title} — ${n.body}`); }
   else {
     try { await send(n); row.verdict = "sent"; } catch (e) { row.verdict = `failed: ${e.message}`; log(`push failed "${n.title}": ${e.message}`); }

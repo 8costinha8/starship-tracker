@@ -242,6 +242,23 @@ const NEW_TEST = /\b(new|another|second|third|again|repeat\w*|re-?test\w*|additi
 const sentences = (t) => String(t || "").replace(/https?:\/\/\S+/g, " ").split(/(?<=[.!?])\s+|\n+/).map((x) => x.trim()).filter(Boolean);
 const doneFor = (road, type, flight, hw) => { const mk = milestoneKey(type, flight, hw); return road.categories.some((c) => (c.history || []).some((h) => h.milestone && h.milestone.key === mk && h.milestone.phase === "completed")); };
 const staticBox = (road) => road.categories.find((c) => c.id === "static") || road.categories.find((c) => /static/i.test(c.name || ""));
+const MASSEY = /\bmassey'?s?\b/i;
+const CRYO_DONE_RE = /\b(complet\w*|finish\w*|done|after)\b[^.]*\bcryo|\bcryo\w*[^.]*\b(complete\w*|done|finished)\b/i;
+// Cryo finished for this vehicle? milestone record, or a "completed … cryo" line in the cryo box naming it.
+function cryoDone(road, hw, flight = road.flight) {
+  if (!hw) return false;
+  if (doneFor(road, "cryo_test", flight, hw)) return true;
+  const key = hwKey(hw), cb = road.categories.find((c) => c.id === "cryo");
+  return !!(cb && (cb.history || []).some((h) => normIds(`${h.hardware || ""} ${h.text || ""}`).includes(key) && CRYO_DONE_RE.test(h.text || "")));
+}
+// "static" | "cryo" | null for a Massey's post (null: not about Massey's).
+function masseyStage(road, text, hw, flight) {
+  if (!MASSEY.test(text || "")) return null;
+  if (/\bstatic[- ]?fir\w*|\bspin[- ]?prime|\bengine test|\braptor\w* (?:test|fir)/i.test(text)) return "static";
+  if (/\b(new|another|additional|re-?)\s*cryo/i.test(text)) return "cryo";
+  if (cryoDone(road, hw, flight)) return "static";
+  return /\bcryo|proof/i.test(text) ? "cryo" : null;
+}
 function guardPost(road, post, v) {
   if (!v || v.kind !== "road") return { v };
   const flight = Number.isInteger(v.flight) ? v.flight : road.flight, hw = v.hardware, text = post.text || "";
@@ -252,6 +269,13 @@ function guardPost(road, post, v) {
     const sb = staticBox(road);
     const inStatic = /static/i.test(text) || doneFor(road, "cryo_test", flight, hw) || (sb && (sb.history || []).some((h) => hwKey(h.hardware) === hwKey(hw)));
     if (sb && inStatic) v = { ...v, stage: sb.id, event: "static_fire", phase: v.phase === "completed" ? "progress" : v.phase, status: v.status === "done" ? "progress" : v.status, reason: `${v.reason || ""} [guard: propellant load/chill-down during static fire → static fire, not cryo]` };
+  }
+  // (1b) Massey's never defaults to cryo: purpose + vehicle state decide. A vehicle that already completed cryo
+  //      (or a post that names a static fire / engine test) going to / at Massey's is the static fire campaign.
+  const m = masseyStage(road, text, hw, flight);
+  if (m === "static" && (v.event === "cryo_test" || v.stage === "cryo")) {
+    const sb = staticBox(road);
+    if (sb) v = { ...v, stage: sb.id, event: "static_fire", phase: v.phase === "completed" && !/static|fir/i.test(text) ? "progress" : v.phase, reason: `${v.reason || ""} [guard: Massey's trip after cryo done → static fire, not cryo]` };
   }
   const type = MILESTONE_TYPES.includes(v.event) ? v.event : null;
   // (2) vehicle and event from the SAME sentence of the post
@@ -282,7 +306,7 @@ async function runXFirst(road, state, { token, fetchFn, ask, postCard, log = con
   if (posts.length && linkFetch) await readLinks(posts, linkFetch, log);
   if (posts.length) {
     try { verdicts = await classifyPosts(road, posts, stages, ask); }
-    catch (e) { log(`X-first: writer failed (${e.message}) — posts retried next run`); return { cards: [], merged: [], news: [], missions: [], state: { ...xs }, calls: got.calls, retry: true }; /* since_id not advanced */ }
+    catch (e) { log(`X-first: writer failed (${e.message}) — posts retried next run`); return { cards: [], merged: [], news: [], missions: [], state: { ...xs }, calls: got.calls, read: got.read || 0, retry: true }; /* since_id not advanced */ }
   }
   const cards = [], merged = [], newsItems = [], missions = [];
   posts.forEach((p, i) => {
@@ -308,8 +332,8 @@ async function runXFirst(road, state, { token, fetchFn, ask, postCard, log = con
     (r.merged ? merged : cards).push(r);
     log(`X-first: road/${v.stage} ${v.hardware || "-"} @${p.author.username} ${p.post_id} → ${r.merged ? `merged into ${r.entry.id}` : `new card ${r.entry.id}`}`);
   });
-  return { cards, merged, news: newsItems, missions, state: { sinceId: got.sinceId, seen: [...seen].slice(-500), pending: waiting.slice(0, 20) }, calls: got.calls };
+  return { cards, merged, news: newsItems, missions, state: { sinceId: got.sinceId, seen: [...seen].slice(-500), pending: waiting.slice(0, 20) }, calls: got.calls, read: got.read || 0 };
 }
 
 const isOfficial = (p) => OFFICIAL.has(String(p.author && p.author.username).toLowerCase());
-module.exports = { guardPost, MILESTONE_TYPES, PHASES, factsMatch, contextImage, milestoneKey, phaseOf, isOfficial, MISSION_TOPICS, runXFirst, fetchNewPosts, classifyPosts, classifyPrompt, placePost, bestMedia, postMedia, articleLead, readLinks, hwKey, xfQuery, XF_ACCOUNTS, CLASSIFY_SCHEMA, MERGE_MS };
+module.exports = { masseyStage, cryoDone, guardPost, MILESTONE_TYPES, PHASES, factsMatch, contextImage, milestoneKey, phaseOf, isOfficial, MISSION_TOPICS, runXFirst, fetchNewPosts, classifyPosts, classifyPrompt, placePost, bestMedia, postMedia, articleLead, readLinks, hwKey, xfQuery, XF_ACCOUNTS, CLASSIFY_SCHEMA, MERGE_MS };

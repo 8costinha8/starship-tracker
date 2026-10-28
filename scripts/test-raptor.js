@@ -75,7 +75,7 @@ check(s.log_text === "Ship 43 may get its Raptors next month." && !s.updates && 
 v = C.flightLogView(live.categories.find((c) => c.id === "raptor"), live);
 b = card(v, "B22"); s = card(v, "S42");
 check(b && b.complete && b.assumed && b.log_text === "Booster 22 has all 33 Raptors installed.", "live: B22 static fire done → all 33 installed (assumed, no source confirms)");
-check(s && !s.complete && s.log_text === "Ship 42 is getting its Raptors installed." && ups(s).some((t) => /removed/.test(t)) && ups(s).some((t) => /reinstalled/.test(t)), "live: S42 in progress (engines removed 30 Sep, reinstall reported 14 Oct)");
+check(s && s.complete && s.assumed && s.log_text === "Ship 42 has all 6 Raptors installed." && ups(s).some((t) => /removed/.test(t)) && ups(s).some((t) => /reinstalled/.test(t)), "live: S42 in static fire testing (27 Oct) → all 6 installed (assumed); removal 30 Sep + reinstall 14 Oct kept as updates");
 check(JSON.stringify(C.flightLogView(v, live)) === JSON.stringify(v), "idempotent");
 check(live.categories.find((c) => c.id === "raptor").history.length === 4, "road.json Raptor entries untouched (Road page shows every post)");
 const sameDayDup = mk(["B23", "S43"], [T("12 Oct", "Raptors delivered for Ship 43.", { hardware: "S43" }), T("12 Oct", "Raptor engines delivered for Ship 43 today.", { hardware: "S43" }), T("14 Oct", "Ship 43 engine installation has begun.", { hardware: "S43" })]);

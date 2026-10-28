@@ -42,12 +42,12 @@ for (const [B, S, n] of [["B22", "S42", 15], ["B30", "S50", 23]]) { // current f
   road = mk(n, [B, S], { static: [E({ hardware: `Ship ${Number(sN) + 1}`, flight: n + 1, date: "22 Oct", text: `Ship ${Number(sN) + 1} completed its static fire.` })] });
   check(!Object.keys(cl.inferred(road)[S]).length, `${tag}: next flight's vehicle never counts`);
 }
-// live road.json: Ship 42's Raptors stay in progress; Booster 22 inferred
+// live road.json (after the 27 Oct S42 single-engine static fire): both vehicles' Raptors inferred installed
 const live = require("../road.json");
 const l42 = raptorCard(live, "S42"), l22 = raptorCard(live, "B22");
-check(l42 && !l42.complete, "live: Ship 42 Raptors still in progress (no static fire work yet)");
+check(l42 && l42.complete && l42.inferred, "live: Ship 42 Raptors installed (inferred from its 27 Oct static fire)");
 check(l22 && l22.complete && l22.inferred, "live: Booster 22 Raptors installed (inferred from its static fire)");
-check(live.categories.find((c) => c.id === "raptor").status === "progress", "live: Raptor box in progress");
+check(live.categories.find((c) => c.id === "raptor").status === "done", "live: Raptor box done (both vehicles inferred)");
 // overview status lines: short, direct, plain state (~6 words, max 8, one line)
 const lines = { faa: "No Flight 15 licence yet.", date: "Flight 15 NET 8 November." };
 for (const [id, t] of Object.entries(lines)) check(live.categories.find((c) => c.id === id).log_latest === t && !lt.lintStatusLine(t).length, `live ${id}: "${t}"`);

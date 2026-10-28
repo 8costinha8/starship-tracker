@@ -1,6 +1,9 @@
 /* End-to-end (offline) for precise images: a new trusted X post → Road entry in road.json with
    only a vision-verified picture → app shows it → push carries the text, link and picture.
      node scripts/test-precise.js   (no network: fake sources, writer and vision) */
+
+// Legacy send-path checks predate the milestone-only push policy (tested in test-push-policy.js): policy off here.
+{ const pp = require("./push-policy.js"); pp.decide = (n) => ({ push: true, reason: "policy off (legacy test)", cls: pp.classify(n) }); pp.orderBatch = (l) => l; }
 const fs = require("fs"), os = require("os"), path = require("path");
 const road = require("./check-road.js");
 let failed = 0; const check = (ok, m) => { console.log(`${ok ? "✅" : "❌"} ${m}`); if (!ok) failed++; };
