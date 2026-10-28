@@ -292,6 +292,17 @@
       "where": "feed",
       "verdict": "sent",
       "key": "S42|static_fire|28 Oct"
+    },
+    {
+      "title": "📅 New estimated date",
+      "body": "NET Nov 2026",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=flight-mvsjfivy-8b129a",
+      "url": "",
+      "at": "2026-10-28T19:59:12.478Z",
+      "sent_at": "2026-10-28T19:59:19.175Z",
+      "where": "feed",
+      "verdict": "silent: minor other — a push went out 3.7h ago (quiet window 24h)",
+      "key": "starship|other|28 Oct"
     }
   ]
 }
