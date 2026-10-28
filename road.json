@@ -13,7 +13,7 @@
       "name": "Cryo tests",
       "color": "#BFE6FF",
       "status": "progress",
-      "latest": "Booster 23 rolled back to the production site after its cryo testing at Massey's.",
+      "latest": "Ship 42 completed further cryo tests.",
       "history": [
         {
           "id": "x-2111681468724601021",
@@ -176,13 +176,74 @@
           "updates": [
             {
               "date": "3–4 Sep",
-              "text": "Ship 42 completes its first cryo test.",
+              "text": "Ship 42 completed two back-to-back cryo tests.",
               "src": "Next Spaceflight",
               "phase": "progress",
               "tier": 2,
-              "log_text": "Ship 42 completes its first cryo tests.",
+              "log_text": "Ship 42 completed two back-to-back cryo tests.",
               "url": "https://x.com/LabPadre/status/2095620292823462214",
-              "handle": "LabPadre"
+              "handle": "LabPadre",
+              "also": "https://x.com/Blobifie/status/2095798869431066772"
+            },
+            {
+              "date": "9 Oct",
+              "log_date": "9 Oct",
+              "at": "2026-10-09T03:46:18.000Z",
+              "text": "Ship 42 lifted onto the cryo stand again.",
+              "log_text": "Ship 42 lifted onto the cryo stand again.",
+              "url": "https://x.com/Blobifie/status/2108403654881652997",
+              "src": "@Blobifie",
+              "handle": "Blobifie",
+              "phase": "progress",
+              "tier": 2
+            },
+            {
+              "date": "9 Oct",
+              "log_date": "9 Oct",
+              "at": "2026-10-09T20:30:41.000Z",
+              "text": "Frost on both of Ship 42's tanks (third cryo proof test).",
+              "log_text": "Frost on both of Ship 42's tanks (third cryo proof test).",
+              "url": "https://x.com/TrackingTheSB/status/2108656416366202950",
+              "src": "@TrackingTheSB",
+              "handle": "TrackingTheSB",
+              "phase": "progress",
+              "tier": 2
+            },
+            {
+              "date": "10 Oct",
+              "log_date": "10 Oct",
+              "at": "2026-10-10T12:41:17.000Z",
+              "text": "Ship 42 returned to the production site.",
+              "log_text": "Ship 42 returned to the production site.",
+              "url": "https://x.com/Blobifie/status/2108900674947915789",
+              "src": "@Blobifie",
+              "handle": "Blobifie",
+              "phase": "completed",
+              "tier": 2
+            },
+            {
+              "date": "2 Sep",
+              "log_date": "2 Sep",
+              "at": "2026-09-02T05:45:34.000Z",
+              "text": "2 Sep: Ship 42 left Megabay 2 for Massey's.",
+              "log_text": "2 Sep: Ship 42 left Megabay 2 for Massey's.",
+              "url": "https://x.com/Blobifie/status/2095025317895376948",
+              "src": "@Blobifie",
+              "handle": "Blobifie",
+              "phase": "progress",
+              "tier": 2
+            },
+            {
+              "date": "6 Sep",
+              "log_date": "6 Sep",
+              "at": "2026-09-06T08:32:54.000Z",
+              "text": "6 Sep: Ship 42 returned to Megabay 2.",
+              "log_text": "6 Sep: Ship 42 returned to Megabay 2.",
+              "url": "https://x.com/Blobifie/status/2096516983407947830",
+              "src": "@Blobifie",
+              "handle": "Blobifie",
+              "phase": "completed",
+              "tier": 2
             }
           ],
           "log_text": "Ship 42 completed further cryo tests."
@@ -190,7 +251,7 @@
         {
           "date": "9–10 Sep",
           "text": "Booster 22 completed its cryo test at Massey's.",
-          "src": "Next Spaceflight",
+          "src": "@colleenadastra",
           "source": "next-spaceflight",
           "trust": "trusted",
           "xChecked": true,
@@ -236,7 +297,46 @@
             "phase": "completed",
             "migrated": true
           },
-          "log_text": "Booster 22 completed its cryo test at Massey's."
+          "log_text": "Booster 22 completed its cryo test at Massey's.",
+          "url": "https://x.com/colleenadastra/status/2097806728846868982",
+          "updates": [
+            {
+              "date": "8 Sep",
+              "log_date": "8 Sep",
+              "at": "2026-09-08T11:11:21.000Z",
+              "text": "Booster 22 moved to Massey's.",
+              "log_text": "Booster 22 moved to Massey's.",
+              "url": "https://x.com/LabPadre/status/2097281633380347928",
+              "src": "@LabPadre",
+              "handle": "LabPadre",
+              "phase": "progress",
+              "tier": 2
+            },
+            {
+              "date": "10 Sep",
+              "log_date": "10 Sep",
+              "at": "2026-09-10T13:47:00.000Z",
+              "text": "Booster 22 filled and held at pressure, then detanked.",
+              "log_text": "Booster 22 filled and held at pressure, then detanked.",
+              "url": "https://x.com/LabPadre/status/2098045579234259249",
+              "src": "@LabPadre",
+              "handle": "LabPadre",
+              "phase": "completed",
+              "tier": 2
+            },
+            {
+              "date": "12 Sep",
+              "log_date": "12 Sep",
+              "at": "2026-09-12T05:18:49.000Z",
+              "text": "Booster 22 left Massey's for production.",
+              "log_text": "Booster 22 left Massey's for production.",
+              "url": "https://x.com/LabPadre/status/2098642467390153040",
+              "src": "@LabPadre",
+              "handle": "LabPadre",
+              "phase": "completed",
+              "tier": 2
+            }
+          ]
         }
       ],
       "log_latest": "Booster 23 rolled back to the production site after cryo testing."
@@ -301,7 +401,21 @@
             "title": "🔥 Raptor engines · Flight 15",
             "url": "https://x.com/RGVaerialphotos/status/2113834862339617215",
             "at": "2026-10-24T03:27:58.000Z"
-          }
+          },
+          "updates": [
+            {
+              "date": "24 Oct",
+              "log_date": "24 Oct",
+              "text": "Booster 22's Raptors were all in before its rollout.",
+              "log_text": "Booster 22's Raptors were all in before its rollout.",
+              "url": "https://x.com/SpaceX/status/2114444137067844004",
+              "src": "@SpaceX",
+              "handle": "SpaceX",
+              "phase": "completed",
+              "tier": 1,
+              "note": "no dated install post; confirmed by the 25 Oct 33-engine fire"
+            }
+          ]
         },
         {
           "date": "14 Oct",
@@ -350,8 +464,8 @@
         },
         {
           "date": "30 Sep",
-          "text": "B22 in Mega Bay 1, S42 in Mega Bay 2, both being fitted with Raptors.",
-          "src": "NSF",
+          "text": "Five Raptor 3s were removed from Ship 42.",
+          "src": "@LabPadre",
           "source": "nsf",
           "trust": "trusted",
           "xChecked": true,
@@ -366,12 +480,33 @@
             "phase": "progress",
             "migrated": true
           },
-          "log_text": "Booster 22 and Ship 42 are being fitted with Raptors in the Mega Bays."
+          "log_text": "Five Raptor 3s were removed from Ship 42.",
+          "url": "https://x.com/LabPadre/status/2105350891859501311",
+          "at": "2026-09-30T17:35:42.000Z",
+          "hardware": "S42",
+          "note": "one author (LabPadre ×2)",
+          "unverified": true,
+          "updates": [
+            {
+              "date": "30 Sep",
+              "log_date": "30 Sep",
+              "at": "2026-09-30T18:17:08.000Z",
+              "text": "Three more Raptor 3s removed from Ship 42.",
+              "log_text": "Three more Raptor 3s removed from Ship 42.",
+              "url": "https://x.com/LabPadre/status/2105361316185506016",
+              "src": "@LabPadre",
+              "handle": "LabPadre",
+              "phase": "progress",
+              "tier": 2,
+              "unverified": true,
+              "note": "single source"
+            }
+          ]
         },
         {
-          "date": "12–13 Sep",
-          "text": "Both vehicles back to the Mega Bays for Raptor installation.",
-          "src": "NSF",
+          "date": "10–13 Sep",
+          "text": "Ship 42 headed back for its six Raptors; Booster 22 returned to Megabay 1 for its engines.",
+          "src": "@NASASpaceflight",
           "source": "nsf",
           "trust": "trusted",
           "media_override": {
@@ -393,7 +528,38 @@
             "phase": "progress",
             "migrated": true
           },
-          "log_text": "Booster 22 and Ship 42 returned to the Mega Bays for Raptor installation."
+          "log_text": "Ship 42 headed back for its six Raptors; Booster 22 returned to Megabay 1 for its engines.",
+          "refiled_pin": "engine-install trips",
+          "url": "https://x.com/NASASpaceflight/status/2098104487428694216",
+          "at": "2026-09-10T17:41:05.000Z",
+          "updates": [
+            {
+              "date": "12 Sep",
+              "log_date": "12 Sep",
+              "at": "2026-09-12T10:55:03.000Z",
+              "text": "Booster 22 returned to Megabay 1 for its engines.",
+              "log_text": "Booster 22 returned to Megabay 1 for its engines.",
+              "url": "https://x.com/Blobifie/status/2098727083941982562",
+              "src": "@Blobifie",
+              "handle": "Blobifie",
+              "phase": "completed",
+              "tier": 2
+            },
+            {
+              "date": "22 Sep",
+              "log_date": "22 Sep",
+              "at": "2026-09-21T23:13:13.000Z",
+              "text": "Two RVacs moved into Megabay 2 for Ship 42.",
+              "log_text": "Two RVacs moved into Megabay 2 for Ship 42.",
+              "url": "https://x.com/Blobifie/status/2102174338678239577",
+              "src": "@Blobifie",
+              "handle": "Blobifie",
+              "phase": "progress",
+              "tier": 2,
+              "unverified": true,
+              "note": "single source"
+            }
+          ]
         }
       ],
       "log_latest": "Booster 22 lifting jig raised in Megabay 1."
@@ -513,20 +679,107 @@
               "log_text": "Ship 42 fired 1 Raptor.",
               "url": "https://x.com/NASASpaceflight/status/2114904512217694216",
               "handle": "NASASpaceflight"
+            },
+            {
+              "date": "27 Oct",
+              "log_date": "27 Oct",
+              "at": "2026-10-27T21:23:51.000Z",
+              "text": "LOX loading started on Ship 42.",
+              "log_text": "LOX loading started on Ship 42.",
+              "url": "https://x.com/Blobifie/status/2115192777810280567",
+              "src": "@Blobifie",
+              "handle": "Blobifie",
+              "phase": "progress",
+              "tier": 2,
+              "unverified": true,
+              "note": "single source"
+            },
+            {
+              "date": "27 Oct",
+              "log_date": "27 Oct",
+              "at": "2026-10-27T09:06:55.000Z",
+              "text": "Ship 42 detanked after its single-engine fire.",
+              "log_text": "Ship 42 detanked after its single-engine fire.",
+              "url": "https://x.com/Blobifie/status/2115007324188532951",
+              "src": "@Blobifie",
+              "handle": "Blobifie",
+              "phase": "progress",
+              "tier": 2,
+              "unverified": true,
+              "note": "single source"
             }
           ]
+        },
+        {
+          "id": "x-2114535368758542634",
+          "date": "26 Oct",
+          "log_date": "26 Oct",
+          "at": "2026-10-26T12:11:53.000Z",
+          "text": "Ship 42 arrived at Massey's ahead of its static fire campaign.",
+          "x_text": "Ship 42 arrived at Massey's ahead of its static fire campaign.",
+          "log_text": "Ship 42 arrives at Massey's for its static fire campaign.",
+          "status_line": "Ship 42 heading to Massey's.",
+          "url": "https://x.com/Blobifie/status/2114691485337850020",
+          "src": "@Blobifie",
+          "trust": "trusted",
+          "x_first": true,
+          "stage": "static",
+          "hardware": "S42",
+          "flight": 15,
+          "x_post": {
+            "post_id": "2114691485337850020",
+            "url": "https://x.com/Blobifie/status/2114691485337850020",
+            "created_at": "2026-10-26T12:11:53.000Z",
+            "text": "Ship 42 has arrived at masseys ahead of its static fire campaign!! Following S42 was some random ship aft section with a some tiles on it for some reason. https://t.co/pyLcSVjo3m",
+            "author": {
+              "name": "Blobifi",
+              "username": "Blobifie",
+              "avatar": "https://pbs.twimg.com/profile_images/2091766013562159104/xgHLFjBX_normal.jpg"
+            },
+            "media": [
+              {
+                "type": "video",
+                "poster": "https://pbs.twimg.com/amplify_video_thumb/2114691314495418368/img/yaSu0o2nwISYaNZ-.jpg",
+                "video_url": "https://video.twimg.com/amplify_video/2114691314495418368/vid/avc1/1280x720/iyt31CYSvFt1wUAO.mp4?tag=14"
+              }
+            ]
+          },
+          "x_posts": [
+            "2114535368758542634",
+            "2114569092879499433",
+            "2114691485337850020"
+          ],
+          "xChecked": true,
+          "imageChecked2": true,
+          "tier": 2,
+          "push": {
+            "title": "❄️ Cryo tests: In progress",
+            "url": "https://x.com/Blobifie/status/2114535368758542634",
+            "at": "2026-10-26T01:51:32.000Z"
+          },
+          "refiled_from": "cryo",
+          "media_override": {
+            "post_url": "https://x.com/Blobifie/status/2114691485337850020",
+            "post_id": "2114691485337850020",
+            "author": "Blobifie",
+            "type": "video",
+            "image": "https://pbs.twimg.com/amplify_video_thumb/2114691314495418368/img/yaSu0o2nwISYaNZ-.jpg",
+            "keep_image": true,
+            "fixed": "2026-10-28 own-post media (was 2114632668461900071)"
+          },
+          "time_fix": "was 01:51; set to its own post (Blobifie 12:11 GMT 'has arrived')"
         },
         {
           "id": "x-2114686191627030843",
           "date": "26 Oct",
           "log_date": "26 Oct",
           "at": "2026-10-26T11:50:51.000Z",
-          "text": "Booster 22 returned to Megabay 2 for final preflight work.",
-          "x_text": "Booster 22 returned to Megabay 2 for final preflight work.",
-          "log_text": "Booster 22 returns to Megabay 2 for final preflight work.",
+          "text": "Booster 22 returned to Megabay 1 for final flight preparations.",
+          "x_text": "Booster 22 returned to Megabay 1 for final flight preparations.",
+          "log_text": "Booster 22 returned to Megabay 1 for final flight preparations.",
           "status_line": "Booster 22 back in Megabay for prep.",
-          "url": "https://x.com/Blobifie/status/2114686191627030843",
-          "src": "@Blobifie",
+          "url": "https://x.com/RGVaerialphotos/status/2114612462184178003",
+          "src": "@RGVaerialphotos",
           "trust": "trusted",
           "x_first": true,
           "stage": "static",
@@ -571,66 +824,35 @@
             "at": "2026-10-26T11:50:51.000Z"
           },
           "frameChecked": true,
-          "refiled_from": "pad"
-        },
-        {
-          "id": "x-2114578590792859900",
-          "date": "26 Oct",
-          "log_date": "26 Oct",
-          "at": "2026-10-26T04:43:17.000Z",
-          "text": "Booster 22 was lifted to catch height on the launch mount.",
-          "x_text": "Booster 22 was lifted to catch height on the launch mount.",
-          "log_text": "Booster 22 lifts to catch height at the launch mount.",
-          "status_line": "Booster 22 lifted to catch height.",
-          "url": "https://x.com/RGVaerialphotos/status/2114578590792859900",
-          "src": "@RGVaerialphotos",
-          "trust": "trusted",
-          "x_first": true,
-          "stage": "static",
-          "hardware": "B22",
-          "flight": 15,
-          "x_post": {
-            "post_id": "2114578590792859900",
-            "url": "https://x.com/RGVaerialphotos/status/2114578590792859900",
-            "created_at": "2026-10-26T04:43:17.000Z",
-            "text": "Booster 22 has been lifted to catch height! We haven't seen something like this since Booster 15.",
-            "author": {
-              "name": "RGV Aerial Photography",
-              "username": "RGVaerialphotos",
-              "avatar": "https://pbs.twimg.com/profile_images/2019953617743097856/PJqBBhpU_normal.jpg"
+          "refiled_from": "pad",
+          "refiled_pin": "rollback after the static fire",
+          "corrected_from": "Megabay 2 (Blobifie 2114686191627030843; RGV + TrackingTheSB say MB1)",
+          "updates": [
+            {
+              "date": "26 Oct",
+              "log_date": "26 Oct",
+              "at": "2026-10-26T09:51:33.000Z",
+              "text": "Booster 22 back at the production site.",
+              "log_text": "Booster 22 back at the production site.",
+              "url": "https://x.com/colleenadastra/status/2114656169478455744",
+              "src": "@colleenadastra",
+              "handle": "colleenadastra",
+              "phase": "completed",
+              "tier": 2
             },
-            "media": [
-              {
-                "type": "photo",
-                "url": "https://pbs.twimg.com/media/HVh97ShaIAAhZ2k.jpg"
-              }
-            ],
-            "retry": 1
-          },
-          "x_posts": [
-            "2114578590792859900",
-            "2114580247240982591",
-            "2114612462184178003"
-          ],
-          "xChecked": true,
-          "imageChecked2": true,
-          "media_override": {
-            "post_url": "https://x.com/RGVaerialphotos/status/2114578590792859900",
-            "post_id": "2114578590792859900",
-            "author": "RGVaerialphotos",
-            "type": "photo",
-            "image": "https://pbs.twimg.com/media/HVh97ShaIAAhZ2k.jpg",
-            "keep_image": true,
-            "fixed": "2026-10-28 own-post media (was 2114586836236743107)"
-          },
-          "tier": 2,
-          "push": {
-            "title": "🏗️ Pad activity: In progress",
-            "url": "https://x.com/RGVaerialphotos/status/2114578590792859900",
-            "at": "2026-10-26T04:43:17.000Z"
-          },
-          "frameChecked": true,
-          "refiled_from": "pad"
+            {
+              "date": "28 Oct",
+              "log_date": "28 Oct",
+              "at": "2026-10-28T03:01:41.000Z",
+              "text": "Booster 22 is in Megabay 1 for checkouts.",
+              "log_text": "Booster 22 is in Megabay 1 for checkouts.",
+              "url": "https://x.com/TrackingTheSB/status/2115277795823632541",
+              "src": "@TrackingTheSB",
+              "handle": "TrackingTheSB",
+              "phase": "completed",
+              "tier": 2
+            }
+          ]
         },
         {
           "id": "x-2114568166651428965",
@@ -639,7 +861,7 @@
           "at": "2026-10-26T04:01:52.000Z",
           "text": "Ship 42 is moving into position at Massey's for static fire testing as Ship 43 departs.",
           "x_text": "Ship 42 is moving into position at Massey's for static fire testing as Ship 43 departs.",
-          "log_text": "Ship 42 arrives at Massey's for static fire testing as Ship 43 departs.",
+          "log_text": "Ship 42 rolled to Massey's for its static fire (night of 25/26 Oct).",
           "url": "https://x.com/NASASpaceflight/status/2114568166651428965",
           "src": "@NASASpaceflight",
           "trust": "trusted",
@@ -693,117 +915,38 @@
             "url": "https://x.com/NASASpaceflight/status/2114568166651428965",
             "at": "2026-10-26T04:01:52.000Z"
           },
-          "refiled_from": "cryo"
-        },
-        {
-          "id": "x-2114535368758542634",
-          "date": "26 Oct",
-          "log_date": "26 Oct",
-          "at": "2026-10-26T01:51:32.000Z",
-          "text": "Ship 42 arrived at Massey's ahead of its static fire campaign.",
-          "x_text": "Ship 42 arrived at Massey's ahead of its static fire campaign.",
-          "log_text": "Ship 42 arrives at Massey's for its static fire campaign.",
-          "status_line": "Ship 42 heading to Massey's.",
-          "url": "https://x.com/Blobifie/status/2114691485337850020",
-          "src": "@Blobifie",
-          "trust": "trusted",
-          "x_first": true,
-          "stage": "static",
-          "hardware": "S42",
-          "flight": 15,
-          "x_post": {
-            "post_id": "2114691485337850020",
-            "url": "https://x.com/Blobifie/status/2114691485337850020",
-            "created_at": "2026-10-26T12:11:53.000Z",
-            "text": "Ship 42 has arrived at masseys ahead of its static fire campaign!! Following S42 was some random ship aft section with a some tiles on it for some reason. https://t.co/pyLcSVjo3m",
-            "author": {
-              "name": "Blobifi",
-              "username": "Blobifie",
-              "avatar": "https://pbs.twimg.com/profile_images/2091766013562159104/xgHLFjBX_normal.jpg"
-            },
-            "media": [
-              {
-                "type": "video",
-                "poster": "https://pbs.twimg.com/amplify_video_thumb/2114691314495418368/img/yaSu0o2nwISYaNZ-.jpg",
-                "video_url": "https://video.twimg.com/amplify_video/2114691314495418368/vid/avc1/1280x720/iyt31CYSvFt1wUAO.mp4?tag=14"
-              }
-            ]
-          },
-          "x_posts": [
-            "2114535368758542634",
-            "2114569092879499433",
-            "2114691485337850020"
-          ],
-          "xChecked": true,
-          "imageChecked2": true,
-          "tier": 2,
-          "push": {
-            "title": "❄️ Cryo tests: In progress",
-            "url": "https://x.com/Blobifie/status/2114535368758542634",
-            "at": "2026-10-26T01:51:32.000Z"
-          },
           "refiled_from": "cryo",
-          "media_override": {
-            "post_url": "https://x.com/Blobifie/status/2114691485337850020",
-            "post_id": "2114691485337850020",
-            "author": "Blobifie",
-            "type": "video",
-            "image": "https://pbs.twimg.com/amplify_video_thumb/2114691314495418368/img/yaSu0o2nwISYaNZ-.jpg",
-            "keep_image": true,
-            "fixed": "2026-10-28 own-post media (was 2114632668461900071)"
-          }
-        },
-        {
-          "id": "x-2114513919566033266",
-          "date": "26 Oct",
-          "log_date": "26 Oct",
-          "at": "2026-10-26T00:26:18.000Z",
-          "text": "Starship Flight 15 static fire noted.",
-          "x_text": "Starship Flight 15 static fire noted.",
-          "log_text": "Starship Flight 15 static fire activity noted.",
-          "status_line": "Flight 15 static fire in focus.",
-          "url": "https://x.com/elonmusk/status/2114513919566033266",
-          "src": "@elonmusk",
-          "trust": "unconfirmed",
-          "x_first": true,
-          "stage": "static",
-          "hardware": null,
-          "flight": 15,
-          "x_post": {
-            "post_id": "2114513919566033266",
-            "url": "https://x.com/elonmusk/status/2114513919566033266",
-            "created_at": "2026-10-26T00:26:18.000Z",
-            "text": "Starship Flight 15 static fire",
-            "author": {
-              "name": "Elon Musk",
-              "username": "elonmusk",
-              "avatar": "https://pbs.twimg.com/profile_images/2103567689515954176/aR-Kjpp4_normal.jpg"
+          "updates": [
+            {
+              "date": "26 Oct",
+              "log_date": "26 Oct",
+              "at": "2026-10-26T12:11:53.000Z",
+              "text": "Ship 42 arrived at Massey's.",
+              "log_text": "Ship 42 arrived at Massey's.",
+              "url": "https://x.com/Blobifie/status/2114691485337850020",
+              "src": "@Blobifie",
+              "handle": "Blobifie",
+              "phase": "completed",
+              "tier": 2
             },
-            "media": []
-          },
-          "x_posts": [
-            "2114513919566033266"
-          ],
-          "xChecked": true,
-          "imageChecked2": true,
-          "tier": 1,
-          "milestone": {
-            "key": "static_fire|15|-",
-            "type": "static_fire",
-            "flight": 15,
-            "hardware": null,
-            "phase": "expected"
-          },
-          "push": {
-            "title": "💥 Static fires (unconfirmed)",
-            "url": "https://x.com/elonmusk/status/2114513919566033266",
-            "at": "2026-10-26T00:26:18.000Z"
-          }
+            {
+              "date": "26 Oct",
+              "log_date": "26 Oct",
+              "at": "2026-10-26T16:32:48.000Z",
+              "text": "Ship 42 left Megabay 2 overnight and departed for Massey's.",
+              "log_text": "Ship 42 left Megabay 2 overnight and departed for Massey's.",
+              "url": "https://x.com/LabPadre/status/2114757145245671915",
+              "src": "@LabPadre",
+              "handle": "LabPadre",
+              "phase": "progress",
+              "tier": 2
+            }
+          ]
         },
         {
           "id": "x-2111327584122437857",
           "date": "25 Oct",
-          "at": "2026-10-25T22:07:27.000Z",
+          "at": "2026-10-25T13:22:00.000Z",
           "text": "Booster 22 conducted a static fire test on Pad 2.",
           "url": "https://x.com/NASASpaceflight/status/2114347288739098706",
           "src": "@NASASpaceflight",
@@ -847,7 +990,6 @@
             "2114368667559563715",
             "2114378296981172616",
             "2114405714722763056",
-            "2114422831907807365",
             "2114478974818459882"
           ],
           "xChecked": true,
@@ -874,114 +1016,38 @@
             {
               "date": "25 Oct",
               "log_date": "25 Oct",
-              "at": "2026-10-25T18:24:21.000Z",
-              "text": "Booster 22 completed its static fire test at Starbase.",
-              "log_text": "Booster 22 completed its static fire test at Starbase.",
-              "url": "https://x.com/NASASpaceflight/status/2114422831907807365",
-              "src": "@NASASpaceflight",
+              "at": "2026-10-25T19:49:01.000Z",
+              "text": "Booster 22 completed a full-duration 33-engine static fire.",
+              "log_text": "Booster 22 completed a full-duration 33-engine static fire.",
+              "url": "https://x.com/SpaceX/status/2114444137067844004",
+              "src": "@SpaceX",
+              "handle": "SpaceX",
               "phase": "completed",
               "tier": 1
             },
             {
               "date": "25 Oct",
               "log_date": "25 Oct",
-              "at": "2026-10-25T17:16:20.000Z",
-              "text": "Booster 22 detanked after static fire.",
-              "log_text": "Booster 22 completed its static fire at Pad 2.",
-              "url": "https://x.com/Blobifie/status/2114405714722763056",
-              "src": "@Blobifie",
+              "at": "2026-10-25T13:31:57.000Z",
+              "text": "Booster 22 completed its static fire at Starbase.",
+              "log_text": "Booster 22 completed its static fire at Starbase.",
+              "url": "https://x.com/SpaceflightNow/status/2114349246803587110",
+              "src": "@SpaceflightNow",
+              "handle": "SpaceflightNow",
               "phase": "completed",
-              "tier": 2
-            },
-            {
-              "date": "25 Oct",
-              "log_date": "25 Oct",
-              "at": "2026-10-25T15:27:23.000Z",
-              "text": "Booster 22 completed its static fire test.",
-              "log_text": "Booster 22 completed its static fire test at Pad 2.",
-              "url": "https://x.com/RGVaerialphotos/status/2114378296981172616",
-              "src": "@RGVaerialphotos",
-              "phase": "completed",
-              "tier": 2
-            },
-            {
-              "date": "25 Oct",
-              "log_date": "25 Oct",
-              "at": "2026-10-25T14:49:08.000Z",
-              "text": "Booster 22 completed a full duration static fire test.",
-              "log_text": "Booster 22 completed its static fire test at Pad 2.",
-              "url": "https://x.com/CSI_Starbase/status/2114368667559563715",
-              "src": "@CSI_Starbase",
-              "phase": "completed",
-              "tier": 2
+              "tier": 1
             },
             {
               "date": "25 Oct",
               "log_date": "25 Oct",
               "at": "2026-10-25T14:05:23.000Z",
-              "text": "Booster 22 completed its static fire at the launch site.",
-              "log_text": "Booster 22 completed its static fire at the launch site.",
+              "text": "Booster 22 completed its static fire on Pad 2.",
+              "log_text": "Booster 22 completed its static fire on Pad 2.",
               "url": "https://x.com/LabPadre/status/2114357660262781218",
               "src": "@LabPadre",
+              "handle": "LabPadre",
               "phase": "completed",
               "tier": 2
-            },
-            {
-              "date": "25 Oct",
-              "log_date": "25 Oct",
-              "at": "2026-10-25T13:25:48.000Z",
-              "text": "Booster 22 completed a static fire test.",
-              "log_text": "Booster 22 completed a static fire at Pad 2.",
-              "url": "https://x.com/Blobifie/status/2114347696932942132",
-              "src": "@Blobifie",
-              "phase": "completed",
-              "tier": 2
-            },
-            {
-              "date": "25 Oct",
-              "log_date": "25 Oct",
-              "at": "2026-10-25T12:11:58.000Z",
-              "text": "Booster 22 conducts a static fire test at Pad 2.",
-              "log_text": "Booster 22 completes its static fire at Pad 2.",
-              "url": "https://x.com/NASASpaceflight/status/2114329117210656842",
-              "src": "@NASASpaceflight",
-              "phase": "completed",
-              "tier": 1
-            },
-            {
-              "date": "25 Oct",
-              "log_date": "25 Oct",
-              "at": "2026-10-25T11:38:18.000Z",
-              "text": "Booster 22 conducted a static fire test.",
-              "log_text": "Booster 22 completed its static fire at the launch site.",
-              "url": "https://x.com/NASASpaceflight/status/2114320643470549259",
-              "src": "@NASASpaceflight",
-              "phase": "completed",
-              "tier": 1
-            },
-            {
-              "date": "25 Oct",
-              "log_date": "25 Oct",
-              "at": "2026-10-25T12:37:01.000Z",
-              "text": "Transport ring relocated ahead of the static fire.",
-              "log_text": "Transport ring relocated ahead of the static fire.",
-              "url": "https://x.com/LabPadre/status/2114335419785679308",
-              "src": "@LabPadre",
-              "phase": "progress",
-              "tier": 3,
-              "step_of": "x-2114335419785679308"
-            },
-            {
-              "date": "25 Oct",
-              "log_date": "25 Oct",
-              "at": "2026-10-25T11:27:16.000Z",
-              "text": "Road closed ahead of the static fire test.",
-              "log_text": "Road closed ahead of the static fire test.",
-              "url": "https://x.com/Blobifie/status/2114317866409595106",
-              "src": "@Blobifie",
-              "phase": "progress",
-              "tier": 2,
-              "step_of": "x-2114317866409595106"
             },
             {
               "date": "17 Oct",
@@ -1022,10 +1088,11 @@
             "url": "https://x.com/NASASpaceflight/status/2114320643470549259",
             "at": "2026-10-25T11:38:18.000Z"
           },
-          "completed_at": "2026-10-25T13:24:10.000Z",
+          "completed_at": "2026-10-25T13:22:00.000Z",
           "completed_src": "https://x.com/NASASpaceflight/status/2114347288739098706",
           "x_text": "Booster 22 conducted a static fire test on Pad 2.",
-          "status_line": "Booster 22 static fire done."
+          "status_line": "Booster 22 static fire done.",
+          "time_src": "Spaceflight Now: 8:22 a.m. CDT (13:22 GMT)"
         },
         {
           "id": "x-2114335419785679308",
@@ -1142,7 +1209,7 @@
           "at": "2026-10-24T18:36:46.000Z",
           "text": "Booster 22 lifted onto the launch mount after pad move.",
           "x_text": "Booster 22 lifted onto the launch mount after pad move.",
-          "log_text": "Booster 22 rolled to Pad 2 and stacked on the launch mount.",
+          "log_text": "Booster 22 was lowered onto the Pad 2 launch mount.",
           "url": "https://x.com/LabPadre/status/2114063568735768864",
           "src": "@LabPadre",
           "trust": "trusted",
@@ -1184,8 +1251,8 @@
           },
           "tier": 2,
           "milestone": {
-            "key": "stacked|15|B22",
-            "type": "stacked",
+            "key": "on_mount|15|B22",
+            "type": "on_mount",
             "flight": 15,
             "hardware": "B22",
             "phase": "completed"
@@ -1202,7 +1269,7 @@
               "log_date": "24 Oct",
               "at": "2026-10-24T15:29:01.000Z",
               "text": "Booster 22 has been lowered onto the OLM.",
-              "log_text": "Booster 22 stacked on the OLM at Pad 1.",
+              "log_text": "Booster 22 was lowered onto the Pad 2 launch mount.",
               "url": "https://x.com/Blobifie/status/2114016319679201462",
               "src": "@Blobifie",
               "phase": "completed",
@@ -1355,9 +1422,9 @@
           "date": "24 Oct",
           "log_date": "24 Oct",
           "at": "2026-10-24T11:28:25.000Z",
-          "text": "Booster 22 arrives at the launch site ahead of static fire campaign.",
-          "x_text": "Booster 22 arrives at the launch site ahead of static fire campaign.",
-          "log_text": "Booster 22 rolls to the launch site for static fire campaign.",
+          "text": "Booster 22 rolled out to Pad 2.",
+          "x_text": "Booster 22 rolled out to Pad 2.",
+          "log_text": "Booster 22 rolled out to Pad 2.",
           "url": "https://x.com/Blobifie/status/2113955770337550391",
           "src": "@Blobifie",
           "trust": "trusted",
@@ -1408,7 +1475,44 @@
             "title": "💥 Static fires · Flight 15",
             "url": "https://x.com/Blobifie/status/2113955770337550391",
             "at": "2026-10-24T11:28:25.000Z"
-          }
+          },
+          "updates": [
+            {
+              "date": "24 Oct",
+              "log_date": "24 Oct",
+              "at": "2026-10-24T08:15:33.000Z",
+              "text": "Booster 22 left Megabay 1.",
+              "log_text": "Booster 22 left Megabay 1.",
+              "url": "https://x.com/NASASpaceflight/status/2113907231293128970",
+              "src": "@NASASpaceflight",
+              "handle": "NASASpaceflight",
+              "phase": "progress",
+              "tier": 1
+            },
+            {
+              "date": "24 Oct",
+              "log_date": "24 Oct",
+              "at": "2026-10-24T08:46:14.000Z",
+              "text": "Booster 22 lifted onto transport stand ahead of rollout.",
+              "log_text": "Booster 22 lifted onto transport stand ahead of rollout.",
+              "url": "https://x.com/Blobifie/status/2113914954801889326",
+              "src": "@Blobifie",
+              "phase": "progress",
+              "tier": 2
+            },
+            {
+              "date": "24 Oct",
+              "log_date": "24 Oct",
+              "at": "2026-10-24T11:21:26.000Z",
+              "text": "Booster 22 arrived at Pad 2.",
+              "log_text": "Booster 22 arrived at Pad 2.",
+              "url": "https://x.com/NASASpaceflight/status/2113954013615952349",
+              "src": "@NASASpaceflight",
+              "handle": "NASASpaceflight",
+              "phase": "completed",
+              "tier": 1
+            }
+          ]
         },
         {
           "id": "x-2113914954801889326",
@@ -1466,11 +1570,26 @@
           "refiled_from": "pad"
         },
         {
+          "id": "s42-sf-stand",
+          "date": "22 Oct",
+          "at": "2026-10-24T03:27:00.000Z",
+          "text": "The ship static-fire stand was brought to production for Ship 42.",
+          "log_text": "The ship static-fire stand was brought to production for Ship 42.",
+          "url": "https://x.com/RGVaerialphotos/status/2113834862339617215",
+          "src": "@RGVaerialphotos",
+          "trust": "unconfirmed",
+          "hardware": "S42",
+          "flight": 15,
+          "log_only": true,
+          "unverified": true,
+          "note": "single source"
+        },
+        {
           "id": "x-2113617185218429437",
           "date": "23 Oct",
           "at": "2026-10-23T13:03:00.000Z",
-          "text": "Booster 22 heads to Pad 2 for potential static fire test.",
-          "x_text": "Booster 22 heads to Pad 2 for potential static fire test.",
+          "text": "Road delay announced for Booster 22's move to Pad 2.",
+          "x_text": "Road delay announced for Booster 22's move to Pad 2.",
           "url": "https://x.com/NASASpaceflight/status/2113617185218429437",
           "src": "@NASASpaceflight",
           "trust": "trusted",
@@ -1523,8 +1642,9 @@
             "phase": "progress",
             "migrated": true
           },
-          "log_text": "Booster 22 heads to Pad 2 for a potential static fire test.",
-          "refiled_from": "pad"
+          "log_text": "Road delay announced for Booster 22's move to Pad 2.",
+          "refiled_from": "pad",
+          "log_only": true
         },
         {
           "id": "x-2112967167767433728",
@@ -1679,6 +1799,66 @@
       "latest": "Starbase Pad 1 Flame Trench wall work is progressing.",
       "history": [
         {
+          "id": "x-2114578590792859900",
+          "date": "26 Oct",
+          "log_date": "26 Oct",
+          "at": "2026-10-26T04:43:17.000Z",
+          "text": "Booster 22 was lifted to catch height on the launch mount.",
+          "x_text": "Booster 22 was lifted to catch height on the launch mount.",
+          "log_text": "Booster 22 lifts to catch height at the launch mount.",
+          "status_line": "Booster 22 lifted to catch height.",
+          "url": "https://x.com/RGVaerialphotos/status/2114578590792859900",
+          "src": "@RGVaerialphotos",
+          "trust": "trusted",
+          "x_first": true,
+          "stage": "pad",
+          "hardware": "B22",
+          "flight": 15,
+          "x_post": {
+            "post_id": "2114578590792859900",
+            "url": "https://x.com/RGVaerialphotos/status/2114578590792859900",
+            "created_at": "2026-10-26T04:43:17.000Z",
+            "text": "Booster 22 has been lifted to catch height! We haven't seen something like this since Booster 15.",
+            "author": {
+              "name": "RGV Aerial Photography",
+              "username": "RGVaerialphotos",
+              "avatar": "https://pbs.twimg.com/profile_images/2019953617743097856/PJqBBhpU_normal.jpg"
+            },
+            "media": [
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HVh97ShaIAAhZ2k.jpg"
+              }
+            ],
+            "retry": 1
+          },
+          "x_posts": [
+            "2114578590792859900",
+            "2114580247240982591",
+            "2114612462184178003"
+          ],
+          "xChecked": true,
+          "imageChecked2": true,
+          "media_override": {
+            "post_url": "https://x.com/RGVaerialphotos/status/2114578590792859900",
+            "post_id": "2114578590792859900",
+            "author": "RGVaerialphotos",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HVh97ShaIAAhZ2k.jpg",
+            "keep_image": true,
+            "fixed": "2026-10-28 own-post media (was 2114586836236743107)"
+          },
+          "tier": 2,
+          "push": {
+            "title": "🏗️ Pad activity: In progress",
+            "url": "https://x.com/RGVaerialphotos/status/2114578590792859900",
+            "at": "2026-10-26T04:43:17.000Z"
+          },
+          "frameChecked": true,
+          "refiled_from": "static",
+          "refiled_pin": "audit 28 Oct: post-test chopstick lift is Pad"
+        },
+        {
           "id": "x-2113664154762457446",
           "date": "23 Oct",
           "at": "2026-10-23T16:09:39.000Z",
@@ -1772,6 +1952,69 @@
               "phase": "progress",
               "tier": 2,
               "log_text": "Ship 42 was lifted by the Pad 2 chopsticks for catch and arm tests."
+            }
+          ]
+        },
+        {
+          "id": "s42-pad2-sep",
+          "date": "11–13 Sep",
+          "at": "2026-09-12T15:39:52.000Z",
+          "text": "Ship 42 was lifted to catch height by the Pad 2 chopsticks.",
+          "log_text": "Ship 42 was lifted to catch height by the Pad 2 chopsticks.",
+          "url": "https://x.com/TrackingTheSB/status/2098798758335225974",
+          "src": "@TrackingTheSB",
+          "trust": "trusted",
+          "hardware": "S42",
+          "flight": 15,
+          "log_only": true,
+          "updates": [
+            {
+              "date": "9 Sep",
+              "log_date": "9 Sep",
+              "at": "2026-09-09T13:05:06.000Z",
+              "text": "9 Sep: Ship 42 made a short second trip to Massey's; no test confirmed.",
+              "log_text": "9 Sep: Ship 42 made a short second trip to Massey's; no test confirmed.",
+              "url": "https://x.com/LabPadre/status/2097672648314573085",
+              "src": "@LabPadre",
+              "handle": "LabPadre",
+              "phase": "progress",
+              "tier": 2
+            },
+            {
+              "date": "11 Sep",
+              "log_date": "11 Sep",
+              "at": "2026-09-11T01:41:01.000Z",
+              "text": "Ship 42 headed to the launch site for catch testing.",
+              "log_text": "Ship 42 headed to the launch site for catch testing.",
+              "url": "https://x.com/NASASpaceflight/status/2098225266573103386",
+              "src": "@NASASpaceflight",
+              "handle": "NASASpaceflight",
+              "phase": "progress",
+              "tier": 1
+            },
+            {
+              "date": "12 Sep",
+              "log_date": "12 Sep",
+              "at": "2026-09-12T16:07:56.000Z",
+              "text": "Ship 42 lifted to the top of the tower.",
+              "log_text": "Ship 42 lifted to the top of the tower.",
+              "url": "https://x.com/colleenadastra/status/2098805821714862525",
+              "src": "@colleenadastra",
+              "handle": "colleenadastra",
+              "phase": "progress",
+              "tier": 2
+            },
+            {
+              "date": "13 Sep",
+              "log_date": "13 Sep",
+              "at": "2026-09-13T08:34:31.000Z",
+              "text": "Ship 42 rolled back to Megabay 2.",
+              "log_text": "Ship 42 rolled back to Megabay 2.",
+              "url": "https://x.com/LabPadre/status/2099054105666691428",
+              "src": "@LabPadre",
+              "handle": "LabPadre",
+              "phase": "completed",
+              "tier": 2
             }
           ]
         }
@@ -2061,7 +2304,8 @@
       "at": "2026-10-26T08:18:10.000Z",
       "date": "26 Oct",
       "flight": 15,
-      "box": "cryo"
+      "box": "static",
+      "refiled_pin": true
     },
     {
       "id": "news-mvown148-6ecbdb",
@@ -2083,7 +2327,8 @@
       "at": "2026-10-26T04:43:17.000Z",
       "date": "26 Oct",
       "flight": 15,
-      "box": "pad"
+      "box": "pad",
+      "refiled_pin": true
     },
     {
       "id": "news-mvopynkg-826d56",
@@ -2093,8 +2338,9 @@
       "url": "https://x.com/TrackingTheSB/status/2114565423912108360",
       "at": "2026-10-26T03:50:58.000Z",
       "date": "26 Oct",
-      "flight": 15,
-      "box": "static"
+      "flight": 16,
+      "box": "cryo",
+      "refiled_pin": true
     },
     {
       "id": "news-mvo8qv2g-e23cc6",
@@ -2139,39 +2385,17 @@
       "date": "24 Oct",
       "flight": 15,
       "box": "static"
-    },
-    {
-      "id": "news-mvltvvb4-2ad013",
-      "kind": "news",
-      "title": "🚀 Starship",
-      "body": "SpaceX conducts static fire of booster 22 at pad 2 ahead of flight 15",
-      "url": "https://www.youtube.com/watch?v=BlyqwOjCJzA",
-      "at": "2026-10-24T03:17:28.000Z",
-      "date": "24 Oct",
-      "flight": 15,
-      "box": "static"
     }
   ],
   "milestones": {
-    "flight": {
-      "stacked": {
-        "count": 1,
-        "dates": [
-          "2026-10-24T15:29:01.000Z"
-        ],
-        "src": [
-          "https://x.com/Blobifie/status/2114016319679201462"
-        ]
-      }
-    },
     "B22": {
       "static_fire": {
         "count": 1,
         "dates": [
-          "2026-10-25T11:38:18.000Z"
+          "2026-10-25T13:22:00.000Z"
         ],
         "src": [
-          "https://x.com/NASASpaceflight/status/2114320643470549259"
+          "https://x.com/SpaceflightNow/status/2114349246803587110"
         ]
       }
     },
@@ -2192,16 +2416,16 @@
   "inferred": {
     "B22": {
       "raptor": {
-        "date": "23 Oct",
+        "date": "25 Oct",
         "by": "static fire",
-        "why": "Booster 22 is heading to its static fire, so all 33 Raptors are installed."
+        "why": "Booster 22 completed its static fire, so all 33 Raptors are installed."
       }
     },
     "S42": {
       "raptor": {
         "date": "26 Oct",
         "by": "static fire",
-        "why": "Ship 42 is in static fire testing, so all 6 Raptors are installed."
+        "why": "Ship 42 is heading to its static fire, so all 6 Raptors are installed."
       }
     }
   },

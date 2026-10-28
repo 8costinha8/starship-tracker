@@ -111,7 +111,7 @@ function refile(road) {
     }
   }
   for (const f of road.feed_items || []) {
-    if (!f || !f.body || f.kind !== "news") continue;
+    if (!f || !f.body || f.kind !== "news" || f.refiled_pin) continue; // a hand re-file (audit) stays put
     const p = purposeOf(road, { text: f.body, date: f.date, at: f.at }, st);
     const vs = vehOf(f.body);
     const box = vs.length || p.box !== "pad" ? p.box : null;
