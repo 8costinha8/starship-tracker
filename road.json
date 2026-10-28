@@ -4,8 +4,8 @@
     "B22",
     "S42"
   ],
-  "updated": "27 Oct",
-  "updatedAt": "2026-10-27T21:45:25.000Z",
+  "updated": "28 Oct",
+  "updatedAt": "2026-10-28T10:00:53.003Z",
   "categories": [
     {
       "id": "cryo",
@@ -380,7 +380,18 @@
             "migrated": true
           },
           "complete": true,
-          "log_text": "Booster 23 completed a cryo proof test at Massey's."
+          "log_text": "Booster 23 completed a cryo proof test at Massey's.",
+          "cascade": {
+            "first_at": "2026-10-16T00:24:07.000Z",
+            "sources": [
+              {
+                "post_id": "2110889490336350574",
+                "author": "StarshipGazer",
+                "tier": 2,
+                "at": "2026-10-16T00:24:07.000Z"
+              }
+            ]
+          }
         },
         {
           "id": "f16-b23-2109929503925625050",
@@ -455,6 +466,17 @@
             "type": "photo",
             "image": "https://pbs.twimg.com/media/HUf3gx6acAAlglM.jpg",
             "keep_image": true
+          },
+          "cascade": {
+            "first_at": "2026-10-13T08:49:28.000Z",
+            "sources": [
+              {
+                "post_id": "2109929503925625050",
+                "author": "StarshipGazer",
+                "tier": 2,
+                "at": "2026-10-13T08:49:28.000Z"
+              }
+            ]
           }
         },
         {
@@ -1109,7 +1131,45 @@
               "unverified": true,
               "note": "single source"
             }
-          ]
+          ],
+          "cascade": {
+            "first_at": "2026-10-27T21:45:25.000Z",
+            "sources": [
+              {
+                "post_id": "2115231900961005856",
+                "author": "NASASpaceflight",
+                "tier": 2,
+                "at": "2026-10-27T21:45:25.000Z"
+              },
+              {
+                "post_id": "2115203133152330182",
+                "author": "TrackingTheSB",
+                "tier": 2,
+                "at": "2026-10-27T22:05:00.000Z"
+              },
+              {
+                "post_id": "2115202175924121987",
+                "author": "TrackingTheSB",
+                "tier": 2,
+                "at": "2026-10-27T22:01:11.000Z"
+              },
+              {
+                "post_id": "2115199662361874568",
+                "author": "Blobifie",
+                "tier": 2,
+                "at": "2026-10-27T21:51:12.000Z"
+              },
+              {
+                "post_id": "2115198496521195971",
+                "author": "NASASpaceflight",
+                "tier": 2,
+                "at": "2026-10-27T21:46:34.000Z"
+              }
+            ],
+            "confirmed": true,
+            "confirmed_at": "2026-10-28T10:00:52.669Z"
+          },
+          "text_locked": true
         },
         {
           "id": "x-2114535368758542634",
@@ -1493,7 +1553,18 @@
           "completed_src": "https://x.com/NASASpaceflight/status/2114347288739098706",
           "x_text": "Booster 22 conducted a static fire test on Pad 2.",
           "status_line": "Booster 22 static fire done.",
-          "time_src": "Spaceflight Now: 8:22 a.m. CDT (13:22 GMT)"
+          "time_src": "Spaceflight Now: 8:22 a.m. CDT (13:22 GMT)",
+          "cascade": {
+            "first_at": "2026-10-25T13:22:00.000Z",
+            "sources": [
+              {
+                "post_id": "2114347288739098706",
+                "author": "NASASpaceflight",
+                "tier": 2,
+                "at": "2026-10-25T13:22:00.000Z"
+              }
+            ]
+          }
         },
         {
           "id": "x-2114335419785679308",
@@ -1913,7 +1984,18 @@
               "phase": "completed",
               "tier": 1
             }
-          ]
+          ],
+          "cascade": {
+            "first_at": "2026-10-24T11:28:25.000Z",
+            "sources": [
+              {
+                "post_id": "2113955770337550391",
+                "author": "Blobifie",
+                "tier": 2,
+                "at": "2026-10-24T11:28:25.000Z"
+              }
+            ]
+          }
         },
         {
           "id": "x-2113914954801889326",
@@ -2463,6 +2545,17 @@
             "type": "video",
             "image": "https://pbs.twimg.com/amplify_video_thumb/2114798512785215489/img/LstBkhCTiy2Xrbok.jpg",
             "keep_image": true
+          },
+          "cascade": {
+            "first_at": "2026-10-26T19:17:26.000Z",
+            "sources": [
+              {
+                "post_id": "2114798577293635905",
+                "author": "NASASpaceflight",
+                "tier": 2,
+                "at": "2026-10-26T19:17:26.000Z"
+              }
+            ]
           }
         },
         {
