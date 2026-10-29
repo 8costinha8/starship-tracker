@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "29 Oct",
-  "updatedAt": "2026-10-29T07:19:01.587Z",
+  "updatedAt": "2026-10-29T07:30:27.185Z",
   "categories": [
     {
       "id": "cryo",
@@ -3100,7 +3100,8 @@
       "url": "https://x.com/RGVaerialphotos/status/2115701286096277589",
       "at": "2026-10-29T07:04:29.000Z",
       "date": "29 Oct",
-      "flight": 15
+      "flight": 15,
+      "box": "pad"
     },
     {
       "id": "news-mvswj2lk-339967",
