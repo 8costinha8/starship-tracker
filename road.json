@@ -4,8 +4,8 @@
     "B22",
     "S42"
   ],
-  "updated": "28 Oct",
-  "updatedAt": "2026-10-28T19:59:16.711Z",
+  "updated": "29 Oct",
+  "updatedAt": "2026-10-29T02:32:06.831Z",
   "categories": [
     {
       "id": "cryo",
@@ -993,8 +993,87 @@
       "name": "Static fires",
       "color": "#FF9A3D",
       "status": "done",
-      "latest": "Ship 42 completed both its single- and six-engine static fire tests at Massey's.",
+      "latest": "Booster 22 completes a full 33-Raptor static fire.",
       "history": [
+        {
+          "id": "x-2115627415947059537",
+          "date": "29 Oct",
+          "log_date": "29 Oct",
+          "at": "2026-10-29T02:10:57.000Z",
+          "text": "Booster 22 completes a full 33-Raptor static fire.",
+          "x_text": "Booster 22 completes a full 33-Raptor static fire.",
+          "log_text": "Booster 22 completes its static fire at Pad 2.",
+          "status_line": "Booster 22 static fire done.",
+          "url": "https://x.com/NASASpaceflight/status/2115627415947059537",
+          "src": "@NASASpaceflight",
+          "trust": "trusted",
+          "x_first": true,
+          "stage": "static",
+          "hardware": "B22",
+          "flight": 15,
+          "x_post": {
+            "post_id": "2115627415947059537",
+            "url": "https://x.com/NASASpaceflight/status/2115627415947059537",
+            "created_at": "2026-10-29T02:10:57.000Z",
+            "text": "Starship Update with Max Evans (@_MaxQ_) https://t.co/jSRLDg3uke",
+            "author": {
+              "name": "NSF - NASASpaceflight.com",
+              "username": "NASASpaceflight",
+              "avatar": "https://pbs.twimg.com/profile_images/1637919260298158080/kRT8BkYf_normal.jpg"
+            },
+            "media": [
+              {
+                "type": "video",
+                "poster": "https://pbs.twimg.com/amplify_video_thumb/2115627360661762048/img/y7yQZ-r0ZFKhWcw0.jpg",
+                "video_url": "https://video.twimg.com/amplify_video/2115627360661762048/vid/avc1/1920x1080/5FhNzuNhAR-kztQL.mp4"
+              }
+            ],
+            "link": {
+              "url": "https://www.youtube.com/watch?v=vKqb6w5FeEs&feature=youtu.be",
+              "title": "Starbase Static Fire Galore - Is Flight Nearly Here? | Starship Update",
+              "description": "Flight 15 milestones stack up as Booster 22 completes a full 33-Rap...",
+              "image": "https://pbs.twimg.com/news_img/2115627425992470528/50xUSs8e?format=jpg&name=orig"
+            }
+          },
+          "x_posts": [
+            "2115627415947059537"
+          ],
+          "xChecked": true,
+          "imageChecked2": true,
+          "media_override": {
+            "post_url": "https://x.com/NASASpaceflight/status/2115627415947059537",
+            "post_id": "2115627415947059537",
+            "author": "NASASpaceflight",
+            "type": "video",
+            "image": "https://pbs.twimg.com/amplify_video_thumb/2115627360661762048/img/y7yQZ-r0ZFKhWcw0.jpg",
+            "video_url": "https://video.twimg.com/amplify_video/2115627360661762048/vid/avc1/1920x1080/5FhNzuNhAR-kztQL.mp4"
+          },
+          "tier": 1,
+          "milestone": {
+            "key": "static_fire|15|B22",
+            "type": "static_fire",
+            "flight": 15,
+            "hardware": "B22",
+            "phase": "completed"
+          },
+          "complete": true,
+          "cascade": {
+            "first_at": "2026-10-29T02:10:57.000Z",
+            "sources": [
+              {
+                "post_id": "2115627415947059537",
+                "author": "NASASpaceflight",
+                "tier": 2,
+                "at": "2026-10-29T02:10:57.000Z"
+              }
+            ]
+          },
+          "push": {
+            "title": "💥 Static fires · Flight 15",
+            "url": "https://x.com/NASASpaceflight/status/2115627415947059537",
+            "at": "2026-10-29T02:10:57.000Z"
+          }
+        },
         {
           "id": "x-2114904512217694216",
           "date": "27 Oct",
@@ -2083,227 +2162,10 @@
             "at": "2026-10-24T08:46:14.000Z"
           },
           "refiled_from": "pad"
-        },
-        {
-          "id": "s42-sf-stand",
-          "date": "22 Oct",
-          "at": "2026-10-24T03:27:00.000Z",
-          "text": "The ship static-fire stand was brought to production for Ship 42.",
-          "log_text": "The ship static-fire stand was brought to production for Ship 42.",
-          "url": "https://x.com/RGVaerialphotos/status/2113834862339617215",
-          "src": "@RGVaerialphotos",
-          "trust": "unconfirmed",
-          "hardware": "S42",
-          "flight": 15,
-          "log_only": true,
-          "unverified": true,
-          "note": "single source"
-        },
-        {
-          "id": "x-2113617185218429437",
-          "date": "23 Oct",
-          "at": "2026-10-23T13:03:00.000Z",
-          "text": "Road delay announced for Booster 22's move to Pad 2.",
-          "x_text": "Road delay announced for Booster 22's move to Pad 2.",
-          "url": "https://x.com/NASASpaceflight/status/2113617185218429437",
-          "src": "@NASASpaceflight",
-          "trust": "trusted",
-          "x_first": true,
-          "stage": "static",
-          "hardware": "B22",
-          "x_post": {
-            "post_id": "2113617185218429437",
-            "url": "https://x.com/NASASpaceflight/status/2113617185218429437",
-            "created_at": "2026-10-23T13:03:00.000Z",
-            "text": "Starship Flight 15: Booster 22 heads to Pad 2 tonight for a potential weekend Static-Fire test. \"Road delay tonight Prod to Pad 11:59 PM - 04:00 AM CDT\" https://t.co/HSumkyMNOs",
-            "author": {
-              "name": "NSF - NASASpaceflight.com",
-              "username": "NASASpaceflight",
-              "avatar": "https://pbs.twimg.com/profile_images/1637919260298158080/kRT8BkYf_normal.jpg"
-            },
-            "media": [
-              {
-                "type": "photo",
-                "url": "https://pbs.twimg.com/media/HVUTjfpWMAAhboa.jpg"
-              }
-            ],
-            "link": {
-              "url": "https://www.youtube.com/watch?v=mhJRzQsLZGg",
-              "title": "Starbase Live: 24/7 Starship & Super Heavy Development From SpaceX's Boca Chica Facility",
-              "description": "Starship is SpaceX's fully reusable launch system which is being de...",
-              "image": "https://pbs.twimg.com/news_img/2111802046466973698/IAIT5BI6?format=jpg&name=orig"
-            }
-          },
-          "x_posts": [
-            "2113617185218429437"
-          ],
-          "xChecked": true,
-          "imageChecked2": true,
-          "media_override": {
-            "post_url": "https://x.com/NASASpaceflight/status/2113617185218429437",
-            "post_id": "2113617185218429437",
-            "author": "NASASpaceflight",
-            "type": "photo",
-            "image": "https://pbs.twimg.com/media/HVUTjfpWMAAhboa.jpg",
-            "keep_image": true,
-            "fixed": "2026-10-28 own-post media (was 2114005088653963704)"
-          },
-          "tier": 1,
-          "milestone": {
-            "key": "rollout|15|-",
-            "type": "rollout",
-            "flight": 15,
-            "hardware": "B22",
-            "phase": "progress",
-            "migrated": true
-          },
-          "log_text": "Road delay announced for Booster 22's move to Pad 2.",
-          "refiled_from": "pad",
-          "log_only": true
-        },
-        {
-          "id": "x-2112967167767433728",
-          "date": "21 Oct",
-          "at": "2026-10-21T18:00:04.000Z",
-          "text": "Starbase Pad 2 BQDs purging ahead of Booster 22 arrival.",
-          "x_text": "Starbase Pad 2 BQDs purging ahead of Booster 22 arrival.",
-          "url": "https://x.com/NASASpaceflight/status/2112967167767433728",
-          "src": "@NASASpaceflight",
-          "trust": "trusted",
-          "x_first": true,
-          "stage": "static",
-          "hardware": "Pad 2",
-          "x_post": {
-            "post_id": "2112967167767433728",
-            "url": "https://x.com/NASASpaceflight/status/2112967167767433728",
-            "created_at": "2026-10-21T18:00:04.000Z",
-            "text": "Starbase Pad 2 BQDs (Booster Quick Disconnect) purging. Hopefully ahead of Booster 22 arriving soon. https://t.co/HSumkyMfYU",
-            "author": {
-              "name": "NSF - NASASpaceflight.com",
-              "username": "NASASpaceflight",
-              "avatar": "https://pbs.twimg.com/profile_images/1637919260298158080/kRT8BkYf_normal.jpg"
-            },
-            "media": [
-              {
-                "type": "video",
-                "poster": "https://pbs.twimg.com/amplify_video_thumb/2112967085047369728/img/mvvPfdSAuw24PHag.jpg",
-                "video_url": "https://video.twimg.com/amplify_video/2112967085047369728/vid/avc1/1104x628/f4_kx_BSb3HL7S26.mp4"
-              }
-            ],
-            "link": {
-              "url": "https://www.youtube.com/watch?v=mhJRzQsLZGg",
-              "title": "Starbase Live: 24/7 Starship & Super Heavy Development From SpaceX's Boca Chica Facility",
-              "description": "Starship is SpaceX's fully reusable launch system which is being de...",
-              "image": "https://pbs.twimg.com/news_img/2111802046466973698/IAIT5BI6?format=jpg&name=orig"
-            }
-          },
-          "x_posts": [
-            "2112967167767433728",
-            "2113057179523760370",
-            "2113193182276309126",
-            "2112679319818686934"
-          ],
-          "xChecked": true,
-          "imageChecked2": true,
-          "media_override": {
-            "post_url": "https://x.com/NASASpaceflight/status/2112967167767433728",
-            "post_id": "2112967167767433728",
-            "author": "NASASpaceflight",
-            "type": "video",
-            "image": "https://pbs.twimg.com/amplify_video_thumb/2112967085047369728/img/mvvPfdSAuw24PHag.jpg"
-          },
-          "tier": 1,
-          "milestone": {
-            "key": "pad_work|15|-",
-            "type": "pad_work",
-            "flight": 15,
-            "hardware": "PAD2",
-            "phase": "expected",
-            "migrated": true
-          },
-          "log_text": "Pad 2 booster quick disconnects are purging ahead of Booster 22's arrival.",
-          "refiled_from": "pad"
-        },
-        {
-          "id": "x-2112035558994419901",
-          "date": "19 Oct",
-          "at": "2026-10-19T04:18:11.000Z",
-          "text": "Pad 2's launch mount service structure was removed overnight.",
-          "x_text": "Pad 2's launch mount service structure was removed overnight.",
-          "src": "@efraser77",
-          "source": "efraser77",
-          "trust": "trusted",
-          "manual": true,
-          "backfill": "2026-10-19",
-          "flight": 15,
-          "stage": "static",
-          "hardware": "Pad 2",
-          "url": "https://x.com/efraser77/status/2112035558994419901",
-          "x_post": {
-            "post_id": "2112035558994419901",
-            "url": "https://x.com/efraser77/status/2112035558994419901",
-            "created_at": "2026-10-19T04:18:11.000Z",
-            "text": "The \"Dancefloor 2.0\" service structure has been removed from the Pad 2 OLM this evening. There is a road delay scheduled for 10am-2pm CDT Monday. Will we get a booster rollout?",
-            "author": {
-              "name": "Eric Fraser",
-              "username": "efraser77"
-            },
-            "media": [
-              {
-                "type": "video",
-                "poster": "https://pbs.twimg.com/amplify_video_thumb/2112035083679043584/img/dw7Zle9xo9YHSp0k.jpg"
-              }
-            ]
-          },
-          "xChecked": true,
-          "imageChecked2": true,
-          "media_override": {
-            "post_url": "https://x.com/efraser77/status/2112035558994419901",
-            "post_id": "2112035558994419901",
-            "author": "efraser77",
-            "type": "video",
-            "image": "https://pbs.twimg.com/amplify_video_thumb/2112035083679043584/img/dw7Zle9xo9YHSp0k.jpg"
-          },
-          "tier": 3,
-          "milestone": {
-            "key": "rollout|15|-",
-            "type": "rollout",
-            "flight": 15,
-            "hardware": "PAD2",
-            "phase": "expected",
-            "migrated": true
-          },
-          "log_text": "Pad 2 launch mount service structure removed.",
-          "refiled_from": "pad"
-        },
-        {
-          "id": "s42-sf-estimate",
-          "date": "30 Sep",
-          "log_date": "30 Sep",
-          "text": "Ship 42 could be ready for a static fire within two to three weeks.",
-          "x_text": "Ship 42 could be ready for a static fire within two to three weeks.",
-          "log_text": "Ship 42 could be ready for a static fire within two to three weeks.",
-          "src": "NSF",
-          "trust": "trusted",
-          "flight": 15,
-          "stage": "static",
-          "hardware": "S42",
-          "tier": 1,
-          "hedged": true,
-          "milestone": {
-            "key": "static_fire|15|S42",
-            "type": "static_fire",
-            "flight": 15,
-            "hardware": "S42",
-            "phase": "expected"
-          },
-          "log_only": true,
-          "url": "https://www.nasaspaceflight.com/2026/09/starship-14-orbit-flight-15/",
-          "at": "2026-09-30T15:17:00Z"
         }
       ],
       "doneText": "Completed",
-      "log_latest": "Ship 42 static fires done."
+      "log_latest": "Booster 22 static fire done."
     },
     {
       "id": "pad",
@@ -3211,12 +3073,14 @@
   "milestones": {
     "B22": {
       "static_fire": {
-        "count": 1,
+        "count": 2,
         "dates": [
-          "2026-10-25T13:22:00.000Z"
+          "2026-10-25T13:22:00.000Z",
+          "2026-10-29T02:10:57.000Z"
         ],
         "src": [
-          "https://x.com/SpaceflightNow/status/2114349246803587110"
+          "https://x.com/SpaceflightNow/status/2114349246803587110",
+          "https://x.com/NASASpaceflight/status/2115627415947059537"
         ]
       }
     },
