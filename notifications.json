@@ -314,6 +314,17 @@
       "where": "road",
       "verdict": "sent",
       "key": "B22|static_fire|29 Oct"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "Ship 42 will be the first tower catch (Elon Musk, 29 Oct).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/elonmusk/status/2115634093949911506",
+      "at": "2026-10-29T02:37:29.000Z",
+      "sent_at": "2026-10-29T02:45:58.154Z",
+      "where": "mission",
+      "verdict": "silent: minor pad_work — a push went out 0.2h ago (quiet window 24h)",
+      "key": "S42|pad_work|29 Oct"
     }
   ]
 }
