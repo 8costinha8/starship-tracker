@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "29 Oct",
-  "updatedAt": "2026-10-29T07:30:27.185Z",
+  "updatedAt": "2026-10-29T08:00:51.790Z",
   "categories": [
     {
       "id": "cryo",
@@ -1064,9 +1064,63 @@
       "icon": "💥",
       "name": "Static fires",
       "color": "#FF9A3D",
-      "status": "done",
-      "latest": "Booster 22 completes a full 33-Raptor static fire.",
+      "status": "progress",
+      "latest": "Ship 42 returned to Megabay 2 after static fire.",
       "history": [
+        {
+          "id": "x-2115713308573782488",
+          "date": "29 Oct",
+          "log_date": "29 Oct",
+          "at": "2026-10-29T07:52:15.000Z",
+          "text": "Ship 42 returned to Megabay 2 after static fire.",
+          "x_text": "Ship 42 returned to Megabay 2 after static fire.",
+          "log_text": "Ship 42 heads back to Megabay 2.",
+          "status_line": "Ship 42 preparing for launch at Megabay 2.",
+          "url": "https://x.com/LabPadre/status/2115713308573782488",
+          "src": "@LabPadre",
+          "trust": "trusted",
+          "x_first": true,
+          "stage": "static",
+          "hardware": "S42",
+          "flight": 15,
+          "x_post": {
+            "post_id": "2115713308573782488",
+            "url": "https://x.com/LabPadre/status/2115713308573782488",
+            "created_at": "2026-10-29T07:52:15.000Z",
+            "text": "Ship 42 has returned to Megabay 2. With the static fire testing done, this move should be for flight readiness preparations.",
+            "author": {
+              "name": "Avid Space",
+              "username": "LabPadre",
+              "avatar": "https://pbs.twimg.com/profile_images/2018042465932988416/LR5UN4G0_normal.png"
+            },
+            "media": [
+              {
+                "type": "video",
+                "poster": "https://pbs.twimg.com/amplify_video_thumb/2115712955241074688/img/0uMM9EvVI2CtVi5E.jpg",
+                "video_url": "https://video.twimg.com/amplify_video/2115712955241074688/vid/avc1/1280x720/iFjD9gHXDqreohIh.mp4"
+              }
+            ]
+          },
+          "x_posts": [
+            "2115713308573782488"
+          ],
+          "xChecked": true,
+          "imageChecked2": true,
+          "media_override": {
+            "post_url": "https://x.com/LabPadre/status/2115713308573782488",
+            "post_id": "2115713308573782488",
+            "author": "LabPadre",
+            "type": "video",
+            "image": "https://pbs.twimg.com/amplify_video_thumb/2115712955241074688/img/0uMM9EvVI2CtVi5E.jpg",
+            "video_url": "https://video.twimg.com/amplify_video/2115712955241074688/vid/avc1/1280x720/iFjD9gHXDqreohIh.mp4"
+          },
+          "tier": 2,
+          "push": {
+            "title": "💥 Static fires: In progress",
+            "url": "https://x.com/LabPadre/status/2115713308573782488",
+            "at": "2026-10-29T07:52:15.000Z"
+          }
+        },
         {
           "id": "x-2115627415947059537",
           "date": "29 Oct",
@@ -1345,6 +1399,12 @@
                 "author": "efraser77",
                 "tier": 2,
                 "at": "2026-10-29T06:01:53.000Z"
+              },
+              {
+                "post_id": "2115713308573782488",
+                "author": "LabPadre",
+                "tier": 2,
+                "at": "2026-10-29T07:52:15.000Z"
               }
             ],
             "confirmed": true,
@@ -2193,65 +2253,10 @@
               }
             ]
           }
-        },
-        {
-          "id": "x-2113914954801889326",
-          "date": "24 Oct",
-          "log_date": "24 Oct",
-          "at": "2026-10-24T08:46:14.000Z",
-          "text": "Booster 22 lifted onto transport stand ahead of rollout.",
-          "x_text": "Booster 22 lifted onto transport stand ahead of rollout.",
-          "log_text": "Booster 22 lifted onto transport stand ahead of rollout to launch site.",
-          "url": "https://x.com/Blobifie/status/2113914954801889326",
-          "src": "@Blobifie",
-          "trust": "trusted",
-          "x_first": true,
-          "stage": "static",
-          "hardware": "B22",
-          "x_post": {
-            "post_id": "2113914954801889326",
-            "url": "https://x.com/Blobifie/status/2113914954801889326",
-            "created_at": "2026-10-24T08:46:14.000Z",
-            "text": "Booster 22 has been lifted onto a transport stand ahead of its roll out to the launch site!! https://t.co/8SKSDLLF86",
-            "author": {
-              "name": "Blobifi",
-              "username": "Blobifie",
-              "avatar": "https://pbs.twimg.com/profile_images/2091766013562159104/xgHLFjBX_normal.jpg"
-            },
-            "media": [
-              {
-                "type": "photo",
-                "url": "https://pbs.twimg.com/media/HVYiW5GbMAE8vTP.jpg"
-              },
-              {
-                "type": "photo",
-                "url": "https://pbs.twimg.com/media/HVYicaKaQAA_hAX.jpg"
-              }
-            ]
-          },
-          "x_posts": [
-            "2113914954801889326"
-          ],
-          "xChecked": true,
-          "imageChecked2": true,
-          "media_override": {
-            "post_url": "https://x.com/Blobifie/status/2113914954801889326",
-            "post_id": "2113914954801889326",
-            "author": "Blobifie",
-            "type": "photo",
-            "image": "https://pbs.twimg.com/media/HVYiW5GbMAE8vTP.jpg"
-          },
-          "tier": 2,
-          "push": {
-            "title": "🏗️ Pad activity · Flight 15",
-            "url": "https://x.com/Blobifie/status/2113914954801889326",
-            "at": "2026-10-24T08:46:14.000Z"
-          },
-          "refiled_from": "pad"
         }
       ],
       "doneText": "Completed",
-      "log_latest": "Ship 42 static fires done."
+      "log_latest": "Ship 42 preparing for launch at Megabay 2."
     },
     {
       "id": "pad",
