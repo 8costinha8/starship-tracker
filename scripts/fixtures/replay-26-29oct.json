@@ -1,0 +1,365 @@
+{
+  "note": "Real push candidates 26 Oct 12:00 → 29 Oct 12:00 UTC (= UK, GMT), from notifications.json + their X post text in road.json. Edits: refetch map. Synthetic cases are marked synthetic.",
+  "refetch": {
+    "https://x.com/RGVaerialphotos/status/2115701002095755563": "Ship 42 and the tiled barrel section have arrived back at the production site."
+  },
+  "rewrite": {
+    "Ship 42 and the tiled barrel section have arrived back at the production site.": "Ship 42 is back at the production site / Megabay 2."
+  },
+  "outage": {
+    "from": "2026-10-28T09:30:00Z",
+    "to": "2026-10-28T13:30:00Z",
+    "fault": "X search HTTP 402 / writer credit balance is too low"
+  },
+  "items": [
+    {
+      "run_at": "2026-10-26T12:20:03.172Z",
+      "post_at": "2026-10-26T11:50:51.000Z",
+      "title": "🏗️ Pad activity · Flight 15",
+      "body": "Booster 22 returns to Megabay 2 for final preflight work.",
+      "url": "https://x.com/Blobifie/status/2114686191627030843",
+      "where": "road",
+      "source_text": "Booster 22 has returned to Megabay 2 for final preflight work! https://t.co/7WRpfler1U",
+      "has_media": true,
+      "orig_verdict": "sent"
+    },
+    {
+      "run_at": "2026-10-28T13:36:21.171Z",
+      "post_at": "2026-10-27T23:59:18.000Z",
+      "title": "💥 Static fires: Completed",
+      "body": "Ship 42 completed both static fires.",
+      "url": "https://x.com/NASASpaceflight/status/2115231900961005856",
+      "where": "road",
+      "source_text": "Ship 42 has completed both its single- and six-engine static fire tests, paving the way for Flight 15 in November. These events occurred during a busy period at Starbase that included Ship 43 testing ahead of Flight 16.",
+      "has_media": true,
+      "orig_verdict": "silent: duplicate S42|static_fire|27 Oct"
+    },
+    {
+      "run_at": "2026-10-28T13:36:21.174Z",
+      "post_at": "2026-10-28T04:24:49.000Z",
+      "title": "🚀 Starship",
+      "body": "Ship 43 has returned to the production site from chopstick tests",
+      "url": "https://x.com/NASASpaceflight/status/2115298718035370428",
+      "where": "feed",
+      "source_text": "Ship 43 has returned to the production site from chopstick tests",
+      "has_media": false,
+      "orig_verdict": "sent"
+    },
+    {
+      "run_at": "2026-10-28T16:17:51.715Z",
+      "post_at": "2026-10-28T16:10:27.000Z",
+      "title": "🚀 Starship",
+      "body": "Ship 42 completes full duration six-engine static fire and deorbit burn simulation",
+      "url": "https://x.com/SpaceX/status/2115476295169814978",
+      "where": "feed",
+      "source_text": "Ship 42 completes full duration six-engine static fire and deorbit burn simulation",
+      "has_media": false,
+      "orig_verdict": "sent"
+    },
+    {
+      "run_at": "2026-10-28T19:59:19.175Z",
+      "post_at": "2026-10-28T19:59:12.478Z",
+      "title": "📅 New estimated date",
+      "body": "NET Nov 2026",
+      "url": "",
+      "where": "feed",
+      "source_text": "",
+      "has_media": false,
+      "orig_verdict": "silent: minor other — a push went out 3.7h ago (quiet window 24h)"
+    },
+    {
+      "run_at": "2026-10-29T02:32:08.230Z",
+      "post_at": "2026-10-29T02:10:57.000Z",
+      "title": "💥 Static fires · Flight 15",
+      "body": "Booster 22 completes its static fire at Pad 2.",
+      "url": "https://x.com/NASASpaceflight/status/2115627415947059537",
+      "where": "road",
+      "source_text": "Starship Update with Max Evans (@_MaxQ_) https://t.co/jSRLDg3uke",
+      "has_media": true,
+      "orig_verdict": "sent"
+    },
+    {
+      "run_at": "2026-10-29T02:45:58.154Z",
+      "post_at": "2026-10-29T02:37:29.000Z",
+      "title": "Flight 15 update",
+      "body": "Ship 42 will be the first tower catch (Elon Musk, 29 Oct).",
+      "url": "https://x.com/elonmusk/status/2115634093949911506",
+      "where": "mission",
+      "source_text": "Ship 42 will be the first tower catch (Elon Musk, 29 Oct).",
+      "has_media": false,
+      "orig_verdict": "silent: minor pad_work — a push went out 0.2h ago (quiet window 24h)"
+    },
+    {
+      "run_at": "2026-10-29T02:46:50.396Z",
+      "post_at": "2026-10-29T02:05:53.000Z",
+      "title": "🚀 Starship",
+      "body": "Booster completes full static fire while Ship runs engine tests ahead of flight",
+      "url": "https://www.youtube.com/watch?v=vKqb6w5FeEs",
+      "where": "feed",
+      "source_text": "Starbase Static Fire Galore - Is Flight Nearly Here? | Starship Update",
+      "has_media": false,
+      "orig_verdict": "silent: duplicate B22|static_fire|29 Oct"
+    },
+    {
+      "run_at": "2026-10-29T06:45:44.257Z",
+      "post_at": "2026-10-29T06:37:17.000Z",
+      "title": "❄️ Cryo tests: Done",
+      "body": "Ship 42 rolled back to Mega Bay 2 after cryo tests.",
+      "url": "https://x.com/Blobifie/status/2115694440891498638",
+      "where": "road",
+      "source_text": "Ship 42 and her little barrel freind left masseys and S42 has been moved into MB2 with S43, S44, S40, and S45 marking the first time megabay 2 has been fully filled with ships!! (i think) https://t.co/IDc8jjFQpT",
+      "has_media": true,
+      "orig_verdict": "silent: minor cryo_progress — a push went out 4.2h ago (quiet window 24h)"
+    },
+    {
+      "run_at": "2026-10-29T07:19:02.903Z",
+      "post_at": "2026-10-29T07:03:21.000Z",
+      "title": "🏗️ Pad activity · Flight 15",
+      "body": "Ship 42 heads to launch site after tests.",
+      "url": "https://x.com/RGVaerialphotos/status/2115701002095755563",
+      "where": "road",
+      "source_text": "Ship 42 and the tiled barrel section have arrived back at the launch site.",
+      "has_media": true,
+      "orig_verdict": "sent"
+    },
+    {
+      "run_at": "2026-10-29T07:19:03.531Z",
+      "post_at": "2026-10-29T07:04:29.000Z",
+      "title": "🚀 Starship",
+      "body": "Ship 42 and the tiled barrel section have arrived back at the production site",
+      "url": "https://x.com/RGVaerialphotos/status/2115701286096277589",
+      "where": "feed",
+      "source_text": "Ship 42 and the tiled barrel section have arrived back at the production site",
+      "has_media": false,
+      "orig_verdict": "silent: minor other — a push went out 0.0h ago (quiet window 24h)"
+    },
+    {
+      "run_at": "2026-10-29T08:00:53.268Z",
+      "post_at": "2026-10-29T07:52:15.000Z",
+      "title": "💥 Static fires: In progress",
+      "body": "Ship 42 heads back to Megabay 2.",
+      "url": "https://x.com/LabPadre/status/2115713308573782488",
+      "where": "road",
+      "source_text": "Ship 42 has returned to Megabay 2. With the static fire testing done, this move should be for flight readiness preparations.",
+      "has_media": true,
+      "orig_verdict": "silent: minor transport — a push went out 0.7h ago (quiet window 24h)"
+    },
+    {
+      "synthetic": true,
+      "run_at": "2026-10-29T10:15:00.000Z",
+      "post_at": "2026-10-29T10:05:00.000Z",
+      "title": "💥 Static fires · Flight 15",
+      "body": "Booster 22 completed its static fire at Pad 2.",
+      "url": "https://x.com/SpaceX/status/2115900000000000001",
+      "where": "road",
+      "source_text": "New views of Super Heavy Booster 22 full-duration static fire ahead of Flight 15",
+      "has_media": true,
+      "orig_verdict": "(synthetic media-only case)"
+    }
+  ],
+  "history_before": [
+    {
+      "title": "🏗️ Pad activity · Flight 15",
+      "body": "Starbase Pad 1 Flame Trench wall work is progressing.",
+      "url": "https://x.com/NASASpaceflight/status/2113664154762457446",
+      "at": "2026-10-23T16:09:39.000Z",
+      "sent_at": "2026-10-23T16:15:53.631Z",
+      "verdict": "sent"
+    },
+    {
+      "title": "🔥 Raptor engines · Flight 15",
+      "body": "Booster 22 lifting jig raised in Megabay 1.",
+      "url": "https://x.com/RGVaerialphotos/status/2113834862339617215",
+      "at": "2026-10-24T03:27:58.000Z",
+      "sent_at": "2026-10-24T03:30:49.362Z",
+      "verdict": "sent"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "SpaceX conducts static fire of booster 22 at pad 2 ahead of flight 15",
+      "url": "https://www.youtube.com/watch?v=BlyqwOjCJzA",
+      "at": "2026-10-24T03:17:28.000Z",
+      "sent_at": "2026-10-24T07:00:58.598Z",
+      "verdict": "sent"
+    },
+    {
+      "title": "🏗️ Pad activity · Flight 15",
+      "body": "Booster 22 heads to the launch site.",
+      "url": "https://x.com/NASASpaceflight/status/2113907231293128970",
+      "at": "2026-10-24T08:15:33.000Z",
+      "sent_at": "2026-10-24T08:31:09.436Z",
+      "verdict": "sent"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Booster 22 has left Mega Bay 1 preparing to roll out to the launch site for testing",
+      "url": "https://x.com/NASASpaceflight/status/2113907865060819060",
+      "at": "2026-10-24T08:18:04.000Z",
+      "sent_at": "2026-10-24T08:31:09.961Z",
+      "verdict": "sent"
+    },
+    {
+      "title": "🏗️ Pad activity · Flight 15",
+      "body": "Booster 22 lifted onto transport stand ahead of rollout to launch site.",
+      "url": "https://x.com/Blobifie/status/2113914954801889326",
+      "at": "2026-10-24T08:46:14.000Z",
+      "sent_at": "2026-10-24T09:00:33.880Z",
+      "verdict": "sent"
+    },
+    {
+      "title": "💥 Static fires · Flight 15",
+      "body": "Booster 22 rolls to the launch site for static fire campaign.",
+      "url": "https://x.com/Blobifie/status/2113955770337550391",
+      "at": "2026-10-24T11:28:25.000Z",
+      "sent_at": "2026-10-24T11:30:41.168Z",
+      "verdict": "sent"
+    },
+    {
+      "title": "🏗️ Pad activity: Completed",
+      "body": "Booster 22 rolls to Launch Pad 2.",
+      "url": "https://x.com/NASASpaceflight/status/2113954013615952349",
+      "at": "2026-10-24T11:21:26.000Z",
+      "sent_at": "2026-10-24T11:30:41.672Z",
+      "verdict": "sent"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Booster 22 is being lifted onto launch pad 2",
+      "url": "https://x.com/NASASpaceflight/status/2113992853093601306",
+      "at": "2026-10-24T13:55:46.000Z",
+      "sent_at": "2026-10-24T14:01:17.447Z",
+      "verdict": "sent"
+    },
+    {
+      "title": "🏗️ Pad activity: Done",
+      "body": "Booster 22 stacked on the OLM at Pad 1.",
+      "url": "https://x.com/Blobifie/status/2114016319679201462",
+      "at": "2026-10-24T15:29:01.000Z",
+      "sent_at": "2026-10-24T15:30:38.670Z",
+      "verdict": "sent"
+    },
+    {
+      "title": "💥 Static fires · Flight 15",
+      "body": "Road closed ahead of static fire test.",
+      "url": "https://x.com/Blobifie/status/2114317866409595106",
+      "at": "2026-10-25T11:27:16.000Z",
+      "sent_at": "2026-10-25T11:30:37.763Z",
+      "verdict": "sent"
+    },
+    {
+      "title": "💥 Static fires: Completed",
+      "body": "Booster 22 completed its static fire at the launch site.",
+      "url": "https://x.com/NASASpaceflight/status/2114320643470549259",
+      "at": "2026-10-25T11:38:18.000Z",
+      "sent_at": "2026-10-25T11:45:42.010Z",
+      "verdict": "sent"
+    },
+    {
+      "title": "💥 Static fires · Flight 15",
+      "body": "Booster 22 transport ring relocated at launch site ahead of static fire.",
+      "url": "https://x.com/LabPadre/status/2114335419785679308",
+      "at": "2026-10-25T12:37:01.000Z",
+      "sent_at": "2026-10-25T12:45:36.937Z",
+      "verdict": "sent"
+    },
+    {
+      "title": "❄️ Cryo tests: In progress",
+      "body": "Booster 22 undergoing cryo tests at the launch site.",
+      "url": "https://x.com/Blobifie/status/2114339995121332263",
+      "at": "2026-10-25T12:55:12.000Z",
+      "sent_at": "2026-10-25T13:01:16.904Z",
+      "verdict": "sent"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Booster 22 propellant loading has begun for static fire test",
+      "url": "https://x.com/NASASpaceflight/status/2114339334753284398",
+      "at": "2026-10-25T12:52:34.000Z",
+      "sent_at": "2026-10-25T13:01:17.465Z",
+      "verdict": "sent"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Full duration static fire completed for booster preparing for flight 15",
+      "url": "https://x.com/SpaceX/status/2114444137067844004",
+      "at": "2026-10-25T19:49:01.000Z",
+      "sent_at": "2026-10-25T20:11:25.016Z",
+      "verdict": "sent"
+    },
+    {
+      "title": "💥 Static fires (unconfirmed)",
+      "body": "Starship Flight 15 static fire activity noted.",
+      "url": "https://x.com/elonmusk/status/2114513919566033266",
+      "at": "2026-10-26T00:26:18.000Z",
+      "sent_at": "2026-10-26T00:30:55.582Z",
+      "verdict": "sent"
+    },
+    {
+      "title": "❄️ Cryo tests: In progress",
+      "body": "Ship 42 heads to Massey's for cryo tests.",
+      "url": "https://x.com/Blobifie/status/2114535368758542634",
+      "at": "2026-10-26T01:51:32.000Z",
+      "sent_at": "2026-10-26T02:01:07.330Z",
+      "verdict": "sent"
+    },
+    {
+      "title": "❄️ Cryo tests · Flight 15",
+      "body": "Ship 42 arrives at Massey's test site as Ship 43 departs.",
+      "url": "https://x.com/NASASpaceflight/status/2114568166651428965",
+      "at": "2026-10-26T04:01:52.000Z",
+      "sent_at": "2026-10-26T04:21:12.493Z",
+      "verdict": "sent"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Ship 43 is being transported by road to the production site",
+      "url": "https://x.com/TrackingTheSB/status/2114565423912108360",
+      "at": "2026-10-26T03:50:58.000Z",
+      "sent_at": "2026-10-26T04:21:13.768Z",
+      "verdict": "sent"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Booster 22 has been lifted to catch height at the launch site",
+      "url": "https://x.com/RGVaerialphotos/status/2114578590792859900",
+      "at": "2026-10-26T04:43:17.000Z",
+      "sent_at": "2026-10-26T04:45:51.376Z",
+      "verdict": "sent"
+    },
+    {
+      "title": "🏗️ Pad activity: In progress",
+      "body": "Booster 22 lifts to catch height at the launch mount.",
+      "url": "https://x.com/RGVaerialphotos/status/2114578590792859900",
+      "at": "2026-10-26T04:43:17.000Z",
+      "sent_at": "2026-10-26T05:01:06.032Z",
+      "verdict": "sent"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Booster 22 has been moved onto its transporter ahead of returning to Megabay 1",
+      "url": "https://x.com/RGVaerialphotos/status/2114612462184178003",
+      "at": "2026-10-26T06:57:53.000Z",
+      "sent_at": "2026-10-26T07:02:19.219Z",
+      "verdict": "sent"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Ship 42 is being transported to the Massey's test site, with an engine section in tow",
+      "url": "https://x.com/RGVaerialphotos/status/2114632668461900071",
+      "at": "2026-10-26T08:18:10.000Z",
+      "sent_at": "2026-10-26T08:30:51.372Z",
+      "verdict": "sent"
+    },
+    {
+      "title": "💥 Static fires · Flight 15",
+      "body": "Ship 42 completed both its single- and six-engine static fire tests at Massey's.",
+      "url": "https://x.com/NASASpaceflight/status/2115231900961005856",
+      "at": "2026-10-27T21:45:25.000Z",
+      "sent_at": "2026-10-28T08:54:28.000Z",
+      "verdict": "silent: backfill (no push)",
+      "dedupe_only": true,
+      "key": "S42|static_fire|27 Oct",
+      "note": "manual backfill row (commit 5d70b58), later dropped from notifications.json"
+    }
+  ]
+}

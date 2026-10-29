@@ -266,6 +266,7 @@ async function run(deps) {
     json = await deps.fetchJson(LL2_ENDPOINT);
   } catch (err) {
     console.log("Launch data unavailable right now — skipping this run, will retry in 15 min.");
+    console.log(`::warning::Watchdog: Launch Library unavailable (${String(err && err.message || "").slice(0, 80)}) — flight checker skipped this run`); // visible on the run page, not silent
     return { notification: null };
   }
   const launch = json.results?.[0];

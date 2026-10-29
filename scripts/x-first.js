@@ -124,7 +124,7 @@ const mediaRank = (m) => (!m ? 0 : m.type === "video" ? 2 : 1);
 const hwKey = (s) => String(s || "").toUpperCase().replace(/^SHIP\s*/, "S").replace(/^BOOSTER\s*/, "B").replace(/\s+/g, "");
 
 // media upgrade watch (media-watch.js): an upgraded or keep_image picture is never replaced by a later merge (no downgrade)
-const lockedMedia = (h) => !!(h.media_override && (h.media_override.auto || h.media_override.keep_image));
+const lockedMedia = (h) => !!(h.media_locked || (h.media_override && (h.media_override.auto || h.media_override.keep_image)));
 function overrideFor(post, m) {
   return { post_url: post.url, post_id: post.post_id, author: post.author.username, type: m.type === "video" ? "video" : "photo", image: m.type === "video" ? m.poster : m.url, ...(m.type === "video" && m.video_url ? { video_url: m.video_url } : {}) };
 }
@@ -297,7 +297,7 @@ function guardPost(road, post, v) {
 }
 
 // The whole step. ask(prompt, opts) → JSON (writer.askJson). Returns cards, news items, state.
-async function runXFirst(road, state, { token, fetchFn, ask, postCard, log = console.log, now = Date.now(), maxCards = 5, status = null, milestone = null, linkFetch = null, picks = [] }) {
+async function runXFirst(road, state, { token, fetchFn, ask, postCard, log = console.log, now = Date.now(), maxCards = 5, status = null, milestone = null, linkFetch = null, picks = [], pushHistory = null }) {
   const xs = state.xFirst || {};
   const got = await fetchNewPosts({ token, sinceId: xs.sinceId, fetchFn, postCard });
   const seen = new Set(xs.seen || []);
@@ -311,7 +311,7 @@ async function runXFirst(road, state, { token, fetchFn, ask, postCard, log = con
     try { verdicts = await classifyPosts(road, posts, stages, ask); }
     catch (e) { log(`X-first: writer failed (${e.message}) — posts retried next run`); return { cards: [], merged: [], news: [], missions: [], state: { ...xs }, calls: got.calls, read: got.read || 0, retry: true, posts: got.posts || [] }; /* since_id not advanced */ }
   }
-  const cards = [], merged = [], newsItems = [], missions = [];
+  const cards = [], merged = [], newsItems = [], missions = [], r0 = {};
   posts.forEach((p, i) => {
     let v = verdicts[i];
     seen.add(p.post_id);
@@ -327,6 +327,10 @@ async function runXFirst(road, state, { token, fetchFn, ask, postCard, log = con
     if (g.skip) return log(`X-first: guard skipped @${p.author.username} ${p.post_id} — ${g.skip}`);
     if (g.v !== v) { log(`X-first: guard re-staged @${p.author.username} ${p.post_id} ${v.stage} → ${g.v.stage}`); v = g.v; verdicts[i] = v; }
     if (cards.length + missions.length >= maxCards) { seen.delete(p.post_id); waiting.push(p); return log(`X-first: card cap reached — @${p.author.username} ${p.post_id} waits`); }
+    if (pushHistory && v.event) { // B. staleness: a recap or a re-report of a milestone already pushed on an earlier day makes no card (and no push)
+      const st = require("./push-gate.js").staleCheck({ title: "", body: v.log_text || v.text || "", at: p.created_at, url: p.url, source_text: p.text, has_media: !!(p.media && p.media.length) }, pushHistory, { vehicles: road.vehicles || [] });
+      if (st.stale) { (r0.stale = r0.stale || []).push({ post: p, reason: st.reason, media_only: !!st.media_only }); return log(`X-first: stale @${p.author.username} ${p.post_id} — ${st.reason}${st.media_only ? " (media-only: the cascade may swap the picture)" : ""} — no card, no push`); }
+    }
     const r = placePost(road, p, v, now, picks);
     if (status && v.status && r.accurate !== false && r.tier <= 2 && !v.inferred && (!Number.isInteger(r.entry.flight) || r.entry.flight === road.flight)) r.st = status(r.box, v.status, p, r.entry); // unverified numbers never move a status
     if (milestone && v.event && phaseOf(v) === "completed" && r.accurate !== false && r.tier <= 2 && !v.inferred) milestone(v, p); // running per-vehicle summary (counts + dates)
@@ -335,7 +339,7 @@ async function runXFirst(road, state, { token, fetchFn, ask, postCard, log = con
     (r.merged ? merged : cards).push(r);
     log(`X-first: road/${v.stage} ${v.hardware || "-"} @${p.author.username} ${p.post_id} → ${r.merged ? `merged into ${r.entry.id}` : `new card ${r.entry.id}`}`);
   });
-  return { cards, merged, news: newsItems, missions, state: { sinceId: got.sinceId, seen: [...seen].slice(-500), pending: waiting.slice(0, 20) }, calls: got.calls, read: got.read || 0, posts: got.posts || [] };
+  return { cards, merged, news: newsItems, missions, stale: r0.stale || [], state: { sinceId: got.sinceId, seen: [...seen].slice(-500), pending: waiting.slice(0, 20) }, calls: got.calls, read: got.read || 0, posts: got.posts || [] };
 }
 
 const isOfficial = (p) => OFFICIAL.has(String(p.author && p.author.username).toLowerCase());

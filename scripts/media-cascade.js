@@ -68,7 +68,12 @@ function defaultFrameFor({ root = path.join(__dirname, ".."), fetchFn = fetch } 
     } finally { fs.rmSync(tmp, { recursive: true, force: true }); }
   };
 }
+/* one milestone = one card, climbing the source tiers (one-way): trackers (3) → outlets such as NSF (2) → SpaceX (1).
+   A lower tier never replaces a higher tier's media; SpaceX's own post does the final swap and LOCKS the card
+   (media_locked + text_locked): no more media or wording changes after that. */
+function climbTier(handle) { const t = tierOf(handle); if (t === 1) return 1; return (cfg.CASCADE_OUTLETS || ["NASASpaceflight"]).some((a) => lc(a) === lc(String(handle || "").replace(/^@/, ""))) ? 2 : t === 2 ? 3 : 4; }
 function locked(h, cat, pickIds) {
+  if (h.media_locked) return "locked by SpaceX's own post";
   const mo = h.media_override || {};
   if (mo.keep_image) return "keep_image";
   if (mo.post_id && !mo.auto && !mo.cascade && pickIds.has(String(mo.post_id))) return "manual pick";
@@ -100,23 +105,26 @@ async function runCascade(road, posts, { now = Date.now(), picks = [], frameFor 
       if (!cs.confirmed) { res.skipped.push(`${h.id}: not confirmed yet (media held)`); continue; }
       const why = locked(h, cat, pickIds); if (why) { res.skipped.push(`${h.id}: ${why}`); continue; }
       const inWindow = now - Date.parse(cs.first_at || h.at) <= winMs;
-      const curTier = tierOf((h.media_override && h.media_override.author) || own.author);
+      let curTier = climbTier((h.media_override && h.media_override.author) || own.author);
       let cur = Number.isFinite(cs.best_q) ? cs.best_q : quality(curTier, h.media_override && h.media_override.image ? { q: 1 } : null);
-      for (const p of matches) {
-        const t = tierOf(handleOf(p));
+      for (const p of matches.sort((a, b) => climbTier(handleOf(b)) - climbTier(handleOf(a)))) { // lower tiers first, SpaceX last
+        if (h.media_locked) break;
+        const t = tierOf(handleOf(p)), ct = climbTier(handleOf(p));
         if (t === 3) continue; // tier 3: a first signal only
+        if (ct > curTier) { res.skipped.push(`${h.id}: @${handleOf(p)} is a lower tier than the card's media (one-way climb)`); continue; }
         if (!inWindow && t !== 1) { res.skipped.push(`${h.id}: @${handleOf(p)} outside the ${cfg.ASSESS_WINDOW_DAYS}-day window`); continue; }
         if (String(p.post_id) === String(h.media_override && h.media_override.post_id)) continue;
         const med = await mediaOf(p, ev, ff);
         if (!med) { res.skipped.push(`${h.id}: @${handleOf(p)} has no usable${litEvent(ev) ? " engine-lit" : ""} picture`); continue; }
         const q = quality(t, med);
-        if (!(t === 1 && curTier !== 1) && q <= cur) { res.skipped.push(`${h.id}: @${handleOf(p)} not better`); continue; }
+        if (ct === curTier && q <= cur) { res.skipped.push(`${h.id}: @${handleOf(p)} not better`); continue; }
         // swap image AND link AND source post; text stays (locked); no caption, no label, no push
         h.url = p.url; h.src = `@${handleOf(p)}`; h.tier = Math.min(t, 2);
         h.x_post = { post_id: p.post_id, url: p.url, created_at: p.created_at, text: p.text, author: p.author, media: p.media || [] };
         h.media_override = { post_url: p.url, post_id: p.post_id, author: handleOf(p), type: med.type, image: med.image, ...(med.thumb ? { thumb: med.thumb } : {}), ...(med.frame ? { frame: med.frame } : {}), auto: true, cascade: true, quality: q, checked_at: new Date(now).toISOString() };
         delete h.media_context; delete h.alt_media; delete h.caption;
-        cs.best_q = cur = q;
+        cs.best_q = cur = q; curTier = ct;
+        if (ct === 1) { h.media_locked = true; h.text_locked = true; res.locked = [...(res.locked || []), h.id]; log(`cascade LOCK: ${h.id} — SpaceX's own post, no more media or wording changes`); }
         if (/^images\//.test(med.image)) res.files.push(med.image);
         res.swapped.push(`${h.id} ← @${handleOf(p)} ${p.post_id}`); log(`cascade SWAP (no push): ${h.id} ← @${handleOf(p)} ${p.url}`);
       }
@@ -124,4 +132,4 @@ async function runCascade(road, posts, { now = Date.now(), picks = [], frameFor 
   }
   return res;
 }
-module.exports = { SAME_EVENT_H, LIT_MIN, tierOf, sameEvent, eventOfText, quality, runCascade, defaultFrameFor };
+module.exports = { climbTier, SAME_EVENT_H, LIT_MIN, tierOf, sameEvent, eventOfText, quality, runCascade, defaultFrameFor };

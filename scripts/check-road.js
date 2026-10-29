@@ -1141,7 +1141,8 @@ function notificationFor(road, ch) {
   const m = ch.entry.x_post && (ch.entry.x_post.media || [])[0];
   const img = (ch.entry.media_override && ch.entry.media_override.image) || (m && imageOf(m));
   return { ...n, ...(ch.entry.log_text || ch.entry.x_text ? { body: ch.entry.log_text || ch.entry.x_text } : {}), /* the push says the visible Flight Log line */ link: ch.entry.id ? `${FEED_LINK}&entry=${encodeURIComponent(ch.entry.id)}` : FEED_LINK, ...(img ? { image: img } : {}),
-    url: ch.entry.url || (ch.entry.x_post && ch.entry.x_post.url) || "", at: (ch.entry.x_post && ch.entry.x_post.created_at) || ch.entry.at || new Date().toISOString() };
+    url: ch.entry.url || (ch.entry.x_post && ch.entry.x_post.url) || "", at: (ch.entry.x_post && ch.entry.x_post.created_at) || ch.entry.at || new Date().toISOString(),
+    ...(ch.entry.x_post ? { source_text: ch.entry.x_post.text || "", author: (ch.entry.x_post.author || {}).username || "", has_media: !!(ch.entry.x_post.media || []).length } : {}) };
 }
 const PHASE_TEXT = { expected: "Expected", progress: "In progress", completed: "Completed" };
 function notificationText(road, ch) {
@@ -1224,6 +1225,30 @@ function applyPrereqs(road, log = () => {}) {
     if (want !== box.status) { log(`STATUS [${box.id}] ${box.status} → ${want} (inferred, no push)`); box.status = want; changed = true; }
   }
   return changed;
+}
+// the push gate runs in live / preview runs; offline tests with fake deps or sources opt in with pushGate: true
+const gateOn = (opts) => opts.pushGate === true || (opts.pushGate === undefined && !opts.sources && !opts.deps);
+/* push gate wiring (push-gate.js): corroborating posts seen in the last 6h, re-read of the source post right before
+   sending (X GET /2/tweets/:id, one call per released push), and an edit rewrite through the X-first writer. */
+function pushGateFor(state, road, xf, { token, fetchFn = fetch, ask = null, log = console.log, now = Date.now() } = {}) {
+  const pg = (state.pushGate = state.pushGate || { pending: [], recent: [] });
+  const fresh = ((xf && xf.posts) || []).map((p) => ({ post_id: p.post_id, url: p.url, text: p.text, created_at: p.created_at, author: (p.author || {}).username }));
+  pg.recent = [...fresh, ...(pg.recent || [])].filter((p, i, a) => now - Date.parse(p.created_at) <= 6 * 3600000 && a.findIndex((q) => q.post_id === p.post_id) === i).slice(0, 100);
+  const gate = { state: pg, seenPosts: pg.recent, dirty: false };
+  gate.refetch = token ? async (url) => { const id = xIdOf(url); if (!id) return null; const r = await fetchFn(`https://api.x.com/2/tweets/${id}?tweet.fields=text,edit_history_tweet_ids`, { headers: { Authorization: `Bearer ${token}` } }); if (!r.ok) return null; const j = await r.json(); return (j.data && j.data.text) || null; } : null;
+  gate.rewrite = async (n, text) => {
+    const v = n.visible || {}; const c = (road.categories || []).find((x) => x.id === v.box); const h = c && (c.history || []).find((e) => e.id === v.id);
+    if (!h || !h.x_post) return n;
+    if (h.media_locked) { log(`⚠️ CONFLICT: source post of "${h.text}" was edited but the card is locked by SpaceX — not changed, needs a human look`); console.log(`::warning::Push gate: edited source on a SpaceX-locked card ${h.id}`); return { ...n, body: "" }; }
+    const post = { ...h.x_post, text };
+    let line = null;
+    try { const [cls] = await xFirstMod.classifyPosts(road, [post], road.categories.map((x) => ({ id: x.id, name: x.name })), ask || ((prompt, o) => writer.askJson(prompt, { ...o, log }))); line = cls && (cls.log_text || cls.text); if (cls && cls.status_line) h.status_line = cls.status_line; } catch (e) { log(`edit rewrite failed (${e.message}) — push held back`); return { ...n, body: "" }; }
+    if (!line) return { ...n, body: "" }; // no usable line → checkVisible blocks it (never the stale text)
+    h.edited_from = h.x_text || h.text; // kept out of Earlier updates: the wrong line never shows again
+    h.text = h.x_text = line; h.log_text = line; h.x_post = post; h.edited = true; c.latest = line.slice(0, 160); gate.dirty = true;
+    return { ...n, body: line, source_text: text };
+  };
+  return gate;
 }
 async function run(opts = {}) {
   const mode = opts.mode || (process.env.ROAD_MODE === "preview" || process.env.TEST_MODE === "true" ? "preview" : "live");
@@ -1313,11 +1338,11 @@ async function run(opts = {}) {
   // X-first (production default): new posts from the trusted X accounts are the Road cards.
   // Articles never create Road cards; the old article → card path only runs for legacy tests.
   const xFirst = opts.xFirst !== undefined ? !!opts.xFirst : !opts.sources;
-  let xf = null;
+  let xf = null, xFirstError = null;
   if (xFirst) {
     try {
       xf = await xFirstMod.runXFirst(road, state, { picks: (() => { try { const pk = opts.mediaPicks || loadMediaPicks(); return Array.isArray(pk) ? pk : pk.picks || []; } catch { return []; } })(), token: opts.xToken !== undefined ? opts.xToken : process.env.X_BEARER_TOKEN, fetchFn: opts.xFetch, postCard: xPostCard, linkFetch: opts.linkFetch !== undefined ? opts.linkFetch : opts.xFetch ? null : fetch /* linked articles: plain GET, tests never hit the network */,
-        ask: opts.askXFirst || ((prompt, o) => writer.askJson(prompt, { ...o, log })), log, now: clock(), maxCards: LIMITS.changesPerRun,
+        ask: opts.askXFirst || ((prompt, o) => writer.askJson(prompt, { ...o, log })), log, now: clock(), maxCards: LIMITS.changesPerRun, pushHistory: !gateOn(opts) ? null : pushSync.readLog(notifLogPath).pushes,
         milestone: (v, post) => milestones.recordMilestone(road, { hardware: v.hardware, event: v.event, at: post.created_at, src: post.url }),
         status: (box, s, post, entry) => { // trusted accounts only (all X-first accounts are trusted)
           let want = xStatus(box, s); const from = box.status;
@@ -1331,7 +1356,7 @@ async function run(opts = {}) {
           return { from, to: want };
         } });
       state.xFirst = xf.state;
-    } catch (e) { log(`X-first failed (${e.message}) — tried again next run`); }
+    } catch (e) { xFirstError = e.message; log(`X-first failed (${e.message}) — tried again next run`); }
   }
 
   // 2. Collect posts from every source (one failing source never stops the run)
@@ -1587,6 +1612,10 @@ async function run(opts = {}) {
   const queued = opts.pushQueue || (mode === "live" ? pushSync.takeQueue() : []);
   if (queued.length) { changed = true; notifications.push(...queued); log(`${queued.length} check-flights push(es) queued → sent after the commit`); } // saved + committed with road.json, then pushed
 
+  // 4b3. Pushes held by the push gate on an earlier run (waiting for a second source / one more run)
+  const heldBefore = ((state.pushGate || {}).pending || []).map((x) => x.n).filter((n) => n && !notifications.some((m) => m.url === n.url && m.body === n.body));
+  if (heldBefore.length) { changed = true; notifications.push(...heldBefore); log(`${heldBefore.length} held push(es) re-checked this run`); }
+
   // 4c. Predicted launch date (no push, never bumps the Road card's "Updated")
   const before = JSON.stringify([road.predicted || null, road.predicted_candidates || []]);
   const pr = predict.computePredicted({ road, target, next, lastLogged: lastN, mentions, now: clock() });
@@ -1615,7 +1644,9 @@ async function run(opts = {}) {
     // send only what the committed road.json shows (read back from disk; test mode checks the would-be file)
     const shown = save ? JSON.parse(fs.readFileSync(roadPath, "utf8")) : JSON.parse(json);
     const hist = pushSync.readLog(notifLogPath).pushes; notifications.splice(0, notifications.length, ...require("./push-policy.js").orderBatch(notifications, { vehicles: shown.vehicles })); // milestones first, then the most significant minor
-    for (const n of notifications) await pushSync.sendPush(n, { road: shown, send: deps.push, save, logRows: pushLog, log, now: clock, history: hist, policy: opts.pushPolicy !== false });
+    const gate = !gateOn(opts) ? null : pushGateFor(state, shown, xf, { token: opts.xToken !== undefined ? opts.xToken : process.env.X_BEARER_TOKEN, fetchFn: opts.xFetch, ask: opts.askXFirst, log, now: clock(), roadPath, save });
+    for (const n of notifications) await pushSync.sendPush(n, { road: shown, send: deps.push, save, logRows: pushLog, log, now: clock, history: hist, policy: opts.pushPolicy !== false, gate });
+    if (gate && save && gate.dirty) { fs.writeFileSync(roadPath, JSON.stringify(shown, null, 2) + "\n"); commit("road.json", `Auto: Road to Flight ${shown.flight} — source post edited before send, card updated`); }
     if (!save) console.log("\nroad.json would become:\n" + json);
   } else {
     log("no change to the Road card");
@@ -1633,7 +1664,7 @@ async function run(opts = {}) {
     .map(({ key, title, text, url, publishedAt, src, source, tier }) => ({ key, title, text, url, publishedAt, src, source, tier }));
   state.seen = [...seen].slice(-LIMITS.seenKeep);
   state.lastRun = new Date().toISOString();
-  const alarms = require("./watchdog.js").check(state, { terms: searchVehicleWords(road), candidates: (xf ? xf.read || 0 : 0) + candidates.length + counts.seen + counts.stale + counts.dupe + counts.offTopic, writerFailed: !!(xf && xf.retry) || writerFailedRun, providerFaults: providerFaultsNow() });
+  const alarms = require("./watchdog.js").check(state, { terms: searchVehicleWords(road), candidates: (xf ? xf.read || 0 : 0) + candidates.length + counts.seen + counts.stale + counts.dupe + counts.offTopic, writerFailed: !!(xf && xf.retry) || writerFailedRun, providerFaults: providerFaultsNow(), xFailed: xFirstError });
   for (const wn of require("./watchdog.js").check.warnings || []) { log(`⚠️ WATCHDOG: ${wn}`); console.log(`::warning::Watchdog: ${wn}`); }
   for (const a of alarms) { log(`🚨 WATCHDOG: ${a}`); console.log(`::error::Watchdog: ${a}`); }
   if (save) await deps.saveState(state);
@@ -1641,7 +1672,7 @@ async function run(opts = {}) {
   return { road, changes, notifications, refreshed, state, scheduledSent, newsPushes, xFirst: xf, pushLog };
 }
 
-module.exports = { STATIC_VEHICLES, applyPrereqs, searchVehicleWords, archiveLaunched, milestones, statusRule, xStatus, applyMediaPicks, loadMediaPicks, pickImage, applyImageCheck, verifyImages, fcmMessage, notificationFor, judgeFeed, verifyFeed, entryDayMs, backfillX, xPostCard, xIdOf, readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, titleMatches, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
+module.exports = { pushGateFor, STATIC_VEHICLES, applyPrereqs, searchVehicleWords, archiveLaunched, milestones, statusRule, xStatus, applyMediaPicks, loadMediaPicks, pickImage, applyImageCheck, verifyImages, fcmMessage, notificationFor, judgeFeed, verifyFeed, entryDayMs, backfillX, xPostCard, xIdOf, readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, titleMatches, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
 
 if (require.main === module) {
   run().catch((err) => {

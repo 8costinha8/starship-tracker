@@ -60,13 +60,17 @@ function classify(n, { vehicles = [] } = {}) {
 }
 const sentRows = (h) => (h || []).filter((r) => r && r.verdict === "sent");
 // a silent backfill leaves a dedupe_only row: it blocks a later push of the same vehicle|event|date, but is not a push (quiet window ignores it)
-const dedupeRows = (h) => (h || []).filter((r) => r && (r.verdict === "sent" || r.dedupe_only === true));
+const dedupeRows = (h) => (h || []).filter((r) => r && !r.retracted && (r.verdict === "sent" || r.dedupe_only === true)); // retracted: a stale / wrong push fixed by hand, not an event
 // history: earlier log rows (notifications.json + this run). now: ms. Returns { push, reason, cls }
-function decide(n, history, { now = Date.now(), vehicles = [] } = {}) {
+// big: SpaceX / Elon Flight N milestone or a correction (push-gate.js) → skips the quiet window (dedupe still applies)
+function decide(n, history, { now = Date.now(), vehicles = [], big = false } = {}) {
   const cls = classify(n, { vehicles });
   const sent = sentRows(history);
-  if (dedupeRows(history).some((r) => (r.key || classify(r, { vehicles }).key) === cls.key)) return { push: false, reason: `duplicate ${cls.key}`, cls };
+  const dup = dedupeRows(history).find((r) => (r.key || classify(r, { vehicles }).key) === cls.key);
+  if (dup && !big) return { push: false, reason: dup.dedupe_only ? `already on the card (silent backfill ${cls.key}) — not a new event` : `duplicate ${cls.key}`, cls };
+  if (dup && big && dup.verdict === "sent" && !/^Correction/.test(n.title || "")) return { push: false, reason: `duplicate ${cls.key}`, cls };
   if (cls.milestone) return { push: true, reason: `milestone ${cls.type}`, cls };
+  if (big) return { push: true, reason: `big news / correction (skips the ${QUIET_WINDOW_HOURS}h quiet window)`, cls };
   const last = Math.max(-Infinity, ...sent.map((r) => Date.parse(r.sent_at)).filter(Number.isFinite));
   const quietH = (now - last) / 3600000;
   if (quietH < QUIET_WINDOW_HOURS) return { push: false, reason: `minor ${cls.type} — a push went out ${quietH.toFixed(1)}h ago (quiet window ${QUIET_WINDOW_HOURS}h)`, cls };

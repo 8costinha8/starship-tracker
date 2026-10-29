@@ -6,5 +6,6 @@ module.exports = {
   // Cascade source tiers: 1 = SpaceX's own accounts (swap immediately, skip the window);
   // 2 = NSF and outlets with a similar track record; anyone else = 3 (a first signal only, never shown alone).
   CASCADE_TIER1: ["SpaceX", "SpaceXStarship", "Starbase", "elonmusk"],
+  CASCADE_OUTLETS: ["NASASpaceflight"], // climb tier 2 (better image than trackers, below SpaceX)
   CASCADE_TIER2: ["NASASpaceflight", "LabPadre", "RGVaerialphotos", "StarbaseSurfer", "CSI_Starbase", "Blobifie", "TrackingTheSB", "StarshipGazer", "efraser77", "colleenadastra", "StarbaseWatcher", "nicans", "ZackGolden_"],
 };

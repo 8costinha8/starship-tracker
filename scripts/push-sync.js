@@ -71,14 +71,32 @@ function writeLog(p, rows) {
 
 /* sendPush: the only function allowed to call the real sender.
    road = the road.json that is ALREADY saved/committed (read it back from disk in live runs). */
-async function sendPush(n, { road, send, save = true, logRows, log = console.log, now = Date.now, history = [], policy = true }) {
+/* gate (optional, push-gate.js): { state, seenPosts, refetch(url), rewrite(n, editedText) → n with the card updated,
+   mediaOnly(n) } — hold / staleness / corrections / big news / re-read before send. shadow: log "would push", send nothing. */
+async function sendPush(n, { road, send, save = true, logRows, log = console.log, now = Date.now, history = [], policy = true, gate = null, shadow = null }) {
+  const allHist = [...(history || []), ...(logRows || [])];
+  let g = null;
+  if (gate && policy) {
+    g = await require("./push-gate.js").evaluate(n, { history: allHist, state: gate.state || {}, now: now(), seenPosts: gate.seenPosts || [], vehicles: (road && road.vehicles) || [], refetch: gate.refetch || null });
+    if (g.action === "hold") { log(`(held) "${n.title}" — ${g.reason}`); return { title: n.title, body: n.body, verdict: `held: ${g.reason}`, held: true }; } // not logged: decided on a later run
+    if (g.action === "drop" || g.action === "media_only") {
+      if (g.action === "media_only" && gate.mediaOnly) { try { await gate.mediaOnly(n); } catch {} }
+      const row = { title: n.title, body: n.body, link: n.link || "", url: n.url || "", at: n.at || "", sent_at: new Date(now()).toISOString(), where: (n.visible || {}).where || "", verdict: `silent: ${g.action === "media_only" ? "media-only update of a known event" : "stale"} — ${g.reason}`, stale: true };
+      log(`(stale, no push) "${n.title}" — ${g.reason}`); if (logRows) logRows.push(row); return row;
+    }
+    if (g.edited && gate.rewrite) { n = (await gate.rewrite(g.n, g.n.source_text)) || n; log(`source post edited before send → card + push now say: ${n.body}`); }
+    else n = g.n;
+  }
+  if (shadow === null) shadow = require("./push-gate.js").shadowOn({ now: now() });
   const why = checkVisible(road, n);
   const row = { title: n.title, body: n.body, link: n.link || "", url: n.url || "", at: n.at || "", sent_at: new Date(now()).toISOString(), where: (n.visible || {}).where || "", verdict: "" };
   // shared policy for every feed: dedupe (vehicle + event type + UK day), milestones push, minor updates silent unless 24h quiet
-  const pol = policy && !why ? require("./push-policy.js").decide(n, [...(history || []), ...(logRows || [])], { now: now(), vehicles: (road && road.vehicles) || [] }) : null;
+  const pol = policy && !why ? require("./push-policy.js").decide(n, allHist, { now: now(), vehicles: (road && road.vehicles) || [], big: !!(g && g.big) }) : null;
+  if (g) row.gate = g.reason;
   if (pol) row.key = pol.cls.key;
   if (pol && !pol.push) { row.verdict = `silent: ${pol.reason}`; log(`(silent, in-app only) "${n.title}" — ${pol.reason}`); }
   else if (why) { row.verdict = `blocked: ${why}`; log(`PUSH BLOCKED "${n.title}" — ${why}`); }
+  else if (shadow) { row.verdict = "shadow: would push"; log(`(shadow mode, not sent) push: ${n.title} — ${n.body}`); }
   else if (!save) { row.verdict = "not sent (test mode)"; log(`(not sent) push: ${n.title} — ${n.body}`); }
   else {
     try { await send(n); row.verdict = "sent"; } catch (e) { row.verdict = `failed: ${e.message}`; log(`push failed "${n.title}": ${e.message}`); }

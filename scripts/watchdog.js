@@ -15,8 +15,18 @@ function providerCheck(faults = [], writerFailed = false) {
   if (writerFailed) return { alarms: [`writer provider failure: ${what} — no writer available, posts left unclassified`], warnings: [] };
   return { alarms: [], warnings: [`writer provider failure: ${what} — cards still written this run`] };
 }
-function check(state, { terms = [], candidates = 0, writerFailed = false, providerFaults = [] } = {}, n = WATCHDOG_RUNS) {
+/* Source faults (extension, 29 Oct): the X read failing (HTTP 401/402/403/429, or a credits/usage-cap error) alarms at
+   the FIRST run — before, X-first only logged "tried again next run" while RSS candidates kept the zero-post counter at 0.
+   Any other X-first failure (timeouts, 5xx) alarms after WATCHDOG_RUNS runs in a row. Alarm text never holds secrets. */
+function sourceFault(msg) {
+  const m = String(msg || ""), st = Number((m.match(/HTTP (\d{3})/) || [])[1]) || 0;
+  if ([401, 402, 403, 429].includes(st) || /credits?|usage cap|quota|spending limit/i.test(m)) return `X read failed: ${st ? `HTTP ${st}` : "credits / quota"}`;
+  return null;
+}
+function check(state, { terms = [], candidates = 0, writerFailed = false, providerFaults = [], xFailed = null } = {}, n = WATCHDOG_RUNS) {
   const w = { ...(state.watchdog || {}) };
+  const sf = xFailed ? sourceFault(xFailed) : null;
+  w.xFailRuns = xFailed && !sf ? (w.xFailRuns || 0) + 1 : 0;
   w.zeroRuns = candidates > 0 ? 0 : (w.zeroRuns || 0) + 1;
   const pc = providerCheck(providerFaults, writerFailed);
   // the 4-run threshold is only for other writer failures (timeouts, bad replies); a provider fault already alarmed
@@ -25,8 +35,10 @@ function check(state, { terms = [], candidates = 0, writerFailed = false, provid
   check.warnings = pc.warnings;
   if (!terms || !terms.length) alarms.push("search terms are empty (vehicle derivation and static fallback both empty)");
   if (w.zeroRuns >= n) alarms.push(`zero candidate posts fetched for ${w.zeroRuns} consecutive runs`);
+  if (sf) alarms.push(`${sf} — the checker is blind to X (check the X API plan / bearer token)`);
+  if (w.xFailRuns >= n) alarms.push(`X-first failed for ${w.xFailRuns} consecutive runs`);
   if (w.writerFailRuns >= n) alarms.push(`LLM writer failed for ${w.writerFailRuns} consecutive runs (check xAI credits) — posts are piling up unclassified`);
   state.watchdog = w;
   return alarms;
 }
-module.exports = { check, providerCheck, fmtFault, WATCHDOG_RUNS };
+module.exports = { sourceFault, check, providerCheck, fmtFault, WATCHDOG_RUNS };

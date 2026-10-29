@@ -49,7 +49,7 @@ const SF = "Ship 42 conducts a six-engine static fire test.";
   check(r.swapped.length === 1 && h.x_post.post_id === "22" && h.src === "@SpaceX", "SpaceX swaps in immediately, even after the window");
   h = card(); await mc.runCascade(road(h), [post(23, "NASASpaceflight", SF)], opts());
   r = await mc.runCascade(road(h), [post(24, "LabPadre", SF, 30)], opts({ now: T0 + 3 * 86400000, frameFor: async (p) => ({ image: "x.jpg", lit: true, score: 5 }) }));
-  check(!r.swapped.length && /window/.test(r.skipped.join()), "tier 2 after the 2-day window: no swap");
+  check(!r.swapped.length && /window|lower tier/.test(r.skipped.join()), "tracker after NSF (lower tier, and after the 2-day window): no swap");
 
   // engines must be lit for a static fire video
   h = card(); r = await mc.runCascade(road(h), [post(30, "NASASpaceflight", SF)], opts({ frameFor: dark }));
