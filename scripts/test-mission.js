@@ -1,4 +1,5 @@
 // Offline tests for the mission-update verdict (no network): road | mission-update | starship-news | skip.
+process.env.PUSH_SHADOW = process.env.PUSH_SHADOW || "0"; // live push-shadow.json must not turn this suite into shadow mode
 const fs = require("fs"), os = require("os"), path = require("path");
 const road = require("./check-road.js"), xf = require("./x-first.js"), mission = require("./mission.js");
 const ROOT = path.join(__dirname, "..");
@@ -43,7 +44,7 @@ const ask = async (prompt) => ({ entries: [...prompt.matchAll(/^(\d+)\. @\S+ \S+
   xPage = page([P("207", "2", 0.2, "Flight 15 catch update #m3")]);
   const r3 = await road.run(base);
   const mu3 = JSON.parse(fs.readFileSync(roadPath, "utf8")).mission_updates[15];
-  check(mu3.length === 1 && /Booster 22 only \(SpaceX, 19 Oct\)\.$/.test(mu3[0].line) && r3.notifications.filter((n) => n.title === "Flight 15 update").length === 1, "a newer post on the same topic replaces the line (newest wins), one push");
+  check(mu3.length === 1 && /Booster 22 only \(SpaceX, 19 Oct\)\.$/.test(mu3[0].line) && r3.notifications.filter((n) => n.title === "Flight 15 update").length === 1, "an explicit contradiction (\"Booster 22 only\") supersedes the earlier same-topic line, one push");
   // cap: missions + cards share the per-run cap
   const st = { xFirst: { sinceId: "1", seen: [], pending: [] } };
   const many = page(Array.from({ length: 7 }, (_, i) => P(String(300 + i), "1", 1, `x #m1`)));
@@ -51,8 +52,8 @@ const ask = async (prompt) => ({ entries: [...prompt.matchAll(/^(\d+)\. @\S+ \S+
   const got = await xf.runXFirst(rr, st, { token: "t", fetchFn: async () => many, ask, postCard: road.xPostCard, log: () => {}, maxCards: 5 });
   check(got.missions.length === 5 && got.state.pending.length === 2, "mission updates share the per-run cap (the rest wait)");
   // validation
-  let threw = false; try { mission.validateMission({ mission_updates: { 15: [{ topic: "catch", line: "a", at: ago(1) }, { topic: "catch", line: "b", at: ago(2) }] } }); } catch { threw = true; }
-  check(threw, "validation: one line per topic");
+  let threw = false; try { mission.validateMission({ mission_updates: { 15: [{ topic: "catch", line: "a", at: ago(1) }, { topic: "catch", line: "a", at: ago(2) }] } }); } catch { threw = true; }
+  check(threw, "validation: no duplicate lines (several lines per topic are fine)");
   // app: the line sits right after the mission note on the Next flight card only
   const app = fs.readFileSync(path.join(ROOT, "app.js"), "utf8");
   const body = (n) => { const a = app.indexOf(`function ${n}(`); return app.slice(a, app.indexOf("\nfunction ", a + 10)); };

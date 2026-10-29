@@ -1385,6 +1385,7 @@ async function run(opts = {}) {
     const p = m.post;
     if (r.net) { items.push({ key: `x:${p.post_id}`, title: p.text.slice(0, 200), text: p.text, url: p.url, publishedAt: p.created_at, src: `X @${p.author.username}`, source: `@${p.author.username}`, tier: xFirstMod.isOfficial(p) ? "official" : "trusted", predictOnly: true }); log(`mission-update (NET) → predicted-date check: @${p.author.username} ${p.post_id}`); continue; }
     if (!r.changed) { log(`mission-update: no change (${m.topic}, same or older)`); continue; }
+    if (r.superseded && r.superseded.length) log(`MISSION SUPERSEDED [${road.flight}/${m.topic}] ${r.superseded.join(" | ")} → ${r.line}`);
     changed = true; missionPushes.push(mission.missionPush(road.flight, r.line, r.entry));
     log(`MISSION [${road.flight}/${m.topic}] ${r.line}`);
   }

@@ -3009,7 +3009,16 @@
     "15": [
       {
         "topic": "catch",
-        "line": "Ship 42 will be the first tower catch (Elon Musk, 29 Oct).",
+        "line": "SpaceX plans to catch both Booster 22 and Ship 42 on Flight 15 (Elon Musk, 22 Oct).",
+        "at": "2026-10-21T23:05:30.000Z",
+        "src": "@NASASpaceflight",
+        "url": "https://x.com/NASASpaceflight/status/2113044031638741321",
+        "post_id": "2113044031638741321",
+        "data_fix": "restored 29 Oct: a14b353 overwrote it (mission updates are now additive)"
+      },
+      {
+        "topic": "catch",
+        "line": "Ship 42 will be the first ship ever caught by the tower (Elon Musk, 29 Oct).",
         "at": "2026-10-29T02:37:29.000Z",
         "src": "@elonmusk",
         "url": "https://x.com/elonmusk/status/2115634093949911506",
