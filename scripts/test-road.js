@@ -6,6 +6,7 @@
    It runs the real parsers, filters, trust rules, cap and rollover, and
    prints ✅ / ❌ for each check. Exit code 1 if any check fails.
    ───────────────────────────────────────────────────────────── */
+process.env.PUSH_SHADOW = process.env.PUSH_SHADOW || "0"; // live push-shadow.json must not turn this suite into shadow mode
 
 
 // Legacy send-path checks predate the milestone-only push policy (tested in test-push-policy.js): policy off here.

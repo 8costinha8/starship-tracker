@@ -1,6 +1,7 @@
 /* End-to-end (offline) for precise images: a new trusted X post → Road entry in road.json with
    only a vision-verified picture → app shows it → push carries the text, link and picture.
      node scripts/test-precise.js   (no network: fake sources, writer and vision) */
+process.env.PUSH_SHADOW = process.env.PUSH_SHADOW || "0"; // live push-shadow.json must not turn this suite into shadow mode
 
 // Legacy send-path checks predate the milestone-only push policy (tested in test-push-policy.js): policy off here.
 { const pp = require("./push-policy.js"); pp.decide = (n) => ({ push: true, reason: "policy off (legacy test)", cls: pp.classify(n) }); pp.orderBatch = (l) => l; }

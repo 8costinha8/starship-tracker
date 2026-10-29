@@ -1,4 +1,5 @@
 // Real-world prerequisite model (scripts/cleanup.js PREREQS + check-road applyPrereqs): ships AND boosters alike.
+process.env.PUSH_SHADOW = process.env.PUSH_SHADOW || "0"; // live push-shadow.json must not turn this suite into shadow mode
 // A later step implies its hard prerequisites (inferred flag, no push); install reports alone never finish Raptors.
 const cl = require("./cleanup.js"), cr = require("./check-road.js"), lt = require("./log-text.js");
 let pass = 0, fail = 0; const check = (ok, msg) => { ok ? pass++ : fail++; console.log((ok ? "✅ " : "❌ ") + msg); };

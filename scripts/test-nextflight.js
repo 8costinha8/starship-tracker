@@ -1,4 +1,5 @@
 // Dummy next flight (Flight 17, B24/S44) built in a fixture only — road.json is never read for writing or changed.
+process.env.PUSH_SHADOW = process.env.PUSH_SHADOW || "0"; // live push-shadow.json must not turn this suite into shadow mode
 // Checks the Road/Flight Log rules generalise beyond B22/S42.  node scripts/test-nextflight.js
 const fs = require("fs"), path = require("path");
 const road = require("./check-road.js"), c = require("./cleanup.js");

@@ -1,4 +1,5 @@
 // one-time lifecycle migration: labels + build-up, idempotent, no pushes
+process.env.PUSH_SHADOW = process.env.PUSH_SHADOW || "0"; // live push-shadow.json must not turn this suite into shadow mode
 const fs = require("fs"), path = require("path");
 const { migrate } = require("./migrate-lifecycle.js");
 const { validateRoad } = require("./check-road.js");

@@ -1,4 +1,5 @@
 
+process.env.PUSH_SHADOW = process.env.PUSH_SHADOW || "0"; // live push-shadow.json must not turn this suite into shadow mode
 // Legacy send-path checks predate the milestone-only push policy (tested in test-push-policy.js): policy off here.
 { const pp = require("./push-policy.js"); pp.decide = (n) => ({ push: true, reason: "policy off (legacy test)", cls: pp.classify(n) }); pp.orderBatch = (l) => l; }
 // Offline tests for the X-first Road pipeline (no network, fake X + fake writer + fake Firebase).

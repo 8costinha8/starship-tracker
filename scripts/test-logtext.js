@@ -1,4 +1,5 @@
 // Offline tests for the Flight Log lines (log_text): single date, the card prefers log_text, the style
+process.env.PUSH_SHADOW = process.env.PUSH_SHADOW || "0"; // live push-shadow.json must not turn this suite into shadow mode
 // lint, a new post producing a log line + matching push, and a section rolling up to Done.
 //   node scripts/test-logtext.js        exit 1 if any check fails (no network, fake X + writer + Firebase)
 const fs = require("fs"), os = require("os"), path = require("path");

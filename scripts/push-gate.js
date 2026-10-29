@@ -29,6 +29,7 @@ const ms = (iso) => Date.parse(iso || "");
 const textOf = (n) => `${n.body || ""} ${n.source_text || ""}`;
 
 function shadowOn({ root = path.join(__dirname, ".."), env = process.env, now = Date.now() } = {}) {
+  if (env.PUSH_SHADOW === "0") return false; // explicit off (offline tests pin this so a live push-shadow.json does not change them)
   if (env.PUSH_SHADOW === "1") return true;
   try { const j = JSON.parse(fs.readFileSync(path.join(root, "push-shadow.json"), "utf8")); return !!j && ms(j.until) > now; } catch { return false; }
 }

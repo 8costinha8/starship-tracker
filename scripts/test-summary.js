@@ -1,4 +1,5 @@
 // Offline tests for the running per-vehicle milestone summary (scripts/milestones.js) and its
+process.env.PUSH_SHADOW = process.env.PUSH_SHADOW || "0"; // live push-shadow.json must not turn this suite into shadow mode
 // freeze into road.archive[N].summary when Flight N is logged (no network).
 const road = require("./check-road.js");
 const { recordMilestone, buildSummary } = require("./milestones.js");

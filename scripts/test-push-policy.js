@@ -1,4 +1,5 @@
 /* Offline tests: push policy (scripts/push-policy.js via push-sync sendPush). No network, no real pushes. */
+process.env.PUSH_SHADOW = process.env.PUSH_SHADOW || "0"; // live push-shadow.json must not turn this suite into shadow mode
 const pp = require("./push-policy.js"), ps = require("./push-sync.js");
 let fail = 0; const ok = (c, m) => { console.log(`${c ? "✅" : "❌"} ${m}`); if (!c) fail++; };
 const V = ["B22", "S42"], H = 3600000;

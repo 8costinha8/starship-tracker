@@ -1,4 +1,5 @@
 // Offline tests for archiving launched flights' Road entries + milestone summary into the Flight Log (no network).
+process.env.PUSH_SHADOW = process.env.PUSH_SHADOW || "0"; // live push-shadow.json must not turn this suite into shadow mode
 const fs = require("fs"), os = require("os"), path = require("path");
 const road = require("./check-road.js");
 const ROOT = path.join(__dirname, "..");

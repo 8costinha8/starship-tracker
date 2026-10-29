@@ -1,4 +1,5 @@
 // Road updates are filed by PURPOSE, not place (scripts/purpose.js), and re-filing sends no push.
+process.env.PUSH_SHADOW = process.env.PUSH_SHADOW || "0"; // live push-shadow.json must not turn this suite into shadow mode
 const fs = require("fs"), path = require("path"), os = require("os");
 const P = require("./purpose.js"), C = require("./cleanup.js");
 const ROOT = path.join(__dirname, "..");

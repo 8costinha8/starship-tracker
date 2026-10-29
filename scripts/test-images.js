@@ -1,4 +1,5 @@
 // Offline tests for X media on the Road to Flight N page (no network).
+process.env.PUSH_SHADOW = process.env.PUSH_SHADOW || "0"; // live push-shadow.json must not turn this suite into shadow mode
 const r = require("./check-road.js");
 let fails = 0; const check = (ok, m) => { console.log((ok ? "✅ " : "❌ ") + m); if (!ok) fails++; };
 const now = Date.now(), iso = (d) => new Date(now - d * 86400000).toISOString();

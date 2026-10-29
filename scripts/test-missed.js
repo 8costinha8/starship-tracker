@@ -1,4 +1,5 @@
 // Offline tests for the 19 Oct missed-posts fixes (no network): link-card context, linked-article
+process.env.PUSH_SHADOW = process.env.PUSH_SHADOW || "0"; // live push-shadow.json must not turn this suite into shadow mode
 // lead, link image fallback, "no verdict" retry, prompt rule for Flight N plans/readiness reports.
 const road = require("./check-road.js"), xf = require("./x-first.js");
 let fails = 0; const check = (ok, m) => { console.log((ok ? "✅ " : "❌ ") + m); if (!ok) fails++; };

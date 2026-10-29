@@ -1,5 +1,6 @@
 /* Offline: push gate (hold / re-read / staleness / media-only / big news / corrections), shadow mode, watchdog
    source faults, media tier climb + SpaceX lock, and the 26–29 Oct replay. No network, no sends. */
+process.env.PUSH_SHADOW = process.env.PUSH_SHADOW || "0"; // live push-shadow.json must not turn this suite into shadow mode
 const gate = require("./push-gate.js"), pp = require("./push-policy.js"), ps = require("./push-sync.js"), wd = require("./watchdog.js"), mc = require("./media-cascade.js");
 const fs = require("fs"), os = require("os"), path = require("path");
 let fail = 0; const ok = (c, m) => { console.log(`${c ? "✅" : "❌"} ${m}`); if (!c) fail++; };

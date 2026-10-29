@@ -1,4 +1,5 @@
 /* Offline: watchdog + derived search terms (B22/S42/S43) + static fallback. */
+process.env.PUSH_SHADOW = process.env.PUSH_SHADOW || "0"; // live push-shadow.json must not turn this suite into shadow mode
 const wd = require("./watchdog.js"), cr = require("./check-road.js"), fs = require("fs"), path = require("path");
 let fail = 0; const ok = (c, m) => { console.log(`${c ? "✅" : "❌"} ${m}`); if (!c) fail++; };
 const live = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "road.json"), "utf8"));

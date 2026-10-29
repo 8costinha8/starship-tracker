@@ -1,5 +1,6 @@
 /* Offline tests for the predicted launch date (scripts/predicted.js + its use in check-road.js).
      node scripts/test-predicted.js        exit 1 if any check fails */
+process.env.PUSH_SHADOW = process.env.PUSH_SHADOW || "0"; // live push-shadow.json must not turn this suite into shadow mode
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
