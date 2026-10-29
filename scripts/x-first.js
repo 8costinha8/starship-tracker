@@ -262,6 +262,22 @@ function masseyStage(road, text, hw, flight) {
   if (cryoDone(road, hw, flight)) return "static";
   return /\bcryo|proof/i.test(text) ? "cryo" : null;
 }
+const ROLLBACK = /\b(?:roll(?:s|ed|ing)? back|back (?:at|to|in(?:to)?|inside)|return(?:s|ed|ing)? to|left massey'?s|moved (?:back )?(?:in)?to|heads? back|headed back)\b/i;
+const MEGABAY = /\bmega ?bay(?: ?\d)?\b|\bMB ?\d\b|\bproduction site\b|\bhigh ?bay\b/i;
+// latest completed test of hw for this flight (by time): { stage, label } or null
+function rollbackStage(road, text, hw, flight) {
+  if (!hw || !ROLLBACK.test(text || "") || !MEGABAY.test(text || "") || /\b(?:out of|leav\w* (?:the )?mega ?bay|to (?:the )?(?:pad|launch site|orbital launch)|rolls? out)\b/i.test(text || "")) return null;
+  let best = null;
+  for (const [type, stage, label] of [["cryo_test", "cryo", "cryo tests"], ["static_fire", "static", "static fires"]]) {
+    const mk = milestoneKey(type, flight, hw);
+    for (const c of road.categories || []) for (const h of c.history || []) if (h.milestone && h.milestone.key === mk && h.milestone.phase === "completed") {
+      const t = Date.parse((h.x_post && h.x_post.created_at) || h.at) || 0; if (!best || t > best.t) best = { t, stage, label }; }
+  }
+  const ms = road.milestones && road.milestones[hwKey(hw)], sf = ms && ms.static_fire && ms.static_fire.dates;
+  const sft = sf && sf.length ? Math.max(...sf.map((d) => Date.parse(d) || 0)) : 0;
+  if (sft && (!best || sft > best.t)) best = { t: sft, stage: "static", label: "static fires" };
+  return best;
+}
 function guardPost(road, post, v) {
   if (!v || v.kind !== "road") return { v };
   const flight = Number.isInteger(v.flight) ? v.flight : road.flight, hw = v.hardware, text = post.text || "";
@@ -279,6 +295,16 @@ function guardPost(road, post, v) {
   if (m === "static" && (v.event === "cryo_test" || v.stage === "cryo")) {
     const sb = staticBox(road);
     if (sb) v = { ...v, stage: sb.id, event: "static_fire", phase: v.phase === "completed" && !/static|fir/i.test(text) ? "progress" : v.phase, reason: `${v.reason || ""} [guard: Massey's trip after cryo done → static fire, not cryo]` };
+  }
+  // (1c) a rollback / return to the Megabay (production site) is not a test and not pad work: it follows the vehicle's
+  //      latest COMPLETED test (static fire after a static fire campaign, cryo after cryo), never completes anything,
+  //      and its wording names that test ("after static fires", not a guessed "after cryo tests").
+  const rb = rollbackStage(road, text, hw, flight);
+  if (rb && ["cryo", "static", "pad"].includes(v.stage)) {
+    const box = rb.stage === "static" ? staticBox(road) : road.categories.find((c) => c.id === rb.stage);
+    const fix = (t) => (t ? String(t).replace(/after (?:its |the )?(?:cryo(?:genic)?(?: proof)? tests?|static[- ]fires?|testing)/i, `after ${rb.label}`) : t);
+    if (box) v = { ...v, stage: box.id, event: null, phase: "progress", status: null, text: fix(v.text), log_text: fix(v.log_text), status_line: v.status_line && /complet/i.test(v.status_line) ? null : v.status_line,
+      reason: `${v.reason || ""} [guard: rollback to the Megabay after the latest completed test (${rb.label}) → ${box.id}]` };
   }
   const type = MILESTONE_TYPES.includes(v.event) ? v.event : null;
   // (2) vehicle and event from the SAME sentence of the post
@@ -343,4 +369,4 @@ async function runXFirst(road, state, { token, fetchFn, ask, postCard, log = con
 }
 
 const isOfficial = (p) => OFFICIAL.has(String(p.author && p.author.username).toLowerCase());
-module.exports = { masseyStage, cryoDone, guardPost, MILESTONE_TYPES, PHASES, factsMatch, contextImage, milestoneKey, phaseOf, isOfficial, MISSION_TOPICS, runXFirst, fetchNewPosts, classifyPosts, classifyPrompt, placePost, bestMedia, postMedia, articleLead, readLinks, hwKey, xfQuery, XF_ACCOUNTS, CLASSIFY_SCHEMA, MERGE_MS };
+module.exports = { rollbackStage, masseyStage, cryoDone, guardPost, MILESTONE_TYPES, PHASES, factsMatch, contextImage, milestoneKey, phaseOf, isOfficial, MISSION_TOPICS, runXFirst, fetchNewPosts, classifyPosts, classifyPrompt, placePost, bestMedia, postMedia, articleLead, readLinks, hwKey, xfQuery, XF_ACCOUNTS, CLASSIFY_SCHEMA, MERGE_MS };

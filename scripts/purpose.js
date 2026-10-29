@@ -20,7 +20,7 @@ const STACK = /\bship\b[^.]{0,40}\bstack|stack\w* (?:on|onto) (?:the )?booster|f
 const CHOP_VEH = /chopstick|catch (?:test|position)|\bsqd\b|fit[- ]?check/i;
 const PAD_ONLY = /\btower\b|chopstick|\b[bs]?qds?\b|quick disconnect|deluge|\bolm\b|launch mount|flame trench|tank farm|pad (?:build|work)|catch test|hold-?down|work platform|servicing structure|\bpad\b/i;
 const MOVE = /roll(?:s|ed|ing)?[ -]?(?:out|back|to)|\blift(?:s|ed|ing)?\b|lowered|launch (?:mount|site|pad)|\bpad[- ]?\d|\bolm\b|transport stand|left mega ?bay|mega ?bay|arriv|heads? (?:to|back)|\bmove|\bat the pad|rollback|returns?/i;
-const ROLLBACK = /roll(?:s|ed|ing)?[ -]?back|rollback|returns? to|heads? back|back to (?:the )?(?:mega ?bay|production)/i;
+const ROLLBACK = /roll(?:s|ed|ing)?[ -]?back|rollback|return(?:s|ed)? to|heads? back|headed back|arrived back|back (?:at|to|in(?:to)?|inside) (?:the )?(?:mega ?bay|mb ?\d|production)|left massey'?s|moved (?:back )?in(?:to)? (?:mega ?bay|mb ?\d)/i; // 29 Oct: "back at the production site / Megabay 2" and "returned to" were missed → filed as pad launch prep
 const vehOf = (t, hw) => { const v = new Set(C.named ? C.named(t) : []); String(t).replace(/\b(?:Booster\s*|B)(\d{1,3})\b|\b(?:Ship\s*|S)(\d{1,3})\b/gi, (_, b, s) => v.add(b ? "B" + b : "S" + s)); const h = String(hw || "").match(/^(?:Booster\s*|B)(\d+)|^(?:Ship\s*|S)(\d+)/i); if (h) v.add(h[1] ? "B" + h[1] : "S" + h[2]); return [...v]; };
 const hwKey = (h) => { const m = String((h.milestone && h.milestone.hardware) || h.hardware || "").match(/^\s*(?:Ship\s*|S)(\d+)|^\s*(?:Booster\s*|B)(\d+)/i); return m ? (m[1] ? "S" + m[1] : "B" + m[2]) : null; };
 const doneOf = (h) => h.complete === true || (h.milestone && h.milestone.phase === "completed");
@@ -62,7 +62,7 @@ function purposeOf(road, step, st = states(road)) {
   const fired = (v) => st[v] && st[v].static != null && day > st[v].static;
   const anyOpen = vs.length ? vs.some((v) => !fired(v)) : Object.values(st).some((s) => s.static == null);
   if (has("raptor") && ENGINE.test(t)) return { box: "raptor", why: "engine install / removal / swap" };
-  if (has("cryo") && CRYO.test(t) && !/static[- ]?fire/i.test(t)) return { box: "cryo", why: "cryo campaign" };
+  if (has("cryo") && CRYO.test(t) && !/static[- ]?fire/i.test(t) && !(ROLLBACK.test(t) && vs.length && vs.every(fired))) return { box: "cryo", why: "cryo campaign" }; // leaving Massey's after static fires is not cryo
   if (STATIC_SIG.test(t) && (/static[- ]?fire/i.test(t) || anyOpen || (vs.length && ROLLBACK.test(t))))
     return { box: "static", why: /static[- ]?fire/i.test(t) ? "source says static fire" : "static fire signal in an open campaign" };
   if (vs.length) {

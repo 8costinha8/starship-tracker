@@ -19,10 +19,10 @@
         ones are cleared out once (committed, never pushed).
      7. Entries from a trusted X post keep that post as x_post (author, text,
         created_at, its photos / video); only those media are ever shown.
-   Statuses: none, pending, progress, complete (shown as "Done": the
+   Statuses: none, pending, progress, complete (shown with the box label, Complete / Installed / Confirmed: the
    source explicitly says the stage is finished; that entry gets
    complete: true and a green tint in the app; a trusted source can
-   re-open it), done (legacy "Done", and the Launch date box's "Confirmed").
+   re-open it), done (same labels; never "Done").
    The Launch date box is shown like the others (Road card + Updates feed).
    When the flight it is tracking appears in app.js's FLIGHTS list (that's
    check-flights.js logging the result), it starts a fresh Road to the next
@@ -70,10 +70,10 @@ const LIMITS = {
 
 const STATUSES = ["none", "pending", "progress", "done", "complete"];
 const RANK = { none: 0, pending: 1, progress: 2, done: 3, complete: 3 };
-const STATUS_TEXT = { none: "Not yet", pending: "Not yet", progress: "In progress", done: "Done", complete: "Done" };
+const STATUS_TEXT = { none: "Not yet", pending: "Not yet", progress: "In progress", done: "Complete", complete: "Complete" }; // finished boxes: doneLabel()
 // finished-status label per category (same map as app.js ROAD_DONE_LABEL and flightlog.js DONE_LABEL)
 const DONE_LABEL = { cryo: "Complete", raptor: "Installed", static: "Complete", pad: "Complete", faa: "Confirmed", date: "Confirmed" };
-const doneLabel = (box) => DONE_LABEL[box && box.id] || (box && box.doneText) || "Done";
+const doneLabel = (box) => DONE_LABEL[box && box.id] || (box && box.doneText && box.doneText !== "Done" ? box.doneText : "Complete"); // never "Done"
 const FINISHED = (s) => s === "done" || s === "complete"; // nothing awaited → no "no news yet" line
 
 // Wording for a new "no news yet" line (an existing one keeps its own wording).
@@ -824,7 +824,7 @@ function snowflakeMs(id) {
 
 function buildPrompt(road, items) {
   const v = road.vehicles && road.vehicles.length ? road.vehicles.join(" and ") : "not yet known";
-  const hint = { date: " (done = SpaceX has announced the date; never complete)", pad: " (also launch site and pad assignment, and vehicle moves and locations: rollouts, rollbacks, stacking/destacking, which booster or ship is where)" };
+  const hint = { date: " (done = SpaceX has announced the date; never complete)", pad: " (also launch site and pad assignment, and vehicle moves and locations: rollouts to the pad, stacking/destacking, which booster or ship is where; a rollback to the Megabay / production site goes in the box of the vehicle's latest COMPLETED test, e.g. static fires after a static fire campaign, and is never a completion)" };
   const boxes = road.categories.map((c) => `- ${c.id} (${c.name}): ${c.status}${hint[c.id] || ""}. Headline: "${c.latest}"`).join("\n");
   const recent = road.categories.flatMap((c) => (c.history || []).filter((h) => !isCheck(h)).slice(0, 3).map((h) => `- [${c.id}] ${h.date}: ${h.text}`)).join("\n");
   const list = items.map((it, i) => `${i + 1}. [${it.src}, ${fmtDay(it.publishedAt)}] ${it.title} — ${it.text}`).join("\n");
@@ -1128,7 +1128,7 @@ function refreshCheckDates(road) {
 }
 
 const FEED_LINK = "https://8costinha8.github.io/starship-tracker/?feed=1";
-// Merge-only status change: a dated line in the box ("Pad activity: Done (22 Oct)", UK day of the source post).
+// Merge-only status change: a dated line in the box ("Pad activity: Complete (22 Oct)", UK day of the source post).
 function statusLine(road, box, merged, post) {
   post = post || merged.x_post || {};
   const at = post.created_at || merged.at || new Date().toISOString();
@@ -1468,7 +1468,7 @@ async function run(opts = {}) {
     for (const it of batch) seen.add(it.key); // articles: news/date only, never a Road card
     // new cards push; a merge only pushes when it moved the status
     if (xf) for (const r of xf.cards) changes.push({ box: r.box, entry: r.entry, from: r.st ? r.st.from : r.box.status, to: r.box.status, item: { key: `x:${r.entry.x_post.post_id}` } });
-    // a merge that moved the status gets its own visible dated line ("Pad activity: Done (22 Oct)"), the push says the same
+    // a merge that moved the status gets its own visible dated line ("Pad activity: Complete (22 Oct)"), the push says the same
     // a milestone entry that moved Expected → In progress → Completed: the SAME entry (updated in place) is the push
     if (xf) for (const r of xf.merged.filter((m) => m.phase)) changes.push({ box: r.box, entry: r.entry, from: r.box.status, to: r.box.status, phase: r.phase, item: { key: `x:${r.post.post_id}` } });
     if (xf) for (const r of xf.merged.filter((m) => m.st && !m.phase)) changes.push({ box: r.box, entry: statusLine(road, r.box, r.entry, r.post), from: r.st.from, to: r.box.status, item: { key: `x:${r.entry.x_post.post_id}` }, merge: true });

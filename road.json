@@ -13,80 +13,8 @@
       "name": "Cryo tests",
       "color": "#BFE6FF",
       "status": "done",
-      "latest": "Ship 42 left Massey's and moved into Mega Bay 2.",
+      "latest": "Booster 23 headed back to Massey's for more cryo testing.",
       "history": [
-        {
-          "id": "x-2115694440891498638",
-          "date": "29 Oct",
-          "log_date": "29 Oct",
-          "at": "2026-10-29T06:37:17.000Z",
-          "text": "Ship 42 left Massey's and moved into Mega Bay 2.",
-          "x_text": "Ship 42 left Massey's and moved into Mega Bay 2.",
-          "log_text": "Ship 42 rolled back to Mega Bay 2 after cryo tests.",
-          "status_line": "Ship 42 cryo tests completed.",
-          "url": "https://x.com/Blobifie/status/2115694440891498638",
-          "src": "@Blobifie",
-          "trust": "trusted",
-          "x_first": true,
-          "stage": "cryo",
-          "hardware": "S42",
-          "flight": 15,
-          "x_post": {
-            "post_id": "2115694440891498638",
-            "url": "https://x.com/Blobifie/status/2115694440891498638",
-            "created_at": "2026-10-29T06:37:17.000Z",
-            "text": "Ship 42 and her little barrel freind left masseys and S42 has been moved into MB2 with S43, S44, S40, and S45 marking the first time megabay 2 has been fully filled with ships!! (i think) https://t.co/IDc8jjFQpT",
-            "author": {
-              "name": "Blobifi",
-              "username": "Blobifie",
-              "avatar": "https://pbs.twimg.com/profile_images/2091766013562159104/xgHLFjBX_normal.jpg"
-            },
-            "media": [
-              {
-                "type": "photo",
-                "url": "https://pbs.twimg.com/media/HVx0VixaUAEZ6lH.jpg"
-              },
-              {
-                "type": "photo",
-                "url": "https://pbs.twimg.com/media/HVx0gZ4b0AEZn7z.jpg"
-              },
-              {
-                "type": "photo",
-                "url": "https://pbs.twimg.com/media/HVx0iI8agAAMC1P.jpg"
-              },
-              {
-                "type": "photo",
-                "url": "https://pbs.twimg.com/media/HVx0jxCaUAERa8S.jpg"
-              }
-            ]
-          },
-          "x_posts": [
-            "2115694440891498638"
-          ],
-          "xChecked": true,
-          "imageChecked2": true,
-          "media_override": {
-            "post_url": "https://x.com/Blobifie/status/2115694440891498638",
-            "post_id": "2115694440891498638",
-            "author": "Blobifie",
-            "type": "photo",
-            "image": "https://pbs.twimg.com/media/HVx0VixaUAEZ6lH.jpg"
-          },
-          "tier": 2,
-          "milestone": {
-            "key": "static_fire|15|S42",
-            "type": "static_fire",
-            "flight": 15,
-            "hardware": "S42",
-            "phase": "completed"
-          },
-          "complete": true,
-          "push": {
-            "title": "❄️ Cryo tests: Done",
-            "url": "https://x.com/Blobifie/status/2115694440891498638",
-            "at": "2026-10-29T06:37:17.000Z"
-          }
-        },
         {
           "id": "f16-b23-2115312218590126505",
           "date": "28 Oct",
@@ -1065,72 +993,98 @@
       "name": "Static fires",
       "color": "#FF9A3D",
       "status": "progress",
-      "latest": "Ship 42 returned to Megabay 2 after static fire.",
+      "latest": "Ship 42 is back at the production site / Megabay 2.",
       "history": [
         {
-          "id": "x-2115713308573782488",
+          "id": "x-2115701002095755563",
           "date": "29 Oct",
           "log_date": "29 Oct",
-          "at": "2026-10-29T07:52:15.000Z",
-          "text": "Ship 42 returned to Megabay 2 after static fire.",
-          "x_text": "Ship 42 returned to Megabay 2 after static fire.",
-          "log_text": "Ship 42 heads back to Megabay 2.",
-          "status_line": "Ship 42 preparing for launch at Megabay 2.",
-          "url": "https://x.com/LabPadre/status/2115713308573782488",
-          "src": "@LabPadre",
+          "at": "2026-10-29T07:03:21.000Z",
+          "text": "Ship 42 is back at the production site / Megabay 2.",
+          "x_text": "Ship 42 is back at the production site / Megabay 2.",
+          "log_text": "Ship 42 is back at the production site / Megabay 2.",
+          "status_line": "Ship 42 back at Megabay 2.",
+          "url": "https://x.com/RGVaerialphotos/status/2115701286096277589",
+          "src": "@RGVaerialphotos",
           "trust": "trusted",
           "x_first": true,
           "stage": "static",
           "hardware": "S42",
           "flight": 15,
           "x_post": {
-            "post_id": "2115713308573782488",
-            "url": "https://x.com/LabPadre/status/2115713308573782488",
-            "created_at": "2026-10-29T07:52:15.000Z",
-            "text": "Ship 42 has returned to Megabay 2. With the static fire testing done, this move should be for flight readiness preparations.",
+            "post_id": "2115701286096277589",
+            "url": "https://x.com/RGVaerialphotos/status/2115701286096277589",
+            "created_at": "2026-10-29T07:04:29.000Z",
+            "text": "Ship 42 and the tiled barrel section have arrived back at the production site.",
             "author": {
-              "name": "Avid Space",
-              "username": "LabPadre",
-              "avatar": "https://pbs.twimg.com/profile_images/2018042465932988416/LR5UN4G0_normal.png"
+              "name": "RGV Aerial Photography",
+              "username": "RGVaerialphotos",
+              "avatar": "https://pbs.twimg.com/profile_images/2019953617743097856/PJqBBhpU_normal.jpg"
             },
             "media": [
               {
                 "type": "video",
-                "poster": "https://pbs.twimg.com/amplify_video_thumb/2115712955241074688/img/0uMM9EvVI2CtVi5E.jpg",
-                "video_url": "https://video.twimg.com/amplify_video/2115712955241074688/vid/avc1/1280x720/iFjD9gHXDqreohIh.mp4"
+                "poster": "https://pbs.twimg.com/amplify_video_thumb/2115698557118525440/img/JcPi0ZRB6O6GSRW0.jpg",
+                "video_url": "https://video.twimg.com/amplify_video/2115698557118525440/vid/avc1/2560x1440/6WsYhIBrj3Pci0My.mp4"
+              },
+              {
+                "type": "video",
+                "poster": "https://pbs.twimg.com/amplify_video_thumb/2115698578555641856/img/NgdeZ_gsoBwQEzZK.jpg",
+                "video_url": "https://video.twimg.com/amplify_video/2115698578555641856/vid/avc1/2560x1440/brVEtAoMrRzYH6dx.mp4"
               }
             ]
           },
           "x_posts": [
-            "2115713308573782488"
+            "2115701002095755563",
+            "2115701286096277589",
+            "2115713308573782488",
+            "2115694440891498638"
           ],
           "xChecked": true,
           "imageChecked2": true,
           "media_override": {
-            "post_url": "https://x.com/TrackingTheSB/status/2115643620556763279",
-            "post_id": "2115643620556763279",
-            "author": "TrackingTheSB",
-            "type": "photo",
-            "image": "https://pbs.twimg.com/media/HVxGefWbsAAOgWN.png",
-            "auto": true,
-            "quality": 3,
-            "media_score": 127,
-            "checked_at": "2026-10-29T09:15:29.059Z"
+            "post_url": "https://x.com/RGVaerialphotos/status/2115701286096277589",
+            "post_id": "2115701286096277589",
+            "author": "RGVaerialphotos",
+            "type": "video",
+            "image": "https://pbs.twimg.com/amplify_video_thumb/2115698557118525440/img/JcPi0ZRB6O6GSRW0.jpg",
+            "video_url": "https://video.twimg.com/amplify_video/2115698557118525440/vid/avc1/2560x1440/6WsYhIBrj3Pci0My.mp4"
           },
           "tier": 2,
           "push": {
-            "title": "💥 Static fires: In progress",
-            "url": "https://x.com/LabPadre/status/2115713308573782488",
-            "at": "2026-10-29T07:52:15.000Z"
+            "title": "🏗️ Pad activity · Flight 15",
+            "url": "https://x.com/RGVaerialphotos/status/2115701286096277589",
+            "at": "2026-10-29T07:03:21.000Z"
           },
-          "alt_media": {
-            "post_url": "https://x.com/LabPadre/status/2115713308573782488",
-            "post_id": "2115713308573782488",
-            "author": "LabPadre",
-            "type": "video",
-            "image": "https://pbs.twimg.com/amplify_video_thumb/2115712955241074688/img/0uMM9EvVI2CtVi5E.jpg",
-            "show": false
-          }
+          "edited": true,
+          "edited_from": "Ship 42 arrived back at the launch site. (RGVaerialphotos post edited within a minute; corrected 29 Oct)",
+          "data_fix": "29 Oct: rollback after static fires, moved pad → static | 29 Oct: one event = one card — Blobifie 06:37 and LabPadre 07:52 posts of the same rollback merged in as updates",
+          "updates": [
+            {
+              "date": "29 Oct",
+              "at": "2026-10-29T07:52:15.000Z",
+              "text": "Ship 42 returned to Megabay 2 after static fire.",
+              "src": "LabPadre",
+              "phase": "progress",
+              "tier": 2,
+              "log_text": "Ship 42 heads back to Megabay 2.",
+              "url": "https://x.com/LabPadre/status/2115713308573782488",
+              "handle": "LabPadre",
+              "merged_from": "x-2115713308573782488"
+            },
+            {
+              "date": "29 Oct",
+              "at": "2026-10-29T06:37:17.000Z",
+              "text": "Ship 42 left Massey's and moved into Mega Bay 2.",
+              "src": "Blobifie",
+              "phase": "progress",
+              "tier": 2,
+              "log_text": "Ship 42 rolled back to Mega Bay 2 after static fires.",
+              "url": "https://x.com/Blobifie/status/2115694440891498638",
+              "handle": "Blobifie",
+              "merged_from": "x-2115694440891498638"
+            }
+          ]
         },
         {
           "id": "x-2114904512217694216",
@@ -2188,7 +2142,7 @@
         }
       ],
       "doneText": "Complete",
-      "log_latest": "Ship 42 preparing for launch at Megabay 2."
+      "log_latest": "Ship 42 back at Megabay 2."
     },
     {
       "id": "pad",
@@ -2196,71 +2150,8 @@
       "name": "Pad activity",
       "color": "#A88BFF",
       "status": "progress",
-      "latest": "Ship 42 is back at the production site / Megabay 2.",
+      "latest": "Ship 43 returned to Megabay 2.",
       "history": [
-        {
-          "id": "x-2115701002095755563",
-          "date": "29 Oct",
-          "log_date": "29 Oct",
-          "at": "2026-10-29T07:03:21.000Z",
-          "text": "Ship 42 is back at the production site / Megabay 2.",
-          "x_text": "Ship 42 is back at the production site / Megabay 2.",
-          "log_text": "Ship 42 is back at the production site / Megabay 2.",
-          "status_line": "Ship 42 back at Megabay 2.",
-          "url": "https://x.com/RGVaerialphotos/status/2115701286096277589",
-          "src": "@RGVaerialphotos",
-          "trust": "trusted",
-          "x_first": true,
-          "stage": "pad",
-          "hardware": "S42",
-          "flight": 15,
-          "x_post": {
-            "post_id": "2115701286096277589",
-            "url": "https://x.com/RGVaerialphotos/status/2115701286096277589",
-            "created_at": "2026-10-29T07:04:29.000Z",
-            "text": "Ship 42 and the tiled barrel section have arrived back at the production site.",
-            "author": {
-              "name": "RGV Aerial Photography",
-              "username": "RGVaerialphotos",
-              "avatar": "https://pbs.twimg.com/profile_images/2019953617743097856/PJqBBhpU_normal.jpg"
-            },
-            "media": [
-              {
-                "type": "video",
-                "poster": "https://pbs.twimg.com/amplify_video_thumb/2115698557118525440/img/JcPi0ZRB6O6GSRW0.jpg",
-                "video_url": "https://video.twimg.com/amplify_video/2115698557118525440/vid/avc1/2560x1440/6WsYhIBrj3Pci0My.mp4"
-              },
-              {
-                "type": "video",
-                "poster": "https://pbs.twimg.com/amplify_video_thumb/2115698578555641856/img/NgdeZ_gsoBwQEzZK.jpg",
-                "video_url": "https://video.twimg.com/amplify_video/2115698578555641856/vid/avc1/2560x1440/brVEtAoMrRzYH6dx.mp4"
-              }
-            ]
-          },
-          "x_posts": [
-            "2115701002095755563",
-            "2115701286096277589",
-            "2115713308573782488"
-          ],
-          "xChecked": true,
-          "imageChecked2": true,
-          "media_override": {
-            "post_url": "https://x.com/RGVaerialphotos/status/2115701286096277589",
-            "post_id": "2115701286096277589",
-            "author": "RGVaerialphotos",
-            "type": "video",
-            "image": "https://pbs.twimg.com/amplify_video_thumb/2115698557118525440/img/JcPi0ZRB6O6GSRW0.jpg",
-            "video_url": "https://video.twimg.com/amplify_video/2115698557118525440/vid/avc1/2560x1440/6WsYhIBrj3Pci0My.mp4"
-          },
-          "tier": 2,
-          "push": {
-            "title": "🏗️ Pad activity · Flight 15",
-            "url": "https://x.com/RGVaerialphotos/status/2115701286096277589",
-            "at": "2026-10-29T07:03:21.000Z"
-          },
-          "edited": true,
-          "edited_from": "Ship 42 arrived back at the launch site. (RGVaerialphotos post edited within a minute; corrected 29 Oct)"
-        },
         {
           "id": "f16-s43-2115315741709001123",
           "date": "28 Oct",
@@ -2759,7 +2650,7 @@
           ]
         }
       ],
-      "log_latest": "Ship 42 back at Megabay 2."
+      "log_latest": "Ship 43 back at Megabay 2."
     },
     {
       "id": "faa",
@@ -3051,7 +2942,7 @@
       "at": "2026-10-29T07:04:29.000Z",
       "date": "29 Oct",
       "flight": 15,
-      "box": "pad"
+      "box": "static"
     },
     {
       "id": "flight-mvsjfivy-8b129a",

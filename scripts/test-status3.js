@@ -16,4 +16,7 @@ check(b.date.status === "progress" && b.date.statusText === "Estimated" && /NET/
 const app = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
 check(/\.dot-progress \{ background: linear-gradient\(90deg, var\(--c\) 50%, transparent 50%\)/.test(app), "header dot: ◐ half fill for In progress / Estimated");
 check(/m\.status === "done" \|\| m\.status === "complete"\)\.length; \/\/ shown boxes only; counts ● full only/.test(app), "'N of 6 done' counts full only");
+const cr = fs.readFileSync(path.join(__dirname, "check-road.js"), "utf8");
+check(!/(?:done|complete): "Done"/.test(app) && !/(?:done|complete): "Done"/.test(cr) && !/\|\| "Done"/.test(app + cr), "no 'Done' label or fallback left (app.js + check-road.js)");
+check(/const doneToLabel = /.test(app) && /doneToLabel\(s\)/.test(app) && /doneToLabel\(f\.title\)/.test(app), "old 'X: Done' text is mapped to the section label at render time");
 console.log(`\n${n - fails}/${n} checks passed`); process.exit(fails ? 1 : 0);

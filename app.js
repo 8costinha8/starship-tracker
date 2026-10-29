@@ -153,7 +153,7 @@ const fmtDay = (s) => normDay(s);
 const entryDate = (h) => { const iso = h && (h.publishedAt || h.at || (/^\d{1,2} [A-Z][a-z]{2}$/.test(normDay(h.date) || "") && postIdOf(h) && sfIso(postIdOf(h)))); return iso && Number.isFinite(Date.parse(iso)) ? ukStamp(iso, false) : fmtDay(h && h.date); }; // single day only, never a clock time
 // No public source names in the UI: @handles stay, outlet names are removed.
 const SRC_NAMES = /\s*(?:\(|\b)(?:per|via|from|according to)?\s*(?:NASASpaceflight(?:\.com)?|NSF|Spaceflight Now|SpaceNews|Teslarati|Next ?Spaceflight|LL2|Launch Library 2?|Spaceflight News API|LabPadre|Ars Technica|Space\.com)\b(?:\s*[-–]\s*NASASpaceflight\.com)?\)?/gi;
-const scrub = (s) => typeof s !== "string" ? s : s.replace(SRC_NAMES, "").replace(/\(\s*(unofficial|secondary|estimate)\s*\)/gi, "($1)").replace(/\s*·\s*(?=·|$)/g, "").replace(/^\s*·\s*/, "").replace(/\s{2,}/g, " ").trim();
+const scrub = (s) => typeof s !== "string" ? s : doneToLabel(s).replace(SRC_NAMES, "").replace(/\(\s*(unofficial|secondary|estimate)\s*\)/gi, "($1)").replace(/\s*·\s*(?=·|$)/g, "").replace(/^\s*·\s*/, "").replace(/\s{2,}/g, " ").trim();
 const uiSrc = (s) => { if (typeof s !== "string" || !s) return ""; if (/^@\w+$/.test(s.trim())) return s.trim(); const t = scrub(s).replace(/^(estimate|\(unofficial\)|\(secondary\)|\(estimate\))$/i, ""); return /^(FAA|SpaceX)\b/.test(t) ? t.replace(/\s+via\s*$/i, "") : ""; };
 // For the next-flight card specifically: local launch time and date together,
 // in the UK's own timezone (auto-adjusts BST/GMT), so there's no ambiguity.
@@ -1069,18 +1069,21 @@ function Lightbox({ src, alt, onClose }) {
 // ---- Road to Flight N ----
 // The data lives in road.json (same folder). scripts/check-road.js keeps it up
 // to date on its own; this card just shows whatever is in that file.
-// status: "none" (Not started, dotted) | "pending" / "progress" (outline) | "done" (filled; label is doneText, e.g. "Confirmed", else "Done")
-//   | "complete" (a stage the source says is finished: shown exactly like "done", label and headline "Done")
+// status: "none" (○ Not yet) | "pending" (○) | "progress" (◐ In progress / Estimated) | "done" (● per-section label:
+//   Complete / Installed / Confirmed) | "complete" (shown exactly like "done")
 // An entry with kind: "check" is the box's "no news yet" placeholder (dashed outline).
 // An entry with trust: "unconfirmed" gets a small "Unconfirmed" tag.
 // Every box is shown, the Launch date box included (it sends pushes, so it must be visible too).
 const ROAD_HIDDEN = [];
 const ROAD_URL = "road.json";
 const ROAD_CACHE_KEY = "starship-road-cache-v1";
-const ROAD_STATUS_TEXT = { none: "Not yet", pending: "Not yet", progress: "In progress", done: "Done", complete: "Done" };
-// finished-status label per category (box pills, Road page chips, Flight Log pills); "Done" only for an unknown box
+const ROAD_STATUS_TEXT = { none: "Not yet", pending: "Not yet", progress: "In progress", done: "Complete", complete: "Complete" }; // finished boxes use ROAD_DONE_LABEL
+// finished-status label per category (box pills, Road page chips, Flight Log pills); "Complete" for an unknown box. "Done" is never shown.
 const ROAD_DONE_LABEL = { cryo: "Complete", raptor: "Installed", static: "Complete", pad: "Complete", faa: "Confirmed", date: "Confirmed" };
-const roadDoneLabel = (m) => ROAD_DONE_LABEL[m && m.id] || (m && m.doneText) || "Done";
+const roadDoneLabel = (m) => ROAD_DONE_LABEL[m && m.id] || (m && m.doneText && m.doneText !== "Done" ? m.doneText : "Complete");
+// old push titles / status lines stored with "Done" ("❄️ Cryo tests: Done (22 Oct)"): shown with the section's label (render time only)
+const ROAD_NAME_ID = { "Cryo tests": "cryo", "Raptor engines": "raptor", "Static fires": "static", "Pad activity": "pad", "FAA licence": "faa", "Launch date": "date" };
+const doneToLabel = (t) => String(t || "").replace(/\b(Cryo tests|Raptor engines|Static fires|Pad activity|FAA licence|Launch date): Done\b/g, (_, n) => `${n}: ${ROAD_DONE_LABEL[ROAD_NAME_ID[n]]}`);
 
 // Shows the last copy we saw straight away (no flicker on reopen), then
 // fetches a fresh one, skipping the browser cache, and swaps it in.
@@ -1413,7 +1416,7 @@ function buildFeed(road) {
   })));
   // pushes with no Road box (Starship news, flight-checker alerts): the push's own title, text, source link and time
   (Array.isArray(road.feed_items) ? road.feed_items : []).forEach((f, fi) => { if (!f || !f.id || !f.body) return;
-    const t = String(f.title || ""), m = t.match(/^(\p{Extended_Pictographic}\uFE0F?)\s*(.*)$/u);
+    const t = doneToLabel(f.title), m = t.match(/^(\p{Extended_Pictographic}\uFE0F?)\s*(.*)$/u);
     const at = Date.parse(f.at) || 0;
     const own = f.box && road.categories.find((c) => c.id === f.box); // filed by purpose (e.g. a Starship news push about B22's static fire → Static fires)
     posts.push({ h: { id: f.id, date: f.date, text: f.body, src: "", url: f.url, publishedAt: f.at, trust: "trusted", kind: "feed" },
@@ -1604,16 +1607,17 @@ const SHIP_CRYO_IMAGE = "images/ship-cryo.jpg";
 const isShipCryo = (h, cat) => { const t = `${h.x_text || ""} ${h.text || ""} ${h.log_text || ""}`; return !!cat && cat.id === "cryo" && /\b(ship|s)\s?\d{2}\b/i.test(t) && !/\bbooster\b|\bb\d{2}\b/i.test(t); };
 const roadMediaOf = (h, cat) => (isShipCryo(h, cat) && !(h.media_override && h.media_override.keep_image)
   ? { post_url: urlOf(h), author: (h.media_override && h.media_override.author) || "", type: "photo", image: SHIP_CRYO_IMAGE } : h.media_override);
-function FeedPost({ p, onPhotoTap, idx }) {
+function FeedPost({ p, onPhotoTap, idx, st }) {
   const { h, cat } = p;
   const mo1 = roadMediaOf(h, cat), pair = splitOf(h, mo1);
   const mo = pair ? { ...mo1, pair, onPhotoTap, alt: scrub(h.x_text || h.text) } : mo1; // two-photo split rides on the picked picture
   return (
-    <article className={"post" + (urlOf(h) ? " post-tap" : "")} id={`post-${p.id}`} data-id={p.id} data-entry={h.id || undefined} style={catVars(cat.id, cat.color)}
+    <article className={"post" + (urlOf(h) ? " post-tap" : "")} id={`post-${p.id}`} data-id={p.id} data-entry={h.id || undefined} data-xposts={(h.x_posts || []).join(" ") || undefined} style={catVars(cat.id, cat.color)}
       {...linkProps(h)}>
       <div className="post-top">
         <span className={"chip chip-" + cat.id}><span className="chip-i"><CatIcon c={cat} /></span>{cat.name}</span>
         <span className="post-date">{cardDate(h)}</span>
+        {st && <span className={"badge badge-" + st.status + " post-status"}>{st.text}</span>}
       </div>
       <p className="post-text">{scrub(h.x_text || h.text)}</p>
       {mo ? <PickMedia mo={mo} /> : h.media_context ? <ContextMedia mc={h.media_context} /> : !h.milestone && h.x_post && <XMedia x={h.x_post} />}
@@ -1788,6 +1792,10 @@ function rtfRows(road) {
 function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap }) {
   const { posts, rows } = React.useMemo(() => rtfRows(road), [road]);
   const idx = React.useMemo(() => entryIndex(road), [road]);
+  // Launch date: the section status pill (Not confirmed / Estimated / Confirmed, from the Flight Log) rides on this flight's newest date card
+  const dateSt = React.useMemo(() => { const f = road && window.RoadFlightLog ? window.RoadFlightLog.boxes(road) : null; const d = f && f.date;
+    const top = d && posts.find((q) => q.cat && q.cat.id === "date" && (q.h.flight == null || q.h.flight === road.flight));
+    return top ? { id: top.id, status: d.status, text: d.statusText } : null; }, [road, posts]);
   if (!posts.length) return null;
   return (
     <aside className="feed-pane" aria-label="Updates feed" aria-hidden={!wide && !shown}>
@@ -1802,7 +1810,7 @@ function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap }) {
             ? <div className="fdiv" id={`fsec-${r.section.n}`} key={"f" + r.section.n}><span><b>{`Flight ${r.section.n}`}</b>{(r.section.flown || r.section.next) && <> <i>·</i> </>}{r.section.flown
                 ? <><span className={"fdiv-" + r.section.flown.outcome}>{OUTCOME_LABEL[r.section.flown.outcome] || r.section.flown.outcome}</span> <i>·</i> {ukStamp(new Date(r.section.flown.day).toISOString(), false)}</>
                 : r.section.next ? <span className="fdiv-next">Next flight</span> : null}</span></div>
-            : r.empty ? null : <FeedPost key={r.post.id} p={r.post} onPhotoTap={onPhotoTap} idx={idx} />)}
+            : r.empty ? null : <FeedPost key={r.post.id} p={r.post} onPhotoTap={onPhotoTap} idx={idx} st={dateSt && dateSt.id === r.post.id ? dateSt : null} />)}
           <p className="end">That's every update so far.</p>
         </div>
       </div>
@@ -2046,7 +2054,8 @@ function StarshipTracker() {
     if (!entryReq || !road) return;
     const t = setTimeout(() => {
       const pane = feedScroll.current;
-      const el = pane && pane.querySelector(`[data-entry="${CSS.escape(entryReq)}"]`);
+      const num = (String(entryReq).match(/^x-(\d+)$/) || [])[1]; // a merged card keeps its old post ids (old push links still land on it)
+      const el = pane && (pane.querySelector(`[data-entry="${CSS.escape(entryReq)}"]`) || (num && pane.querySelector(`[data-xposts~="${num}"]`)));
       setEntryReq(null);
       if (!el) return;
       const head = pane.querySelector(".feed-head");
@@ -2491,6 +2500,7 @@ section.road .callout-latest { grid-row: 2; grid-column: 2 / -1; margin-top: 0; 
 .badge-stack > span { grid-area: 1 / 1; white-space: nowrap; }
 .badge-ghost { visibility: hidden; } /* sizes every pill to the widest label in the card */
 .badge-wrap { display: inline-flex; flex-direction: column; align-items: center; gap: 3px; flex: none; }
+.post-status { margin-left: auto; }
 .badge-count { font-size: 10.5px; color: var(--muted, #AAB6D6); }
 .bu-date { font-weight: 700; margin-right: 4px; }
 .xm-ctx { font-size: 11px; opacity: .75; margin-right: auto; }
