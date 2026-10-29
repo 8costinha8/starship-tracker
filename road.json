@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "29 Oct",
-  "updatedAt": "2026-10-29T02:45:56.768Z",
+  "updatedAt": "2026-10-29T02:46:49.026Z",
   "categories": [
     {
       "id": "cryo",
@@ -2947,6 +2947,16 @@
     }
   ],
   "feed_items": [
+    {
+      "id": "news-mvswj2lk-339967",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Booster completes full static fire while Ship runs engine tests ahead of flight",
+      "url": "https://www.youtube.com/watch?v=vKqb6w5FeEs",
+      "at": "2026-10-29T02:05:53.000Z",
+      "date": "29 Oct",
+      "flight": 15
+    },
     {
       "id": "flight-mvsjfivy-8b129a",
       "kind": "flight",
