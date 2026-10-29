@@ -303,6 +303,17 @@
       "where": "feed",
       "verdict": "silent: minor other — a push went out 3.7h ago (quiet window 24h)",
       "key": "starship|other|28 Oct"
+    },
+    {
+      "title": "💥 Static fires · Flight 15",
+      "body": "Booster 22 completes its static fire at Pad 2.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2115627415947059537",
+      "url": "https://x.com/NASASpaceflight/status/2115627415947059537",
+      "at": "2026-10-29T02:10:57.000Z",
+      "sent_at": "2026-10-29T02:32:08.230Z",
+      "where": "road",
+      "verdict": "sent",
+      "key": "B22|static_fire|29 Oct"
     }
   ]
 }
