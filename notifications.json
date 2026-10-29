@@ -92,13 +92,14 @@
     },
     {
       "title": "🏗️ Pad activity: Done",
-      "body": "Booster 22 stacked on the OLM at Pad 1.",
+      "body": "Booster 22 stacked on the OLM at Pad 2.",
       "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2114016319679201462",
       "url": "https://x.com/Blobifie/status/2114016319679201462",
       "at": "2026-10-24T15:29:01.000Z",
       "sent_at": "2026-10-24T15:30:38.670Z",
       "where": "road",
-      "verdict": "sent"
+      "verdict": "sent",
+      "data_fix": "29 Oct: sent as Pad 1 (wrong) — B22 is at Pad 2"
     },
     {
       "title": "💥 Static fires · Flight 15",
@@ -313,7 +314,9 @@
       "sent_at": "2026-10-29T02:32:08.230Z",
       "where": "road",
       "verdict": "sent",
-      "key": "B22|static_fire|29 Oct"
+      "key": "B22|static_fire|29 Oct",
+      "retracted": true,
+      "data_fix": "29 Oct: stale — NSF Starship Update recap of the 25 Oct B22 static fire; card removed"
     },
     {
       "title": "Flight 15 update",
@@ -335,7 +338,9 @@
       "sent_at": "2026-10-29T02:46:50.396Z",
       "where": "feed",
       "verdict": "silent: duplicate B22|static_fire|29 Oct",
-      "key": "B22|static_fire|29 Oct"
+      "key": "B22|static_fire|29 Oct",
+      "retracted": true,
+      "data_fix": "29 Oct: NSF YouTube recap of the 25 Oct B22 static fire; feed item removed"
     },
     {
       "title": "❄️ Cryo tests: Done",
@@ -357,7 +362,9 @@
       "sent_at": "2026-10-29T07:19:02.903Z",
       "where": "road",
       "verdict": "sent",
-      "key": "S42|rollout|29 Oct"
+      "key": "S42|rollout|29 Oct",
+      "retracted": true,
+      "data_fix": "29 Oct: wrong — the post was edited a minute later: Ship 42 went back to the production site / Megabay 2; card corrected"
     },
     {
       "title": "🚀 Starship",

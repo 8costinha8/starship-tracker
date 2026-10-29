@@ -1133,85 +1133,6 @@
           }
         },
         {
-          "id": "x-2115627415947059537",
-          "date": "29 Oct",
-          "log_date": "29 Oct",
-          "at": "2026-10-29T02:10:57.000Z",
-          "text": "Booster 22 completes a full 33-Raptor static fire.",
-          "x_text": "Booster 22 completes a full 33-Raptor static fire.",
-          "log_text": "Booster 22 completes its static fire at Pad 2.",
-          "status_line": "Booster 22 static fire done.",
-          "url": "https://x.com/NASASpaceflight/status/2115627415947059537",
-          "src": "@NASASpaceflight",
-          "trust": "trusted",
-          "x_first": true,
-          "stage": "static",
-          "hardware": "B22",
-          "flight": 15,
-          "x_post": {
-            "post_id": "2115627415947059537",
-            "url": "https://x.com/NASASpaceflight/status/2115627415947059537",
-            "created_at": "2026-10-29T02:10:57.000Z",
-            "text": "Starship Update with Max Evans (@_MaxQ_) https://t.co/jSRLDg3uke",
-            "author": {
-              "name": "NSF - NASASpaceflight.com",
-              "username": "NASASpaceflight",
-              "avatar": "https://pbs.twimg.com/profile_images/1637919260298158080/kRT8BkYf_normal.jpg"
-            },
-            "media": [
-              {
-                "type": "video",
-                "poster": "https://pbs.twimg.com/amplify_video_thumb/2115627360661762048/img/y7yQZ-r0ZFKhWcw0.jpg",
-                "video_url": "https://video.twimg.com/amplify_video/2115627360661762048/vid/avc1/1920x1080/5FhNzuNhAR-kztQL.mp4"
-              }
-            ],
-            "link": {
-              "url": "https://www.youtube.com/watch?v=vKqb6w5FeEs&feature=youtu.be",
-              "title": "Starbase Static Fire Galore - Is Flight Nearly Here? | Starship Update",
-              "description": "Flight 15 milestones stack up as Booster 22 completes a full 33-Rap...",
-              "image": "https://pbs.twimg.com/news_img/2115627425992470528/50xUSs8e?format=jpg&name=orig"
-            }
-          },
-          "x_posts": [
-            "2115627415947059537"
-          ],
-          "xChecked": true,
-          "imageChecked2": true,
-          "media_override": {
-            "post_url": "https://x.com/NASASpaceflight/status/2115627415947059537",
-            "post_id": "2115627415947059537",
-            "author": "NASASpaceflight",
-            "type": "video",
-            "image": "https://pbs.twimg.com/amplify_video_thumb/2115627360661762048/img/y7yQZ-r0ZFKhWcw0.jpg",
-            "video_url": "https://video.twimg.com/amplify_video/2115627360661762048/vid/avc1/1920x1080/5FhNzuNhAR-kztQL.mp4"
-          },
-          "tier": 1,
-          "milestone": {
-            "key": "static_fire|15|B22",
-            "type": "static_fire",
-            "flight": 15,
-            "hardware": "B22",
-            "phase": "completed"
-          },
-          "complete": true,
-          "cascade": {
-            "first_at": "2026-10-29T02:10:57.000Z",
-            "sources": [
-              {
-                "post_id": "2115627415947059537",
-                "author": "NASASpaceflight",
-                "tier": 2,
-                "at": "2026-10-29T02:10:57.000Z"
-              }
-            ]
-          },
-          "push": {
-            "title": "💥 Static fires · Flight 15",
-            "url": "https://x.com/NASASpaceflight/status/2115627415947059537",
-            "at": "2026-10-29T02:10:57.000Z"
-          }
-        },
-        {
           "id": "x-2114904512217694216",
           "date": "27 Oct",
           "log_date": "27 Oct",
@@ -2275,18 +2196,18 @@
       "name": "Pad activity",
       "color": "#A88BFF",
       "status": "progress",
-      "latest": "Ship 42 arrived back at the launch site.",
+      "latest": "Ship 42 is back at the production site / Megabay 2.",
       "history": [
         {
           "id": "x-2115701002095755563",
           "date": "29 Oct",
           "log_date": "29 Oct",
           "at": "2026-10-29T07:03:21.000Z",
-          "text": "Ship 42 arrived back at the launch site.",
-          "x_text": "Ship 42 arrived back at the launch site.",
-          "log_text": "Ship 42 heads to launch site after tests.",
-          "status_line": "Ship 42 at launch site.",
-          "url": "https://x.com/RGVaerialphotos/status/2115701002095755563",
+          "text": "Ship 42 is back at the production site / Megabay 2.",
+          "x_text": "Ship 42 is back at the production site / Megabay 2.",
+          "log_text": "Ship 42 is back at the production site / Megabay 2.",
+          "status_line": "Ship 42 back at Megabay 2.",
+          "url": "https://x.com/RGVaerialphotos/status/2115701286096277589",
           "src": "@RGVaerialphotos",
           "trust": "trusted",
           "x_first": true,
@@ -2294,10 +2215,10 @@
           "hardware": "S42",
           "flight": 15,
           "x_post": {
-            "post_id": "2115701002095755563",
-            "url": "https://x.com/RGVaerialphotos/status/2115701002095755563",
-            "created_at": "2026-10-29T07:03:21.000Z",
-            "text": "Ship 42 and the tiled barrel section have arrived back at the launch site.",
+            "post_id": "2115701286096277589",
+            "url": "https://x.com/RGVaerialphotos/status/2115701286096277589",
+            "created_at": "2026-10-29T07:04:29.000Z",
+            "text": "Ship 42 and the tiled barrel section have arrived back at the production site.",
             "author": {
               "name": "RGV Aerial Photography",
               "username": "RGVaerialphotos",
@@ -2317,13 +2238,15 @@
             ]
           },
           "x_posts": [
-            "2115701002095755563"
+            "2115701002095755563",
+            "2115701286096277589",
+            "2115713308573782488"
           ],
           "xChecked": true,
           "imageChecked2": true,
           "media_override": {
-            "post_url": "https://x.com/RGVaerialphotos/status/2115701002095755563",
-            "post_id": "2115701002095755563",
+            "post_url": "https://x.com/RGVaerialphotos/status/2115701286096277589",
+            "post_id": "2115701286096277589",
             "author": "RGVaerialphotos",
             "type": "video",
             "image": "https://pbs.twimg.com/amplify_video_thumb/2115698557118525440/img/JcPi0ZRB6O6GSRW0.jpg",
@@ -2332,9 +2255,11 @@
           "tier": 2,
           "push": {
             "title": "🏗️ Pad activity · Flight 15",
-            "url": "https://x.com/RGVaerialphotos/status/2115701002095755563",
+            "url": "https://x.com/RGVaerialphotos/status/2115701286096277589",
             "at": "2026-10-29T07:03:21.000Z"
-          }
+          },
+          "edited": true,
+          "edited_from": "Ship 42 arrived back at the launch site. (RGVaerialphotos post edited within a minute; corrected 29 Oct)"
         },
         {
           "id": "f16-s43-2115315741709001123",
@@ -2834,7 +2759,7 @@
           ]
         }
       ],
-      "log_latest": "Ship 42 at launch site."
+      "log_latest": "Ship 42 back at Megabay 2."
     },
     {
       "id": "faa",
@@ -3120,17 +3045,6 @@
       "box": "pad"
     },
     {
-      "id": "news-mvswj2lk-339967",
-      "kind": "news",
-      "title": "🚀 Starship",
-      "body": "Booster completes full static fire while Ship runs engine tests ahead of flight",
-      "url": "https://www.youtube.com/watch?v=vKqb6w5FeEs",
-      "at": "2026-10-29T02:05:53.000Z",
-      "date": "29 Oct",
-      "flight": 15,
-      "box": "static"
-    },
-    {
       "id": "flight-mvsjfivy-8b129a",
       "kind": "flight",
       "title": "📅 New estimated date",
@@ -3256,14 +3170,12 @@
   "milestones": {
     "B22": {
       "static_fire": {
-        "count": 2,
+        "count": 1,
         "dates": [
-          "2026-10-25T13:22:00.000Z",
-          "2026-10-29T02:10:57.000Z"
+          "2026-10-25T13:22:00.000Z"
         ],
         "src": [
-          "https://x.com/SpaceflightNow/status/2114349246803587110",
-          "https://x.com/NASASpaceflight/status/2115627415947059537"
+          "https://x.com/SpaceflightNow/status/2114349246803587110"
         ]
       }
     },
