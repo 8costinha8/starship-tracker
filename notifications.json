@@ -369,6 +369,17 @@
       "where": "feed",
       "verdict": "silent: minor other — a push went out 0.0h ago (quiet window 24h)",
       "key": "S42|other|29 Oct"
+    },
+    {
+      "title": "💥 Static fires: In progress",
+      "body": "Ship 42 heads back to Megabay 2.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2115713308573782488",
+      "url": "https://x.com/LabPadre/status/2115713308573782488",
+      "at": "2026-10-29T07:52:15.000Z",
+      "sent_at": "2026-10-29T08:00:53.268Z",
+      "where": "road",
+      "verdict": "silent: minor transport — a push went out 0.7h ago (quiet window 24h)",
+      "key": "S42|transport|29 Oct"
     }
   ]
 }
