@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "29 Oct",
-  "updatedAt": "2026-10-29T08:00:51.790Z",
+  "updatedAt": "2026-10-29T09:33:11.841Z",
   "categories": [
     {
       "id": "cryo",
@@ -1107,18 +1107,29 @@
           "xChecked": true,
           "imageChecked2": true,
           "media_override": {
-            "post_url": "https://x.com/LabPadre/status/2115713308573782488",
-            "post_id": "2115713308573782488",
-            "author": "LabPadre",
-            "type": "video",
-            "image": "https://pbs.twimg.com/amplify_video_thumb/2115712955241074688/img/0uMM9EvVI2CtVi5E.jpg",
-            "video_url": "https://video.twimg.com/amplify_video/2115712955241074688/vid/avc1/1280x720/iFjD9gHXDqreohIh.mp4"
+            "post_url": "https://x.com/TrackingTheSB/status/2115643620556763279",
+            "post_id": "2115643620556763279",
+            "author": "TrackingTheSB",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HVxGefWbsAAOgWN.png",
+            "auto": true,
+            "quality": 3,
+            "media_score": 127,
+            "checked_at": "2026-10-29T09:15:29.059Z"
           },
           "tier": 2,
           "push": {
             "title": "💥 Static fires: In progress",
             "url": "https://x.com/LabPadre/status/2115713308573782488",
             "at": "2026-10-29T07:52:15.000Z"
+          },
+          "alt_media": {
+            "post_url": "https://x.com/LabPadre/status/2115713308573782488",
+            "post_id": "2115713308573782488",
+            "author": "LabPadre",
+            "type": "video",
+            "image": "https://pbs.twimg.com/amplify_video_thumb/2115712955241074688/img/0uMM9EvVI2CtVi5E.jpg",
+            "show": false
           }
         },
         {
