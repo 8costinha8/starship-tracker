@@ -2413,7 +2413,7 @@ section.road .callout-name { grid-row: 1; grid-column: 2; min-width: 0; line-hei
 section.road .callout-head > .badge, section.road .callout-head > .badge-wrap { grid-row: 1; grid-column: 3; justify-self: end; }
 section.road .callout-head .badge { padding: 3px 8px; font-size: 10.5px; }
 section.road .callout-head .badge-wrap { flex-direction: row-reverse; gap: 6px; }
-section.road .callout-latest { grid-row: 2; grid-column: 1 / -1; margin-top: 0; overflow-wrap: anywhere; text-wrap: pretty; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+section.road .callout-latest { grid-row: 2; grid-column: 2 / -1; margin-top: 0; overflow-wrap: anywhere; text-wrap: pretty; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .mini.flog-card { box-sizing: border-box; width: 100%; min-height: 96px; padding: 10px 12px; }
 .callout-name { display: block; font-weight: 700; font-size: 15px; color: var(--t, var(--c)); }
 .callout-latest { display: block; font-size: 13px; color: var(--text); margin-top: 3px; line-height: 1.35; }
