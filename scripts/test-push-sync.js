@@ -60,11 +60,11 @@ const xReply = (posts, newest) => ({ ok: true, status: 200, json: async () => ({
 
   const saved = JSON.parse(fs.readFileSync(roadPath, "utf8")), log = ps.readLog(logPath).pushes;
   const byTitle = (re) => sent.find((n) => re.test(n.title));
-  const card = byTitle(/Pad activity · Flight 15|Pad activity: In progress/), mis = byTitle(/^Flight 15 update$/), nws = byTitle(/Starship$/), stat = byTitle(/Pad activity: Done/), fl = byTitle(/Launch time confirmed/);
+  const card = byTitle(/Pad activity · Flight 15|Pad activity: In progress/), mis = byTitle(/^Flight 15 update$/), nws = byTitle(/Starship$/), stat = byTitle(/Pad activity: Complete/), fl = byTitle(/Launch time confirmed/);
   check(sent.length === 5 && card && mis && nws && stat && fl, `5 pushes sent: road card, mission line, news, merge status, flight-checker (${sent.map((n) => n.title).join(" | ")})`);
   for (const n of sent) check(ps.checkVisible(saved, n) === "", `"${n.title}": identical item visible in road.json (${n.visible.where})`);
   const pad = saved.categories.find((c) => c.id === "pad");
-  check(stat && stat.body === "Pad activity: Done (22 Oct)" && pad.history.some((h) => h.kind === "status" && h.text === stat.body && h.at === "2026-10-22T16:20:00.000Z"), `merge-only status: dated line "${stat && stat.body}" in the Pad activity box, push says the same`);
+  check(stat && stat.body === "Pad activity: Complete (22 Oct)" && pad.history.some((h) => h.kind === "status" && h.text === stat.body && h.at === "2026-10-22T16:20:00.000Z"), `merge-only status: dated line "${stat && stat.body}" in the Pad activity box, push says the same`);
   const ml = (saved.mission_updates["15"] || []).find((u) => u.topic === "landing");
   check(mis && ml && ml.line === mis.body && ml.at === "2026-10-21T23:05:00.000Z" && mis.at === ml.at && mis.url === ml.url, `mission line on the Next flight card = push, post's own time kept (${ml && ml.line})`);
   check(/\(SpaceX, 22 Oct\)\.$/.test(ml.line), "21 Oct 23:05 UTC is 22 Oct 00:05 in UK time → UK day 22 Oct");

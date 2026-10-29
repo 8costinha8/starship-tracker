@@ -107,7 +107,7 @@ check(L.cleanLogText("Ship 42 completed it's cryo test at Massey's") === "Ship 4
   s = st(); const s42 = s.history.find((h) => h.milestone && h.milestone.hardware === "S42");
   check(s42 && s42.log_text === "Ship 42 completes its static fire at Massey's." && L.lintLogText(s42.log_text).length === 0, "a writer slip (\"Ship 42's completes\") is fixed before it is stored");
   check(s.status === "done" && s.log_latest === require("./cleanup.js").shortLine(s42.log_text) && s.log_latest === "Ship 42 static fire done." && A.rollupStatus(s, live) === "done", "every Flight 15 vehicle completed → section Done (pill Done, filled dot)");
-  const p2 = events.find((x) => x.push && /Static fires: (Done|Completed)/.test(x.push.title));
+  const p2 = events.find((x) => x.push && /Static fires: (Done|Complete)/.test(x.push.title));
   check(p2 && p2.push.body === s42.log_text && p2.visible, "Done push wording = the visible log line");
   check(A.rollupStatus(cryo, live) === "done" && A.rollupStatus(live.categories.find((c) => c.id === "pad"), live) === live.categories.find((c) => c.id === "pad").status, "live Cryo rolls up to Done; pad work never rolls up");
   const reopened = JSON.parse(JSON.stringify(cryo)); reopened.history.unshift({ log_text: "Ship 42 heads back to Massey's.", flight: 15, trust: "trusted", milestone: { hardware: "S42", phase: "progress" } });

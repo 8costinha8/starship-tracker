@@ -70,7 +70,10 @@ const LIMITS = {
 
 const STATUSES = ["none", "pending", "progress", "done", "complete"];
 const RANK = { none: 0, pending: 1, progress: 2, done: 3, complete: 3 };
-const STATUS_TEXT = { none: "Not started", pending: "Pending", progress: "In progress", done: "Done", complete: "Done" };
+const STATUS_TEXT = { none: "Not yet", pending: "Not yet", progress: "In progress", done: "Done", complete: "Done" };
+// finished-status label per category (same map as app.js ROAD_DONE_LABEL and flightlog.js DONE_LABEL)
+const DONE_LABEL = { cryo: "Complete", raptor: "Installed", static: "Complete", pad: "Complete", faa: "Confirmed", date: "Confirmed" };
+const doneLabel = (box) => DONE_LABEL[box && box.id] || (box && box.doneText) || "Done";
 const FINISHED = (s) => s === "done" || s === "complete"; // nothing awaited → no "no news yet" line
 
 // Wording for a new "no news yet" line (an existing one keeps its own wording).
@@ -87,7 +90,7 @@ const CHECK_TEXT = {
 const BOXES = [
   { id: "cryo", icon: "❄️", name: "Cryo tests", color: "#BFE6FF" },
   { id: "raptor", icon: "🔥", name: "Raptor engines", color: "#0E0F11" },
-  { id: "static", icon: "💥", name: "Static fires", color: "#FF9A3D", doneText: "Completed" },
+  { id: "static", icon: "💥", name: "Static fires", color: "#FF9A3D", doneText: "Complete" },
   { id: "pad", icon: "🏗️", name: "Pad activity", color: "#A88BFF" },
   { id: "faa", icon: "📜", name: "FAA licence", color: "#2FD3B0" },
   { id: "date", icon: "🗓️", name: "Launch date", color: "#FFC93D", doneText: "Confirmed" },
@@ -1066,7 +1069,7 @@ function applyUpdates(road, items, updates, log, limit) {
       // headline: keep it unless Grok says this supersedes it, the status moved, or it's still the placeholder
       const short = cleanLine(u.short, { fullStop: false });
       const replace = u.supersedes === true || change.to !== change.from || !box.latest || box.latest === "Nothing reported yet";
-      if (box.status === "complete" && change.to === "complete" && change.from !== "complete") { box.latest = "Done"; change.headline = "replaced"; }
+      if (box.status === "complete" && change.to === "complete" && change.from !== "complete") { box.latest = doneLabel(box); change.headline = "replaced"; }
       if (want === "complete" && box.status === "complete") entry.complete = true; // the update that finished the stage (green tint in the app)
       else if (short && replace) { box.latest = short; change.headline = "replaced"; } else change.headline = "kept";
       log(`ADDED [${box.id}] ${line} (${it.src}, ${it.tier})${change.to !== change.from ? ` — status ${change.from} → ${change.to}` : ""} — headline ${change.headline}`);
@@ -1129,7 +1132,7 @@ const FEED_LINK = "https://8costinha8.github.io/starship-tracker/?feed=1";
 function statusLine(road, box, merged, post) {
   post = post || merged.x_post || {};
   const at = post.created_at || merged.at || new Date().toISOString();
-  const label = box.status === "done" ? box.doneText || "Done" : STATUS_TEXT[box.status];
+  const label = box.status === "done" || box.status === "complete" ? doneLabel(box) : STATUS_TEXT[box.status];
   const text = `${box.name}: ${label} (${pushSync.ukDay(at)})`;
   const id = `status-${box.id}-${box.status}-${post.post_id || Date.parse(at)}`;
   let e = (box.history || []).find((h) => h.id === id);
@@ -1147,7 +1150,7 @@ function notificationFor(road, ch) {
 const PHASE_TEXT = { expected: "Expected", progress: "In progress", completed: "Completed" };
 function notificationText(road, ch) {
   const { box, entry } = ch;
-  const label = (s) => (s === "done" ? box.doneText || "Done" : STATUS_TEXT[s]);
+  const label = (s) => (s === "done" || s === "complete" ? doneLabel(box) : STATUS_TEXT[s]);
   if (ch.phase && ch.phase.from) return { title: `${box.icon} ${box.name}: ${PHASE_TEXT[ch.phase.to]}`, body: entry.x_text || entry.text };
   if (ch.to !== ch.from) return { title: `${box.icon} ${box.name}: ${label(ch.to)}`, body: entry.text };
   if (entry.trust === "unconfirmed") return { title: `${box.icon} ${box.name} (unconfirmed)`, body: entry.text };
@@ -1349,7 +1352,7 @@ async function run(opts = {}) {
           const tier = entry.official ? "official" : "trusted";
           if (want === "complete" && logText.hasVehicleEntries(box, road)) want = logText.rollupStatus(box, road) === "done" ? "done" : "progress"; // a vehicle section is done only when every vehicle completed
           if (!statusRule(box, want, tier, `@${post.author.username}`, log)) return null;
-          box.status = want; box.latest = want === "complete" ? "Done" : entry.text.slice(0, 160);
+          box.status = want; box.latest = want === "complete" ? doneLabel(box) : entry.text.slice(0, 160);
           if (entry.status_line || entry.log_text) box.log_latest = entry.status_line || require("./cleanup.js").shortLine(entry.log_text); // overview: short plain state
           if (want === "complete" || want === "done") entry.complete = true;
           log(`STATUS [${box.id}] ${from} → ${want} (@${post.author.username})`);

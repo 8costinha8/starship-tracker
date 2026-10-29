@@ -1077,7 +1077,10 @@ function Lightbox({ src, alt, onClose }) {
 const ROAD_HIDDEN = [];
 const ROAD_URL = "road.json";
 const ROAD_CACHE_KEY = "starship-road-cache-v1";
-const ROAD_STATUS_TEXT = { none: "Not started", pending: "Pending", progress: "In progress", done: "Done", complete: "Done" };
+const ROAD_STATUS_TEXT = { none: "Not yet", pending: "Not yet", progress: "In progress", done: "Done", complete: "Done" };
+// finished-status label per category (box pills, Road page chips, Flight Log pills); "Done" only for an unknown box
+const ROAD_DONE_LABEL = { cryo: "Complete", raptor: "Installed", static: "Complete", pad: "Complete", faa: "Confirmed", date: "Confirmed" };
+const roadDoneLabel = (m) => ROAD_DONE_LABEL[m && m.id] || (m && m.doneText) || "Done";
 
 // Shows the last copy we saw straight away (no flicker on reopen), then
 // fetches a fresh one, skipping the browser cache, and swaps it in.
@@ -1162,8 +1165,8 @@ function RoadCard({ road, onEntryTap, openReq }) {
   const listRef = React.useRef(null);
   if (!items.length) return null;
   const title = `Road to Flight ${road.flight}`;
-  const done = items.filter((m) => m.status === "done" || m.status === "complete").length; // shown boxes only
-  const label = (m) => (m.flog ? m.flog.statusText : m.status === "done" ? m.doneText || "Done" : ROAD_STATUS_TEXT[m.status] || m.status);
+  const done = items.filter((m) => m.status === "done" || m.status === "complete").length; // shown boxes only; counts ● full only (◐ half does not count)
+  const label = (m) => (m.flog ? m.flog.statusText : m.status === "done" || m.status === "complete" ? roadDoneLabel(m) : ROAD_STATUS_TEXT[m.status] || m.status);
   // Equal-width status pills, pure CSS: every pill stacks ALL of this card's labels in one grid cell (others
   // invisible), so each pill's width = the widest label + the same padding + the same border. No measuring.
   const pillLabels = [...new Set(items.map(label))];
@@ -1189,7 +1192,7 @@ function RoadCard({ road, onEntryTap, openReq }) {
               <span className="callout-icon">{m.icon}</span>
               <span className="callout-body">
                 <span className="callout-name">{m.name}</span>
-                <span className="callout-latest">{m.flog ? scrub(m.flog.latest) : m.status === "complete" ? "Done" : scrub(window.RoadCleanup ? window.RoadCleanup.shortLine(boxLatest(m, road)) : boxLatest(m, road))}</span>
+                <span className="callout-latest">{m.flog ? scrub(m.flog.latest) : m.status === "complete" ? roadDoneLabel(m) : scrub(window.RoadCleanup ? window.RoadCleanup.shortLine(boxLatest(m, road)) : boxLatest(m, road))}</span>
               </span>
               {count(m) ? <span className="badge-wrap">{pill(m)}<span className="badge-count">{count(m)}</span></span>
                 : pill(m)}
@@ -2378,9 +2381,9 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .road-upd { font-size: 12px; color: var(--faint); }
 .road-sum { display: flex; align-items: center; gap: 10px; margin-top: 10px; color: var(--muted); font-size: 13px; }
 .road-dots { display: flex; gap: 6px; }
-.dot { width: 11px; height: 11px; border-radius: 50%; display: block; border: 1.5px solid var(--c); background: transparent; } /* outline = pending / in progress */
-.dot-none { border: 2px dotted var(--c); } /* dotted = not started */
-.dot-done, .dot-complete { background: var(--c); } /* filled = done; ring and fill always the same colour */
+.dot { width: 11px; height: 11px; border-radius: 50%; display: block; border: 1.5px solid var(--c); background: transparent; } /* ○ empty = not yet */
+.dot-progress { background: linear-gradient(90deg, var(--c) 50%, transparent 50%); } /* ◐ half = one vehicle / one test completed */
+.dot-done, .dot-complete { background: var(--c); } /* ● full = every Flight N vehicle done, or official; ring and fill always the same colour */
 .road-count { flex: 1; }
 .road-chev { transition: transform .35s; }
 .main-open .road-chev { transform: rotate(180deg); }
@@ -2420,7 +2423,7 @@ section.road .callout-latest { grid-row: 2; grid-column: 2 / -1; margin-top: 0; 
 .badge { font-size: 11px; font-weight: 700; padding: 4px 9px; border-radius: 999px; white-space: nowrap; letter-spacing: .02em; }
 .badge-done, .badge-complete { background: var(--c); color: var(--on, #141B2D); border: 1px solid var(--c); } /* filled = done / confirmed */
 .badge-progress, .badge-pending { background: transparent; color: var(--t, var(--c)); border: 1px solid color-mix(in srgb, var(--c) 70%, transparent); } /* outline */
-.badge-none { background: transparent; color: var(--t, var(--c)); border: 1.5px dotted var(--c); } /* dotted = not started */
+.badge-none { background: transparent; color: var(--t, var(--c)); border: 1px solid color-mix(in srgb, var(--c) 45%, transparent); } /* ○ not yet: faint outline */
 .callout-hist { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .45s cubic-bezier(.2,.8,.2,1); }
 .callout.open .callout-hist { grid-template-rows: 1fr; }
 .callout-hist-inner { overflow: hidden; padding: 0 14px 0 30px; position: relative; }

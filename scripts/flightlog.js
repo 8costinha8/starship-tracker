@@ -21,6 +21,8 @@
   else root.RoadFlightLog = factory(root.RoadCleanup);
 })(typeof self !== "undefined" ? self : this, function (C) {
   const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const PAD_TEST_DONE = /\b(?:complet\w*|conduct\w*|perform\w*|finish\w*)\b.*\b(?:test\w*|wet dress|wdr|spin[- ]?prime|cryo|static fire|propellant load\w*)\b|\b(?:test\w*|wet dress|wdr|spin[- ]?prime)\b.*\b(?:complet\w*|done|finished)\b/i;
+  const DONE_LABEL = { cryo: "Complete", raptor: "Installed", static: "Complete", pad: "Complete", faa: "Confirmed", date: "Confirmed" }; // finished-status pill per box (same map as app.js ROAD_DONE_LABEL)
   const vName = (v) => (v === "pad" ? "Launch pad" : (v[0] === "S" ? "Ship " : "Booster ") + v.slice(1));
   const txt = (h) => String((h && (h.log_text || h.text)) || "").replace(/^\d{1,2}(?:[–-]\d{1,2})? [A-Z][a-z]{2}:\s*/, "").trim();
   const hw = (h) => { const m = String((h.milestone && h.milestone.hardware) || h.hardware || "").match(/^\s*(?:Ship\s*|S)(\d+)|^\s*(?:Booster\s*|B)(\d+)/i); return m ? (m[1] ? "S" + m[1] : "B" + m[2]) : null; };
@@ -103,18 +105,23 @@
         const head = off ? { day: off.day || ukDay(off.at), time: off.time || (off.at && /T\d/.test(off.at) ? ukTime(off.at) : ""), text: off.text || `Flight ${n} is set for ${off.day || ukDay(off.at)}.`, url: off.url || "" }
           : { day: today, time: "", text: id === "faa" ? `No Flight ${n} licence yet.` : `No official Flight ${n} date yet.` };
         cards = [{ vehicle: id, name: id === "faa" ? "FAA licence" : "Launch date", lines: [head, ...cardLines("pad")] }];
-        status = off ? "done" : "pending"; statusText = off ? "Done" : id === "faa" ? "Not yet" : "Not confirmed"; latest = head.text;
+        // three states: ○ none / ◐ progress / ● done. FAA: Not yet / Confirmed (no half). Launch date: Not confirmed /
+        // Estimated (an unofficial NET date exists: road.predicted) / Confirmed (SpaceX's official date)
+        const est = id === "date" && !off && road.predicted && road.predicted.net;
+        status = off ? "done" : est ? "progress" : "none"; statusText = off ? DONE_LABEL[id] : est ? "Estimated" : id === "faa" ? "Not yet" : "Not confirmed"; latest = est ? `Estimated NET ${ukDay(road.predicted.net + "T12:00:00Z")}.` : head.text;
       } else {
         const keys = id === "pad" ? [...vs, "pad"] : vs;
         cards = keys.map((v) => ({ vehicle: v, name: vName(v), lines: cardLines(v) })).filter((k) => k.lines.length);
         if (id === "pad") {
           const wdr = road.milestones && road.milestones.flight && road.milestones.flight.wdr;
-          status = wdr ? "done" : cards.length ? "progress" : "none"; statusText = wdr ? "Done" : cards.length ? "In progress" : "Not yet";
-          latest = wdr ? `Wet dress rehearsal done.` : cards.length ? `${road.pad || "Pad"} tests in progress.` : "Nothing reported yet"; // short: box heads stay one size
+          // half only once a pad TEST is completed (prep, moves and tower work show in the cards but never move the circle)
+          const tested = cards.some((k) => k.lines.some((l) => PAD_TEST_DONE.test(l.text) && !FORECAST.test(l.text)));
+          status = wdr ? "done" : tested ? "progress" : "none"; statusText = wdr ? DONE_LABEL[id] : tested ? "In progress" : "Not yet";
+          latest = wdr ? `Wet dress rehearsal done.` : tested ? `${road.pad || "Pad"} tests in progress.` : cards.length ? `${road.pad || "Pad"} work under way.` : "Nothing reported yet"; // short: box heads stay one size
         } else {
           const done = vs.filter((v) => cards.some((k) => k.vehicle === v));
           status = vs.length && done.length === vs.length ? "done" : done.length ? "progress" : "none";
-          statusText = status === "done" ? "Done" : status === "progress" ? "In progress" : "Not yet";
+          statusText = status === "done" ? DONE_LABEL[id] : status === "progress" ? "In progress" : "Not yet";
           const what = { cryo: "cryo tests", raptor: "Raptors installed", static: "static fires" }[id] || c.name;
           latest = status === "done" ? (vs.length > 1 ? "Both vehicles done." : `${vName(vs[0])} done.`) : done.length ? `${done.map(vName).join(" and ")} done.` : "Nothing reported yet"; void what;
         }
