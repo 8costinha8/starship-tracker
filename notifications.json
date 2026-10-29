@@ -336,6 +336,17 @@
       "where": "feed",
       "verdict": "silent: duplicate B22|static_fire|29 Oct",
       "key": "B22|static_fire|29 Oct"
+    },
+    {
+      "title": "❄️ Cryo tests: Done",
+      "body": "Ship 42 rolled back to Mega Bay 2 after cryo tests.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2115694440891498638",
+      "url": "https://x.com/Blobifie/status/2115694440891498638",
+      "at": "2026-10-29T06:37:17.000Z",
+      "sent_at": "2026-10-29T06:45:44.257Z",
+      "where": "road",
+      "verdict": "silent: minor cryo_progress — a push went out 4.2h ago (quiet window 24h)",
+      "key": "S42|cryo_progress|29 Oct"
     }
   ]
 }
