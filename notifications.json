@@ -347,6 +347,28 @@
       "where": "road",
       "verdict": "silent: minor cryo_progress — a push went out 4.2h ago (quiet window 24h)",
       "key": "S42|cryo_progress|29 Oct"
+    },
+    {
+      "title": "🏗️ Pad activity · Flight 15",
+      "body": "Ship 42 heads to launch site after tests.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2115701002095755563",
+      "url": "https://x.com/RGVaerialphotos/status/2115701002095755563",
+      "at": "2026-10-29T07:03:21.000Z",
+      "sent_at": "2026-10-29T07:19:02.903Z",
+      "where": "road",
+      "verdict": "sent",
+      "key": "S42|rollout|29 Oct"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Ship 42 and the tiled barrel section have arrived back at the production site",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mvt772o8-49339e",
+      "url": "https://x.com/RGVaerialphotos/status/2115701286096277589",
+      "at": "2026-10-29T07:04:29.000Z",
+      "sent_at": "2026-10-29T07:19:03.531Z",
+      "where": "feed",
+      "verdict": "silent: minor other — a push went out 0.0h ago (quiet window 24h)",
+      "key": "S42|other|29 Oct"
     }
   ]
 }
