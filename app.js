@@ -2403,8 +2403,17 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .callout-icon { font-size: 22px; line-height: 1.2; }
 /* Same size everywhere: every box head is the same height (summary clamped to 2 lines), every vehicle sub-card
    is full width with the same padding and minimum height. */
-section.road .callout-head { min-height: 82px; }
-section.road .callout-latest { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: calc(2 * 1.35em); }
+/* Road box head: icon + title + pill on one centred top row; the summary sits under that row at full width
+   (no fixed height, no empty bottom space). */
+section.road .callout-head { grid-template-columns: auto 1fr auto; column-gap: 8px; row-gap: 3px; align-items: center; padding: 10px 12px 11px 16px; }
+section.road .callout-body { display: contents; }
+section.road .callout-icon { grid-row: 1; grid-column: 1; font-size: 18px; line-height: 1; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; }
+section.road .callout-icon .cat-img { height: 20px; }
+section.road .callout-name { grid-row: 1; grid-column: 2; min-width: 0; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+section.road .callout-head > .badge, section.road .callout-head > .badge-wrap { grid-row: 1; grid-column: 3; justify-self: end; }
+section.road .callout-head .badge { padding: 3px 8px; font-size: 10.5px; }
+section.road .callout-head .badge-wrap { flex-direction: row-reverse; gap: 6px; }
+section.road .callout-latest { grid-row: 2; grid-column: 1 / -1; margin-top: 0; overflow-wrap: anywhere; text-wrap: pretty; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .mini.flog-card { box-sizing: border-box; width: 100%; min-height: 96px; padding: 10px 12px; }
 .callout-name { display: block; font-weight: 700; font-size: 15px; color: var(--t, var(--c)); }
 .callout-latest { display: block; font-size: 13px; color: var(--text); margin-top: 3px; line-height: 1.35; }
