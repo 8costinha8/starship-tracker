@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "29 Oct",
-  "updatedAt": "2026-10-29T09:33:11.841Z",
+  "updatedAt": "2026-10-29T18:31:09.650Z",
   "categories": [
     {
       "id": "cryo",
@@ -2933,6 +2933,16 @@
     }
   ],
   "feed_items": [
+    {
+      "id": "news-mvtv609c-f58a18",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Flight 15 has reportedly slipped by four days to 12 November",
+      "url": "https://x.com/LabPadre/status/2115870155188449596",
+      "at": "2026-10-29T18:15:30.000Z",
+      "date": "29 Oct",
+      "flight": 15
+    },
     {
       "id": "news-mvt772o8-49339e",
       "kind": "news",
