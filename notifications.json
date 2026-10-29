@@ -325,6 +325,17 @@
       "where": "mission",
       "verdict": "silent: minor pad_work — a push went out 0.2h ago (quiet window 24h)",
       "key": "S42|pad_work|29 Oct"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Booster completes full static fire while Ship runs engine tests ahead of flight",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mvswj2lk-339967",
+      "url": "https://www.youtube.com/watch?v=vKqb6w5FeEs",
+      "at": "2026-10-29T02:05:53.000Z",
+      "sent_at": "2026-10-29T02:46:50.396Z",
+      "where": "feed",
+      "verdict": "silent: duplicate B22|static_fire|29 Oct",
+      "key": "B22|static_fire|29 Oct"
     }
   ]
 }
