@@ -387,6 +387,18 @@
       "where": "road",
       "verdict": "silent: minor transport — a push went out 0.7h ago (quiet window 24h)",
       "key": "S42|transport|29 Oct"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Flight 15 has reportedly slipped by four days to 12 November",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mvtv609c-f58a18",
+      "url": "https://x.com/LabPadre/status/2115870155188449596",
+      "at": "2026-10-29T18:15:30.000Z",
+      "sent_at": "2026-10-29T19:00:42.227Z",
+      "where": "feed",
+      "verdict": "silent: minor other — a push went out 11.7h ago (quiet window 24h)",
+      "gate": "hold passed (1 run)",
+      "key": "F15|other|29 Oct"
     }
   ]
 }
