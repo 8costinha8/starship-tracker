@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "29 Oct",
-  "updatedAt": "2026-10-29T06:45:42.891Z",
+  "updatedAt": "2026-10-29T07:19:01.587Z",
   "categories": [
     {
       "id": "cryo",
@@ -2259,8 +2259,67 @@
       "name": "Pad activity",
       "color": "#A88BFF",
       "status": "progress",
-      "latest": "Starbase Pad 1 Flame Trench wall work is progressing.",
+      "latest": "Ship 42 arrived back at the launch site.",
       "history": [
+        {
+          "id": "x-2115701002095755563",
+          "date": "29 Oct",
+          "log_date": "29 Oct",
+          "at": "2026-10-29T07:03:21.000Z",
+          "text": "Ship 42 arrived back at the launch site.",
+          "x_text": "Ship 42 arrived back at the launch site.",
+          "log_text": "Ship 42 heads to launch site after tests.",
+          "status_line": "Ship 42 at launch site.",
+          "url": "https://x.com/RGVaerialphotos/status/2115701002095755563",
+          "src": "@RGVaerialphotos",
+          "trust": "trusted",
+          "x_first": true,
+          "stage": "pad",
+          "hardware": "S42",
+          "flight": 15,
+          "x_post": {
+            "post_id": "2115701002095755563",
+            "url": "https://x.com/RGVaerialphotos/status/2115701002095755563",
+            "created_at": "2026-10-29T07:03:21.000Z",
+            "text": "Ship 42 and the tiled barrel section have arrived back at the launch site.",
+            "author": {
+              "name": "RGV Aerial Photography",
+              "username": "RGVaerialphotos",
+              "avatar": "https://pbs.twimg.com/profile_images/2019953617743097856/PJqBBhpU_normal.jpg"
+            },
+            "media": [
+              {
+                "type": "video",
+                "poster": "https://pbs.twimg.com/amplify_video_thumb/2115698557118525440/img/JcPi0ZRB6O6GSRW0.jpg",
+                "video_url": "https://video.twimg.com/amplify_video/2115698557118525440/vid/avc1/2560x1440/6WsYhIBrj3Pci0My.mp4"
+              },
+              {
+                "type": "video",
+                "poster": "https://pbs.twimg.com/amplify_video_thumb/2115698578555641856/img/NgdeZ_gsoBwQEzZK.jpg",
+                "video_url": "https://video.twimg.com/amplify_video/2115698578555641856/vid/avc1/2560x1440/brVEtAoMrRzYH6dx.mp4"
+              }
+            ]
+          },
+          "x_posts": [
+            "2115701002095755563"
+          ],
+          "xChecked": true,
+          "imageChecked2": true,
+          "media_override": {
+            "post_url": "https://x.com/RGVaerialphotos/status/2115701002095755563",
+            "post_id": "2115701002095755563",
+            "author": "RGVaerialphotos",
+            "type": "video",
+            "image": "https://pbs.twimg.com/amplify_video_thumb/2115698557118525440/img/JcPi0ZRB6O6GSRW0.jpg",
+            "video_url": "https://video.twimg.com/amplify_video/2115698557118525440/vid/avc1/2560x1440/6WsYhIBrj3Pci0My.mp4"
+          },
+          "tier": 2,
+          "push": {
+            "title": "🏗️ Pad activity · Flight 15",
+            "url": "https://x.com/RGVaerialphotos/status/2115701002095755563",
+            "at": "2026-10-29T07:03:21.000Z"
+          }
+        },
         {
           "id": "f16-s43-2115315741709001123",
           "date": "28 Oct",
@@ -2759,7 +2818,7 @@
           ]
         }
       ],
-      "log_latest": "Pad 1 flame trench wall work is progressing at Starbase."
+      "log_latest": "Ship 42 at launch site."
     },
     {
       "id": "faa",
@@ -3033,6 +3092,16 @@
     }
   ],
   "feed_items": [
+    {
+      "id": "news-mvt772o8-49339e",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Ship 42 and the tiled barrel section have arrived back at the production site",
+      "url": "https://x.com/RGVaerialphotos/status/2115701286096277589",
+      "at": "2026-10-29T07:04:29.000Z",
+      "date": "29 Oct",
+      "flight": 15
+    },
     {
       "id": "news-mvswj2lk-339967",
       "kind": "news",
