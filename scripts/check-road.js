@@ -1392,7 +1392,11 @@ async function run(opts = {}) {
 
   // 2b. Predicted launch date: scan the posts already fetched (no extra fetches).
   //     Prediction-only X accounts (Elon) are used here and nowhere else.
-  const predictItems = [...items, ...(state.predPending || [])];
+  // every X post read this run is scanned for a date, including ones the classifier skipped (e.g. an
+  // @FAANews planning-slide post marked "unrelated"), so an estimated-date change is never dropped
+  const xDated = (xf && xf.posts || []).filter((p) => p && p.post_id && p.text && p.author)
+    .map((p) => ({ key: `x:${p.post_id}`, title: p.text.slice(0, 200), text: p.text, url: p.url, publishedAt: p.created_at, src: `X @${p.author.username}`, source: `@${p.author.username}`, tier: xFirstMod.isOfficial(p) ? "official" : "trusted", predictOnly: true }));
+  const predictItems = [...items, ...xDated.filter((x) => !items.some((it) => it.key === x.key)), ...(state.predPending || [])];
   items = items.filter((it) => !it.predictOnly);
   const next = opts.next !== undefined ? opts.next : readNextFlight(opts.handoffPath, state, road, clock());
   const target = next && Number.isInteger(next.n) && next.n > 0 ? next.n : road.flight;
@@ -1626,7 +1630,9 @@ async function run(opts = {}) {
   if (pr.predicted) road.predicted = pr.predicted; else delete road.predicted;
   if (pr.candidates.length) road.predicted_candidates = pr.candidates; else delete road.predicted_candidates;
   const predChanged = JSON.stringify([road.predicted || null, road.predicted_candidates || []]) !== before;
-  if (predChanged) log(`predicted date: ${road.predicted ? `${road.predicted.mode} NET ${road.predicted.net} (${road.predicted.basis})` : "none"} — ${pr.reason} (no push)`);
+  if (predChanged) log(`predicted date: ${road.predicted ? `${road.predicted.mode} NET ${road.predicted.net} (${road.predicted.basis})` : "none"} — ${pr.reason}${pr.slip ? "" : " (no push)"}`);
+  // an estimated-date slip (NET moved to another day) is push-worthy: "Flight 15 now NET 12 Nov (was 8 Nov) · unofficial"
+  if (pr.slip) { const raw = predict.slipPush(pr.slip, clock()); const sp = pushSync.addFeedItem(road, { title: raw.title, body: raw.body, at: raw.at, kind: "launch_date", flight: pr.slip.flight }); notifications.push(sp); log(`predicted date slip ${pr.slip.from} → ${pr.slip.to} → push: ${sp.body}`); }
 
   // 5. Save, commit, then notify (so the app already has the new card when the push lands)
   if (changed || predChanged) {
@@ -1676,7 +1682,7 @@ async function run(opts = {}) {
   return { road, changes, notifications, refreshed, state, scheduledSent, newsPushes, xFirst: xf, pushLog };
 }
 
-module.exports = { pushGateFor, STATIC_VEHICLES, applyPrereqs, searchVehicleWords, archiveLaunched, milestones, statusRule, xStatus, applyMediaPicks, loadMediaPicks, pickImage, applyImageCheck, verifyImages, fcmMessage, notificationFor, judgeFeed, verifyFeed, entryDayMs, backfillX, xPostCard, xIdOf, readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, titleMatches, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
+module.exports = { firebaseDeps, pushGateFor, STATIC_VEHICLES, applyPrereqs, searchVehicleWords, archiveLaunched, milestones, statusRule, xStatus, applyMediaPicks, loadMediaPicks, pickImage, applyImageCheck, verifyImages, fcmMessage, notificationFor, judgeFeed, verifyFeed, entryDayMs, backfillX, xPostCard, xIdOf, readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, titleMatches, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
 
 if (require.main === module) {
   run().catch((err) => {

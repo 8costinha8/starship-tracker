@@ -2756,20 +2756,21 @@
   ],
   "predicted": {
     "flight": 15,
-    "net": "2026-11-08",
+    "net": "2026-11-12",
     "mode": "manual",
-    "basis": "FAA planning · NSF",
+    "basis": "FAA planning slide · NSF",
     "sources": [
       {
-        "name": "NSF",
-        "url": "https://x.com/NASASpaceflight/status/2108210569862070387",
-        "note": "FAA air-traffic planning slides, posted 8 Oct"
+        "name": "FAA planning slide",
+        "note": "FAA air-traffic planning slide, 30 Oct: NET 12 Nov (was 8 Nov)"
       },
       {
-        "name": "Elon Musk",
-        "note": "10 Oct: hopefully 4-6 weeks"
+        "name": "NSF",
+        "url": "https://x.com/NASASpaceflight",
+        "note": "30 Oct: Flight 15 NET 12 Nov (was 8 Nov), citing the FAA planning slide"
       }
-    ]
+    ],
+    "updatedAt": "2026-10-30T16:00:00.000Z"
   },
   "feedVerified": "2026-10-16T17:53:11.334Z",
   "feedJudged": "2026-10-16T17:57:57.301Z",
@@ -2933,6 +2934,15 @@
     }
   ],
   "feed_items": [
+    {
+      "id": "launch_date-mvv5rls0-69f74f",
+      "kind": "launch_date",
+      "title": "📅 Flight 15",
+      "body": "Flight 15 now NET 12 Nov (was 8 Nov) · unofficial",
+      "at": "2026-10-30T16:00:00.000Z",
+      "date": "30 Oct",
+      "flight": 15
+    },
     {
       "id": "news-mvuqvczs-7b7a15",
       "kind": "news",

@@ -132,7 +132,18 @@ function computePredicted({ road, target, next, lastLogged, mentions = [], now =
     const same = predicted && predicted.mode === "auto" && predicted.net === date && predicted.basis === auto.basis && JSON.stringify(predicted.sources) === JSON.stringify(sources);
     if (!same) { predicted = { ...auto, updatedAt: new Date(now).toISOString() }; reason = `auto: ${auto.basis} agree on ${date}`; }
   } else if (predicted && predicted.mode === "auto") { predicted = null; reason = "sources no longer agree on a day"; }
-  return { predicted, candidates, reason };
+  return { predicted, candidates, reason, slip: slipOf(road.predicted, predicted) };
+}
+
+// An unofficial NET that moved to another day for the same flight (e.g. 8 Nov → 12 Nov). null otherwise.
+function slipOf(prev, cur) {
+  if (!prev || !cur || Number(prev.flight) !== Number(cur.flight) || !prev.net || !cur.net || prev.net === cur.net) return null;
+  return { flight: Number(cur.flight), from: prev.net, to: cur.net };
+}
+const shortDay = (iso) => { const d = new Date(iso + "T12:00:00Z"); return `${d.getUTCDate()} ${["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][d.getUTCMonth()]}`; };
+// The push for an estimated-date change: "Flight 15 now NET 12 Nov (was 8 Nov) · unofficial"
+function slipPush(slip, now = Date.now()) {
+  return { title: `📅 Flight ${slip.flight}`, body: `Flight ${slip.flight} now NET ${shortDay(slip.to)} (was ${shortDay(slip.from)}) · unofficial`, kind: "launch_date", where: "predicted-date", link: "https://8costinha8.github.io/starship-tracker/", url: "", at: new Date(now).toISOString() };
 }
 
 function validatePredicted(road) {
@@ -145,4 +156,4 @@ function validatePredicted(road) {
   if (road.predicted_candidates != null && (!Array.isArray(road.predicted_candidates) || road.predicted_candidates.some((c) => !c.source || !/^\d{4}-\d{2}-\d{2}$/.test(c.date || "")))) throw new Error("bad predicted_candidates");
 }
 
-module.exports = { datesIn, prefilter, buildDatePrompt, mentionsFromReply, upsertMentions, ll2State, computePredicted, validatePredicted };
+module.exports = { datesIn, prefilter, buildDatePrompt, mentionsFromReply, upsertMentions, ll2State, computePredicted, validatePredicted, slipOf, slipPush };

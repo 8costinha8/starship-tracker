@@ -13,7 +13,7 @@ const MILESTONES = [
   ["flight_results", /\b(splash(?:ed)? ?down|landed|flight (?:\d+ )?(?:results?|success|was a success)|reached orbit|mission success)\b/i, true],
   ["catch", /\b(caught|catches (?:the )?(?:booster|ship)|catch (?:was )?successful|successful(?:ly)? catch)\b/i, true],
   ["launch", /\b(lift(?:s|ed)? ?off|launched|launches)\b/i, true],
-  ["launch_date", /\b(NET \d|targeting (?:NET )?\d|launch date (?:set|moved|slips?|changed|now)|now targeting|launch (?:is )?(?:set|scheduled) for)\b/i, false],
+  ["launch_date", /\b(NET \d+|targeting (?:NET )?\d|launch date (?:set|moved|slips?|changed|now)|now targeting|launch (?:is )?(?:set|scheduled) for)\b/i, false],
   ["faa_licence", /\b(FAA (?:licen[cs]e|license) (?:issued|granted|approved|modified|modification approved)|licen[cs]e (?:issued|granted|approved)|FAA (?:issues|grants|approves))\b/i, true],
   ["wdr", /\b(wdr|wet dress)\b.*\b(complet\w*|conduct\w*|perform\w*|done|underway|begins?)\b|\b(complet\w*|conduct\w*)\b.*\b(wdr|wet dress)\b/i, true],
   ["stacking", /\b(full stack|fully stacked|stacked (?:on|atop) (?:booster|b\d+)|(?:ship|s\d+) (?:\w+ )?stacked|stacks? (?:ship|s\d+))\b/i, true],

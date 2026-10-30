@@ -101,10 +101,10 @@ P.validatePredicted({ predicted: MANUAL }); check(true, "manual entry validates"
   check(datePrompts.length === 1 && !datePrompts[0].includes("hopefully"), "LLM called once, only on dated candidates (undated Elon post filtered out)");
   check(out.predicted && out.predicted.mode === "auto" && out.predicted.net === dIso && out.predicted.basis === "Elon Musk · NSF", `run(): auto predicted written (${out.predicted && out.predicted.basis} → ${out.predicted && out.predicted.net})`);
   check(out.predicted_candidates.length === 2, "run(): 2 candidates stored");
-  check(pushes.length === 0 && res.notifications.length === 0, "no push for a prediction change");
+  check(res.notifications.length === 1 && /^Flight 15 now NET \d+ \w{3} \(was 8 Nov\) · unofficial$/.test(res.notifications[0].body), `estimated-date slip (manual 8 Nov → new day) is one push: ${res.notifications[0] && res.notifications[0].body}`);
   check(roadPrompts.every((p) => !p.includes("@elonmusk")), "Elon posts never reach the Road prompt");
   check(out.updatedAt === start.updatedAt && out.updated === start.updated, "Road card's Updated stamp unchanged");
-  check(commits.length === 1 && /predicted date NET/.test(commits[0]), `one commit: ${commits[0]}`);
+  check(/predicted date NET/.test(commits[0]) && commits.slice(1).every((c) => /push log/.test(c)), `road commit (+ push log only): ${commits.join(" | ")}`);
   check(roadMod.PREDICT_X_ACCOUNTS.elonmusk.id === "44196397", "Elon's X id hard-coded (no users/by lookup)");
   console.log(failed ? `\n❌ ${failed} check(s) failed.` : "\n✅ All checks passed. (Offline — nothing real was fetched, saved, committed or sent.)");
   process.exit(failed ? 1 : 0);
