@@ -5,10 +5,17 @@ let fail = 0; const ok = (c, m) => { console.log(`${c ? "✅" : "❌"} ${m}`); i
 const live = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "road.json"), "utf8"));
 const terms = cr.searchVehicleWords(live);
 for (const t of ["B22", "S42", "S43", "Booster 22", "Ship 42", "Ship 43"]) ok(terms.includes(t), `derived terms include ${t}`);
+cr.setLastTerms(terms);
 const fb = cr.searchVehicleWords({ flight: 15, vehicles: [], categories: [], archive: {} });
-ok(fb.length && ["B22", "S42", "S43"].every((t) => fb.includes(t)), `empty derivation → static fallback (${fb.slice(0, 6).join(", ")})`);
+ok(fb.length && ["B22", "S42", "S43"].every((t) => fb.includes(t)), `empty data → last good list from state (${fb.slice(0, 6).join(", ")})`);
+const fd = cr.searchVehicleWords({ flight: 16, vehicles: [], categories: [], archive: {}, milestones: { B23: {}, S43: {} }, feed_items: [{ title: "Booster 24 rolls out" }] });
+ok(["B23", "S43", "B24", "Booster 24"].every((t) => fd.includes(t)) && !fd.includes("B22"), `empty derivation → vehicles read from the data, not a hard-coded list (${fd.join(", ")})`);
+ok(!/STATIC_VEHICLES = \[/.test(fs.readFileSync(path.join(__dirname, "check-road.js"), "utf8")), "no hard-coded vehicle list in check-road.js");
+cr.setLastTerms([]);
+ok(!cr.searchVehicleWords({ flight: 15, vehicles: [], categories: [], archive: {} }).length, "no data and no saved list → empty (watchdog alarms)");
+cr.setLastTerms(terms);
 const fb2 = cr.searchVehicleWords({ flight: 15, vehicles: null, categories: [{ history: [{ get text() { throw new Error("boom"); } }] }] });
-ok(fb2.includes("S42"), "derivation throws → static fallback");
+ok(fb2.includes("S42"), "derivation throws → fallback still has S42");
 const s = {}; let a;
 ok(wd.check(s, { terms: [], candidates: 5 }).some((x) => /search terms are empty/.test(x)), "empty search terms → alarm immediately");
 for (let i = 1; i < wd.WATCHDOG_RUNS; i++) { a = wd.check(s, { terms, candidates: 0 }); }

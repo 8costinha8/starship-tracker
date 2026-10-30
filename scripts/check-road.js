@@ -604,14 +604,28 @@ function relevantSnippet(text, road, max = 1200) {
 // and ship so new hardware is caught before it's assigned. Short + long form: "B25", "Booster 25", "S45", "Ship 45".
 // After a launch is archived, the archive still counts toward the highest number, so the next serials keep coming.
 // Fallback when derivation fails or yields nothing: the Flight 15 hardware plus the next serials.
-const STATIC_VEHICLES = ["B22", "S42", "B23", "S43", "B24", "S44"];
-const longForm = (v) => { const m = String(v).match(/^([BS])(\d+)$/i); return m ? [v, (m[1].toUpperCase() === "B" ? "Booster " : "Ship ") + m[2]] : [v]; };
+// No hard-coded vehicle list: if the main derivation fails or is empty, fall back to vehicle names found anywhere
+// in the data (milestones, feed, mission updates, archive, cards), then to the last good list saved in state.
+let LAST_TERMS = [];
+const longForm = (v) => { const m = v.match(/^([BS])(\d+)$/); return m ? [v, (m[1] === "B" ? "Booster " : "Ship ") + m[2]] : [v]; };
+function dataVehicles(road) {
+  const found = new Set(), add = (x) => { for (const m of String(x || "").matchAll(/\b([BS])(\d{2})\b|\b(Booster|Ship) (\d{2})\b/g)) found.add((m[1] || m[3][0]).toUpperCase() + (m[2] || m[4])); };
+  for (const k of Object.keys(road.milestones || {})) add(k);
+  for (const k of Object.keys(road.archive || {})) { const a = road.archive[k] || {}; (a.vehicles || []).forEach(add); add(a.summary); }
+  for (const f of road.feed_items || []) add(f.title);
+  for (const u of road.mission_updates || []) add(u.text);
+  for (const c of road.categories || []) for (const h of c.history || []) add(h.hardware);
+  return [...found].sort();
+}
 function searchVehicleWords(road, ahead = 2) {
   let out = [];
-  try { out = deriveVehicleWords(road, ahead); } catch (e) { console.log(`• search terms: derivation failed (${e.message}) — static vehicle list used`); }
-  if (!out.length) { out = STATIC_VEHICLES.flatMap(longForm); console.log("• search terms: derivation empty — static vehicle list used"); }
+  try { out = deriveVehicleWords(road, ahead); } catch (e) { console.log(`• search terms: derivation failed (${e.message}) — vehicles from the data used`); }
+  if (!out.length) { try { out = dataVehicles(road).flatMap(longForm); } catch (e) { out = []; } if (out.length) console.log("• search terms: derivation empty — vehicles from the data used"); }
+  if (!out.length && LAST_TERMS.length) { out = LAST_TERMS.slice(); console.log("• search terms: no vehicles in the data — last good list from state used"); }
+  else if (out.length) LAST_TERMS = out.slice();
   return out;
 }
+const setLastTerms = (t) => { LAST_TERMS = Array.isArray(t) ? t.slice() : []; };
 function deriveVehicleWords(road, ahead = 2) {
   const re = /\b(?:(?:Booster\s*|B)(\d{2,3})|(?:Ship\s*|S)(\d{2,3}))\b/gi, seen = { B: new Set(), S: new Set() };
   const add = (t) => String(t || "").replace(re, (_, b, sh) => { seen[b ? "B" : "S"].add(Number(b || sh)); return _; });
@@ -1261,6 +1275,7 @@ async function run(opts = {}) {
   let road = JSON.parse(fs.readFileSync(roadPath, "utf8"));
   const prevState = await deps.loadState();
   const state = prevState || { seen: [] };
+  setLastTerms(state.vehicleTerms);
   const firstRun = !prevState;
   const seen = new Set(state.seen || []);
   const notifications = [];
@@ -1667,12 +1682,13 @@ async function run(opts = {}) {
   const alarms = require("./watchdog.js").check(state, { terms: searchVehicleWords(road), candidates: (xf ? xf.read || 0 : 0) + candidates.length + counts.seen + counts.stale + counts.dupe + counts.offTopic, writerFailed: !!(xf && xf.retry) || writerFailedRun, providerFaults: providerFaultsNow(), xFailed: xFirstError });
   for (const wn of require("./watchdog.js").check.warnings || []) { log(`⚠️ WATCHDOG: ${wn}`); console.log(`::warning::Watchdog: ${wn}`); }
   for (const a of alarms) { log(`🚨 WATCHDOG: ${a}`); console.log(`::error::Watchdog: ${a}`); }
+  if (LAST_TERMS.length && JSON.stringify(state.vehicleTerms) !== JSON.stringify(LAST_TERMS)) { state.vehicleTerms = LAST_TERMS.slice(); }
   if (save) await deps.saveState(state);
   if (alarms.length && save && opts.watchdog !== false) throw new Error(`watchdog: ${alarms.join("; ")}`);
   return { road, changes, notifications, refreshed, state, scheduledSent, newsPushes, xFirst: xf, pushLog };
 }
 
-module.exports = { X_SEARCH_HANDLES, firebaseDeps, pushGateFor, STATIC_VEHICLES, applyPrereqs, searchVehicleWords, archiveLaunched, milestones, statusRule, xStatus, applyMediaPicks, loadMediaPicks, pickImage, applyImageCheck, verifyImages, fcmMessage, notificationFor, judgeFeed, verifyFeed, entryDayMs, backfillX, xPostCard, xIdOf, readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, titleMatches, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
+module.exports = { X_SEARCH_HANDLES, firebaseDeps, pushGateFor, dataVehicles, setLastTerms, applyPrereqs, searchVehicleWords, archiveLaunched, milestones, statusRule, xStatus, applyMediaPicks, loadMediaPicks, pickImage, applyImageCheck, verifyImages, fcmMessage, notificationFor, judgeFeed, verifyFeed, entryDayMs, backfillX, xPostCard, xIdOf, readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, titleMatches, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
 
 if (require.main === module) {
   run().catch((err) => {
