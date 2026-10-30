@@ -1671,7 +1671,12 @@ async function run(opts = {}) {
       road.updated = fmtDay();
       road.updatedAt = new Date().toISOString();
     }
-    require("./scope.js").enforce(road); require("./scope.js").headlines(road); require("./events.js").sync(road); // items added this run: Earlier updates keep the card's own vehicle + flight
+    { // guards: block / auto-fix known bug classes before road.json is written (logged as GUARD)
+      let prevRoad = null; try { prevRoad = JSON.parse(fs.readFileSync(roadPath, "utf8")); } catch {}
+      const g = require("./guards.js").run(road, { prev: prevRoad, log, review: xf ? (xf.review = xf.review || []) : null, now: clock(), slipPush: predict.slipPush, addFeedItem: pushSync.addFeedItem });
+      if (g.dropped.size) notifications.splice(0, notifications.length, ...notifications.filter((n) => !(n.visible && g.dropped.has(n.visible.id))));
+      notifications.push(...g.pushes);
+    }
     { const dropped = logText.scrubRejected(road); if (dropped.length) log(`dropped rejected / month-mixed-up line(s): ${dropped.join(" | ")}`); }
     validateRoad(road);
     mission.validateMission(road);

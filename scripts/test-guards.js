@@ -53,5 +53,50 @@ const run = async (road, posts, verdicts, user = "Blobifie") => {
   // 5. re-report of a completion still merges (no new open entry)
   const rr = xf.guardPost(fixture(), { text: "Booster 22 completed its cryo test.", author: { username: "Blobifie" } }, { ...GROK, phase: "completed", status: "done" });
   check(rr.v && !rr.skip, "a re-report of the same completion is not blocked (merges as before)");
+  // 6. scripts/guards.js (runs before every road.json write) — real past cases from the committed f403a17 road.json
+  {
+    const G = require("./guards.js"), cp = require("child_process");
+    const base = () => JSON.parse(cp.execSync("git show f403a17:road.json", { cwd: require("path").join(__dirname, ".."), encoding: "utf8" }));
+    const logs = [], run = (r, o = {}) => G.run(r, { log: (m) => logs.push(m), ...o });
+    // map: B22/S42 → 15, B23/S43 → 16, from the data
+    let r = base(); run(r);
+    check(JSON.stringify(r.hardware_flights) === JSON.stringify({ B22: 15, S42: 15, B23: 16, S43: 16 }), "hardware → flight map from data: B22/S42 = 15, B23/S43 = 16");
+    // live leak (30 Oct): B23 'returned to Megabay 1' feed item filed to Flight 15 Cryo; Cryo headline from the B23 card
+    const leak = r.feed_items.find((f) => /Booster 23 has returned/.test(f.body || ""));
+    check(!leak || leak.flight === 16, "B23 feed item re-tagged to Flight 16 (cross-flight)");
+    check(!/Booster 23|Ship 43/.test(r.categories.find((c) => c.id === "cryo").latest), "Flight 15 Cryo headline is a Flight 15 line, not B23/S43");
+    check(logs.some((l) => /^GUARD (cross-flight|headline)/.test(l)), "fixes logged as GUARD");
+    // mapping error: a B23 card tagged Flight 15 → 16
+    r = base(); const b23 = r.categories.find((c) => c.id === "cryo").history.find((h) => h.hardware === "B23"); b23.flight = 15; run(r);
+    check(b23.flight === 16, "B23 card tagged Flight 15 → re-tagged 16 (mapping)");
+    // event record: B22 cryo (Blobifie 10 Sep 08:02 BST) – an edit changing text/day is put back
+    r = base(); r = JSON.parse(JSON.stringify(require("../road.json"))); const ev = r.categories.flatMap((c) => c.history).find((h) => h.event_record);
+    const prev0 = JSON.parse(JSON.stringify(r)); ev.date = "9 Sep"; ev.text = "Booster 22 cryo testing."; run(r, { prev: prev0 });
+    check(ev.date === "10 Sep" && ev.text === "Booster 22 completed its first full cryo test.", "same event with another time/text → back to its event record");
+    // recap: a new card for a post already on a card (Blobifie recap of the B22 cryo)
+    r = base(); let prev = JSON.parse(JSON.stringify(r)); const cryo = r.categories.find((c) => c.id === "cryo");
+    const old = cryo.history.find((h) => h.x_post && h.x_post.post_id);
+    if (old) { cryo.history.unshift({ id: "e-recap", text: "Recap: B22 cryo done.", hardware: "B22", flight: 15, x_post: { post_id: old.x_post.post_id } }); const g = run(r, { prev });
+      check(!cryo.history.some((h) => h.id === "e-recap") && g.dropped.has("e-recap"), "recap/edit of an existing post → no new card, push dropped"); }
+    // untagged → review queue
+    r = base(); prev = JSON.parse(JSON.stringify(r)); const q = []; r.categories.find((c) => c.id === "cryo").history.unshift({ id: "e-unt", text: "Cryo testing tonight at Massey's.", src: "@LabPadre" });
+    run(r, { prev, review: q }); check(q.length === 1 && !r.categories.find((c) => c.id === "cryo").history.some((h) => h.id === "e-unt"), "untagged cryo post → review queue, no card");
+    // per-flight cap
+    r = base(); prev = JSON.parse(JSON.stringify(r)); const st = r.categories.find((c) => c.id === "static");
+    for (let i = 0; i < G.CAP + 2; i++) st.history.unshift({ id: `e-cap${i}`, text: `Ship 42 static fire update ${i}.`, hardware: "S42", flight: 15 });
+    const gc = run(r, { prev }); check(gc.dropped.size === 2, `more than ${G.CAP} new Flight 15 cards in one update → extras wait`);
+    // hedged completion (25 Oct B22 "appears to have completed")
+    r = base(); prev = JSON.parse(JSON.stringify(r)); const hc = { id: "e-hedge", text: "Booster 22 appears to have completed another cryo test.", hardware: "B22", flight: 15, complete: true, milestone: { phase: "completed" } };
+    r.categories.find((c) => c.id === "cryo").history.unshift(hc); run(r, { prev }); check(!hc.complete && hc.milestone.phase !== "completed", "hedged completion wording → not complete");
+    // rollover: empty vehicles → from the map
+    r = base(); r.vehicles = []; run(r); check(JSON.stringify(r.vehicles) === JSON.stringify(["B22", "S42"]), "rollover with no vehicles → vehicles from the flight map");
+    // missed date slip (29 Oct: NET 8 Nov → 12 Nov with no push) + two-digit day
+    const P = require("./predicted.js"), PS = require("./push-sync.js");
+    r = base(); prev = JSON.parse(JSON.stringify(r)); prev.predicted = { ...(r.predicted || {}), flight: 15, net: "2026-11-08" }; r.predicted = { ...prev.predicted, net: "2026-11-12" }; r.feed_items = (r.feed_items || []).filter((f) => f.kind !== "launch_date"); // as on 29 Oct, before the slip was sent by hand
+    const gs = run(r, { prev, slipPush: P.slipPush, addFeedItem: PS.addFeedItem, now: Date.parse("2026-10-29T12:00:00Z") });
+    check(gs.pushes.length === 1 && /NET 12 Nov \(was 8 Nov\) · unofficial/.test(gs.pushes[0].body || ""), "missed estimate slip → feed item + push 'NET 12 Nov (was 8 Nov) · unofficial'");
+    const gs2 = run(r, { prev, slipPush: P.slipPush, addFeedItem: PS.addFeedItem }); check(gs2.pushes.length === 0, "slip already in the feed → no second push");
+    check("NET 12 Nov".match(G.NET_DAY)[1] === "12", "date pattern reads two-digit days");
+  }
   console.log(fails ? `\n${fails} FAILED` : "\n✅ All guard checks passed."); process.exit(fails ? 1 : 0);
 })();
