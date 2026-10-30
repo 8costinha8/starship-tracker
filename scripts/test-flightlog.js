@@ -44,7 +44,7 @@ const road = require("../road.json");
 b = F.boxes(road, "28 Oct");
 const L = (id, v) => (b[id].cards.find((c) => c.vehicle === v) || { lines: [] }).lines.map((l) => (l.time ? `${l.day} · ${l.time}` : l.day) + " " + l.text);
 ok(L("cryo", "S42").join("|") === "9 Oct · 21:30 Ship 42 completed its third cryo proof test.|3–4 Sep · 09:59 Two back-to-back cryo proof tests.", "S42 cryo pinned");
-ok(L("cryo", "B22").join("|") === "9–10 Sep · 08:02 Booster 22 completed its first full cryo proof test.", "B22 cryo pinned");
+ok(L("cryo", "B22").join("|") === "10 Sep · 08:02 Booster 22 completed its first full cryo test.", "B22 cryo pinned (from its event record)");
 ok(L("raptor", "S42")[0] === "26 Oct Ship 42 ready with all 6 Raptors." && L("raptor", "B22")[0] === "24 Oct Booster 22 ready with all 33 Raptors.", "raptor pinned");
 ok(L("static", "S42").length === 2 && L("static", "B22").join() === "25 Oct · 13:22 Booster 22 completed a full-duration 33-engine static fire.", "static pinned");
 ok(L("pad", "pad").length === 6 && L("pad", "S42").length === 3 && L("pad", "B22").length === 1, "pad pinned cards");

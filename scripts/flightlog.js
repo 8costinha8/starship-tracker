@@ -84,6 +84,16 @@
     }
     return by;
   }
+  // A pinned line with { event: "<milestone key>" } is read from that card's event_record (one record for every view:
+  // Road to Flight card, Flight Log box, Earlier updates) — same day, time, text and link.
+  function eventRecord(road, key) {
+    for (const c of road.categories || []) for (const h of c.history || []) if (h && h.event_record && h.milestone && h.milestone.key === key) return h.event_record;
+    return null;
+  }
+  function fromRecord(road, l) {
+    const r = l && l.event && eventRecord(road, l.event);
+    return r ? { ...l, day: ukDay(r.at), time: ukTime(r.at), text: r.text, at: r.at, url: r.url } : l;
+  }
   function boxes(road, today = ukDay(new Date().toISOString())) {
     if (!road || !Array.isArray(road.categories)) return {};
     const vs = vehicles(road), n = road.flight;
@@ -93,7 +103,7 @@
     for (const c of road.categories) {
       const id = c.id, auto = autoCards(road, id), pinned = pins && pins.boxes && pins.boxes[id];
       const cardLines = (v) => {
-        const p = pinned ? ((pinned.cards || []).find((k) => k.vehicle === v) || { lines: [] }).lines : null;
+        const p = pinned ? ((pinned.cards || []).find((k) => k.vehicle === v) || { lines: [] }).lines.map((l) => fromRecord(road, l)) : null;
         const extra = (auto[v] || []).filter((l) => !p || sortKey(l) > asOf + 86400000);
         const all = dedupe(newestFirst([...(p || []), ...extra]));
         return id === "cryo" || id === "static" ? collapse(all) : all;
@@ -131,5 +141,5 @@
     return out;
   }
   const RULES = `Flight Log boxes (app): Cryo tests, Raptor engines and Static fires show only COMPLETED milestones per vehicle (Ship first, then Booster); moves, rollouts, prep, frost, forecasts and duplicates stay on the Road to Flight page only. Pad activity keeps per-vehicle pad tests plus a Launch pad card for the flight's own pad only, no transport; it is Done when the wet dress rehearsal is done. FAA licence and Launch date headlines are the official status; reports and predictions are Earlier updates.`;
-  return { boxes, autoCards, vehicles, RULES, ukDay, ukTime };
+  return { eventRecord, fromRecord, boxes, autoCards, vehicles, RULES, ukDay, ukTime };
 });
