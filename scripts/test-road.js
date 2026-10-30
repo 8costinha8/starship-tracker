@@ -192,6 +192,12 @@ const box = (r, id) => r.categories.find((c) => c.id === id);
   const app = fs.readFileSync(appJsPath, "utf8");
   const end = app.indexOf("\n];", app.indexOf("const FLIGHTS = ["));
   fs.writeFileSync(appJsPath, app.slice(0, end) + `\n  { n: 15, date: "2026-10-21T23:00:00Z", pad: "Pad 2", block: "V3", booster: "B22", ship: "S42", outcome: "success",\n    headline: "x", highlights: "",\n    story: "x" },` + app.slice(end));
+  { const j = JSON.parse(fs.readFileSync(roadPath, "utf8")); // a Flight 16 manual NET, a Flight 16 mission update and B23/S43 hardware on later-flight cards
+    j.predicted = { flight: 16, net: "2026-12-03", mode: "manual", sources: [{ name: "FAA" }, { name: "NSF" }] };
+    j.mission_updates = { ...(j.mission_updates || {}), 15: [{ topic: "x", line: "old", at: "2026-10-20T10:00:00Z" }], 16: [{ topic: "x", line: "Flight 16 test update", at: "2026-10-20T10:00:00Z" }] };
+    j.categories[0].history.unshift({ id: "t-b23", date: "20 Oct", text: "B23 rolled to Massey's", src: "@RGVaerialphotos", source: "RGVaerialphotos", trust: "trusted", stage: "cryo", hardware: "B23", flight: 16, at: "2026-10-20T09:00:00Z", no_push: true });
+    j.milestones = { ...(j.milestones || {}), S43: { cryo: 1 } };
+    fs.writeFileSync(roadPath, JSON.stringify(j, null, 2)); }
   const pre5 = JSON.parse(fs.readFileSync(roadPath, "utf8"));
   const f15n = pre5.categories.flatMap((c) => c.history.filter((h) => h.kind !== "check" && !(h.flight > 15))).length;
   const later = pre5.categories.flatMap((c) => c.history.filter((h) => h.flight > 15).map((h) => `${c.id}|${h.text}`));
@@ -199,6 +205,9 @@ const box = (r, id) => r.categories.find((c) => c.id === id);
   r = JSON.parse(fs.readFileSync(roadPath, "utf8"));
   const left = r.categories.flatMap((c) => c.history.filter((h) => h.kind !== "check").map((h) => `${c.id}|${h.text}`));
   check(r.flight === 16 && r.categories.every((c) => c.status === "none") && left.join() === later.join(), `rolled over to Road to Flight 16: statuses reset, only later-flight cards stay (${later.length})`);
+  check(["B23", "S43"].every((v) => r.vehicles.includes(v)) && !r.vehicles.some((v) => ["B22", "S42"].includes(v)), `rollover: vehicles carried from later-flight hardware (${JSON.stringify(r.vehicles)})`);
+  check(r.predicted && r.predicted.net === "2026-12-03" && r.predicted.mode === "manual", "rollover: the manual Flight 16 date is kept");
+  check(r.mission_updates && Object.keys(r.mission_updates).join() === "16" && r.mission_updates[16][0].line === "Flight 16 test update", "rollover: only Flight 16 mission updates carried");
   check(r.archive && r.archive[15] && r.archive[15].entries.length === f15n && r.archive[15].entries.every((e, i, a) => e.text && e.box && (!i || a[i - 1].when >= e.when)), `Flight 15's ${f15n} Road entries archived for its Flight Log card (text only, newest first), not deleted`);
   check(JSON.stringify(r.archive[14] || []) === JSON.stringify(pre5.archive ? pre5.archive[14] || [] : []), "earlier archives kept as they are");
   check(sent.length === 0, "rollover: no push at the moment of rollover");

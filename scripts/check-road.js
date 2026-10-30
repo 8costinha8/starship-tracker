@@ -613,9 +613,16 @@ function dataVehicles(road) {
   for (const k of Object.keys(road.milestones || {})) add(k);
   for (const k of Object.keys(road.archive || {})) { const a = road.archive[k] || {}; (a.vehicles || []).forEach(add); add(a.summary); }
   for (const f of road.feed_items || []) add(f.title);
-  for (const u of road.mission_updates || []) add(u.text);
+  for (const list of Object.values(road.mission_updates || {})) for (const u of list || []) add(u.line);
   for (const c of road.categories || []) for (const h of c.history || []) add(h.hardware);
   return [...found].sort();
+}
+// The new Road's vehicles: hardware on cards already tagged for later flights + carried milestone keys (B23, S43…).
+function rolloverVehicles(old, road) {
+  const oldV = new Set((old.vehicles || []).map(milestones.hwKey)), out = new Set();
+  for (const c of road.categories || []) for (const h of c.history || []) { const k = h.hardware && milestones.hwKey(h.hardware); if (k && /^[BS]\d+$/.test(k) && !oldV.has(k)) out.add(k); }
+  for (const k of Object.keys(road.milestones || {})) if (/^[BS]\d+$/.test(k) && !oldV.has(k)) out.add(k);
+  return [...out].sort((x, y) => (x[0] === y[0] ? x.slice(1) - y.slice(1) : x[0] === "B" ? -1 : 1));
 }
 function searchVehicleWords(road, ahead = 2) {
   let out = [];
@@ -1323,6 +1330,11 @@ async function run(opts = {}) {
       const later = ((old.categories.find((o) => o.id === c.id) || {}).history || []).filter((h) => h.kind !== "check");
       if (later.length) { c.history = later; c.latest = (later[0].x_text || later[0].text).slice(0, 160); }
     }
+    road.vehicles = rolloverVehicles(old, road);
+    if (old.predicted && Number(old.predicted.flight) === road.flight) road.predicted = old.predicted; // a manual/estimated NET already set for the new flight
+    const mu = Object.fromEntries(Object.entries(old.mission_updates || {}).filter(([n]) => Number(n) > lastN)); // keyed by flight
+    if (Object.keys(mu).length) road.mission_updates = { ...(road.mission_updates || {}), ...mu };
+    log(`rollover carried: vehicles ${road.vehicles.join(", ") || "none"}${road.predicted ? `, NET ${road.predicted.net} (${road.predicted.mode})` : ""}${Object.keys(mu).length ? `, mission updates for Flight ${Object.keys(mu).join("/")}` : ""}`);
     log(`Flight ${lastN}: ${moved} Road entr${moved === 1 ? "y" : "ies"} archived to its Flight Log card`);
     changed = rolledOver = true;
     // The push waits for 09:00 London the morning after the launch day.
@@ -1688,7 +1700,7 @@ async function run(opts = {}) {
   return { road, changes, notifications, refreshed, state, scheduledSent, newsPushes, xFirst: xf, pushLog };
 }
 
-module.exports = { X_SEARCH_HANDLES, firebaseDeps, pushGateFor, dataVehicles, setLastTerms, applyPrereqs, searchVehicleWords, archiveLaunched, milestones, statusRule, xStatus, applyMediaPicks, loadMediaPicks, pickImage, applyImageCheck, verifyImages, fcmMessage, notificationFor, judgeFeed, verifyFeed, entryDayMs, backfillX, xPostCard, xIdOf, readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, titleMatches, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
+module.exports = { X_SEARCH_HANDLES, firebaseDeps, pushGateFor, dataVehicles, rolloverVehicles, setLastTerms, applyPrereqs, searchVehicleWords, archiveLaunched, milestones, statusRule, xStatus, applyMediaPicks, loadMediaPicks, pickImage, applyImageCheck, verifyImages, fcmMessage, notificationFor, judgeFeed, verifyFeed, entryDayMs, backfillX, xPostCard, xIdOf, readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, titleMatches, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
 
 if (require.main === module) {
   run().catch((err) => {
