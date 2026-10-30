@@ -1622,7 +1622,7 @@ async function run(opts = {}) {
   const predChanged = JSON.stringify([road.predicted || null, road.predicted_candidates || []]) !== before;
   if (predChanged) log(`predicted date: ${road.predicted ? `${road.predicted.mode} NET ${road.predicted.net} (${road.predicted.basis})` : "none"} — ${pr.reason}${pr.slip ? "" : " (no push)"}`);
   // an estimated-date slip (NET moved to another day) is push-worthy: "Flight 15 now NET 12 Nov (was 8 Nov) · unofficial"
-  if (pr.slip) { const raw = predict.slipPush(pr.slip, clock()); const sp = pushSync.addFeedItem(road, { title: raw.title, body: raw.body, at: raw.at, kind: "launch_date", flight: pr.slip.flight }); notifications.push(sp); log(`predicted date slip ${pr.slip.from} → ${pr.slip.to} → push: ${sp.body}`); }
+  if (pr.slip) { const raw = predict.slipPush(pr.slip, clock()); const sp = pushSync.addFeedItem(road, { title: raw.title, body: raw.body, at: raw.at, kind: "launch_date", flight: pr.slip.flight }); notifications.push(sp); log(`predicted date change ${pr.slip.from || "none"} → ${pr.slip.to} → push: ${sp.body}`); }
 
   // 5. Save, commit, then notify (so the app already has the new card when the push lands)
   if (changed || predChanged) {

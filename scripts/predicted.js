@@ -135,15 +135,20 @@ function computePredicted({ road, target, next, lastLogged, mentions = [], now =
   return { predicted, candidates, reason, slip: slipOf(road.predicted, predicted) };
 }
 
-// An unofficial NET that moved to another day for the same flight (e.g. 8 Nov → 12 Nov). null otherwise.
+// An unofficial NET that is new (none → day) or moved to another day for the same flight (e.g. 8 Nov → 12 Nov). null otherwise.
 function slipOf(prev, cur) {
-  if (!prev || !cur || Number(prev.flight) !== Number(cur.flight) || !prev.net || !cur.net || prev.net === cur.net) return null;
+  if (!cur || !cur.net) return null;
+  if (!prev || !prev.net || Number(prev.flight) !== Number(cur.flight)) return { flight: Number(cur.flight), from: null, to: cur.net };
+  if (prev.net === cur.net) return null;
   return { flight: Number(cur.flight), from: prev.net, to: cur.net };
 }
 const shortDay = (iso) => { const d = new Date(iso + "T12:00:00Z"); return `${d.getUTCDate()} ${["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][d.getUTCMonth()]}`; };
-// The push for an estimated-date change: "Flight 15 now NET 12 Nov (was 8 Nov) · unofficial"
+// The push for every estimated-date change, always labelled as an estimate ("· unofficial"):
+//   slip:  "Flight 15 now NET 12 Nov (was 8 Nov) · unofficial"
+//   first: "Flight 16 estimated NET 3 Dec · unofficial"
 function slipPush(slip, now = Date.now()) {
-  return { title: `📅 Flight ${slip.flight}`, body: `Flight ${slip.flight} now NET ${shortDay(slip.to)} (was ${shortDay(slip.from)}) · unofficial`, kind: "launch_date", where: "predicted-date", link: "https://8costinha8.github.io/starship-tracker/", url: "", at: new Date(now).toISOString() };
+  const body = slip.from ? `Flight ${slip.flight} now NET ${shortDay(slip.to)} (was ${shortDay(slip.from)}) · unofficial` : `Flight ${slip.flight} estimated NET ${shortDay(slip.to)} · unofficial`;
+  return { title: `📅 Flight ${slip.flight}`, body, kind: "launch_date", where: "predicted-date", link: "https://8costinha8.github.io/starship-tracker/", url: "", at: new Date(now).toISOString() };
 }
 
 function validatePredicted(road) {

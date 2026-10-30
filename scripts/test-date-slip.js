@@ -27,6 +27,17 @@ const row = await ps.sendPush(fn, { road: rd, send: async () => { throw new Erro
 check(row.verdict === "not sent (test mode)", `sendPush (test mode, nothing sent): not blocked/silent → ${row.verdict}`);
 const same = P.computePredicted({ road: { ...road, predicted: r.predicted }, target: 15, next: Q4, lastLogged: 14, mentions, now: NOW });
 check(!same.slip, "no second push when the date is unchanged");
-check(!P.computePredicted({ road: { ...road, predicted: null }, target: 15, next: Q4, lastLogged: 14, mentions, now: NOW }).slip, "first estimate (no previous NET) is not a slip");
+{ const f = P.computePredicted({ road: { ...road, predicted: null }, target: 15, next: Q4, lastLogged: 14, mentions, now: NOW });
+  const fp = f.slip && P.slipPush(f.slip, NOW);
+  check(fp && fp.body === "Flight 15 estimated NET 12 Nov · unofficial", `first estimate (Not confirmed → Estimated) pushes, labelled: ${fp && fp.body}`);
+  check(fp && pp.decide(fp, recent, { now: NOW, vehicles: ["B22", "S42"] }).push, "first-estimate push passes the push policy"); }
+// every estimated-date change → push, and every such push says it is an estimate
+for (const [from, to] of [["2026-11-08", "2026-11-12"], ["2026-11-12", "2026-11-10"], [null, "2026-12-03"]]) {
+  const prev = from ? { ...MANUAL, net: from } : null, cur = { ...MANUAL, net: to, mode: "auto" };
+  const sl = P.slipOf(prev, cur), body = sl && P.slipPush(sl, NOW).body;
+  check(!!body && /· unofficial$/.test(body) && /\bNET \d+ \w{3}\b/.test(body), `change ${from || "none"} → ${to}: push labelled as estimate (${body})`);
+}
+check(P.slipOf({ ...MANUAL }, null) === null, "estimate cleared (e.g. SpaceX confirmed) → no estimate push (check-flights sends the official one)");
+check(P.slipOf({ ...MANUAL, flight: 15 }, { ...MANUAL, flight: 16, net: "2026-12-03" }).from === null, "new flight's first estimate is not compared with the old flight's date");
 console.log(failed ? `\n${failed} failed` : "\nall passed"); process.exit(failed ? 1 : 0);
 })();
