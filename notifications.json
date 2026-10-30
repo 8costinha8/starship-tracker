@@ -411,6 +411,17 @@
       "verdict": "shadow: would push",
       "gate": "hold passed (1 run)",
       "key": "B23|other|30 Oct"
+    },
+    {
+      "title": "📅 Flight 15",
+      "body": "Flight 15 now NET 12 Nov (was 8 Nov) · unofficial",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=launch_date-mvv5rls0-69f74f",
+      "url": "",
+      "at": "2026-10-30T16:00:00.000Z",
+      "sent_at": "2026-10-30T16:20:05.416Z",
+      "where": "feed",
+      "verdict": "sent",
+      "key": "F15|launch_date|30 Oct"
     }
   ]
 }
