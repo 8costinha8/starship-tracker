@@ -3155,6 +3155,13 @@
   "predicted_candidates": [
     {
       "flight": 15,
+      "source": "X @StarshipGazer",
+      "url": "https://x.com/StarshipGazer/status/2116272970125709417",
+      "date": "2026-11-12",
+      "seen_at": "2026-10-30T20:56:09.000Z"
+    },
+    {
+      "flight": 15,
       "source": "X @TrackingTheSB",
       "url": "https://x.com/TrackingTheSB/status/2114448734549319868",
       "date": "2026-11-08",
