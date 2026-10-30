@@ -286,7 +286,22 @@ function rollbackStage(road, text, hw, flight) {
   if (sft && (!best || sft > best.t)) best = { t: sft, stage: "static", label: "static fires" };
   return best;
 }
-function guardPost(road, post, v) {
+// Hedged completion ("appears to have completed", "likely completed", "seems to have finished") is never a completion:
+// such a post can show progress but never marks a milestone, a status or a box complete.
+const HEDGED_DONE = /\b(?:appears?|appeared|seems?|seemed|looks? like|looked like|likely|probably|possibly|presumably|apparently|may|might|could|should)\b(?:\s+(?:to\s+)?(?:have\s+|has\s+|be\s+|been\s+|now\s+)*)?(?:\w+\s+){0,2}?(?:completed?|finished|done|wrapped(?:\s+up)?|concluded|complete)\b/i;
+function hedgeGuard(post, v) {
+  if (!v || v.kind !== "road") return v;
+  const said = [post && post.text, v.text, v.log_text, v.status_line].filter(Boolean).join(" \n ");
+  if (!HEDGED_DONE.test(said)) return v;
+  if (phaseOf(v) !== "completed" && v.status !== "done") return v;
+  return { ...v, phase: "progress", status: v.status === "done" ? "progress" : v.status, inferred: true, hedged: true };
+}
+function guardPost(road, post, v0) {
+  const v = hedgeGuard(post, v0);
+  const g = guardPostInner(road, post, v);
+  return g.skip || g.v !== v ? g : { v };
+}
+function guardPostInner(road, post, v) {
   if (!v || v.kind !== "road") return { v };
   const flight = Number.isInteger(v.flight) ? v.flight : road.flight, hw = v.hardware, text = post.text || "";
   const tier = tiers.tierOf(post, v);
@@ -383,4 +398,4 @@ async function runXFirst(road, state, { token, fetchFn, ask, postCard, log = con
 }
 
 const isOfficial = (p) => OFFICIAL.has(String(p.author && p.author.username).toLowerCase());
-module.exports = { rollbackStage, masseyStage, cryoDone, guardPost, MILESTONE_TYPES, PHASES, factsMatch, contextImage, milestoneKey, phaseOf, isOfficial, MISSION_TOPICS, runXFirst, fetchNewPosts, classifyPosts, classifyPrompt, placePost, bestMedia, postMedia, articleLead, readLinks, hwKey, xfQuery, XF_ACCOUNTS, CLASSIFY_SCHEMA, MERGE_MS };
+module.exports = { HEDGED_DONE, hedgeGuard, rollbackStage, masseyStage, cryoDone, guardPost, MILESTONE_TYPES, PHASES, factsMatch, contextImage, milestoneKey, phaseOf, isOfficial, MISSION_TOPICS, runXFirst, fetchNewPosts, classifyPosts, classifyPrompt, placePost, bestMedia, postMedia, articleLead, readLinks, hwKey, xfQuery, XF_ACCOUNTS, CLASSIFY_SCHEMA, MERGE_MS };
