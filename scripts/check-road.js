@@ -1204,6 +1204,17 @@ function syncToMain(log = console.log) {
   catch (e) { log(`could not catch up with main before the run (carrying on): ${String(e.message).split("\n")[0]}`); }
 }
 
+// review-queue.json: { items: [{ post_id, url, author, at, text, stage, suggested, reason, queued }] }, newest first, max 200, one per post.
+function addToReview(file, items, now = Date.now(), write = true) {
+  let q = { items: [] };
+  try { q = JSON.parse(fs.readFileSync(file, "utf8")); if (!Array.isArray(q.items)) q = { items: [] }; } catch {}
+  const have = new Set(q.items.map((x) => x.post_id)), fresh = items.filter((x) => x.post_id && !have.has(x.post_id)).map((x) => ({ ...x, queued: new Date(now).toISOString() }));
+  if (!fresh.length) return 0;
+  q.items = [...fresh, ...q.items].slice(0, 200);
+  if (write) fs.writeFileSync(file, JSON.stringify(q, null, 2) + "\n");
+  return fresh.length;
+}
+
 function commitAndPush(file, message) {
   const run = (cmd) => execSync(cmd, { cwd: ROOT, stdio: "pipe" });
   run(`git config user.name "Starship Tracker Bot"`);
@@ -1685,6 +1696,13 @@ async function run(opts = {}) {
     try { commit("notifications.json", `Auto: push log — ${pushLog.length} push(es)`); } catch (e) { log(`push log commit failed: ${e.message}`); }
   }
 
+  // 5c. Road posts with no vehicle/flight tag → review-queue.json (no card, no push; for a human to file)
+  if (xf && (xf.review || []).length) {
+    const reviewPath = opts.reviewPath || path.join(path.dirname(roadPath), "review-queue.json");
+    const added = addToReview(reviewPath, xf.review, clock(), save);
+    if (added) { log(`review queue: ${added} untagged post(s) added`); if (save) { try { commit("review-queue.json", `Auto: review queue — ${added} untagged post(s)`); } catch (e) { log(`review queue commit failed: ${e.message}`); } } }
+  }
+
   // anything not handled yet is kept, so posts from X / Launch Library (which
   // only hand each post over once) are never lost
   state.pending = candidates.filter((it) => !seen.has(it.key)).slice(0, 30)
@@ -1700,7 +1718,7 @@ async function run(opts = {}) {
   return { road, changes, notifications, refreshed, state, scheduledSent, newsPushes, xFirst: xf, pushLog };
 }
 
-module.exports = { X_SEARCH_HANDLES, firebaseDeps, pushGateFor, dataVehicles, rolloverVehicles, setLastTerms, applyPrereqs, searchVehicleWords, archiveLaunched, milestones, statusRule, xStatus, applyMediaPicks, loadMediaPicks, pickImage, applyImageCheck, verifyImages, fcmMessage, notificationFor, judgeFeed, verifyFeed, entryDayMs, backfillX, xPostCard, xIdOf, readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, titleMatches, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
+module.exports = { X_SEARCH_HANDLES, firebaseDeps, pushGateFor, addToReview, dataVehicles, rolloverVehicles, setLastTerms, applyPrereqs, searchVehicleWords, archiveLaunched, milestones, statusRule, xStatus, applyMediaPicks, loadMediaPicks, pickImage, applyImageCheck, verifyImages, fcmMessage, notificationFor, judgeFeed, verifyFeed, entryDayMs, backfillX, xPostCard, xIdOf, readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, titleMatches, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
 
 if (require.main === module) {
   run().catch((err) => {

@@ -15,7 +15,9 @@ const STARSHIP_WORDS = /starship|super ?heavy|booster|\bship ?\d|\b[bs]\d{2}\b|r
 const MERGE_MS = 48 * 3600000;
 const XF_FIELDS = { "tweet.fields": "created_at,author_id,attachments,note_tweet,referenced_tweets,entities", expansions: "attachments.media_keys,author_id",
   "media.fields": "type,url,preview_image_url,variants,width,height,alt_text", "user.fields": "name,username,profile_image_url" };
-const MAX_POSTS = 40;
+const MAX_POSTS = 40; // posts classified per run; the rest wait in state.pending (none are dropped)
+const PAGE_SIZE = 100, MAX_PAGES = 5; // search/recent pages read per run (next_token), up to 500 posts
+const MAX_PENDING = 300;
 
 function xfQuery() { return `(${[...XF_ACCOUNTS, ...tiers.extraAccounts()].map((a) => `from:${a}`).join(" OR ")}) -is:retweet -is:reply`; }
 
@@ -24,20 +26,26 @@ async function fetchNewPosts({ token, sinceId, fetchFn = fetch, postCard }) {
   if (!token) return { posts: [], sinceId, calls: 0, why: "no X token" };
   const u = new URL("https://api.x.com/2/tweets/search/recent");
   u.searchParams.set("query", xfQuery());
-  u.searchParams.set("max_results", sinceId ? String(MAX_POSTS) : "10");
+  u.searchParams.set("max_results", sinceId ? String(PAGE_SIZE) : "10");
   if (sinceId) u.searchParams.set("since_id", sinceId);
   for (const [k, v] of Object.entries(XF_FIELDS)) u.searchParams.set(k, v);
-  const res = await fetchFn(u.toString(), { headers: { Authorization: `Bearer ${token}` } });
-  if (!res.ok) throw new Error(`X search HTTP ${res.status}`);
-  const j = await res.json();
-  const data = j.data || [], inc = j.includes || {};
+  const data = [], inc = { media: [], users: [] };
+  let j = null, first = null, calls = 0;
+  do { // page through with next_token instead of stopping at one page
+    if (j && j.meta && j.meta.next_token) u.searchParams.set("next_token", j.meta.next_token);
+    const res = await fetchFn(u.toString(), { headers: { Authorization: `Bearer ${token}` } });
+    calls++;
+    if (!res.ok) { if (calls === 1) throw new Error(`X search HTTP ${res.status}`); break; } // later page failed: keep what we have
+    j = await res.json(); first = first || j;
+    data.push(...(j.data || [])); inc.media.push(...((j.includes || {}).media || [])); inc.users.push(...((j.includes || {}).users || []));
+  } while (sinceId && j.meta && j.meta.next_token && calls < MAX_PAGES);
   const mediaByKey = Object.fromEntries((inc.media || []).map((m) => [m.media_key, m]));
   const usersById = Object.fromEntries((inc.users || []).map((x) => [x.id, x]));
-  const newest = (j.meta && j.meta.newest_id) || data.reduce((a, p) => (!a || BigInt(p.id) > BigInt(a) ? p.id : a), sinceId);
-  if (!sinceId) return { posts: [], sinceId: newest, calls: 1, read: data.length, why: "first run — newest id remembered, no cards" };
+  const newest = (first && first.meta && first.meta.newest_id) || data.reduce((a, p) => (!a || BigInt(p.id) > BigInt(a) ? p.id : a), sinceId);
+  if (!sinceId) return { posts: [], sinceId: newest, calls, read: data.length, why: "first run — newest id remembered, no cards" };
   const posts = data.map((p) => postCard(p, mediaByKey, usersById))
     .filter((p) => p.author.username.toLowerCase() !== "elonmusk" || STARSHIP_WORDS.test(p.text)); // Elon: Starship posts only
-  return { posts, sinceId: newest || sinceId, calls: 1, read: data.length };
+  return { posts, sinceId: newest || sinceId, calls, read: data.length, pages: calls };
 }
 
 // Pre-flight milestone types: one Road entry per (type + flight + vehicle), Expected → In progress → Completed.
@@ -327,8 +335,12 @@ async function runXFirst(road, state, { token, fetchFn, ask, postCard, log = con
   const xs = state.xFirst || {};
   const got = await fetchNewPosts({ token, sinceId: xs.sinceId, fetchFn, postCard });
   const seen = new Set(xs.seen || []);
-  const posts = [...(xs.pending || []), ...got.posts].filter((p, i, a) => !seen.has(p.post_id) && a.findIndex((q) => q.post_id === p.post_id) === i).slice(0, MAX_POSTS);
-  const waiting = [];
+  const posts = [...(xs.pending || []), ...got.posts].filter((p, i, a) => !seen.has(p.post_id) && a.findIndex((q) => q.post_id === p.post_id) === i);
+  const all = posts.splice(MAX_POSTS); // beyond this run's budget → next run (since_id has moved on, so they must not be dropped)
+  const waiting = [...all];
+  if (all.length) log(`X-first: ${all.length} more post(s) wait for the next run`);
+  const used = {}, flightOf = (v) => (Number.isInteger(v && v.flight) ? v.flight : road.flight), full = (v) => (used[flightOf(v)] || 0) >= maxCards, take = (v) => { used[flightOf(v)] = (used[flightOf(v)] || 0) + 1; };
+  const review = [];
   log(`X-first: ${got.calls} X call(s), ${got.read || 0} read, ${posts.length} new post(s)${got.why ? ` — ${got.why}` : ""}`);
   const stages = road.categories.map((c) => ({ id: c.id, name: c.name }));
   let verdicts = [];
@@ -342,9 +354,9 @@ async function runXFirst(road, state, { token, fetchFn, ask, postCard, log = con
     let v = verdicts[i];
     seen.add(p.post_id);
     if (v.reason === "no verdict" && !p.retry) { seen.delete(p.post_id); waiting.push({ ...p, retry: 1 }); return log(`X-first: no verdict for @${p.author.username} ${p.post_id} — retried next run`); } // the writer skipped it: one more try
-    if (v.kind === "mission-update") { // that flight's mission line (no Road card); shares the per-run cap
-      if (cards.length + missions.length >= maxCards) { seen.delete(p.post_id); waiting.push(p); return log(`X-first: cap reached — @${p.author.username} ${p.post_id} waits`); }
-      missions.push({ post: p, topic: v.topic, text: v.text, attribution: v.attribution || null });
+    if (v.kind === "mission-update") { // that flight's mission line (no Road card); shares that flight's per-run cap
+      if (full(v)) { seen.delete(p.post_id); waiting.push(p); return log(`X-first: cap reached — @${p.author.username} ${p.post_id} waits`); }
+      take(v); missions.push({ post: p, topic: v.topic, text: v.text, attribution: v.attribution || null });
       return log(`X-first: mission-update/${v.topic} @${p.author.username} ${p.post_id} — ${v.text}`);
     }
     if (v.kind === "starship-news") newsItems.push({ key: `x:${p.post_id}`, title: p.text.slice(0, 200), text: p.text, url: p.url, publishedAt: p.created_at, src: `X @${p.author.username}`, source: `@${p.author.username}`, tier: OFFICIAL.has(p.author.username.toLowerCase()) ? "official" : "trusted" });
@@ -352,7 +364,8 @@ async function runXFirst(road, state, { token, fetchFn, ask, postCard, log = con
     const g = guardPost(road, p, v);
     if (g.skip) return log(`X-first: guard skipped @${p.author.username} ${p.post_id} — ${g.skip}`);
     if (g.v !== v) { log(`X-first: guard re-staged @${p.author.username} ${p.post_id} ${v.stage} → ${g.v.stage}`); v = g.v; verdicts[i] = v; }
-    if (cards.length + missions.length >= maxCards) { seen.delete(p.post_id); waiting.push(p); return log(`X-first: card cap reached — @${p.author.username} ${p.post_id} waits`); }
+    if (!v.hardware && !Number.isInteger(v.flight) && !["date", "faa"].includes(v.stage)) { review.push({ post_id: p.post_id, url: p.url, author: p.author.username, at: p.created_at, text: p.text.slice(0, 500), stage: v.stage, suggested: v.text, reason: "road post with no vehicle or flight tag (launch date / FAA posts belong to the tracked flight and are not queued)" }); return log(`X-first: untagged @${p.author.username} ${p.post_id} → review queue`); }
+    if (full(v)) { seen.delete(p.post_id); waiting.push(p); return log(`X-first: card cap reached for Flight ${flightOf(v)} — @${p.author.username} ${p.post_id} waits`); }
     if (pushHistory && v.event) { // B. staleness: a recap or a re-report of a milestone already pushed on an earlier day makes no card (and no push)
       const st = require("./push-gate.js").staleCheck({ title: "", body: v.log_text || v.text || "", at: p.created_at, url: p.url, source_text: p.text, has_media: !!(p.media && p.media.length) }, pushHistory, { vehicles: road.vehicles || [] });
       if (st.stale) { (r0.stale = r0.stale || []).push({ post: p, reason: st.reason, media_only: !!st.media_only }); return log(`X-first: stale @${p.author.username} ${p.post_id} — ${st.reason}${st.media_only ? " (media-only: the cascade may swap the picture)" : ""} — no card, no push`); }
@@ -362,10 +375,11 @@ async function runXFirst(road, state, { token, fetchFn, ask, postCard, log = con
     if (milestone && v.event && phaseOf(v) === "completed" && r.accurate !== false && r.tier <= 2 && !v.inferred) milestone(v, p); // running per-vehicle summary (counts + dates)
     if (!r.st && r.accurate !== false && !v.inferred) { const want = logText_.rollupStatus(r.box, road); if (want === "done" && r.box.status !== "done") { r.st = { from: r.box.status, to: "done" }; r.box.status = "done"; log(`STATUS [${r.box.id}] ${r.st.from} → done (every Flight ${road.flight} vehicle completed)`); } }
     r.post = p; // the post itself (a merge keeps the older card, but the status line uses this post's own time)
+    if (!r.merged) take(v);
     (r.merged ? merged : cards).push(r);
     log(`X-first: road/${v.stage} ${v.hardware || "-"} @${p.author.username} ${p.post_id} → ${r.merged ? `merged into ${r.entry.id}` : `new card ${r.entry.id}`}`);
   });
-  return { cards, merged, news: newsItems, missions, stale: r0.stale || [], state: { sinceId: got.sinceId, seen: [...seen].slice(-500), pending: waiting.slice(0, 20) }, calls: got.calls, read: got.read || 0, posts: got.posts || [] };
+  return { cards, merged, news: newsItems, missions, stale: r0.stale || [], state: { sinceId: got.sinceId, seen: [...seen].slice(-500), pending: waiting.slice(0, MAX_PENDING) }, review, calls: got.calls, read: got.read || 0, posts: got.posts || [] };
 }
 
 const isOfficial = (p) => OFFICIAL.has(String(p.author && p.author.username).toLowerCase());
