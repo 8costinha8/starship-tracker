@@ -1360,10 +1360,13 @@ function feedTime(iso) {
 // Which flight a card belongs to: the entry's own "flight" tag; else Road vehicles → the next flight; a flown vehicle → its flight;
 // else "Flight N" in the text; else the next flight.
 function flightOf(h, road) {
+  const hwMap = road.hardware_flights || {}, hk = String(h.hardware || "").toUpperCase().replace(/^SHIP\s*/, "S").replace(/^BOOSTER\s*/, "B");
+  if (Number.isInteger(hwMap[hk])) return hwMap[hk]; // one hardware → flight map from the data (guards.js): B23/S43 → 16
   if (Number.isInteger(h.flight)) return h.flight; // data-driven: the entry says which flight it belongs to
   const txt = `${(h.x_post && h.x_post.text) || ""} ${h.x_text || h.text || ""}`; // the post first: the old entry text may mention past flights
   const vs = [...txt.matchAll(/\b(Ship|Booster|S|B)[\s-]?(\d{1,3})\b/g)].map((m) => (m[1][0].toUpperCase() === "S" ? "S" : "B") + Number(m[2]));
   if (vs.some((v) => (road.vehicles || []).includes(v))) return road.flight;
+  for (const v of vs) if (Number.isInteger(hwMap[v])) return hwMap[v];
   for (const v of vs) { const f = [...FLIGHTS].reverse().find((x) => x.booster === v || x.ship === v); if (f) return f.n; }
   const m = txt.match(/\bFlight\s+(\d{1,3})\b/i);
   return m ? Number(m[1]) : road.flight;
@@ -1423,7 +1426,7 @@ function buildFeed(road) {
       cat: own || { id: "feed-" + (f.kind || "news"), name: m ? m[2] : t, icon: m ? m[1] : "", color: "#AAB6D6" }, ci: 99, hi: fi, id: f.id,
       day: at, at, flight: Number.isInteger(f.flight) ? f.flight : road.flight, when: at });
   });
-  for (let i = posts.length - 1; i >= 0; i--) if (isLaunched(posts[i].flight)) posts.splice(i, 1); // launched flights: Flight Log card only
+  for (let i = posts.length - 1; i >= 0; i--) if (isLaunched(posts[i].flight)) posts.splice(i, 1); else if (posts[i].flight > road.flight) posts.splice(i, 1); // later flights (B23/S43 → 16): only on their own Road, kept in the data until rollover // launched flights: Flight Log card only
   // sections by date: the next flight to fly on top, then later flights in flying order (15, then 16…);
   // inside a section newest first by the card's post date (else its entry date)
   const rank = (n) => (n === road.flight ? -Infinity : n);
