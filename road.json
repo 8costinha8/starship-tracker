@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "30 Oct",
-  "updatedAt": "2026-10-30T09:26:31.194Z",
+  "updatedAt": "2026-10-30T09:30:28.313Z",
   "categories": [
     {
       "id": "cryo",
@@ -2941,7 +2941,8 @@
       "url": "https://x.com/LabPadre/status/2116093506200453375",
       "at": "2026-10-30T09:03:01.000Z",
       "date": "30 Oct",
-      "flight": 15
+      "flight": 15,
+      "box": "cryo"
     },
     {
       "id": "news-mvtv609c-f58a18",
