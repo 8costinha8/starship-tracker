@@ -22,8 +22,8 @@ const lc = (s) => String(s || "").toLowerCase();
 function sourceTier(handle) {
   const h = lc(handle);
   if (tiers.TIER1.some((a) => lc(a) === h)) return 1;
+  if (MEDIA_TRACKERS.some((a) => lc(a) === h)) return "tracker"; // before Tier 2: BocaChicaGal/StarbaseWatcher are Tier 2 in sources.js but keep the media tracker gate
   if (tiers.TIER2.some((a) => lc(a) === h)) return 2;
-  if (MEDIA_TRACKERS.some((a) => lc(a) === h)) return "tracker";
   return null;
 }
 const watchAccounts = () => [...new Set([...tiers.TIER1, ...tiers.TIER2, ...MEDIA_TRACKERS])];
