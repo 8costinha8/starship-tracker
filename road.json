@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "30 Oct",
-  "updatedAt": "2026-10-30T09:45:26.525Z",
+  "updatedAt": "2026-10-30T22:16:58.558Z",
   "categories": [
     {
       "id": "cryo",
@@ -2945,6 +2945,16 @@
     }
   ],
   "feed_items": [
+    {
+      "id": "news-mvviedow-8ae8e8",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "SpaceX completes three static fires in three days for flight 15",
+      "url": "https://www.nasaspaceflight.com/2026/10/spacex-static-fires-flight-15/",
+      "at": "2026-10-30T21:53:38.000Z",
+      "date": "30 Oct",
+      "flight": 15
+    },
     {
       "id": "launch_date-mvv5rls0-69f74f",
       "kind": "launch_date",
