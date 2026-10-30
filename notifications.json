@@ -399,6 +399,18 @@
       "verdict": "silent: minor other — a push went out 11.7h ago (quiet window 24h)",
       "gate": "hold passed (1 run)",
       "key": "F15|other|29 Oct"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Booster 23 has returned to Megabay 1 from the Massey outpost",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mvuqvczs-7b7a15",
+      "url": "https://x.com/LabPadre/status/2116093506200453375",
+      "at": "2026-10-30T09:03:01.000Z",
+      "sent_at": "2026-10-30T09:45:27.723Z",
+      "where": "feed",
+      "verdict": "shadow: would push",
+      "gate": "hold passed (1 run)",
+      "key": "B23|other|30 Oct"
     }
   ]
 }
