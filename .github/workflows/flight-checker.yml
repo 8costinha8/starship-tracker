@@ -36,6 +36,10 @@ on:
         description: "test_push only: optional link opened on tap (e.g. https://8costinha8.github.io/starship-tracker/?feed=1)"
         type: string
         default: ""
+      send_push:
+        description: "One-off: send ONE existing Updates feed item (its id from road.json feed_items) as a real push, log it, then stop (skips both checkers)"
+        type: string
+        default: ""
 
 permissions:
   contents: write   # needed so the checkers can commit + push app.js / road.json
@@ -55,7 +59,7 @@ jobs:
           node-version: 20
       - run: npm install firebase-admin
       - run: node scripts/check-flights.js
-        if: ${{ !inputs.test_push }}
+        if: ${{ !inputs.test_push && !inputs.send_push }}
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -64,7 +68,7 @@ jobs:
           TEST_MODE: ${{ inputs.test_mode }}
       # Road to Flight N card. Runs even if the step above failed.
       - run: node scripts/check-road.js
-        if: ${{ !cancelled() && !inputs.test_push }}
+        if: ${{ !cancelled() && !inputs.test_push && !inputs.send_push }}
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -82,3 +86,9 @@ jobs:
           TEST_PUSH_TITLE: ${{ inputs.test_title }}
           TEST_PUSH_BODY: ${{ inputs.test_body }}
           TEST_PUSH_LINK: ${{ inputs.test_link }}
+      # One-off push of an existing feed item (manual runs only, never on schedule)
+      - run: node scripts/send-oneoff.js "$SEND_PUSH_ID"
+        if: ${{ inputs.send_push && !inputs.test_push }}
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          SEND_PUSH_ID: ${{ inputs.send_push }}
