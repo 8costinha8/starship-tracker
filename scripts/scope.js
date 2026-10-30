@@ -37,4 +37,17 @@ function enforce(road) {
   }
   return out;
 }
-module.exports = { vehOf, flightOfVehicle, cardVehicles, belongs, enforce };
+// A box headline (latest) comes from the tracked flight's own vehicles only: a later flight's card (e.g. B23 for Flight 16)
+// never heads Flight 15's box. Returns [{ box, from, to }].
+function headlines(road) {
+  const out = [], own = (h) => h && h.kind !== "check" && (!Number.isInteger(h.flight) || h.flight === road.flight);
+  for (const c of road.categories || []) {
+    const src = (c.history || []).find((h) => h && h.kind !== "check" && [h.text, h.x_text].includes(c.latest) || (h && String(h.x_text || h.text || "").slice(0, 160) === c.latest));
+    if (!src || own(src)) continue;
+    const n = (c.history || []).find(own);
+    const to = n ? (n.x_text || n.text).slice(0, 160) : "";
+    out.push({ box: c.id, from: c.latest, to }); c.latest = to;
+  }
+  return out;
+}
+module.exports = { headlines, vehOf, flightOfVehicle, cardVehicles, belongs, enforce };
