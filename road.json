@@ -391,7 +391,10 @@
                 "at": "2026-10-16T00:24:07.000Z"
               }
             ]
-          }
+          },
+          "hardware": "B23",
+          "stage": "cryo",
+          "data_fix": "30 Oct audit: hardware/stage were empty (B23 cryo proof test, 15 Oct BST)"
         },
         {
           "id": "f16-b23-2109929503925625050",
@@ -3112,19 +3115,16 @@
     },
     "S42": {
       "static_fire": {
-        "count": 4,
+        "count": 2,
         "dates": [
           "2026-10-27T02:17:24.000Z",
-          "2026-10-27T21:45:25.000Z",
-          "2026-10-28T11:25:39.000Z",
-          "2026-10-29T03:15:20.000Z"
+          "2026-10-27T21:45:25.000Z"
         ],
         "src": [
           "https://x.com/NASASpaceflight/status/2114904512217694216",
-          "https://x.com/NASASpaceflight/status/2115198496521195971",
-          "https://x.com/LabPadre/status/2115404622638837866",
-          "https://x.com/TrackingTheSB/status/2115643620556763279"
-        ]
+          "https://x.com/NASASpaceflight/status/2115198496521195971"
+        ],
+        "data_fix": "30 Oct audit: 2 static fires (27 Oct); LabPadre 2115404622638837866 and TrackingTheSB 2115643620556763279 were recaps, removed"
       }
     }
   },
