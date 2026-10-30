@@ -1359,6 +1359,7 @@ async function run(opts = {}) {
 
   // 1b. Entries for a flight that's already in the log (e.g. Flight 14 notes) → that flight's card (no push)
   // 1a. Re-file by purpose (static fire / cryo / Raptors / launch / pad work): same ids, NO push
+  { const sc = require("./scope.js").enforce(road); if (sc.length) { for (const x of sc) log(`scope (no push): ${x.why} — "${x.text}" (${x.id})`); changed = true; } }
   { const mv = purpose.refile(road); if (mv.length) { for (const x of mv) log(`re-filed (no push) ${x.id}: ${x.from} → ${x.to}`); changed = true; } }
   if (!rolledOver && lastN) { const mv = archiveLaunched(road, lastN); if (mv) { log(`archived ${mv} Road entr${mv === 1 ? "y" : "ies"} of launched flights to the Flight Log`); changed = true; } }
 
@@ -1668,6 +1669,7 @@ async function run(opts = {}) {
       road.updated = fmtDay();
       road.updatedAt = new Date().toISOString();
     }
+    require("./scope.js").enforce(road); // items added this run: Earlier updates keep the card's own vehicle + flight
     { const dropped = logText.scrubRejected(road); if (dropped.length) log(`dropped rejected / month-mixed-up line(s): ${dropped.join(" | ")}`); }
     validateRoad(road);
     mission.validateMission(road);

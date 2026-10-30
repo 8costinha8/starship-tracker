@@ -1723,6 +1723,9 @@ const rtfVeh = (s, road) => { const out = []; const t = String(s || "");
   if (ship && new RegExp(`\\b(ship\\s*|s)${ship.slice(1)}\\b`, "i").test(t)) out.push(ship);
   if (boo && new RegExp(`\\b(booster\\s*|b)${boo.slice(1)}\\b`, "i").test(t)) out.push(boo);
   return out; };
+// Every vehicle id a line names (B23, Ship 43…): a line naming only other vehicles never joins this flight's cards.
+const vehIds = (s) => { const o = new Set(); for (const m of String(s || "").matchAll(/\b(?:(B|S)(\d{2,3})|(Booster|Ship)\s+(\d{2,3}))\b/gi)) o.add(((m[1] || m[3])[0]).toUpperCase() + (m[2] || m[4])); return [...o]; };
+const otherVehOnly = (s, road) => { const ids = vehIds(s), mine = (road.vehicles || []).map((v) => String(v).toUpperCase()); return ids.length > 0 && !ids.some((v) => mine.includes(v)); };
 const rtfPad = (h, road) => new RegExp(`\\b${String(road.pad || "Pad 2").replace(/\s+/, "[- ]?")}\\b`, "i").test(`${h.hardware || ""} ${h.text || ""}`);
 const rtfHandle = (u) => handleOf(u) || (u.src && /^@/.test(u.src) ? u.src : null);
 const rtfIsDone = (h, cid) => isDoneCard(h) && (!RTF_CATS[cid] || RTF_CATS[cid].test(`${h.text || ""} ${h.x_text || ""}`)) && !/ahead|could|expected/i.test(h.text || "");
@@ -1738,7 +1741,7 @@ function rtfCards(road) {
     const padHw = /^\s*pad/i.test(h.hardware || ""), hw = logHw(h), tv = rtfVeh(h.text, road), vv = padHw ? [] : tv.length ? tv : hw && vs.map(String).includes(hw) ? [hw] : [];
     const otherPad = /\bpad[- ]?(\d)\b/i.test(`${h.hardware || ""} ${h.text || ""}`) && !rtfPad(h, road);
     if (vv.length) vv.forEach((v) => put(cid, v, h));
-    else if (otherPad) continue;                                           // another pad (e.g. Pad 1): stays in the data, not on this page
+    else if (otherPad || otherVehOnly(h.text, road)) continue;            // another pad or another flight's vehicle (e.g. B23): stays in the data, not on this card (e.g. Pad 1): stays in the data, not on this page
     else if (rtfPad(h, road) || cid === "pad") put("pad", "pad", h);      // Pad 2 / tower work (also when filed under Static fires)
     else loose.push([cid, h]);                                             // no vehicle named: goes to the nearest-in-time vehicle card below
   }
@@ -1747,6 +1750,7 @@ function rtfCards(road) {
     if (!f || !f.body || !["cryo", "raptor", "static", "pad"].includes(f.box) || (Number.isInteger(f.flight) ? f.flight : road.flight) !== road.flight) continue;
     const h = { id: f.id, date: f.date, at: f.at, text: f.body, url: f.url, src: (String(f.url || "").match(/(?:x|twitter)\.com\/(\w+)\//) || [])[1] ? "@" + String(f.url).match(/(?:x|twitter)\.com\/(\w+)\//)[1] : "", kind: "feed" };
     const vv = rtfVeh(h.text, road);
+    if (!vv.length && otherVehOnly(h.text, road)) continue; // e.g. "Booster 23 returned to Megabay 1": a Flight 16 item, never under Ship 42's Earlier updates
     if (vv.length) vv.forEach((v) => put(f.box, v, h)); else if (rtfPad(h, road) || f.box === "pad") put("pad", "pad", h); else loose.push([f.box, h]);
   }
   for (const [cid, h] of loose) { const t = Date.parse(cardIso(h)) || 0; let best = null;
@@ -1763,7 +1767,7 @@ function rtfCards(road) {
     const add = (u) => { const k = u.url || u.text; if (!u.text || seen.has(k)) return; seen.add(k); rows.push(u); };
     for (const h of list) {
       if (h !== main) add({ text: h.text, at: cardIso(h) || h.at, date: h.date, url: urlOf(h) || h.url, src: h.src, handle: (h.x_post && h.x_post.author && h.x_post.author.username) || (h.media_override && h.media_override.author) || (String(h.src || "").startsWith("@") ? h.src : null) });
-      for (const u of h.updates || []) { const uv = rtfVeh(u.text, road); if (v === "pad" || !uv.length || uv.includes(v)) add({ text: u.text, at: u.at, date: u.date, url: u.url, src: u.src, handle: u.handle || (String(u.src || "").startsWith("@") ? u.src : null) }); }
+      for (const u of h.updates || []) { const uv = rtfVeh(u.text, road); if (v === "pad" ? !otherVehOnly(u.text, road) : uv.length ? uv.includes(v) : !otherVehOnly(u.text, road)) add({ text: u.text, at: u.at, date: u.date, url: u.url, src: u.src, handle: u.handle || (String(u.src || "").startsWith("@") ? u.src : null) }); }
     }
     const h = { ...main, id: `rtf-${cid}-${v}`, updates: rows, alt_media: null, complete: !!doneOne, milestone: doneOne ? main.milestone : { phase: "progress" } };
     // picture: newest event (incomplete) or the completing event (done); best photo among that event's posts (scripts/road-pick.js)
