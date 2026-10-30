@@ -422,6 +422,18 @@
       "where": "feed",
       "verdict": "sent",
       "key": "F15|launch_date|30 Oct"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "SpaceX completes three static fires in three days for flight 15",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mvviedow-8ae8e8",
+      "url": "https://www.nasaspaceflight.com/2026/10/spacex-static-fires-flight-15/",
+      "at": "2026-10-30T21:53:38.000Z",
+      "sent_at": "2026-10-30T22:17:00.040Z",
+      "where": "feed",
+      "verdict": "sent",
+      "gate": "not an X tracker post",
+      "key": "F15|static_fire|30 Oct"
     }
   ]
 }
