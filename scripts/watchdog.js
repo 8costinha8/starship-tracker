@@ -23,7 +23,7 @@ function sourceFault(msg) {
   if ([401, 402, 403, 429].includes(st) || /credits?|usage cap|quota|spending limit/i.test(m)) return `X read failed: ${st ? `HTTP ${st}` : "credits / quota"}`;
   return null;
 }
-function check(state, { terms = [], candidates = 0, writerFailed = false, providerFaults = [], xFailed = null } = {}, n = WATCHDOG_RUNS) {
+function check(state, { terms = [], candidates = 0, writerFailed = false, providerFaults = [], xFailed = null, sourceQuery } = {}, n = WATCHDOG_RUNS) {
   const w = { ...(state.watchdog || {}) };
   const sf = xFailed ? sourceFault(xFailed) : null;
   w.xFailRuns = xFailed && !sf ? (w.xFailRuns || 0) + 1 : 0;
@@ -32,7 +32,9 @@ function check(state, { terms = [], candidates = 0, writerFailed = false, provid
   // the 4-run threshold is only for other writer failures (timeouts, bad replies); a provider fault already alarmed
   w.writerFailRuns = writerFailed && !providerFaults.length ? (w.writerFailRuns || 0) + 1 : 0;
   const alarms = [...pc.alarms];
-  check.warnings = pc.warnings;
+  // ONE source list (sources.js): warn if the list is malformed or the live X search stops covering it
+  let sq = sourceQuery; if (sq === undefined) { try { sq = require("./x-first.js").xfQuery(); } catch { sq = null; } }
+  check.warnings = [...pc.warnings, ...require("./sources.js").audit(sq)];
   if (!terms || !terms.length) alarms.push("search terms are empty (vehicle derivation and static fallback both empty)");
   if (w.zeroRuns >= n) alarms.push(`zero candidate posts fetched for ${w.zeroRuns} consecutive runs`);
   if (sf) alarms.push(`${sf} — the checker is blind to X (check the X API plan / bearer token)`);

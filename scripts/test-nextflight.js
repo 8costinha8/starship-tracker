@@ -72,7 +72,7 @@ const w18 = road.searchVehicleWords(r18);
 check(["B26", "Booster 26", "S46", "Ship 46", "B28", "S48"].every((x) => w18.includes(x)) && !w18.includes("B24"), "after Flight 17 launches and is archived, Flight 18 (B26/S46) terms follow automatically");
 const r0 = { flight: 17, vehicles: [], categories: [{ id: "static", history: [] }], archive: { 16: { entries: [{ box: "static", date: "1 Feb", text: "Booster 24 completed its static fire." }] } } };
 check(road.searchVehicleWords(r0).join() === "B24,Booster 24,B25,Booster 25,B26,Booster 26", "vehicles not assigned yet: the archive's highest serial still drives the next ones");
-const vq = (rr) => { const v = road.searchVehicleWords(rr).map((x) => (x.includes(" ") ? `"${x}"` : x)); return `(${Object.keys(road.X_ACCOUNTS).map((h) => `from:${h}`).join(" OR ")}) (${[...v, `"Pad 2"`, `"Flight ${rr.flight}"`, `"Flight ${rr.flight + 1}"`, `"Flight ${rr.flight + 2}"`].join(" OR ")}) -is:retweet -is:reply`; };
+const vq = (rr) => { const v = road.searchVehicleWords(rr).map((x) => (x.includes(" ") ? `"${x}"` : x)); return `(${road.X_SEARCH_HANDLES.map((h) => `from:${h}`).join(" OR ")}) (${[...v, `"Pad 2"`, `"Flight ${rr.flight}"`, `"Flight ${rr.flight + 1}"`, `"Flight ${rr.flight + 2}"`].join(" OR ")}) -is:retweet -is:reply`; };
 check(vq(live).length <= 512 && vq(r17).length <= 512, `X query stays within 512 chars (live ${vq(live).length}, Flight 17 ${vq(r17).length})`);
 check(fs.readFileSync(path.join(ROOT, "road.json"), "utf8") === liveRaw, "real road.json untouched");
 console.log(`\n${n - fails}/${n} checks passed`); process.exit(fails ? 1 : 0);

@@ -8,8 +8,8 @@
 const logText_ = require("./log-text.js");
 const crypto = require("crypto");
 
-const XF_ACCOUNTS = ["SpaceX", "elonmusk", "NASASpaceflight", "LabPadre", "RGVaerialphotos", "StarbaseSurfer", "CSI_Starbase", "nicans", "ZackGolden_", "Starship_Spring", "FAANews", "efraser77", "TrackingTheSB", "Blobifie", "StarshipGazer"];
-const OFFICIAL = new Set(["spacex", "faanews"]);
+const XF_ACCOUNTS = require("./sources.js").handles(); // ONE source list (sources.js)
+const OFFICIAL = new Set(require("./sources.js").ACCOUNTS.filter((a) => a.official).map((a) => a.handle.toLowerCase()));
 const tiers = require("./source-tiers.js"); // Tier 1 confirmed / Tier 2 reported / Tier 3 rumour
 const STARSHIP_WORDS = /starship|super ?heavy|booster|\bship ?\d|\b[bs]\d{2}\b|raptor|starbase|massey|chopsticks|mechazilla|static fire|flight \d+|olp|launch pad|faa/i;
 const MERGE_MS = 48 * 3600000;

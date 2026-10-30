@@ -5,12 +5,13 @@
    Tier 3 rumour/speculation (wording from ANY account, or a Tier 3 account): "Expected/rumour" only.
    PROPOSED (preview only, needs Bernardo's OK): only active when SOURCE_TIERS_PROPOSED=1.
    The live X search list (x-first XF_ACCOUNTS) is NOT changed by this file unless PROPOSED is on. */
-const TIER1 = ["SpaceX", "FAANews", "NASASpaceflight", "elonmusk"];
-const TIER1_SITES = ["spacex.com", "faa.gov", "nasaspaceflight.com"];
-const TIER2 = ["LabPadre", "RGVaerialphotos", "StarbaseSurfer", "CSI_Starbase", "nicans", "ZackGolden_", "Starship_Spring", "efraser77", "TrackingTheSB", "Blobifie", "StarshipGazer"];
+const SRC = require("./sources.js"); // ONE source list: tiers come from sources.js
+const TIER1 = SRC.handles((a) => a.tier === 1);
+const TIER1_SITES = SRC.TIER1_SITES;
+const TIER2 = SRC.handles((a) => a.tier === 2);
 const TIER3 = [];
 const PROPOSED = {
-  tier1: ["SpaceflightNow", "SpaceNews_Inc"], tier1Sites: ["spaceflightnow.com", "spacenews.com"],
+  tier1: [], tier1Sites: [], // Spaceflight Now + SpaceNews are now live Tier 1 (sources.js)
   tier3: ["joehansen", "outerspacetoday", "SERobinsonJr"],
 };
 const proposedOn = () => process.env.SOURCE_TIERS_PROPOSED === "1";

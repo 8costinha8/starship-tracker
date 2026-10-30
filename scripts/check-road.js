@@ -119,24 +119,14 @@ const DOMAINS = {
 // X accounts we read (if X_BEARER_TOKEN is set) and how far we trust them.
 // id = the account's X user id (checked with the X API users/by lookup, 9 Oct 2026),
 // so no paid user lookup is needed. An account without an id is looked up once as before.
-const X_ACCOUNTS = {
-  SpaceX: { src: "SpaceX", tier: "official", id: "34743251" },
-  FAANews: { src: "FAA", tier: "official", id: "160946337" },
-  NASASpaceflight: { src: "NSF", tier: "trusted", id: "21292523" },
-  BocaChicaGal: { src: "NSF", tier: "trusted", id: "1077756486997168128" },
-  StarbaseWatcher: { src: "Starbase Watcher", tier: "trusted", id: "1416984433979138051" },
-  LabPadre: { src: "LabPadre", tier: "trusted", id: "1110905864578363394" },
-  RGVaerialphotos: { src: "RGV Aerial", tier: "trusted", id: "752724282925412352" },
-  SpaceflightNow: { src: "Spaceflight Now", tier: "trusted", id: "17217640" },
-  SpaceNews_Inc: { src: "SpaceNews", tier: "trusted", id: "31098756" },
-  thesheetztweetz: { src: "CNBC", tier: "trusted", id: "1231406720" },
-};
+const SRC = require("./sources.js"); // ONE source list (search, tiers, watchdog)
+const X_ACCOUNTS = SRC.roadAccounts();
+// the legacy keyword searches use the sources with a known X id (query ≤ 512 chars); id-less trackers are read by the x-first search
+const X_SEARCH_HANDLES = Object.keys(X_ACCOUNTS).filter((h) => X_ACCOUNTS[h].id);
 // Accounts read ONLY for the predicted launch date (road.json "predicted"), in the
 // same single X search as above (no extra call). Their posts never reach the Road
 // card, the feed or Grok's Road prompt, and never send a push.
-const PREDICT_X_ACCOUNTS = {
-  elonmusk: { src: "Elon Musk", tier: "trusted", id: "44196397" },
-};
+const PREDICT_X_ACCOUNTS = SRC.predictAccounts();
 // Spaceflight News API "news_site" names we trust (others come in unconfirmed).
 const SNAPI_TRUSTED = {
   NASASpaceflight: "nasaspaceflight.com", "Spaceflight Now": "spaceflightnow.com", SpaceNews: "spacenews.com",
@@ -281,7 +271,7 @@ async function backfillX(road, { token, fetchFn = fetch, rewrite = null, log = c
   if (room >= 10) {
     const times = todo.map((t) => Date.parse(t.h.publishedAt || t.h.at || "")).filter(Number.isFinite);
     const words = [...new Set(["Starship", `"Flight ${road.flight}"`, ...vehicleWords(road).map((w) => (w.includes(" ") ? `"${w}"` : w))])];
-    const query = `(${Object.keys(X_ACCOUNTS).map((h) => `from:${h}`).join(" OR ")}) (${words.join(" OR ")}) has:media -is:retweet -is:reply`;
+    const query = `(${X_SEARCH_HANDLES.map((h) => `from:${h}`).join(" OR ")}) (${words.join(" OR ")}) has:media -is:retweet -is:reply`;
     const start = new Date((times.length ? Math.min(...times) : Date.now() - 30 * 86400000) - 86400000).toISOString();
     const r = await fetchFn(`https://api.x.com/2/tweets/search/all?${new URLSearchParams({ query, max_results: String(Math.min(room, 25)), start_time: start, end_time: new Date(Date.now() - 60000).toISOString(), ...X_FIELDS })}`, { headers: auth, signal: AbortSignal.timeout(20000) });
     res.calls++; const j = await r.json().catch(() => ({}));
@@ -344,7 +334,7 @@ async function verifyFeed(road, { token, fetchFn = fetch, rewrite = null, log = 
   const clusters = [];
   for (const t of dated) { const last = clusters[clusters.length - 1]; if (last && t.day - last.max <= 3 * DAY_MS) { last.items.push(t); last.max = t.day; } else clusters.push({ min: t.day, max: t.day, items: [t] }); }
   const vwords = searchVehicleWords(road).map((w) => (w.includes(" ") ? `"${w}"` : w));
-  const query = `(${Object.keys(X_ACCOUNTS).map((h) => `from:${h}`).join(" OR ")}) (${[...vwords, `"Pad 2"`, `"Flight ${road.flight}"`, `"Flight ${road.flight + 1}"`, `"Flight ${road.flight + 2}"`].join(" OR ")}) -is:retweet -is:reply`;
+  const query = `(${X_SEARCH_HANDLES.map((h) => `from:${h}`).join(" OR ")}) (${[...vwords, `"Pad 2"`, `"Flight ${road.flight}"`, `"Flight ${road.flight + 1}"`, `"Flight ${road.flight + 2}"`].join(" OR ")}) -is:retweet -is:reply`;
   const trusted = new Set(Object.values(X_ACCOUNTS).map((a) => a.id).filter(Boolean));
   const auth = { authorization: `Bearer ${token}`, "user-agent": UA };
   // newest clusters first, so the budget goes to the most recent cards
@@ -408,7 +398,7 @@ async function mixPreview(road, { token, log = console.log } = {}) {
   let read = 0, calls = 0;
   const windows = [["2026-10-07T00:00:00Z", "2026-10-16T18:00:00Z"], ["2026-09-07T00:00:00Z", "2026-09-15T00:00:00Z"]];
   const vwords = [...new Set([...vehicleWords(road), "Pad 2", "Massey"])].map((w) => (w.includes(" ") ? `"${w}"` : w));
-  const query = `(${Object.keys(X_ACCOUNTS).map((h) => `from:${h}`).join(" OR ")}) (${vwords.join(" OR ")}) -is:retweet -is:reply`;
+  const query = `(${X_SEARCH_HANDLES.map((h) => `from:${h}`).join(" OR ")}) (${vwords.join(" OR ")}) -is:retweet -is:reply`;
   const trusted = new Set(Object.values(X_ACCOUNTS).map((a) => a.id).filter(Boolean));
   for (const [st, en] of windows) {
     if (!token || read + 10 > 25) break;
@@ -771,7 +761,7 @@ const SOURCES = [
       // 1. handle -> user id, looked up once and remembered (user reads cost extra)
       state.xUserIds = state.xUserIds || {};
       for (const [h, a] of Object.entries({ ...X_ACCOUNTS, ...PREDICT_X_ACCOUNTS })) if (a.id) state.xUserIds[h] = a.id; // hard-coded ids win
-      const missing = Object.keys(X_ACCOUNTS).filter((h) => !state.xUserIds[h]);
+      const missing = X_SEARCH_HANDLES.filter((h) => !state.xUserIds[h]); // id-less sources (sources.js) are read by the x-first search by handle: no paid lookup here
       if (missing.length) {
         const u = await fetchJson(`https://api.x.com/2/users/by?usernames=${missing.join(",")}`, auth);
         for (const user of u.data || []) {
@@ -1682,7 +1672,7 @@ async function run(opts = {}) {
   return { road, changes, notifications, refreshed, state, scheduledSent, newsPushes, xFirst: xf, pushLog };
 }
 
-module.exports = { firebaseDeps, pushGateFor, STATIC_VEHICLES, applyPrereqs, searchVehicleWords, archiveLaunched, milestones, statusRule, xStatus, applyMediaPicks, loadMediaPicks, pickImage, applyImageCheck, verifyImages, fcmMessage, notificationFor, judgeFeed, verifyFeed, entryDayMs, backfillX, xPostCard, xIdOf, readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, titleMatches, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
+module.exports = { X_SEARCH_HANDLES, firebaseDeps, pushGateFor, STATIC_VEHICLES, applyPrereqs, searchVehicleWords, archiveLaunched, milestones, statusRule, xStatus, applyMediaPicks, loadMediaPicks, pickImage, applyImageCheck, verifyImages, fcmMessage, notificationFor, judgeFeed, verifyFeed, entryDayMs, backfillX, xPostCard, xIdOf, readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, titleMatches, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
 
 if (require.main === module) {
   run().catch((err) => {
