@@ -4,8 +4,8 @@
     "B22",
     "S42"
   ],
-  "updated": "29 Oct",
-  "updatedAt": "2026-10-29T19:00:40.832Z",
+  "updated": "30 Oct",
+  "updatedAt": "2026-10-30T09:26:31.194Z",
   "categories": [
     {
       "id": "cryo",
@@ -2933,6 +2933,16 @@
     }
   ],
   "feed_items": [
+    {
+      "id": "news-mvuqvczs-7b7a15",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Booster 23 has returned to Megabay 1 from the Massey outpost",
+      "url": "https://x.com/LabPadre/status/2116093506200453375",
+      "at": "2026-10-30T09:03:01.000Z",
+      "date": "30 Oct",
+      "flight": 15
+    },
     {
       "id": "news-mvtv609c-f58a18",
       "kind": "news",
