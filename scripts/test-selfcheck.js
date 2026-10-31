@@ -42,7 +42,7 @@ const clone = (x) => JSON.parse(JSON.stringify(x));
   const b22 = road.categories.find((c) => c.id === "static").history.find((h) => h.id === "x-2114686191627030843");
   check(b22.updates.some((u) => /transporter/.test(u.text) && u.url.includes("2114612462184178003")), "B22 transporter move added to its card with its link");
   const rap = road.categories.find((c) => c.id === "raptor").history.find((h) => /reinstalled/.test(h.text));
-  check(rap.superseded && /were reportedly being reinstalled; all 6 Raptors were installed by 26 Oct/.test(rap.card_text) && rap.text === "Ship 42's Raptor engines are reportedly being reinstalled.", "stale 'being reinstalled' superseded in card_text, text kept");
+  check(rap.superseded && /(?:were reportedly being reinstalled; all 6 Raptors were installed|were reinstalled; all 6 were in) by 26 Oct/.test(rap.card_text) && rap.text === "Ship 42's Raptor engines are reportedly being reinstalled.", "stale 'being reinstalled' superseded in card_text, text kept");
   check(r.flags.some((f) => /x-2114904512217694216/.test(f.msg)), "S42 static fire 27 vs 28 Oct flagged, not guessed");
   check(road.categories.find((c) => c.id === "pad").history.find((h) => h.id === "s42-pad2-sep").date === "12 Sep", "S42 pad lift shows 12 Sep");
   // judge cap with an always-answering judge on many clashes

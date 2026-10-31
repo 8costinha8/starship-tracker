@@ -882,7 +882,8 @@
               "phase": "completed",
               "tier": 2
             }
-          ]
+          ],
+          "card_text": "The lifting jig was raised for Booster 22 engine testing in Megabay 1."
         },
         {
           "date": "14 Oct",
@@ -917,7 +918,7 @@
           },
           "updates": [],
           "log_text": "Ship 42 is reportedly having its Raptor engines reinstalled.",
-          "card_text": "Ship 42's Raptors were reportedly being reinstalled; all 6 Raptors were installed by 26 Oct.",
+          "card_text": "Ship 42's Raptors were reinstalled; all 6 were in by 26 Oct.",
           "superseded": {
             "by": "inferred S42 raptor",
             "date": "26 Oct",
@@ -1539,7 +1540,8 @@
               "src": "@colleenadastra",
               "handle": "colleenadastra",
               "phase": "completed",
-              "tier": 2
+              "tier": 2,
+              "card_text": "Booster 22 returned to the production site."
             },
             {
               "date": "28 Oct",
@@ -1907,7 +1909,8 @@
             "title": "💥 Static fires · Flight 15",
             "url": "https://x.com/LabPadre/status/2114335419785679308",
             "at": "2026-10-25T12:37:01.000Z"
-          }
+          },
+          "card_text": "Booster 22's transport ring was relocated ahead of its static fire test."
         },
         {
           "id": "x-2114317866409595106",
@@ -1957,7 +1960,8 @@
             "title": "💥 Static fires · Flight 15",
             "url": "https://x.com/Blobifie/status/2114317866409595106",
             "at": "2026-10-25T11:27:16.000Z"
-          }
+          },
+          "card_text": "The road was closed ahead of the static fire test."
         },
         {
           "id": "x-2114016319679201462",
@@ -3170,13 +3174,14 @@
       "id": "news-mvvriszs-0c1ff5",
       "kind": "news",
       "title": "🚀 Starship",
-      "body": "Booster 24 methane tank lifted inside Megabay 1 this evening",
+      "body": "Booster 24's methane tank was lifted inside Megabay 1 that evening",
       "url": "https://x.com/efraser77/status/2116351708150497473",
       "at": "2026-10-31T02:09:01.000Z",
       "date": "31 Oct",
       "flight": 17,
       "later_flight": true,
-      "src": "@efraser77"
+      "src": "@efraser77",
+      "push_text": "Booster 24 methane tank lifted inside Megabay 1 this evening"
     },
     {
       "id": "news-mvviedow-8ae8e8",
@@ -3208,13 +3213,14 @@
       "id": "news-mvuqvczs-7b7a15",
       "kind": "news",
       "title": "🚀 Starship",
-      "body": "Booster 23 has returned to Megabay 1 from the Massey outpost",
+      "body": "Booster 23 returned to Megabay 1 from the Massey outpost",
       "url": "https://x.com/LabPadre/status/2116093506200453375",
       "at": "2026-10-30T09:03:01.000Z",
       "date": "30 Oct",
       "flight": 16,
       "box": "cryo",
-      "src": "@LabPadre"
+      "src": "@LabPadre",
+      "push_text": "Booster 23 has returned to Megabay 1 from the Massey outpost"
     },
     {
       "id": "news-mvtv609c-f58a18",
@@ -3273,13 +3279,14 @@
       "id": "news-mvrm1w14-668ed2",
       "kind": "news",
       "title": "🚀 Starship",
-      "body": "Ship 43 has returned to the production site from chopstick tests",
+      "body": "Ship 43 returned to the production site from chopstick tests",
       "url": "https://x.com/NASASpaceflight/status/2115298718035370428",
       "at": "2026-10-28T04:24:49.000Z",
       "date": "28 Oct",
       "flight": 16,
       "box": "pad",
-      "src": "@NASASpaceflight"
+      "src": "@NASASpaceflight",
+      "push_text": "Ship 43 has returned to the production site from chopstick tests"
     },
     {
       "id": "news-mvozi9xs-e0267f",
@@ -3326,20 +3333,21 @@
       "id": "news-mvopynkg-826d56",
       "kind": "news",
       "title": "🚀 Starship",
-      "body": "Ship 43 is being transported by road to the production site",
+      "body": "Ship 43 was transported by road to the production site",
       "url": "https://x.com/TrackingTheSB/status/2114565423912108360",
       "at": "2026-10-26T03:50:58.000Z",
       "date": "26 Oct",
       "flight": 16,
       "box": "cryo",
       "refiled_pin": true,
-      "src": "@TrackingTheSB"
+      "src": "@TrackingTheSB",
+      "push_text": "Ship 43 is being transported by road to the production site"
     },
     {
       "id": "news-mvo8qv2g-e23cc6",
       "kind": "news",
       "title": "🚀 Starship",
-      "body": "Full duration static fire completed for booster preparing for flight 15",
+      "body": "Booster 22 completed a full-duration static fire for Flight 15",
       "url": "https://x.com/SpaceX/status/2114444137067844004",
       "at": "2026-10-25T19:49:01.000Z",
       "date": "25 Oct",
@@ -3347,7 +3355,8 @@
       "box": "static",
       "event_at": "2026-10-25T13:22:00.000Z",
       "event_card": "x-2111327584122437857",
-      "src": "@SpaceX"
+      "src": "@SpaceX",
+      "push_text": "Full duration static fire completed for booster preparing for flight 15"
     },
     {
       "id": "news-mvntvaz4-93c869",
@@ -3469,7 +3478,7 @@
               {
                 "day": "3–4 Sep",
                 "time": "09:59",
-                "text": "Two back-to-back cryo proof tests.",
+                "text": "Ship 42 completed two back-to-back cryo proof tests.",
                 "at": "2026-09-04T08:59:00Z",
                 "url": "https://x.com/Blobifie/status/2095798869431066772"
               }
@@ -3498,7 +3507,7 @@
               {
                 "day": "26 Oct",
                 "time": "",
-                "text": "Ship 42 ready with all 6 Raptors.",
+                "text": "Ship 42 was ready with all 6 Raptors.",
                 "at": "2026-10-26T12:00:00Z"
               }
             ]
@@ -3509,7 +3518,7 @@
               {
                 "day": "24 Oct",
                 "time": "",
-                "text": "Booster 22 ready with all 33 Raptors.",
+                "text": "Booster 22 was ready with all 33 Raptors.",
                 "at": "2026-10-24T12:00:00Z"
               }
             ]
@@ -3597,7 +3606,7 @@
               {
                 "day": "20 Oct",
                 "time": "23:56",
-                "text": "More catch tests at the tower top, plus launch and landing deluge tests.",
+                "text": "SpaceX ran more catch tests at the tower top, plus launch and landing deluge tests.",
                 "at": "2026-10-20T22:56:00Z",
                 "url": "https://x.com/Blobifie/status/2112679319818686934"
               },
@@ -3611,14 +3620,14 @@
               {
                 "day": "16 Oct",
                 "time": "04:23",
-                "text": "Catch testing with the Pad 2 chopsticks at the top of the tower.",
+                "text": "SpaceX ran catch testing with the Pad 2 chopsticks at the top of the tower.",
                 "at": "2026-10-16T03:23:00Z",
                 "url": "https://x.com/Blobifie/status/2110934634871799820"
               },
               {
                 "day": "9 Oct",
                 "time": "",
-                "text": "Pad 2 chopsticks under maintenance.",
+                "text": "Pad 2's chopsticks were under maintenance.",
                 "at": "2026-10-09T12:00:00Z",
                 "url": "https://www.youtube.com/watch?v=dPqDD39cBEw"
               },

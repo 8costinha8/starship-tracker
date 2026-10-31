@@ -58,6 +58,10 @@ function view1(road, { app }) {
   return { log, cards };
 }
 const PRESENT = /\b(?:is|are) (?:being|now|undergoing|moving|heading|rolling)\b|\b(?:has|have) (?:been|begun|left|arrived|returned|reportedly)\b|\b(?:completes|performing|purging|undergoing|departs|arrives|rolls out|heads to|is in)\b|^(?:Ship|Booster) \d+ (?:waiting|rolls|arrives|heads|leaves|returns|moves|lifts)\b|\bpropellant loading has\b|\b(?:reports|sources) say\b|\b(?:is|are) targeting\b|\bsuggests\b|\bsaid Flight \d+ is\b/i;
+const BEING = /\b(?:was|were|is|are)?\s*(?:reportedly )?being \w+(?:ed|en|t)\b/i;
+const FINITE = /\b(?:was|were|is|are|had|has|have|did|does|do|could|would|should|will|may|might|can|said|says|made|took|went|came|left|ran|began|rose|got|held|saw|set|put|lit|led|sat|met|told|kept|brought|found|gave|shot|stood|spun|fell|drove|flew|built|sent|won|hit|cut|let|shut|split|struck|wound|swung|tore|wore|threw|grew|knew|drew|broke|chose|rode|spoke|stuck|hung|dug|slid|bent|lost|paid|read|heard|meant|felt|caught|bought|fought|taught|thought|sought|lay|laid|appears?|shows?|remains?)\b|\b\w{3,}ed\b/i;
+const AUX = /\b(?:was|were|is|are|had|has|have|been)\b/i;
+const HEADLINE = /^(?!(?:The|A|An|Ship|Booster|SpaceX|Starship|Elon|Reports|On|In|At|After|Before|Both|No|Pad|Flight|FAA|Its|Their|This|These|Two|Three|Five|Six|All)\b)[A-Z][a-z]+(?: [a-z]+){0,3} \w{3,}ed(?= (?:for|in|inside|at|on|to|from|ahead|after|by|this|off|into|onto)\b|\.?$)|^(?:Ship|Booster) \d+ (?!and\b)[a-z]+ (?:[a-z]+ )?\w{3,}ed(?= (?:for|in|inside|at|on|to|from|ahead|after|by|this|off|into|onto)\b|\.?$)|^(?:Ship|Booster) \d+ [a-z]+ tank \w{3,}ed\b|^Booster \d+ methane tank lifted/;
 const FORECAST = /\b(?:could|may|might|expected|plans?|will)\b/i;
 const vehs = (t) => { const o = new Set(); for (const m of String(t || "").matchAll(/\b(?:(B|S)(\d{2,3})|(Booster|Ship)\s+(\d{2,3}))\b/gi)) o.add(((m[1] || m[3])[0]).toUpperCase() + (m[2] || m[4])); return [...o]; };
 const EVENT = (t) => (/static fire|\bfired\b/i.test(t) ? "static" : /cryo/i.test(t) ? "cryo" : /\bremov/i.test(t) ? "removal" : /reinstall|installed/i.test(t) ? "install" : /catch height|chopsticks/i.test(t) ? "catch" : null);
@@ -67,6 +71,14 @@ function check(road, opts = {}) {
   const tracked = (road.vehicles || []).map(String);
   // tense
   const tense = (where, t) => { if (t && PRESENT.test(String(t).replace(/\b(?:was|were) \w+ing\b/gi, ""))  && !FORECAST.test(t)) fail("tense", `${where}: "${t}" is present tense on screen`, { item: where, values: [t], reason: "cards and feed text are past tense (push wording stays present)" }); };
+  // verbless fragments ("Ship 42 ready with all 6 Raptors.") and "being X" progressive wording — both read as live status, not a past event
+  const style = (where, t) => { if (!t) return; const x = String(t).trim(); if (/^No\b.*\byet\.?$/.test(x)) return; // live status lines ('No Flight 15 licence yet.') are current state, not past events
+    if (BEING.test(x)) fail("tense", `${where}: "${x}" uses 'being …' progressive wording`, { item: where, values: [x], reason: "simple past on cards and feed" });
+    else if (HEADLINE.test(x) && !AUX.test(x)) fail("tense", `${where}: "${x}" is a headline fragment (no subject article / auxiliary)`, { item: where, values: [x], reason: "full past-tense sentences on cards and feed" });
+    else if (x.split(/\s+/).length >= 3 && !FINITE.test(x)) fail("tense", `${where}: "${x}" has no verb (fragment)`, { item: where, values: [x], reason: "full past-tense sentences on cards and feed" }); };
+  for (const c of cards) { style(`Road card ${c.name}`, c.text); for (const r of c.rows) style(`Road card ${c.name} › ${r.when}`, r.text); }
+  for (const b of Object.values(log)) for (const k of b.cards || []) for (const l of k.lines || []) style(`Flight Log ${b.id} ${k.name} ${l.day}`, l.text);
+  for (const f of road.feed_items || []) if (f && f.body && f.kind === "news") { tense(`Feed ${f.id}`, f.body); style(`Feed ${f.id}`, f.body); }
   for (const c of cards) { tense(`Road card ${c.name}`, c.text); for (const r of c.rows) tense(`Road card ${c.name} › ${r.when}`, r.text); }
   for (const b of Object.values(log)) for (const k of b.cards || []) for (const l of k.lines || []) tense(`Flight Log ${b.id} ${k.name} ${l.day}`, l.text);
   // date: Flight Log vehicle line vs Road card, same section + vehicle (cryo/static: completed cards; pad: the vehicle's newest line)
