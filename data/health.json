@@ -6,12 +6,19 @@
       "error": null,
       "consecutive_failures": 0,
       "last_ok": "2026-10-31T18:45:21.126Z"
+    },
+    "check-road": {
+      "at": "2026-10-31T19:45:25.989Z",
+      "status": "ok",
+      "error": null,
+      "consecutive_failures": 0,
+      "last_ok": "2026-10-31T19:45:25.989Z"
     }
   },
-  "updated": "2026-10-31T18:45:21.126Z",
+  "updated": "2026-10-31T19:45:25.989Z",
   "status": "ok",
   "consecutive_failures": 0,
   "alert": false,
   "last_error": null,
-  "committed_at": "2026-10-31T18:45:21.126Z"
+  "committed_at": "2026-10-31T19:45:25.989Z"
 }
