@@ -635,7 +635,9 @@
               "src": "@TrackingTheSB",
               "handle": "TrackingTheSB",
               "phase": "progress",
-              "tier": 2
+              "tier": 2,
+              "card_text": "Ship 42 likely ran another cryo test.",
+              "push_text": "Frost on both tanks: Ship 42 likely in another cryo test."
             },
             {
               "date": "10 Oct",
@@ -1109,7 +1111,8 @@
               "handle": "Blobifie",
               "merged_from": "x-2115694440891498638"
             }
-          ]
+          ],
+          "card_text": "Ship 42 was back at the production site / Megabay 2."
         },
         {
           "id": "x-2114904512217694216",
@@ -1913,7 +1916,8 @@
               "url": "https://x.com/Blobifie/status/2114016319679201462",
               "src": "@Blobifie",
               "phase": "completed",
-              "tier": 2
+              "tier": 2,
+              "card_text": "Booster 22 was lowered onto the OLM."
             }
           ],
           "refiled_from": "pad"
@@ -1993,7 +1997,8 @@
               "url": "https://x.com/NASASpaceflight/status/2113992853093601306",
               "src": "@NASASpaceflight",
               "phase": "completed",
-              "tier": 1
+              "tier": 1,
+              "card_text": "Booster 22 was lifted onto Pad 2 OLM."
             },
             {
               "date": "24 Oct",
@@ -2004,7 +2009,8 @@
               "url": "https://x.com/NASASpaceflight/status/2113954013615952349",
               "src": "@NASASpaceflight",
               "phase": "completed",
-              "tier": 1
+              "tier": 1,
+              "card_text": "Booster 22 arrived at Launch Pad 2."
             },
             {
               "date": "24 Oct",
@@ -2015,7 +2021,8 @@
               "url": "https://x.com/Blobifie/status/2113927981609689591",
               "src": "@Blobifie",
               "phase": "progress",
-              "tier": 2
+              "tier": 2,
+              "card_text": "Booster 22 rolled out on highway 4."
             },
             {
               "date": "24 Oct",
@@ -2026,7 +2033,8 @@
               "url": "https://x.com/NASASpaceflight/status/2113907231293128970",
               "src": "@NASASpaceflight",
               "phase": "progress",
-              "tier": 1
+              "tier": 1,
+              "card_text": "Booster 22 left Mega Bay 1 preparing to roll out to the launch site."
             },
             {
               "date": "24 Oct",
@@ -2037,7 +2045,8 @@
               "url": "https://x.com/NASASpaceflight/status/2113907865060819060",
               "src": "@NASASpaceflight",
               "phase": "progress",
-              "tier": 1
+              "tier": 1,
+              "card_text": "Booster 22 left Mega Bay 1 preparing to roll out to the launch site for testing."
             }
           ],
           "push": {
@@ -2055,7 +2064,8 @@
             "image": "https://pbs.twimg.com/media/HVZoSvdakAAst89.jpg",
             "show": true,
             "side": "right"
-          }
+          },
+          "card_text": "Booster 22 was lifted onto Pad-2."
         },
         {
           "id": "x-2113955770337550391",
