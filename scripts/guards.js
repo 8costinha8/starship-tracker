@@ -10,6 +10,8 @@
      recap          a new card that repeats an existing post (same post id / edit of it) → dropped
      rollover       a new Road with no vehicles → vehicles from the flight map
      cap            more than CAP new cards for one flight in one update → the extra ones wait (dropped from this write)
+     later-flight   a booster/ship number higher than the newest mapped one (B24 when B23 = Flight 16) → later flight
+                    (newest + offset), never the tracked flight: no box, no card on this Road, no push
      untagged       a new vehicle-stage card with no hardware and no flight → review queue, no card
      hedged         hedged completion wording ("appears to have completed") never marks a card complete */
 const scope = require("./scope.js"), events = require("./events.js");
@@ -44,6 +46,29 @@ function run(road, { prev = null, log = console.log, review = null, now = Date.n
     const k = hwKey(h && h.hardware);
     if (isVeh(k) && map[k] && map[k] !== road.flight && h.flight !== map[k]) { fix("mapping", `${h.id} ${k} tagged Flight ${h.flight ?? "none"} → ${map[k]}`); h.flight = map[k]; }
     if (isVeh(k) && map[k] === road.flight && Number.isInteger(h.flight) && h.flight > road.flight) { fix("mapping", `${h.id} ${k} is Flight ${road.flight} hardware, tagged ${h.flight} → ${road.flight}`); h.flight = road.flight; }
+  }
+  // later-flight: unmapped higher-numbered hardware never lands on the tracked flight
+  const laterIds = new Set();
+  for (const f of road.feed_items || []) {
+    if (!f || f.kind === "launch_date") continue;
+    const inf = scope.vehOf(`${f.title || ""} ${f.body || ""}`).map((v) => [v, scope.inferFlight(road, v)]).find(([, x]) => x && x.inferred);
+    if (!inf) continue;
+    const [v, { flight }] = inf;
+    if (f.flight !== flight || f.box || !f.later_flight) { fix("later-flight", `${f.id} ${v} is newer than any mapped vehicle → Flight ${flight} (was Flight ${f.flight ?? "none"}${f.box ? `, box ${f.box}` : ""}), no box, no push`); f.flight = flight; delete f.box; f.later_flight = true; laterIds.add(f.id); }
+  }
+  for (const c of road.categories || []) {
+    const keep = [];
+    for (const h of c.history || []) {
+      const vs = isVeh(hwKey(h && h.hardware)) ? [hwKey(h.hardware)] : scope.vehOf(h && (h.x_text || h.text));
+      const inf = vs.map((v) => [v, scope.inferFlight(road, v)]).find(([, x]) => x && x.inferred);
+      if (inf && h.kind !== "check" && (!Number.isInteger(h.flight) || h.flight <= road.flight)) {
+        fix("later-flight", `${h.id} ${inf[0]} card on Flight ${road.flight} ${c.id} → review queue (likely Flight ${inf[1].flight}), no card, no push`);
+        if (review) review.push({ post_id: (h.x_post && h.x_post.post_id) || h.id, url: h.url || "", author: String(h.src || "").replace(/^@/, ""), at: h.at || "", text: h.text, stage: c.id, suggested: `Flight ${inf[1].flight}`, reason: `GUARD later-flight: ${inf[0]} is newer than any mapped vehicle` });
+        laterIds.add(h.id); continue;
+      }
+      keep.push(h);
+    }
+    c.history = keep;
   }
   // cross-flight, headline, event
   for (const x of scope.enforce(road)) fix("cross-flight", `${x.why}: "${x.text}" (${x.id})`);
@@ -85,6 +110,7 @@ function run(road, { prev = null, log = console.log, review = null, now = Date.n
     }
     for (const h of drop) dropped.add(h.id);
   }
+  for (const id of laterIds) dropped.add(id);
   return { fixes, dropped, pushes };
 }
 module.exports = { run, flightMap, HEDGED_DONE, NET_DAY, CAP };

@@ -8,6 +8,20 @@ function flightOfVehicle(road, v) {
   for (const c of road.categories || []) for (const h of c.history || []) if (hwKey(h.hardware) === v && Number.isInteger(h.flight)) return h.flight;
   return null;
 }
+// A vehicle no card maps yet: if its number is higher than the newest mapped vehicle of its type (B or S), it belongs to a
+// LATER flight — newest mapped flight + number offset (B23 = 16 → B24 = 17, S43 = 16 → S44 = 17). Never the tracked flight.
+// Returns { flight, inferred } or null (lower/unknown numbers stay unmapped).
+function inferFlight(road, v) {
+  const known = flightOfVehicle(road, v);
+  if (known != null) return { flight: known, inferred: false };
+  const m = /^([BS])(\d+)$/.exec(v); if (!m) return null;
+  let top = null;
+  const see = (k, f) => { const x = /^([BS])(\d+)$/.exec(k); if (x && x[1] === m[1] && Number.isInteger(f) && (!top || +x[2] > top.n)) top = { n: +x[2], f }; };
+  for (const k of road.vehicles || []) see(hwKey(k), road.flight);
+  for (const c of road.categories || []) for (const h of c.history || []) see(hwKey(h && h.hardware), h && h.flight);
+  if (!top || top.f <= road.flight || +m[2] <= top.n) return null; // only past the newest LATER-flight vehicle
+  return { flight: top.f + (+m[2] - top.n), inferred: true };
+}
 // The vehicles a card is about: its hardware, else the vehicles its own text names.
 const cardVehicles = (h) => { const k = hwKey(h.hardware); return /^[BS]\d+$/.test(k) ? [k] : vehOf(h.x_text || h.text); };
 const cardFlight = (road, h) => (Number.isInteger(h.flight) ? h.flight : road.flight);
@@ -32,8 +46,9 @@ function enforce(road) {
   for (const f of road.feed_items || []) {
     if (!f || !f.box) continue;
     const vs = vehOf(f.body); if (!vs.length || vs.some((v) => (road.vehicles || []).map(hwKey).includes(v))) continue;
-    const fl = vs.map((v) => flightOfVehicle(road, v)).find((x) => Number.isInteger(x));
+    const inf = vs.map((v) => inferFlight(road, v)).find((x) => x && Number.isInteger(x.flight)), fl = inf && inf.flight;
     if (fl && fl !== f.flight) { out.push({ id: f.id, text: f.body, from: `feed flight ${f.flight}`, why: `vehicle ${vs.join("/")} is Flight ${fl}` }); f.flight = fl; }
+    if (inf && inf.inferred && fl > road.flight && f.box) { out.push({ id: f.id, text: f.body, from: `box ${f.box}`, why: `vehicle ${vs.join("/")} is Flight ${fl}, not filed to a Flight ${road.flight} box` }); delete f.box; f.later_flight = true; }
   }
   return out;
 }
@@ -50,4 +65,4 @@ function headlines(road) {
   }
   return out;
 }
-module.exports = { headlines, vehOf, flightOfVehicle, cardVehicles, belongs, enforce };
+module.exports = { inferFlight, headlines, vehOf, flightOfVehicle, cardVehicles, belongs, enforce };

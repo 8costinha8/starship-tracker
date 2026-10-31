@@ -33,7 +33,7 @@ const xReply = (posts, newest) => ({ ok: true, status: 200, json: async () => ({
   const cls = { "1001": { kind: "road", stage: "cryo", hardware: "S43", text: "Ship 43 rolled to Massey's for cryo testing." },
     "1002": { kind: "road", stage: "cryo", hardware: "Ship 43", text: "Ship 43 is on the cryo stand." },
     "1003": { kind: "skip", reason: "meme" }, "1004": { kind: "news", reason: "programme news" },
-    "1005": { kind: "road", stage: "static", hardware: "B70", text: "Booster 22 rolled to the static fire site." },
+    "1005": { kind: "road", stage: "static", hardware: "B22", text: "Booster 22 rolled to the static fire site." },
     "1006": { kind: "road", stage: "pad", hardware: "Pad 2", text: "Pad 2's chopsticks were tested." } };
   const ask = async (prompt, o) => { asks.push(prompt); return { entries: [...prompt.matchAll(/^(\d+)\. @\S+ \S+ \[[^\]]*\]: .*?#(\d+)/gm)].map((m) => ({ item: +m[1], kind: "skip", stage: null, hardware: null, text: null, reason: "x", ...cls[m[2]] })) }; };
 
@@ -47,7 +47,7 @@ const xReply = (posts, newest) => ({ ok: true, status: 200, json: async () => ({
   // run 2: new posts
   urls.length = 0; sent.length = 0;
   xPage = xReply([P("1001", "1", 30, "S43 rolling to Massey's #1001", "photo"), P("1002", "2", 5, "Ship 43 on the cryo stand #1002", "video"), P("1003", "1", 4, "lol meme #1003", "photo"),
-    P("1004", "4", 3, "Starship programme update #1004"), P("1005", "1", 2, "B70 rolling to Massey's #1005", "video"), P("1006", "2", 1, "Pad 2 chopsticks test #1006", "photo"),
+    P("1004", "4", 3, "Starship programme update #1004"), P("1005", "1", 2, "B22 rolling to Massey's #1005", "video"), P("1006", "2", 1, "Pad 2 chopsticks test #1006", "photo"),
     P("1007", "3", 1, "Tesla Q3 numbers #1007", "photo")], "1007");
   res = await road.run({ ...base, askXFirst: ask });
   const r = JSON.parse(fs.readFileSync(roadPath, "utf8")), B = (id) => r.categories.find((c) => c.id === id);
@@ -69,8 +69,8 @@ const xReply = (posts, newest) => ({ ok: true, status: 200, json: async () => ({
   sent.length = 0; asks.length = 0;
   res = await road.run({ ...base, askXFirst: ask });
   check(sent.length === 0 && asks.length === 0, "already-seen posts: no writer call, no push");
-  const many = Array.from({ length: 8 }, (_, i) => P(String(2000 + i), "1", 1, `B${30 + i} news #${2000 + i}`, "photo"));
-  for (const p of many) cls[p.id] = { kind: "road", stage: "pad", hardware: `B${30 + many.indexOf(p)}`, text: `Booster ${30 + many.indexOf(p)} moved.` };
+  const many = Array.from({ length: 8 }, (_, i) => P(String(2000 + i), "1", 1, `B${10 + i} news #${2000 + i}`, "photo"));
+  for (const p of many) cls[p.id] = { kind: "road", stage: "pad", hardware: `B${10 + many.indexOf(p)}`, text: `Booster ${10 + many.indexOf(p)} moved.` };
   xPage = xReply(many, "2007");
   res = await road.run({ ...base, askXFirst: ask });
   check(sent.length === 5 && stored.xFirst.seen.filter((x) => x >= "2000").length === 5, "existing cap: 5 cards/pushes per run, the rest wait (not marked seen)");
@@ -84,22 +84,22 @@ const xReply = (posts, newest) => ({ ok: true, status: 200, json: async () => ({
   // status updates (same rules as the article path)
   const st = (id) => JSON.parse(fs.readFileSync(roadPath, "utf8")).categories.find((c) => c.id === id);
   { const r0 = JSON.parse(fs.readFileSync(roadPath, "utf8")); r0.categories.find((c) => c.id === "static").status = "pending"; r0.categories.find((c) => c.id === "cryo").status = "complete"; r0.categories.find((c) => c.id === "date").status = "pending"; fs.writeFileSync(roadPath, JSON.stringify(r0, null, 2)); }
-  Object.assign(cls, { "4001": { kind: "road", stage: "static", hardware: "B60", text: "Booster 60 began its static fire campaign.", status: "progress" },
-    "4002": { kind: "road", stage: "cryo", hardware: "S61", text: "Ship 61 is back at Massey's for more cryo testing.", status: "progress" },
+  Object.assign(cls, { "4001": { kind: "road", stage: "static", hardware: "B18", text: "Booster 18 began its static fire campaign.", status: "progress" },
+    "4002": { kind: "road", stage: "cryo", hardware: "S19", text: "Ship 19 is back at Massey's for more cryo testing.", status: "progress" },
     "4003": { kind: "road", stage: "date", hardware: null, text: "Flight 15 is set for 30 Oct.", status: "confirmed" },
     "4004": { kind: "road", stage: "faa", hardware: "FAA", text: "The FAA issued the Flight 15 licence.", status: "done" } });
-  sent.length = 0; xPage = xReply([P("4001", "4", 1, "B60 #4001", "photo"), P("4002", "4", 1, "S61 #4002", "photo"), P("4003", "1", 1, "NET 30 Oct #4003", "photo"), P("4004", "4", 1, "licence #4004", "photo")], "4004");
+  sent.length = 0; xPage = xReply([P("4001", "4", 1, "B18 #4001", "photo"), P("4002", "4", 1, "S19 #4002", "photo"), P("4003", "1", 1, "NET 30 Oct #4003", "photo"), P("4004", "4", 1, "licence #4004", "photo")], "4004");
   res = await road.run({ ...base, askXFirst: ask });
   check(st("static").status === "progress" && sent.some((n) => /Static fires: In progress/.test(n.title) && /entry=x-4001$/.test(n.link)), "status: in progress applies, push names the box and new status (existing push)");
   check(st("cryo").status === "progress", "a finished stage can be re-opened by a trusted account (both directions)");
   check(st("date").status === "pending" && !/Launch date: Confirmed/.test(sent.map((n) => n.title).join()), "Launch date: only SpaceX/FAA can confirm (LabPadre blocked)");
   check(st("faa").status === "complete" && st("faa").history[0].complete === true && st("faa").latest === "Confirmed", "done → stage complete (Done, green entry)");
-  Object.assign(cls, { "4005": { kind: "road", stage: "date", hardware: null, text: "SpaceX set Flight 15 for 30 Oct.", status: "confirmed" }, "4006": { kind: "road", stage: "static", hardware: "B60", text: "Booster 60 finished its static fire.", status: "done" } });
-  sent.length = 0; xPage = xReply([P("4005", "4", 1, "Flight 15 NET 30 Oct #4005", "photo"), P("4006", "4", 0.5, "B60 static fire done #4006", "video")], "4006");
+  Object.assign(cls, { "4005": { kind: "road", stage: "date", hardware: null, text: "SpaceX set Flight 15 for 30 Oct.", status: "confirmed" }, "4006": { kind: "road", stage: "static", hardware: "B18", text: "Booster 18 finished its static fire.", status: "done" } });
+  sent.length = 0; xPage = xReply([P("4005", "4", 1, "Flight 15 NET 30 Oct #4005", "photo"), P("4006", "4", 0.5, "B18 static fire done #4006", "video")], "4006");
   res = await road.run({ ...base, askXFirst: ask });
   check(st("date").status === "done" && sent.some((n) => /Launch date: Confirmed/.test(n.title)), "SpaceX post confirms the Launch date");
   // one vehicle finishing is not the whole stage: the section only rolls up to Done when every Flight 15 vehicle completed (test-logtext.js)
-  check(st("static").status === "progress" && st("static").history.filter((h) => h.hardware === "B60").length === 1 && !sent.some((n) => /Static fires: (Done|Complete)/.test(n.title)), "merged post finishing ONE vehicle's stage keeps the section In progress (no Done push)");
+  check(st("static").status === "progress" && st("static").history.filter((h) => h.hardware === "B18").length === 1 && !sent.some((n) => /Static fires: (Done|Complete)/.test(n.title)), "merged post finishing ONE vehicle's stage keeps the section In progress (no Done push)");
   check(road.xStatus({ id: "date" }, "done") === null && road.xStatus({ id: "pad" }, "confirmed") === null, "done is not used on the Launch date; confirmed only there");
   // source tiers: a Tier 2 tracker can't move a status; rumour wording is Tier 3
   { const r0 = JSON.parse(fs.readFileSync(roadPath, "utf8")); r0.categories.find((c) => c.id === "pad").status = "pending"; fs.writeFileSync(roadPath, JSON.stringify(r0, null, 2)); }

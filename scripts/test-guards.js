@@ -97,6 +97,22 @@ const run = async (road, posts, verdicts, user = "Blobifie") => {
     check(gs.pushes.length === 1 && /NET 12 Nov \(was 8 Nov\) · unofficial/.test(gs.pushes[0].body || ""), "missed estimate slip → feed item + push 'NET 12 Nov (was 8 Nov) · unofficial'");
     const gs2 = run(r, { prev, slipPush: P.slipPush, addFeedItem: PS.addFeedItem }); check(gs2.pushes.length === 0, "slip already in the feed → no second push");
     check("NET 12 Nov".match(G.NET_DAY)[1] === "12", "date pattern reads two-digit days");
+    // later-flight (31 Oct 02:09 GMT): efraser77 'Booster 24 methane tank lifted inside Megabay 1' filed as Flight 15 Static fires
+    const B24 = { id: "news-mvvriszs-0c1ff5", kind: "news", title: "🚀 Starship", body: "Booster 24 methane tank lifted inside Megabay 1 this evening", url: "https://x.com/efraser77/status/2116351708150497473", at: "2026-10-31T02:09:01.000Z", date: "31 Oct", flight: 15, box: "static" };
+    r = base(); prev = JSON.parse(JSON.stringify(r)); r.feed_items = [{ ...B24 }, ...(r.feed_items || [])]; logs.length = 0;
+    const gb = run(r, { prev }); const fb = r.feed_items.find((f) => f.id === B24.id);
+    check(fb.flight !== 15 && fb.flight === 17, "exact B24 item (efraser77) → not Flight 15 (Flight 17)");
+    check(!fb.box && !r.categories.some((c) => (c.history || []).some((h) => /Booster 24/.test(h.text || "") || (h.updates || []).some((u) => /Booster 24/.test(u.text || "")))), "exact B24 item → no box, no Road card / Earlier-updates row");
+    check(gb.dropped.has(B24.id) && !gb.pushes.length, "exact B24 item → no push");
+    check(logs.some((l) => /^GUARD later-flight: news-mvvriszs-0c1ff5/.test(l)), "B24 fix logged as GUARD later-flight");
+    check(G.flightMap(r).B24 === undefined && r.vehicles.every((v) => v !== "B24"), "B24 does not enter the tracked flight's map");
+    // unknown higher ship number as a card on the Flight 15 Road → review queue, no card, no push
+    r = base(); prev = JSON.parse(JSON.stringify(r)); const rq = []; const st2 = r.categories.find((c) => c.id === "static");
+    st2.history.unshift({ id: "e-s44", text: "Ship 44 static fire at Massey's.", hardware: "S44", src: "@efraser77" });
+    const g44 = run(r, { prev, review: rq });
+    check(!st2.history.some((h) => h.id === "e-s44") && rq.length === 1 && /Flight 17/.test(rq[0].suggested) && g44.dropped.has("e-s44"), "unknown S44 card → review queue (suggested Flight 17), no Flight 15 card, no push");
+    r = base(); r.feed_items = [{ ...B24, id: "news-s44", body: "S44 nosecone stacked", box: "cryo" }, ...(r.feed_items || [])]; run(r);
+    const f44 = r.feed_items.find((f) => f.id === "news-s44"); check(f44.flight === 17 && !f44.box, "unknown S44 feed item → Flight 17, no box");
   }
   console.log(fails ? `\n${fails} FAILED` : "\n✅ All guard checks passed."); process.exit(fails ? 1 : 0);
 })();
