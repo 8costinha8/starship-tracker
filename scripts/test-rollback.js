@@ -19,5 +19,5 @@ check(at("x-2115701002095755563").join() === "static" && !at("x-2115694440891498
 check(!JSON.stringify(live).includes("after cryo tests") && card.updates.some((u) => u.log_text === "Ship 42 rolled back to Mega Bay 2 after static fires."), "flight log line says 'after static fires'");
 check((live.feed_items || []).filter((f) => /arrived back at the production site/.test(f.body || "")).every((f) => f.box === "static"), "feed item for the same event is filed under static");
 const b = fl.boxes(live);
-check(b.cryo.statusText === "Complete" && b.static.statusText === "Complete" && b.pad.statusText === "Not yet", "Flight Log states unchanged by the move (cryo/static ● Complete, pad ○ Not yet)");
+check(b.cryo.statusText === "Complete" && b.static.statusText === "Complete" && b.pad.statusText === "In progress", "Flight Log states unchanged by the move (cryo/static ● Complete, pad ◐ In progress since the 31 Oct 12 Sep test line)");
 console.log(`\n${n - fails}/${n} checks passed`); process.exit(fails ? 1 : 0);

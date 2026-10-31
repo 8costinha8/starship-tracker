@@ -116,7 +116,7 @@ async function audit(road, { now = Date.now(), log = console.log, judge = null, 
   // 2d. feed news about a tracked vehicle whose action is on no card → Earlier-updates row on that vehicle's card (B22 transporter)
   const ACT = /\b(transporter|lifted|lowered|returned|returning|returns|arrived|arrives|left|leaves|moved|rolled|rolls|static fire|cryo|stacked|caught)/i;
   const stem = (w) => String(w || "").toLowerCase().replace(/^(return|arriv|leav|left|roll|lift|lower|mov)\w*$/, "$1");
-  const actOf = (t) => { const m = String(t || "").replace(/\bhas been moved onto its transporter\b/i, "transporter").match(ACT); return m ? stem(m[1]) : null; };
+  const actOf = (t) => { const m = String(t || "").replace(/\b(?:has been|was) moved onto its transporter\b/i, "transporter").match(ACT); return m ? stem(m[1]) : null; };
   const postsOf = (h) => new Set([pid(h.url), h.x_post && h.x_post.post_id, ...(h.x_posts || []).map(String), ...(h.also_posts || []).map((x) => pid((x && x.url) || x))].filter(Boolean).map(String));
   for (const f of feed) {
     if (f.kind !== "news" || f.flight !== F || !pid(f.url)) continue;
@@ -205,9 +205,18 @@ async function audit(road, { now = Date.now(), log = console.log, judge = null, 
   }
   if (!Object.keys(road.image_cache).length) delete road.image_cache;
 
+  // 11. rendered output (scripts/render-check.js runs app.js's own render functions + flightlog.js): what the page SHOWS —
+  //     tense, one event time across views, duplicate rows, ship/booster crossover, pill vs headline. Flag only (needs-review + health.json).
+  let render = null;
+  try {
+    const rf = require("./render-check.js").check(road);
+    for (const f of rf) flag(f.type, f.msg, null, { item: f.item || null, values: f.values || [], reason: f.reason || "rendered output check" });
+    render = { at: new Date(now).toISOString(), status: rf.length ? "failed" : "ok", failures: rf.length, items: rf.slice(0, 30).map((f) => `[${f.type}] ${f.msg}`) };
+  } catch (e) { render = { at: new Date(now).toISOString(), status: "error", failures: null, error: e.message }; log(`SELFCHECK render-check could not run: ${e.message}`); }
+
   const counts = {}; for (const x of fixes) counts[x.type] = (counts[x.type] || 0) + 1;
-  road.self_check = { at: new Date(now).toISOString(), fixes: fixes.length, flags: flags.length, counts, judge_calls: calls, flagged: flags.map((f) => `[${f.type}] ${f.msg}`).slice(0, 40) };
-  return { fixes, flags, judged, calls, files, counts, pushes: [], milestones: [] };
+  road.self_check = { at: new Date(now).toISOString(), fixes: fixes.length, flags: flags.length, counts, judge_calls: calls, flagged: flags.map((f) => `[${f.type}] ${f.msg}`).slice(0, 40), render: render && { status: render.status, failures: render.failures } };
+  return { fixes, flags, judged, calls, files, counts, render, pushes: [], milestones: [] };
 }
 
 // Grok judge (only when XAI_API_KEY is set). Answers "a" or "b".
@@ -233,6 +242,7 @@ if (require.main === module) {
     const road = JSON.parse(fs.readFileSync(file, "utf8"));
     const r = await audit(road, { dryRun: dry, judge: grokJudge() });
     console.log(`\n${r.fixes.length} fixes ${JSON.stringify(r.counts)}, ${r.flags.length} flags, ${r.calls} judge calls`);
-    if (!dry) { fs.writeFileSync(file, JSON.stringify(road, null, 2) + "\n"); writeReview(r.flags, path.join(ROOT, "data", "needs-review.json")); }
+    if (!dry) { fs.writeFileSync(file, JSON.stringify(road, null, 2) + "\n"); writeReview(r.flags, path.join(ROOT, "data", "needs-review.json")); require("./health.js").note("render_check", r.render); }
+    console.log(`rendered output: ${r.render ? `${r.render.status}${r.render.failures ? ` (${r.render.failures} problem(s))` : ""}` : "not run"}`);
   })();
 }

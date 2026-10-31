@@ -49,4 +49,12 @@ function gitCommit(file, msg) {
     try { run("git push"); } catch { run("git pull --rebase"); run("git push"); }
   } catch (e) { console.log(`health: commit failed (${String(e.message).split("\n")[0]})`); }
 }
-module.exports = { update, shouldCommit, record };
+// A named check result kept beside the run statuses (e.g. render_check from the daily self-check). Does not change
+// status / alert (those are for failed runs); readers see { at, status, failures, items } under health[key].
+function note(key, value, { root = ROOT } = {}) {
+  if (!value) return null;
+  const file = path.join(root, "data", "health.json");
+  let h = {}; try { h = JSON.parse(fs.readFileSync(file, "utf8")) || {}; } catch {}
+  h[key] = value; fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, JSON.stringify(h, null, 2) + "\n"); return h;
+}
+module.exports = { update, shouldCommit, record, note };

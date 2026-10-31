@@ -1684,6 +1684,7 @@ async function run(opts = {}) {
       const sc = await SC.audit(road, { now: clock(), log, judge: mode === "live" && !opts.roadPath ? SC.grokJudge(log) : (opts.selfCheckJudge || null), dryRun: !save, root: scRoot });
       let added = 0; if (save) { added = SC.writeReview(sc.flags, path.join(scRoot, "data", "needs-review.json"), clock()); if (added) frameFiles.push("data/needs-review.json"); }
       frameFiles.push(...sc.files);
+      if (save && sc.render) { require("./health.js").note("render_check", sc.render, { root: scRoot }); frameFiles.push("data/health.json"); changed = true; } // rendered-output result beside the run health (once a UK day; committed with this run so the CI tree is never left dirty)
       if (sc.fixes.length || added) changed = true;
       SC.markDone(state, clock(), { fixes: sc.fixes.length, flags: sc.flags.length, judge_calls: sc.calls });
       log(`self-check: ${sc.fixes.length} fix(es) ${JSON.stringify(sc.counts)}, ${sc.flags.length} flag(s), ${sc.calls} judge call(s) (no push)`);

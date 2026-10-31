@@ -7,7 +7,8 @@ const b = fl.boxes(live);
 check(b.cryo.status === "done" && b.cryo.statusText === "Complete", "Cryo: both vehicles done → ● Complete");
 check(b.raptor.status === "done" && b.raptor.statusText === "Installed", "Raptors: ● Installed");
 check(b.static.status === "done" && b.static.statusText === "Complete", "Static fires: ● Complete");
-check(b.pad.status === "none" && b.pad.statusText === "Not yet", "Pad: prep/moves only → ○ Not yet (prep never moves the circle)");
+// 31 Oct: S42 12 Sep chopstick catch-height + QD arm tests (TrackingTheSB) are a completed pad test → ◐ In progress; prep alone still never moves the circle (flightlog.js PAD_TEST_DONE)
+check(b.pad.status === "progress" && b.pad.statusText === "In progress" && /tests in progress/.test(b.pad.latest), "Pad: a completed chopstick test → ◐ In progress (prep never moves the circle)");
 check(b.faa.status === "none" && b.faa.statusText === "Not yet", "FAA: no licence → ○ Not yet");
 check(b.date.status === "progress" && b.date.statusText === "Estimated" && /NET/.test(b.date.latest), "Launch date: unofficial NET → ◐ Estimated");
 { const r = clone(); delete r.predicted; const d = fl.boxes(r).date; check(d.status === "none" && d.statusText === "Not confirmed", "Launch date: no NET → ○ Not confirmed"); }
