@@ -677,7 +677,10 @@
               "tier": 2
             }
           ],
-          "log_text": "Ship 42 completed further cryo tests."
+          "log_text": "Ship 42 completed further cryo tests.",
+          "self_check_flags": [
+            "after:2026-10-09T20:30:41.000Z"
+          ]
         },
         {
           "date": "10 Sep",
@@ -866,6 +869,18 @@
               "phase": "completed",
               "tier": 1,
               "note": "no dated install post; confirmed by the 25 Oct 33-engine fire"
+            },
+            {
+              "date": "12 Sep",
+              "log_date": "12 Sep",
+              "at": "2026-09-12T10:55:03.000Z",
+              "text": "Booster 22 returned to Megabay 1 for its engines.",
+              "log_text": "Booster 22 returned to Megabay 1 for its engines.",
+              "url": "https://x.com/Blobifie/status/2098727083941982562",
+              "src": "@Blobifie",
+              "handle": "Blobifie",
+              "phase": "completed",
+              "tier": 2
             }
           ]
         },
@@ -900,20 +915,9 @@
             "phase": "expected",
             "migrated": true
           },
-          "updates": [
-            {
-              "date": "30 Sep",
-              "at": "2026-09-30T17:35:00.000Z",
-              "text": "Ship 42's Raptor engines have been removed ahead of Flight 15.",
-              "url": "https://www.youtube.com/watch?v=dPqDD39cBEw",
-              "src": "NSF",
-              "phase": "expected",
-              "tier": 1,
-              "log_text": "Ship 42 had its Raptor engines removed ahead of Flight 15."
-            }
-          ],
+          "updates": [],
           "log_text": "Ship 42 is reportedly having its Raptor engines reinstalled.",
-          "card_text": "Ship 42's Raptor engines were reportedly being reinstalled; all 6 Raptors were installed by 26 Oct.",
+          "card_text": "Ship 42's Raptors were reportedly being reinstalled; all 6 Raptors were installed by 26 Oct.",
           "superseded": {
             "by": "inferred S42 raptor",
             "date": "26 Oct",
@@ -959,11 +963,20 @@
               "unverified": true,
               "note": "single source"
             }
+          ],
+          "also_posts": [
+            {
+              "url": "https://www.youtube.com/watch?v=dPqDD39cBEw",
+              "src": "NSF",
+              "at": "2026-09-30T17:35:00.000Z",
+              "text": "Ship 42's Raptor engines have been removed ahead of Flight 15.",
+              "why": "same 30 Sep removal (deduped row)"
+            }
           ]
         },
         {
-          "date": "10–13 Sep",
-          "text": "Ship 42 headed back for its six Raptors; Booster 22 returned to Megabay 1 for its engines.",
+          "date": "10 Sep",
+          "text": "Ship 42 headed back for its six Raptors.",
           "src": "@NASASpaceflight",
           "source": "nsf",
           "trust": "trusted",
@@ -986,23 +999,11 @@
             "phase": "progress",
             "migrated": true
           },
-          "log_text": "Ship 42 headed back for its six Raptors; Booster 22 returned to Megabay 1 for its engines.",
+          "log_text": "Ship 42 headed back for its six Raptors.",
           "refiled_pin": "engine-install trips",
           "url": "https://x.com/NASASpaceflight/status/2098104487428694216",
           "at": "2026-09-10T17:41:05.000Z",
           "updates": [
-            {
-              "date": "12 Sep",
-              "log_date": "12 Sep",
-              "at": "2026-09-12T10:55:03.000Z",
-              "text": "Booster 22 returned to Megabay 1 for its engines.",
-              "log_text": "Booster 22 returned to Megabay 1 for its engines.",
-              "url": "https://x.com/Blobifie/status/2098727083941982562",
-              "src": "@Blobifie",
-              "handle": "Blobifie",
-              "phase": "completed",
-              "tier": 2
-            },
             {
               "date": "22 Sep",
               "log_date": "22 Sep",
@@ -1017,7 +1018,13 @@
               "unverified": true,
               "note": "single source"
             }
-          ]
+          ],
+          "hardware": "S42",
+          "date_range": "10–13 Sep",
+          "split": {
+            "from": "Ship 42 headed back for its six Raptors; Booster 22 returned to Megabay 1 for its engines.",
+            "booster_part": "Booster 22 returned to Megabay 1 for its engines. → Booster 22 Raptor card"
+          }
         }
       ],
       "log_latest": "Booster 22 lifting jig raised in Megabay 1."
@@ -1222,7 +1229,15 @@
             "2114904512217694216",
             "2115198496521195971",
             "2115199662361874568",
-            "2115203155206279459"
+            "2115203155206279459",
+            {
+              "url": "https://x.com/SpaceX/status/2115476295169814978",
+              "src": "@SpaceX",
+              "at": "2026-10-28T16:10:27.000Z",
+              "event_at": "2026-10-27T21:45:25.000Z",
+              "text": "Ship 42 completed a full-duration six-engine static fire and deorbit burn simulation.",
+              "why": "SpaceX (tier 1) recap of the 27 Oct 21:45 six-engine firing"
+            }
           ],
           "updates": [
             {
@@ -1345,7 +1360,7 @@
           },
           "text_locked": true,
           "complete": true,
-          "completed_at": "2026-10-28T11:25:39.000Z",
+          "completed_at": "2026-10-27T21:45:25.000Z",
           "completed_src": "https://x.com/LabPadre/status/2115404622638837866",
           "push": {
             "title": "💥 Static fires: Completed",
@@ -1381,7 +1396,8 @@
               "post_url": "https://x.com/SpaceX/status/2115476295169814978",
               "author": "SpaceX"
             }
-          ]
+          ],
+          "completed_at_note": "27 Oct 21:45 UK: NSF (tier 1) post showing the six-engine firing; 28 Oct 11:25 was NSF's recap post, 28 Oct 16:10 SpaceX's recap"
         },
         {
           "id": "x-2114535368758542634",
@@ -1628,7 +1644,7 @@
               "tier": 2
             }
           ],
-          "card_text": "Ship 42 was moving into position at Massey's for static fire testing as Ship 43 departs."
+          "card_text": "Ship 42 moved into position at Massey's for static fire testing as Ship 43 departed."
         },
         {
           "id": "x-2111327584122437857",
@@ -1746,7 +1762,8 @@
               "url": "https://x.com/RGVaerialphotos/status/2111327584122437857",
               "src": "@RGVaerialphotos",
               "phase": "expected",
-              "tier": 2
+              "tier": 2,
+              "card_text": "Booster 22 was waiting to roll out for pre-flight static fire testing."
             },
             {
               "date": "9 Oct",
@@ -2760,7 +2777,8 @@
               "src": "NSF",
               "phase": "progress",
               "tier": 1,
-              "log_text": "Pad 2 chopsticks are undergoing maintenance."
+              "log_text": "Pad 2 chopsticks are undergoing maintenance.",
+              "card_text": "Pad 2's chopsticks were undergoing maintenance."
             },
             {
               "date": "30 Sep",
@@ -2768,17 +2786,11 @@
               "src": "NSF",
               "phase": "progress",
               "tier": 2,
-              "log_text": "Pad 2 is clear after Flight 14, with a new service structure going in."
-            },
-            {
-              "date": "11–12 Sep",
-              "text": "S42 lifted by Pad 2 chopsticks in a catch position. SQD arm connect tests.",
-              "src": "NSF",
-              "phase": "progress",
-              "tier": 2,
-              "log_text": "Ship 42 was lifted by the Pad 2 chopsticks for catch and arm tests."
+              "log_text": "Pad 2 is clear after Flight 14, with a new service structure going in.",
+              "card_text": "Pad 2 was clear after Flight 14; a new servicing structure was going in for hold-down clamp work."
             }
-          ]
+          ],
+          "card_text": "SpaceX performed more catch testing at the tower top, with launch and landing deluge tests."
         },
         {
           "id": "s42-pad2-sep",
@@ -2840,6 +2852,25 @@
               "handle": "LabPadre",
               "phase": "completed",
               "tier": 2
+            },
+            {
+              "date": "13 Sep",
+              "at": "2026-09-13T04:02:00.000Z",
+              "text": "Ship 42 was deployed from the Pad 2 chopsticks after its tests.",
+              "url": "https://x.com/NASASpaceflight/status/2098985653849542753",
+              "src": "@NASASpaceflight",
+              "handle": "NASASpaceflight",
+              "phase": "completed",
+              "tier": 1
+            },
+            {
+              "date": "11–12 Sep",
+              "text": "S42 lifted by Pad 2 chopsticks in a catch position. SQD arm connect tests.",
+              "src": "NSF",
+              "phase": "progress",
+              "tier": 2,
+              "log_text": "Ship 42 was lifted by the Pad 2 chopsticks for catch and arm tests.",
+              "card_text": "Ship 42 was lifted by the Pad 2 chopsticks in a catch position, with SQD arm connect tests."
             }
           ],
           "date_range": "11–13 Sep"
@@ -2943,7 +2974,13 @@
               "log_text": "An air-traffic slide shows a very provisional NET 19 October."
             }
           ],
-          "log_text": "Flight 15 is targeting NET 8 November, with plans to catch both vehicles."
+          "log_text": "Flight 15 is targeting NET 8 November, with plans to catch both vehicles.",
+          "superseded": {
+            "by": "launch_date-mvv5rls0-69f74f",
+            "date": "30 Oct",
+            "why": "FAA planning slide · NSF, 30 Oct: Flight 15 NET 12 Nov (was 8 Nov)"
+          },
+          "card_text": "Flight 15 was targeting NET 8 November (since moved to NET 12 Nov), with plans to catch both vehicles."
         }
       ],
       "log_latest": "Flight 15 NET 12 Nov (unofficial)."
@@ -3145,12 +3182,17 @@
       "id": "news-mvviedow-8ae8e8",
       "kind": "news",
       "title": "🚀 Starship",
-      "body": "SpaceX completes three static fires in three days for flight 15",
+      "body": "SpaceX completed three static fires in three days for Flight 15",
       "url": "https://www.nasaspaceflight.com/2026/10/spacex-static-fires-flight-15/",
       "at": "2026-10-30T21:53:38.000Z",
       "date": "30 Oct",
       "flight": 15,
-      "box": "static"
+      "push_text": "SpaceX completes three static fires in three days for flight 15",
+      "refiled_pin": true,
+      "rerouted": {
+        "from": "static",
+        "why": "covers both vehicles (B22 25 Oct, S42 ×2 27 Oct): no single vehicle card; not shown in a Ship 42 drawer"
+      }
     },
     {
       "id": "launch_date-mvv5rls0-69f74f",
@@ -3159,7 +3201,8 @@
       "body": "Flight 15 now NET 12 Nov (was 8 Nov) · unofficial",
       "at": "2026-10-30T16:00:00.000Z",
       "date": "30 Oct",
-      "flight": 15
+      "flight": 15,
+      "box": "date"
     },
     {
       "id": "news-mvuqvczs-7b7a15",
@@ -3177,24 +3220,26 @@
       "id": "news-mvtv609c-f58a18",
       "kind": "news",
       "title": "🚀 Starship",
-      "body": "Flight 15 has reportedly slipped by four days to 12 November",
+      "body": "Flight 15 reportedly slipped by four days to 12 November",
       "url": "https://x.com/LabPadre/status/2115870155188449596",
       "at": "2026-10-29T18:15:30.000Z",
       "date": "29 Oct",
       "flight": 15,
-      "src": "@LabPadre"
+      "src": "@LabPadre",
+      "push_text": "Flight 15 has reportedly slipped by four days to 12 November"
     },
     {
       "id": "news-mvt772o8-49339e",
       "kind": "news",
       "title": "🚀 Starship",
-      "body": "Ship 42 and the tiled barrel section have arrived back at the production site",
+      "body": "Ship 42 and the tiled barrel section arrived back at the production site",
       "url": "https://x.com/RGVaerialphotos/status/2115701286096277589",
       "at": "2026-10-29T07:04:29.000Z",
       "date": "29 Oct",
       "flight": 15,
       "box": "static",
-      "src": "@RGVaerialphotos"
+      "src": "@RGVaerialphotos",
+      "push_text": "Ship 42 and the tiled barrel section have arrived back at the production site"
     },
     {
       "id": "flight-mvsjfivy-8b129a",
@@ -3209,13 +3254,20 @@
       "id": "news-mvsb9c8o-97f884",
       "kind": "news",
       "title": "🚀 Starship",
-      "body": "Ship 42 completes full duration six-engine static fire and deorbit burn simulation",
+      "body": "Ship 42 completed a full-duration six-engine static fire and deorbit burn simulation",
       "url": "https://x.com/SpaceX/status/2115476295169814978",
       "at": "2026-10-28T16:10:27.000Z",
       "date": "28 Oct",
       "flight": 15,
-      "box": "static",
-      "src": "@SpaceX"
+      "src": "@SpaceX",
+      "push_text": "Ship 42 completes full duration six-engine static fire and deorbit burn simulation",
+      "event_at": "2026-10-27T21:45:25.000Z",
+      "event_card": "x-2114904512217694216",
+      "refiled_pin": true,
+      "rerouted": {
+        "from": "static",
+        "why": "official recap of the 27 Oct six-engine static fire; kept on the Ship 42 static fire card (also_posts) at the event time"
+      }
     },
     {
       "id": "news-mvrm1w14-668ed2",
@@ -3233,39 +3285,42 @@
       "id": "news-mvozi9xs-e0267f",
       "kind": "news",
       "title": "🚀 Starship",
-      "body": "Ship 42 is being transported to the Massey's test site, with an engine section in tow",
+      "body": "Ship 42 was transported to the Massey's test site, with an engine section in tow",
       "url": "https://x.com/RGVaerialphotos/status/2114632668461900071",
       "at": "2026-10-26T08:18:10.000Z",
       "date": "26 Oct",
       "flight": 15,
       "box": "static",
       "refiled_pin": true,
-      "src": "@RGVaerialphotos"
+      "src": "@RGVaerialphotos",
+      "push_text": "Ship 42 is being transported to the Massey's test site, with an engine section in tow"
     },
     {
       "id": "news-mvown148-6ecbdb",
       "kind": "news",
       "title": "🚀 Starship",
-      "body": "Booster 22 has been moved onto its transporter ahead of returning to Megabay 1",
+      "body": "Booster 22 was moved onto its transporter ahead of returning to Megabay 1",
       "url": "https://x.com/RGVaerialphotos/status/2114612462184178003",
       "at": "2026-10-26T06:57:53.000Z",
       "date": "26 Oct",
       "flight": 15,
       "box": "pad",
-      "src": "@RGVaerialphotos"
+      "src": "@RGVaerialphotos",
+      "push_text": "Booster 22 has been moved onto its transporter ahead of returning to Megabay 1"
     },
     {
       "id": "news-mvortxmw-db27d7",
       "kind": "news",
       "title": "🚀 Starship",
-      "body": "Booster 22 has been lifted to catch height at the launch site",
+      "body": "Booster 22 was lifted to catch height at the launch site",
       "url": "https://x.com/RGVaerialphotos/status/2114578590792859900",
       "at": "2026-10-26T04:43:17.000Z",
       "date": "26 Oct",
       "flight": 15,
       "box": "pad",
       "refiled_pin": true,
-      "src": "@RGVaerialphotos"
+      "src": "@RGVaerialphotos",
+      "push_text": "Booster 22 has been lifted to catch height at the launch site"
     },
     {
       "id": "news-mvopynkg-826d56",
@@ -3298,37 +3353,40 @@
       "id": "news-mvntvaz4-93c869",
       "kind": "news",
       "title": "🚀 Starship",
-      "body": "Booster 22 propellant loading has begun for static fire test",
+      "body": "Booster 22 propellant loading began for its static fire test",
       "url": "https://x.com/NASASpaceflight/status/2114339334753284398",
       "at": "2026-10-25T12:52:34.000Z",
       "date": "25 Oct",
       "flight": 15,
       "box": "static",
-      "src": "@NASASpaceflight"
+      "src": "@NASASpaceflight",
+      "push_text": "Booster 22 propellant loading has begun for static fire test"
     },
     {
       "id": "news-mvmgoq8g-00233b",
       "kind": "news",
       "title": "🚀 Starship",
-      "body": "Booster 22 is being lifted onto launch pad 2",
+      "body": "Booster 22 was lifted onto launch Pad 2",
       "url": "https://x.com/NASASpaceflight/status/2113992853093601306",
       "at": "2026-10-24T13:55:46.000Z",
       "date": "24 Oct",
       "flight": 15,
       "box": "static",
-      "src": "@NASASpaceflight"
+      "src": "@NASASpaceflight",
+      "push_text": "Booster 22 is being lifted onto launch pad 2"
     },
     {
       "id": "news-mvm4mfz4-21e7ea",
       "kind": "news",
       "title": "🚀 Starship",
-      "body": "Booster 22 has left Mega Bay 1 preparing to roll out to the launch site for testing",
+      "body": "Booster 22 left Mega Bay 1, preparing to roll out to the launch site for testing",
       "url": "https://x.com/NASASpaceflight/status/2113907865060819060",
       "at": "2026-10-24T08:18:04.000Z",
       "date": "24 Oct",
       "flight": 15,
       "box": "static",
-      "src": "@NASASpaceflight"
+      "src": "@NASASpaceflight",
+      "push_text": "Booster 22 has left Mega Bay 1 preparing to roll out to the launch site for testing"
     }
   ],
   "milestones": {
@@ -3403,10 +3461,10 @@
             "lines": [
               {
                 "day": "9 Oct",
-                "time": "21:30",
+                "time": "15:36",
                 "text": "Ship 42 completed its third cryo proof test.",
-                "at": "2026-10-09T20:30:00Z",
-                "url": "https://x.com/TrackingTheSB/status/2108656416366202950"
+                "at": "2026-10-09T14:36:44.000Z",
+                "url": "https://x.com/LabPadre/status/2108486994401825101"
               },
               {
                 "day": "3–4 Sep",
@@ -3499,16 +3557,9 @@
             "vehicle": "S42",
             "lines": [
               {
-                "day": "13 Sep",
-                "time": "05:02",
-                "text": "Ship 42 released from the Pad 2 chopsticks after its tests.",
-                "at": "2026-09-13T04:02:00Z",
-                "url": "https://x.com/NASASpaceflight/status/2098985653849542753"
-              },
-              {
                 "day": "12 Sep",
                 "time": "16:39",
-                "text": "Chopsticks lifted Ship 42 to catch height, and its quick-disconnect arm connected several times.",
+                "text": "Ship 42 completed catch-height and quick-disconnect arm tests with the Pad 2 chopsticks.",
                 "at": "2026-09-12T15:39:00Z",
                 "url": "https://x.com/TrackingTheSB/status/2098798758335225974"
               },
@@ -3539,7 +3590,7 @@
               {
                 "day": "21 Oct",
                 "time": "19:00",
-                "text": "Pad 2 booster quick disconnects purging, likely ahead of Booster 22.",
+                "text": "Pad 2 booster quick disconnects were purged, likely ahead of Booster 22.",
                 "at": "2026-10-21T18:00:00Z",
                 "url": "https://x.com/NASASpaceflight/status/2112967167767433728"
               },

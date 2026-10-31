@@ -1,6 +1,22 @@
 {
   "items": [
     {
+      "date": "2026-10-31T16:36:12.228Z",
+      "type": "event-time",
+      "item": "cryo S42 9 Oct",
+      "values": [
+        "2026-10-09T14:36:44.000Z",
+        "2026-10-09T20:30:41.000Z"
+      ],
+      "sources": [
+        "https://x.com/LabPadre/status/2108486994401825101",
+        "https://x.com/TrackingTheSB/status/2108656416366202950"
+      ],
+      "reason": "both tier 2; the 21:30 frost post reads as a later observation. Completion time kept on the Flight Log and Road card; the frost post stays as an Earlier update.",
+      "kept": "9 Oct 15:36 UK (completion post, LabPadre)",
+      "msg": "S42 cryo 9 Oct: completion 15:36 UK kept over the 21:30 frost post (tiers equal, unclear) — Flight Log and Road card now agree"
+    },
+    {
       "date": "2026-10-31T16:14:48.578Z",
       "type": "journey",
       "item": null,
