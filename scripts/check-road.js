@@ -1686,6 +1686,11 @@ async function run(opts = {}) {
       notifications.push(...g.pushes);
     }
     { const dropped = logText.scrubRejected(road); if (dropped.length) log(`dropped rejected / month-mixed-up line(s): ${dropped.join(" | ")}`); }
+    try { // optional photo alternatives per milestone, for a later suggestion only (the picked photo is unchanged)
+      const RP = require("./road-pick.js");
+      for (const c of road.categories || []) for (const h of c.history || []) { if (!h.milestone) continue;
+        const alt = RP.alternativesOf(c.history, c.id, h); if (alt.length) h.photo_alternatives = alt; else delete h.photo_alternatives; }
+    } catch (e) { log(`photo alternatives skipped: ${e.message}`); }
     validateRoad(road);
     mission.validateMission(road);
     predict.validatePredicted(road);

@@ -2723,6 +2723,8 @@ section.road .callout-latest { grid-row: 2; grid-column: 2 / -1; margin-top: 0; 
 .fdiv-next { color: #A9BDF0; font-weight: 600; }
 .xm-grid > a, .xm-grid > video { position: relative; display: block; min-height: 0; min-width: 0; }
 .xm-grid img, .xm-grid video { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* cropped card photos keep the top of the vehicle */
+.xm-grid img, .xm-split img { object-position: center 20%; }
 .xm-grid, .xm-split { position: relative; }
 /* photo source badge: 22px avatar, bottom-right, thin white ring + soft dark shadow */
 .xm-grid > a.src-badge, .xm-split > a.src-badge { position: absolute; right: 8px; bottom: 8px; z-index: 2; width: 22px; height: 22px; min-width: 0; border-radius: 50%; overflow: hidden;

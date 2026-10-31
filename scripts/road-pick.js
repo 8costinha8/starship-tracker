@@ -53,5 +53,11 @@
     for (const e of list) { const b = bestOf(groupOf(list, cid, e)); if (b) return b; } // newest event that has any picture
     return null;
   }
-  return { cardPicture, kindOf, groupOf, bestOf, tierOf, SAME_EVENT_H };
+  // Other candidate photos of the same event (optional alternatives, logged only; never swap or block).
+  function alternativesOf(entries, cid, anchor) {
+    const best = bestOf(groupOf(entries, cid, anchor)); const out = [];
+    groupOf(entries, cid, anchor).forEach((e) => picsOf(e).forEach((p) => { if ((!best || p.image !== best.image) && !out.some((o) => o.image === p.image)) out.push({ image: p.image, type: p.type, post_url: p.post_url, author: String(p.author || "").replace(/^@/, "") }); }));
+    return out.slice(0, 6);
+  }
+  return { alternativesOf, cardPicture, kindOf, groupOf, bestOf, tierOf, SAME_EVENT_H };
 });
