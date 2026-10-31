@@ -708,11 +708,12 @@
             "by": "manual preview review (Grok vision re-checks on the first live run)"
           },
           "media_override": {
-            "post_url": "https://x.com/LabPadre/status/2098045579234259249",
-            "post_id": "2098045579234259249",
-            "author": "LabPadre",
-            "type": "video",
-            "image": "https://pbs.twimg.com/amplify_video_thumb/2098045351559131140/img/1-Fe_-VnJa8yKMza.jpg"
+            "post_url": "https://x.com/StarshipGazer",
+            "author": "StarshipGazer",
+            "type": "photo",
+            "image": "images/b22-cryo-starshipgazer.jpg",
+            "keep_image": true,
+            "note": "31 Oct: photo credited to @StarshipGazer (badge); no post URL for this photo yet, so it links the profile. Was LabPadre 2098045579234259249 video thumb."
           },
           "imageChecked2": true,
           "flight": 15,

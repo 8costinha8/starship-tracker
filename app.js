@@ -1273,6 +1273,26 @@ function BuildUp({ h, log, onTap }) {
     </details>
   );
 }
+// Photo source badge: the photo's own X account avatar (icons/avatars/, scripts/avatars.js), bottom-right of the photo.
+// Badges the PHOTO's source (media author), not the text's. Tapping it opens the post the photo came from.
+// No saved avatar -> a neutral circle with the initial. Own/placeholder pictures get no badge.
+let AVATARS = null; const avatarSubs = new Set();
+fetch("icons/avatars/index.json").then((r) => r.json()).then((j) => { AVATARS = (j && j.avatars) || {}; avatarSubs.forEach((f) => f(AVATARS)); }).catch(() => { AVATARS = {}; avatarSubs.forEach((f) => f(AVATARS)); });
+const badgeHandleOf = (author, url) => String(author || (String(url || "").match(/x\.com\/([A-Za-z0-9_]{1,15})\/status\//) || [])[1] || "").replace(/^@/, "");
+const NO_BADGE_IMAGES = () => [SHIP_CRYO_IMAGE, RTF_PLACEHOLDER];
+function SrcBadge({ author, url, image }) {
+  const [av, setAv] = React.useState(AVATARS);
+  const [bad, setBad] = React.useState(false);
+  React.useEffect(() => { if (AVATARS) return; avatarSubs.add(setAv); return () => avatarSubs.delete(setAv); }, []);
+  const h = badgeHandleOf(author, url);
+  if (!h || (image && NO_BADGE_IMAGES().includes(image))) return null;
+  const rec = av && av[h.toLowerCase()];
+  return (
+    <a className="src-badge" href={url || `https://x.com/${h}`} target="_blank" rel="noopener noreferrer" title={`@${h} on X`} aria-label={`Photo by @${h}: open the post on X`} onClick={(e) => e.stopPropagation()}>
+      {rec && !bad ? <img src={rec.file} alt="" loading="lazy" onError={() => setBad(true)} /> : <span aria-hidden="true">{h[0].toUpperCase()}</span>}
+    </a>
+  );
+}
 // Context picture for a milestone that hasn't happened yet: an earlier trusted post's photo of the same hardware.
 function ContextMedia({ mc }) {
   const [bad, setBad] = React.useState(false);
@@ -1280,7 +1300,8 @@ function ContextMedia({ mc }) {
   return (
     <div className="xm xm-context">
       <div className="xm-grid n1"><a href={mc.post_url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
-        <img src={mc.image} alt="" loading="lazy" referrerPolicy="no-referrer" onError={() => setBad(true)} /></a></div>
+        <img src={mc.image} alt="" loading="lazy" referrerPolicy="no-referrer" onError={() => setBad(true)} /></a>
+        <SrcBadge author={mc.author} url={mc.post_url} image={mc.image} /></div>
       <div className="xm-foot">
         <a href={mc.post_url} target="_blank" rel="noopener noreferrer" aria-label="View on X" onClick={(e) => e.stopPropagation()}>View on X {LINK_ICON}</a></div>
     </div>
@@ -1498,6 +1519,7 @@ function SplitMedia({ pair, onPhotoTap, alt }) {
           <a key={i} href={m.image} target="_blank" rel="noopener noreferrer" aria-label={`${alt} \u2014 photo ${i + 1}`}
             onClick={(e) => { e.stopPropagation(); if (onPhotoTap) { e.preventDefault(); onPhotoTap(m.image, `${alt} \u2014 photo ${i + 1}`); } }}>
             <img src={m.image} alt="" loading="lazy" referrerPolicy="no-referrer" onError={() => setBad((b) => ({ ...b, [i]: true }))} /></a>))}
+        <SrcBadge author={pair[1].author} url={pair[1].post_url} image={pair[1].image} />
       </div>
     </div>
   );
@@ -1512,7 +1534,8 @@ function OneMedia({ mo }) {
   return (
     <div className="xm">
       <div className="xm-grid n1"><a href={mo.post_url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
-        <img src={mo.image} alt="" loading="lazy" referrerPolicy="no-referrer" onError={() => setBad(true)} />{mo.type === "video" && PLAY_ICON}</a></div>
+        <img src={mo.image} alt="" loading="lazy" referrerPolicy="no-referrer" onError={() => setBad(true)} />{mo.type === "video" && PLAY_ICON}</a>
+        <SrcBadge author={mo.author} url={mo.post_url} image={mo.image} /></div>
       {mo.credit_only && <div className="xm-foot"><span className="xm-ctx">{`Photo · @${mo.author}`}</span>
         <a href={mo.post_url} target="_blank" rel="noopener noreferrer" aria-label="View on X" onClick={(e) => e.stopPropagation()}>View on X {LINK_ICON}</a></div>}
     </div>
@@ -1531,6 +1554,7 @@ function XMedia({ x }) {
           : m.video_url
           ? <XVideo key={m.i} m={m} url={x.url} />
           : <a key={m.i} href={x.url} target="_blank" rel="noopener noreferrer"><img src={m.poster} alt="" loading="lazy" referrerPolicy="no-referrer" onError={off(m.i)} />{PLAY_ICON}</a>)}
+        <SrcBadge author={(x.x_post && x.x_post.author && x.x_post.author.username) || x.author} url={x.url} />
       </div>
     </div>
   );
@@ -2699,6 +2723,13 @@ section.road .callout-latest { grid-row: 2; grid-column: 2 / -1; margin-top: 0; 
 .fdiv-next { color: #A9BDF0; font-weight: 600; }
 .xm-grid > a, .xm-grid > video { position: relative; display: block; min-height: 0; min-width: 0; }
 .xm-grid img, .xm-grid video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.xm-grid, .xm-split { position: relative; }
+/* photo source badge: 22px avatar, bottom-right, thin white ring + soft dark shadow */
+.xm-grid > a.src-badge, .xm-split > a.src-badge { position: absolute; right: 8px; bottom: 8px; z-index: 2; width: 22px; height: 22px; min-width: 0; border-radius: 50%; overflow: hidden;
+  display: grid; place-items: center; background: #3A4560; color: #E8ECF5; font: 600 11px/1 -apple-system, Inter, "Segoe UI", Roboto, sans-serif; text-decoration: none;
+  box-shadow: 0 0 0 1.5px rgba(255,255,255,.85), 0 2px 6px rgba(0,0,0,.45), 0 0 0 3px rgba(0,0,0,.18); transition: transform .15s; grid-row: auto; }
+.xm-grid > a.src-badge:hover, .xm-split > a.src-badge:hover { transform: scale(1.1); }
+.xm-grid > a.src-badge img, .xm-split > a.src-badge img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .xm-foot { display: flex; justify-content: flex-end; align-items: center; margin-top: 6px; font-size: 10.5px; color: var(--muted); }
 .xm-foot a { display: inline-flex; align-items: center; gap: 4px; color: #A9BDF0; text-decoration: none; font-weight: 600; }
 .xm-foot svg { width: 12px; height: 12px; }
