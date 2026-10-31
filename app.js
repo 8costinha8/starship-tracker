@@ -1122,7 +1122,8 @@ function Tags({ h }) {
 // The entry's own picture in the Road card (same picture as its feed card).
 // A box's headline comes from this flight's own entries: a later flight's post (B23 for Flight 16) never replaces it.
 // Flight Log lines (scripts/log-text.js mirrors these): the clean log_text first, then text; never the raw post.
-const logLine = (h) => (h && (h.log_text || h.text)) || "";
+const logLine = (h) => (h && (h.log_text || h.text)) || ""; // the Flight Log line; card_text is for Road cards / Earlier updates
+const cardT = (o) => (o && (o.card_text || o.text)) || ""; // old data without card_text falls back to text
 const LOG_MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 // The source's own day or day range ("3–4 Sep"), never a clock time: log_date, else the entry's date with any time stripped, else the post's UK day.
 function logDay(h) {
@@ -1237,10 +1238,10 @@ function FlogCard({ c }) {
     <div className="mini flog-card" data-vehicle={c.vehicle}>
       <div className="flog-name">{c.name}</div>
       <div className="mini-top"><span className="mini-date">{flogWhen(top)}</span></div>
-      <p>{scrub(top.text)}</p>
+      <p>{scrub(cardT(top))}</p>
       {rest.length > 0 && <details className="buildup" onClick={(e) => e.stopPropagation()}>
         <summary>Earlier updates</summary>
-        <ul>{rest.map((u, i) => <li key={i} className="bu-plain"><div className="bu-top"><span className="bu-date">{flogWhen(u)}</span></div><div className="bu-text">{scrub(u.text)}</div></li>)}</ul>
+        <ul>{rest.map((u, i) => <li key={i} className="bu-plain"><div className="bu-top"><span className="bu-date">{flogWhen(u)}</span></div><div className="bu-text">{scrub(cardT(u))}</div></li>)}</ul>
       </details>}
     </div>
   );
@@ -1269,7 +1270,7 @@ function BuildUp({ h, log, onTap }) {
       <summary>Earlier updates</summary>
       <ul>{ups.map((u, i) => log ? <li key={i} {...tapProps(u)}><div className="bu-top"><span className="bu-date">{logDay(u)}</span></div><div className="bu-text">{scrub(logLine(u))}</div></li>
         : <li key={i}><div className="bu-top"><span className="bu-date">{entryDate(u)}</span></div>
-        <div className="bu-text">{u.url ? <a href={u.url} target="_blank" rel="noopener noreferrer" onClick={stop}>{scrub(u.text)}</a> : scrub(u.text)}</div></li>)}</ul>
+        <div className="bu-text">{u.url ? <a href={u.url} target="_blank" rel="noopener noreferrer" onClick={stop}>{scrub(cardT(u))}</a> : scrub(cardT(u))}</div></li>)}</ul>
     </details>
   );
 }
@@ -1620,7 +1621,7 @@ function FeedBuildUp({ h, plain, idx }) {
     <details className="buildup feed-bu" onClick={stop}>
       <summary>Earlier updates</summary>
       <ul>{rows.map(({ u, when }, i) => { const to = updateTarget(u, idx, h.id);
-        const body = <><div className="bu-top"><span className="bu-date">{when || (plain ? logDay(u) : entryDate(u))}</span></div><div className="bu-text">{scrub(plain ? logLine(u) : u.text)}</div></>;
+        const body = <><div className="bu-top"><span className="bu-date">{when || (plain ? logDay(u) : entryDate(u))}</span></div><div className="bu-text">{scrub(plain ? logLine(u) : cardT(u))}</div></>;
         return to ? <li key={i} className="bu-pill" role="link" tabIndex={0} data-to={to} aria-label={`${u.text} — show its card`}
             onClick={(e) => { e.stopPropagation(); goToEntry(to); }} onKeyDown={(e) => { if (e.key === "Enter" && e.target === e.currentTarget) goToEntry(to); }}>{body}</li>
           : extOf(u) ? <li key={i} className="bu-pill bu-ext"><a href={extOf(u)} target="_blank" rel="noopener noreferrer" aria-label={`${u.text} — open its source`} onClick={stop}>{body}</a></li>
@@ -1637,7 +1638,7 @@ const roadMediaOf = (h, cat) => (isShipCryo(h, cat) && !(h.media_override && h.m
 function FeedPost({ p, onPhotoTap, idx, st }) {
   const { h, cat } = p;
   const mo1 = roadMediaOf(h, cat), pair = splitOf(h, mo1);
-  const mo = pair ? { ...mo1, pair, onPhotoTap, alt: scrub(h.x_text || h.text) } : mo1; // two-photo split rides on the picked picture
+  const mo = pair ? { ...mo1, pair, onPhotoTap, alt: scrub(h.card_text || h.x_text || h.text) } : mo1; // two-photo split rides on the picked picture
   return (
     <article className={"post" + (urlOf(h) ? " post-tap" : "")} id={`post-${p.id}`} data-id={p.id} data-entry={h.id || undefined} data-xposts={(h.x_posts || []).join(" ") || undefined} style={catVars(cat.id, cat.color)}
       {...linkProps(h)}>
@@ -1646,7 +1647,7 @@ function FeedPost({ p, onPhotoTap, idx, st }) {
         <span className="post-date">{cardDate(h)}</span>
         {st && <span className={"badge badge-" + st.status + " post-status"}>{st.text}</span>}
       </div>
-      <p className="post-text">{scrub(h.x_text || h.text)}</p>
+      <p className="post-text">{scrub(h.card_text || h.x_text || h.text)}</p>
       {mo ? <PickMedia mo={mo} /> : h.media_context ? <ContextMedia mc={h.media_context} /> : !h.milestone && h.x_post && <XMedia x={h.x_post} />}
       {String(h.id || "").startsWith("rtf-") ? <RtfCredit h={h} /> : <CreditLine h={h} />}
       {String(h.id || "").startsWith("rtf-") ? <RtfBuildUp h={h} /> : <FeedBuildUp h={h} idx={idx} />}
@@ -1673,7 +1674,7 @@ function RtfBuildUp({ h }) {
       <summary>Earlier updates</summary>
       <ul>{rows.map((u, i) => {
       const iso = upIso(u);
-      const body = <><div className="bu-top"><span className="bu-date">{iso ? `${ukStamp(iso, false)} · ${feedTime(iso)}` : fmtDay(u.date)}</span></div><div className="bu-text">{scrub(u.text).replace(/^\d{1,2}(?:[–-]\d{1,2})? [A-Z][a-z]{2}:\s*/, "")}</div></>;
+      const body = <><div className="bu-top"><span className="bu-date">{iso ? `${ukStamp(iso, false)} · ${feedTime(iso)}` : fmtDay(u.date)}</span></div><div className="bu-text">{scrub(cardT(u)).replace(/^\d{1,2}(?:[–-]\d{1,2})? [A-Z][a-z]{2}:\s*/, "")}</div></>;
       return extOf(u) ? <li key={i} className="bu-pill bu-ext"><a href={extOf(u)} target="_blank" rel="noopener noreferrer" aria-label={`${u.text} — ${rtfLinkText(u.url).toLowerCase()}${rtfHandle(u) ? " (" + rtfHandle(u) + ")" : ""}`} onClick={stop}>{body}</a></li>
         : <li key={i} className="bu-pill bu-nolink">{body}</li>;
       })}</ul>
@@ -1793,8 +1794,8 @@ function rtfCards(road) {
     const rows = [], seen = new Set([urlOf(main), main.url].filter(Boolean));
     const add = (u) => { const k = u.url || u.text; if (!u.text || (seen.has(k) && !u.event_row)) return; seen.add(k); rows.push(u); }; // event_row: the completion row (guards.js) shows even when it is the main post
     for (const h of list) {
-      if (h !== main) add({ text: h.text, at: cardIso(h) || h.at, date: h.date, url: urlOf(h) || h.url, src: h.src, handle: (h.x_post && h.x_post.author && h.x_post.author.username) || (h.media_override && h.media_override.author) || (String(h.src || "").startsWith("@") ? h.src : null) });
-      for (const u of h.updates || []) { const uv = rtfVeh(u.text, road); if (v === "pad" ? !otherVehOnly(u.text, road) : uv.length ? uv.includes(v) : !otherVehOnly(u.text, road)) add({ text: u.text, at: u.at, date: u.date, url: u.url, src: u.src, event_row: u.event_row, phase: u.phase, handle: u.handle || (String(u.src || "").startsWith("@") ? u.src : null) }); }
+      if (h !== main) add({ text: h.text, ...(h.card_text ? { card_text: h.card_text } : {}), at: cardIso(h) || h.at, date: h.date, url: urlOf(h) || h.url, src: h.src, handle: (h.x_post && h.x_post.author && h.x_post.author.username) || (h.media_override && h.media_override.author) || (String(h.src || "").startsWith("@") ? h.src : null) });
+      for (const u of h.updates || []) { const uv = rtfVeh(u.text, road); if (v === "pad" ? !otherVehOnly(u.text, road) : uv.length ? uv.includes(v) : !otherVehOnly(u.text, road)) add({ text: u.text, ...(u.card_text ? { card_text: u.card_text } : {}), at: u.at, date: u.date, url: u.url, src: u.src, event_row: u.event_row, phase: u.phase, handle: u.handle || (String(u.src || "").startsWith("@") ? u.src : null) }); }
     }
     const h = { ...main, id: `rtf-${cid}-${v}`, updates: rows, alt_media: null, complete: !!doneOne, milestone: doneOne ? main.milestone : { phase: "progress" } };
     // picture: newest event (incomplete) or the completing event (done); best photo among that event's posts (scripts/road-pick.js)

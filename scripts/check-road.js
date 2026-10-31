@@ -55,6 +55,7 @@ const logText = require("./log-text.js"); // Flight Log lines: style lint, singl
 const mission = require("./mission.js");
 const pushSync = require("./push-sync.js"); // the one send path: visible first, then push, then logged
 const writer = require("./writer.js");
+const TXS = require("./text-split.js"); // push_text (live push) + card_text (past-tense card) wordings
 const bestFrame = require("./best-frame.js"); // best video frame / photo per card (no push) // writer: xAI Grok only
 
 const LIMITS = {
@@ -851,6 +852,8 @@ ${recent}
 For each item below, decide if it reports something concrete about Flight ${road.flight}'s vehicles, pad work, launch site, FAA licence or launch date. Most items won't; skip those. An item can give up to 3 separate facts: add one entry per fact, each with its own box, line and reason.
 
 "line": simplify what the item says into one short plain sentence, max 100 characters. Only reword and shorten. No facts, framing or contrasts the item doesn't state (e.g. not "…, not Florida" when it only says a later flight may go there), no guesses, totals or numbers it doesn't give, and no hype. Keep every hedge: if the item says potentially, may, might, could, expected, planned (when hedged) or reportedly, the line keeps that hedge; never turn it into certainty. British English. Payloads are "deployed", never "released".
+"push_text" and "card_text": two wordings of "line" (same facts, same hedges). Never a "Test flight mission" line.
+${TXS.PROMPT_RULES}
 "short": the box's overview status line: short and direct, about 6 words (max 8), the plain current state, no reasons or fillers, no full stop, same rules for ships and boosters, e.g. "No Flight 15 licence yet", "Booster 22 static fire done", "Ship 42 Raptors installed".
 "status": the status this item shows for that box, or null if it doesn't change it. Use "complete" ONLY when the item explicitly says that stage is finished for Flight ${road.flight}'s vehicles (e.g. "both vehicles have completed cryo testing"); never infer or invent it (one vehicle done, a test happening, or an estimate is "progress"). If a completed stage restarts or needs more work (e.g. the booster goes back for more cryo), say "progress". For the Launch date box, "done" means SpaceX has announced the date; never use "complete" there, and never use "done" for the other boxes.
 "supersedes": true only if this clearly replaces the box's current headline (e.g. a later step of the same thing), otherwise false.
@@ -859,7 +862,7 @@ If an item says which booster and ship will fly Flight ${road.flight}, also add 
 
 ${purpose.promptRules(road)}
 
-Reply with ONLY a JSON array, one or more entries per item, e.g. [{"item": 1, "box": "static", "line": "...", "short": "...", "status": "progress", "supersedes": false, "reason": "..."}, {"item": 2, "skip": true, "reason": "about Flight 14, not ${road.flight}"}].
+Reply with ONLY a JSON array, one or more entries per item, e.g. [{"item": 1, "box": "static", "line": "...", "push_text": "...", "card_text": "...", "short": "...", "status": "progress", "supersedes": false, "reason": "..."}, {"item": 2, "skip": true, "reason": "about Flight 14, not ${road.flight}"}].
 
 Items:
 ${list}`;
@@ -874,7 +877,7 @@ const entriesSchema = (props) => ({
   properties: { entries: { type: "array", items: { type: "object", additionalProperties: false, required: Object.keys(props), properties: props } } },
 });
 const ROAD_SCHEMA = entriesSchema({
-  item: { type: "integer" }, skip: nul("boolean"), box: nul("string"), line: nul("string"), short: nul("string"),
+  item: { type: "integer" }, skip: nul("boolean"), box: nul("string"), line: nul("string"), push_text: nul("string"), card_text: nul("string"), short: nul("string"),
   status: nul("string"), confidence: nul("number"), supersedes: nul("boolean"), reason: nul("string"), vehicles: { type: ["array", "null"], items: { type: "string" } },
 });
 const DATES_SCHEMA = entriesSchema({ item: { type: "integer" }, date: nul("string") });
@@ -1067,7 +1070,8 @@ function applyUpdates(road, items, updates, log, limit) {
     const jr = road.journeys && (u.journey || journey.routeNews(road, line, { box: box.id, at: it.publishedAt })) ? (() => { const hw = (u.journey && u.journey.hw) || (journey.routeNews(road, line, { box: box.id }) || {}).hw; return hw ? journey.observe(road, line, hw, { at: it.publishedAt, id: it.key }) : null; })() : null;
     if (jr && jr.confirms) { const c = journey.confirmLine(road, jr.confirms, jr.text || line, it.url, it.src); if (c) { log(`journey: confirmed ${jr.confirms} by ${it.src} → "${c.entry.text}" (same line, link swapped)`); continue; } }
     if (jr && jr.moveToTest) for (const mv of journey.moveLines(road, jr.moveToTest.ids, jr.moveToTest.to)) log(`journey: moved ${mv.id} ${mv.from} → ${mv.to} (test evidenced, no push)`);
-    const entry = { date: fmtDay(it.publishedAt), text: line, src: it.src, source: it.source, trust, url: it.url || undefined, at: it.publishedAt || new Date().toISOString(), key: it.key, ...(u.journey ? { id: it.key, hardware: u.journey.hw, journey_pin: true, ...(u.journey.likely ? { likely: true } : {}) } : {}) };
+    const confirmedLine = trust === "trusted" && !(u.journey && u.journey.likely) && !/\b(likely|could|may|might|reportedly|expected)\b/i.test(line);
+    const entry = { date: fmtDay(it.publishedAt), text: line, ...TXS.pairFrom(u.journey && u.journey.card_text ? { text: line, push_text: u.journey.push_text, card_text: u.journey.card_text } : { text: line, push_text: u.push_text, card_text: u.card_text }, { confirmed: confirmedLine }), src: it.src, source: it.source, trust, url: it.url || undefined, at: it.publishedAt || new Date().toISOString(), key: it.key, ...(u.journey ? { id: it.key, hardware: u.journey.hw, journey_pin: true, ...(u.journey.likely ? { likely: true } : {}) } : {}) };
     // The source's real publish time (shown in the Updates feed). Left out when the
     // source only gives a day (SpaceX updates, FAA) or no time at all (launches page).
     if (it.publishedAt && it.timeKnown !== false) entry.publishedAt = it.publishedAt;
@@ -1162,7 +1166,7 @@ function notificationFor(road, ch) {
   const n = notificationText(road, ch);
   const m = ch.entry.x_post && (ch.entry.x_post.media || [])[0];
   const img = (ch.entry.media_override && ch.entry.media_override.image) || (m && imageOf(m));
-  return { ...n, ...(ch.entry.log_text || ch.entry.x_text ? { body: ch.entry.log_text || ch.entry.x_text } : {}), /* the push says the visible Flight Log line */ link: ch.entry.id ? `${FEED_LINK}&entry=${encodeURIComponent(ch.entry.id)}` : FEED_LINK, ...(img ? { image: img } : {}),
+  return { ...n, ...(ch.entry.push_text || ch.entry.log_text || ch.entry.x_text ? { body: ch.entry.push_text || ch.entry.log_text || ch.entry.x_text } : {}), /* the push says the visible Flight Log line */ link: ch.entry.id ? `${FEED_LINK}&entry=${encodeURIComponent(ch.entry.id)}` : FEED_LINK, ...(img ? { image: img } : {}),
     url: ch.entry.url || (ch.entry.x_post && ch.entry.x_post.url) || "", at: (ch.entry.x_post && ch.entry.x_post.created_at) || ch.entry.at || new Date().toISOString(),
     ...(ch.entry.x_post ? { source_text: ch.entry.x_post.text || "", author: (ch.entry.x_post.author || {}).username || "", has_media: !!(ch.entry.x_post.media || []).length } : {}) };
 }
@@ -1170,10 +1174,10 @@ const PHASE_TEXT = { expected: "Expected", progress: "In progress", completed: "
 function notificationText(road, ch) {
   const { box, entry } = ch;
   const label = (s) => (s === "done" || s === "complete" ? doneLabel(box) : STATUS_TEXT[s]);
-  if (ch.phase && ch.phase.from) return { title: `${box.icon} ${box.name}: ${PHASE_TEXT[ch.phase.to]}`, body: entry.x_text || entry.text };
-  if (ch.to !== ch.from) return { title: `${box.icon} ${box.name}: ${label(ch.to)}`, body: entry.text };
-  if (entry.trust === "unconfirmed") return { title: `${box.icon} ${box.name} (unconfirmed)`, body: entry.text };
-  return { title: `${box.icon} ${box.name} · Flight ${Number.isInteger(entry.flight) ? entry.flight : road.flight}`, body: entry.text };
+  if (ch.phase && ch.phase.from) return { title: `${box.icon} ${box.name}: ${PHASE_TEXT[ch.phase.to]}`, body: TXS.pushText(entry, entry.x_text || entry.text) };
+  if (ch.to !== ch.from) return { title: `${box.icon} ${box.name}: ${label(ch.to)}`, body: TXS.pushText(entry) };
+  if (entry.trust === "unconfirmed") return { title: `${box.icon} ${box.name} (unconfirmed)`, body: TXS.pushText(entry) };
+  return { title: `${box.icon} ${box.name} · Flight ${Number.isInteger(entry.flight) ? entry.flight : road.flight}`, body: TXS.pushText(entry) };
 }
 
 /* ───────────── live plumbing (Firebase + git) ───────────── */
@@ -1278,7 +1282,7 @@ function pushGateFor(state, road, xf, { token, fetchFn = fetch, ask = null, log 
     try { const [cls] = await xFirstMod.classifyPosts(road, [post], road.categories.map((x) => ({ id: x.id, name: x.name })), ask || ((prompt, o) => writer.askJson(prompt, { ...o, log }))); line = cls && (cls.log_text || cls.text); if (cls && cls.status_line) h.status_line = cls.status_line; } catch (e) { log(`edit rewrite failed (${e.message}) — push held back`); return { ...n, body: "" }; }
     if (!line) return { ...n, body: "" }; // no usable line → checkVisible blocks it (never the stale text)
     h.edited_from = h.x_text || h.text; // kept out of Earlier updates: the wrong line never shows again
-    h.text = h.x_text = line; h.log_text = line; h.x_post = post; h.edited = true; c.latest = line.slice(0, 160); gate.dirty = true;
+    h.text = h.x_text = line; h.log_text = line; Object.assign(h, TXS.pairFrom({ text: line }, { confirmed: TXS.isConfirmed(h) })); h.x_post = post; h.edited = true; c.latest = line.slice(0, 160); gate.dirty = true;
     return { ...n, body: line, source_text: text };
   };
   return gate;

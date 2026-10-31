@@ -13,7 +13,7 @@
        stand (or a booster alone on the launch mount) with engines fitted → static fire prep.
      - strict vehicle match: a post naming only another vehicle, the other vehicle type, or another flight's hardware → null.
    Pure functions; nothing here sends anything. */
-const fs = require("fs"), path = require("path");
+const fs = require("fs"), path = require("path"), TS = require("./text-split.js");
 const PHRASES = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "data", "phrases.json"), "utf8"));
 const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const rx = (list) => new RegExp(`(?:^|[^a-z0-9])(?:${list.map((p) => esc(p.toLowerCase())).sort((a, b) => b.length - a.length).join("|")})(?![a-z0-9])`, "i");
@@ -139,7 +139,9 @@ function step(st0, text0, { v, at = null, id = null, road = null } = {}) {
   st.next_test = !st.done.cryo ? "cryo" : !st.done.static ? "static" : "launch";
   if (st.open_test) st.next_test = st.open_test;
   st.at = at || st.at;
-  return { card, likely, text: out, confirms, moveToTest, state: st, evidence: ev };
+  // two wordings: push_text = the live line; card_text = past tense ("likely ran" until a confirming post, then "completed")
+  const pair = out ? { push_text: out, card_text: TS.toCard(out, { confirmed: !!confirms || (!likely && s.doneReal) }) } : {};
+  return { card, likely, text: out, ...pair, confirms, moveToTest, state: st, evidence: ev };
 }
 // Live use: route a post for hw against the saved state (does not save). Returns the step result.
 function route(road, text, hw, opts = {}) { const v = String(hw || "").toUpperCase(); const st = (road.journeys && road.journeys[v]) || blank(); return step(st, text, { ...opts, v, road }); }
@@ -158,13 +160,15 @@ function routeNews(road, line, { box = null, at = null } = {}) {
   const hw = mine[0], r = route(road, line, hw, { at });
   if (r.why === "other vehicle") return { skip: true, hw };
   if (!r.card || !(road.categories || []).some((c) => c.id === r.card)) return null;
-  return { box: r.card, text: r.text || line, likely: !!r.likely, hw, changed: r.card !== box || !!r.text };
+  return { box: r.card, text: r.text || line, ...(r.push_text ? { push_text: r.push_text, card_text: r.card_text } : {}), likely: !!r.likely, hw, changed: r.card !== box || !!r.text };
 }
 // A confirming post rewrites the SAME likely line (text + link) wherever it sits (entry or Earlier update row).
+// card_text becomes the completed form; push_text is the confirming line (the old likely push stays in the push log).
 function confirmLine(road, lineId, text, url, src) {
+  const card_text = TS.toCard(text, { confirmed: true }), push_text = TS.fix(text);
   for (const c of road.categories || []) for (const h of c.history || []) {
-    if (h.id === lineId) { Object.assign(h, { text, x_text: text, url, ...(src ? { src } : {}) }); delete h.likely; return { box: c.id, entry: h }; }
-    for (const u of h.updates || []) if (u.id === lineId || u.url === lineId) { Object.assign(u, { text, url, ...(src ? { src } : {}) }); delete u.likely; return { box: c.id, entry: h }; }
+    if (h.id === lineId) { Object.assign(h, { text, x_text: text, push_text, card_text, url, ...(src ? { src } : {}) }); delete h.likely; return { box: c.id, entry: h }; }
+    for (const u of h.updates || []) if (u.id === lineId || u.url === lineId) { Object.assign(u, { text, push_text, card_text, url, ...(src ? { src } : {}) }); delete u.likely; return { box: c.id, entry: h }; }
   }
   return null;
 }

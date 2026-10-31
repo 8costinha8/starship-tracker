@@ -24,7 +24,7 @@
   const PAD_TEST_DONE = /\b(?:complet\w*|conduct\w*|perform\w*|finish\w*)\b.*\b(?:test\w*|wet dress|wdr|spin[- ]?prime|cryo|static fire|propellant load\w*)\b|\b(?:test\w*|wet dress|wdr|spin[- ]?prime)\b.*\b(?:complet\w*|done|finished)\b/i;
   const DONE_LABEL = { cryo: "Complete", raptor: "Installed", static: "Complete", pad: "Complete", faa: "Confirmed", date: "Confirmed" }; // finished-status pill per box (same map as app.js ROAD_DONE_LABEL)
   const vName = (v) => (v === "pad" ? "Launch pad" : (v[0] === "S" ? "Ship " : "Booster ") + v.slice(1));
-  const txt = (h) => String((h && (h.log_text || h.text)) || "").replace(/^\d{1,2}(?:[–-]\d{1,2})? [A-Z][a-z]{2}:\s*/, "").trim();
+  const txt = (h) => String((h && (h.log_text || h.card_text || h.text)) || "").replace(/^\d{1,2}(?:[–-]\d{1,2})? [A-Z][a-z]{2}:\s*/, "").trim();
   const hw = (h) => { const m = String((h.milestone && h.milestone.hardware) || h.hardware || "").match(/^\s*(?:Ship\s*|S)(\d+)|^\s*(?:Booster\s*|B)(\d+)/i); return m ? (m[1] ? "S" + m[1] : "B" + m[2]) : null; };
   const dayOf = (h) => String(h.log_date || (String(h.date || "").match(/^(\d{1,2}(?: [A-Z][a-z]{2})?\s*[–-]\s*)?\d{1,2} [A-Z][a-z]{2}/) || [""])[0]).replace(/\s*[-–]\s*/g, "–");
   const ukDay = (iso) => { const d = new Date(iso); if (!Number.isFinite(d.getTime())) return ""; const p = Object.fromEntries(new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "numeric", timeZone: "Europe/London" }).formatToParts(d).map((x) => [x.type, x.value])); return `${Number(p.day)} ${MON[p.month - 1]}`; };

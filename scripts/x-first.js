@@ -53,14 +53,14 @@ const MILESTONE_TYPES = ["cryo_test", "proof_test", "static_fire", "engines_inst
 const PHASES = ["expected", "progress", "completed"];
 const MISSION_TOPICS = ["net", "catch", "objectives", "payload", "trajectory", "landing", "licence", "other"];
 const CLASSIFY_SCHEMA = { type: "object", additionalProperties: false, required: ["entries"], properties: { entries: { type: "array", items: {
-  type: "object", additionalProperties: false, required: ["item", "kind", "stage", "hardware", "text", "log_text", "status_line", "status", "event", "phase", "flight", "media_fit", "speculative", "inferred", "topic", "attribution", "confidence", "reason"],
+  type: "object", additionalProperties: false, required: ["item", "kind", "stage", "hardware", "text", "push_text", "card_text", "log_text", "status_line", "status", "event", "phase", "flight", "media_fit", "speculative", "inferred", "topic", "attribution", "confidence", "reason"],
   properties: { item: { type: "integer" }, kind: { type: "string", enum: ["road", "mission-update", "starship-news", "skip"] }, stage: { type: ["string", "null"] }, confidence: { type: ["number", "null"] },
-    hardware: { type: ["string", "null"] }, text: { type: ["string", "null"] }, log_text: { type: ["string", "null"] }, status_line: { type: ["string", "null"] }, status: { type: ["string", "null"], enum: ["progress", "done", "confirmed", null] }, event: { type: ["string", "null"], enum: [...MILESTONE_TYPES, null] }, phase: { type: ["string", "null"], enum: ["expected", "progress", "completed", null] }, flight: { type: ["integer", "null"] }, media_fit: { type: ["string", "null"], enum: ["shows-event", "unrelated", "none", null] }, speculative: { type: ["boolean", "null"] }, inferred: { type: ["boolean", "null"] }, topic: { type: ["string", "null"], enum: [...MISSION_TOPICS, null] }, attribution: { type: ["string", "null"] }, reason: { type: "string" } } } } } };
+    hardware: { type: ["string", "null"] }, text: { type: ["string", "null"] }, push_text: { type: ["string", "null"] }, card_text: { type: ["string", "null"] }, log_text: { type: ["string", "null"] }, status_line: { type: ["string", "null"] }, status: { type: ["string", "null"], enum: ["progress", "done", "confirmed", null] }, event: { type: ["string", "null"], enum: [...MILESTONE_TYPES, null] }, phase: { type: ["string", "null"], enum: ["expected", "progress", "completed", null] }, flight: { type: ["integer", "null"] }, media_fit: { type: ["string", "null"], enum: ["shows-event", "unrelated", "none", null] }, speculative: { type: ["boolean", "null"] }, inferred: { type: ["boolean", "null"] }, topic: { type: ["string", "null"], enum: [...MISSION_TOPICS, null] }, attribution: { type: ["string", "null"] }, reason: { type: "string" } } } } } };
 
 function classifyPrompt(road, posts, stages) {
   return `You sort new X posts for a Starship tracker's "Road to Flight ${road.flight}" page.
 Vehicles for this flight: ${(road.vehicles || []).join(", ") || "unknown"}.
-For EVERY post return one entry: {item, kind, stage, hardware, text, log_text, status, event, phase, flight, media_fit, speculative, inferred, topic, attribution, reason}.
+For EVERY post return one entry: {item, kind, stage, hardware, text, push_text, card_text, log_text, status, event, phase, flight, media_fit, speculative, inferred, topic, attribution, reason}.
 kind:
 - "road": ONLY hardware and test progress toward Flight ${road.flight}: rollouts, cryo tests, static fires, engine installs/removals, stacking, pad work. It must be real (photo/video/report of actual events, incl. a trusted report such as "all engines installed" or a rollout due).
 - "mission-update": anything about Flight ${road.flight}'s MISSION itself: launch date/NET, catch plans (booster and/or ship), flight objectives, payload, trajectory, landing/catch targets, licence-driven mission changes. Never a Road card. STARSHIP ONLY: a Falcon 9, Starlink, Dragon/Crew/CRS, Transporter or other non-Starship mission post (e.g. "Payload deployment sequence is complete", "Deployment of 24 Starlink satellites confirmed") is NEVER a mission-update (skip it); a post with no Starship/Flight ${road.flight} context is skip.
@@ -80,6 +80,8 @@ speculative (road only, else null): true if the post's claim about THIS mileston
 inferred (road only, else null): true if the post does not say the step happened and you are inferring it (e.g. "headed back to the production site" → "cryo done"), else false.
 Accuracy: vehicle numbers, pad names and the phase must be exactly what the post says; never infer a number that isn't in the post.
 text (road / mission-update, else null): ONE short plain sentence (max 20 words), no hashtags, no emojis, no @handles. Road: what happened. Mission-update: the mission fact, e.g. "SpaceX plans to try catching both Booster 22 and Ship 42".
+push_text / card_text (road only, else null): two wordings of the same fact.
+${require("./text-split.js").PROMPT_RULES}
 topic (mission-update only, else null): one of ${MISSION_TOPICS.map((t) => `"${t}"`).join(", ")}.
 log_text (road only, else null): the Flight Log line. ONE short plain sentence (max 15 words), vehicle + action + place, full names ("Ship 42", "Booster 22", "Pad 2"), ending with a full stop, e.g. "Ship 42 completed its cryo tests at Massey's.", "Booster 22 heads to Pad 2 for a potential static fire test.". A finished step says "completed" or "completes" (never finished/wrapped up). Write "its", never "it's"; no doubled words; never "is been"; never "Ship 42's completes"; no filler such as "has been transported" (say "heads back to" / "rolled to"). No times, dates, handles, links, source or outlet names. Keep hedges (could, reportedly). Satellites are "deployed".
 status_line (road only, else null): the section's overview status line: short and direct, about 6 words (max 8), one line, the plain current state, ending with a full stop, same rules for ships and boosters, e.g. "No Flight 15 licence yet.", "Booster 22 static fire done.", "Ship 42 Raptors installed.", "Ship 42 heading to Massey's.", "Flight 15 NET 8 November.". No hedging filler, no reasons, no source or outlet names, no handles, links or times. Keep a real hedge in one word if needed ("Ship 43 cryo test possible.").
@@ -168,6 +170,8 @@ function contextImage(road, stage, hardware, exceptId, picks = []) {
 }
 function placePost(road, post, cls, now = Date.now(), picks = []) {
   cls = { ...cls, text: require("./push-sync.js").cleanText(cls.text) }; // no public source names in app text
+  const TS = require("./text-split.js"), confirmedCls = !cls.inferred && cls.speculative !== true && !cls.journey_likely;
+  const pair = cls.text ? TS.pairFrom({ ...cls, push_text: (cls.push_text && require("./push-sync.js").cleanText(cls.push_text)) || logText_.cleanLogText(cls.log_text) || null, card_text: cls.card_text && require("./push-sync.js").cleanText(cls.card_text) }, { confirmed: confirmedCls }) : {}; // push_text (live) + card_text (past tense)
   const statusLine = logText_.cleanStatusLine(cls.status_line); // overview line (short); null → the box falls back to a shortened log line
   const logText = logText_.cleanLogText(cls.log_text) || logText_.cleanLogText(cls.text); // Flight Log line; falls back to text only when it passes the style lint
   const logDate = dayLabel(post.created_at); // the source post's own day, no time
@@ -195,19 +199,19 @@ function placePost(road, post, cls, now = Date.now(), picks = []) {
     h.x_posts = [...new Set([...(h.x_posts || []), post.post_id])];
     if ((tier === 3 || cls.inferred) && h.milestone.phase !== "expected") { // a rumour never rewrites an advanced entry: it goes under it as a line
       if (cls.inferred) h.trust = "unconfirmed";
-      h.updates = [{ date: dayLabel(post.created_at), log_date: logDate, at: new Date(at).toISOString(), text: cls.text, ...(logText ? { log_text: logText } : {}), url: post.url, src: `@${post.author.username}`, tier, reported: claimed }, ...(h.updates || [])].slice(0, 20);
+      h.updates = [{ date: dayLabel(post.created_at), log_date: logDate, at: new Date(at).toISOString(), text: cls.text, ...pair, ...(logText ? { log_text: logText } : {}), url: post.url, src: `@${post.author.username}`, tier, reported: claimed }, ...(h.updates || [])].slice(0, 20);
       return { box: life.c, entry: h, merged: true, phase: null, accurate, tier };
     }
     const to = accurate && PHASES.indexOf(phase) > PHASES.indexOf(from) ? phase : from;
     if (to !== from || h.text !== cls.text) { // build-up: the older line goes under the entry; the entry shows the latest
-      h.updates = [{ date: h.date, ...(h.log_date ? { log_date: h.log_date } : {}), at: h.at, text: h.x_text || h.text, ...(h.log_text ? { log_text: h.log_text } : {}), url: h.url, src: h.src, phase: from, tier: h.tier }, ...(h.updates || [])].slice(0, 20);
+      h.updates = [{ date: h.date, ...(h.log_date ? { log_date: h.log_date } : {}), at: h.at, text: h.x_text || h.text, ...(h.push_text ? { push_text: h.push_text } : {}), ...(h.card_text ? { card_text: h.card_text } : {}), ...(h.log_text ? { log_text: h.log_text } : {}), url: h.url, src: h.src, phase: from, tier: h.tier }, ...(h.updates || [])].slice(0, 20);
       h.tier = tier; if (hedge) h.hedged = true; else delete h.hedged; if (tier === 3 && claimed !== "expected") h.reported = claimed; else delete h.reported;
       if (cls.inferred) h.trust = "unconfirmed"; // the writer inferred the step from indirect evidence: shown, never moves a phase
       // a confirmed milestone card (media-cascade text_locked): wording, time, link and source post stay; only the phase moves
       if (h.text_locked) { h.updates.shift(); } else {
       if (logText) h.log_text = logText; else delete h.log_text;
       if (statusLine) h.status_line = statusLine; else delete h.status_line;
-      Object.assign(h, { date: dayLabel(post.created_at), log_date: logDate, at: new Date(at).toISOString(), text: cls.text, x_text: cls.text, url: post.url, src: `@${post.author.username}`, x_post: post });
+      delete h.push_text; delete h.card_text; Object.assign(h, { date: dayLabel(post.created_at), log_date: logDate, at: new Date(at).toISOString(), text: cls.text, x_text: cls.text, ...pair, url: post.url, src: `@${post.author.username}`, x_post: post });
       }
     }
     if (h.updates) h.updates = h.updates.filter((u) => !logText_.isRejected(road, life.c.id, u) && !logText_.isMonthMixup(h, u)); // a rejected or month-mixed-up line never comes back
@@ -228,7 +232,7 @@ function placePost(road, post, cls, now = Date.now(), picks = []) {
     return { box: prev.c, entry: h, merged: true, accurate, tier };
   }
   const official = OFFICIAL.has(post.author.username.toLowerCase());
-  const entry = { id: "x-" + post.post_id, date: dayLabel(post.created_at), log_date: logDate, at: new Date(at).toISOString(), text: cls.text, x_text: cls.text, ...(logText ? { log_text: logText } : {}), ...(statusLine ? { status_line: statusLine } : {}),
+  const entry = { id: "x-" + post.post_id, date: dayLabel(post.created_at), log_date: logDate, at: new Date(at).toISOString(), text: cls.text, x_text: cls.text, ...pair, ...(logText ? { log_text: logText } : {}), ...(statusLine ? { status_line: statusLine } : {}),
     url: post.url, src: `@${post.author.username}`, trust: "trusted", ...(official ? { official: true } : {}), x_first: true, stage: cls.stage,
     hardware: cls.hardware || null, ...(Number.isInteger(cls.flight) ? { flight: cls.flight } : {}) /* optional flight tag (not asked for yet: untagged = the app's default) */, x_post: post, x_posts: [post.post_id], xChecked: true, imageChecked2: true,
     ...(m && (claimed !== "expected" || cls.media_fit === "shows-event") ? { media_override: overrideFor(post, m) } : {}) };
@@ -309,7 +313,7 @@ function journeyVerdict(road, post, v) {
   const r = journey.route(road, post.text || "", hw, { at: post.created_at, id: "x-" + post.post_id });
   if (r.why === "other vehicle") return { skip: `journey: post is not about ${hw} (strict vehicle match)` };
   if (!r.card || !road.categories.some((c) => c.id === r.card)) return { v };
-  const nv = { ...v, stage: r.card, ...(r.text ? { text: r.text, log_text: null, status_line: null } : {}), ...(r.likely ? { journey_likely: true } : {}) };
+  const nv = { ...v, stage: r.card, ...(r.text ? { text: r.text, push_text: r.push_text || r.text, card_text: r.card_text || null, log_text: null, status_line: null } : {}), ...(r.likely ? { journey_likely: true } : {}) };
   if (r.card !== v.stage) { nv.event = JOURNEY_EVENT[r.card] || null; if (phaseOf(v) === "completed" && !(r.evidence === r.card && journey.signals(post.text).doneReal)) { nv.phase = "progress"; if (nv.status === "done") nv.status = "progress"; } }
   if (r.likely && phaseOf(nv) === "completed") { nv.phase = "progress"; if (nv.status === "done") nv.status = "progress"; }
   if (r.card !== v.stage || r.text) nv.journey = true;
