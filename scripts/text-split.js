@@ -25,9 +25,13 @@ function toCard(line, { confirmed = true } = {}) {
   ];
   for (const [re, f] of R) if (re.test(t)) { t = t.replace(re, f); break; }
   t = t.replace(/\b(is|are) being (\w+ed)\b/g, (m, a, v) => `${a === "is" ? "was" : "were"} ${v}`)        // present → past for card rows
-    .replace(/\bhas been (\w+ed)\b/g, "was $1").replace(/\bhas (left|arrived|rolled|returned|moved|completed)\b/g, "$1")
+    .replace(/\bhas been (\w+ed)\b/g, "was $1").replace(/\b(?:has|have) (left|arrived|rolled|returned|moved|completed)\b/g, "$1")
     .replace(/\b(rolls|arrives|heads|leaves|returns|moves|lifts) (?=out|at|to|back|for|on|onto|from|the|Mega|Pad|Massey)/g, (m) => ({ "rolls ": "rolled ", "arrives ": "arrived ", "heads ": "headed ", "leaves ": "left ", "returns ": "returned ", "moves ": "moved ", "lifts ": "lifted " })[m])
-    .replace(/^((?:Ship|Booster) \d+) is back at\b/, "$1 was back at");
+    .replace(/^((?:Ship|Booster) \d+) is back at\b/, "$1 was back at")
+    .replace(/\b(is|are) (reportedly|now|still) being (\w+ed)\b/g, (m, a, r, v) => `${a === "is" ? "was" : "were"} ${r === "reportedly" ? "reportedly " : ""}being ${v}`) // still in progress: stays "being"
+    .replace(/\b(is|are) (under ?way|progressing|in progress|moving|heading|rolling)\b/g, (m, a, w) => `${a === "is" ? "was" : "were"} ${w}`)
+    .replace(/^((?:Ship|Booster) \d+|[BS]\d+) is (in|at|on|now in|now at) /, "$1 was $2 ")
+    .replace(/\bhas begun\b/g, "began");
   if (!confirmed) t = t.replace(/\b(?:has |have )?completed\b/gi, "likely ran").replace(/\blikely (?:likely )+/gi, "likely ");
   t = t.replace(/^\w/, (c) => c.toUpperCase());
   return /[.!?]$/.test(t) ? t : t + ".";

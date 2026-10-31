@@ -123,14 +123,17 @@ const DEFAULT_SITE = "Starbase, Texas";
 
 const DAY = 86400000;
 const utcDay = (iso) => { const d = new Date(iso); return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()); };
-const daysBetween = (a, b) => Math.round((utcDay(b) - utcDay(a)) / DAY);
+// Days between two launches = whole UK (Europe/London) calendar days, the same day each launch is shown on.
+// (Was UTC days: a launch at 23:23 UTC in summer is the next UK day, so F11→F12 read 221 instead of 220, F8→F9 82 instead of 83.)
+const ukDayN = (iso) => { const p = Object.fromEntries(new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/London", year: "numeric", month: "numeric", day: "numeric" }).formatToParts(new Date(iso)).map((x) => [x.type, x.value])); return Date.UTC(Number(p.year), Number(p.month) - 1, Number(p.day)); };
+const daysBetween = (a, b) => Math.round((ukDayN(b) - ukDayN(a)) / DAY);
 const fmt = (iso, opts) => new Date(iso).toLocaleDateString("en-GB", { timeZone: "UTC", ...opts }).replace(/\bSept\b/, "Sep");
 // One date format across the app (Europe/London): "13 Sep · 05:02 UK", date-only "13 Sep", ranges "12–13 Sep".
 const MON3 = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 function ukParts(iso) { const p = Object.fromEntries(new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/London", year: "numeric", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false }).formatToParts(new Date(iso)).map((x) => [x.type, x.value])); return { day: Number(p.day), mon: MON3[Number(p.month) - 1], year: Number(p.year), time: `${p.hour === "24" ? "00" : p.hour}:${p.minute}` }; }
-function ukStamp(iso, withTime = true) {
+function ukStamp(iso, withTime = true, withYear = false) {
   if (!iso || !Number.isFinite(Date.parse(iso))) return "";
-  const p = ukParts(iso); const yr = p.year !== ukParts(new Date().toISOString()).year ? ` ${p.year}` : "";
+  const p = ukParts(iso); const yr = withYear || p.year !== ukParts(new Date().toISOString()).year ? ` ${p.year}` : "";
   return `${p.day} ${p.mon}${yr}${withTime && p.time !== "00:00" ? ` · ${p.time} UK` : ""}`; // 00:00 = a date-only source
 }
 const LONG_MON = { January: "Jan", February: "Feb", March: "Mar", April: "Apr", June: "Jun", July: "Jul", August: "Aug", September: "Sep", Sept: "Sep", October: "Oct", November: "Nov", December: "Dec" };
@@ -153,7 +156,7 @@ const fmtDay = (s) => normDay(s);
 const entryDate = (h) => { const iso = h && (h.publishedAt || h.at || (/^\d{1,2} [A-Z][a-z]{2}$/.test(normDay(h.date) || "") && postIdOf(h) && sfIso(postIdOf(h)))); return iso && Number.isFinite(Date.parse(iso)) ? ukStamp(iso, false) : fmtDay(h && h.date); }; // single day only, never a clock time
 // No public source names in the UI: @handles stay, outlet names are removed.
 const SRC_NAMES = /\s*(?:\(|\b)(?:per|via|from|according to)?\s*(?:NASASpaceflight(?:\.com)?|NSF|Spaceflight Now|SpaceNews|Teslarati|Next ?Spaceflight|LL2|Launch Library 2?|Spaceflight News API|LabPadre|Ars Technica|Space\.com)\b(?:\s*[-–]\s*NASASpaceflight\.com)?\)?/gi;
-const scrub = (s) => typeof s !== "string" ? s : doneToLabel(s).replace(SRC_NAMES, "").replace(/\(\s*(unofficial|secondary|estimate)\s*\)/gi, "($1)").replace(/\s*·\s*(?=·|$)/g, "").replace(/^\s*·\s*/, "").replace(/\s{2,}/g, " ").trim();
+const scrub = (s) => typeof s !== "string" ? s : doneToLabel(s).replace(SRC_NAMES, "").replace(/\(\s*(unofficial|secondary|estimate)\s*\)/gi, "($1)").replace(/\s*·\s*(?=·|$)/g, "").replace(/^\s*·\s*/, "").replace(/\s{2,}/g, " ").replace(/\s+([.,;:!?])(?=\s|$)/g, "$1").replace(/([.!?])\.+$/, "$1").trim();
 const uiSrc = (s) => { if (typeof s !== "string" || !s) return ""; if (/^@\w+$/.test(s.trim())) return s.trim(); const t = scrub(s).replace(/^(estimate|\(unofficial\)|\(secondary\)|\(estimate\))$/i, ""); return /^(FAA|SpaceX)\b/.test(t) ? t.replace(/\s+via\s*$/i, "") : ""; };
 // For the next-flight card specifically: local launch time and date together,
 // in the UK's own timezone (auto-adjusts BST/GMT), so there's no ambiguity.
@@ -805,7 +808,7 @@ function FlightCard({ f, open, onTap, onPhotoTap, register, road }) {
             <div className="title"><span className="t-word">Starship Flight</span><span className="t-num">{f.n}</span></div>
             <Pill outcome={f.outcome} />
           </div>
-          <div className="date">{ukStamp(f.date, false)}</div>
+          <div className="date">{ukStamp(f.date, false, true)}</div>
           <div className="sub">{f.pad}, {siteLabel(f)}</div>
           <div className="sub">{f.block} · {f.booster} / {f.ship}</div>
         </div>
@@ -1093,7 +1096,7 @@ const ONE_CARD = ["static", "cryo", "raptor"];
 const logView = (m, road) => { try { return window.RoadCleanup ? window.RoadCleanup.flightLogView(m, road) : m; } catch { return m; } };
 function useRoad() {
   const [road, setRoad] = React.useState(() => {
-    try { return JSON.parse(localStorage.getItem(ROAD_CACHE_KEY)) || null; } catch { return null; }
+    try { const d = JSON.parse(localStorage.getItem(ROAD_CACHE_KEY)) || null; if (d && d.image_cache) IMG_CACHE = d.image_cache; return d; } catch { return null; }
   });
   React.useEffect(() => {
     let alive = true;
@@ -1101,6 +1104,7 @@ function useRoad() {
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (!alive || !data || !Array.isArray(data.categories)) return;
+        IMG_CACHE = data.image_cache || {};
         setRoad(data);
         try { localStorage.setItem(ROAD_CACHE_KEY, JSON.stringify(data)); } catch {}
       })
@@ -1277,6 +1281,13 @@ function BuildUp({ h, log, onTap }) {
 // Photo source badge: the photo's own X account avatar (icons/avatars/, scripts/avatars.js), bottom-right of the photo.
 // Badges the PHOTO's source (media author), not the text's. Tapping it opens the post the photo came from.
 // No saved avatar -> a neutral circle with the initial. Own/placeholder pictures get no badge.
+// Hotlinked pbs.twimg pictures: local copies (road.json image_cache, filled by the self-check). The picked image is unchanged.
+let IMG_CACHE = {};
+const localImg = (u) => (u && IMG_CACHE[u]) || u;
+// A broken picture never shows as a broken icon: cached copy → original → placeholder picture → hidden.
+const imgFallback = (orig, giveUp) => (e) => { const el = e.currentTarget, tried = (el.dataset.fb || "").split("|");
+  const next = [orig, RTF_PLACEHOLDER].find((u) => u && !tried.includes(u) && !el.src.endsWith(u));
+  if (next) { el.dataset.fb = [...tried, el.getAttribute("src")].join("|"); el.src = next; } else if (giveUp) giveUp(); };
 let AVATARS = null; const avatarSubs = new Set();
 fetch("icons/avatars/index.json").then((r) => r.json()).then((j) => { AVATARS = (j && j.avatars) || {}; avatarSubs.forEach((f) => f(AVATARS)); }).catch(() => { AVATARS = {}; avatarSubs.forEach((f) => f(AVATARS)); });
 const badgeHandleOf = (author, url) => String(author || (String(url || "").match(/x\.com\/([A-Za-z0-9_]{1,15})\/status\//) || [])[1] || "").replace(/^@/, "");
@@ -1301,7 +1312,7 @@ function ContextMedia({ mc }) {
   return (
     <div className="xm xm-context">
       <div className="xm-grid n1"><a href={mc.post_url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
-        <img src={mc.image} alt="" loading="lazy" referrerPolicy="no-referrer" onError={() => setBad(true)} /></a>
+        <img src={localImg(mc.image)} alt="" loading="lazy" referrerPolicy="no-referrer" onError={imgFallback(mc.image, () => setBad(true))} /></a>
         <SrcBadge author={mc.author} url={mc.post_url} image={mc.image} /></div>
       <div className="xm-foot">
         <a href={mc.post_url} target="_blank" rel="noopener noreferrer" aria-label="View on X" onClick={(e) => e.stopPropagation()}>View on X {LINK_ICON}</a></div>
@@ -1442,9 +1453,9 @@ function buildFeed(road) {
   // pushes with no Road box (Starship news, flight-checker alerts): the push's own title, text, source link and time
   (Array.isArray(road.feed_items) ? road.feed_items : []).forEach((f, fi) => { if (!f || !f.id || !f.body) return;
     const t = doneToLabel(f.title), m = t.match(/^(\p{Extended_Pictographic}\uFE0F?)\s*(.*)$/u);
-    const at = Date.parse(f.at) || 0;
+    const at = Date.parse(f.event_at || f.at) || 0; // event_at: the event's own time when the post came later (self-check)
     const own = f.box && road.categories.find((c) => c.id === f.box); // filed by purpose (e.g. a Starship news push about B22's static fire → Static fires)
-    posts.push({ h: { id: f.id, date: f.date, text: f.body, src: "", url: f.url, publishedAt: f.at, trust: "trusted", kind: "feed" },
+    posts.push({ h: { id: f.id, date: f.date, text: f.body, src: f.src || (String(f.url || "").match(/x\.com\/([A-Za-z0-9_]{1,15})\/status\//) ? "@" + String(f.url).match(/x\.com\/([A-Za-z0-9_]{1,15})\/status\//)[1] : ""), url: f.url, publishedAt: f.event_at || f.at, trust: "trusted", kind: "feed" },
       cat: own || { id: "feed-" + (f.kind || "news"), name: m ? m[2] : t, icon: m ? m[1] : "", color: "#AAB6D6" }, ci: 99, hi: fi, id: f.id,
       day: at, at, flight: Number.isInteger(f.flight) ? f.flight : road.flight, when: at });
   });
@@ -1519,7 +1530,7 @@ function SplitMedia({ pair, onPhotoTap, alt }) {
         {pair.map((m, i) => (
           <a key={i} href={m.image} target="_blank" rel="noopener noreferrer" aria-label={`${alt} \u2014 photo ${i + 1}`}
             onClick={(e) => { e.stopPropagation(); if (onPhotoTap) { e.preventDefault(); onPhotoTap(m.image, `${alt} \u2014 photo ${i + 1}`); } }}>
-            <img src={m.image} alt="" loading="lazy" referrerPolicy="no-referrer" onError={() => setBad((b) => ({ ...b, [i]: true }))} /></a>))}
+            <img src={localImg(m.image)} alt="" loading="lazy" referrerPolicy="no-referrer" onError={imgFallback(m.image, () => setBad((b) => ({ ...b, [i]: true })))} /></a>))}
         <SrcBadge author={pair[1].author} url={pair[1].post_url} image={pair[1].image} />
       </div>
     </div>
@@ -1535,7 +1546,7 @@ function OneMedia({ mo }) {
   return (
     <div className="xm">
       <div className="xm-grid n1"><a href={mo.post_url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
-        <img src={mo.image} alt="" loading="lazy" referrerPolicy="no-referrer" onError={() => setBad(true)} />{mo.type === "video" && PLAY_ICON}</a>
+        <img src={localImg(mo.image)} alt="" loading="lazy" referrerPolicy="no-referrer" onError={imgFallback(mo.image, () => setBad(true))} />{mo.type === "video" && PLAY_ICON}</a>
         <SrcBadge author={mo.author} url={mo.post_url} image={mo.image} /></div>
       {mo.credit_only && <div className="xm-foot"><span className="xm-ctx">{`Photo · @${mo.author}`}</span>
         <a href={mo.post_url} target="_blank" rel="noopener noreferrer" aria-label="View on X" onClick={(e) => e.stopPropagation()}>View on X {LINK_ICON}</a></div>}
@@ -1840,7 +1851,7 @@ function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap }) {
         <div className="feed-list">
           {rows.map((r) => r.section
             ? <div className="fdiv" id={`fsec-${r.section.n}`} key={"f" + r.section.n}><span><b>{`Flight ${r.section.n}`}</b>{(r.section.flown || r.section.next) && <> <i>·</i> </>}{r.section.flown
-                ? <><span className={"fdiv-" + r.section.flown.outcome}>{OUTCOME_LABEL[r.section.flown.outcome] || r.section.flown.outcome}</span> <i>·</i> {ukStamp(new Date(r.section.flown.day).toISOString(), false)}</>
+                ? <><span className={"fdiv-" + r.section.flown.outcome}>{OUTCOME_LABEL[r.section.flown.outcome] || r.section.flown.outcome}</span> <i>·</i> {ukStamp(new Date(r.section.flown.day).toISOString(), false, true)}</>
                 : r.section.next ? <span className="fdiv-next">Next flight</span> : null}</span></div>
             : r.empty ? null : <FeedPost key={r.post.id} p={r.post} onPhotoTap={onPhotoTap} idx={idx} st={dateSt && dateSt.id === r.post.id ? dateSt : null} />)}
           <p className="end">That's every update so far.</p>
@@ -1891,7 +1902,7 @@ function StarshipTracker() {
 
   const flights = [...FLIGHTS].sort((a, b) => b.n - a.n);
   const latest = flights[0];
-  const daysSinceLatest = Math.round((Date.UTC(new Date(now).getUTCFullYear(), new Date(now).getUTCMonth(), new Date(now).getUTCDate()) - utcDay(latest.date)) / DAY);
+  const daysSinceLatest = daysBetween(latest.date, new Date(now).toISOString()); // UK calendar days, like the gaps
 
   const register = (n, el) => { if (el) cardEls.current[n] = el; };
 

@@ -392,7 +392,9 @@ async function run(deps) {
 module.exports = { run, mapLL2Status, fmtDateTime, addFlightToAppJs };
 
 if (require.main === module) { process.on("exit", () => console.log(writer.grokCallsLine())); }
-if (require.main === module) main().catch((err) => {
-  console.error("Checker failed:", err);
-  process.exit(1);
-});
+if (require.main === module) {
+  globalThis.fetch = require("./retry.js").withRetry(globalThis.fetch, { log: (m) => console.log(m) }); // 2 retries, short backoff
+  let failure = null;
+  main().catch((err) => { failure = err; console.error("Checker failed:", err); })
+    .finally(() => { require("./health.js").record("check-flights", { ok: !failure, error: failure }); if (failure) process.exit(1); });
+}

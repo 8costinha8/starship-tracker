@@ -1677,6 +1677,19 @@ async function run(opts = {}) {
   // an estimated-date slip (NET moved to another day) is push-worthy: "Flight 15 now NET 12 Nov (was 8 Nov) · unofficial"
   if (pr.slip) { const raw = predict.slipPush(pr.slip, clock()); const sp = pushSync.addFeedItem(road, { title: raw.title, body: raw.body, at: raw.at, kind: "launch_date", flight: pr.slip.flight }); notifications.push(sp); log(`predicted date change ${pr.slip.from || "none"} → ${pr.slip.to} → push: ${sp.body}`); }
 
+  // 4z. Daily self-check (scripts/self-check.js): once a UK day after 06:00. Wording/metadata fixes only, never a push or milestone.
+  if (opts.selfCheck !== false && (opts.selfCheckForce || (!opts.roadPath && !opts.deps && require("./self-check.js").due(state, clock())))) { // tests (roadPath/deps) opt in with selfCheckForce
+    const SC = require("./self-check.js"), scRoot = opts.roadPath ? path.dirname(roadPath) : ROOT;
+    try {
+      const sc = await SC.audit(road, { now: clock(), log, judge: mode === "live" && !opts.roadPath ? SC.grokJudge(log) : (opts.selfCheckJudge || null), dryRun: !save, root: scRoot });
+      let added = 0; if (save) { added = SC.writeReview(sc.flags, path.join(scRoot, "data", "needs-review.json"), clock()); if (added) frameFiles.push("data/needs-review.json"); }
+      frameFiles.push(...sc.files);
+      if (sc.fixes.length || added) changed = true;
+      SC.markDone(state, clock(), { fixes: sc.fixes.length, flags: sc.flags.length, judge_calls: sc.calls });
+      log(`self-check: ${sc.fixes.length} fix(es) ${JSON.stringify(sc.counts)}, ${sc.flags.length} flag(s), ${sc.calls} judge call(s) (no push)`);
+    } catch (e) { log(`self-check failed (carrying on): ${e.message}`); }
+  }
+
   // 5. Save, commit, then notify (so the app already has the new card when the push lands)
   if (changed || predChanged) {
     if (changed) {
@@ -1750,8 +1763,8 @@ module.exports = { X_SEARCH_HANDLES, firebaseDeps, pushGateFor, addToReview, dat
 
 if (require.main === module) {
   process.on("exit", () => console.log(writer.grokCallsLine()));
-  run().catch((err) => {
-    console.error("Road checker failed:", err);
-    process.exit(1);
-  });
+  globalThis.fetch = require("./retry.js").withRetry(globalThis.fetch, { log: (m) => console.log(`• ${m}`) }); // X / news / images: 2 retries, short backoff
+  let failure = null;
+  run().catch((err) => { failure = err; console.error("Road checker failed:", err); })
+    .finally(() => { require("./health.js").record("check-road", { ok: !failure, error: failure }); if (failure) process.exit(1); });
 }
