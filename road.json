@@ -1174,11 +1174,9 @@
             "post_id": "2115476295169814978",
             "author": "SpaceX",
             "type": "video",
-            "image": "https://pbs.twimg.com/amplify_video_thumb/2115475875122569216/img/05QhG1ixlpBhow6m.jpg",
-            "auto": true,
-            "quality": 4,
-            "media_score": 6872,
-            "checked_at": "2026-10-28T17:15:43.049Z"
+            "image": "images/s42-static-fire.jpg",
+            "credit_only": true,
+            "keep_image": true
           },
           "milestone": {
             "key": "static_fire|15|S42",
@@ -1627,11 +1625,12 @@
           "xChecked": true,
           "imageChecked2": true,
           "media_override": {
-            "post_url": "https://x.com/NASASpaceflight/status/2114347288739098706",
-            "post_id": "2114347288739098706",
-            "author": "NASASpaceflight",
+            "post_url": "https://x.com/SpaceX/status/2114444137067844004",
+            "post_id": "2114444137067844004",
+            "author": "SpaceX",
             "type": "video",
-            "image": "images/b22-static-fire.jpg",
+            "image": "images/b22-static-fire-spacex.jpg",
+            "credit_only": true,
             "keep_image": true
           },
           "flight": 15,

@@ -3,7 +3,7 @@
    - completed card: the completing milestone's event.
    Several posts often report the same event (same vehicle + category + same happening): they form one group
    (same event kind as best-frame.js eventOf, within SAME_EVENT_H hours, like media-cascade.js sameEvent), and the
-   BEST picture of the group wins: a manual pick (road-media.json keep_image) first, then source tier
+   BEST picture of the group wins: X post media over news-site pictures (NEWS outlets' clips, article/link images), then a manual pick (road-media.json keep_image), then source tier
    (config.js CASCADE_TIER1/2), then a real photo over a video thumbnail, then a curated local frame
    (images/…, from best-frame.js), then higher resolution when the post says, then the newest post.
    Earlier updates never carry pictures. Pure data: no fetch, no DOM. */
@@ -11,6 +11,9 @@
   const SAME_EVENT_H = 36;
   const TIER1 = ["spacex", "spacexstarship", "starbase", "elonmusk"];
   const TIER2 = ["nasaspaceflight", "labpadre", "rgvaerialphotos", "starbasesurfer", "csi_starbase", "blobifie", "trackingthesb", "starshipgazer", "efraser77", "colleenadastra", "starbasewatcher", "nicans", "zackgolden_"];
+  // News outlets (their X clips carry the site's watermark, e.g. "NSF") and news-site images (article/link cards):
+  // a Tier 1/2 X post's own media of the same event wins over them, on every card and vehicle, even over a manual pick.
+  const NEWS = ["nasaspaceflight", "nsf", "spaceflightnow", "spacenews", "spacenews_inc", "teslarati", "spacedotcom", "spacecom"];
   const lc = (s) => String(s || "").toLowerCase().replace(/^@/, "");
   const tierOf = (h) => (TIER1.includes(lc(h)) ? 1 : TIER2.includes(lc(h)) ? 2 : 3);
   // same kinds as best-frame.js eventOf, plus engine work and pad work
@@ -25,6 +28,7 @@
     if (/bqd|deluge|launch mount|service structure|tower|pad/.test(t)) return "pad";
     return null;
   }
+  const isNewsPic = (p) => NEWS.includes(lc(p.author)) || /\/news_img\/|nasaspaceflight\.com|spaceflightnow\.com|spacenews\.com/i.test(String(p.image || "")) || !!p.link_card;
   const atOf = (e) => { for (const v of [e && e.completed_at, e && e.at, e && e.x_post && e.x_post.created_at, e && e.publishedAt]) if (v && Number.isFinite(Date.parse(v))) return Date.parse(v); return 0; };
   const handleOf = (e) => (e.media_override && e.media_override.author) || (e.x_post && e.x_post.author && e.x_post.author.username) || (/^@/.test(e.src || "") ? e.src : "");
   // every picture a post offers, with its score
@@ -35,7 +39,7 @@
     for (const m of (e.x_post && e.x_post.media) || []) { const img = m.type === "photo" ? m.url : m.poster; if (img && !out.some((p) => p.image === img)) out.push({ image: img, type: m.type, post_url: url, author: handleOf(e), manual: false, w: m.width || 0 }); }
     return out;
   }
-  const score = (p, e) => (p.manual ? 1000 : 0) + (4 - tierOf(p.author || handleOf(e))) * 10 + (p.type === "photo" ? 4 : 1) + (/^images\//.test(p.image) ? 2 : 0) + Math.min(2, (p.w || 0) / 1000);
+  const score = (p, e) => (!isNewsPic(p) && tierOf(p.author || handleOf(e)) <= 2 ? 2000 : 0) + (p.manual ? 1000 : 0) + (4 - tierOf(p.author || handleOf(e))) * 10 + (p.type === "photo" ? 4 : 1) + (/^images\//.test(p.image) ? 2 : 0) + Math.min(2, (p.w || 0) / 1000);
   // entries: this card's posts (any order). anchor: the event to show (null → newest event with a picture).
   function groupOf(entries, cid, anchor) {
     const k = kindOf(cid, `${anchor.text || ""} ${anchor.x_text || ""}`), a = atOf(anchor);
@@ -59,5 +63,5 @@
     groupOf(entries, cid, anchor).forEach((e) => picsOf(e).forEach((p) => { if ((!best || p.image !== best.image) && !out.some((o) => o.image === p.image)) out.push({ image: p.image, type: p.type, post_url: p.post_url, author: String(p.author || "").replace(/^@/, "") }); }));
     return out.slice(0, 6);
   }
-  return { alternativesOf, cardPicture, kindOf, groupOf, bestOf, tierOf, SAME_EVENT_H };
+  return { NEWS, isNewsPic, alternativesOf, cardPicture, kindOf, groupOf, bestOf, tierOf, SAME_EVENT_H };
 });

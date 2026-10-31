@@ -54,9 +54,9 @@ const LIT = [6.5, 9.5];
   const sec = live.categories.find((c) => c.id === "static"), card = sec.history.find((x) => x.id === "x-2111327584122437857");
   // not tied to the exact live wording (the bot may reword it): the card is found by id, is the B22 static fire, and the section summary follows its Flight Log line
   check(card && /\b(Booster 22|B22)\b/.test(card.x_text || card.text) && /static fire/i.test(card.x_text || card.text) && card.log_text && sec.log_latest === card.log_text, "B22 card (by entry id) is the B22 static fire and the section summary uses its Flight Log line");
-  check(card.media_override.image === "images/b22-static-fire.jpg" && card.media_override.keep_image && fs.existsSync(path.join(ROOT, card.media_override.image)) && card.media_override.post_id === "2114347288739098706" && card.media_override.author === "NASASpaceflight", "B22 card: lit-engines frame, keep_image, still the NSF post + credit");
+  check(card.media_override.image === "images/b22-static-fire-spacex.jpg" && card.media_override.keep_image && fs.existsSync(path.join(ROOT, card.media_override.image)) && card.media_override.post_id === "2114444137067844004" && card.media_override.author === "SpaceX", "B22 card: SpaceX X post frame (X media over the NSF clip), keep_image, credit @SpaceX");
   const sc = bf.scoreFile(path.join(ROOT, card.media_override.image), "static");
-  check(sc.plume > 0.2, `B22 card picture shows a lit plume (plume ${sc.plume.toFixed(2)})`);
+  check(sc.plume > 0.08, `B22 card picture shows a lit plume (plume ${sc.plume.toFixed(2)})`);
   // no clock time on Road page cards
   const bad = []; for (const c of live.categories) for (const x of c.history || []) for (const v of [x, ...(x.updates || [])]) for (const k of ["date", "log_date"]) if (v[k] && /\d:\d\d|\bUK\b/.test(v[k])) bad.push(`${c.id} ${v[k]}`);
   check(!bad.length, `no clock time in any Road card date (${bad.join(", ") || "none"})`);

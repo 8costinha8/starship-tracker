@@ -177,18 +177,6 @@
   },
   {
    "category": "static",
-   "date": "25 Oct",
-   "entry": "Booster 22 completed its static fire at the launch site.",
-   "post_id": "2114347288739098706",
-   "post_url": "https://x.com/NASASpaceflight/status/2114347288739098706",
-   "author": "NASASpaceflight",
-   "media_type": "video",
-   "image": "images/b22-static-fire.jpg",
-   "keep_image": true,
-   "note": "Frame at 0:07 of the NSF clip: B22 engines lit on Pad 2 (thumbnail showed only steam/deluge). Overlay clock cropped off."
-  },
-  {
-   "category": "static",
    "date": "24 Oct",
    "entry": "Booster 22 lifted onto the launch mount after pad move.",
    "post_id": "2114063568735768864",
@@ -210,6 +198,32 @@
    "image": "images/2113955770337550391-frame.jpg",
    "keep_image": true,
    "note": "Frame at 0:51 of the NSF clip: B22 standing at the pad on its transport stand, main camera only (thumbnail: dark multi-cam view of the Megabay). Overlay clock and ticker cropped off."
+  },
+  {
+   "category": "static",
+   "date": "27 Oct",
+   "entry": "Ship 42 completed both its single- and six-engine static fire tests at Massey's.",
+   "post_id": "2115476295169814978",
+   "post_url": "https://x.com/SpaceX/status/2115476295169814978",
+   "author": "SpaceX",
+   "media_type": "video",
+   "image": "images/s42-static-fire.jpg",
+   "keep_image": true,
+   "credit_only": true,
+   "note": "Frame at 0:13 of the SpaceX video (28 Oct 2026, 16:10 UK): six-engine plume on the Massey stand, vehicle sharp, full height. Picked by Bernardo 31 Oct."
+  },
+  {
+   "category": "static",
+   "date": "25 Oct",
+   "entry": "Booster 22 conducted a static fire test on Pad 2.",
+   "post_id": "2114444137067844004",
+   "post_url": "https://x.com/SpaceX/status/2114444137067844004",
+   "author": "SpaceX",
+   "media_type": "video",
+   "image": "images/b22-static-fire-spacex.jpg",
+   "keep_image": true,
+   "credit_only": true,
+   "note": "Frame at 0:11 of the SpaceX video: B22 33-engine static fire on Pad 2, full plume, tower and booster top in frame. Replaces the NSF-watermarked clip frame (X post media over news-site pictures, 31 Oct)."
   }
  ]
 }
