@@ -434,6 +434,18 @@
       "verdict": "sent",
       "gate": "not an X tracker post",
       "key": "F15|static_fire|30 Oct"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Booster 24 methane tank lifted inside Megabay 1 this evening",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mvvriszs-0c1ff5",
+      "url": "https://x.com/efraser77/status/2116351708150497473",
+      "at": "2026-10-31T02:09:01.000Z",
+      "sent_at": "2026-10-31T03:00:39.339Z",
+      "where": "feed",
+      "verdict": "silent: minor lift — a push went out 4.7h ago (quiet window 24h)",
+      "gate": "hold passed (1 run)",
+      "key": "B24|lift|31 Oct"
     }
   ]
 }
