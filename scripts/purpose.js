@@ -90,7 +90,7 @@ function refile(road) {
   for (const c of [...road.categories]) {
     if (c.id === "faa" || c.id === "date") continue;
     for (const h of [...(c.history || [])]) {
-      if (h.kind === "check" || h.refiled_pin) continue;
+      if (h.kind === "check" || h.refiled_pin || h.journey_pin) continue;
       const to = purposeOf(road, { ...h, text: lineOf(h), box: c.id }, st).box;
       if (to === c.id || !cat(to)) continue;
       const stay = (h.updates || []).filter((u) => purposeOf(road, { ...u, text: u.text, box: c.id }, st).box === c.id); // e.g. pure pad work, or a ship fit check on the tower

@@ -301,6 +301,21 @@ function guardPost(road, post, v0) {
   const g = guardPostInner(road, post, v);
   return g.skip || g.v !== v ? g : { v };
 }
+const journey = require("./journey.js");
+const JOURNEY_EVENT = { cryo: "cryo_test", static: "static_fire" };
+function journeyVerdict(road, post, v) {
+  const hw = hwKey(v.hardware);
+  if (!hw || !road.journeys || !road.journeys[hw] || !["cryo", "static", "pad", "raptor"].includes(v.stage)) return { v };
+  const r = journey.route(road, post.text || "", hw, { at: post.created_at, id: "x-" + post.post_id });
+  if (r.why === "other vehicle") return { skip: `journey: post is not about ${hw} (strict vehicle match)` };
+  if (!r.card || !road.categories.some((c) => c.id === r.card)) return { v };
+  const nv = { ...v, stage: r.card, ...(r.text ? { text: r.text, log_text: null, status_line: null } : {}), ...(r.likely ? { journey_likely: true } : {}) };
+  if (r.card !== v.stage) { nv.event = JOURNEY_EVENT[r.card] || null; if (phaseOf(v) === "completed" && !(r.evidence === r.card && journey.signals(post.text).doneReal)) { nv.phase = "progress"; if (nv.status === "done") nv.status = "progress"; } }
+  if (r.likely && phaseOf(nv) === "completed") { nv.phase = "progress"; if (nv.status === "done") nv.status = "progress"; }
+  if (r.card !== v.stage || r.text) nv.journey = true;
+  if (r.card !== v.stage || r.text) nv.reason = `${v.reason || ""} [guard: journey ${hw} @ ${(road.journeys[hw] || {}).location || "?"} → ${r.card}${r.likely ? " (likely)" : ""}]`;
+  return { v: nv };
+}
 function guardPostInner(road, post, v) {
   if (!v || v.kind !== "road") return { v };
   const flight = Number.isInteger(v.flight) ? v.flight : road.flight, hw = v.hardware, text = post.text || "";
@@ -329,6 +344,13 @@ function guardPostInner(road, post, v) {
     if (box) v = { ...v, stage: box.id, event: null, phase: "progress", status: null, text: fix(v.text), log_text: fix(v.log_text), status_line: v.status_line && /complet/i.test(v.status_line) ? null : v.status_line,
       reason: `${v.reason || ""} [guard: rollback to the Megabay after the latest completed test (${rb.label}) → ${box.id}]` };
   }
+  // (1d) vehicle journey memory (scripts/journey.js): once a tracked vehicle has a saved journey (road.journeys), its
+  //      location + open test decide the card: ambiguous moves → Pad (likely), returns/stand lifts follow the open or
+  //      just-finished test, frost by place (Massey's/cryo stand → cryo; stacked on the pad → Pad; static fire stand +
+  //      engines → static fire). Strict vehicle match: a post about another vehicle never lands on this one's card.
+  const jv = journeyVerdict(road, post, v);
+  if (jv.skip) return jv;
+  v = jv.v;
   const type = MILESTONE_TYPES.includes(v.event) ? v.event : null;
   // (2) vehicle and event from the SAME sentence of the post
   if (type && hw && EVENT_WORDS[type]) {
@@ -417,7 +439,16 @@ async function runXFirst(road, state, { token, fetchFn, ask, postCard, log = con
       const st = require("./push-gate.js").staleCheck({ title: "", body: v.log_text || v.text || "", at: p.created_at, url: p.url, source_text: p.text, has_media: !!(p.media && p.media.length) }, pushHistory, { vehicles: road.vehicles || [] });
       if (st.stale) { (r0.stale = r0.stale || []).push({ post: p, reason: st.reason, media_only: !!st.media_only }); return log(`X-first: stale @${p.author.username} ${p.post_id} — ${st.reason}${st.media_only ? " (media-only: the cascade may swap the picture)" : ""} — no card, no push`); }
     }
+    const jhw = hwKey(v.hardware), jr = road.journeys && road.journeys[jhw] ? journey.observe(road, p.text || "", jhw, { at: p.created_at, id: "x-" + p.post_id }) : null;
+    if (jr && jr.confirms) { // a confirming post rewrites the SAME likely line and swaps its link: no second line
+      const c = journey.confirmLine(road, jr.confirms, jr.text || v.text, p.url, `@${p.author.username}`);
+      if (c) { if (c.entry.milestone) { c.entry.milestone.phase = "completed"; c.entry.complete = true; } merged.push({ box: road.categories.find((x) => x.id === c.box), entry: c.entry, merged: true, phase: null, accurate: true, tier: tiers.tierOf(p, v), post: p });
+        return log(`X-first: journey confirmed ${jr.confirms} by @${p.author.username} ${p.post_id} → "${c.entry.text}"`); }
+    }
+    if (jr && jr.moveToTest) for (const mv of journey.moveLines(road, jr.moveToTest.ids, jr.moveToTest.to)) log(`X-first: journey moved ${mv.id} ${mv.from} → ${mv.to} (test evidenced, no push)`);
     const r = placePost(road, p, v, now, picks);
+    if (v.journey_likely) r.entry.likely = true;
+    if (v.journey) r.entry.journey_pin = true; // purpose.refile leaves journey-routed lines where the journey put them
     if (status && v.status && r.accurate !== false && r.tier <= 2 && !v.inferred && (!Number.isInteger(r.entry.flight) || r.entry.flight === road.flight)) r.st = status(r.box, v.status, p, r.entry); // unverified numbers never move a status
     if (milestone && v.event && phaseOf(v) === "completed" && r.accurate !== false && r.tier <= 2 && !v.inferred) milestone(v, p); // running per-vehicle summary (counts + dates)
     if (!r.st && r.accurate !== false && !v.inferred) { const want = logText_.rollupStatus(r.box, road); if (want === "done" && r.box.status !== "done") { r.st = { from: r.box.status, to: "done" }; r.box.status = "done"; log(`STATUS [${r.box.id}] ${r.st.from} → done (every Flight ${road.flight} vehicle completed)`); } }
