@@ -1730,6 +1730,7 @@ async function run(opts = {}) {
 module.exports = { X_SEARCH_HANDLES, firebaseDeps, pushGateFor, addToReview, dataVehicles, rolloverVehicles, setLastTerms, applyPrereqs, searchVehicleWords, archiveLaunched, milestones, statusRule, xStatus, applyMediaPicks, loadMediaPicks, pickImage, applyImageCheck, verifyImages, fcmMessage, notificationFor, judgeFeed, verifyFeed, entryDayMs, backfillX, xPostCard, xIdOf, readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, titleMatches, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
 
 if (require.main === module) {
+  process.on("exit", () => console.log(writer.grokCallsLine()));
   run().catch((err) => {
     console.error("Road checker failed:", err);
     process.exit(1);

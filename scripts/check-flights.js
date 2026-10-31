@@ -391,6 +391,7 @@ async function run(deps) {
 
 module.exports = { run, mapLL2Status, fmtDateTime, addFlightToAppJs };
 
+if (require.main === module) { process.on("exit", () => console.log(writer.grokCallsLine())); }
 if (require.main === module) main().catch((err) => {
   console.error("Checker failed:", err);
   process.exit(1);

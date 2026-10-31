@@ -91,6 +91,11 @@ async function noteFault(provider, fn) {
 const providerFaults = () => [...faults.values()];
 const resetProviderFaults = () => faults.clear();
 
+// Per-process Grok call counter (askJson calls, not retries) → one GROK_CALLS summary line per run.
+const counts = { text: 0, vision: 0 };
+const grokCalls = () => ({ total: counts.text + counts.vision, ...counts });
+const grokCallsLine = () => { const c = grokCalls(); return `GROK_CALLS run total=${c.total} text=${c.text} vision=${c.vision} model=${writerModel()}`; };
+const resetGrokCalls = () => { counts.text = 0; counts.vision = 0; };
 const sleep = (ms) => new Promise((ok) => setTimeout(ok, ms));
 
 /* Ask the writer for JSON.
@@ -100,7 +105,10 @@ const sleep = (ms) => new Promise((ok) => setTimeout(ok, ms));
          stripping ``` fences), attempts (default 2), retryMs, log. */
 async function askJson(prompt, opts = {}) {
   writerName();
-  return noteFault("grok", () => askWith("grok", writerModel(), prompt, opts));
+  const vision = Array.isArray(opts.images) && opts.images.length > 0, model = writerModel();
+  counts[vision ? "vision" : "text"]++;
+  console.log(`MODEL ${vision ? "vision" : "text"}=${model} purpose=${opts.schemaName || "unnamed"}`);
+  return noteFault("grok", () => askWith("grok", model, prompt, opts));
 }
 
 async function askWith(w, model, prompt, opts) {
@@ -136,4 +144,4 @@ async function askWith(w, model, prompt, opts) {
   }
 }
 
-module.exports = { providerFault, providerFaults, resetProviderFaults, askJson, writerName, writerLabel, writerModel, responsesText, resetFallbackWarning, DEFAULT_MODELS };
+module.exports = { providerFault, providerFaults, resetProviderFaults, askJson, writerName, writerLabel, writerModel, responsesText, resetFallbackWarning, DEFAULT_MODELS, grokCalls, grokCallsLine, resetGrokCalls };
