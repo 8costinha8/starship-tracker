@@ -42,6 +42,7 @@ const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 const purpose = require("./purpose.js");
+const journey = require("./journey.js");
 const { execSync } = require("child_process");
 const os = require("os");
 const predict = require("./predicted.js");
@@ -1026,8 +1027,12 @@ function applyUpdates(road, items, updates, log, limit) {
       else log(`ignored vehicles ${JSON.stringify(u.vehicles)} from ${it.src} (${it.tier})`);
       continue;
     }
-    const line = cleanLine(u.line, { fullStop: true });
+    let line = cleanLine(u.line, { fullStop: true });
     if (line && u.box !== "faa" && u.box !== "date") { const pb = purpose.purposeFor(road, line, `${it.title || ""} ${it.text || ""}`, { box: u.box, confidence: u.confidence, at: it.publishedAt }).box; if (pb !== u.box) { log(`purpose: ${u.box} → ${pb}: ${line}`); u.box = pb; } }
+    let jn = null; // vehicle journey memory (scripts/journey.js), same rules as X posts
+    if (line && (jn = journey.routeNews(road, line, { box: u.box, at: it.publishedAt })) && jn.changed) { log(`journey: ${u.box} → ${jn.box}${jn.likely ? " (likely)" : ""}: ${line}${jn.text !== line ? ` ⇒ ${jn.text}` : ""}`); u.box = jn.box; u.journey = jn; }
+    if (jn && jn.skip) { log(`journey: skipped (strict vehicle match): ${line}`); continue; }
+    if (jn && jn.text !== line) line = jn.text;
     const box = road.categories.find((c) => c.id === u.box);
     if (!box || !line) { log(`skipped malformed update ${JSON.stringify(u)}`); continue; }
     if (appliedKeys.has(it.key)) { log(`skipped: "${it.title}" was already applied in an earlier run`); continue; }
@@ -1059,7 +1064,10 @@ function applyUpdates(road, items, updates, log, limit) {
   const toApply = valid.filter((v) => keep.has(v)).sort((a, b) => (a.it.publishedAt || "").localeCompare(b.it.publishedAt || ""));
   for (const { u, it, box, line } of toApply) {
     const trust = isTrusted(it.tier) ? "trusted" : "unconfirmed";
-    const entry = { date: fmtDay(it.publishedAt), text: line, src: it.src, source: it.source, trust, url: it.url || undefined, at: it.publishedAt || new Date().toISOString(), key: it.key };
+    const jr = road.journeys && (u.journey || journey.routeNews(road, line, { box: box.id, at: it.publishedAt })) ? (() => { const hw = (u.journey && u.journey.hw) || (journey.routeNews(road, line, { box: box.id }) || {}).hw; return hw ? journey.observe(road, line, hw, { at: it.publishedAt, id: it.key }) : null; })() : null;
+    if (jr && jr.confirms) { const c = journey.confirmLine(road, jr.confirms, jr.text || line, it.url, it.src); if (c) { log(`journey: confirmed ${jr.confirms} by ${it.src} → "${c.entry.text}" (same line, link swapped)`); continue; } }
+    if (jr && jr.moveToTest) for (const mv of journey.moveLines(road, jr.moveToTest.ids, jr.moveToTest.to)) log(`journey: moved ${mv.id} ${mv.from} → ${mv.to} (test evidenced, no push)`);
+    const entry = { date: fmtDay(it.publishedAt), text: line, src: it.src, source: it.source, trust, url: it.url || undefined, at: it.publishedAt || new Date().toISOString(), key: it.key, ...(u.journey ? { id: it.key, hardware: u.journey.hw, journey_pin: true, ...(u.journey.likely ? { likely: true } : {}) } : {}) };
     // The source's real publish time (shown in the Updates feed). Left out when the
     // source only gives a day (SpaceX updates, FAA) or no time at all (launches page).
     if (it.publishedAt && it.timeKnown !== false) entry.publishedAt = it.publishedAt;

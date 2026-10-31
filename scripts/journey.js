@@ -149,6 +149,17 @@ function observe(road, text, hw, opts = {}) {
   const r = route(road, text, v, opts); if (r.card === null && r.why) return r;
   road.journeys = road.journeys || {}; road.journeys[v] = r.state; return r;
 }
+// News / RSS items (check-road): the item's Road line names the vehicle. Only tracked vehicles with a saved journey are
+// routed; anything else → null (the caller keeps its own filing). { box, text, likely, hw, skip }.
+function routeNews(road, line, { box = null, at = null } = {}) {
+  if (!road || !road.journeys || ["faa", "date"].includes(box)) return null;
+  const vs = vehOf(line), mine = vs.filter((v) => isTracked(road, v) && road.journeys[v]);
+  if (mine.length !== 1) return null;
+  const hw = mine[0], r = route(road, line, hw, { at });
+  if (r.why === "other vehicle") return { skip: true, hw };
+  if (!r.card || !(road.categories || []).some((c) => c.id === r.card)) return null;
+  return { box: r.card, text: r.text || line, likely: !!r.likely, hw, changed: r.card !== box || !!r.text };
+}
 // A confirming post rewrites the SAME likely line (text + link) wherever it sits (entry or Earlier update row).
 function confirmLine(road, lineId, text, url, src) {
   for (const c of road.categories || []) for (const h of c.history || []) {
@@ -165,4 +176,4 @@ function moveLines(road, ids, to) {
     c.history = keep; }
   return moved;
 }
-module.exports = { clauseFor, PHRASES, blank, signals, locations, evidence, frostContext, step, route, observe, confirmLine, moveLines, strictMatch, vehOf, nameOf, LABEL };
+module.exports = { routeNews, clauseFor, PHRASES, blank, signals, locations, evidence, frostContext, step, route, observe, confirmLine, moveLines, strictMatch, vehOf, nameOf, LABEL };
