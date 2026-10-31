@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "31 Oct",
-  "updatedAt": "2026-10-31T15:45:27.630Z",
+  "updatedAt": "2026-10-31T15:46:21.093Z",
   "categories": [
     {
       "id": "cryo",
@@ -1177,7 +1177,8 @@
             "type": "video",
             "image": "images/s42-static-fire.jpg",
             "credit_only": true,
-            "keep_image": true
+            "keep_image": true,
+            "locked": true
           },
           "milestone": {
             "key": "static_fire|15|S42",
@@ -1654,7 +1655,8 @@
             "type": "video",
             "image": "images/b22-static-fire-spacex.jpg",
             "credit_only": true,
-            "keep_image": true
+            "keep_image": true,
+            "locked": true
           },
           "flight": 15,
           "tier": 1,
