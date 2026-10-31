@@ -198,7 +198,8 @@
               "src": "@Flight2Starship",
               "handle": "Flight2Starship",
               "phase": "progress",
-              "tier": 2
+              "tier": 2,
+              "card_text": "Ship 43's first cryo proof test was under way."
             },
             {
               "date": "24 Oct",
@@ -911,7 +912,13 @@
               "log_text": "Ship 42 had its Raptor engines removed ahead of Flight 15."
             }
           ],
-          "log_text": "Ship 42 is reportedly having its Raptor engines reinstalled."
+          "log_text": "Ship 42 is reportedly having its Raptor engines reinstalled.",
+          "card_text": "Ship 42's Raptor engines were reportedly being reinstalled; all 6 Raptors were installed by 26 Oct.",
+          "superseded": {
+            "by": "inferred S42 raptor",
+            "date": "26 Oct",
+            "why": "Ship 42 is heading to its static fire, so all 6 Raptors are installed."
+          }
         },
         {
           "date": "30 Sep",
@@ -1088,6 +1095,18 @@
           "edited_from": "Ship 42 arrived back at the launch site. (RGVaerialphotos post edited within a minute; corrected 29 Oct)",
           "data_fix": "29 Oct: rollback after static fires, moved pad → static | 29 Oct: one event = one card — Blobifie 06:37 and LabPadre 07:52 posts of the same rollback merged in as updates",
           "updates": [
+            {
+              "date": "29 Oct",
+              "at": "2026-10-29T07:04:29.000Z",
+              "text": "Ship 42 and the tiled barrel section have arrived back at the production site.",
+              "card_text": "Ship 42 and the tiled barrel section arrived back at the production site.",
+              "url": "https://x.com/RGVaerialphotos/status/2115701286096277589",
+              "src": "@RGVaerialphotos",
+              "handle": "RGVaerialphotos",
+              "phase": "progress",
+              "tier": 2,
+              "self_check": "from feed news-mvt772o8-49339e"
+            },
             {
               "date": "29 Oct",
               "at": "2026-10-29T07:52:15.000Z",
@@ -1484,6 +1503,18 @@
           "updates": [
             {
               "date": "26 Oct",
+              "at": "2026-10-26T06:57:53.000Z",
+              "text": "Booster 22 has been moved onto its transporter ahead of returning to Megabay 1.",
+              "card_text": "Booster 22 was moved onto its transporter ahead of returning to Megabay 1.",
+              "url": "https://x.com/RGVaerialphotos/status/2114612462184178003",
+              "src": "@RGVaerialphotos",
+              "handle": "RGVaerialphotos",
+              "phase": "progress",
+              "tier": 2,
+              "self_check": "from feed news-mvown148-6ecbdb"
+            },
+            {
+              "date": "26 Oct",
               "log_date": "26 Oct",
               "at": "2026-10-26T09:51:33.000Z",
               "text": "Booster 22 back at the production site.",
@@ -1504,7 +1535,8 @@
               "src": "@TrackingTheSB",
               "handle": "TrackingTheSB",
               "phase": "completed",
-              "tier": 2
+              "tier": 2,
+              "card_text": "Booster 22 was in Megabay 1 for checkouts."
             }
           ]
         },
@@ -1595,7 +1627,8 @@
               "phase": "progress",
               "tier": 2
             }
-          ]
+          ],
+          "card_text": "Ship 42 was moving into position at Massey's for static fire testing as Ship 43 departs."
         },
         {
           "id": "x-2111327584122437857",
@@ -2440,7 +2473,8 @@
             "keep_image": true
           },
           "unverified": true,
-          "note": "one author (Blobifie ×2)"
+          "note": "one author (Blobifie ×2)",
+          "card_text": "Ship 43 likely ran post-catch pusher tests."
         },
         {
           "id": "f16-s43-2114880263264346277",
@@ -2702,7 +2736,8 @@
             "url": "https://x.com/NASASpaceflight/status/2113664154762457446",
             "at": "2026-10-23T16:09:39.000Z"
           },
-          "log_text": "Pad 1 flame trench wall work is progressing at Starbase."
+          "log_text": "Pad 1 flame trench wall work is progressing at Starbase.",
+          "card_text": "Starbase Pad 1 Flame Trench wall work was progressing."
         },
         {
           "trust": "trusted",
@@ -2747,7 +2782,7 @@
         },
         {
           "id": "s42-pad2-sep",
-          "date": "11–13 Sep",
+          "date": "12 Sep",
           "at": "2026-09-12T15:39:52.000Z",
           "text": "Ship 42 was lifted to catch height by the Pad 2 chopsticks.",
           "log_text": "Ship 42 was lifted to catch height by the Pad 2 chopsticks.",
@@ -2806,7 +2841,8 @@
               "phase": "completed",
               "tier": 2
             }
-          ]
+          ],
+          "date_range": "11–13 Sep"
         }
       ],
       "log_latest": "Ship 43 back at Megabay 2."
@@ -2854,9 +2890,9 @@
       "icon": "🗓️",
       "name": "Launch date",
       "color": "#FFC93D",
-      "status": "pending",
+      "status": "progress",
       "doneText": "Confirmed",
-      "latest": "Flight 15 targets NET 8 Nov",
+      "latest": "Flight 15 targets NET 12 Nov (unofficial)",
       "history": [
         {
           "date": "14 Oct",
@@ -2910,7 +2946,7 @@
           "log_text": "Flight 15 is targeting NET 8 November, with plans to catch both vehicles."
         }
       ],
-      "log_latest": "Flight 15 NET 8 November."
+      "log_latest": "Flight 15 NET 12 Nov (unofficial)."
     }
   ],
   "predicted": {
@@ -3102,7 +3138,8 @@
       "at": "2026-10-31T02:09:01.000Z",
       "date": "31 Oct",
       "flight": 17,
-      "later_flight": true
+      "later_flight": true,
+      "src": "@efraser77"
     },
     {
       "id": "news-mvviedow-8ae8e8",
@@ -3133,7 +3170,8 @@
       "at": "2026-10-30T09:03:01.000Z",
       "date": "30 Oct",
       "flight": 16,
-      "box": "cryo"
+      "box": "cryo",
+      "src": "@LabPadre"
     },
     {
       "id": "news-mvtv609c-f58a18",
@@ -3143,7 +3181,8 @@
       "url": "https://x.com/LabPadre/status/2115870155188449596",
       "at": "2026-10-29T18:15:30.000Z",
       "date": "29 Oct",
-      "flight": 15
+      "flight": 15,
+      "src": "@LabPadre"
     },
     {
       "id": "news-mvt772o8-49339e",
@@ -3154,7 +3193,8 @@
       "at": "2026-10-29T07:04:29.000Z",
       "date": "29 Oct",
       "flight": 15,
-      "box": "static"
+      "box": "static",
+      "src": "@RGVaerialphotos"
     },
     {
       "id": "flight-mvsjfivy-8b129a",
@@ -3174,7 +3214,8 @@
       "at": "2026-10-28T16:10:27.000Z",
       "date": "28 Oct",
       "flight": 15,
-      "box": "static"
+      "box": "static",
+      "src": "@SpaceX"
     },
     {
       "id": "news-mvrm1w14-668ed2",
@@ -3185,7 +3226,8 @@
       "at": "2026-10-28T04:24:49.000Z",
       "date": "28 Oct",
       "flight": 16,
-      "box": "pad"
+      "box": "pad",
+      "src": "@NASASpaceflight"
     },
     {
       "id": "news-mvozi9xs-e0267f",
@@ -3197,7 +3239,8 @@
       "date": "26 Oct",
       "flight": 15,
       "box": "static",
-      "refiled_pin": true
+      "refiled_pin": true,
+      "src": "@RGVaerialphotos"
     },
     {
       "id": "news-mvown148-6ecbdb",
@@ -3208,7 +3251,8 @@
       "at": "2026-10-26T06:57:53.000Z",
       "date": "26 Oct",
       "flight": 15,
-      "box": "pad"
+      "box": "pad",
+      "src": "@RGVaerialphotos"
     },
     {
       "id": "news-mvortxmw-db27d7",
@@ -3220,7 +3264,8 @@
       "date": "26 Oct",
       "flight": 15,
       "box": "pad",
-      "refiled_pin": true
+      "refiled_pin": true,
+      "src": "@RGVaerialphotos"
     },
     {
       "id": "news-mvopynkg-826d56",
@@ -3232,7 +3277,8 @@
       "date": "26 Oct",
       "flight": 16,
       "box": "cryo",
-      "refiled_pin": true
+      "refiled_pin": true,
+      "src": "@TrackingTheSB"
     },
     {
       "id": "news-mvo8qv2g-e23cc6",
@@ -3243,7 +3289,10 @@
       "at": "2026-10-25T19:49:01.000Z",
       "date": "25 Oct",
       "flight": 15,
-      "box": "static"
+      "box": "static",
+      "event_at": "2026-10-25T13:22:00.000Z",
+      "event_card": "x-2111327584122437857",
+      "src": "@SpaceX"
     },
     {
       "id": "news-mvntvaz4-93c869",
@@ -3254,7 +3303,8 @@
       "at": "2026-10-25T12:52:34.000Z",
       "date": "25 Oct",
       "flight": 15,
-      "box": "static"
+      "box": "static",
+      "src": "@NASASpaceflight"
     },
     {
       "id": "news-mvmgoq8g-00233b",
@@ -3265,7 +3315,8 @@
       "at": "2026-10-24T13:55:46.000Z",
       "date": "24 Oct",
       "flight": 15,
-      "box": "static"
+      "box": "static",
+      "src": "@NASASpaceflight"
     },
     {
       "id": "news-mvm4mfz4-21e7ea",
@@ -3276,7 +3327,8 @@
       "at": "2026-10-24T08:18:04.000Z",
       "date": "24 Oct",
       "flight": 15,
-      "box": "static"
+      "box": "static",
+      "src": "@NASASpaceflight"
     }
   ],
   "milestones": {
@@ -3624,5 +3676,61 @@
       "likely": null,
       "at": "2026-10-29T07:52:15.000Z"
     }
+  },
+  "image_cache": {
+    "https://pbs.twimg.com/amplify_video_thumb/2115312114298654720/img/45WwvTRmJ8YoB0Fq.jpg": "images/cache/amplify_video_thumb_2115312114298654720_img_45WwvTRmJ8YoB0Fq.jpg",
+    "https://pbs.twimg.com/amplify_video_thumb/2114755310996901888/img/xXXdVirUtQa3phNk.jpg": "images/cache/amplify_video_thumb_2114755310996901888_img_xXXdVirUtQa3phNk.jpg",
+    "https://pbs.twimg.com/media/HVWEyTyaQAA-KCA.jpg": "images/cache/media_HVWEyTyaQAA-KCA.jpg",
+    "https://pbs.twimg.com/amplify_video_thumb/2113350470194302976/img/ikUTmqE7ByY6tWFo.jpg": "images/cache/amplify_video_thumb_2113350470194302976_img_ikUTmqE7ByY6tWFo.jpg",
+    "https://pbs.twimg.com/media/HU4y2cUbwAE6od-.jpg": "images/cache/media_HU4y2cUbwAE6od-.jpg",
+    "https://pbs.twimg.com/media/HUtiVIybkAAu4_E.jpg": "images/cache/media_HUtiVIybkAAu4_E.jpg",
+    "https://pbs.twimg.com/media/HUf3gx6acAAlglM.jpg": "images/cache/media_HUf3gx6acAAlglM.jpg",
+    "https://pbs.twimg.com/media/HUdSuq2a8AAAfgu.jpg": "images/cache/media_HUdSuq2a8AAAfgu.jpg",
+    "https://pbs.twimg.com/amplify_video_thumb/2108486743485792256/img/_Y2lLbcCzwdiu7HC.jpg": "images/cache/amplify_video_thumb_2108486743485792256_img__Y2lLbcCzwdiu7HC.jpg",
+    "https://pbs.twimg.com/media/HVXY5SCacAADfbX.jpg": "images/cache/media_HVXY5SCacAADfbX.jpg",
+    "https://pbs.twimg.com/media/HUhjfCvWoAAeQ3A.jpg": "images/cache/media_HUhjfCvWoAAeQ3A.jpg",
+    "https://pbs.twimg.com/amplify_video_thumb/2098104422446649344/img/RNpZZjZzOhOPObst.jpg": "images/cache/amplify_video_thumb_2098104422446649344_img_RNpZZjZzOhOPObst.jpg",
+    "https://pbs.twimg.com/amplify_video_thumb/2115698557118525440/img/JcPi0ZRB6O6GSRW0.jpg": "images/cache/amplify_video_thumb_2115698557118525440_img_JcPi0ZRB6O6GSRW0.jpg",
+    "https://pbs.twimg.com/amplify_video_thumb/2114691314495418368/img/yaSu0o2nwISYaNZ-.jpg": "images/cache/amplify_video_thumb_2114691314495418368_img_yaSu0o2nwISYaNZ-.jpg",
+    "https://pbs.twimg.com/amplify_video_thumb/2114686073846837248/img/uEHvSZZHMQwvHU0S.jpg": "images/cache/amplify_video_thumb_2114686073846837248_img_uEHvSZZHMQwvHU0S.jpg",
+    "https://pbs.twimg.com/amplify_video_thumb/2114567980231053312/img/EitC83F_WspGNa1A.jpg": "images/cache/amplify_video_thumb_2114567980231053312_img_EitC83F_WspGNa1A.jpg",
+    "https://pbs.twimg.com/amplify_video_thumb/2114335137450143744/img/hdkbpWHvz5KOQq-M.jpg": "images/cache/amplify_video_thumb_2114335137450143744_img_hdkbpWHvz5KOQq-M.jpg",
+    "https://pbs.twimg.com/media/HVeQ1S4bIAARYFp.jpg": "images/cache/media_HVeQ1S4bIAARYFp.jpg",
+    "https://pbs.twimg.com/media/HVZzuQbXQAAUzqy.jpg": "images/cache/media_HVZzuQbXQAAUzqy.jpg",
+    "https://pbs.twimg.com/media/HVsYHvSaQAAzZ3c.jpg": "images/cache/media_HVsYHvSaQAAzZ3c.jpg",
+    "https://pbs.twimg.com/amplify_video_thumb/2115205652226445312/img/waES-njaUObm4rp_.jpg": "images/cache/amplify_video_thumb_2115205652226445312_img_waES-njaUObm4rp_.jpg",
+    "https://pbs.twimg.com/media/HVmQW1fbIAA2hgT.jpg": "images/cache/media_HVmQW1fbIAA2hgT.jpg",
+    "https://pbs.twimg.com/amplify_video_thumb/2114798512785215489/img/LstBkhCTiy2Xrbok.jpg": "images/cache/amplify_video_thumb_2114798512785215489_img_LstBkhCTiy2Xrbok.jpg",
+    "https://pbs.twimg.com/media/HVh97ShaIAAhZ2k.jpg": "images/cache/media_HVh97ShaIAAhZ2k.jpg",
+    "https://pbs.twimg.com/amplify_video_thumb/2113663995030675456/img/06zbEvN_3i4BdJfZ.jpg": "images/cache/amplify_video_thumb_2113663995030675456_img_06zbEvN_3i4BdJfZ.jpg",
+    "https://pbs.twimg.com/media/HTK-2HuXwAIKtUN.png": "images/cache/media_HTK-2HuXwAIKtUN.jpg",
+    "https://pbs.twimg.com/amplify_video_thumb/2098045351559131140/img/1-Fe_-VnJa8yKMza.jpg": "images/cache/amplify_video_thumb_2098045351559131140_img_1-Fe_-VnJa8yKMza.jpg",
+    "https://pbs.twimg.com/media/HRzT1OnWYAEDCml.jpg": "images/cache/media_HRzT1OnWYAEDCml.jpg",
+    "https://pbs.twimg.com/media/HRUjjSMWsAMkvu6.jpg": "images/cache/media_HRUjjSMWsAMkvu6.jpg",
+    "https://pbs.twimg.com/ext_tw_video_thumb/2105350874126065664/pu/img/_hEgqyI82ZPVnywD.jpg": "images/cache/ext_tw_video_thumb_2105350874126065664_pu_img__hEgqyI82ZPVnywD.jpg",
+    "https://pbs.twimg.com/ext_tw_video_thumb/2107896783682625537/pu/img/18FR3ZuZ82Tz2gNw.jpg": "images/cache/ext_tw_video_thumb_2107896783682625537_pu_img_18FR3ZuZ82Tz2gNw.jpg",
+    "https://pbs.twimg.com/media/HTZMWubWIAAnONr.jpg": "images/cache/media_HTZMWubWIAAnONr.jpg",
+    "https://pbs.twimg.com/amplify_video_thumb/2099008701491535872/img/I7qk6Tawvh4EgZDs.jpg": "images/cache/amplify_video_thumb_2099008701491535872_img_I7qk6Tawvh4EgZDs.jpg",
+    "https://pbs.twimg.com/amplify_video_thumb/2112035083679043584/img/dw7Zle9xo9YHSp0k.jpg": "images/cache/amplify_video_thumb_2112035083679043584_img_dw7Zle9xo9YHSp0k.jpg",
+    "https://pbs.twimg.com/media/HTwdsecaIAAK_9e.jpg": "images/cache/media_HTwdsecaIAAK_9e.jpg"
+  },
+  "self_check": {
+    "at": "2026-10-31T16:14:48.227Z",
+    "fixes": 57,
+    "flags": 3,
+    "counts": {
+      "launch-date": 3,
+      "event-time": 2,
+      "missing-row": 2,
+      "superseded": 1,
+      "source-badge": 14,
+      "image-cache": 35
+    },
+    "judge_calls": 0,
+    "flagged": [
+      "[launch-date] feed \"NET Nov 2026\" (flight-mvsjfivy-8b129a) is a month-only Launch Library date; hero day NET 12 Nov is the higher-tier value",
+      "[event-time] x-2114904512217694216 card \"Ship 42 completed both its single- and six-engine static fire tests at Massey's.\" 27 Oct vs feed news-mvsb9c8o-97f884 \"Ship 42 completes full duration six-engine static fire and deorbit burn simulation\" 28 Oct: post is on the card but on another UK day and tier 1 ≤ 1; could be a later firing, both kept",
+      "[event-time] Ship 42 completed further cryo tests. \"Ship 42 completed further cryo tests.\" 9 Oct 15:xx UK precedes in-test row \"Frost on both tanks: Ship 42 likely in another cryo test.\" 2026-10-09T20:30:41.000Z on the same card"
+    ]
   }
 }

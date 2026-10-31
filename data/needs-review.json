@@ -1,0 +1,62 @@
+{
+  "items": [
+    {
+      "date": "2026-10-31T16:14:48.578Z",
+      "type": "journey",
+      "item": null,
+      "values": [],
+      "sources": [],
+      "reason": "journey replay differs from the stored memory; stored value kept",
+      "kept": null,
+      "msg": "B22: journey cryo count 2 stored vs 3 replayed (kept stored; needs review)"
+    },
+    {
+      "date": "2026-10-31T16:14:48.578Z",
+      "type": "event-time",
+      "item": "Ship 42 completed further cryo tests.",
+      "values": [
+        "2026-10-09T14:36:44.000Z",
+        "2026-10-09T20:30:41.000Z"
+      ],
+      "sources": [
+        "https://x.com/LabPadre/status/2108486994401825101",
+        "https://x.com/TrackingTheSB/status/2108656416366202950"
+      ],
+      "reason": "completion time precedes an in-test observation on the same card",
+      "kept": "card time 2026-10-09T14:36:44.000Z (higher-tier/first source)",
+      "msg": "Ship 42 completed further cryo tests. \"Ship 42 completed further cryo tests.\" 9 Oct 15:xx UK precedes in-test row \"Frost on both tanks: Ship 42 likely in another cryo test.\" 2026-10-09T20:30:41.000Z on the same card"
+    },
+    {
+      "date": "2026-10-31T16:14:48.578Z",
+      "type": "event-time",
+      "item": "news-mvsb9c8o-97f884",
+      "values": [
+        "2026-10-27T21:45:25.000Z",
+        "2026-10-28T16:10:27.000Z"
+      ],
+      "sources": [
+        "https://x.com/NASASpaceflight/status/2115231900961005856",
+        "https://x.com/SpaceX/status/2115476295169814978"
+      ],
+      "reason": "same post linked on the card but a different day; higher/equal-tier source",
+      "kept": "card 2026-10-27T21:45:25.000Z / feed 2026-10-28T16:10:27.000Z",
+      "msg": "x-2114904512217694216 card \"Ship 42 completed both its single- and six-engine static fire tests at Massey's.\" 27 Oct vs feed news-mvsb9c8o-97f884 \"Ship 42 completes full duration six-engine static fire and deorbit burn simulation\" 28 Oct: post is on the card but on another UK day and tier 1 ≤ 1; could be a later firing, both kept"
+    },
+    {
+      "date": "2026-10-31T16:14:48.578Z",
+      "type": "launch-date",
+      "item": "flight-mvsjfivy-8b129a",
+      "values": [
+        "NET Nov 2026",
+        "NET 12 Nov"
+      ],
+      "sources": [
+        "FAA planning slide · NSF"
+      ],
+      "reason": "feed item is history (not rewritten); hero/card use the higher-tier day",
+      "kept": "hero NET 12 Nov",
+      "msg": "feed \"NET Nov 2026\" (flight-mvsjfivy-8b129a) is a month-only Launch Library date; hero day NET 12 Nov is the higher-tier value"
+    }
+  ],
+  "_about": "Self-check (scripts/self-check.js) clashes it could not settle by rule: the higher-tier value was kept; a human decides."
+}
