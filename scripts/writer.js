@@ -39,7 +39,7 @@ function responsesText(json) {
   return typeof json.output_text === "string" ? json.output_text : undefined;
 }
 
-async function callGrok({ prompt, model, maxTokens, schema, schemaName, images }) {
+async function callGrok({ prompt, model, maxTokens, schema, schemaName, images, timeoutMs }) {
   const content = images && images.length ? [...images.map((url) => ({ type: "input_image", image_url: url, detail: "high" })), { type: "input_text", text: prompt }] : prompt;
   const reqBody = { model, input: [{ role: "user", content }], max_output_tokens: maxTokens, store: false };
   if (schema) reqBody.text = { format: { type: "json_schema", name: schemaName || "reply", schema, strict: true } };
@@ -47,6 +47,7 @@ async function callGrok({ prompt, model, maxTokens, schema, schemaName, images }
     method: "POST",
     headers: { authorization: `Bearer ${process.env.XAI_API_KEY}`, "content-type": "application/json" },
     body: JSON.stringify(reqBody),
+    signal: AbortSignal.timeout(timeoutMs || 60000), // a hung xAI call must not stall the run
   });
   const raw = await res.text();
   let json;
@@ -117,7 +118,7 @@ async function askWith(w, model, prompt, opts) {
   const attempts = opts.attempts || 2;
   const extract = opts.extract || ((t) => JSON.parse(t.replace(/```json|```/g, "").trim()));
   for (let attempt = 1; attempt <= attempts; attempt++) {
-    const r = await callGrok({ prompt, model, maxTokens: opts.maxTokens || 16000, schema: opts.schema, schemaName: opts.schemaName, images: opts.images });
+    const r = await callGrok({ prompt, model, maxTokens: opts.maxTokens || 16000, schema: opts.schema, schemaName: opts.schemaName, images: opts.images, timeoutMs: opts.timeoutMs });
     log(`${label} ${r.summary} (attempt ${attempt}, model: ${model}, ${r.details})`);
     let problem;
     if (!r.text || !r.text.trim()) problem = "no text in the reply";

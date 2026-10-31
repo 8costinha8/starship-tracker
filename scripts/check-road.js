@@ -1564,7 +1564,7 @@ async function run(opts = {}) {
   if ((!opts.sources && mode === "live") || opts.mediaWatch) {
     try {
       const mw = await require("./media-watch.js").runMediaWatch(road, state, { token: process.env.X_BEARER_TOKEN, picks: opts.mediaPicks || loadMediaPicks(), ...(opts.mediaWatch || {}), log });
-      if (mw.ran) log(`media watch: ${mw.calls} X call(s), ${mw.swapped.length} swap(s), ${mw.proposals.length} proposal(s)`);
+      if (mw.ran) log(`media watch: ${mw.calls} X call(s), ${mw.swapped.length} swap(s), ${mw.proposals.length} proposal(s)${mw.deferred ? `, ${mw.deferred} deferred to next watch` : ""}`);
       if (mw.swapped.length) changed = true;
     } catch (e) { log(`media watch failed (${e.message}) — tried again next hour`); }
   }

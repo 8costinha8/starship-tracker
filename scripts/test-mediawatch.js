@@ -52,6 +52,15 @@ const run = async (r, posts, opts = {}) => { const x = fakeX(posts); const st = 
   { const h = { ...card(), text: "Ship 42 completed further cryo tests.", x_text: "Ship 42 completed further cryo tests." }; const r = road(h, "cryo");
     const post = { ...colleen, text: "Ship 42 cryo test at Massey's tonight" }; const before = JSON.stringify(h.media_override); const { res, st } = await run(r, [post]);
     check(!res.swapped.length && res.proposals.length === 1 && JSON.stringify(h.media_override) === before && st.mediaWatch.proposals.length === 1, "ship cryo card: logged proposal only, no swap"); }
+  // Grok savers: (post, card) verdicts cached across watches; per-watch cap on Grok calls
+  { let n = 0; const counting = { vision: async (_p, url) => { n++; return { ...VQ[url] }; }, same: async () => { n++; return { same: false }; } };
+    const h = card(), r = road(h), state = {}; await run(r, [colleen], { ask: counting, state });
+    const first = n; await run(r, [colleen], { ask: counting, state, now: NOW + mw.EVERY_MS + 1 });
+    check(first === 1 && n === 1, "a 'not the same event' verdict is cached: the next hourly watch asks Grok nothing"); }
+  { let n = 0; const counting = { vision: async (_p, url) => { n++; return { ...VQ[url] }; }, same: async () => { n++; return { same: true }; } };
+    const many = Array.from({ length: 30 }, (_, i) => ({ ...card(), id: "c" + i, text: "Booster 22 lift " + i }));
+    const r = road(many[0], "pad", many.slice(1)); const { res } = await run(r, [colleen], { ask: counting });
+    check(n <= mw.MAX_ASKS && res.deferred > 0, `Grok calls per watch capped at ${mw.MAX_ASKS} (rest deferred)`); }
   // sources, gates, window
   { const h = card(), r = road(h); const { res } = await run(r, [{ ...colleen, author_id: "z" }]); check(!res.swapped.length && res.skipped.some((s) => /not a watched source/.test(s)), "untrusted author rejected"); }
   { const h = card(), r = road(h); const { res } = await run(r, [{ ...colleen, public_metrics: { like_count: 29, impression_count: 1499 } }]); check(!res.swapped.length && res.skipped.some((s) => /engagement/.test(s)), "tracker below 30 likes / 1.5k views rejected"); }

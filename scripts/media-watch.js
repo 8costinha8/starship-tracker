@@ -13,6 +13,7 @@ const tiers = require("./source-tiers.js");
 const MEDIA_TRACKERS = ["colleenadastra", "StarbaseWatcher", "BocaChicaGal"];
 const EVERY_MS = 60 * 60000, WINDOW_MS = 48 * 3600000, LOOKBACK_MS = 7 * 86400000;
 const RATIO = 1.5, MIN_CONF = 0.8;
+const MAX_ASKS = 16; // Grok calls per watch; the rest wait for the next hour (verdicts are cached)
 const GATE = { 1: { likes: 50, views: 3000 }, 2: { likes: 30, views: 1500 }, tracker: { likes: 30, views: 1500 } };
 const WEIGHT = { 1: 1.0, 2: 0.9, tracker: 0.8 };
 const X_FIELDS = { "tweet.fields": "created_at,author_id,attachments,public_metrics,note_tweet", expansions: "attachments.media_keys,author_id",
@@ -142,7 +143,7 @@ function searchQuery(cards) {
 
 async function runMediaWatch(road, state, { token, fetchFn = fetch, ask = null, picks = [], now = Date.now(), log = console.log } = {}) {
   const mw = (state.mediaWatch = state.mediaWatch || {});
-  const res = { ran: false, calls: 0, swapped: [], proposals: [], skipped: [] };
+  const res = { ran: false, calls: 0, swapped: [], proposals: [], skipped: [], deferred: 0 };
   if (!token) return res;
   if (mw.lastAt && now - Date.parse(mw.lastAt) < EVERY_MS) return res; // hourly
   const cards = watchedCards(road, now);
@@ -159,6 +160,8 @@ async function runMediaWatch(road, state, { token, fetchFn = fetch, ask = null, 
     res.calls++;
   }
   // call 2: candidates
+  const judged = (mw.judged = Object.fromEntries(Object.entries(mw.judged || {}).filter(([, v]) => v && now - Date.parse(v.at || 0) < LOOKBACK_MS)));
+  let asks = 0;
   let posts = [];
   try {
     posts = await xGet(fetchFn, token, `https://api.x.com/2/tweets/search/recent?${new URLSearchParams({ query: searchQuery(cards), max_results: "25",
@@ -174,26 +177,42 @@ async function runMediaWatch(road, state, { token, fetchFn = fetch, ask = null, 
       if (postIdOf(h) === post.post_id) continue;
       if (!veh.some((v) => pv.includes(v))) continue;
       if (Math.abs(Date.parse(post.created_at) - at) > WINDOW_MS) { res.skipped.push(`@${post.author}: outside 48h of "${h.text}"`); continue; }
-      let same; try { same = await A.same(samePrompt(h.x_text || h.text, post)); } catch { same = null; }
-      if (!same || !same.same) continue;
+      // cheap checks BEFORE any Grok call: a locked card or a candidate that can't win even at quality 5 is skipped
+      const cp = current[postIdOf(h)];
+      const curTier = sourceTier((h.media_override && h.media_override.author) || (cp && cp.author)) || "tracker";
+      const curQ = Number.isInteger(h.media_override && h.media_override.quality) ? h.media_override.quality : 3;
+      const cur = cp ? { score: score(curTier, cp.e, curQ), quality: curQ } : (h.media_override && h.media_override.media_score ? { score: h.media_override.media_score, quality: curQ } : null);
+      if (!isBetter({ score: score(tier, post.e, 5), quality: 5 }, cur)) { res.skipped.push(`@${post.author}: not better for "${h.text}"`); continue; }
+      const lock = lockedReason(h, c.id, pickIds);
+      if (lock && !/propose/.test(lock)) { res.skipped.push(`${lock}: "${h.text}"`); continue; }
+      // verdicts are cached per (post, card): a pair Grok already judged is never re-asked next hour
+      const jk = `${post.post_id}|${h.id || h.text}`, j = judged[jk] || {};
+      if (j.same === false) continue;
+      if (j.same === undefined) {
+        if (asks >= MAX_ASKS) { res.deferred++; continue; }
+        let same; asks++; try { same = await A.same(samePrompt(h.x_text || h.text, post)); } catch { same = null; }
+        if (!same) continue; // error: retry next watch
+        j.same = !!same.same; j.at = mw.lastAt; judged[jk] = j;
+        if (!j.same) continue;
+      }
+      j.v = j.v || {};
       let best = null; const ok = [];
       for (const m of post.media.slice(0, 4)) {
-        let v; try { v = await A.vision(visionPrompt(h.x_text || h.text, c.name || c.id, post, m), m.image); } catch { continue; }
+        let v = j.v[m.image];
+        if (v === undefined) {
+          if (asks >= MAX_ASKS) { res.deferred++; break; }
+          asks++; try { v = await A.vision(visionPrompt(h.x_text || h.text, c.name || c.id, post, m), m.image); } catch { continue; }
+          j.v[m.image] = v ? { shows: !!v.shows, confidence: Number(v.confidence) || 0, quality: Number(v.quality) || 0, collage: !!v.collage } : null;
+        }
         if (!v || !v.shows || v.confidence < MIN_CONF || v.collage) continue;
         ok.push({ m, v });
         if (!best || v.quality > best.v.quality) best = { m, v };
       }
       if (!best) continue;
       const cand = { score: score(tier, post.e, best.v.quality), quality: best.v.quality };
-      const cp = current[postIdOf(h)];
-      const curTier = sourceTier((h.media_override && h.media_override.author) || (cp && cp.author)) || "tracker";
-      const curQ = Number.isInteger(h.media_override && h.media_override.quality) ? h.media_override.quality : 3;
-      const cur = cp ? { score: score(curTier, cp.e, curQ), quality: curQ } : (h.media_override && h.media_override.media_score ? { score: h.media_override.media_score, quality: curQ } : null);
       if (!isBetter(cand, cur)) { res.skipped.push(`@${post.author}: not better for "${h.text}"`); continue; }
-      const lock = lockedReason(h, c.id, pickIds);
       const label = `[${c.id}] ${h.date} "${h.text}" ← @${post.author} ${best.m.image} (score ${cand.score.toFixed(0)} vs ${cur ? cur.score.toFixed(0) : "none"})`;
       if (lock && /propose/.test(lock)) { res.proposals.push(label); mw.proposals = [...(mw.proposals || []).filter((x) => x.post_url !== post.url), { card: h.id || h.text, post_url: post.url, image: best.m.image, score: Math.round(cand.score), at: mw.lastAt }].slice(-20); log(`media watch PROPOSAL (no swap): ${label}`); continue; }
-      if (lock) { res.skipped.push(`${lock}: "${h.text}"`); continue; }
       const prevMo = h.media_override && !h.media_override.credit_only ? { post_url: h.media_override.post_url, post_id: h.media_override.post_id, author: h.media_override.author, type: h.media_override.type, image: h.media_override.image } : null;
       h.media_override = { post_url: post.url, post_id: post.post_id, author: post.author, type: best.m.type, image: best.m.image, auto: true, quality: best.v.quality, media_score: Math.round(cand.score), checked_at: mw.lastAt };
       // second picture (left): a strong other photo from this post, else the picture it replaces — only if Grok is sure
@@ -209,4 +228,4 @@ async function runMediaWatch(road, state, { token, fetchFn = fetch, ask = null, 
   return res;
 }
 
-module.exports = { PAIR_CONF, MAX_IMAGES, SINGLE_SHOT, singleShot, pairPrompt, decidePair, MEDIA_TRACKERS, GATE, WEIGHT, RATIO, EVERY_MS, WINDOW_MS, sourceTier, engagement, passesGate, score, isBetter, vehiclesOf, isShipCryo, lockedReason, watchedCards, searchQuery, runMediaWatch, watchAccounts };
+module.exports = { MAX_ASKS, PAIR_CONF, MAX_IMAGES, SINGLE_SHOT, singleShot, pairPrompt, decidePair, MEDIA_TRACKERS, GATE, WEIGHT, RATIO, EVERY_MS, WINDOW_MS, sourceTier, engagement, passesGate, score, isBetter, vehiclesOf, isShipCryo, lockedReason, watchedCards, searchQuery, runMediaWatch, watchAccounts };
