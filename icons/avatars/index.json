@@ -1,0 +1,95 @@
+{
+ "_about": "Source X avatars for the photo badge (bottom-right of card photos). Keys are lower-case X handles; file is under icons/avatars/. Missing handle -> neutral circle with the initial. scripts/avatars.js adds new sources.",
+ "avatars": {
+  "bettybronxton": {
+   "handle": "Bettybronxton",
+   "file": "icons/avatars/bettybronxton.jpg",
+   "from": "https://unavatar.io/x/Bettybronxton",
+   "saved": "2026-10-31"
+  },
+  "blobifie": {
+   "handle": "Blobifie",
+   "file": "icons/avatars/blobifie.jpg",
+   "from": "https://pbs.twimg.com/profile_images/2091766013562159104/xgHLFjBX_200x200.jpg",
+   "saved": "2026-10-31"
+  },
+  "colleenadastra": {
+   "handle": "colleenadastra",
+   "file": "icons/avatars/colleenadastra.jpg",
+   "from": "https://unavatar.io/x/colleenadastra",
+   "saved": "2026-10-31"
+  },
+  "csi_starbase": {
+   "handle": "CSI_Starbase",
+   "file": "icons/avatars/csi_starbase.jpg",
+   "from": "https://unavatar.io/x/CSI_Starbase",
+   "saved": "2026-10-31"
+  },
+  "efraser77": {
+   "handle": "efraser77",
+   "file": "icons/avatars/efraser77.jpg",
+   "from": "https://unavatar.io/x/efraser77",
+   "saved": "2026-10-31"
+  },
+  "elonmusk": {
+   "handle": "elonmusk",
+   "file": "icons/avatars/elonmusk.jpg",
+   "from": "https://unavatar.io/x/elonmusk",
+   "saved": "2026-10-31"
+  },
+  "felixschlang": {
+   "handle": "FelixSchlang",
+   "file": "icons/avatars/felixschlang.jpg",
+   "from": "https://unavatar.io/x/FelixSchlang",
+   "saved": "2026-10-31"
+  },
+  "flight2starship": {
+   "handle": "Flight2Starship",
+   "file": "icons/avatars/flight2starship.jpg",
+   "from": "https://unavatar.io/x/Flight2Starship",
+   "saved": "2026-10-31"
+  },
+  "labpadre": {
+   "handle": "LabPadre",
+   "file": "icons/avatars/labpadre.jpg",
+   "from": "https://pbs.twimg.com/profile_images/2018042465932988416/LR5UN4G0_200x200.png",
+   "saved": "2026-10-31"
+  },
+  "nasaspaceflight": {
+   "handle": "NASASpaceflight",
+   "file": "icons/avatars/nasaspaceflight.jpg",
+   "from": "https://pbs.twimg.com/profile_images/1637919260298158080/kRT8BkYf_200x200.jpg",
+   "saved": "2026-10-31"
+  },
+  "rgvaerialphotos": {
+   "handle": "RGVaerialphotos",
+   "file": "icons/avatars/rgvaerialphotos.jpg",
+   "from": "https://pbs.twimg.com/profile_images/2019953617743097856/PJqBBhpU_200x200.jpg",
+   "saved": "2026-10-31"
+  },
+  "spaceflightnow": {
+   "handle": "SpaceflightNow",
+   "file": "icons/avatars/spaceflightnow.jpg",
+   "from": "https://unavatar.io/x/SpaceflightNow",
+   "saved": "2026-10-31"
+  },
+  "spacex": {
+   "handle": "SpaceX",
+   "file": "icons/avatars/spacex.jpg",
+   "from": "https://unavatar.io/x/SpaceX",
+   "saved": "2026-10-31"
+  },
+  "starshipgazer": {
+   "handle": "StarshipGazer",
+   "file": "icons/avatars/starshipgazer.jpg",
+   "from": "https://pbs.twimg.com/profile_images/1399199605200502785/Gp68mncc_200x200.jpg",
+   "saved": "2026-10-31"
+  },
+  "trackingthesb": {
+   "handle": "TrackingTheSB",
+   "file": "icons/avatars/trackingthesb.jpg",
+   "from": "https://unavatar.io/x/TrackingTheSB",
+   "saved": "2026-10-31"
+  }
+ }
+}
