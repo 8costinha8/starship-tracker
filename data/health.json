@@ -1,17 +1,17 @@
 {
   "scripts": {
     "check-flights": {
-      "at": "2026-10-31T17:30:49.193Z",
+      "at": "2026-10-31T18:45:21.126Z",
       "status": "ok",
       "error": null,
       "consecutive_failures": 0,
-      "last_ok": "2026-10-31T17:30:49.193Z"
+      "last_ok": "2026-10-31T18:45:21.126Z"
     }
   },
-  "updated": "2026-10-31T17:30:49.193Z",
+  "updated": "2026-10-31T18:45:21.126Z",
   "status": "ok",
   "consecutive_failures": 0,
   "alert": false,
   "last_error": null,
-  "committed_at": "2026-10-31T17:30:49.193Z"
+  "committed_at": "2026-10-31T18:45:21.126Z"
 }
