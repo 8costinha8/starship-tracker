@@ -627,9 +627,11 @@
               "date": "9 Oct",
               "log_date": "9 Oct",
               "at": "2026-10-09T20:30:41.000Z",
-              "text": "Frost on both of Ship 42's tanks (third cryo proof test).",
-              "log_text": "Frost on both of Ship 42's tanks (third cryo proof test).",
+              "text": "Frost on both tanks: Ship 42 likely in another cryo test.",
+              "log_text": "Frost on both tanks: Ship 42 likely in another cryo test.",
               "url": "https://x.com/TrackingTheSB/status/2108656416366202950",
+              "likely": true,
+              "journey_pin": true,
               "src": "@TrackingTheSB",
               "handle": "TrackingTheSB",
               "phase": "progress",
@@ -3449,5 +3451,43 @@
     "S42": 15,
     "B23": 16,
     "S43": 16
+  },
+  "journeys": {
+    "B22": {
+      "location": "Megabay 1",
+      "open_test": null,
+      "next_test": "launch",
+      "last_test": {
+        "test": "static",
+        "at": "2026-10-25T19:49:01.000Z"
+      },
+      "engines": true,
+      "stacked": false,
+      "done": {
+        "cryo": 2,
+        "static": 3
+      },
+      "pending": [],
+      "likely": null,
+      "at": "2026-10-28T03:01:41.000Z"
+    },
+    "S42": {
+      "location": "Megabay 2",
+      "open_test": null,
+      "next_test": "launch",
+      "last_test": {
+        "test": "static",
+        "at": "2026-10-27T23:59:18.000Z"
+      },
+      "engines": true,
+      "stacked": false,
+      "done": {
+        "cryo": 2,
+        "static": 4
+      },
+      "pending": [],
+      "likely": null,
+      "at": "2026-10-29T07:52:15.000Z"
+    }
   }
 }
