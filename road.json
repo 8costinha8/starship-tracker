@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "31 Oct",
-  "updatedAt": "2026-10-31T02:36:34.702Z",
+  "updatedAt": "2026-10-31T02:37:15.479Z",
   "categories": [
     {
       "id": "cryo",
@@ -2953,7 +2953,8 @@
       "url": "https://x.com/efraser77/status/2116351708150497473",
       "at": "2026-10-31T02:09:01.000Z",
       "date": "31 Oct",
-      "flight": 15
+      "flight": 15,
+      "box": "static"
     },
     {
       "id": "news-mvviedow-8ae8e8",
