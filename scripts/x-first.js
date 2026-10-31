@@ -345,6 +345,38 @@ function guardPostInner(road, post, v) {
   return { v };
 }
 
+/* Grok-call savers (free, conservative). 1) prefilter: a post that names a NON-Starship launch (Falcon 9 /
+   Falcon Heavy, or another provider's rocket) and has NO Starship-ish word at all is skipped without Grok.
+   Any Starship word (vehicle, pad, site, test, FAA, the road's own vehicles…) sends it to Grok as before.
+   2) verdict cache: a post whose normalised author+text+link was already classified in the last
+   VCACHE_MS reuses that verdict (repeat posts, re-shared livestream titles). Kept in state.xFirst.vcache. */
+const OTHER_LAUNCH = /\bfalcon ?(?:9|heavy)\b|\bisro\b|\b[gp]slv\b|long march|\bariane ?6?\b|\bvulcan\b|\belectron\b|new glenn|\bsoyuz\b/i;
+const KEEP_WORDS = /starship|super ?heavy|booster|\bship\b|\b[bs] ?\d{1,3}\b|flight ?\d|raptor|starbase|massey|megabay|gigabay|\bpad\b|\bolm\b|\bolp\b|chopstick|mechazilla|\btower\b|cryo|static|stack|\bwdr\b|\bfaa\b|catch|\bhls\b|\btank|ift|boca chica|texas|v3/i;
+function prefilter(road, p) {
+  const t = `${p.text || ""} ${p.link ? [p.link.title, p.link.description, p.link.lead].filter(Boolean).join(" ") : ""}`;
+  const keep = KEEP_WORDS.test(t) || (road.vehicles || []).some((v) => v && t.toLowerCase().includes(String(v).toLowerCase()));
+  if (keep) return null;
+  if (!OTHER_LAUNCH.test(t)) return null;
+  return { kind: "skip", reason: `prefilter: non-Starship launch (${t.match(OTHER_LAUNCH)[0]}), no Starship word — no Grok call` };
+}
+const VCACHE_MS = 3 * 86400000, VCACHE_MAX = 300;
+const postHash = (p) => crypto.createHash("sha1").update([String(p.author && p.author.username || "").toLowerCase(), String(p.text || "").replace(/https?:\/\/\S+/g, "").replace(/\s+/g, " ").trim().toLowerCase(), p.link ? String(p.link.title || "") : ""].join("|")).digest("hex").slice(0, 16);
+async function classifyWithSavers(road, posts, stages, ask, xs, now, log = () => {}) {
+  const cache = (xs.vcache || []).filter((c) => now - c.at < VCACHE_MS);
+  const out = new Array(posts.length), todo = [];
+  posts.forEach((p, i) => {
+    const pf = prefilter(road, p); if (pf) { out[i] = pf; return; }
+    const hit = cache.find((c) => c.h === postHash(p)); if (hit) { out[i] = { ...hit.v, reason: `${hit.v.reason || ""} (cached verdict, no Grok call)`.trim() }; return; }
+    todo.push(i);
+  });
+  if (posts.length - todo.length) log(`X-first: ${posts.length - todo.length} post(s) settled without Grok (prefilter/cache), ${todo.length} sent to Grok`);
+  if (todo.length) {
+    const got = await classifyPosts(road, todo.map((i) => posts[i]), stages, ask);
+    todo.forEach((i, k) => { out[i] = got[k]; if (got[k] && got[k].reason !== "no verdict") cache.push({ h: postHash(posts[i]), at: now, v: got[k] }); });
+  }
+  return { verdicts: out, vcache: cache.slice(-VCACHE_MAX), grok: todo.length ? 1 : 0 };
+}
+
 // The whole step. ask(prompt, opts) → JSON (writer.askJson). Returns cards, news items, state.
 async function runXFirst(road, state, { token, fetchFn, ask, postCard, log = console.log, now = Date.now(), maxCards = 5, status = null, milestone = null, linkFetch = null, picks = [], pushHistory = null }) {
   const xs = state.xFirst || {};
@@ -358,10 +390,10 @@ async function runXFirst(road, state, { token, fetchFn, ask, postCard, log = con
   const review = [];
   log(`X-first: ${got.calls} X call(s), ${got.read || 0} read, ${posts.length} new post(s)${got.why ? ` — ${got.why}` : ""}`);
   const stages = road.categories.map((c) => ({ id: c.id, name: c.name }));
-  let verdicts = [];
+  let verdicts = [], vcache = (xs.vcache || []);
   if (posts.length && linkFetch) await readLinks(posts, linkFetch, log);
   if (posts.length) {
-    try { verdicts = await classifyPosts(road, posts, stages, ask); }
+    try { const cw = await classifyWithSavers(road, posts, stages, ask, xs, now, log); verdicts = cw.verdicts; vcache = cw.vcache; }
     catch (e) { log(`X-first: writer failed (${e.message}) — posts retried next run`); return { cards: [], merged: [], news: [], missions: [], state: { ...xs }, calls: got.calls, read: got.read || 0, retry: true, posts: got.posts || [] }; /* since_id not advanced */ }
   }
   const cards = [], merged = [], newsItems = [], missions = [], r0 = {};
@@ -394,8 +426,8 @@ async function runXFirst(road, state, { token, fetchFn, ask, postCard, log = con
     (r.merged ? merged : cards).push(r);
     log(`X-first: road/${v.stage} ${v.hardware || "-"} @${p.author.username} ${p.post_id} → ${r.merged ? `merged into ${r.entry.id}` : `new card ${r.entry.id}`}`);
   });
-  return { cards, merged, news: newsItems, missions, stale: r0.stale || [], state: { sinceId: got.sinceId, seen: [...seen].slice(-500), pending: waiting.slice(0, MAX_PENDING) }, review, calls: got.calls, read: got.read || 0, posts: got.posts || [] };
+  return { cards, merged, news: newsItems, missions, stale: r0.stale || [], state: { sinceId: got.sinceId, seen: [...seen].slice(-500), pending: waiting.slice(0, MAX_PENDING), vcache }, review, calls: got.calls, read: got.read || 0, posts: got.posts || [] };
 }
 
 const isOfficial = (p) => OFFICIAL.has(String(p.author && p.author.username).toLowerCase());
-module.exports = { HEDGED_DONE, hedgeGuard, rollbackStage, masseyStage, cryoDone, guardPost, MILESTONE_TYPES, PHASES, factsMatch, contextImage, milestoneKey, phaseOf, isOfficial, MISSION_TOPICS, runXFirst, fetchNewPosts, classifyPosts, classifyPrompt, placePost, bestMedia, postMedia, articleLead, readLinks, hwKey, xfQuery, XF_ACCOUNTS, CLASSIFY_SCHEMA, MERGE_MS };
+module.exports = { prefilter, postHash, classifyWithSavers, HEDGED_DONE, hedgeGuard, rollbackStage, masseyStage, cryoDone, guardPost, MILESTONE_TYPES, PHASES, factsMatch, contextImage, milestoneKey, phaseOf, isOfficial, MISSION_TOPICS, runXFirst, fetchNewPosts, classifyPosts, classifyPrompt, placePost, bestMedia, postMedia, articleLead, readLinks, hwKey, xfQuery, XF_ACCOUNTS, CLASSIFY_SCHEMA, MERGE_MS };
