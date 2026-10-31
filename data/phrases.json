@@ -1,0 +1,255 @@
+{
+  "_about": "Community phrase list per milestone, used by scripts/journey.js to route posts. Lower-case; matched as whole words/phrases. Add phrases here, not in code.",
+  "rollout": [
+    "leaves",
+    "left",
+    "leaving",
+    "departs",
+    "departed",
+    "departing",
+    "rolls out",
+    "rolled out",
+    "rolling out",
+    "rollout",
+    "roll out",
+    "heads to",
+    "headed to",
+    "heading to",
+    "headed for",
+    "heading for",
+    "moving to",
+    "moved to",
+    "en route",
+    "on highway 4",
+    "entered highway 4",
+    "rolls to",
+    "rolled to",
+    "transport to",
+    "trip to",
+    "arrives at",
+    "arrived at",
+    "arriving at",
+    "moves to",
+    "heads out",
+    "outbound"
+  ],
+  "return": [
+    "returned to",
+    "returns to",
+    "returning to",
+    "returning from",
+    "back to",
+    "back at",
+    "back in",
+    "back inside",
+    "rolled back",
+    "rolls back",
+    "rolling back",
+    "heads back",
+    "headed back",
+    "arrived back",
+    "moved into",
+    "moved back",
+    "is back"
+  ],
+  "stand": [
+    "lifted onto",
+    "lifted on",
+    "placed on",
+    "lowered onto",
+    "set on",
+    "set down on",
+    "lifted to",
+    "moved onto",
+    "on the stand",
+    "onto the stand"
+  ],
+  "frost": [
+    "frost",
+    "frosting",
+    "frosty",
+    "icing",
+    "ice line",
+    "condensation",
+    "venting",
+    "vents",
+    "vented"
+  ],
+  "load": [
+    "propellant load",
+    "prop load",
+    "lox load",
+    "lox loading",
+    "loading",
+    "tanking",
+    "chill down",
+    "chill-down",
+    "chilldown",
+    "chilling",
+    "detanked",
+    "detank"
+  ],
+  "done": [
+    "completed",
+    "complete",
+    "completes",
+    "finished",
+    "wrapped up",
+    "detanked",
+    "detanking",
+    "detank",
+    "is done",
+    "test done",
+    "fired",
+    "concluded"
+  ],
+  "cryo": [
+    "cryo",
+    "cryogenic",
+    "proof test",
+    "pressure test",
+    "proof tests",
+    "filled and held at pressure",
+    "held at pressure"
+  ],
+  "static": [
+    "static fire",
+    "static-fire",
+    "static fires",
+    "spin prime",
+    "fired all",
+    "fired 1",
+    "fired one",
+    "full-duration",
+    "engine fire",
+    "single-engine fire",
+    "six-engine fire"
+  ],
+  "wdr": [
+    "wet dress",
+    "wdr",
+    "launch rehearsal",
+    "full stack tanking"
+  ],
+  "stacked": [
+    "stacked",
+    "stacking",
+    "on the booster",
+    "full stack"
+  ],
+  "engines_in": [
+    "raptors were all in",
+    "raptors all in",
+    "engines installed",
+    "raptors installed",
+    "reinstalled",
+    "engines in",
+    "raptor install"
+  ],
+  "engines_out": [
+    "removed from",
+    "raptors removed",
+    "engines removed",
+    "were removed"
+  ],
+  "again": [
+    "another",
+    "again",
+    "second",
+    "third",
+    "more",
+    "further",
+    "repeat",
+    "re-test"
+  ],
+  "locations": {
+    "Megabay 1": [
+      "megabay 1",
+      "mega bay 1",
+      "megabay-1",
+      "mb1"
+    ],
+    "Megabay 2": [
+      "megabay 2",
+      "mega bay 2",
+      "megabay-2",
+      "mb2"
+    ],
+    "Megabay": [
+      "megabay",
+      "mega bay",
+      "production site",
+      "build site",
+      "high bay",
+      "the bay"
+    ],
+    "cryo stand": [
+      "cryo stand",
+      "thrust simulator",
+      "test stand",
+      "test tank stand"
+    ],
+    "static fire stand": [
+      "static fire stand"
+    ],
+    "Massey's": [
+      "massey's",
+      "masseys",
+      "massey",
+      "massey outpost"
+    ],
+    "pad": [
+      "pad 2",
+      "pad-2",
+      "launch pad",
+      "launch site",
+      "launch mount",
+      "olm",
+      "orbital launch mount",
+      "the pad",
+      "chopsticks",
+      "tower"
+    ]
+  },
+  "raptor": [
+    "raptor",
+    "raptors",
+    "engines",
+    "engine testing",
+    "rvac",
+    "rvacs",
+    "lifting jig"
+  ],
+  "pad_work": [
+    "catch",
+    "catch height",
+    "catch testing",
+    "chopsticks lifted",
+    "sqd",
+    "qd arm",
+    "pusher",
+    "deluge",
+    "flame trench"
+  ],
+  "hedge": [
+    "could",
+    "expected",
+    "ahead of",
+    "waiting",
+    "should",
+    "may",
+    "might",
+    "as early as",
+    "targeting",
+    "net "
+  ],
+  "at_place": [
+    "is in",
+    "is at",
+    "sits in",
+    "sitting at",
+    "now in",
+    "now at",
+    "inside"
+  ]
+}
