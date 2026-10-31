@@ -2953,8 +2953,8 @@
       "url": "https://x.com/efraser77/status/2116351708150497473",
       "at": "2026-10-31T02:09:01.000Z",
       "date": "31 Oct",
-      "flight": 15,
-      "box": "static"
+      "flight": 17,
+      "later_flight": true
     },
     {
       "id": "news-mvviedow-8ae8e8",
