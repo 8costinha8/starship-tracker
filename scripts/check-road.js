@@ -1692,6 +1692,8 @@ async function run(opts = {}) {
     const json = JSON.stringify(road, null, 2) + "\n";
     if (save) {
       fs.writeFileSync(roadPath, json);
+      // photo badge: save the X avatar of any new photo source (icons/avatars/); live runs on the real repo only
+      if (mode === "live" && !opts.roadPath) frameFiles.push(...await require("./avatars.js").ensureAll(road, (() => { try { return JSON.parse(fs.readFileSync(path.join(ROOT, "road-media.json"), "utf8")); } catch { return null; } })(), { log }));
       const what = [rolledOver ? "new Road" : "", notifications.length ? `${notifications.length} update(s)` : "", refreshed.length ? `no-news lines tidied (${road.updated})` : "", predChanged ? `predicted date ${road.predicted ? `NET ${road.predicted.net}` : "cleared"}` : ""].filter(Boolean).join(", ") || "card details updated (no push)";
       commit(["road.json", ...frameFiles, ...cascadeFiles].join(" "), `Auto: Road to Flight ${road.flight} — ${what}`);
     } else console.log(`(not committed) Auto: Road to Flight ${road.flight} — ${notifications.length} update(s)${refreshed.length ? `, ${refreshed.length} no-news line change(s) (${road.updated})` : ""}`);
