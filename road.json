@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "31 Oct",
-  "updatedAt": "2026-10-31T03:00:38.051Z",
+  "updatedAt": "2026-10-31T15:45:27.630Z",
   "categories": [
     {
       "id": "cryo",
@@ -1177,8 +1177,7 @@
             "type": "video",
             "image": "images/s42-static-fire.jpg",
             "credit_only": true,
-            "keep_image": true,
-            "locked": true
+            "keep_image": true
           },
           "milestone": {
             "key": "static_fire|15|S42",
@@ -1341,7 +1340,28 @@
             "image": "https://pbs.twimg.com/media/HVq1gQrXUAAWAUv.jpg",
             "show": false
           },
-          "media_locked": true
+          "media_locked": true,
+          "imageChecked2": true,
+          "photo_alternatives": [
+            {
+              "image": "https://pbs.twimg.com/amplify_video_thumb/2115698557118525440/img/JcPi0ZRB6O6GSRW0.jpg",
+              "type": "video",
+              "post_url": "https://x.com/RGVaerialphotos/status/2115701286096277589",
+              "author": "RGVaerialphotos"
+            },
+            {
+              "image": "https://pbs.twimg.com/amplify_video_thumb/2115698578555641856/img/NgdeZ_gsoBwQEzZK.jpg",
+              "type": "video",
+              "post_url": "https://x.com/RGVaerialphotos/status/2115701286096277589",
+              "author": "RGVaerialphotos"
+            },
+            {
+              "image": "https://pbs.twimg.com/amplify_video_thumb/2115231105422884864/img/xIBecFpqcVGmoaTE.jpg",
+              "type": "video",
+              "post_url": "https://x.com/SpaceX/status/2115476295169814978",
+              "author": "SpaceX"
+            }
+          ]
         },
         {
           "id": "x-2114535368758542634",
@@ -1634,8 +1654,7 @@
             "type": "video",
             "image": "images/b22-static-fire-spacex.jpg",
             "credit_only": true,
-            "keep_image": true,
-            "locked": true
+            "keep_image": true
           },
           "flight": 15,
           "tier": 1,
@@ -1740,7 +1759,45 @@
             ]
           },
           "media_locked": true,
-          "text_locked": true
+          "text_locked": true,
+          "photo_alternatives": [
+            {
+              "image": "https://pbs.twimg.com/amplify_video_thumb/2114691314495418368/img/yaSu0o2nwISYaNZ-.jpg",
+              "type": "video",
+              "post_url": "https://x.com/Blobifie/status/2114691485337850020",
+              "author": "Blobifie"
+            },
+            {
+              "image": "https://pbs.twimg.com/amplify_video_thumb/2114686073846837248/img/uEHvSZZHMQwvHU0S.jpg",
+              "type": "video",
+              "post_url": "https://x.com/Blobifie/status/2114686191627030843",
+              "author": "Blobifie"
+            },
+            {
+              "image": "https://pbs.twimg.com/amplify_video_thumb/2114567980231053312/img/EitC83F_WspGNa1A.jpg",
+              "type": "video",
+              "post_url": "https://x.com/NASASpaceflight/status/2114568166651428965",
+              "author": "NASASpaceflight"
+            },
+            {
+              "image": "https://pbs.twimg.com/amplify_video_thumb/2114478861119332353/img/AXpDlOdlSig_Jp5J.jpg",
+              "type": "video",
+              "post_url": "https://x.com/SpaceX/status/2114444137067844004",
+              "author": "SpaceX"
+            },
+            {
+              "image": "https://pbs.twimg.com/amplify_video_thumb/2114335137450143744/img/hdkbpWHvz5KOQq-M.jpg",
+              "type": "video",
+              "post_url": "https://x.com/LabPadre/status/2114335419785679308",
+              "author": "LabPadre"
+            },
+            {
+              "image": "https://pbs.twimg.com/media/HVeQ1S4bIAARYFp.jpg",
+              "type": "photo",
+              "post_url": "https://x.com/Blobifie/status/2114317866409595106",
+              "author": "Blobifie"
+            }
+          ]
         },
         {
           "id": "x-2114335419785679308",
@@ -1925,7 +1982,33 @@
               "card_text": "Booster 22 was lowered onto the OLM."
             }
           ],
-          "refiled_from": "pad"
+          "refiled_from": "pad",
+          "photo_alternatives": [
+            {
+              "image": "https://pbs.twimg.com/amplify_video_thumb/2114063107282583552/img/uMyR4JT7EZ7gOP-t.jpg",
+              "type": "video",
+              "post_url": "https://x.com/LabPadre/status/2114063568735768864",
+              "author": "LabPadre"
+            },
+            {
+              "image": "https://pbs.twimg.com/media/HVZzuQbXQAAUzqy.jpg",
+              "type": "photo",
+              "post_url": "https://x.com/colleenadastra/status/2114005088653963704",
+              "author": "colleenadastra"
+            },
+            {
+              "image": "https://pbs.twimg.com/media/HVZoSvdakAAst89.jpg",
+              "type": "photo",
+              "post_url": "https://x.com/colleenadastra/status/2114005088653963704",
+              "author": "colleenadastra"
+            },
+            {
+              "image": "https://pbs.twimg.com/media/HVZoTTFaIAAL6aX.jpg",
+              "type": "photo",
+              "post_url": "https://x.com/colleenadastra/status/2114005088653963704",
+              "author": "colleenadastra"
+            }
+          ]
         },
         {
           "id": "x-2113907865060819060",
@@ -2070,7 +2153,33 @@
             "show": true,
             "side": "right"
           },
-          "card_text": "Booster 22 was lifted onto Pad-2."
+          "card_text": "Booster 22 was lifted onto Pad-2.",
+          "photo_alternatives": [
+            {
+              "image": "https://pbs.twimg.com/amplify_video_thumb/2114063107282583552/img/uMyR4JT7EZ7gOP-t.jpg",
+              "type": "video",
+              "post_url": "https://x.com/LabPadre/status/2114063568735768864",
+              "author": "LabPadre"
+            },
+            {
+              "image": "https://pbs.twimg.com/media/HVZzuQbXQAAUzqy.jpg",
+              "type": "photo",
+              "post_url": "https://x.com/colleenadastra/status/2114005088653963704",
+              "author": "colleenadastra"
+            },
+            {
+              "image": "https://pbs.twimg.com/media/HVZoSvdakAAst89.jpg",
+              "type": "photo",
+              "post_url": "https://x.com/colleenadastra/status/2114005088653963704",
+              "author": "colleenadastra"
+            },
+            {
+              "image": "https://pbs.twimg.com/media/HVZoTTFaIAAL6aX.jpg",
+              "type": "photo",
+              "post_url": "https://x.com/colleenadastra/status/2114005088653963704",
+              "author": "colleenadastra"
+            }
+          ]
         },
         {
           "id": "x-2113955770337550391",
@@ -2178,7 +2287,15 @@
                 "at": "2026-10-24T11:28:25.000Z"
               }
             ]
-          }
+          },
+          "photo_alternatives": [
+            {
+              "image": "https://pbs.twimg.com/amplify_video_thumb/2113954930210025472/img/cDbF7Rqfljguu3GS.jpg",
+              "type": "video",
+              "post_url": "https://x.com/Blobifie/status/2113955770337550391",
+              "author": "Blobifie"
+            }
+          ]
         }
       ],
       "doneText": "Complete",
