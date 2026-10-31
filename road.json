@@ -740,6 +740,17 @@
             },
             {
               "date": "10 Sep",
+              "at": "2026-09-10T07:02:12.000Z",
+              "text": "Booster 22 completed its first full cryo test.",
+              "url": "https://x.com/Blobifie/status/2097943705911193755",
+              "src": "@Blobifie",
+              "handle": "Blobifie",
+              "phase": "completed",
+              "event_row": true,
+              "log_text": "Booster 22 completed its first full cryo test."
+            },
+            {
+              "date": "10 Sep",
               "log_date": "10 Sep",
               "at": "2026-09-10T13:47:00.000Z",
               "text": "Booster 22 filled and held at pressure, then detanked.",

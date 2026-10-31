@@ -1581,7 +1581,7 @@ function roadUpdates(h) {
   const done = !!(h.complete || (h.milestone && h.milestone.phase === "completed"));
   const yr = Number.isFinite(Date.parse(h.at || "")) ? new Date(h.at).getUTCFullYear() : new Date().getUTCFullYear();
   const dayMs = (u) => { const m = String(u.log_date || u.date || "").match(/(\d{1,2})(?:[–-]\d{1,2})? ([A-Z][a-z]{2})/); return m ? Date.UTC(yr, MON3.indexOf(m[2]), Number(m[1]), 23, 59) : 0; };
-  const ups = (Array.isArray(h.updates) ? h.updates : []).filter((u) => u && u.text && !(done && (u.phase === "completed" || u.reported === "completed")));
+  const ups = (Array.isArray(h.updates) ? h.updates : []).filter((u) => u && u.text && (u.event_row || !(done && (u.phase === "completed" || u.reported === "completed")))); // the event_record's own completion row always shows (guards.js event-row)
   const ms = (u) => Date.parse(upIso(u)) || dayMs(u);
   const sorted = ups.map((u, i) => ({ u, i })).sort((a, b) => ms(b.u) - ms(a.u) || a.i - b.i).map((x) => x.u);
   const day = (u) => { const iso = upIso(u); return iso ? ukStamp(iso, false) : fmtDay(u.log_date || u.date); };
@@ -1767,10 +1767,10 @@ function rtfCards(road) {
     if (!main) { out.push({ empty: true, cat, v, name: vname(v) }); continue; }
     // every post for this vehicle + category except the milestone's own, newest first; text + time + credit only
     const rows = [], seen = new Set([urlOf(main), main.url].filter(Boolean));
-    const add = (u) => { const k = u.url || u.text; if (!u.text || seen.has(k)) return; seen.add(k); rows.push(u); };
+    const add = (u) => { const k = u.url || u.text; if (!u.text || (seen.has(k) && !u.event_row)) return; seen.add(k); rows.push(u); }; // event_row: the completion row (guards.js) shows even when it is the main post
     for (const h of list) {
       if (h !== main) add({ text: h.text, at: cardIso(h) || h.at, date: h.date, url: urlOf(h) || h.url, src: h.src, handle: (h.x_post && h.x_post.author && h.x_post.author.username) || (h.media_override && h.media_override.author) || (String(h.src || "").startsWith("@") ? h.src : null) });
-      for (const u of h.updates || []) { const uv = rtfVeh(u.text, road); if (v === "pad" ? !otherVehOnly(u.text, road) : uv.length ? uv.includes(v) : !otherVehOnly(u.text, road)) add({ text: u.text, at: u.at, date: u.date, url: u.url, src: u.src, handle: u.handle || (String(u.src || "").startsWith("@") ? u.src : null) }); }
+      for (const u of h.updates || []) { const uv = rtfVeh(u.text, road); if (v === "pad" ? !otherVehOnly(u.text, road) : uv.length ? uv.includes(v) : !otherVehOnly(u.text, road)) add({ text: u.text, at: u.at, date: u.date, url: u.url, src: u.src, event_row: u.event_row, phase: u.phase, handle: u.handle || (String(u.src || "").startsWith("@") ? u.src : null) }); }
     }
     const h = { ...main, id: `rtf-${cid}-${v}`, updates: rows, alt_media: null, complete: !!doneOne, milestone: doneOne ? main.milestone : { phase: "progress" } };
     // picture: newest event (incomplete) or the completing event (done); best photo among that event's posts (scripts/road-pick.js)

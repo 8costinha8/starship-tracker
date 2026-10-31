@@ -13,6 +13,8 @@
      later-flight   a booster/ship number higher than the newest mapped one (B24 when B23 = Flight 16) → later flight
                     (newest + offset), never the tracked flight: no box, no card on this Road, no push
      untagged       a new vehicle-stage card with no hardware and no flight → review queue, no card
+     event-row      a completed milestone (milestone.phase completed + event_record) always has its completion as a row in that
+                    vehicle's Earlier updates (Road box + Road to Flight card): missing → added from the event_record, same day/text/link
      hedged         hedged completion wording ("appears to have completed") never marks a card complete */
 const scope = require("./scope.js"), events = require("./events.js");
 const CAP = 5, VEH_STAGES = ["cryo", "raptor", "static"];
@@ -34,6 +36,24 @@ function flightMap(road) {
 const ids = (road) => new Set((road.categories || []).flatMap((c) => (c.history || []).map((h) => h && h.id).filter(Boolean)));
 const postIds = (h) => [h.x_post && h.x_post.post_id, ...(h.x_posts || []), ...((h.x_post && h.x_post.edit_history_post_ids) || []), ...((h.updates || []).map((u) => (String(u.url || "").match(/status\/(\d+)/) || [])[1]))].filter(Boolean).map(String);
 
+const MON3 = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const ukDay = (iso) => { const p = Object.fromEntries(new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/London", day: "numeric", month: "numeric" }).formatToParts(new Date(iso)).map((x) => [x.type, x.value])); return `${Number(p.day)} ${MON3[Number(p.month) - 1]}`; };
+// event-row: every vehicle, every test type. Returns the rows added [{ id, text }].
+function eventRows(road, log = () => {}) {
+  const out = [];
+  for (const c of road.categories || []) for (const h of c.history || []) {
+    const r = h && h.event_record;
+    if (!r || !r.at || !r.text || !h.milestone || h.milestone.phase !== "completed") continue;
+    const ups = Array.isArray(h.updates) ? h.updates : [];
+    const have = ups.find((u) => u && u.event_row) || ups.find((u) => u && r.url && u.url === r.url && u.text === r.text);
+    const row = { date: ukDay(r.at), at: r.at, text: r.text, log_text: r.text, ...(r.url ? { url: r.url } : {}), ...(r.src ? { src: r.src, handle: String(r.src).replace(/^@/, "") } : {}), phase: "completed", event_row: true };
+    if (have) { const diff = ["date", "at", "text", "log_text", "url"].filter((k) => row[k] !== undefined && have[k] !== row[k]); if (diff.length || !have.event_row) { Object.assign(have, row); log(`GUARD event-row: ${h.id || h.text} completion row synced to its event record (${diff.join(", ") || "flag"})`); out.push({ id: h.id || h.text, text: r.text }); } continue; }
+    const t = Date.parse(r.at), i = ups.findIndex((u) => (Date.parse(u.at) || 0) > t);
+    const next = ups.slice(); next.splice(i < 0 ? next.length : i, 0, row); h.updates = next;
+    log(`GUARD event-row: ${h.id || h.text} missing its completion row → added "${row.date} ${row.text}" from the event record`); out.push({ id: h.id || h.text, text: r.text });
+  }
+  return out;
+}
 function run(road, { prev = null, log = console.log, review = null, now = Date.now(), slipPush = null, addFeedItem = null } = {}) {
   const pushes = [], dropped = new Set(), fixes = [], fix = (name, msg) => { fixes.push({ name, msg }); log(`GUARD ${name}: ${msg}`); };
   // day-pattern (self-check: a regression here would make every slip invisible)
@@ -111,6 +131,7 @@ function run(road, { prev = null, log = console.log, review = null, now = Date.n
     for (const h of drop) dropped.add(h.id);
   }
   for (const id of laterIds) dropped.add(id);
+  for (const x of eventRows(road, (m) => log(m))) fixes.push({ name: "event-row", msg: `${x.id}: ${x.text}` });
   return { fixes, dropped, pushes };
 }
-module.exports = { run, flightMap, HEDGED_DONE, NET_DAY, CAP };
+module.exports = { eventRows, run, flightMap, HEDGED_DONE, NET_DAY, CAP };
