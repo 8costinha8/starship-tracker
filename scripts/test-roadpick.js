@@ -21,17 +21,25 @@ r = cardPicture([sf1, sf2, c], { cid: "static", done: sf1 });
 assert.strictEqual(r.image, "p7", "completed: best of the completing event's posts (SpaceX photo)");
 const man = { ...sf1, media_override: { image: "images/pick.jpg", keep_image: true, author: "Blobifie" } };
 assert.strictEqual(cardPicture([man, sf2], { cid: "static", done: man }).image, "images/pick.jpg", "a manual keep_image pick always wins");
-// X post media over news-site pictures (B22 static fire, 31 Oct): a manual NSF-clip frame or an NSF article/link image
-// never beats a Tier 1/2 X post's own media of the same event, on any card or vehicle.
+// 29 Oct rule (media only climbs, SpaceX locks; manual keep_image always wins). X-over-news is a same-tier tie-break only.
 const nsfPick = post("8", "2026-10-25T13:22:00Z", "Booster 22 conducted a static fire test on Pad 2.", "NASASpaceflight", [video("nsfthumb")]);
 nsfPick.media_override = { image: "images/b22-static-fire.jpg", keep_image: true, author: "NASASpaceflight", type: "video" };
 const spx = post("9", "2026-10-25T19:49:01Z", "Booster 22 completed a full-duration 33-engine static fire.", "SpaceX", [video("spxthumb")]);
 r = cardPicture([nsfPick, spx], { cid: "static", done: nsfPick });
-assert.strictEqual(r.image, "spxthumb", "X post media (SpaceX) beats a manual NSF frame on the completed card");
-assert.strictEqual(r.author, "SpaceX", "credited to the X post's author");
-const shipNews = { id: "10", at: "2026-10-27T21:45:00Z", text: "Ship 42 static fire at Massey's.", url: "https://www.nasaspaceflight.com/2026/10/s42-sf/", media_override: { image: "https://www.nasaspaceflight.com/wp-content/uploads/s42.jpg", type: "photo" } };
+assert.strictEqual(r.image, "images/b22-static-fire.jpg", "a manual keep_image pick wins even over SpaceX media");
+const nsfPlain = post("8b", "2026-10-25T13:22:00Z", "Booster 22 conducted a static fire test on Pad 2.", "NASASpaceflight", [video("nsfthumb")]);
+r = cardPicture([nsfPlain, spx], { cid: "static", done: nsfPlain });
+assert.ok(r.image === "spxthumb" && r.author === "SpaceX", "SpaceX (Tier 1) media beats an NSF clip (Tier 2): a climb");
+const spxLocked = { ...spx, media_override: { image: "images/spx.jpg", author: "SpaceX", type: "video", locked: true }, media_locked: true };
+const blobPhoto = post("9b", "2026-10-25T20:00:00Z", "Booster 22 static fire, photo.", "Blobifie", [photo("blobp")]);
+assert.strictEqual(cardPicture([spxLocked, blobPhoto], { cid: "static", done: spxLocked }).image, "images/spx.jpg", "SpaceX-locked media is never replaced (not even by a photo)");
+const shipNews = { id: "10", at: "2026-10-27T21:45:00Z", text: "Ship 42 static fire at Massey's.", url: "https://www.nasaspaceflight.com/2026/10/s42-sf/", media_override: { image: "https://www.nasaspaceflight.com/wp-content/uploads/s42.jpg", type: "photo", author: "" } };
 const shipX = post("11", "2026-10-27T22:05:00Z", "Ship 42 six-engine static fire.", "TrackingTheSB", [video("tsbthumb")]);
-assert.strictEqual(cardPicture([shipNews, shipX], { cid: "static", done: shipNews }).image, "tsbthumb", "ship card too: Tier 2 X video beats a news-site photo");
-assert.strictEqual(cardPicture([shipNews], { cid: "static", done: shipNews }).image.includes("nasaspaceflight.com"), true, "news-site image still used when no X media exists");
+assert.strictEqual(cardPicture([shipNews, shipX], { cid: "static", done: shipNews }).image, "tsbthumb", "ship card: Tier 2 X video beats an untiered news-site photo (higher tier)");
+const nsfPhoto = post("12", "2026-10-27T21:50:00Z", "Ship 42 static fire.", "NASASpaceflight", [photo("nsfp")]);
+const tsbVid = post("13", "2026-10-27T21:55:00Z", "Ship 42 static fire.", "TrackingTheSB", [video("tsbv")]);
+assert.strictEqual(cardPicture([nsfPhoto, tsbVid], { cid: "static", done: nsfPhoto }).image, "nsfp", "same tier: the 28 Oct best-photo rule decides (photo beats video); X preference does not override it");
+const nsfVid = post("14", "2026-10-27T22:00:00Z", "Ship 42 static fire.", "NASASpaceflight", [video("nsfv")]);
+assert.strictEqual(cardPicture([nsfVid, tsbVid], { cid: "static", done: nsfVid }).image, "tsbv", "exact tie (same tier, both video): the non-news X post wins the tie");
 assert.strictEqual(kindOf("cryo", "Frost on Ship 42's tanks"), "cryo");
 console.log("test-roadpick: all passed");

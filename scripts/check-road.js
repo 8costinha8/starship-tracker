@@ -516,7 +516,7 @@ function applyMediaPicks(road, picks) {
   for (const c of road.categories) for (const h of c.history || []) {
     const p = picks.find((x) => !x.context_only && x.category === c.id && x.date === h.date && (!x.entry || x.entry === h.text)); // same day, same card
     if (!p) continue;
-    const mo = { post_url: p.post_url, post_id: p.post_id || xIdOf(p.post_url), author: p.author, type: p.media_type === "video" ? "video" : "photo", image: p.image, ...(p.credit_only ? { credit_only: true } : {}), ...(p.keep_image ? { keep_image: true } : {}) }; // credit_only: picture only, credited "Photo · @author"; the fact stays with the entry's own source
+    const mo = { post_url: p.post_url, post_id: p.post_id || xIdOf(p.post_url), author: p.author, type: p.media_type === "video" ? "video" : "photo", image: p.image, ...(p.credit_only ? { credit_only: true } : {}), ...(p.keep_image ? { keep_image: true } : {}), ...(p.locked ? { locked: true } : {}) }; // locked: SpaceX media, kept for good (29 Oct rule) // credit_only: picture only, credited "Photo · @author"; the fact stays with the entry's own source
     if (JSON.stringify(h.media_override) !== JSON.stringify(mo)) { h.media_override = mo; n++; }
     if (!mo.credit_only && h.x_text && (!h.x_post || h.x_post.post_id !== mo.post_id)) { delete h.x_text; n++; }
     h.imageChecked2 = true; // the pick wins: no automatic check for this entry

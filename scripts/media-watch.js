@@ -48,6 +48,7 @@ const cardMs = (h) => Date.parse(h.at || "") || Date.parse((h.x_post && h.x_post
 function lockedReason(h, catId, pickIds) {
   const mo = h.media_override;
   if (mo && mo.keep_image) return "keep_image";
+  if (mo && (mo.locked || sourceTier(mo.author) === 1)) return "SpaceX lock"; // 29 Oct rule: once a Tier 1 (SpaceX) post's media is used, the card is locked for good
   if (mo && mo.cascade) return "milestone cascade manages this card";
   if (mo && !mo.auto && mo.post_id && pickIds.has(String(mo.post_id))) return "manual pick";
   if (isShipCryo(h, catId)) return "ship cryo default (propose only)";
@@ -145,7 +146,8 @@ async function runMediaWatch(road, state, { token, fetchFn = fetch, ask = null, 
   const mw = (state.mediaWatch = state.mediaWatch || {});
   const res = { ran: false, calls: 0, swapped: [], proposals: [], skipped: [], deferred: 0 };
   if (!token) return res;
-  if (mw.lastAt && now - Date.parse(mw.lastAt) < EVERY_MS) return res; // hourly
+  const carried = (mw.pending || []).filter((p) => p && p.post_id && now - Date.parse(p.created_at || 0) < LOOKBACK_MS + WINDOW_MS); // only a post no watched card can use any more leaves the queue
+  if (mw.lastAt && now - Date.parse(mw.lastAt) < EVERY_MS && !carried.length) return res; // hourly (sooner when posts were carried over)
   const cards = watchedCards(road, now);
   mw.lastAt = new Date(now).toISOString(); res.ran = true;
   if (!cards.length) return res;
@@ -168,6 +170,16 @@ async function runMediaWatch(road, state, { token, fetchFn = fetch, ask = null, 
       start_time: new Date(Math.max(now - LOOKBACK_MS + 60000, Math.min(...cards.map((x) => x.at)) - WINDOW_MS)).toISOString(), ...X_FIELDS })}`);
   } catch (e) { log(`media watch: search failed (${e.message})`); }
   res.calls++;
+  // order within the Grok cap: brand-new Tier 1/2 posts (never judged against any card) first, newest first; then posts carried
+  // over from the last watch; then the rest. Every post the cap stops is carried to the next run (mw.pending), never dropped.
+  const judgedPosts = new Set(Object.keys(judged).map((k) => k.split("|")[0]));
+  const rank = (p, isCarried) => { const t = sourceTier(p.author); return !isCarried && !judgedPosts.has(p.post_id) && (t === 1 || t === 2) ? t - 1 : isCarried ? 2 : 3; };
+  const seenIds = new Set(posts.map((p) => p.post_id));
+  const queue = [...posts.map((p) => ({ p, r: rank(p, false) })), ...carried.filter((p) => !seenIds.has(p.post_id)).map((p) => ({ p, r: rank(p, true) }))]
+    .sort((a, b) => a.r - b.r || Date.parse(b.p.created_at || 0) - Date.parse(a.p.created_at || 0));
+  posts = queue.map((x) => x.p);
+  const pending = new Map(); const defer = (post) => { res.deferred++; pending.set(post.post_id, post); };
+  mw.pending = [];
   for (const post of posts) {
     const tier = sourceTier(post.author);
     if (!tier) { res.skipped.push(`@${post.author}: not a watched source`); continue; }
@@ -189,25 +201,27 @@ async function runMediaWatch(road, state, { token, fetchFn = fetch, ask = null, 
       const jk = `${post.post_id}|${h.id || h.text}`, j = judged[jk] || {};
       if (j.same === false) continue;
       if (j.same === undefined) {
-        if (asks >= MAX_ASKS) { res.deferred++; continue; }
+        if (asks >= MAX_ASKS) { defer(post); continue; }
         let same; asks++; try { same = await A.same(samePrompt(h.x_text || h.text, post)); } catch { same = null; }
-        if (!same) continue; // error: retry next watch
+        if (!same) { defer(post); continue; } // error: carried to the next watch
         j.same = !!same.same; j.at = mw.lastAt; judged[jk] = j;
         if (!j.same) continue;
       }
       j.v = j.v || {};
-      let best = null; const ok = [];
+      let best = null, partial = false; const ok = [];
       for (const m of post.media.slice(0, 4)) {
         let v = j.v[m.image];
-        if (v === undefined) {
-          if (asks >= MAX_ASKS) { res.deferred++; break; }
-          asks++; try { v = await A.vision(visionPrompt(h.x_text || h.text, c.name || c.id, post, m), m.image); } catch { continue; }
-          j.v[m.image] = v ? { shows: !!v.shows, confidence: Number(v.confidence) || 0, quality: Number(v.quality) || 0, collage: !!v.collage } : null;
+        if (v == null) { // null: an old failed verdict, judged again
+          if (asks >= MAX_ASKS) { partial = true; break; }
+          asks++; try { v = await A.vision(visionPrompt(h.x_text || h.text, c.name || c.id, post, m), m.image); } catch { partial = true; continue; }
+          if (v) j.v[m.image] = { shows: !!v.shows, confidence: Number(v.confidence) || 0, quality: Number(v.quality) || 0, collage: !!v.collage }; // a failed/empty verdict is not cached: asked again next watch
+          if (!v) { partial = true; continue; }
         }
         if (!v || !v.shows || v.confidence < MIN_CONF || v.collage) continue;
         ok.push({ m, v });
         if (!best || v.quality > best.v.quality) best = { m, v };
       }
+      if (partial) { defer(post); continue; } // never swap on a half-judged post: the rest of its pictures are judged next run
       if (!best) continue;
       const cand = { score: score(tier, post.e, best.v.quality), quality: best.v.quality };
       if (!isBetter(cand, cur)) { res.skipped.push(`@${post.author}: not better for "${h.text}"`); continue; }
@@ -225,6 +239,8 @@ async function runMediaWatch(road, state, { token, fetchFn = fetch, ask = null, 
       res.swapped.push(label); log(`media watch SWAP (no push): ${label}`);
     }
   }
+  mw.pending = [...pending.values()].map((p) => ({ post_id: p.post_id, url: p.url, author: p.author, created_at: p.created_at, text: p.text, e: p.e, media: p.media }));
+  res.carried = mw.pending.length;
   return res;
 }
 

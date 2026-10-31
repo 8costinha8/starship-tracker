@@ -61,6 +61,30 @@ const run = async (r, posts, opts = {}) => { const x = fakeX(posts); const st = 
     const many = Array.from({ length: 30 }, (_, i) => ({ ...card(), id: "c" + i, text: "Booster 22 lift " + i }));
     const r = road(many[0], "pad", many.slice(1)); const { res } = await run(r, [colleen], { ask: counting });
     check(n <= mw.MAX_ASKS && res.deferred > 0, `Grok calls per watch capped at ${mw.MAX_ASKS} (rest deferred)`); }
+  // 31 Oct: cache skips only judged pairs; new Tier 1/2 posts first within the cap; capped items carried over, never dropped
+  { let order = []; const counting = { vision: async (_p, url) => ({ ...VQ[url] }), same: async (prompt) => { order.push(prompt); return { same: false }; } };
+    const mkPost = (id, user, at) => ({ id, author_id: user, created_at: at, text: "Booster 22 lifted onto Pad 2 " + id, attachments: { media_keys: ["mc1"] }, public_metrics: { like_count: 500, retweet_count: 50, impression_count: 50000 } });
+    const us = [...users, { id: "sx", username: "SpaceX" }, { id: "lp", username: "LabPadre" }];
+    const runU = async (r, posts, st, now) => { const fetchFn = async (url) => ({ ok: true, json: async () => ({ data: /search\/recent/.test(url) ? posts : [blob], includes: { media, users: us } }) });
+      return mw.runMediaWatch(r, st, { token: "t", fetchFn, ask: counting, picks: [], now, log: () => {} }); };
+    const cards = Array.from({ length: 10 }, (_, i) => ({ ...card(), id: "k" + i, text: "Booster 22 lift " + i }));
+    const r = road(cards[0], "pad", cards.slice(1)), st = {};
+    // run 1: an old tracker post (colleen, judged with nothing yet) + a SpaceX post + a LabPadre post; 10 cards each → 30 pairs > 16
+    const cPost = { ...colleen }, sx = mkPost("9001", "sx", "2026-10-24T14:00:00.000Z"), lp = mkPost("9002", "lp", "2026-10-24T14:10:00.000Z");
+    const res1 = await runU(r, [cPost, sx, lp], st, NOW);
+    const firstTen = order.slice(0, 20).join("\n");
+    check(order.length === mw.MAX_ASKS && order.slice(0, 10).every((o) => /9001/.test(o)) && order.slice(10).every((o) => /9002/.test(o)) && !/Lift! B22/.test(firstTen), "brand-new Tier 1 (SpaceX) then Tier 2 (LabPadre) posts are judged first within the cap; the older tracker post waits");
+    check(res1.deferred > 0 && st.mediaWatch.pending.some((p) => p.post_id === cPost.id) && st.mediaWatch.pending.some((p) => p.post_id === "9002") && !st.mediaWatch.pending.some((p) => p.post_id === "9001"), "posts stopped by the cap are carried over (mw.pending), not dropped");
+    // run 2: 15 min later, the search no longer returns them: the carried items still run, judged pairs are not re-asked
+    order = []; const res2 = await runU(r, [], st, NOW + 15 * 60000);
+    check(res2.ran && order.length === 30 - mw.MAX_ASKS && order.every((pr) => !/9001/.test(pr)), `next run: only the ${30 - mw.MAX_ASKS} unjudged pairs are asked (judged pairs skipped by the cache)`);
+    check(!st.mediaWatch.pending.length && Object.keys(st.mediaWatch.judged).length === 30, "after the carry-over every (post, card) pair is judged once; nothing dropped");
+    // a failed vision verdict is not cached as judged
+    const st3 = {}, h3 = card(), r3 = road(h3); let fail = true;
+    const flaky = { same: async () => ({ same: true }), vision: async (_p, url) => (fail ? null : { ...VQ[url] }) };
+    const go = (now) => mw.runMediaWatch(r3, st3, { token: "t", fetchFn: fakeX([colleen]).fetchFn, ask: flaky, picks: [], now, log: () => {} });
+    await go(NOW); const keep = h3.media_override.author; fail = false; await go(NOW + 15 * 60000);
+    check(keep === "Blobifie" && h3.media_override.author === "colleenadastra", "a failed vision verdict is not cached: the post is carried over and judged next run"); }
   // sources, gates, window
   { const h = card(), r = road(h); const { res } = await run(r, [{ ...colleen, author_id: "z" }]); check(!res.swapped.length && res.skipped.some((s) => /not a watched source/.test(s)), "untrusted author rejected"); }
   { const h = card(), r = road(h); const { res } = await run(r, [{ ...colleen, public_metrics: { like_count: 29, impression_count: 1499 } }]); check(!res.swapped.length && res.skipped.some((s) => /engagement/.test(s)), "tracker below 30 likes / 1.5k views rejected"); }

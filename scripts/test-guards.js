@@ -113,6 +113,28 @@ const run = async (road, posts, verdicts, user = "Blobifie") => {
     check(!st2.history.some((h) => h.id === "e-s44") && rq.length === 1 && /Flight 17/.test(rq[0].suggested) && g44.dropped.has("e-s44"), "unknown S44 card → review queue (suggested Flight 17), no Flight 15 card, no push");
     r = base(); r.feed_items = [{ ...B24, id: "news-s44", body: "S44 nosecone stacked", box: "cryo" }, ...(r.feed_items || [])]; run(r);
     const f44 = r.feed_items.find((f) => f.id === "news-s44"); check(f44.flight === 17 && !f44.box, "unknown S44 feed item → Flight 17, no box");
+    // media-downgrade (29 Oct rule: media only climbs low tier → NSF-like → SpaceX; SpaceX locks; keep_image always wins)
+    { const mk = (mo, extra = {}) => ({ flight: 15, vehicles: ["B22"], categories: [{ id: "static", history: [{ id: "m1", text: "Booster 22 static fire.", hardware: "B22", media_override: mo, ...extra }] }] });
+      const spx = { post_url: "https://x.com/SpaceX/status/1", post_id: "1", author: "SpaceX", type: "video", image: "images/spx.jpg", locked: true };
+      const nsf = { post_url: "https://x.com/NASASpaceflight/status/2", post_id: "2", author: "NASASpaceflight", type: "video", image: "nsf.jpg", auto: true };
+      const blob = { post_url: "https://x.com/Blobifie/status/3", post_id: "3", author: "Blobifie", type: "photo", image: "blob.jpg", auto: true };
+      const fan = { post_url: "https://x.com/randomfan/status/4", post_id: "4", author: "randomfan", type: "photo", image: "fan.jpg", auto: true };
+      logs.length = 0; let p0 = mk(spx, { media_locked: true }), r1 = mk(nsf); run(r1, { prev: p0 });
+      check(r1.categories[0].history[0].media_override.image === "images/spx.jpg" && logs.some((l) => /^GUARD media-downgrade: m1/.test(l)), "SpaceX-locked picture → NSF swap undone, logged as GUARD media-downgrade");
+      p0 = mk(nsf); r1 = mk(fan); run(r1, { prev: p0 });
+      check(r1.categories[0].history[0].media_override.image === "nsf.jpg", "Tier 2 picture → untiered (Tier 3) picture blocked");
+      p0 = mk({ ...blob, keep_image: true }); r1 = mk(nsf); run(r1, { prev: p0 });
+      check(r1.categories[0].history[0].media_override.image === "blob.jpg", "manual keep_image pick → automatic swap undone");
+      logs.length = 0; p0 = mk(nsf); r1 = mk(spx); run(r1, { prev: p0 });
+      check(r1.categories[0].history[0].media_override.image === "images/spx.jpg" && !logs.some((l) => /media-downgrade/.test(l)), "NSF → SpaceX is a climb: allowed");
+      p0 = mk(nsf); r1 = mk(blob); run(r1, { prev: p0 });
+      check(r1.categories[0].history[0].media_override.image === "blob.jpg", "same tier (NSF → Blobifie, both Tier 2): allowed");
+      p0 = mk(spx, { media_locked: true }); r1 = mk({ ...blob, keep_image: true }); run(r1, { prev: p0 });
+      check(r1.categories[0].history[0].media_override.image === "blob.jpg", "a new manual keep_image pick (road-media.json) may replace a lock");
+      const live = JSON.parse(require("fs").readFileSync(require("path").join(__dirname, "..", "road.json"), "utf8")), st = live.categories.find((c) => c.id === "static").history;
+      const s42 = st.find((h) => h.id === "x-2114904512217694216"), b22 = st.find((h) => h.id === "x-2111327584122437857");
+      check(s42.media_override.image === "images/s42-static-fire.jpg" && b22.media_override.image === "images/b22-static-fire-spacex.jpg" && [s42, b22].every((h) => h.media_locked && h.media_override.locked && h.media_override.keep_image && h.media_override.author === "SpaceX"), "live road.json: S42 + B22 Static fires show the SpaceX frames, locked");
+    }
   }
   console.log(fails ? `\n${fails} FAILED` : "\n✅ All guard checks passed."); process.exit(fails ? 1 : 0);
 })();

@@ -15,8 +15,11 @@
      untagged       a new vehicle-stage card with no hardware and no flight → review queue, no card
      event-row      a completed milestone (milestone.phase completed + event_record) always has its completion as a row in that
                     vehicle's Earlier updates (Road box + Road to Flight card): missing → added from the event_record, same day/text/link
-     hedged         hedged completion wording ("appears to have completed") never marks a card complete */
-const scope = require("./scope.js"), events = require("./events.js");
+     hedged         hedged completion wording ("appears to have completed") never marks a card complete
+     media-downgrade a card's picture only climbs (low tier → NSF-like → SpaceX; 29 Oct rule): a new picture of a lower rank
+                    than the last written one, or any change to a locked one (keep_image / SpaceX media) that is not itself a
+                    manual keep_image pick, is undone back to the previous picture */
+const scope = require("./scope.js"), events = require("./events.js"), RP = require("./road-pick.js");
 const CAP = 5, VEH_STAGES = ["cryo", "raptor", "static"];
 const hwKey = (s) => String(s || "").toUpperCase().replace(/^SHIP\s*/, "S").replace(/^BOOSTER\s*/, "B").replace(/\s+/g, "");
 const isVeh = (k) => /^[BS]\d{2,3}$/.test(k);
@@ -51,6 +54,20 @@ function eventRows(road, log = () => {}) {
     const t = Date.parse(r.at), i = ups.findIndex((u) => (Date.parse(u.at) || 0) > t);
     const next = ups.slice(); next.splice(i < 0 ? next.length : i, 0, row); h.updates = next;
     log(`GUARD event-row: ${h.id || h.text} missing its completion row → added "${row.date} ${row.text}" from the event record`); out.push({ id: h.id || h.text, text: r.text });
+  }
+  return out;
+}
+// rank of a card picture: 0 = locked (keep_image, locked, or Tier 1/SpaceX media), else its source tier (lower is better)
+const mediaRank = (mo) => (!mo || !mo.image ? 9 : mo.keep_image || mo.locked || RP.tierOf(mo.author) === 1 ? 0 : RP.tierOf(mo.author));
+function mediaDowngrades(road, prevById) {
+  const out = [];
+  for (const c of road.categories || []) for (const h of c.history || []) {
+    const p = h && h.id && prevById.get(h.id), a = p && p.media_override, b = h && h.media_override;
+    if (!a || !a.image || (b && b.image === a.image)) continue;
+    const ra = p.media_locked ? 0 : mediaRank(a), rb = h.media_locked && !p.media_locked ? 0 : mediaRank(b), manual = !!(b && b.keep_image);
+    if (manual || rb < ra || (rb === ra && ra !== 0)) continue; // a manual pick, a climb, or a same-tier upgrade (unlocked) is fine
+    out.push(`${h.id}: @${a.author || "?"} ${a.image} (rank ${ra}) → ${b ? `@${b.author || "?"} ${b.image}` : "none"} (rank ${rb}) blocked, previous picture kept`);
+    h.media_override = JSON.parse(JSON.stringify(a));
   }
   return out;
 }
@@ -97,6 +114,8 @@ function run(road, { prev = null, log = console.log, review = null, now = Date.n
   // rollover
   if ((!road.vehicles || !road.vehicles.length)) { const vs = Object.keys(map).filter((k) => map[k] === road.flight); if (vs.length) { road.vehicles = vs.sort(); fix("rollover", `no vehicles on Road to Flight ${road.flight} → ${vs.join(", ")}`); } }
   if (prev) {
+    const prevById = new Map((prev.categories || []).flatMap((c) => (c.history || []).filter((h) => h && h.id).map((h) => [h.id, h])));
+    for (const x of mediaDowngrades(road, prevById)) fix("media-downgrade", x);
     const old = ids(prev), oldPosts = new Set((prev.categories || []).flatMap((c) => (c.history || []).flatMap(postIds)));
     const fresh = [];
     for (const c of road.categories || []) for (const h of c.history || []) if (h && h.id && !old.has(h.id) && h.kind !== "check") fresh.push({ c, h });
@@ -134,4 +153,4 @@ function run(road, { prev = null, log = console.log, review = null, now = Date.n
   for (const x of eventRows(road, (m) => log(m))) fixes.push({ name: "event-row", msg: `${x.id}: ${x.text}` });
   return { fixes, dropped, pushes };
 }
-module.exports = { eventRows, run, flightMap, HEDGED_DONE, NET_DAY, CAP };
+module.exports = { mediaRank, mediaDowngrades, eventRows, run, flightMap, HEDGED_DONE, NET_DAY, CAP };

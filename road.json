@@ -710,12 +710,13 @@
             "by": "manual preview review (Grok vision re-checks on the first live run)"
           },
           "media_override": {
-            "post_url": "https://x.com/StarshipGazer",
+            "post_url": "https://x.com/StarshipGazer/status/2097839813114068995",
             "author": "StarshipGazer",
             "type": "photo",
             "image": "images/b22-cryo-starshipgazer.jpg",
             "keep_image": true,
-            "note": "31 Oct: photo credited to @StarshipGazer (badge); no post URL for this photo yet, so it links the profile. Was LabPadre 2098045579234259249 video thumb."
+            "note": "31 Oct: photo 2 of @StarshipGazer's 9 Sep 2026 post (X media HR0EnCrWEAM50a1, credited on the Starship SpaceX Wiki file page); badge and photo open that post. Watermark kept.",
+            "post_id": "2097839813114068995"
           },
           "imageChecked2": true,
           "flight": 15,
@@ -1176,7 +1177,8 @@
             "type": "video",
             "image": "images/s42-static-fire.jpg",
             "credit_only": true,
-            "keep_image": true
+            "keep_image": true,
+            "locked": true
           },
           "milestone": {
             "key": "static_fire|15|S42",
@@ -1338,7 +1340,8 @@
             "type": "photo",
             "image": "https://pbs.twimg.com/media/HVq1gQrXUAAWAUv.jpg",
             "show": false
-          }
+          },
+          "media_locked": true
         },
         {
           "id": "x-2114535368758542634",
@@ -1631,7 +1634,8 @@
             "type": "video",
             "image": "images/b22-static-fire-spacex.jpg",
             "credit_only": true,
-            "keep_image": true
+            "keep_image": true,
+            "locked": true
           },
           "flight": 15,
           "tier": 1,
@@ -1734,7 +1738,9 @@
                 "at": "2026-10-25T13:22:00.000Z"
               }
             ]
-          }
+          },
+          "media_locked": true,
+          "text_locked": true
         },
         {
           "id": "x-2114335419785679308",
