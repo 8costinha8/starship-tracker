@@ -85,6 +85,10 @@ function apply(road, { log = console.log } = {}) {
     if (shipRow && h7) { padH6.updates = padH6.updates.filter((u) => u !== shipRow); shipRow.card_text = "Ship 42 was lifted by the Pad 2 chopsticks in a catch position, with SQD arm connect tests."; h7.updates.push(shipRow); ch("pad 11–12 Sep Ship 42 row moved from the Launch pad card to the Ship 42 pad card", shipRow.text, shipRow.card_text); }
   }
 
+  // 4c. Flight Log Launch date earlier lines: past tense (pinned lines; links kept)
+  { const dl = ((road.flightlog_pins || {}).boxes || {}).date; const L = dl && dl.cards && dl.cards[0] && dl.cards[0].lines || [];
+    const T = { "Reports say Flight 15 is targeting NET 8 November.": "Reports said Flight 15 was targeting NET 8 November (since moved to NET 12 Nov).", "A slide suggests Ship 42 is ready for flight NET November.": "A slide suggested Ship 42 would be ready for flight NET November." };
+    for (const l of L) if (T[l.text]) { const b = l.text; l.text = T[b]; ch(`pin date ${l.day} line (past tense)`, b, l.text); } }
   // 5. S42 Raptor line: one past-tense line (NSF 14 Oct reinstall report + the inferred "all 6 by 26 Oct")
   const rp = cat("raptor"), reinst = rp.history.find((h) => /Raptor engines are reportedly being reinstalled/.test(h.text || ""));
   const R5 = "Ship 42's Raptors were reportedly being reinstalled; all 6 Raptors were installed by 26 Oct."; // one past-tense line; same wording the self-check uses for the superseded 'being reinstalled' post

@@ -57,7 +57,7 @@ function view1(road, { app }) {
   }
   return { log, cards };
 }
-const PRESENT = /\b(?:is|are) (?:being|now|undergoing|moving|heading|rolling)\b|\b(?:has|have) (?:been|begun|left|arrived|returned|reportedly)\b|\b(?:completes|performing|purging|undergoing|departs|arrives|rolls out|heads to|is in)\b|^(?:Ship|Booster) \d+ (?:waiting|rolls|arrives|heads|leaves|returns|moves|lifts)\b|\bpropellant loading has\b/i;
+const PRESENT = /\b(?:is|are) (?:being|now|undergoing|moving|heading|rolling)\b|\b(?:has|have) (?:been|begun|left|arrived|returned|reportedly)\b|\b(?:completes|performing|purging|undergoing|departs|arrives|rolls out|heads to|is in)\b|^(?:Ship|Booster) \d+ (?:waiting|rolls|arrives|heads|leaves|returns|moves|lifts)\b|\bpropellant loading has\b|\b(?:reports|sources) say\b|\b(?:is|are) targeting\b|\bsuggests\b|\bsaid Flight \d+ is\b/i;
 const FORECAST = /\b(?:could|may|might|expected|plans?|will)\b/i;
 const vehs = (t) => { const o = new Set(); for (const m of String(t || "").matchAll(/\b(?:(B|S)(\d{2,3})|(Booster|Ship)\s+(\d{2,3}))\b/gi)) o.add(((m[1] || m[3])[0]).toUpperCase() + (m[2] || m[4])); return [...o]; };
 const EVENT = (t) => (/static fire|\bfired\b/i.test(t) ? "static" : /cryo/i.test(t) ? "cryo" : /\bremov/i.test(t) ? "removal" : /reinstall|installed/i.test(t) ? "install" : /catch height|chopsticks/i.test(t) ? "catch" : null);
