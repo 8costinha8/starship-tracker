@@ -20,5 +20,11 @@
   "consecutive_failures": 0,
   "alert": false,
   "last_error": null,
-  "committed_at": "2026-11-01T05:15:37.448Z"
+  "committed_at": "2026-11-01T05:15:37.448Z",
+  "render_check": {
+    "at": "2026-11-01T06:01:40.294Z",
+    "status": "ok",
+    "failures": 0,
+    "items": []
+  }
 }

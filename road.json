@@ -4,8 +4,8 @@
     "B22",
     "S42"
   ],
-  "updated": "31 Oct",
-  "updatedAt": "2026-10-31T15:46:21.093Z",
+  "updated": "1 Nov",
+  "updatedAt": "2026-11-01T06:01:40.590Z",
   "categories": [
     {
       "id": "cryo",
@@ -1396,6 +1396,18 @@
               "type": "video",
               "post_url": "https://x.com/SpaceX/status/2115476295169814978",
               "author": "SpaceX"
+            },
+            {
+              "image": "https://pbs.twimg.com/amplify_video_thumb/2114691314495418368/img/yaSu0o2nwISYaNZ-.jpg",
+              "type": "video",
+              "post_url": "https://x.com/Blobifie/status/2114691485337850020",
+              "author": "Blobifie"
+            },
+            {
+              "image": "https://pbs.twimg.com/amplify_video_thumb/2114686073846837248/img/uEHvSZZHMQwvHU0S.jpg",
+              "type": "video",
+              "post_url": "https://x.com/Blobifie/status/2114686191627030843",
+              "author": "Blobifie"
             }
           ],
           "completed_at_note": "27 Oct 21:45 UK: NSF (tier 1) post showing the six-engine firing; 28 Oct 11:25 was NSF's recap post, 28 Oct 16:10 SpaceX's recap"
@@ -3775,22 +3787,17 @@
     "https://pbs.twimg.com/media/HTwdsecaIAAK_9e.jpg": "images/cache/media_HTwdsecaIAAK_9e.jpg"
   },
   "self_check": {
-    "at": "2026-10-31T16:14:48.227Z",
-    "fixes": 57,
-    "flags": 3,
-    "counts": {
-      "launch-date": 3,
-      "event-time": 2,
-      "missing-row": 2,
-      "superseded": 1,
-      "source-badge": 14,
-      "image-cache": 35
-    },
+    "at": "2026-11-01T06:01:40.294Z",
+    "fixes": 0,
+    "flags": 1,
+    "counts": {},
     "judge_calls": 0,
     "flagged": [
-      "[launch-date] feed \"NET Nov 2026\" (flight-mvsjfivy-8b129a) is a month-only Launch Library date; hero day NET 12 Nov is the higher-tier value",
-      "[event-time] x-2114904512217694216 card \"Ship 42 completed both its single- and six-engine static fire tests at Massey's.\" 27 Oct vs feed news-mvsb9c8o-97f884 \"Ship 42 completes full duration six-engine static fire and deorbit burn simulation\" 28 Oct: post is on the card but on another UK day and tier 1 ≤ 1; could be a later firing, both kept",
-      "[event-time] Ship 42 completed further cryo tests. \"Ship 42 completed further cryo tests.\" 9 Oct 15:xx UK precedes in-test row \"Frost on both tanks: Ship 42 likely in another cryo test.\" 2026-10-09T20:30:41.000Z on the same card"
-    ]
+      "[launch-date] feed \"NET Nov 2026\" (flight-mvsjfivy-8b129a) is a month-only Launch Library date; hero day NET 12 Nov is the higher-tier value"
+    ],
+    "render": {
+      "status": "ok",
+      "failures": 0
+    }
   }
 }
