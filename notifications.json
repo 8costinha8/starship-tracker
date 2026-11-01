@@ -446,6 +446,18 @@
       "verdict": "silent: minor lift — a push went out 4.7h ago (quiet window 24h)",
       "gate": "hold passed (1 run)",
       "key": "B24|lift|31 Oct"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Flight 15 vehicles tested ahead of November launch",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mvycu1v4-3745f1",
+      "url": "https://www.youtube.com/watch?v=9i5-UQGTMHQ",
+      "at": "2026-11-01T21:41:10.000Z",
+      "sent_at": "2026-11-01T22:01:03.774Z",
+      "where": "feed",
+      "verdict": "sent",
+      "gate": "not an X tracker post",
+      "key": "F15|other|1 Nov"
     }
   ]
 }
