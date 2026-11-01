@@ -1567,7 +1567,10 @@ async function run(opts = {}) {
   // picture; text unchanged, never a push (it never touches `changes`/notifications); ship cryo = proposal only
   if ((!opts.sources && mode === "live") || opts.mediaWatch) {
     try {
-      const mw = await require("./media-watch.js").runMediaWatch(road, state, { token: process.env.X_BEARER_TOKEN, picks: opts.mediaPicks || loadMediaPicks(), ...(opts.mediaWatch || {}), log });
+      const SEC = require("./same-event-cache.js"), seFile = opts.sameEventCacheFile || SEC.FILE, sameCache = SEC.load(seFile); SEC.prune(sameCache, clock());
+      const mw = await require("./media-watch.js").runMediaWatch(road, state, { token: process.env.X_BEARER_TOKEN, picks: opts.mediaPicks || loadMediaPicks(), sameCache, ...(opts.mediaWatch || {}), log });
+      if (mw.ran) log(`media watch: same_event ${mw.sameCalls} Grok call(s), ${mw.sameCached} cached verdict(s)`);
+      if (sameCache.dirty && save && (mode === "live" || opts.sameEventCacheFile)) { SEC.save(sameCache, seFile); try { commit(path.relative(ROOT, seFile), `Auto: same-event cache — ${Object.keys(sameCache.entries).length} verdict(s)`); } catch (e) { log(`same-event cache commit failed: ${e.message}`); } }
       if (mw.ran) log(`media watch: ${mw.calls} X call(s), ${mw.swapped.length} swap(s), ${mw.proposals.length} proposal(s)${mw.deferred ? `, ${mw.deferred} deferred to next watch` : ""}`);
       if (mw.swapped.length) changed = true;
     } catch (e) { log(`media watch failed (${e.message}) — tried again next hour`); }
@@ -1767,7 +1770,7 @@ async function run(opts = {}) {
 module.exports = { X_SEARCH_HANDLES, firebaseDeps, pushGateFor, addToReview, dataVehicles, rolloverVehicles, setLastTerms, applyPrereqs, searchVehicleWords, archiveLaunched, milestones, statusRule, xStatus, applyMediaPicks, loadMediaPicks, pickImage, applyImageCheck, verifyImages, fcmMessage, notificationFor, judgeFeed, verifyFeed, entryDayMs, backfillX, xPostCard, xIdOf, readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, titleMatches, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
 
 if (require.main === module) {
-  process.on("exit", () => console.log(writer.grokCallsLine()));
+  process.on("exit", () => { console.log(writer.grokCallsLine()); for (const l of writer.grokPurposeLines()) console.log(l); });
   globalThis.fetch = require("./retry.js").withRetry(globalThis.fetch, { log: (m) => console.log(`• ${m}`) }); // X / news / images: 2 retries, short backoff
   let failure = null;
   run().catch((err) => { failure = err; console.error("Road checker failed:", err); })

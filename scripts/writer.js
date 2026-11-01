@@ -93,10 +93,12 @@ const providerFaults = () => [...faults.values()];
 const resetProviderFaults = () => faults.clear();
 
 // Per-process Grok call counter (askJson calls, not retries) → one GROK_CALLS summary line per run.
-const counts = { text: 0, vision: 0 };
+const counts = { text: 0, vision: 0 }, byPurpose = {};
 const grokCalls = () => ({ total: counts.text + counts.vision, ...counts });
 const grokCallsLine = () => { const c = grokCalls(); return `GROK_CALLS run total=${c.total} text=${c.text} vision=${c.vision} model=${writerModel()}`; };
-const resetGrokCalls = () => { counts.text = 0; counts.vision = 0; };
+// one GROK_CALLS line per purpose (schemaName), e.g. "GROK_CALLS purpose=same_event calls=3"
+const grokPurposeLines = () => Object.keys(byPurpose).sort().map((k) => `GROK_CALLS purpose=${k} calls=${byPurpose[k]}`);
+const resetGrokCalls = () => { counts.text = 0; counts.vision = 0; for (const k of Object.keys(byPurpose)) delete byPurpose[k]; };
 const sleep = (ms) => new Promise((ok) => setTimeout(ok, ms));
 
 /* Ask the writer for JSON.
@@ -107,7 +109,7 @@ const sleep = (ms) => new Promise((ok) => setTimeout(ok, ms));
 async function askJson(prompt, opts = {}) {
   writerName();
   const vision = Array.isArray(opts.images) && opts.images.length > 0, model = writerModel();
-  counts[vision ? "vision" : "text"]++;
+  counts[vision ? "vision" : "text"]++; byPurpose[opts.schemaName || "unnamed"] = (byPurpose[opts.schemaName || "unnamed"] || 0) + 1;
   console.log(`MODEL ${vision ? "vision" : "text"}=${model} purpose=${opts.schemaName || "unnamed"}`);
   return noteFault("grok", () => askWith("grok", model, prompt, opts));
 }
@@ -145,4 +147,4 @@ async function askWith(w, model, prompt, opts) {
   }
 }
 
-module.exports = { providerFault, providerFaults, resetProviderFaults, askJson, writerName, writerLabel, writerModel, responsesText, resetFallbackWarning, DEFAULT_MODELS, grokCalls, grokCallsLine, resetGrokCalls };
+module.exports = { grokPurposeLines, providerFault, providerFaults, resetProviderFaults, askJson, writerName, writerLabel, writerModel, responsesText, resetFallbackWarning, DEFAULT_MODELS, grokCalls, grokCallsLine, resetGrokCalls };

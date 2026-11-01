@@ -57,10 +57,10 @@ const run = async (r, posts, opts = {}) => { const x = fakeX(posts); const st = 
     const h = card(), r = road(h), state = {}; await run(r, [colleen], { ask: counting, state });
     const first = n; await run(r, [colleen], { ask: counting, state, now: NOW + mw.EVERY_MS + 1 });
     check(first === 1 && n === 1, "a 'not the same event' verdict is cached: the next hourly watch asks Grok nothing"); }
-  { let n = 0; const counting = { vision: async (_p, url) => { n++; return { ...VQ[url] }; }, same: async () => { n++; return { same: true }; } };
+  { let n = 0, sn = 0; const counting = { vision: async (_p, url) => { n++; return { ...VQ[url] }; }, same: async () => { sn++; return { same: true }; } };
     const many = Array.from({ length: 30 }, (_, i) => ({ ...card(), id: "c" + i, text: "Booster 22 lift " + i }));
     const r = road(many[0], "pad", many.slice(1)); const { res } = await run(r, [colleen], { ask: counting });
-    check(n <= mw.MAX_ASKS && res.deferred > 0, `Grok calls per watch capped at ${mw.MAX_ASKS} (rest deferred)`); }
+    check(n <= mw.MAX_ASKS && sn <= mw.MAX_SAME && res.deferred > 0, `Grok calls per watch capped: vision ${mw.MAX_ASKS}, same_event ${mw.MAX_SAME} (rest deferred)`); }
   // 31 Oct: cache skips only judged pairs; new Tier 1/2 posts first within the cap; capped items carried over, never dropped
   { let order = []; const counting = { vision: async (_p, url) => ({ ...VQ[url] }), same: async (prompt) => { order.push(prompt); return { same: false }; } };
     const mkPost = (id, user, at) => ({ id, author_id: user, created_at: at, text: "Booster 22 lifted onto Pad 2 " + id, attachments: { media_keys: ["mc1"] }, public_metrics: { like_count: 500, retweet_count: 50, impression_count: 50000 } });
@@ -69,15 +69,15 @@ const run = async (r, posts, opts = {}) => { const x = fakeX(posts); const st = 
       return mw.runMediaWatch(r, st, { token: "t", fetchFn, ask: counting, picks: [], now, log: () => {} }); };
     const cards = Array.from({ length: 10 }, (_, i) => ({ ...card(), id: "k" + i, text: "Booster 22 lift " + i }));
     const r = road(cards[0], "pad", cards.slice(1)), st = {};
-    // run 1: an old tracker post (colleen, judged with nothing yet) + a SpaceX post + a LabPadre post; 10 cards each → 30 pairs > 16
+    // run 1: an old tracker post (colleen, judged with nothing yet) + a SpaceX post + a LabPadre post; 10 cards each → 30 pairs > 20
     const cPost = { ...colleen }, sx = mkPost("9001", "sx", "2026-10-24T14:00:00.000Z"), lp = mkPost("9002", "lp", "2026-10-24T14:10:00.000Z");
     const res1 = await runU(r, [cPost, sx, lp], st, NOW);
     const firstTen = order.slice(0, 20).join("\n");
-    check(order.length === mw.MAX_ASKS && order.slice(0, 10).every((o) => /9001/.test(o)) && order.slice(10).every((o) => /9002/.test(o)) && !/Lift! B22/.test(firstTen), "brand-new Tier 1 (SpaceX) then Tier 2 (LabPadre) posts are judged first within the cap; the older tracker post waits");
-    check(res1.deferred > 0 && st.mediaWatch.pending.some((p) => p.post_id === cPost.id) && st.mediaWatch.pending.some((p) => p.post_id === "9002") && !st.mediaWatch.pending.some((p) => p.post_id === "9001"), "posts stopped by the cap are carried over (mw.pending), not dropped");
+    check(order.length === mw.MAX_SAME && order.slice(0, 10).every((o) => /9001/.test(o)) && order.slice(10).every((o) => /9002/.test(o)) && !/Lift! B22/.test(firstTen), "brand-new Tier 1 (SpaceX) then Tier 2 (LabPadre) posts are judged first within the cap; the older tracker post waits");
+    check(res1.deferred > 0 && st.mediaWatch.pending.some((p) => p.post_id === cPost.id) && !st.mediaWatch.pending.some((p) => p.post_id === "9002" || p.post_id === "9001"), "posts stopped by the cap are carried over (mw.pending), not dropped");
     // run 2: 15 min later, the search no longer returns them: the carried items still run, judged pairs are not re-asked
     order = []; const res2 = await runU(r, [], st, NOW + 15 * 60000);
-    check(res2.ran && order.length === 30 - mw.MAX_ASKS && order.every((pr) => !/9001/.test(pr)), `next run: only the ${30 - mw.MAX_ASKS} unjudged pairs are asked (judged pairs skipped by the cache)`);
+    check(res2.ran && order.length === 30 - mw.MAX_SAME && order.every((pr) => !/9001/.test(pr)), `next run: only the ${30 - mw.MAX_SAME} unjudged pairs are asked (judged pairs skipped by the cache)`);
     check(!st.mediaWatch.pending.length && Object.keys(st.mediaWatch.judged).length === 30, "after the carry-over every (post, card) pair is judged once; nothing dropped");
     // a failed vision verdict is not cached as judged
     const st3 = {}, h3 = card(), r3 = road(h3); let fail = true;

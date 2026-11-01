@@ -13,6 +13,7 @@ const tiers = require("./source-tiers.js");
 const MEDIA_TRACKERS = ["colleenadastra", "StarbaseWatcher", "BocaChicaGal"];
 const EVERY_MS = 60 * 60000, WINDOW_MS = 48 * 3600000, LOOKBACK_MS = 7 * 86400000;
 const RATIO = 1.5, MIN_CONF = 0.8;
+const SEC = require("./same-event-cache.js");
 const MAX_ASKS = 16; // Grok calls per watch; the rest wait for the next hour (verdicts are cached)
 const GATE = { 1: { likes: 50, views: 3000 }, 2: { likes: 30, views: 1500 }, tracker: { likes: 30, views: 1500 } };
 const WEIGHT = { 1: 1.0, 2: 0.9, tracker: 0.8 };
@@ -142,9 +143,9 @@ function searchQuery(cards) {
   return q(terms);
 }
 
-async function runMediaWatch(road, state, { token, fetchFn = fetch, ask = null, picks = [], now = Date.now(), log = console.log } = {}) {
+async function runMediaWatch(road, state, { token, fetchFn = fetch, ask = null, picks = [], now = Date.now(), log = console.log, sameCache = null, maxSame = SEC.MAX_SAME } = {}) {
   const mw = (state.mediaWatch = state.mediaWatch || {});
-  const res = { ran: false, calls: 0, swapped: [], proposals: [], skipped: [], deferred: 0 };
+  const res = { ran: false, calls: 0, swapped: [], proposals: [], skipped: [], deferred: 0, sameCalls: 0, sameCached: 0 };
   if (!token) return res;
   const carried = (mw.pending || []).filter((p) => p && p.post_id && now - Date.parse(p.created_at || 0) < LOOKBACK_MS + WINDOW_MS); // only a post no watched card can use any more leaves the queue
   if (mw.lastAt && now - Date.parse(mw.lastAt) < EVERY_MS && !carried.length) return res; // hourly (sooner when posts were carried over)
@@ -163,7 +164,7 @@ async function runMediaWatch(road, state, { token, fetchFn = fetch, ask = null, 
   }
   // call 2: candidates
   const judged = (mw.judged = Object.fromEntries(Object.entries(mw.judged || {}).filter(([, v]) => v && now - Date.parse(v.at || 0) < LOOKBACK_MS)));
-  let asks = 0;
+  let asks = 0, sameAsks = 0; // same_event calls have their own hard cap (maxSame); vision/pair keep MAX_ASKS
   let posts = [];
   try {
     posts = await xGet(fetchFn, token, `https://api.x.com/2/tweets/search/recent?${new URLSearchParams({ query: searchQuery(cards), max_results: "25",
@@ -173,7 +174,8 @@ async function runMediaWatch(road, state, { token, fetchFn = fetch, ask = null, 
   // order within the Grok cap: brand-new Tier 1/2 posts (never judged against any card) first, newest first; then posts carried
   // over from the last watch; then the rest. Every post the cap stops is carried to the next run (mw.pending), never dropped.
   const judgedPosts = new Set(Object.keys(judged).map((k) => k.split("|")[0]));
-  const rank = (p, isCarried) => { const t = sourceTier(p.author); return !isCarried && !judgedPosts.has(p.post_id) && (t === 1 || t === 2) ? t - 1 : isCarried ? 2 : 3; };
+  if (sameCache) for (const k of Object.keys(sameCache.entries)) judgedPosts.add(k.split("|")[0]);
+  const rank = (p, isCarried) => { const t = sourceTier(p.author); return !isCarried && !judgedPosts.has(p.post_id) && (t === 1 || t === 2) ? t - 1 : isCarried ? 2 + (t === 1 ? 0 : t === 2 ? 0.1 : 0.2) : 3 + (t === 1 ? 0 : t === 2 ? 0.1 : 0.2); }; // then newest first (sort below)
   const seenIds = new Set(posts.map((p) => p.post_id));
   const queue = [...posts.map((p) => ({ p, r: rank(p, false) })), ...carried.filter((p) => !seenIds.has(p.post_id)).map((p) => ({ p, r: rank(p, true) }))]
     .sort((a, b) => a.r - b.r || Date.parse(b.p.created_at || 0) - Date.parse(a.p.created_at || 0));
@@ -198,15 +200,22 @@ async function runMediaWatch(road, state, { token, fetchFn = fetch, ask = null, 
       const lock = lockedReason(h, c.id, pickIds);
       if (lock && !/propose/.test(lock)) { res.skipped.push(`${lock}: "${h.text}"`); continue; }
       // verdicts are cached per (post, card): a pair Grok already judged is never re-asked next hour
-      const jk = `${post.post_id}|${h.id || h.text}`, j = judged[jk] || {};
-      if (j.same === false) continue;
-      if (j.same === undefined) {
-        if (asks >= MAX_ASKS) { defer(post); continue; }
-        let same; asks++; try { same = await A.same(samePrompt(h.x_text || h.text, post)); } catch { same = null; }
-        if (!same) { defer(post); continue; } // error: carried to the next watch
+      const ck = h.id || h.text, jk = `${post.post_id}|${ck}`, j = judged[jk] || {}, cardText = h.x_text || h.text;
+      // 1 Nov: the repo cache (data/same-event-cache.json) is the verdict of record, keyed by post id + hash of post and card
+      // text: an unchanged pair is never re-asked; an edited post or card is judged again. Same boolean → same outcome.
+      let cached = sameCache ? SEC.get(sameCache, post.post_id, ck, post.text, cardText) : (j.same === undefined ? undefined : j.same);
+      // one-time seed: a pair already judged in the watch state (before the repo cache existed) moves into the cache unchanged
+      if (sameCache && cached === undefined && typeof j.same === "boolean" && !SEC.has(sameCache, post.post_id, ck)) { cached = j.same; SEC.set(sameCache, post.post_id, ck, post.text, cardText, j.same, j.at || mw.lastAt); }
+      if (cached !== undefined) { res.sameCached++; j.same = cached; j.at = j.at || mw.lastAt; judged[jk] = j; }
+      else {
+        if (sameAsks >= maxSame) { defer(post); continue; } // hard per-run cap: queued for the next run (priority order)
+        let same; sameAsks++; res.sameCalls++; try { same = await A.same(samePrompt(cardText, post)); } catch { same = null; }
+        if (!same) { defer(post); continue; } // error: carried to the next watch, never cached
+        if (j.same !== undefined && j.same !== !!same.same) j.v = {}; // edited post: earlier picture verdicts are judged again too
         j.same = !!same.same; j.at = mw.lastAt; judged[jk] = j;
-        if (!j.same) continue;
+        if (sameCache) SEC.set(sameCache, post.post_id, ck, post.text, cardText, j.same, mw.lastAt);
       }
+      if (!j.same) continue;
       j.v = j.v || {};
       let best = null, partial = false; const ok = [];
       for (const m of post.media.slice(0, 4)) {
@@ -244,4 +253,4 @@ async function runMediaWatch(road, state, { token, fetchFn = fetch, ask = null, 
   return res;
 }
 
-module.exports = { MAX_ASKS, PAIR_CONF, MAX_IMAGES, SINGLE_SHOT, singleShot, pairPrompt, decidePair, MEDIA_TRACKERS, GATE, WEIGHT, RATIO, EVERY_MS, WINDOW_MS, sourceTier, engagement, passesGate, score, isBetter, vehiclesOf, isShipCryo, lockedReason, watchedCards, searchQuery, runMediaWatch, watchAccounts };
+module.exports = { MAX_ASKS, MAX_SAME: SEC.MAX_SAME, PAIR_CONF, MAX_IMAGES, SINGLE_SHOT, singleShot, pairPrompt, decidePair, MEDIA_TRACKERS, GATE, WEIGHT, RATIO, EVERY_MS, WINDOW_MS, sourceTier, engagement, passesGate, score, isBetter, vehiclesOf, isShipCryo, lockedReason, watchedCards, searchQuery, runMediaWatch, watchAccounts };
