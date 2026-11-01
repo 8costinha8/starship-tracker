@@ -1,0 +1,16 @@
+{
+  "v": 1,
+  "note": "same_event Grok verdicts per (post, card); h = hash of post + card text (an edit re-judges). Written by check-road.js media watch.",
+  "entries": {
+    "2115231900961005856|x-2115701002095755563": {
+      "h": "941e66678da2235e",
+      "same": false,
+      "at": "2026-10-31T16:15:33.742Z"
+    },
+    "2115277795823632541|x-2114686191627030843": {
+      "h": "df7bc3a60e273d8a",
+      "same": false,
+      "at": "2026-10-31T16:15:33.742Z"
+    }
+  }
+}
