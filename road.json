@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "1 Nov",
-  "updatedAt": "2026-11-01T06:01:40.590Z",
+  "updatedAt": "2026-11-01T19:31:04.834Z",
   "categories": [
     {
       "id": "cryo",
@@ -3057,20 +3057,23 @@
   "predicted": {
     "flight": 15,
     "net": "2026-11-12",
-    "mode": "manual",
-    "basis": "FAA planning slide · NSF",
+    "mode": "auto",
+    "basis": "X @TrackingTheSB · X @StarshipGazer",
     "sources": [
       {
-        "name": "FAA planning slide",
-        "note": "FAA air-traffic planning slide, 30 Oct: NET 12 Nov (was 8 Nov)"
+        "name": "X @TrackingTheSB",
+        "url": "https://x.com/TrackingTheSB/status/2116973778219749564",
+        "note": "names 2026-11-12",
+        "seen_at": "2026-11-01T19:20:54.000Z"
       },
       {
-        "name": "NSF",
-        "url": "https://x.com/NASASpaceflight",
-        "note": "30 Oct: Flight 15 NET 12 Nov (was 8 Nov), citing the FAA planning slide"
+        "name": "X @StarshipGazer",
+        "url": "https://x.com/StarshipGazer/status/2116272970125709417",
+        "note": "names 2026-11-12",
+        "seen_at": "2026-10-30T20:56:09.000Z"
       }
     ],
-    "updatedAt": "2026-10-30T16:00:00.000Z"
+    "updatedAt": "2026-11-01T19:31:04.832Z"
   },
   "feedVerified": "2026-10-16T17:53:11.334Z",
   "feedJudged": "2026-10-16T17:57:57.301Z",
@@ -3234,6 +3237,17 @@
     }
   ],
   "feed_items": [
+    {
+      "id": "news-mvy7to1c-c7241c",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Ship 45 completes methane tank and starts liquid oxygen tank",
+      "url": "https://x.com/TrackingTheSB/status/2116973778219749564",
+      "at": "2026-11-01T19:20:54.000Z",
+      "date": "1 Nov",
+      "flight": 18,
+      "later_flight": true
+    },
     {
       "id": "news-mvvriszs-0c1ff5",
       "kind": "news",
@@ -3508,17 +3522,17 @@
   "predicted_candidates": [
     {
       "flight": 15,
+      "source": "X @TrackingTheSB",
+      "url": "https://x.com/TrackingTheSB/status/2116973778219749564",
+      "date": "2026-11-12",
+      "seen_at": "2026-11-01T19:20:54.000Z"
+    },
+    {
+      "flight": 15,
       "source": "X @StarshipGazer",
       "url": "https://x.com/StarshipGazer/status/2116272970125709417",
       "date": "2026-11-12",
       "seen_at": "2026-10-30T20:56:09.000Z"
-    },
-    {
-      "flight": 15,
-      "source": "X @TrackingTheSB",
-      "url": "https://x.com/TrackingTheSB/status/2114448734549319868",
-      "date": "2026-11-08",
-      "seen_at": "2026-10-25T20:07:17.000Z"
     }
   ],
   "pad": "Pad 2",
