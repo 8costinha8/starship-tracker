@@ -93,7 +93,26 @@ function plainWords(st, s, v, test, kind) {
 }
 /* One post through the engine. Returns { card, likely, text, confirms, moveToTest, state } — `state` is the NEW state.
    card ∈ cryo | static | raptor | pad | null (null = not this vehicle / another flight: never shown). */
-function step(st0, text0, { v, at = null, id = null, road = null } = {}) {
+// 1 Nov: done counts are CONFIRMED EVENTS, not posts. A recap ("completed both its ... fires"), a repeat of a post
+// already counted, or another post about the same event (same test within EVENT_MS of the event's first post) adds 0.
+// "two back-to-back cryo tests" adds 2. Updates st.last_test ({ test, at, start }) and st.counted (post keys).
+const EVENT_MS = 12 * 3600e3;
+const RECAP = /\bboth\b|\ball (?:of )?(?:its|their|the) (?:\w+ )?(?:static fires?|cryo|tests)|\bso far\b|\brecap\b|\b(?:after|following) (?:its|the|their) (?:\w+[- ])*(?:fire|test)s?\b|\b(?:two|three|four|\d) (?:static fires|cryo (?:proof )?tests) (?:in|over|this)\b/i;
+const NUM = { two: 2, three: 3, four: 4 };
+function countOf(st, ev, text, at, key) {
+  const t = Date.parse(at) || 0, last = st.last_test;
+  const prevStart = last && last.test === ev ? Date.parse(last.start || last.at) || 0 : null;
+  const counted = (st.counted = st.counted || []);
+  let n = 1;
+  if (key && counted.includes(key)) n = 0;
+  else if (RECAP.test(text)) n = 0;
+  else if (prevStart != null && t && prevStart && Math.abs(t - prevStart) <= EVENT_MS) n = 0;
+  else { const m = String(text).match(/\b(two|three|four)\s+(?:back[- ]to[- ]back\s+)?(?:cryo|static)/i); if (m) n = NUM[m[1].toLowerCase()]; }
+  if (key && !counted.includes(key)) { counted.push(key); if (counted.length > 40) counted.shift(); }
+  st.last_test = { test: ev, at: at || st.at, start: n > 0 ? at || st.at : (last && last.test === ev ? last.start || last.at : at || st.at) };
+  return n;
+}
+function step(st0, text0, { v, at = null, id = null, road = null, url = null } = {}) {
   const st = JSON.parse(JSON.stringify(st0 || blank()));
   if (road && !strictMatch(road, text0, v)) return { card: null, state: st0 || blank(), why: "other vehicle" };
   const text = clauseFor(text0, v);
@@ -115,13 +134,14 @@ function step(st0, text0, { v, at = null, id = null, road = null } = {}) {
     const frostOnly = (s.frost || s.load) && !s.doneReal && !/\b(fired|static fire (?:test )?(?:complete|done))/i.test(text);
     if (s.doneReal && !frostOnly) {                                         // a completed test: it confirms the open likely line (same line, new link)
       if (st.likely && st.likely.test === ev) { confirms = st.likely.id; out = plainWords(st, s, v, ev, "done"); }
-      st.done[ev] = (st.done[ev] || 0) + 1; st.last_test = { test: ev, at: at || st.at }; st.open_test = null; st.likely = null;
+      st.done[ev] = (st.done[ev] || 0) + countOf(st, ev, text, at, url || id); st.open_test = null; st.likely = null;
     } else {
       if (s.frost) { out = plainWords(st, s, v, ev, "frost"); likely = true; st.likely = { test: ev, id }; }
       st.open_test = ev;
     }
     if (st.pending.length) { moveToTest = { ids: st.pending.slice(), to: ev }; st.pending = []; }
-  } else if (s.raptor && !s.cryo && !s.static) card = "raptor";            // engine work (incl. "returned to Megabay 1 for its engines")
+  } else if (s.raptor && !s.cryo && !s.static && require("./purpose.js").isEnginePrep(text)) return { card: null, why: "engine prep (journey context, not a Raptor milestone)", state: st }; // 1 Nov
+  else if (s.raptor && !s.cryo && !s.static) card = "raptor";            // engine work (incl. "returned to Megabay 1 for its engines")
   else if (s.return || (s.stand && !s.rollout) || (s.at_place && s.locs.length && !s.rollout)) {  // follows the open / just-finished test, else Pad
     const f = st.open_test || just;
     card = f || "pad";
@@ -180,4 +200,4 @@ function moveLines(road, ids, to) {
     c.history = keep; }
   return moved;
 }
-module.exports = { routeNews, clauseFor, PHRASES, blank, signals, locations, evidence, frostContext, step, route, observe, confirmLine, moveLines, strictMatch, vehOf, nameOf, LABEL };
+module.exports = { countOf, RECAP, EVENT_MS, routeNews, clauseFor, PHRASES, blank, signals, locations, evidence, frostContext, step, route, observe, confirmLine, moveLines, strictMatch, vehOf, nameOf, LABEL };

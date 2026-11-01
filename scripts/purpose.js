@@ -13,7 +13,11 @@
    6. Nothing matched: the model's box when its confidence ≥ 0.7, else the campaign-window default, never Pad
       activity when a vehicle is named. */
 const C = require("./cleanup.js");
-const ENGINE = /\b(?:raptors?|engines?|rvacs?|rsls?)\b[^.]{0,40}\b(?:install|reinstall|remov|swap|deliver|spotted|fitted|fitting|jig)\w*|\b(?:install|reinstall|remov|swap|deliver|fitt?)\w*\b[^.]{0,15}\b(?:raptors?|engines?)\b|lifting jig/i;
+const ENGINE = /\b(?:raptors?|engines?|rvacs?|rsls?)\b[^.]{0,40}\b(?:install|reinstall|remov|swap|deliver|spotted|fitted|fitting)\w*|\b(?:install|reinstall|remov|swap|deliver|fitt?)\w*\b[^.]{0,15}\b(?:raptors?|engines?)\b|ready with all \d+ (?:raptors?|engines?)|(?:raptors?|engines?) (?:were|are) all in/i;
+// 1 Nov: engine PREP (a lifting jig raised, a bay readied "for engine testing") is journey context, not a Raptor milestone.
+const ENGINE_PREP = /lifting jig|\bjig\b|\bfor (?:its |the )?(?:engine|raptor) (?:testing|work|install\w*)/i;
+const ENGINE_DONE = /\b(?:install|reinstall|remov|swap|fitted)\w*|\ball (?:\d+ )?(?:raptors?|engines?)\b|ready with/i;
+const isEnginePrep = (t) => ENGINE_PREP.test(t) && !ENGINE_DONE.test(t);
 const CRYO = /massey|\bcryo|pressure test|proof test|test tank/i;
 const STATIC_SIG = /static[- ]?fire|propellant|\bchill|\bfrost|\bvent(s|ed|ing)?\b|\bfired\b|road (?:closure|closed|delay)|road is closed|beach closure|closure notice|testing closure|mayor's order|transport ring|\bfor testing\b/i;
 const STACK = /\bship\b[^.]{0,40}\bstack|stack\w* (?:on|onto) (?:the )?booster|full(?:y)? stack|\bwdr\b|wet dress|launch closure|launch window/i; // ship stacking, not a booster set on the mount
@@ -61,7 +65,7 @@ function purposeOf(road, step, st = states(road)) {
   const day = C.dayNum(step);
   const fired = (v) => st[v] && st[v].static != null && day > st[v].static;
   const anyOpen = vs.length ? vs.some((v) => !fired(v)) : Object.values(st).some((s) => s.static == null);
-  if (has("raptor") && ENGINE.test(t)) return { box: "raptor", why: "engine install / removal / swap" };
+  if (has("raptor") && ENGINE.test(t) && !isEnginePrep(t)) return { box: "raptor", why: "engine install / removal / swap" };
   if (has("cryo") && CRYO.test(t) && !/static[- ]?fire/i.test(t) && !(ROLLBACK.test(t) && vs.length && vs.every(fired))) return { box: "cryo", why: "cryo campaign" }; // leaving Massey's after static fires is not cryo
   if (STATIC_SIG.test(t) && (/static[- ]?fire/i.test(t) || anyOpen || (vs.length && ROLLBACK.test(t))))
     return { box: "static", why: /static[- ]?fire/i.test(t) ? "source says static fire" : "static fire signal in an open campaign" };
@@ -107,7 +111,7 @@ function refile(road) {
         c.history.push(pe); c.history.sort((a, b) => C.dayNum(b) - C.dayNum(a));
         moves.push({ id: pe.id, text: pe.text, from: c.id, to: c.id, split: true });
       }
-      if (c.latest === h.text || c.log_latest === (h.log_text || h.text) || c.log_latest === (h.status_line || require("./cleanup.js").shortLine(h.log_text || h.text))) { const n = (c.history || []).find((x) => x.kind !== "check"); if (n) { c.latest = n.text; c.log_latest = n.status_line || require("./cleanup.js").shortLine(n.log_text || n.text); } }
+      if (c.latest === h.text || c.log_latest === (h.log_text || h.text) || c.log_latest === (h.status_line || require("./cleanup.js").shortLine(h.log_text || h.text))) { const n = (c.history || []).find((x) => x.kind !== "check" && require("./summary-scope.js").inScope(road, x)); if (n) { c.latest = n.text; c.log_latest = n.status_line || require("./cleanup.js").shortLine(n.log_text || n.text); } }
     }
   }
   for (const f of road.feed_items || []) {
@@ -134,4 +138,4 @@ function purposeFor(road, line, source, step = {}) {
   if (!/^(model pick|default)$/.test(a.why) || !source) return a;
   return purposeOf(road, { ...step, text: `${line} ${source}` });
 }
-module.exports = { purposeOf, purposeFor, refile, states, describeStates, launchBox, promptRules, vehOf };
+module.exports = { isEnginePrep, purposeOf, purposeFor, refile, states, describeStates, launchBox, promptRules, vehOf };

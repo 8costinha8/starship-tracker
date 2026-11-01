@@ -1395,8 +1395,9 @@ async function run(opts = {}) {
           const tier = entry.official ? "official" : "trusted";
           if (want === "complete" && logText.hasVehicleEntries(box, road)) want = logText.rollupStatus(box, road) === "done" ? "done" : "progress"; // a vehicle section is done only when every vehicle completed
           if (!statusRule(box, want, tier, `@${post.author.username}`, log)) return null;
-          box.status = want; box.latest = want === "complete" ? doneLabel(box) : entry.text.slice(0, 160);
-          if (entry.status_line || entry.log_text) box.log_latest = entry.status_line || require("./cleanup.js").shortLine(entry.log_text); // overview: short plain state
+          box.status = want; const scoped = require("./summary-scope.js").inScope(road, entry); // summaries only from this flight's vehicles
+          if (want === "complete") box.latest = doneLabel(box); else if (scoped) box.latest = entry.text.slice(0, 160);
+          if (scoped && (entry.status_line || entry.log_text)) box.log_latest = entry.status_line || require("./cleanup.js").shortLine(entry.log_text); // overview: short plain state
           if (want === "complete" || want === "done") entry.complete = true;
           log(`STATUS [${box.id}] ${from} → ${want} (@${post.author.username})`);
           return { from, to: want };

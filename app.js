@@ -1548,8 +1548,8 @@ function OneMedia({ mo }) {
       <div className="xm-grid n1"><a href={mo.post_url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
         <img src={localImg(mo.image)} alt="" loading="lazy" referrerPolicy="no-referrer" onError={imgFallback(mo.image, () => setBad(true))} />{mo.type === "video" && PLAY_ICON}</a>
         <SrcBadge author={mo.author} url={mo.post_url} image={mo.image} /></div>
-      {mo.credit_only && <div className="xm-foot"><span className="xm-ctx">{`Photo · @${mo.author}`}</span>
-        <a href={mo.post_url} target="_blank" rel="noopener noreferrer" aria-label="View on X" onClick={(e) => e.stopPropagation()}>View on X {LINK_ICON}</a></div>}
+      {/* credit-only photo: the photo and its badge already open the photo's post; the card keeps one View on X (its own post) */}
+      {mo.credit_only && <div className="xm-foot"><span className="xm-ctx">{`Photo · @${mo.author}`}</span></div>}
     </div>
   );
 }

@@ -220,7 +220,7 @@ function placePost(road, post, cls, now = Date.now(), picks = []) {
     else if (!h.media_override && !h.media_context) { const cx = contextImage(road, cls.stage, cls.hardware, h.id, picks); if (cx) h.media_context = cx; }
     h.milestone.phase = to;
     if (to === "completed") { h.complete = true; if (!h.completed_at && claimed === "completed") { h.completed_at = new Date(at).toISOString(); h.completed_src = post.url; } } // header time: the first post reporting the completion
-    if (h.log_text && h.trust !== "unconfirmed" && !(h.flight > road.flight)) life.c.log_latest = h.status_line || require("./cleanup.js").shortLine(h.log_text); // the section's current outcome
+    if (h.log_text && h.trust !== "unconfirmed" && require("./summary-scope.js").inScope(road, h)) life.c.log_latest = h.status_line || require("./cleanup.js").shortLine(h.log_text); // the section's current outcome
     return { box: life.c, entry: h, merged: true, phase: to !== from ? { from, to } : null, accurate, tier };
   }
   const prev = !type && key && all.find(({ c, h }) => h.x_first && !h.milestone && c.id === cls.stage && hwKey(h.hardware) === key && Math.abs(at - Date.parse(h.at)) <= MERGE_MS);
@@ -242,7 +242,7 @@ function placePost(road, post, cls, now = Date.now(), picks = []) {
   if (type) { entry.milestone = { key: mk, type, flight, hardware: key || null, phase }; if (!Number.isInteger(entry.flight) && flight !== road.flight) entry.flight = flight; if (phase === "completed") entry.complete = true; }
   if (!entry.media_override && type) { const cx = contextImage(road, cls.stage, cls.hardware, entry.id, picks); if (cx) entry.media_context = cx; }
   box.history = [entry, ...(box.history || [])].slice(0, 12);
-  if (!(entry.flight > road.flight) && entry.trust !== "unconfirmed") { box.latest = cls.text.slice(0, 160); if (statusLine || logText) box.log_latest = statusLine || require("./cleanup.js").shortLine(logText); } // a later flight's post never becomes this flight's headline
+  if (require("./summary-scope.js").inScope(road, entry) && entry.trust !== "unconfirmed") { box.latest = cls.text.slice(0, 160); if (statusLine || logText) box.log_latest = statusLine || require("./cleanup.js").shortLine(logText); } // a later flight's post never becomes this flight's headline
   return { box, entry, merged: false, accurate, tier, phase: type ? { from: null, to: phase } : null };
 }
 

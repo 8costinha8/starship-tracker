@@ -22,7 +22,7 @@ function posts(road, v) {
 function replay(road, v) {
   let st = J.blank(); const lines = new Map(), rows = [];
   for (const p of posts(road, v)) {
-    const r = J.step(st, p.text, { v, at: p.at, id: p.id, road }); st = r.state;
+    const r = J.step(st, p.text, { v, at: p.at, id: p.id, road, url: p.url }); st = r.state;
     const line = { ...p, to: r.card === null && r.why !== "other vehicle" ? p.from : r.card, likely: r.likely, text_after: r.text || p.text, done: r.evidence && r.card === r.evidence && J.signals(p.text).doneReal };
     if (r.moveToTest) for (const id of r.moveToTest.ids) { const l = lines.get(id); if (l) { l.to = r.moveToTest.to; l.moved_by = p.id; } }
     if (r.confirms) { const l = lines.get(r.confirms); if (l) { l.text_after = r.text || p.text; l.url_after = p.url; l.likely = false; l.done = true; l.confirmed_by = p.id; line.folded = true; } }

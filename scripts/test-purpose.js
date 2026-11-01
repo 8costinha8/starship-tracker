@@ -54,7 +54,7 @@ const where = (id) => (road.categories.find((c) => (c.history || []).some((h) =>
 for (const id of ["x-2114016319679201462", "x-2113914954801889326", "x-2113907865060819060", "x-2113617185218429437", "x-2112967167767433728", "x-2112035558994419901", "x-2114335419785679308", "x-2114317866409595106", "x-2113955770337550391", "x-2111327584122437857"])
   check(where(id) === "static", `${id} is in Static fires (same id, deep link kept)`);
 check(where("x-2113664154762457446") === "pad" && where("x-2112967167767433728-pad") === "pad", "Pad 1 flame trench and the split-off pad-only steps stay in Pad activity");
-check(where("x-2113834862339617215") === "raptor", "lifting jig for engine testing stays in Raptor engines");
+check(where("x-2113834862339617215") !== "raptor", "lifting jig for engine testing is prep (journey context), not Raptor history (1 Nov rule)");
 const feed = (road.feed_items || []).find((f) => /lifted onto launch pad 2/i.test(f.body)), prop = (road.feed_items || []).find((f) => /propellant loading/i.test(f.body));
 check(feed && feed.box === "static" && prop && prop.box === "static", "generic 'Starship' cards (B22 lifted onto launch pad 2, propellant loading) → Static fires");
 check(!road.categories.find((c) => c.id === "cryo").history.some((h) => /Booster 22/.test(h.text) && /2026-10-2/.test(h.at || "")), "the wrong B22 cryo card stays removed");

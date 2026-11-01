@@ -20,11 +20,11 @@ function appFns(src = fs.readFileSync(path.join(ROOT, "app.js"), "utf8")) {
   const decl = (name) => { const k = starts.findIndex((s) => s.name === name); if (k < 0) return null;
     let end = lines.length; for (let j = starts[k].i + 1; j < lines.length; j++) if (/^(?:\S)/.test(lines[j]) && !/^[}\])]/.test(lines[j])) { end = j; break; }
     return lines.slice(starts[k].i, end).join("\n"); };
-  const want = ["rtfRows", "rtfCards", "roadUpdates", "upIso", "cardDate", "cardT", "scrub", "ukStamp", "feedTime", "fmtDay", "entryDate", "isDoneCard"];
+  const want = ["rtfRows", "rtfCards", "roadUpdates", "upIso", "cardDate", "cardT", "scrub", "ukStamp", "feedTime", "fmtDay", "entryDate", "isDoneCard", "roadMediaOf", "badgeHandleOf", "NO_BADGE_IMAGES"];
   const have = new Set(), parts = [];
   const add = (n) => { if (have.has(n)) return true; const d = decl(n); if (!d) return false; have.add(n); parts.unshift(d); return true; };
   want.forEach(add); [...EXTRA].forEach(add);
-  const window = { RoadPick: null, RoadFlightLog: null, RoadCleanup: null, addEventListener() {}, dispatchEvent() {} }, React = { createElement() { return null; } }, document = {}, localStorage = { getItem() { return null; } };
+  const window = { RoadPick: require("./road-pick.js"), RoadFlightLog: null, RoadCleanup: null, addEventListener() {}, dispatchEvent() {} }, React = { createElement() { return null; } }, document = {}, localStorage = { getItem() { return null; } };
   for (let tries = 0; tries < 200; tries++) {
     try { return new Function("window", "React", "document", "localStorage", `${parts.join("\n")}\nreturn { ${want.join(", ")} };`)(window, React, document, localStorage); }
     catch (e) { const m = String(e.message).match(/^(\w+) is not defined/) || String(e.message).match(/Cannot access '(\w+)' before initialization/);
@@ -53,7 +53,8 @@ function view1(road, { app }) {
     const rows = rtf ? (h.updates || []).slice().sort((a, b) => (Date.parse(app.upIso(b)) || 0) - (Date.parse(app.upIso(a)) || 0)).map((u) => { const iso = app.upIso(u); return { when: iso ? `${app.ukStamp(iso, false)} · ${app.feedTime(iso)}` : app.fmtDay(u.date), iso, text: app.scrub(app.cardT(u)).replace(/^\d{1,2}(?:[–-]\d{1,2})? [A-Z][a-z]{2}:\s*/, ""), url: u.url || "" }; })
       : app.roadUpdates(h).map(({ u, when }) => ({ when: when || app.entryDate(u), iso: app.upIso(u), text: app.scrub(app.cardT(u)), url: u.url || "" }));
     const v = (String(h.id || "").match(/^rtf-\w+-(S\d+|B\d+|pad)$/) || [])[1] || null;
-    cards.push({ id: h.id, cat: cat.id, name: cat.name, vehicle: v, when: app.cardDate(h), text: app.scrub(h.card_text || h.x_text || h.text), done: !!r.post.done, rows });
+    cards.push({ id: h.id, cat: cat.id, name: cat.name, vehicle: v, when: app.cardDate(h), text: app.scrub(h.card_text || h.x_text || h.text), done: !!r.post.done, rows, media: (() => { const mo = app.roadMediaOf(h, cat); if (!mo || !mo.image) return null; const hd = app.badgeHandleOf(mo.author, mo.post_url);
+      return { image: mo.image, author: mo.author || null, post_url: mo.post_url || null, type: mo.type || null, credit_only: !!mo.credit_only, badge: hd && !app.NO_BADGE_IMAGES().includes(mo.image) ? hd : null }; })(), url: h.url || null });
   }
   return { log, cards };
 }
@@ -65,7 +66,10 @@ const HEADLINE = /^(?!(?:The|A|An|Ship|Booster|SpaceX|Starship|Elon|Reports|On|I
 const FORECAST = /\b(?:could|may|might|expected|plans?|will)\b/i;
 const vehs = (t) => { const o = new Set(); for (const m of String(t || "").matchAll(/\b(?:(B|S)(\d{2,3})|(Booster|Ship)\s+(\d{2,3}))\b/gi)) o.add(((m[1] || m[3])[0]).toUpperCase() + (m[2] || m[4])); return [...o]; };
 const EVENT = (t) => (/static fire|\bfired\b/i.test(t) ? "static" : /cryo/i.test(t) ? "cryo" : /\bremov/i.test(t) ? "removal" : /reinstall|installed/i.test(t) ? "install" : /catch height|chopsticks/i.test(t) ? "catch" : null);
+// does the credit-only photo footer render its own View on X link? (app.js OneMedia)
+const creditLinkInApp = (src = fs.readFileSync(path.join(ROOT, "app.js"), "utf8")) => /mo\.credit_only && <div className="xm-foot">(?:(?!<\/div>\}).)*View on X/s.test(src);
 function check(road, opts = {}) {
+  if (opts.creditLink === undefined) opts = { ...opts, creditLink: creditLinkInApp() };
   const { log, cards } = view(road, opts), out = [];
   const fail = (type, msg, extra = {}) => out.push({ type: `render-${type}`, msg, ...extra });
   const tracked = (road.vehicles || []).map(String);
@@ -109,6 +113,22 @@ function check(road, opts = {}) {
     for (const t of [c.text, ...c.rows.map((r) => r.text)]) { const other = vehs(t).filter((v) => tracked.includes(v) && v !== c.vehicle && v[0] !== c.vehicle[0]);
       if (other.length) fail("crossover", `${c.name} shows "${t}" (names ${other.join(", ")})`, { item: c.id, values: [t], reason: "ship and booster lines never cross over" }); } }
   for (const k of (log.pad && log.pad.cards) || []) if (k.vehicle === "pad") for (const l of k.lines) { const n = vehs(l.text).filter((v) => tracked.includes(v)); if (n.length && !/\bpad\b|tower|chopsticks|deluge|quick disconnect/i.test(l.text)) fail("crossover", `Launch pad card shows a vehicle line "${l.text}"`, { item: "pad|pad", values: [l.text] }); }
+  // 1 Nov: every card photo carries its avatar badge (the shared placeholder is the only photo allowed without one)
+  for (const c of cards) if (c.media && c.media.image && !c.media.badge && !/rtf-placeholder/.test(c.media.image))
+    fail("badge", `${c.name}: photo ${c.media.image} has no avatar badge${c.media.author ? ` (credit @${c.media.author} not shown on it)` : " (no source handle)"}`, { item: c.id, values: [c.media.image], reason: "card photos show the source avatar badge" });
+  // 1 Nov: prose ends with a full stop, and never uses ' / ' (write it out)
+  const prose = (where, t) => { const x = String(t || "").trim(); if (!x) return;
+    if (x.split(/\s+/).length >= 4 && !/[.!?…)"”']$/.test(x) && !/^No\b.*\byet$/.test(x)) fail("punctuation", `${where}: "${x}" has no full stop`, { item: where, values: [x], reason: "card and feed lines are full sentences" });
+    if (/\S \/ \S/.test(x)) fail("punctuation", `${where}: "${x}" uses ' / ' in prose`, { item: where, values: [x], reason: "write 'X and Y' or pick one" }); };
+  for (const c of cards) { if (c.cat === "date") continue; /* launch date cards are "NET … · unofficial" labels */ prose(`Road card ${c.name}`, c.text); for (const r of c.rows) prose(`Road card ${c.name} › ${r.when}`, r.text); }
+  for (const f of road.feed_items || []) if (f && f.body && f.kind === "news" && !f.later_flight) prose(`Feed ${f.id}`, f.body);
+  for (const b of Object.values(log)) { if (b.latest && /\S \/ \S/.test(b.latest)) fail("punctuation", `Flight Log ${b.id}: "${b.latest}" uses ' / ' in prose`, { item: b.id, values: [b.latest] }); for (const k of b.cards || []) for (const l of k.lines || []) prose(`Flight Log ${b.id} ${k.name} ${l.day}`, l.text); }
+  // stored section summaries and each section's history top row (shown as the section's latest line) never use ' / '
+  for (const c of road.categories || []) { const top = (c.history || []).find((h) => h.kind !== "check");
+    for (const [w, t] of [[`${c.id} latest`, c.latest], [`${c.id} log_latest`, c.log_latest], [`${c.id} history top row`, top && (top.card_text || top.x_text || top.text)]])
+      if (t && /\S \/ \S/.test(t)) fail("punctuation", `${w}: "${t}" uses ' / ' in prose`, { item: `${c.id}|summary`, values: [t] }); }
+  // 1 Nov: one View on X per post on a card (a credit-only photo's footer must not add a second one)
+  for (const c of cards) if (c.media && c.media.credit_only && opts.creditLink) fail("links", `${c.name}: two 'View on X' links (photo credit + post)`, { item: c.id, values: [c.media.post_url, c.url] });
   // status vs headline
   for (const b of Object.values(log)) if (b.statusText === "Not yet" && /\bunder ?way|in progress\b/i.test(b.latest || "")) fail("status", `${b.id}: pill "Not yet" beside "${b.latest}"`, { item: b.id, values: [b.statusText, b.latest] });
   return out;
@@ -117,12 +137,12 @@ function check(road, opts = {}) {
 async function live(url, { widths = [[390, 844], [1280, 900]] } = {}) {
   const { chromium } = require(process.env.PLAYWRIGHT_PATH || "playwright"); const b = await chromium.launch(), res = [];
   for (const [w, h] of widths) { const p = await b.newPage({ viewport: { width: w, height: h } }); await p.goto(url, { waitUntil: "load" }); await p.waitForSelector("article.post", { state: "attached", timeout: 30000 });
-    const cards = await p.evaluate(() => [...document.querySelectorAll("article.post")].map((a) => ({ name: (a.querySelector(".chip") || {}).textContent, when: (a.querySelector(".post-date") || {}).textContent, text: (a.querySelector(".post-text") || {}).textContent, rows: [...a.querySelectorAll(".bu-pill")].map((li) => ({ when: (li.querySelector(".bu-date") || {}).textContent, text: (li.querySelector(".bu-text") || {}).textContent })) })));
+    const cards = await p.evaluate(() => [...document.querySelectorAll("article.post")].map((a) => ({ name: (a.querySelector(".chip") || {}).textContent, when: (a.querySelector(".post-date") || {}).textContent, text: (a.querySelector(".post-text") || {}).textContent, rows: [...a.querySelectorAll(".bu-pill")].map((li) => ({ when: (li.querySelector(".bu-date") || {}).textContent, text: (li.querySelector(".bu-text") || {}).textContent })), viewOnX: [...a.querySelectorAll("a")].filter((x) => !x.closest("details") && /^View on X/.test(x.textContent.trim())).length, img: (a.querySelector(".xm-grid img") || {}).src || null, badge: !!a.querySelector(".src-badge") })));
     const hero = await p.evaluate(() => ({ pill: (document.querySelector(".cd") || {}).textContent, date: [...document.querySelectorAll(".facts dd")].map((d) => d.textContent)[0], width: Math.round((document.querySelector("main, .st-main, .page") || document.body).getBoundingClientRect().width) }));
     res.push({ width: w, hero, cards }); await p.close(); }
   await b.close(); return res;
 }
-module.exports = { appFns, view, check, live, PRESENT };
+module.exports = { appFns, view, check, live, PRESENT, creditLinkInApp };
 if (require.main === module) {
   (async () => {
     if (process.argv.includes("--live")) { const r = await live(process.env.RENDER_URL || "https://8costinha8.github.io/starship-tracker/"); console.log(JSON.stringify(r, null, 1)); return; }
