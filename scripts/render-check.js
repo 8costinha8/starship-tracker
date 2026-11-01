@@ -119,6 +119,8 @@ function check(road, opts = {}) {
   // 1 Nov: prose ends with a full stop, and never uses ' / ' (write it out)
   const prose = (where, t) => { const x = String(t || "").trim(); if (!x) return;
     if (x.split(/\s+/).length >= 4 && !/[.!?…)"”']$/.test(x) && !/^No\b.*\byet$/.test(x)) fail("punctuation", `${where}: "${x}" has no full stop`, { item: where, values: [x], reason: "card and feed lines are full sentences" });
+    // 1 Nov: removing a source name ("LabPadre confirmed …") must not leave a fragment starting with a lowercase verb
+    if (/^[a-z]/.test(x)) fail("fragment", `${where}: "${x}" starts lowercase (a source name was removed?)`, { item: where, values: [x], reason: "start lines with the vehicle or event, not the source" });
     if (/\S \/ \S/.test(x)) fail("punctuation", `${where}: "${x}" uses ' / ' in prose`, { item: where, values: [x], reason: "write 'X and Y' or pick one" }); };
   for (const c of cards) { if (c.cat === "date") continue; /* launch date cards are "NET … · unofficial" labels */ prose(`Road card ${c.name}`, c.text); for (const r of c.rows) prose(`Road card ${c.name} › ${r.when}`, r.text); }
   for (const f of road.feed_items || []) if (f && f.body && f.kind === "news" && !f.later_flight) prose(`Feed ${f.id}`, f.body);

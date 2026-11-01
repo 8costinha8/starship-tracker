@@ -773,7 +773,7 @@
               "handle": "LabPadre",
               "phase": "completed",
               "tier": 2,
-              "card_text": "LabPadre confirmed the same overnight test: Booster 22 was filled, held at pressure, then detanked.",
+              "card_text": "Same overnight test: Booster 22 was filled, held at pressure, then detanked.",
               "same_event": "cryo_test|15|B22"
             },
             {

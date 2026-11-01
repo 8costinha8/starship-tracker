@@ -30,7 +30,9 @@ check(!live.categories.find((c) => c.id === "cryo").history.find((h) => h.url ==
 // B22 cryo = 1 and the drawer agrees
 const b = v.cards.find((c) => c.id === "rtf-cryo-B22");
 check(JR.replay(live, "B22").state.done.cryo === 1 && live.journeys.B22.done.cryo === 1, "B22 cryo count 1");
-check(b.rows.some((r) => /same overnight test/.test(r.text)) && !b.rows.some((r) => /^Booster 22 filled and held/.test(r.text)), "drawer: the LabPadre row reads as the same test, not a second one");
+check(b.rows.some((r) => r.text === "Same overnight test: Booster 22 was filled, held at pressure, then detanked.") && !b.rows.some((r) => /^Booster 22 filled and held/.test(r.text)), "drawer: the LabPadre row reads as the same test, not a second one");
 check(["https://x.com/LabPadre/status/2098045579234259249", "https://x.com/Blobifie/status/2097943705911193755"].every((u) => b.rows.some((r) => r.url === u)), "both source links kept on the drawer");
 check(RC.check(live).length === 0, "render-check clean");
+{ const t = clone(live); const u = t.categories.find((c) => c.id === "cryo").history.find((h) => h.milestone && h.milestone.key === "cryo_test|15|B22").updates.find((x) => x.url === "https://x.com/LabPadre/status/2098045579234259249"); u.card_text = "LabPadre confirmed the same overnight test: Booster 22 was filled, held at pressure, then detanked.";
+  check(RC.check(t).some((p) => p.type === "render-fragment"), "render-check flags a row left starting with a lowercase verb once the source name is removed"); }
 console.log(`\n${pass} passed, ${fail} failed`); process.exit(fail ? 1 : 0);

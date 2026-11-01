@@ -18,7 +18,7 @@ function apply(road, { log = console.log } = {}) {
     delete s42.frameChecked; ch("cryo S42 media_override.image", was, IMG);
   }
   const b22 = cryo.history.find((h) => h.milestone && h.milestone.key === "cryo_test|15|B22");
-  const SAME = "LabPadre confirmed the same overnight test: Booster 22 was filled, held at pressure, then detanked.";
+  const SAME = "Same overnight test: Booster 22 was filled, held at pressure, then detanked.";
   for (const u of (b22 && b22.updates) || []) if (u.url === "https://x.com/LabPadre/status/2098045579234259249" && u.card_text !== SAME) { ch("cryo B22 › 10 Sep LabPadre row card_text", u.card_text || u.text, SAME); u.card_text = SAME; u.same_event = "cryo_test|15|B22"; }
   return out;
 }
