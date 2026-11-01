@@ -125,6 +125,21 @@ function check(road, opts = {}) {
   for (const c of cards) { if (c.cat === "date") continue; /* launch date cards are "NET … · unofficial" labels */ prose(`Road card ${c.name}`, c.text); for (const r of c.rows) prose(`Road card ${c.name} › ${r.when}`, r.text); }
   for (const f of road.feed_items || []) if (f && f.body && f.kind === "news" && !f.later_flight) prose(`Feed ${f.id}`, f.body);
   for (const b of Object.values(log)) { if (b.latest && /\S \/ \S/.test(b.latest)) fail("punctuation", `Flight Log ${b.id}: "${b.latest}" uses ' / ' in prose`, { item: b.id, values: [b.latest] }); for (const k of b.cards || []) for (const l of k.lines || []) prose(`Flight Log ${b.id} ${k.name} ${l.day}`, l.text); }
+  // 1 Nov: shorthand on screen (OLM, SQD, Pad-2, F15 …) is spelled out; colon-led fragments ("Same overnight test: …") are full sentences
+  const SHORT = /\b(?:OLM|OLP|SQD|BQD|QDs?|GSE|WDR|SF|RVacs?|Pad-\d|F\d{1,2}|[BS]\d{2})\b/;
+  const texts = []; for (const c of cards) { if (c.cat === "date") continue; texts.push([`Road card ${c.name}`, c.text]); for (const r of c.rows) texts.push([`Road card ${c.name} › ${r.when}`, r.text]); }
+  for (const f of road.feed_items || []) if (f && f.body && f.kind === "news" && !f.later_flight) texts.push([`Feed ${f.id}`, f.body]);
+  for (const b of Object.values(log)) for (const k of b.cards || []) for (const l of k.lines || []) texts.push([`Flight Log ${b.id} ${k.name} ${l.day}`, l.text]);
+  for (const [w, t] of texts) { const x = String(t || "").trim(); const m = x.match(SHORT);
+    if (m) fail("shorthand", `${w}: "${x}" uses shorthand '${m[0]}'`, { item: w, values: [x], reason: "spell it out (orbital launch mount, ship quick disconnect, Pad 2, Flight 15, Ship 42 …)" });
+    const c = x.match(/^([^:]{1,40}):\s/); if (c && !/\d:\d/.test(c[0]) && !FINITE.test(c[1])) fail("fragment", `${w}: "${x}" starts with a colon-led fragment ('${c[1]}:')`, { item: w, values: [x], reason: "write a full sentence" }); }
+  // 1 Nov: the same event (same source post) reads the same on the Flight Log and on the Road cards and feed: one wording, one time
+  { const norm = (t) => String(t || "").trim().replace(/[.!]+$/, "").toLowerCase(), byUrl = new Map();
+    for (const c of cards) { if (c.url) byUrl.set(c.url, { where: `Road card ${c.name}`, text: c.text, when: c.when }); for (const r of c.rows) if (r.url && !byUrl.has(r.url)) byUrl.set(r.url, { where: `Road card ${c.name} › ${r.when}`, text: r.text, when: r.when }); }
+    for (const b of Object.values(log)) for (const k of b.cards || []) for (const l of k.lines || []) { const o = /\/status\/\d+/.test(l.url || "") && byUrl.get(l.url); if (!o) continue; // one X post = one event (articles and videos cover several)
+      const lw = [l.day, l.time].filter(Boolean).join(" · ");
+      if (norm(o.text) !== norm(l.text)) fail("mismatch", `Flight Log ${b.id} ${k.name} ${lw}: "${l.text}" ≠ ${o.where}: "${o.text}" (same post ${l.url})`, { item: l.url, values: [l.text, o.text], reason: "one wording per event on card and feed" });
+      if (l.time && o.when && !String(o.when).includes(l.time)) fail("mismatch", `Flight Log ${b.id} ${k.name}: time ${lw} ≠ ${o.where} ${o.when} (same post ${l.url})`, { item: l.url, values: [lw, o.when], reason: "one event time, from the source's post time" }); } }
   // stored section summaries and each section's history top row (shown as the section's latest line) never use ' / '
   for (const c of road.categories || []) { const top = (c.history || []).find((h) => h.kind !== "check");
     for (const [w, t] of [[`${c.id} latest`, c.latest], [`${c.id} log_latest`, c.log_latest], [`${c.id} history top row`, top && (top.card_text || top.x_text || top.text)]])

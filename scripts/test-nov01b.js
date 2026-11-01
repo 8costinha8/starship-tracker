@@ -24,13 +24,13 @@ const src = fs.readFileSync(path.join(__dirname, "check-road.js"), "utf8");
 check(/never lands on this flight's sections/.test(src), "check-road: Grok road lines naming only later-flight vehicles are skipped");
 // S42 cryo media
 const v = RC.view(live), cs = v.cards.find((c) => c.id === "rtf-cryo-S42");
-check(cs && cs.media.image === "images/s42-cryo-labpadre.jpg" && cs.media.badge === "LabPadre", "Cryo · S42 shows the LabPadre post's own media with the @LabPadre badge");
+check(cs && cs.media.image === "images/s42-cryo-labpadre-ship.jpg" && cs.media.badge === "LabPadre", "Cryo · S42 shows the LabPadre post's own media with the @LabPadre badge");
 check(fs.existsSync(path.join(ROOT, "images", "s42-cryo-labpadre.jpg")) && fs.existsSync(path.join(ROOT, "images", "ship-cryo.jpg")), "new local file saved; old ship-cryo.jpg kept");
 check(!live.categories.find((c) => c.id === "cryo").history.find((h) => h.url === "https://x.com/LabPadre/status/2108486994401825101").media_override.keep_image, "no keep_image");
 // B22 cryo = 1 and the drawer agrees
 const b = v.cards.find((c) => c.id === "rtf-cryo-B22");
 check(JR.replay(live, "B22").state.done.cryo === 1 && live.journeys.B22.done.cryo === 1, "B22 cryo count 1");
-check(b.rows.some((r) => r.text === "Same overnight test: Booster 22 was filled, held at pressure, then detanked.") && !b.rows.some((r) => /^Booster 22 filled and held/.test(r.text)), "drawer: the LabPadre row reads as the same test, not a second one");
+check(b.rows.some((r) => r.text === "In the same overnight test, Booster 22 was filled, held at pressure, then detanked.") && !b.rows.some((r) => /^Booster 22 filled and held/.test(r.text)), "drawer: the LabPadre row reads as the same test, not a second one");
 check(["https://x.com/LabPadre/status/2098045579234259249", "https://x.com/Blobifie/status/2097943705911193755"].every((u) => b.rows.some((r) => r.url === u)), "both source links kept on the drawer");
 check(RC.check(live).length === 0, "render-check clean");
 { const t = clone(live); const u = t.categories.find((c) => c.id === "cryo").history.find((h) => h.milestone && h.milestone.key === "cryo_test|15|B22").updates.find((x) => x.url === "https://x.com/LabPadre/status/2098045579234259249"); u.card_text = "LabPadre confirmed the same overnight test: Booster 22 was filled, held at pressure, then detanked.";

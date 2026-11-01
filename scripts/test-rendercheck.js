@@ -17,7 +17,7 @@ check(has("crossover", /Raptor engines · Booster 22 shows "Ship 42 headed back/
 check(has("duplicate", /Five Raptor 3s were removed from Ship 42/), "30 Sep duplicate removal rows caught");
 const fixed = JSON.parse(JSON.stringify(road)); const r = BF.apply(fixed, { log: () => {} });
 const PB = require("./backfill-2026-10-31-polish.js"), pol = JSON.parse(JSON.stringify(fixed)); PB.apply(pol, { log: () => {} });
-const after = RC.check(pol).filter((f) => !/^render-(badge|punctuation|links)$/.test(f.type)); // 1 Nov classes: covered by test-nov01.js on the 1 Nov fixture
+const after = RC.check(pol).filter((f) => !/^render-(badge|punctuation|links|fragment|shorthand|mismatch)$/.test(f.type)); // 1 Nov classes: covered by test-nov01.js / test-nov01c.js
 for (const f of after) console.log(`   left: [${f.type}] ${f.msg}`);
 check(after.length === 0, `after the render-fix + polish backfills: rendered output clean (${after.length} left)`);
 check(BF.apply(fixed, { log: () => {} }).changes.length === 0, "backfill is idempotent");

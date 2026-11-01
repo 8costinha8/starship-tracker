@@ -587,9 +587,10 @@
             "post_id": "2108486994401825101",
             "author": "LabPadre",
             "type": "video",
-            "image": "images/s42-cryo-labpadre.jpg",
+            "image": "images/s42-cryo-labpadre-ship.jpg",
             "source_image": "https://pbs.twimg.com/amplify_video_thumb/2108486743485792256/img/_Y2lLbcCzwdiu7HC.jpg",
-            "fixed": "2026-11-01 own post media saved locally (replaces the unknown-source standing photo)"
+            "fixed": "2026-11-01 own post media saved locally (replaces the unknown-source standing photo)",
+            "frame": "LabPadre video 2108486743485792256 at 0:23, cropped so Ship 42's top sits in the upper part"
           },
           "imageChecked2": true,
           "flight": 15,
@@ -773,7 +774,7 @@
               "handle": "LabPadre",
               "phase": "completed",
               "tier": 2,
-              "card_text": "Same overnight test: Booster 22 was filled, held at pressure, then detanked.",
+              "card_text": "In the same overnight test, Booster 22 was filled, held at pressure, then detanked.",
               "same_event": "cryo_test|15|B22"
             },
             {
@@ -969,7 +970,8 @@
               "phase": "progress",
               "tier": 2,
               "unverified": true,
-              "note": "single source"
+              "note": "single source",
+              "card_text": "Two Raptor Vacuum engines moved into Megabay 2 for Ship 42."
             }
           ],
           "hardware": "S42",
@@ -1815,7 +1817,8 @@
               "post_url": "https://x.com/Blobifie/status/2114317866409595106",
               "author": "Blobifie"
             }
-          ]
+          ],
+          "card_text": "Booster 22 completed a full-duration 33-engine static fire on Pad 2."
         },
         {
           "id": "x-2114335419785679308",
@@ -1999,7 +2002,7 @@
               "src": "@Blobifie",
               "phase": "completed",
               "tier": 2,
-              "card_text": "Booster 22 was lowered onto the OLM."
+              "card_text": "Booster 22 was lowered onto the orbital launch mount."
             }
           ],
           "refiled_from": "pad",
@@ -2106,7 +2109,7 @@
               "src": "@NASASpaceflight",
               "phase": "completed",
               "tier": 1,
-              "card_text": "Booster 22 was lifted onto Pad 2 OLM."
+              "card_text": "Booster 22 was lifted onto Pad 2's orbital launch mount."
             },
             {
               "date": "24 Oct",
@@ -2173,7 +2176,7 @@
             "show": true,
             "side": "right"
           },
-          "card_text": "Booster 22 was lifted onto Pad-2.",
+          "card_text": "Booster 22 was lifted onto Pad 2.",
           "photo_alternatives": [
             {
               "image": "https://pbs.twimg.com/amplify_video_thumb/2114063107282583552/img/uMyR4JT7EZ7gOP-t.jpg",
@@ -2665,7 +2668,8 @@
           },
           "frameChecked": true,
           "refiled_from": "static",
-          "refiled_pin": "audit 28 Oct: post-test chopstick lift is Pad"
+          "refiled_pin": "audit 28 Oct: post-test chopstick lift is Pad",
+          "card_text": "Booster 22 was lifted off the launch mount to catch height."
         },
         {
           "id": "x-2113834862339617215",
@@ -2828,6 +2832,13 @@
               "tier": 2,
               "log_text": "Pad 2 is clear after Flight 14, with a new service structure going in.",
               "card_text": "Pad 2 was clear after Flight 14; a new servicing structure was going in for hold-down clamp work."
+            },
+            {
+              "text": "Pad 2 booster quick disconnects were purged, likely ahead of Booster 22.",
+              "at": "2026-10-21T18:00:04.000Z",
+              "date": "21 Oct",
+              "url": "https://x.com/NASASpaceflight/status/2112967167767433728",
+              "src": "@NASASpaceflight"
             }
           ],
           "card_text": "SpaceX performed more catch testing at the tower top, with launch and landing deluge tests.",
@@ -2918,7 +2929,7 @@
               "phase": "progress",
               "tier": 2,
               "log_text": "Ship 42 was lifted by the Pad 2 chopsticks for catch and arm tests.",
-              "card_text": "Ship 42 was lifted by the Pad 2 chopsticks in a catch position, with SQD arm connect tests."
+              "card_text": "Ship 42 was lifted by the Pad 2 chopsticks in a catch position, with ship quick-disconnect arm connection tests."
             }
           ],
           "date_range": "11–13 Sep",
@@ -2944,7 +2955,7 @@
       "history": [
         {
           "date": "26 Sep",
-          "text": "FAA licence issued for Flight 14 only. F15 needs a modification.",
+          "text": "The FAA licence was issued for Flight 14 only; Flight 15 needs a licence modification.",
           "src": "FAA via NSF",
           "source": "faa-via-nsf",
           "trust": "trusted",
@@ -2967,7 +2978,8 @@
             "phase": "expected",
             "migrated": true
           },
-          "log_text": "FAA licence issued for Flight 14 only, Flight 15 needs a modification."
+          "log_text": "FAA licence issued for Flight 14 only, Flight 15 needs a modification.",
+          "card_text": "The FAA licence was issued for Flight 14 only; Flight 15 needs a licence modification."
         }
       ],
       "log_latest": "No Flight 15 licence yet."
@@ -3371,7 +3383,7 @@
       "id": "news-mvortxmw-db27d7",
       "kind": "news",
       "title": "🚀 Starship",
-      "body": "Booster 22 was lifted to catch height at the launch site.",
+      "body": "Booster 22 was lifted off the launch mount to catch height.",
       "url": "https://x.com/RGVaerialphotos/status/2114578590792859900",
       "at": "2026-10-26T04:43:17.000Z",
       "date": "26 Oct",
@@ -3604,9 +3616,10 @@
               {
                 "day": "25 Oct",
                 "time": "13:22",
-                "text": "Booster 22 completed a full-duration 33-engine static fire.",
+                "text": "Booster 22 completed a full-duration 33-engine static fire on Pad 2.",
                 "at": "2026-10-25T13:22:00Z",
-                "url": "https://x.com/SpaceflightNow/status/2114349246803587110"
+                "url": "https://x.com/NASASpaceflight/status/2114347288739098706",
+                "also_url": "https://x.com/SpaceflightNow/status/2114349246803587110"
               }
             ]
           }
@@ -3620,7 +3633,7 @@
               {
                 "day": "12 Sep",
                 "time": "16:39",
-                "text": "Ship 42 completed catch-height and quick-disconnect arm tests with the Pad 2 chopsticks.",
+                "text": "Ship 42 was lifted to catch height by the Pad 2 chopsticks.",
                 "at": "2026-09-12T15:39:00Z",
                 "url": "https://x.com/TrackingTheSB/status/2098798758335225974"
               },
@@ -3639,7 +3652,7 @@
               {
                 "day": "26 Oct",
                 "time": "04:43",
-                "text": "Chopsticks lifted Booster 22 off the launch mount to catch height.",
+                "text": "Booster 22 was lifted off the launch mount to catch height.",
                 "at": "2026-10-26T04:43:00Z",
                 "url": "https://x.com/RGVaerialphotos/status/2114578590792859900"
               }
@@ -3658,7 +3671,7 @@
               {
                 "day": "20 Oct",
                 "time": "23:56",
-                "text": "SpaceX ran more catch tests at the tower top, plus launch and landing deluge tests.",
+                "text": "SpaceX performed more catch testing at the tower top, with launch and landing deluge tests.",
                 "at": "2026-10-20T22:56:00Z",
                 "url": "https://x.com/Blobifie/status/2112679319818686934"
               },

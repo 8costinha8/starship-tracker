@@ -44,9 +44,11 @@ check(!RC.creditLinkInApp(), "app.js: the credit-only footer no longer adds a se
 // backfill: fixes everything except the unbadgeable standing photo; idempotent; links kept; locks untouched
 const fx = clone(snap), nr = { items: [{ type: "journey", msg: "B22: journey cryo count 2 stored vs 3 replayed (kept stored; needs review)" }] };
 BF.apply(fx, nr, { log: () => {} });
-const after = RC.check(fx);
+const after = RC.check(fx).filter((f) => !/^render-(fragment|shorthand|mismatch)$/.test(f.type)); // later 1 Nov checks: fixed by backfill-2026-11-01c.js (test-nov01c.js)
 for (const f of after) console.log(`   left: [${f.type}] ${f.msg}`);
 check(after.length === 1 && after[0].type === "render-badge" && /ship-cryo/.test(after[0].msg), "after the backfill only the ship-cryo standing photo (unknown source) is left");
+{ const C = require("./backfill-2026-11-01c.js"), fc = clone(fx); C.apply(fc, { log: () => {} }); const left = RC.check(fc).filter((f) => /^render-(fragment|shorthand|mismatch)$/.test(f.type)); for (const f of left) console.log(`   left: [${f.type}] ${f.msg}`);
+  check(left.length === 0, "the 1 Nov round-3 backfill clears the wording, shorthand and card-vs-feed checks on this fixture too"); }
 check(BF.apply(clone(fx), { items: [] }, { log: () => {} }).length === 0, "backfill is idempotent");
 const urls = (x) => new Set(JSON.stringify(x).match(/https:\/\/[^"\s]+/g)); const ua = urls(fx);
 check([...urls(snap)].every((u) => ua.has(u)), "no source link dropped");
