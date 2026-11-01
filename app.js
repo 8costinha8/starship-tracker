@@ -1644,7 +1644,9 @@ function FeedBuildUp({ h, plain, idx }) {
 // the card still opens the original X post. A manual pick with keep_image: true (road-media.json) wins.
 const SHIP_CRYO_IMAGE = "images/ship-cryo.jpg";
 const isShipCryo = (h, cat) => { const t = `${h.x_text || ""} ${h.text || ""} ${h.log_text || ""}`; return !!cat && cat.id === "cryo" && /\b(ship|s)\s?\d{2}\b/i.test(t) && !/\bbooster\b|\bb\d{2}\b/i.test(t); };
-const roadMediaOf = (h, cat) => (isShipCryo(h, cat) && !(h.media_override && h.media_override.keep_image)
+// 1 Nov: a hand-saved local copy of the card's own source media (images/…, credited) also wins over the standing photo.
+const ownLocalMedia = (mo) => !!mo && /^images\//.test(String(mo.image || "")) && mo.image !== SHIP_CRYO_IMAGE && !!mo.author;
+const roadMediaOf = (h, cat) => (isShipCryo(h, cat) && !(h.media_override && (h.media_override.keep_image || ownLocalMedia(h.media_override)))
   ? { post_url: urlOf(h), author: (h.media_override && h.media_override.author) || "", type: "photo", image: SHIP_CRYO_IMAGE } : h.media_override);
 function FeedPost({ p, onPhotoTap, idx, st }) {
   const { h, cat } = p;

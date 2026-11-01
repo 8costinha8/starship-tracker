@@ -587,7 +587,9 @@
             "post_id": "2108486994401825101",
             "author": "LabPadre",
             "type": "video",
-            "image": "https://pbs.twimg.com/amplify_video_thumb/2108486743485792256/img/_Y2lLbcCzwdiu7HC.jpg"
+            "image": "images/s42-cryo-labpadre.jpg",
+            "source_image": "https://pbs.twimg.com/amplify_video_thumb/2108486743485792256/img/_Y2lLbcCzwdiu7HC.jpg",
+            "fixed": "2026-11-01 own post media saved locally (replaces the unknown-source standing photo)"
           },
           "imageChecked2": true,
           "flight": 15,
@@ -770,7 +772,9 @@
               "src": "@LabPadre",
               "handle": "LabPadre",
               "phase": "completed",
-              "tier": 2
+              "tier": 2,
+              "card_text": "LabPadre confirmed the same overnight test: Booster 22 was filled, held at pressure, then detanked.",
+              "same_event": "cryo_test|15|B22"
             },
             {
               "date": "12 Sep",
@@ -3266,9 +3270,9 @@
       "at": "2026-10-30T09:03:01.000Z",
       "date": "30 Oct",
       "flight": 16,
-      "box": "cryo",
       "src": "@LabPadre",
-      "push_text": "Booster 23 has returned to Megabay 1 from the Massey outpost"
+      "push_text": "Booster 23 has returned to Megabay 1 from the Massey outpost",
+      "later_flight": true
     },
     {
       "id": "news-mvtv609c-f58a18",
@@ -3332,9 +3336,9 @@
       "at": "2026-10-28T04:24:49.000Z",
       "date": "28 Oct",
       "flight": 16,
-      "box": "pad",
       "src": "@NASASpaceflight",
-      "push_text": "Ship 43 has returned to the production site from chopstick tests"
+      "push_text": "Ship 43 has returned to the production site from chopstick tests",
+      "later_flight": true
     },
     {
       "id": "news-mvozi9xs-e0267f",
@@ -3386,10 +3390,10 @@
       "at": "2026-10-26T03:50:58.000Z",
       "date": "26 Oct",
       "flight": 16,
-      "box": "cryo",
       "refiled_pin": true,
       "src": "@TrackingTheSB",
-      "push_text": "Ship 43 is being transported by road to the production site"
+      "push_text": "Ship 43 is being transported by road to the production site",
+      "later_flight": true
     },
     {
       "id": "news-mvo8qv2g-e23cc6",

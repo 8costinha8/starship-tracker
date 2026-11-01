@@ -1032,6 +1032,9 @@ function applyUpdates(road, items, updates, log, limit) {
     }
     let line = cleanLine(u.line, { fullStop: true });
     if (line && u.box !== "faa" && u.box !== "date") { const pb = purpose.purposeFor(road, line, `${it.title || ""} ${it.text || ""}`, { box: u.box, confidence: u.confidence, at: it.publishedAt }).box; if (pb !== u.box) { log(`purpose: ${u.box} → ${pb}: ${line}`); u.box = pb; } }
+    if (line && u.box !== "faa" && u.box !== "date") { // 1 Nov: a later flight's vehicle (S43/B23 → Flight 16) never lands on this flight's sections
+      const SC = require("./scope.js"), lv = SC.vehOf(line), fl = lv.map((v) => SC.flightOfVehicle(road, v));
+      if (lv.length && fl.every((f) => Number.isInteger(f) && f > road.flight)) { log(`scope: skipped Flight ${fl[0]} vehicle line for Flight ${road.flight} sections: ${line}`); continue; } }
     let jn = null; // vehicle journey memory (scripts/journey.js), same rules as X posts
     if (line && (jn = journey.routeNews(road, line, { box: u.box, at: it.publishedAt })) && jn.changed) { log(`journey: ${u.box} → ${jn.box}${jn.likely ? " (likely)" : ""}: ${line}${jn.text !== line ? ` ⇒ ${jn.text}` : ""}`); u.box = jn.box; u.journey = jn; }
     if (jn && jn.skip) { log(`journey: skipped (strict vehicle match): ${line}`); continue; }

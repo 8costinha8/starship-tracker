@@ -48,7 +48,8 @@ function enforce(road) {
     const vs = vehOf(f.body); if (!vs.length || vs.some((v) => (road.vehicles || []).map(hwKey).includes(v))) continue;
     const inf = vs.map((v) => inferFlight(road, v)).find((x) => x && Number.isInteger(x.flight)), fl = inf && inf.flight;
     if (fl && fl !== f.flight) { out.push({ id: f.id, text: f.body, from: `feed flight ${f.flight}`, why: `vehicle ${vs.join("/")} is Flight ${fl}` }); f.flight = fl; }
-    if (inf && inf.inferred && fl > road.flight && f.box) { out.push({ id: f.id, text: f.body, from: `box ${f.box}`, why: `vehicle ${vs.join("/")} is Flight ${fl}, not filed to a Flight ${road.flight} box` }); delete f.box; f.later_flight = true; }
+    // 1 Nov: mapped later-flight hardware (S43/B23 → Flight 16) too, not only inferred
+    if (fl && fl > road.flight && f.box) { out.push({ id: f.id, text: f.body, from: `box ${f.box}`, why: `vehicle ${vs.join("/")} is Flight ${fl}, not filed to a Flight ${road.flight} box` }); delete f.box; f.later_flight = true; }
   }
   return out;
 }
