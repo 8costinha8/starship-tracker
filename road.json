@@ -13,7 +13,7 @@
       "name": "Cryo tests",
       "color": "#BFE6FF",
       "status": "done",
-      "latest": "Ship 42 completed further cryo tests.",
+      "latest": "Ship 42 completed its third cryo proof test.",
       "history": [
         {
           "id": "f16-b23-2115312218590126505",
@@ -680,7 +680,8 @@
           "log_text": "Ship 42 completed further cryo tests.",
           "self_check_flags": [
             "after:2026-10-09T20:30:41.000Z"
-          ]
+          ],
+          "card_text": "Ship 42 completed its third cryo proof test."
         },
         {
           "date": "10 Sep",
@@ -802,88 +803,35 @@
       "name": "Raptor engines",
       "color": "#0E0F11",
       "status": "done",
-      "latest": "Lifting jig raised for Booster 22 engine testing in Megabay 1.",
+      "latest": "Booster 22 was ready with all 33 Raptors.",
       "history": [
         {
-          "id": "x-2113834862339617215",
+          "trust": "trusted",
+          "src": "@SpaceX",
+          "tier": 1,
           "date": "24 Oct",
           "log_date": "24 Oct",
-          "at": "2026-10-24T03:27:58.000Z",
-          "text": "Lifting jig raised for Booster 22 engine testing in Megabay 1.",
-          "x_text": "Lifting jig raised for Booster 22 engine testing in Megabay 1.",
-          "log_text": "Booster 22 lifting jig raised in Megabay 1.",
-          "url": "https://x.com/RGVaerialphotos/status/2113834862339617215",
-          "src": "@RGVaerialphotos",
-          "trust": "trusted",
-          "x_first": true,
-          "stage": "raptor",
+          "text": "Booster 22's Raptors were all in before its rollout.",
+          "log_text": "Booster 22's Raptors were all in before its rollout.",
+          "url": "https://x.com/SpaceX/status/2114444137067844004",
+          "handle": "SpaceX",
+          "phase": "completed",
+          "note": "no dated install post; confirmed by the 25 Oct 33-engine fire",
+          "id": "x-2113834862339617215-pad",
+          "split_from": "x-2113834862339617215",
+          "card_text": "Booster 22 was ready with all 33 Raptors.",
           "hardware": "B22",
-          "x_post": {
-            "post_id": "2113834862339617215",
-            "url": "https://x.com/RGVaerialphotos/status/2113834862339617215",
-            "created_at": "2026-10-24T03:27:58.000Z",
-            "text": "In other news, the ship static fire stand was moved back to the production site on the 22nd. It is almost Ship 42's time for engine testing! We also saw the booster lifting jig being raised in Megabay 1 today ahead of being attached to Booster 22 for its engine testing campaign down at the launch site. The booster transport ringwall is seen sitting right outside.",
-            "author": {
-              "name": "RGV Aerial Photography",
-              "username": "RGVaerialphotos",
-              "avatar": "https://pbs.twimg.com/profile_images/2019953617743097856/PJqBBhpU_normal.jpg"
-            },
-            "media": [
-              {
-                "type": "photo",
-                "url": "https://pbs.twimg.com/media/HVXY5SCacAADfbX.jpg"
-              },
-              {
-                "type": "photo",
-                "url": "https://pbs.twimg.com/media/HVXY5R-bQAAsW_R.jpg"
-              }
-            ]
-          },
-          "x_posts": [
-            "2113834862339617215"
-          ],
-          "xChecked": true,
-          "imageChecked2": true,
+          "flight": 15,
+          "refiled_pin": true,
           "media_override": {
             "post_url": "https://x.com/RGVaerialphotos/status/2113834862339617215",
             "post_id": "2113834862339617215",
             "author": "RGVaerialphotos",
             "type": "photo",
-            "image": "https://pbs.twimg.com/media/HVXY5SCacAADfbX.jpg"
-          },
-          "tier": 2,
-          "push": {
-            "title": "🔥 Raptor engines · Flight 15",
-            "url": "https://x.com/RGVaerialphotos/status/2113834862339617215",
-            "at": "2026-10-24T03:27:58.000Z"
-          },
-          "updates": [
-            {
-              "date": "24 Oct",
-              "log_date": "24 Oct",
-              "text": "Booster 22's Raptors were all in before its rollout.",
-              "log_text": "Booster 22's Raptors were all in before its rollout.",
-              "url": "https://x.com/SpaceX/status/2114444137067844004",
-              "src": "@SpaceX",
-              "handle": "SpaceX",
-              "phase": "completed",
-              "tier": 1,
-              "note": "no dated install post; confirmed by the 25 Oct 33-engine fire"
-            },
-            {
-              "date": "12 Sep",
-              "log_date": "12 Sep",
-              "at": "2026-09-12T10:55:03.000Z",
-              "text": "Booster 22 returned to Megabay 1 for its engines.",
-              "log_text": "Booster 22 returned to Megabay 1 for its engines.",
-              "url": "https://x.com/Blobifie/status/2098727083941982562",
-              "src": "@Blobifie",
-              "handle": "Blobifie",
-              "phase": "completed",
-              "tier": 2
-            }
-          ],
-          "card_text": "The lifting jig was raised for Booster 22 engine testing in Megabay 1."
+            "image": "https://pbs.twimg.com/media/HVXY5SCacAADfbX.jpg",
+            "credit_only": true,
+            "fixed": "2026-11-01 B22 engine photo carried over from the refiled jig card"
+          }
         },
         {
           "date": "14 Oct",
@@ -1028,15 +976,15 @@
           }
         }
       ],
-      "log_latest": "Booster 22 lifting jig raised in Megabay 1."
+      "log_latest": "Booster 22 ready with all 33 Raptors."
     },
     {
       "id": "static",
       "icon": "💥",
       "name": "Static fires",
       "color": "#FF9A3D",
-      "status": "progress",
-      "latest": "Ship 42 is back at the production site / Megabay 2.",
+      "status": "done",
+      "latest": "Ship 42 returned to Megabay 2 after its static fires.",
       "history": [
         {
           "id": "x-2115701002095755563",
@@ -1140,7 +1088,7 @@
               "merged_from": "x-2115694440891498638"
             }
           ],
-          "card_text": "Ship 42 was back at the production site / Megabay 2."
+          "card_text": "Ship 42 returned to Megabay 2 after its static fires."
         },
         {
           "id": "x-2114904512217694216",
@@ -2716,6 +2664,78 @@
           "refiled_pin": "audit 28 Oct: post-test chopstick lift is Pad"
         },
         {
+          "id": "x-2113834862339617215",
+          "date": "24 Oct",
+          "log_date": "24 Oct",
+          "at": "2026-10-24T03:27:58.000Z",
+          "text": "Lifting jig raised for Booster 22 engine testing in Megabay 1.",
+          "x_text": "Lifting jig raised for Booster 22 engine testing in Megabay 1.",
+          "log_text": "Booster 22 lifting jig raised in Megabay 1.",
+          "url": "https://x.com/RGVaerialphotos/status/2113834862339617215",
+          "src": "@RGVaerialphotos",
+          "trust": "trusted",
+          "x_first": true,
+          "stage": "pad",
+          "hardware": "B22",
+          "x_post": {
+            "post_id": "2113834862339617215",
+            "url": "https://x.com/RGVaerialphotos/status/2113834862339617215",
+            "created_at": "2026-10-24T03:27:58.000Z",
+            "text": "In other news, the ship static fire stand was moved back to the production site on the 22nd. It is almost Ship 42's time for engine testing! We also saw the booster lifting jig being raised in Megabay 1 today ahead of being attached to Booster 22 for its engine testing campaign down at the launch site. The booster transport ringwall is seen sitting right outside.",
+            "author": {
+              "name": "RGV Aerial Photography",
+              "username": "RGVaerialphotos",
+              "avatar": "https://pbs.twimg.com/profile_images/2019953617743097856/PJqBBhpU_normal.jpg"
+            },
+            "media": [
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HVXY5SCacAADfbX.jpg"
+              },
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HVXY5R-bQAAsW_R.jpg"
+              }
+            ]
+          },
+          "x_posts": [
+            "2113834862339617215"
+          ],
+          "xChecked": true,
+          "imageChecked2": true,
+          "media_override": {
+            "post_url": "https://x.com/RGVaerialphotos/status/2113834862339617215",
+            "post_id": "2113834862339617215",
+            "author": "RGVaerialphotos",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HVXY5SCacAADfbX.jpg"
+          },
+          "tier": 2,
+          "push": {
+            "title": "🔥 Raptor engines · Flight 15",
+            "url": "https://x.com/RGVaerialphotos/status/2113834862339617215",
+            "at": "2026-10-24T03:27:58.000Z"
+          },
+          "updates": [
+            {
+              "date": "12 Sep",
+              "log_date": "12 Sep",
+              "at": "2026-09-12T10:55:03.000Z",
+              "text": "Booster 22 returned to Megabay 1 for its engines.",
+              "log_text": "Booster 22 returned to Megabay 1 for its engines.",
+              "url": "https://x.com/Blobifie/status/2098727083941982562",
+              "src": "@Blobifie",
+              "handle": "Blobifie",
+              "phase": "completed",
+              "tier": 2
+            }
+          ],
+          "card_text": "The lifting jig was raised for Booster 22 engine testing in Megabay 1.",
+          "refiled_from": "raptor",
+          "refiled_pin": true,
+          "journey_context": "engine prep (1 Nov: not a Raptor milestone)"
+        },
+        {
           "id": "x-2113664154762457446",
           "date": "23 Oct",
           "at": "2026-10-23T16:09:39.000Z",
@@ -2806,7 +2826,15 @@
               "card_text": "Pad 2 was clear after Flight 14; a new servicing structure was going in for hold-down clamp work."
             }
           ],
-          "card_text": "SpaceX performed more catch testing at the tower top, with launch and landing deluge tests."
+          "card_text": "SpaceX performed more catch testing at the tower top, with launch and landing deluge tests.",
+          "media_override": {
+            "post_url": "https://x.com/Blobifie/status/2112679319818686934",
+            "post_id": "2112679319818686934",
+            "author": "Blobifie",
+            "type": "video",
+            "image": "https://pbs.twimg.com/amplify_video_thumb/2112678295435464704/img/9a4tS6nMnzIHT1_6.jpg",
+            "fixed": "2026-11-01 own X post (videos only: chopsticks thumbnail; was placeholder)"
+          }
         },
         {
           "id": "s42-pad2-sep",
@@ -2889,10 +2917,18 @@
               "card_text": "Ship 42 was lifted by the Pad 2 chopsticks in a catch position, with SQD arm connect tests."
             }
           ],
-          "date_range": "11–13 Sep"
+          "date_range": "11–13 Sep",
+          "media_override": {
+            "post_url": "https://x.com/TrackingTheSB/status/2098798758335225974",
+            "post_id": "2098798758335225974",
+            "author": "TrackingTheSB",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HSBuEQiaYAAIOHV.jpg",
+            "fixed": "2026-11-01 own X post photo (was placeholder)"
+          }
         }
       ],
-      "log_latest": "Ship 43 back at Megabay 2."
+      "log_latest": "Booster 22 lifted to catch height."
     },
     {
       "id": "faa",
@@ -3199,7 +3235,7 @@
       "id": "news-mvviedow-8ae8e8",
       "kind": "news",
       "title": "🚀 Starship",
-      "body": "SpaceX completed three static fires in three days for Flight 15",
+      "body": "SpaceX completed three static fires in three days for Flight 15.",
       "url": "https://www.nasaspaceflight.com/2026/10/spacex-static-fires-flight-15/",
       "at": "2026-10-30T21:53:38.000Z",
       "date": "30 Oct",
@@ -3225,7 +3261,7 @@
       "id": "news-mvuqvczs-7b7a15",
       "kind": "news",
       "title": "🚀 Starship",
-      "body": "Booster 23 returned to Megabay 1 from the Massey outpost",
+      "body": "Booster 23 returned to Megabay 1 from the Massey outpost.",
       "url": "https://x.com/LabPadre/status/2116093506200453375",
       "at": "2026-10-30T09:03:01.000Z",
       "date": "30 Oct",
@@ -3238,7 +3274,7 @@
       "id": "news-mvtv609c-f58a18",
       "kind": "news",
       "title": "🚀 Starship",
-      "body": "Flight 15 reportedly slipped by four days to 12 November",
+      "body": "Flight 15 reportedly slipped by four days to 12 November.",
       "url": "https://x.com/LabPadre/status/2115870155188449596",
       "at": "2026-10-29T18:15:30.000Z",
       "date": "29 Oct",
@@ -3250,7 +3286,7 @@
       "id": "news-mvt772o8-49339e",
       "kind": "news",
       "title": "🚀 Starship",
-      "body": "Ship 42 and the tiled barrel section arrived back at the production site",
+      "body": "Ship 42 and the tiled barrel section arrived back at the production site.",
       "url": "https://x.com/RGVaerialphotos/status/2115701286096277589",
       "at": "2026-10-29T07:04:29.000Z",
       "date": "29 Oct",
@@ -3272,7 +3308,7 @@
       "id": "news-mvsb9c8o-97f884",
       "kind": "news",
       "title": "🚀 Starship",
-      "body": "Ship 42 completed a full-duration six-engine static fire and deorbit burn simulation",
+      "body": "Ship 42 completed a full-duration six-engine static fire and deorbit burn simulation.",
       "url": "https://x.com/SpaceX/status/2115476295169814978",
       "at": "2026-10-28T16:10:27.000Z",
       "date": "28 Oct",
@@ -3291,7 +3327,7 @@
       "id": "news-mvrm1w14-668ed2",
       "kind": "news",
       "title": "🚀 Starship",
-      "body": "Ship 43 returned to the production site from chopstick tests",
+      "body": "Ship 43 returned to the production site from chopstick tests.",
       "url": "https://x.com/NASASpaceflight/status/2115298718035370428",
       "at": "2026-10-28T04:24:49.000Z",
       "date": "28 Oct",
@@ -3304,7 +3340,7 @@
       "id": "news-mvozi9xs-e0267f",
       "kind": "news",
       "title": "🚀 Starship",
-      "body": "Ship 42 was transported to the Massey's test site, with an engine section in tow",
+      "body": "Ship 42 was transported to the Massey's test site, with an engine section in tow.",
       "url": "https://x.com/RGVaerialphotos/status/2114632668461900071",
       "at": "2026-10-26T08:18:10.000Z",
       "date": "26 Oct",
@@ -3318,7 +3354,7 @@
       "id": "news-mvown148-6ecbdb",
       "kind": "news",
       "title": "🚀 Starship",
-      "body": "Booster 22 was moved onto its transporter ahead of returning to Megabay 1",
+      "body": "Booster 22 was moved onto its transporter ahead of returning to Megabay 1.",
       "url": "https://x.com/RGVaerialphotos/status/2114612462184178003",
       "at": "2026-10-26T06:57:53.000Z",
       "date": "26 Oct",
@@ -3331,7 +3367,7 @@
       "id": "news-mvortxmw-db27d7",
       "kind": "news",
       "title": "🚀 Starship",
-      "body": "Booster 22 was lifted to catch height at the launch site",
+      "body": "Booster 22 was lifted to catch height at the launch site.",
       "url": "https://x.com/RGVaerialphotos/status/2114578590792859900",
       "at": "2026-10-26T04:43:17.000Z",
       "date": "26 Oct",
@@ -3345,7 +3381,7 @@
       "id": "news-mvopynkg-826d56",
       "kind": "news",
       "title": "🚀 Starship",
-      "body": "Ship 43 was transported by road to the production site",
+      "body": "Ship 43 was transported by road to the production site.",
       "url": "https://x.com/TrackingTheSB/status/2114565423912108360",
       "at": "2026-10-26T03:50:58.000Z",
       "date": "26 Oct",
@@ -3359,7 +3395,7 @@
       "id": "news-mvo8qv2g-e23cc6",
       "kind": "news",
       "title": "🚀 Starship",
-      "body": "Booster 22 completed a full-duration static fire for Flight 15",
+      "body": "Booster 22 completed a full-duration static fire for Flight 15.",
       "url": "https://x.com/SpaceX/status/2114444137067844004",
       "at": "2026-10-25T19:49:01.000Z",
       "date": "25 Oct",
@@ -3374,7 +3410,7 @@
       "id": "news-mvntvaz4-93c869",
       "kind": "news",
       "title": "🚀 Starship",
-      "body": "Booster 22 propellant loading began for its static fire test",
+      "body": "Booster 22 propellant loading began for its static fire test.",
       "url": "https://x.com/NASASpaceflight/status/2114339334753284398",
       "at": "2026-10-25T12:52:34.000Z",
       "date": "25 Oct",
@@ -3387,7 +3423,7 @@
       "id": "news-mvmgoq8g-00233b",
       "kind": "news",
       "title": "🚀 Starship",
-      "body": "Booster 22 was lifted onto launch Pad 2",
+      "body": "Booster 22 was lifted onto launch Pad 2.",
       "url": "https://x.com/NASASpaceflight/status/2113992853093601306",
       "at": "2026-10-24T13:55:46.000Z",
       "date": "24 Oct",
@@ -3400,7 +3436,7 @@
       "id": "news-mvm4mfz4-21e7ea",
       "kind": "news",
       "title": "🚀 Starship",
-      "body": "Booster 22 left Mega Bay 1, preparing to roll out to the launch site for testing",
+      "body": "Booster 22 left Mega Bay 1, preparing to roll out to the launch site for testing.",
       "url": "https://x.com/NASASpaceflight/status/2113907865060819060",
       "at": "2026-10-24T08:18:04.000Z",
       "date": "24 Oct",
@@ -3718,17 +3754,26 @@
       "next_test": "launch",
       "last_test": {
         "test": "static",
-        "at": "2026-10-25T19:49:01.000Z"
+        "at": "2026-10-25T19:49:01.000Z",
+        "start": "2026-10-25T13:31:57.000Z"
       },
       "engines": true,
       "stacked": false,
       "done": {
-        "cryo": 2,
-        "static": 3
+        "cryo": 1,
+        "static": 1
       },
       "pending": [],
       "likely": null,
-      "at": "2026-10-28T03:01:41.000Z"
+      "at": "2026-10-28T03:01:41.000Z",
+      "counted": [
+        "https://x.com/Blobifie/status/2097943705911193755",
+        "https://x.com/LabPadre/status/2098045579234259249",
+        "https://x.com/SpaceflightNow/status/2114349246803587110",
+        "https://x.com/LabPadre/status/2114357660262781218",
+        "https://x.com/SpaceX/status/2114444137067844004"
+      ],
+      "count_note": "1 Nov: recounted from confirmed events (recaps, repeats and same-event posts add 0)"
     },
     "S42": {
       "location": "Megabay 2",
@@ -3736,17 +3781,27 @@
       "next_test": "launch",
       "last_test": {
         "test": "static",
-        "at": "2026-10-27T23:59:18.000Z"
+        "at": "2026-10-27T23:59:18.000Z",
+        "start": "2026-10-27T21:45:25.000Z"
       },
       "engines": true,
       "stacked": false,
       "done": {
-        "cryo": 2,
-        "static": 4
+        "cryo": 3,
+        "static": 2
       },
       "pending": [],
       "likely": null,
-      "at": "2026-10-29T07:52:15.000Z"
+      "at": "2026-10-29T07:52:15.000Z",
+      "counted": [
+        "https://x.com/LabPadre/status/2095620292823462214",
+        "https://x.com/LabPadre/status/2108486994401825101",
+        "https://x.com/NASASpaceflight/status/2114904512217694216",
+        "https://x.com/Blobifie/status/2115007324188532951",
+        "https://x.com/NASASpaceflight/status/2115198496521195971",
+        "https://x.com/NASASpaceflight/status/2115231900961005856"
+      ],
+      "count_note": "1 Nov: recounted from confirmed events (recaps, repeats and same-event posts add 0)"
     }
   },
   "image_cache": {
