@@ -4,8 +4,8 @@
     "B22",
     "S42"
   ],
-  "updated": "1 Nov",
-  "updatedAt": "2026-11-01T22:01:02.513Z",
+  "updated": "2 Nov",
+  "updatedAt": "2026-11-02T06:01:08.033Z",
   "categories": [
     {
       "id": "cryo",
@@ -3256,7 +3256,8 @@
       "at": "2026-11-01T19:20:54.000Z",
       "date": "1 Nov",
       "flight": 18,
-      "later_flight": true
+      "later_flight": true,
+      "src": "@TrackingTheSB"
     },
     {
       "id": "news-mvvriszs-0c1ff5",
@@ -3880,20 +3881,28 @@
     "https://pbs.twimg.com/media/HTZMWubWIAAnONr.jpg": "images/cache/media_HTZMWubWIAAnONr.jpg",
     "https://pbs.twimg.com/amplify_video_thumb/2099008701491535872/img/I7qk6Tawvh4EgZDs.jpg": "images/cache/amplify_video_thumb_2099008701491535872_img_I7qk6Tawvh4EgZDs.jpg",
     "https://pbs.twimg.com/amplify_video_thumb/2112035083679043584/img/dw7Zle9xo9YHSp0k.jpg": "images/cache/amplify_video_thumb_2112035083679043584_img_dw7Zle9xo9YHSp0k.jpg",
-    "https://pbs.twimg.com/media/HTwdsecaIAAK_9e.jpg": "images/cache/media_HTwdsecaIAAK_9e.jpg"
+    "https://pbs.twimg.com/media/HTwdsecaIAAK_9e.jpg": "images/cache/media_HTwdsecaIAAK_9e.jpg",
+    "https://pbs.twimg.com/amplify_video_thumb/2112678295435464704/img/9a4tS6nMnzIHT1_6.jpg": "images/cache/amplify_video_thumb_2112678295435464704_img_9a4tS6nMnzIHT1_6.jpg",
+    "https://pbs.twimg.com/media/HSBuEQiaYAAIOHV.jpg": "images/cache/media_HSBuEQiaYAAIOHV.jpg"
   },
   "self_check": {
-    "at": "2026-11-01T06:01:40.294Z",
-    "fixes": 0,
-    "flags": 1,
-    "counts": {},
+    "at": "2026-11-02T06:01:07.513Z",
+    "fixes": 3,
+    "flags": 4,
+    "counts": {
+      "source-badge": 1,
+      "image-cache": 2
+    },
     "judge_calls": 0,
     "flagged": [
-      "[launch-date] feed \"NET Nov 2026\" (flight-mvsjfivy-8b129a) is a month-only Launch Library date; hero day NET 12 Nov is the higher-tier value"
+      "[launch-date] feed \"NET Nov 2026\" (flight-mvsjfivy-8b129a) is a month-only Launch Library date; hero day NET 12 Nov is the higher-tier value",
+      "[render-tense] Feed news-mvy7to1c-c7241c: \"Ship 45 completes methane tank and starts liquid oxygen tank\" is present tense on screen",
+      "[render-tense] Feed news-mvy7to1c-c7241c: \"Ship 45 completes methane tank and starts liquid oxygen tank\" has no verb (fragment)",
+      "[render-punctuation] Feed news-mvycu1v4-3745f1: \"Flight 15 vehicles tested ahead of November launch\" has no full stop"
     ],
     "render": {
-      "status": "ok",
-      "failures": 0
+      "status": "failed",
+      "failures": 3
     }
   }
 }
