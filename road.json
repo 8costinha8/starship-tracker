@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "2 Nov",
-  "updatedAt": "2026-11-02T06:01:08.033Z",
+  "updatedAt": "2026-11-02T22:31:20.983Z",
   "categories": [
     {
       "id": "cryo",
@@ -2332,6 +2332,69 @@
       "status": "progress",
       "latest": "Booster 22 was lifted to catch height on the launch mount.",
       "history": [
+        {
+          "id": "x-2117381830253101176",
+          "date": "2 Nov",
+          "log_date": "2 Nov",
+          "at": "2026-11-02T22:22:22.000Z",
+          "text": "OLM painted dark grey at the launch mount.",
+          "x_text": "OLM painted dark grey at the launch mount.",
+          "push_text": "OLM at Pad 2 painted dark grey.",
+          "card_text": "OLM at Pad 2 painted dark grey.",
+          "log_text": "Pad 2 OLM painted dark grey.",
+          "status_line": "Pad 2 OLM maintenance completed.",
+          "url": "https://x.com/Blobifie/status/2117381830253101176",
+          "src": "@Blobifie",
+          "trust": "unconfirmed",
+          "x_first": true,
+          "stage": "pad",
+          "hardware": "Pad 2",
+          "flight": 15,
+          "x_post": {
+            "post_id": "2117381830253101176",
+            "url": "https://x.com/Blobifie/status/2117381830253101176",
+            "created_at": "2026-11-02T22:22:22.000Z",
+            "text": "The OLM has been painted a dark grey https://t.co/RKcWwDozgG",
+            "author": {
+              "name": "Blobifi",
+              "username": "Blobifie",
+              "avatar": "https://pbs.twimg.com/profile_images/2091766013562159104/xgHLFjBX_normal.jpg"
+            },
+            "media": [
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HWJzfqOaIAAv24s.jpg"
+              }
+            ]
+          },
+          "x_posts": [
+            "2117381830253101176"
+          ],
+          "xChecked": true,
+          "imageChecked2": true,
+          "media_override": {
+            "post_url": "https://x.com/Blobifie/status/2117381830253101176",
+            "post_id": "2117381830253101176",
+            "author": "Blobifie",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HWJzfqOaIAAv24s.jpg"
+          },
+          "tier": 2,
+          "milestone": {
+            "key": "pad_work|15|PAD2",
+            "type": "pad_work",
+            "flight": 15,
+            "hardware": "PAD2",
+            "phase": "completed"
+          },
+          "complete": true,
+          "push": {
+            "title": "🏗️ Pad activity (unconfirmed)",
+            "url": "https://x.com/Blobifie/status/2117381830253101176",
+            "at": "2026-11-02T22:22:22.000Z"
+          },
+          "frameChecked": true
+        },
         {
           "id": "f16-s43-2115315741709001123",
           "date": "28 Oct",
