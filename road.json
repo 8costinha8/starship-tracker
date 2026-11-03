@@ -2330,19 +2330,19 @@
       "name": "Pad activity",
       "color": "#A88BFF",
       "status": "progress",
-      "latest": "Booster 22 was lifted to catch height on the launch mount.",
+      "latest": "Booster 22 heads to preparation in Mega Bay 1.",
       "history": [
         {
           "id": "x-2117466177400434911",
           "date": "3 Nov",
           "log_date": "3 Nov",
           "at": "2026-11-03T03:57:31.000Z",
-          "text": "Booster 22 getting ready in MB1 with BQD work on Pad 2.",
-          "x_text": "Booster 22 getting ready in MB1 with BQD work on Pad 2.",
-          "push_text": "Booster 22 prepping in MB1; BQD attention at Pad 2.",
-          "card_text": "Booster 22 likely prepping in MB1 with Pad 2 BQD work.",
-          "log_text": "Booster 22 heads to MB1 for launch prep.",
-          "status_line": "Booster 22 pad prep underway.",
+          "text": "Booster 22 heads to preparation in Mega Bay 1.",
+          "x_text": "Booster 22 heads to preparation in Mega Bay 1.",
+          "push_text": "Booster 22 heads to preparation in Mega Bay 1.",
+          "card_text": "Booster 22 headed to preparation in Mega Bay 1.",
+          "log_text": "Booster 22 heads to preparation in Mega Bay 1.",
+          "status_line": "Booster 22 in Mega Bay 1 for Flight 15.",
           "url": "https://x.com/efraser77/status/2117466177400434911",
           "src": "@efraser77",
           "trust": "unconfirmed",
@@ -2354,7 +2354,7 @@
             "post_id": "2117466177400434911",
             "url": "https://x.com/efraser77/status/2117466177400434911",
             "created_at": "2026-11-03T03:57:31.000Z",
-            "text": "It may seem rather quiet at Starbase tonight, but looks can be deceiving! Booster 22 is getting ready in MB1 and the BQD’s are getting some attention on Pad 2. #wenhop 🎥: https://t.co/U5mmqMAp4x | @NASASpaceflight",
+            "text": "It may seem rather quiet at Starbase tonight, but looks can be deceiving! Booster 22 is getting ready in MB1 and the BQD’s are getting some attention on Pad 2. #wenhop\n\n🎥: https://t.co/U5mmqMAp4x | @NASASpaceflight https://t.co/1rzmz7tgqZ",
             "author": {
               "name": "Erik Fraser",
               "username": "efraser77",
@@ -2406,7 +2406,9 @@
               "post_url": "https://x.com/efraser77/status/2117466177400434911",
               "author": "efraser77"
             }
-          ]
+          ],
+          "edited_from": "Booster 22 getting ready in MB1 with BQD work on Pad 2.",
+          "edited": true
         },
         {
           "id": "x-2117381830253101176",
