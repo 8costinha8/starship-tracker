@@ -10,7 +10,7 @@ const before = RC.check(road), has = (t, re) => before.some((f) => f.type === `r
 check(has("date", /newest Launch date card says "Flight 15 is now targeting NET 8 November/), "launch date: stale NET 8 Nov card caught");
 check(has("date", /static S42: Flight Log shows 27 Oct · 21:45, Road card shows 28 Oct · 11:25/), "S42 static fire: two event times caught");
 check(has("date", /pad S42: Flight Log shows 13 Sep/), "S42 pad: 13 Sep vs 12 Sep caught");
-check(has("status", /pad: pill "Not yet" beside "Pad 2 work under way/), "pad: 'Not yet' beside 'under way' caught");
+check(!before.some((f) => f.type === "render-status"), "pad: the Flight Log headline follows its own pill (never 'Not yet' beside 'under way', 3 Nov handover fix)");
 check(["quick disconnects purging", "performing more catch", "has been moved", "completes three static fires", "completes full duration", "propellant loading has begun"].every((p) => before.some((f) => f.type === "render-tense" && f.msg.includes(p))), "present tense on screen caught (cards, drawers, Flight Log)");
 check(has("date", /cryo S42: Flight Log shows 9 Oct · 21:30, Road card shows 9 Oct · 15:36/), "S42 cryo 9 Oct: two times caught");
 check(has("crossover", /Raptor engines · Booster 22 shows "Ship 42 headed back/) && has("crossover", /Raptor engines · Ship 42 shows .*Booster 22/), "ship/booster crossover caught both ways");

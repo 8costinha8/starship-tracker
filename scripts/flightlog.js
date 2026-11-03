@@ -94,7 +94,7 @@
     const r = l && l.event && eventRecord(road, l.event);
     return r ? { ...l, day: ukDay(r.at), time: ukTime(r.at), text: r.text, at: r.at, url: r.url } : l;
   }
-  function boxes(road, today = ukDay(new Date().toISOString())) {
+  function boxes(road, today = ukDay(new Date(typeof globalThis !== "undefined" && typeof globalThis.ST_NOW === "function" ? globalThis.ST_NOW() : Date.now()).toISOString())) { // ST_NOW: the app clock
     if (!road || !Array.isArray(road.categories)) return {};
     const vs = vehicles(road), n = road.flight;
     const pins = road.flightlog_pins && Number(road.flightlog_pins.flight) === Number(n) ? road.flightlog_pins : null;
@@ -127,7 +127,7 @@
           // half only once a pad TEST is completed (prep, moves and tower work show in the cards but never move the circle)
           const tested = cards.some((k) => k.lines.some((l) => PAD_TEST_DONE.test(l.text) && !FORECAST.test(l.text)));
           status = wdr ? "done" : tested ? "progress" : "none"; statusText = wdr ? DONE_LABEL[id] : tested ? "In progress" : "Not yet";
-          latest = wdr ? `Wet dress rehearsal done.` : tested ? `${road.pad || "Pad"} tests in progress.` : cards.length ? `${road.pad || "Pad"} work under way.` : "Nothing reported yet"; // short: box heads stay one size
+          latest = wdr ? `Wet dress rehearsal done.` : tested ? `${road.pad || "Pad"} tests in progress.` : cards.length ? `No ${road.pad || "pad"} tests yet.` : "Nothing reported yet"; // headline matches the "Not yet" pill // short: box heads stay one size
         } else {
           const done = vs.filter((v) => cards.some((k) => k.vehicle === v));
           status = vs.length && done.length === vs.length ? "done" : done.length ? "progress" : "none";

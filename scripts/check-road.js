@@ -919,6 +919,8 @@ function archiveLaunched(road, lastN) {
   if (!Number.isInteger(lastN)) return 0;
   let moved = 0;
   const arch = road.archive || {};
+  // every completed milestone, full sentences + photos (scripts/handover.js), read before the entries move out
+  const preSummary = road.flight <= lastN && !(arch[road.flight] && arch[road.flight].summary) ? require("./handover.js").summarize(road) : null;
   const slot = (f) => (arch[f] = arch[f] && !Array.isArray(arch[f]) ? arch[f] : { entries: Array.isArray(arch[f]) ? arch[f] : [] });
   const ms = (h) => { const id = h.media_override && h.media_override.post_id; return (id && snowflakeMs(id)) || Date.parse((h.x_post && h.x_post.created_at) || "") || Date.parse(h.at || "") || entryDayMs(h) || 0; };
   for (const c of road.categories) {
@@ -935,11 +937,38 @@ function archiveLaunched(road, lastN) {
   }
   if (road.flight <= lastN && road.milestones) { // the Road's own flight launched: freeze its vehicles' summary
     const a = slot(road.flight);
-    if (!a.summary) { const sm = milestones.buildSummary(road.milestones, road.vehicles); if (sm) a.summary = sm; }
+    if (!a.summary) { const ms = milestones.buildSummary(road.milestones, road.vehicles), sm = preSummary && preSummary.items && preSummary.items.length && (!ms || preSummary.items.length >= ms.items.length) ? { ...preSummary, auto: true } : ms; if (sm) a.summary = sm; } // the fuller of the box-based and milestone-based summaries
   }
   for (const k of Object.keys(arch)) if (arch[k].entries) arch[k].entries.sort((a, b) => b.when - a.when);
   if (Object.keys(arch).length) road.archive = arch;
   return moved;
+}
+// Step 1 of run(): the logged flight's Road becomes the next flight's fresh Road (also used by the handover sim).
+function rolloverRoad(old0, lastN, launchedAt, log = () => {}) {
+  let road = old0;
+    const old = road;
+    const moved = archiveLaunched(old, lastN);
+    road = freshRoad(lastN + 1);
+    if (old.archive) road.archive = old.archive;
+    const oldV = new Set((old.vehicles || []).map(milestones.hwKey));
+    const carry = Object.fromEntries(Object.entries(old.milestones || {}).filter(([k]) => k !== "flight" && !oldV.has(k)));
+    if (Object.keys(carry).length) road.milestones = carry; // later flights' hardware keeps its running counts
+    for (const c of road.categories) { // cards already tagged for later flights (e.g. a Flight 16 booster) stay on the Road
+      const later = ((old.categories.find((o) => o.id === c.id) || {}).history || []).filter((h) => h.kind !== "check");
+      if (later.length) { c.history = later; c.latest = (later[0].x_text || later[0].text).slice(0, 160); }
+    }
+    road.vehicles = rolloverVehicles(old, road);
+    if (old.predicted && Number(old.predicted.flight) === road.flight) road.predicted = old.predicted; // a manual/estimated NET already set for the new flight
+    const mu = Object.fromEntries(Object.entries(old.mission_updates || {}).filter(([n]) => Number(n) > lastN)); // keyed by flight
+    if (Object.keys(mu).length) road.mission_updates = { ...(road.mission_updates || {}), ...mu };
+    log(`rollover carried: vehicles ${road.vehicles.join(", ") || "none"}${road.predicted ? `, NET ${road.predicted.net} (${road.predicted.mode})` : ""}${Object.keys(mu).length ? `, mission updates for Flight ${Object.keys(mu).join("/")}` : ""}`);
+    log(`Flight ${lastN}: ${moved} Road entr${moved === 1 ? "y" : "ies"} archived to its Flight Log card`);
+    // The push waits for 09:00 London the morning after the launch day.
+    if (old.feed_items) road.feed_items = old.feed_items;
+    const sendAfter = nineAmLondonDayAfter(launchedAt);
+    const fi = pushSync.addFeedItem(road, { kind: "notice", title: `🚀 Road to Flight ${road.flight}`, body: `Flight ${lastN} is in the log. Now tracking the road to Flight ${road.flight}.`, at: sendAfter, flight: road.flight });
+  require("./handover.js").syncStatuses(road); // pills, headlines and road.json from one source (Flight Log boxes)
+  return { road, fi, sendAfter };
 }
 function freshRoad(flight) {
   return {
@@ -1343,31 +1372,14 @@ async function run(opts = {}) {
   const appJsText = fs.readFileSync(appJsPath, "utf8");
   const lastN = lastLoggedFlight(appJsText);
   let rolledOver = false;
-  if (lastN && road.flight <= lastN) {
+  // The Road rolls over at the same moment as the top card (scripts/handover.js GRACE_MS after liftoff), never earlier.
+  const graceLeft = lastN && road.flight <= lastN && !require("./handover.js").heroPast(loggedFlightDate(appJsText, lastN), clock());
+  if (graceLeft) log(`Flight ${lastN} is in the log; the Road rolls over with the top card, ${Math.ceil(require("./handover.js").GRACE_MS / 3600000)} h after liftoff`);
+  if (lastN && road.flight <= lastN && !graceLeft) {
     log(`Flight ${road.flight} is now in the flight log — starting Road to Flight ${lastN + 1}`);
-    const old = road;
-    const moved = archiveLaunched(old, lastN);
-    road = freshRoad(lastN + 1);
-    if (old.archive) road.archive = old.archive;
-    const oldV = new Set((old.vehicles || []).map(milestones.hwKey));
-    const carry = Object.fromEntries(Object.entries(old.milestones || {}).filter(([k]) => k !== "flight" && !oldV.has(k)));
-    if (Object.keys(carry).length) road.milestones = carry; // later flights' hardware keeps its running counts
-    for (const c of road.categories) { // cards already tagged for later flights (e.g. a Flight 16 booster) stay on the Road
-      const later = ((old.categories.find((o) => o.id === c.id) || {}).history || []).filter((h) => h.kind !== "check");
-      if (later.length) { c.history = later; c.latest = (later[0].x_text || later[0].text).slice(0, 160); }
-    }
-    road.vehicles = rolloverVehicles(old, road);
-    if (old.predicted && Number(old.predicted.flight) === road.flight) road.predicted = old.predicted; // a manual/estimated NET already set for the new flight
-    const mu = Object.fromEntries(Object.entries(old.mission_updates || {}).filter(([n]) => Number(n) > lastN)); // keyed by flight
-    if (Object.keys(mu).length) road.mission_updates = { ...(road.mission_updates || {}), ...mu };
-    log(`rollover carried: vehicles ${road.vehicles.join(", ") || "none"}${road.predicted ? `, NET ${road.predicted.net} (${road.predicted.mode})` : ""}${Object.keys(mu).length ? `, mission updates for Flight ${Object.keys(mu).join("/")}` : ""}`);
-    log(`Flight ${lastN}: ${moved} Road entr${moved === 1 ? "y" : "ies"} archived to its Flight Log card`);
+    const ro = rolloverRoad(road, lastN, loggedFlightDate(appJsText, lastN) || new Date(clock()).toISOString(), log);
+    road = ro.road; const fi = ro.fi, sendAfter = ro.sendAfter;
     changed = rolledOver = true;
-    // The push waits for 09:00 London the morning after the launch day.
-    const launchedAt = loggedFlightDate(appJsText, lastN) || new Date(clock()).toISOString();
-    if (old.feed_items) road.feed_items = old.feed_items;
-    const sendAfter = nineAmLondonDayAfter(launchedAt);
-    const fi = pushSync.addFeedItem(road, { kind: "notice", title: `🚀 Road to Flight ${road.flight}`, body: `Flight ${lastN} is in the log. Now tracking the road to Flight ${road.flight}.`, at: sendAfter, flight: road.flight });
     state.pendingPush = { sendAfter, flight: road.flight, ...fi }; // already in the Updates feed (committed with this run)
     log(`"${state.pendingPush.title}" push scheduled for ${state.pendingPush.sendAfter} (09:00 London, morning after the launch day)`);
   }
@@ -1378,7 +1390,7 @@ async function run(opts = {}) {
     for (const x of require("./events.js").sync(road)) { log(`event record (no push): ${x.id} → ${x.fields.join(", ")}`); changed = true; }
     const hl = require("./scope.js").headlines(road); for (const x of hl) { log(`headline [${x.box}] (no push): later-flight line "${x.from}" → "${x.to}"`); changed = true; } }
   { const mv = purpose.refile(road); if (mv.length) { for (const x of mv) log(`re-filed (no push) ${x.id}: ${x.from} → ${x.to}`); changed = true; } }
-  if (!rolledOver && lastN) { const mv = archiveLaunched(road, lastN); if (mv) { log(`archived ${mv} Road entr${mv === 1 ? "y" : "ies"} of launched flights to the Flight Log`); changed = true; } }
+  if (!rolledOver && !graceLeft && lastN) { const mv = archiveLaunched(road, lastN); if (mv) { log(`archived ${mv} Road entr${mv === 1 ? "y" : "ies"} of launched flights to the Flight Log`); changed = true; } }
 
   // 1c. Real-world prerequisites (scripts/cleanup.js PREREQS, ships and boosters alike): a later step implies its hard
   // prerequisites are complete, e.g. a static fire (heading / in progress / done) ⇒ that vehicle's Raptors installed.
@@ -1768,7 +1780,7 @@ async function run(opts = {}) {
   return { road, changes, notifications, refreshed, state, scheduledSent, newsPushes, xFirst: xf, pushLog };
 }
 
-module.exports = { X_SEARCH_HANDLES, firebaseDeps, pushGateFor, addToReview, dataVehicles, rolloverVehicles, setLastTerms, applyPrereqs, searchVehicleWords, archiveLaunched, milestones, statusRule, xStatus, applyMediaPicks, loadMediaPicks, pickImage, applyImageCheck, verifyImages, fcmMessage, notificationFor, judgeFeed, verifyFeed, entryDayMs, backfillX, xPostCard, xIdOf, readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, titleMatches, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
+module.exports = { rolloverRoad, X_SEARCH_HANDLES, firebaseDeps, pushGateFor, addToReview, dataVehicles, rolloverVehicles, setLastTerms, applyPrereqs, searchVehicleWords, archiveLaunched, milestones, statusRule, xStatus, applyMediaPicks, loadMediaPicks, pickImage, applyImageCheck, verifyImages, fcmMessage, notificationFor, judgeFeed, verifyFeed, entryDayMs, backfillX, xPostCard, xIdOf, readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, titleMatches, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
 
 if (require.main === module) {
   process.on("exit", () => { console.log(writer.grokCallsLine()); for (const l of writer.grokPurposeLines()) console.log(l); });

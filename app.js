@@ -241,6 +241,11 @@ const RETRY_AFTER_FAIL_MS = 2 * 60 * 1000;
 
 // Newest flight already in the log above (FLIGHTS). Once a flight is in the
 // log, the top card moves on to the next one — no manual edit needed.
+const SIM = (() => { try { return new URLSearchParams(window.location.search).get("sim") || ""; } catch { return ""; } })();
+if (SIM === "C" || SIM === "D") FLIGHTS.push({ n: 15, date: "2026-11-12T23:30:00Z", pad: "Pad 2", block: "V3", booster: "B22", ship: "S42", outcome: "success",
+  headline: "SIMULATED: booster and ship caught", highlights: "",
+  story: "SIMULATED OUTCOME (not real): Booster 22 and Ship 42 lifted off from Pad 2 and both were caught by the tower chopsticks. This entry was written by the local simulation, not by the story writer.",
+  photo: { thumb: "images/rtf-placeholder.jpg", gallery: [] } });
 let LAST_LOGGED_N = Math.max(...FLIGHTS.map((f) => f.n)); // "let" only so the launchday demo can log a mock flight
 // After liftoff the top card keeps showing that flight for at least this long
 // (in flight, or its result), then moves on as soon as the flight is in the log.
@@ -351,6 +356,7 @@ function effectiveStatus(flight, now = nowMs()) {
 //   none  -> fake LL2 list: newest logged flight finished, no next flight listed
 //   launchday -> fake LL2 + fake clock for a whole launch day (see LD below)
 function getMock() {
+  if (SIM) return "sim";
   try { return new URLSearchParams(window.location.search).get("mock") || ""; } catch { return ""; }
 }
 
@@ -361,7 +367,8 @@ function getMock() {
 // &warp=manual stops the autoplay and window.__ld.jump(ms, rate) drives it.
 // Completely inert without ?mock=launchday (LD is null, nowMs is Date.now).
 const LD_T0 = Date.parse("2026-10-13T22:00:00Z"); // mock liftoff: 23:00 UK time
-const LD = getMock() === "launchday" ? makeLaunchdayMock() : null;
+const SIM_NOW = { A: "2026-11-03T18:45:00Z", B: "2026-11-12T23:55:00Z", C: "2026-11-13T01:05:00Z", D: "2026-11-13T09:30:00Z" };
+const LD = getMock() === "launchday" ? makeLaunchdayMock() : SIM ? (() => { const q = new URLSearchParams(window.location.search); const b = Date.parse(q.get("t") || SIM_NOW[SIM]), a = Date.now(), r = Number(q.get("rate") || 1); return { now: () => b + (Date.now() - a) * r, jump() {}, rate() {} }; })() : null;
 function makeLaunchdayMock() {
   let base = LD_T0 - 5 * DAY, anchor = Date.now(), rate = 1;
   const api = {
@@ -435,6 +442,7 @@ function mockLL2(url) {
 }
 function ll2Json(url) {
   const mock = getMock();
+  if (mock === "sim") return fetch(`sim/${new URLSearchParams(window.location.search).get("ll2") || SIM}/ll2.json`).then((r) => r.json()).then((j) => url === LL2_ENDPOINT ? j : j.results.find((l) => l.url === url));
   if (mock === "launchday") return Promise.resolve(ldLL2(url));
   if (mock === "next" || mock === "none") return Promise.resolve(mockLL2(url));
   return fetch(url).then((r) => r.json());
@@ -459,6 +467,12 @@ function applyMockOverride(data) {
 
 // Build "V3, Booster 21, Ship 41" without empty ", Booster , Ship" holes when
 // a fetch fails or LL2 hasn't filled serials yet.
+// Hero vehicles: LL2's serials, else the Road's own vehicles for that flight (B23 / S43 are known before LL2 lists them).
+function heroVehicles(f, road) {
+  if (!f || f.booster || f.ship || !road || road.flight !== f.n || !Array.isArray(road.vehicles)) return f;
+  const boo = road.vehicles.find((v) => /^B\d+$/i.test(v)), ship = road.vehicles.find((v) => /^S\d+$/i.test(v));
+  return boo || ship ? { ...f, ...(boo ? { booster: boo } : {}), ...(ship ? { ship } : {}) } : f;
+}
 function vehicleLine(f) {
   const parts = [];
   if (f.block) parts.push(f.block);
@@ -719,8 +733,11 @@ function Countdown({ flight, road }) {
   );
 }
 
+// The Watch live badge only once the flight has a date (not for "Date to be confirmed" / a rough NET month).
+const showWatchBadge = (flight, status) => !!(flight && flight.date) && status !== "tbc";
 function WatchLiveBadge({ flight, now }) {
   const status = effectiveStatus(flight, now);
+  if (!showWatchBadge(flight, status)) return null; // no date yet: nothing to watch
   // No date yet (status "tbc"): still show the badge, just gray and not clickable.
   // Stay clickable for the whole in-flight window; otherwise use the usual
   // lead/trail timing around the scheduled T-0.
@@ -773,7 +790,7 @@ function NextFlightCard({ f, checkedAt, road, children }) {
         <dt>{dateLabel}</dt><dd>{dateText}</dd>
         {win && <><dt>Window</dt><dd>{win}</dd></>}
         <dt>Site</dt><dd>{siteLine(f)}</dd>
-        <dt>Vehicle</dt><dd>{vehicleLine(f)}</dd>
+        <dt>Vehicle</dt><dd>{vehicleLine(heroVehicles(f, road))}</dd>
       </dl>
       <p className="next-note">{scrub(f.note)}</p>
       {missionLines(road, f.n).map((u, i) => <p className="next-upd" key={i}>{scrub(u.line)}</p>)}
@@ -789,6 +806,17 @@ function NextFlightCard({ f, checkedAt, road, children }) {
   );
 }
 
+// The two gallery photos: the flight's own, else its Road milestones' real photos (newest milestones first), else one "Photo to come".
+function galleryOf(f, past) {
+  const own = ((f.photo && f.photo.gallery) || []).filter(Boolean);
+  if (own.length) return own.slice(0, 2).concat(own.length < 2 ? [undefined] : []).slice(0, 2);
+  const order = ["static", "pad", "raptor", "cryo"], road = (past || []).filter((e) => e.photo && e.photo.image && !/^https?:\/\/video\./.test(e.photo.image))
+    .sort((a, b) => order.indexOf(a.box) - order.indexOf(b.box)).map((e) => e.photo.image);
+  const pics = [...new Set(road)].slice(0, 2);
+  return pics.length ? pics : [undefined];
+}
+// Thumb: the flight's own photo, else (placeholder or none) its first Road milestone photo.
+const thumbOf = (f, past) => { const t = f.photo && f.photo.thumb; return t && t !== RTF_PLACEHOLDER ? t : galleryOf({ photo: {} }, past)[0] || t; };
 function FlightCard({ f, open, onTap, onPhotoTap, register, road }) {
   const past = React.useMemo(() => (isLaunched(f.n) ? pastSummary(road, f.n) : []), [road, f.n]); // launched flights only, never the next flight
   const [pastOpen, setPastOpen] = React.useState(false); // the Road list starts closed
@@ -796,14 +824,14 @@ function FlightCard({ f, open, onTap, onPhotoTap, register, road }) {
   // While closed, tapping the thumb should expand the card like the rest of the header.
   // Once open, tapping the thumb opens the lightbox instead — so it needs to stop
   // the click from also bubbling up to the header's collapse handler.
-  const thumbTap = open && f.photo?.thumb
-    ? (e) => { e.stopPropagation(); onPhotoTap(f.photo.thumb, `Starship Flight ${f.n}`); }
+  const thumbTap = open && thumbOf(f, past)
+    ? (e) => { e.stopPropagation(); onPhotoTap(thumbOf(f, past), `Starship Flight ${f.n}`); }
     : undefined;
 
   return (
     <article ref={(el) => register(f.n, el)} className={`card${open ? " is-open" : ""}`}>
       <div className="card-head" role="button" tabIndex={0} aria-expanded={open} onClick={() => onTap(f.n)} onKeyDown={onKey}>
-        <PhotoSlot size="thumb" src={f.photo?.thumb} alt={`Starship Flight ${f.n}`} onClick={thumbTap} />
+        <PhotoSlot size="thumb" src={thumbOf(f, past)} alt={`Starship Flight ${f.n}`} onClick={thumbTap} />
         <div className="info">
           <div className="info-top">
             <div className="title"><span className="t-word">Starship Flight</span><span className="t-num">{f.n}</span></div>
@@ -843,14 +871,12 @@ function FlightCard({ f, open, onTap, onPhotoTap, register, road }) {
               </div></div>
             </>)}
             <div className="gallery">
-              <PhotoSlot
-                size="wide" src={f.photo?.gallery?.[0]} alt={`${f.headline} \u2014 photo 1`}
-                onClick={f.photo?.gallery?.[0] ? () => onPhotoTap(f.photo.gallery[0], `${f.headline} \u2014 photo 1`) : undefined}
-              />
-              <PhotoSlot
-                size="wide" src={f.photo?.gallery?.[1]} alt={`${f.headline} \u2014 photo 2`}
-                onClick={f.photo?.gallery?.[1] ? () => onPhotoTap(f.photo.gallery[1], `${f.headline} \u2014 photo 2`) : undefined}
-              />
+              {galleryOf(f, past).map((src, i) => (
+                <PhotoSlot key={i}
+                  size="wide" src={src} alt={`${f.headline} \u2014 photo ${i + 1}`}
+                  onClick={src ? () => onPhotoTap(src, `${f.headline} \u2014 photo ${i + 1}`) : undefined}
+                />
+              ))}
             </div>
             {f.highlights ? (
               <a className="highlights-link" href={f.highlights} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
@@ -1079,7 +1105,7 @@ function Lightbox({ src, alt, onClose }) {
 // An entry with trust: "unconfirmed" gets a small "Unconfirmed" tag.
 // Every box is shown, the Launch date box included (it sends pushes, so it must be visible too).
 const ROAD_HIDDEN = [];
-const ROAD_URL = "road.json";
+const ROAD_URL = SIM ? `sim/${SIM}/road.json` : "road.json";
 const ROAD_CACHE_KEY = "starship-road-cache-v1";
 const ROAD_STATUS_TEXT = { none: "Not yet", pending: "Not yet", progress: "In progress", done: "Complete", complete: "Complete" }; // finished boxes use ROAD_DONE_LABEL
 // finished-status label per category (box pills, Road page chips, Flight Log pills); "Complete" for an unknown box. "Done" is never shown.
@@ -1424,7 +1450,7 @@ function pastSummary(road, n) {
   if (!road || !Array.isArray(road.categories)) return [];
   const a = road.archive && road.archive[n], items = (a && a.summary && a.summary.items) || [];
   const color = (id) => (road.categories.find((c) => c.id === id) || {}).color || PAST_COLOR[id] || "#AAB6D6";
-  return items.filter((e) => e && e.text && e.vehicle).map((e) => ({ box: e.box, vehicle: e.vehicle, text: e.text, label: PAST_LABEL[e.box] || e.box, color: color(e.box) }));
+  return items.filter((e) => e && e.text && e.vehicle).map((e) => ({ box: e.box, vehicle: e.vehicle, text: e.text, label: PAST_LABEL[e.box] || e.box, color: color(e.box), photo: e.photo && e.photo.image ? e.photo : null }));
 }
 // Mission updates for the upcoming flight (road.json "mission_updates", written by the checker
 // from X posts about the mission itself: catch plans, objectives, payload…). Text lines only.
@@ -1443,6 +1469,21 @@ function missionLines(road, n) {
     .map((u) => ({ ...u, line: noCreditRepeat(u.line) })).slice(0, 5) : [];
 }
 const isLaunched = (n) => FLIGHTS.some((x) => x.n === n);
+// "1 day" / "2 days"
+const daysLabel = (n) => `${n} ${Math.abs(n) === 1 ? "day" : "days"}`;
+// Flight Log list, newest first, without the flight the top card is still showing.
+const logList = (heroN) => [...FLIGHTS].filter((f) => f.n !== heroN).sort((a, b) => b.n - a.n);
+// The Road as shown: once the top card has moved past the Road's (logged) flight, the next flight's Road at the same
+// moment (scripts/handover.js roll), even before the checker's own rollover lands in road.json.
+const MILESTONE_TITLE = /Liftoff|Success|Failure|Partial|Road to Flight|caught|scrub/i;
+const isMilestoneItem = (p) => !!(p && p.cat && /^feed-(?:flight|notice)$/.test(p.cat.id) && MILESTONE_TITLE.test(p.cat.name || ""));
+if (typeof window !== "undefined") window.ST_NOW = () => nowMs(); // FL.boxes "today" follows the app clock (sim / launch-day mock)
+function roadForHero(road, heroN) {
+  const H = typeof window !== "undefined" ? window.RoadHandover : null;
+  if (!road || !H || !Number.isInteger(road.flight) || !Number.isInteger(heroN) || heroN <= road.flight || !isLaunched(road.flight)) return road;
+  const now = new Date(nowMs()).toISOString();
+  return H.roll(road, heroN - 1, { updated: window.RoadFlightLog ? window.RoadFlightLog.ukDay(now) : road.updated, updatedAt: now });
+}
 // Road to Flight N page: only cards backed by a trusted X post, in sections by flight (newest flight first).
 function buildFeed(road) {
   if (!road || !Array.isArray(road.categories)) return { posts: [], rows: [] };
@@ -1460,7 +1501,10 @@ function buildFeed(road) {
       cat: own || { id: "feed-" + (f.kind || "news"), name: m ? m[2] : t, icon: m ? m[1] : "", color: "#AAB6D6" }, ci: 99, hi: fi, id: f.id,
       day: at, at, flight: Number.isInteger(f.flight) ? f.flight : road.flight, when: at });
   });
-  for (let i = posts.length - 1; i >= 0; i--) if (isLaunched(posts[i].flight)) posts.splice(i, 1); else if (posts[i].flight > road.flight) posts.splice(i, 1); // later flights (B23/S43 → 16): only on their own Road, kept in the data until rollover // launched flights: Flight Log card only
+  // the Road's own flight stays while the top card still shows it (logged, before the rollover); the just-flown flight's
+  // launch-day updates (Liftoff, result) stay in its own section after the rollover
+  const keep = (p) => p.flight === road.flight || (isMilestoneItem(p) && p.flight === road.flight - 1); // Road page stays full until rollover; Liftoff/result stay above the new Road
+  for (let i = posts.length - 1; i >= 0; i--) if (keep(posts[i]) && posts[i].flight <= road.flight) continue; else if (isLaunched(posts[i].flight)) posts.splice(i, 1); else if (posts[i].flight > road.flight) posts.splice(i, 1); // later flights (B23/S43 → 16): only on their own Road, kept in the data until rollover // launched flights: Flight Log card only
   // sections by date: the next flight to fly on top, then later flights in flying order (15, then 16…);
   // inside a section newest first by the card's post date (else its entry date)
   const rank = (n) => (n === road.flight ? -Infinity : n);
@@ -1828,16 +1872,18 @@ function rtfCards(road) {
 }
 function rtfRows(road) {
   const { posts, rows } = buildFeed(road);
-  const res = []; let inCur = false, tail = [];
+  const res = []; let inCur = false, tail = [], head = [], headAt = -1;
   // fixed real-world order for the next flight: Cryo, Raptor, Static fires, Pad (cards above), then FAA licence, then Launch date last
   const flush = () => { tail.sort((x, y) => (x.post.cat.id === "date") - (y.post.cat.id === "date")); res.push(...tail); tail = []; };
   for (const r of rows) {
-    if (r.section) { flush(); inCur = r.section.n === road.flight; res.push(r); if (inCur) { rtfCards(road).forEach((p) => res.push(p.empty ? { empty: p } : { post: p })); } continue; }
+    if (r.section) { flush(); inCur = r.section.n === road.flight; res.push(r); if (inCur) { headAt = res.length; rtfCards(road).forEach((p) => res.push(p.empty ? { empty: p } : { post: p })); } continue; }
     if (inCur && ["faa", "date"].includes(r.post.cat.id)) { tail.push(r); continue; } // FAA and Launch date: unchanged single cards, at the bottom
+    if (inCur && isMilestoneItem(r.post)) { head.push(r); continue; } // Liftoff, result, "Road to Flight N": on top, newest first
     if (inCur) continue;
     flush(); res.push(r);
   }
   flush();
+  if (head.length && headAt >= 0) res.splice(headAt, 0, ...head);
   return { posts, rows: res };
 }
 function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap }) {
@@ -1874,7 +1920,7 @@ function StarshipTracker() {
   const [aboutOpen, setAboutOpen] = React.useState(false);
   const [lightbox, setLightbox] = React.useState(null); // { src, alt } | null
   const [notifyModalOpen, setNotifyModalOpen] = React.useState(false);
-  const road = useRoad();
+  const rawRoad = useRoad();
   const wide = useMedia(FEED_WIDE_QUERY);
   // ?feed=1 (tapping a "🚀 Starship" news push) opens the phone's Updates feed straight away
   // ?feed=1&entry=<id> (a Road push): open the Road page, scroll to that card and highlight it
@@ -1907,8 +1953,10 @@ function StarshipTracker() {
   const now = useNow(false);
   const { flight: liveNext, checkedAt } = useNextFlight();
   const nextFlight = liveNext || placeholderFlight(LAST_LOGGED_N + 1);
+  const road = React.useMemo(() => roadForHero(rawRoad, nextFlight.n), [rawRoad, nextFlight.n]); // rolls over with the top card
 
-  const flights = [...FLIGHTS].sort((a, b) => b.n - a.n);
+  const heroLogged = isLaunched(nextFlight.n); // the top card still shows a logged flight (its result): not repeated in the log below
+  const flights = logList(nextFlight.n);
   const latest = flights[0];
   const daysSinceLatest = daysBetween(latest.date, new Date(now).toISOString()); // UK calendar days, like the gaps
 
@@ -2154,12 +2202,12 @@ function StarshipTracker() {
         <NextFlightCard f={nextFlight} checkedAt={checkedAt} road={road}>
           <RoadCard road={road} onEntryTap={jumpToPost} openReq={roadOpenReq} />
         </NextFlightCard>
-        <Connector dashed label={`${daysSinceLatest} days since the last flight`} />
+        <Connector dashed label={heroLogged ? daysLabel(daysBetween(flights[0].date, nextFlight.date)) : `${daysLabel(daysSinceLatest)} since the last flight`} />
 
         {flights.map((f, i) => (
           <div key={f.n}>
             <FlightCard f={f} open={openId === f.n} onTap={handleTap} onPhotoTap={(src, alt) => setLightbox({ src, alt })} register={register} road={road} />
-            {i < flights.length - 1 && <Connector label={`${daysBetween(flights[i + 1].date, f.date)} days`} />}
+            {i < flights.length - 1 && <Connector label={daysLabel(daysBetween(flights[i + 1].date, f.date))} />}
           </div>
         ))}
 

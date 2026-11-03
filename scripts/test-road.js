@@ -204,7 +204,8 @@ const box = (r, id) => r.categories.find((c) => c.id === id);
   res = await road.run(opts);
   r = JSON.parse(fs.readFileSync(roadPath, "utf8"));
   const left = r.categories.flatMap((c) => c.history.filter((h) => h.kind !== "check").map((h) => `${c.id}|${h.text}`));
-  check(r.flight === 16 && r.categories.every((c) => c.status === "none") && left.join() === later.join(), `rolled over to Road to Flight 16: statuses reset, only later-flight cards stay (${later.length})`);
+  { const FLB = require("./flightlog.js").boxes(r); // 3 Nov handover: stored statuses come from the same source as the boxes (carried B23/S43 cards count), not a blanket "none"
+  check(r.flight === 16 && r.categories.every((c) => { const b = FLB[c.id]; return b && c.status === b.status; }) && left.join() === later.join(), `rolled over to Road to Flight 16: statuses reset to what the boxes show, only later-flight cards stay (${later.length})`); }
   check(["B23", "S43"].every((v) => r.vehicles.includes(v)) && !r.vehicles.some((v) => ["B22", "S42"].includes(v)), `rollover: vehicles carried from later-flight hardware (${JSON.stringify(r.vehicles)})`);
   check(r.predicted && r.predicted.net === "2026-12-03" && r.predicted.mode === "manual", "rollover: the manual Flight 16 date is kept");
   check(r.mission_updates && Object.keys(r.mission_updates).join() === "16" && r.mission_updates[16][0].line === "Flight 16 test update", "rollover: only Flight 16 mission updates carried");
