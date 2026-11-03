@@ -17,9 +17,9 @@ const shown = rows.map((r) => `${r.when || r.u.date} | ${r.u.text}`);
 console.log(shown.join("\n"));
 // audit 28 Oct: the 8 near-duplicate updates collapsed to SpaceX + Spaceflight Now + LabPadre (all completion lines, folded on the
 // completed card) plus the 3 earlier outlook lines; the road-closure / transport-ring repeats are gone from the card
-check(rows.length === 3 && !rows.some((r) => /conducts a static fire|conducted a static fire|completed a static fire|Road closed|Transport ring/i.test(r.u.text)), "B22 card: completion repeats folded, road-closure / ring repeats removed");
-check(card.updates.filter((u) => u.phase === "completed").map((u) => u.handle).join() === "SpaceX,SpaceflightNow,LabPadre", "B22 card keeps exactly SpaceX + Spaceflight Now + LabPadre completion sources");
-check(rows[0].u.date === "17 Oct" && !rows[0].when && rows[1].u.date === "9 Oct" && rows[2].u.date === "30 Sep" && rows[2].u.text === "Booster 22 could be ready for a static fire within two weeks.", "older items date-only, oldest at the bottom, 30 Sep reworded");
+check(rows.length === 2 && !rows.some((r) => /conducts a static fire|conducted a static fire|completed a static fire|Road closed|Transport ring/i.test(r.u.text)), "B22 card: completion repeats folded, road-closure / ring repeats removed");
+check(card.updates.filter((u) => u.phase === "completed").map((u) => u.handle).join() === "", "B22 card: no repeat completion rows (3 Nov: SpaceX/SFN/LabPadre near-duplicates of the main line removed)");
+check(rows[0].u.date === "17 Oct" && !rows[0].when && rows[1].u.date === "9 Oct" && !card.updates.some((u) => u.date === "30 Sep"), "older items date-only; 3 Nov: the older 30 Sep estimate was replaced by the 9 Oct one");
 check(card.at === "2026-10-25T13:22:00.000Z", "B22 card time is the stated fire time, 8:22 a.m. CDT = 13:22 GMT");
 check(shown.every((t) => !/\bUK\b/.test(t)), "no 'UK' label");
 // general rules
@@ -44,7 +44,7 @@ console.log("targets:", tg.join(", "));
 const extOf = eval(`(() => { ${grab(/const extOf = [^\n]+/)}\n return extOf; })()`);
 const lk = rows.map((r, i) => tg[i] ? "card:" + tg[i] : extOf(r.u) ? "ext:" + extOf(r.u) : "none");
 console.log("links:", lk.join(", "));
-check(lk[0] === "ext:https://x.com/RGVaerialphotos/status/2111327584122437857" && lk[1] === "ext:https://www.nasaspaceflight.com/2026/10/ship-40-returns-ship-42-more-testing/" && lk[2] === "ext:https://www.nasaspaceflight.com/2026/09/starship-14-orbit-flight-15/", "B22: 17 Oct → card's original X post; 9 Oct and 30 Sep → their NSF articles");
+check(lk[0] === "ext:https://x.com/RGVaerialphotos/status/2111327584122437857" && lk[1] === "ext:https://www.nasaspaceflight.com/2026/10/ship-40-returns-ship-42-more-testing/" && lk.length === 2, "B22: 17 Oct → card original X post; 9 Oct → its NSF article (30 Sep estimate replaced, 3 Nov)");
 let bad = 0; for (const c of live.categories) for (const h of c.history || []) for (const u of h.updates || []) { const t = nav.updateTarget(u, idx, h.id); if (t && (!feedIds.has(t) || t === h.id)) bad++; }
 check(bad === 0, "every category: each tappable box targets a different, visible Road card");
 // --- header time on completed cards ---

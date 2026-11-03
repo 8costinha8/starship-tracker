@@ -38,7 +38,8 @@ function apply(road, { log = console.log } = {}) {
     let x = l.text; for (const [re, r] of EXPAND) x = x.replace(re, r); set(x); }
   for (const f of road.feed_items) if (f.url === S.B22pad && f.body !== T.B22pad) { ch(`feed ${f.id} body (push_text unchanged)`, f.body, T.B22pad); f.body = T.B22pad; }
   const s42 = cat("cryo").history.find((h) => h.url === S.lpCryo), IMG = "images/s42-cryo-labpadre-ship.jpg";
-  if (s42.media_override.image !== IMG) { ch("cryo S42 image", s42.media_override.image, IMG); s42.media_override = { ...s42.media_override, image: IMG, frame: "LabPadre video 2108486743485792256 at 0:23, cropped so Ship 42's top sits in the upper part" }; }
+  if (!s42.media_override.keep_image && s42.media_override.image !== IMG) // 3 Nov: a manual keep_image pick (ship-cryo.jpg) is never replaced
+  { ch("cryo S42 image", s42.media_override.image, IMG); s42.media_override = { ...s42.media_override, image: IMG, frame: "LabPadre video 2108486743485792256 at 0:23, cropped so Ship 42's top sits in the upper part" }; }
   return out;
 }
 module.exports = { apply, T, S };

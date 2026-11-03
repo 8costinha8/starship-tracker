@@ -28,7 +28,7 @@ const t3 = clone(live); t3.categories.find((c) => c.id === "static").history.fin
 check(RC.check(t3).some((p) => p.type === "render-shorthand"), "render-check flags shorthand");
 const t4 = clone(live); t4.categories.find((c) => c.id === "cryo").history.forEach((h) => (h.updates || []).forEach((u) => { if (u.url === BF.S.lpB22) u.card_text = "Same overnight test: Booster 22 was filled, held at pressure, then detanked."; }));
 check(RC.check(t4).some((p) => p.type === "render-fragment" && /colon/.test(p.msg)), "render-check flags colon-led fragments");
-check(card("rtf-cryo-S42").media.image === "images/s42-cryo-labpadre-ship.jpg" && card("rtf-cryo-S42").media.badge === "LabPadre" && fs.existsSync(path.join(ROOT, "images/s42-cryo-labpadre.jpg")), "S42 cryo: Ship 42 frame, @LabPadre badge, earlier file kept");
+check(card("rtf-cryo-S42").media.image === "images/ship-cryo.jpg" && card("rtf-cryo-S42").media.badge === "LabPadre" && fs.existsSync(path.join(ROOT, "images/s42-cryo-labpadre.jpg")), "S42 cryo: Ship 42 frame, @LabPadre badge, earlier file kept");
 const pre = JSON.parse(fs.readFileSync(path.join(ROOT, "data/snapshots/2026-11-01/road.json"), "utf8"));
 const pt = (r) => JSON.stringify(r.feed_items.map((f) => [f.id, f.push_text, f.url]).filter((x) => pre.feed_items.some((p) => p.id === x[0])));
 check(pt(live) === JSON.stringify(pre.feed_items.map((f) => [f.id, f.push_text, f.url]).filter((x) => live.feed_items.some((p) => p.id === x[0]))), "push wording and links unchanged (nothing re-fires)");

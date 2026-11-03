@@ -24,9 +24,9 @@ const src = fs.readFileSync(path.join(__dirname, "check-road.js"), "utf8");
 check(/never lands on this flight's sections/.test(src), "check-road: Grok road lines naming only later-flight vehicles are skipped");
 // S42 cryo media
 const v = RC.view(live), cs = v.cards.find((c) => c.id === "rtf-cryo-S42");
-check(cs && cs.media.image === "images/s42-cryo-labpadre-ship.jpg" && cs.media.badge === "LabPadre", "Cryo · S42 shows the LabPadre post's own media with the @LabPadre badge");
+check(cs && cs.media.image === "images/ship-cryo.jpg" && cs.media.badge === "LabPadre", "Cryo · S42 shows the restored ship-cryo.jpg manual pick with the @LabPadre badge (3 Nov)");
 check(fs.existsSync(path.join(ROOT, "images", "s42-cryo-labpadre.jpg")) && fs.existsSync(path.join(ROOT, "images", "ship-cryo.jpg")), "new local file saved; old ship-cryo.jpg kept");
-check(!live.categories.find((c) => c.id === "cryo").history.find((h) => h.url === "https://x.com/LabPadre/status/2108486994401825101").media_override.keep_image, "no keep_image");
+check(!!live.categories.find((c) => c.id === "cryo").history.find((h) => h.url === "https://x.com/LabPadre/status/2108486994401825101").media_override.keep_image, "3 Nov: keep_image manual pick");
 // B22 cryo = 1 and the drawer agrees
 const b = v.cards.find((c) => c.id === "rtf-cryo-B22");
 check(JR.replay(live, "B22").state.done.cryo === 1 && live.journeys.B22.done.cryo === 1, "B22 cryo count 1");

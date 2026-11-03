@@ -54,7 +54,7 @@ function view1(road, { app }) {
       : app.roadUpdates(h).map(({ u, when }) => ({ when: when || app.entryDate(u), iso: app.upIso(u), text: app.scrub(app.cardT(u)), url: u.url || "" }));
     const v = (String(h.id || "").match(/^rtf-\w+-(S\d+|B\d+|pad)$/) || [])[1] || null;
     cards.push({ id: h.id, cat: cat.id, name: cat.name, vehicle: v, when: app.cardDate(h), text: app.scrub(h.card_text || h.x_text || h.text), done: !!r.post.done, rows, media: (() => { const mo = app.roadMediaOf(h, cat); if (!mo || !mo.image) return null; const hd = app.badgeHandleOf(mo.author, mo.post_url);
-      return { image: mo.image, author: mo.author || null, post_url: mo.post_url || null, type: mo.type || null, credit_only: !!mo.credit_only, badge: hd && !app.NO_BADGE_IMAGES().includes(mo.image) ? hd : null }; })(), url: h.url || null });
+      return { image: mo.image, author: mo.author || null, post_url: mo.post_url || null, type: mo.type || null, credit_only: !!mo.credit_only, badge: hd && (mo.keep_image || !app.NO_BADGE_IMAGES().includes(mo.image)) ? hd : null }; })(), url: h.url || null });
   }
   return { log, cards };
 }

@@ -268,5 +268,27 @@
     const done = vs.filter((v) => (cat.history || []).some((h) => hwOf(h) === v && !(h.flight > road.flight) && h.trust !== "unconfirmed" && ((h.milestone && h.milestone.phase === "completed") || h.complete === true)));
     return { done: done.length, total: vs.length };
   }
-  return { PREREQS, inferred, shortLine, flightLogView, raptorView, vehicleProgress, named, tidy, isCompletion, isPrediction, isKey, hwOf, dayNum };
+  // 3 Nov rule (every card): only the LATEST estimate is kept. When a newer estimate / prediction line arrives for the
+  // same card ("could be ready earlier", "as early as next week"), it replaces the older one, which is removed for good
+  // (never kept in Earlier updates). The card's own main line counts as an estimate too. Completions are never touched.
+  const estMs = (u) => { for (const v of [u && u.at, u && u.publishedAt]) if (v && Number.isFinite(Date.parse(v))) return Date.parse(v); const d = dayNum(u || {}); return Number.isFinite(d) ? d : 0; };
+  const isEstimate = (u) => !!u && u.phase !== "completed" && u.reported !== "completed" && !u.event_row && isPrediction(u) && !/\b(completed|conducted|finished)\b/i.test(line(u));
+  function latestEstimateUpdates(h) {
+    const ups = Array.isArray(h && h.updates) ? h.updates : [];
+    const ests = ups.filter(isEstimate); const own = isEstimate(h) ? estMs(h) : -Infinity;
+    if (!ests.length) return ups;
+    const newest = ests.reduce((a, b) => (estMs(b) > estMs(a) ? b : a));
+    const keep = estMs(newest) > own ? newest : null; // the card's own (newer) estimate wins over every update estimate
+    return ups.filter((u) => !isEstimate(u) || u === keep);
+  }
+  function latestEstimateOnly(road) {
+    const removed = [];
+    for (const c of (road && road.categories) || []) for (const h of c.history || []) {
+      if (!h || !Array.isArray(h.updates)) continue;
+      const next = latestEstimateUpdates(h);
+      if (next.length !== h.updates.length) { h.updates.filter((u) => !next.includes(u)).forEach((u) => removed.push(`${h.id}: ${line(u)}`)); h.updates = next; }
+    }
+    return removed;
+  }
+  return { PREREQS, latestEstimateOnly, latestEstimateUpdates, isEstimate, inferred, shortLine, flightLogView, raptorView, vehicleProgress, named, tidy, isCompletion, isPrediction, isKey, hwOf, dayNum };
 });

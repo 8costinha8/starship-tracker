@@ -1292,12 +1292,12 @@ let AVATARS = null; const avatarSubs = new Set();
 fetch("icons/avatars/index.json").then((r) => r.json()).then((j) => { AVATARS = (j && j.avatars) || {}; avatarSubs.forEach((f) => f(AVATARS)); }).catch(() => { AVATARS = {}; avatarSubs.forEach((f) => f(AVATARS)); });
 const badgeHandleOf = (author, url) => String(author || (String(url || "").match(/x\.com\/([A-Za-z0-9_]{1,15})\/status\//) || [])[1] || "").replace(/^@/, "");
 const NO_BADGE_IMAGES = () => [SHIP_CRYO_IMAGE, RTF_PLACEHOLDER];
-function SrcBadge({ author, url, image }) {
+function SrcBadge({ author, url, image, keep }) {
   const [av, setAv] = React.useState(AVATARS);
   const [bad, setBad] = React.useState(false);
   React.useEffect(() => { if (AVATARS) return; avatarSubs.add(setAv); return () => avatarSubs.delete(setAv); }, []);
   const h = badgeHandleOf(author, url);
-  if (!h || (image && NO_BADGE_IMAGES().includes(image))) return null;
+  if (!h || (image && NO_BADGE_IMAGES().includes(image) && !keep)) return null;
   const rec = av && av[h.toLowerCase()];
   return (
     <a className="src-badge" href={url || `https://x.com/${h}`} target="_blank" rel="noopener noreferrer" title={`@${h} on X`} aria-label={`Photo by @${h}: open the post on X`} onClick={(e) => e.stopPropagation()}>
@@ -1313,7 +1313,7 @@ function ContextMedia({ mc }) {
     <div className="xm xm-context">
       <div className="xm-grid n1"><a href={mc.post_url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
         <img src={localImg(mc.image)} alt="" loading="lazy" referrerPolicy="no-referrer" onError={imgFallback(mc.image, () => setBad(true))} /></a>
-        <SrcBadge author={mc.author} url={mc.post_url} image={mc.image} /></div>
+        <SrcBadge author={mc.author} url={mc.post_url} image={mc.image} keep={!!mc.keep_image} /></div>
       <div className="xm-foot">
         <a href={mc.post_url} target="_blank" rel="noopener noreferrer" aria-label="View on X" onClick={(e) => e.stopPropagation()}>View on X {LINK_ICON}</a></div>
     </div>
@@ -1547,7 +1547,7 @@ function OneMedia({ mo }) {
     <div className="xm">
       <div className="xm-grid n1"><a href={mo.post_url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
         <img src={localImg(mo.image)} alt="" loading="lazy" referrerPolicy="no-referrer" onError={imgFallback(mo.image, () => setBad(true))} />{mo.type === "video" && PLAY_ICON}</a>
-        <SrcBadge author={mo.author} url={mo.post_url} image={mo.image} /></div>
+        <SrcBadge author={mo.author} url={mo.post_url} image={mo.image} keep={!!mo.keep_image} /></div>
       {/* credit-only photo: the photo and its badge already open the photo's post; the card keeps one View on X (its own post) */}
       {mo.credit_only && <div className="xm-foot"><span className="xm-ctx">{`Photo · @${mo.author}`}</span></div>}
     </div>
@@ -1617,7 +1617,7 @@ function roadUpdates(h) {
   const done = !!(h.complete || (h.milestone && h.milestone.phase === "completed"));
   const yr = Number.isFinite(Date.parse(h.at || "")) ? new Date(h.at).getUTCFullYear() : new Date().getUTCFullYear();
   const dayMs = (u) => { const m = String(u.log_date || u.date || "").match(/(\d{1,2})(?:[–-]\d{1,2})? ([A-Z][a-z]{2})/); return m ? Date.UTC(yr, MON3.indexOf(m[2]), Number(m[1]), 23, 59) : 0; };
-  const ups = (Array.isArray(h.updates) ? h.updates : []).filter((u) => u && u.text && (u.event_row || !(done && (u.phase === "completed" || u.reported === "completed")))); // the event_record's own completion row always shows (guards.js event-row)
+  const ups = (typeof window !== "undefined" && window.RoadCleanup && window.RoadCleanup.latestEstimateUpdates ? window.RoadCleanup.latestEstimateUpdates(h) : Array.isArray(h.updates) ? h.updates : []).filter((u) => u && u.text && (u.event_row || !(done && (u.phase === "completed" || u.reported === "completed")))); // the event_record's own completion row always shows (guards.js event-row) // 3 Nov: only the latest estimate
   const ms = (u) => Date.parse(upIso(u)) || dayMs(u);
   const sorted = ups.map((u, i) => ({ u, i })).sort((a, b) => ms(b.u) - ms(a.u) || a.i - b.i).map((x) => x.u);
   const day = (u) => { const iso = upIso(u); return iso ? ukStamp(iso, false) : fmtDay(u.log_date || u.date); };
@@ -1788,7 +1788,7 @@ function rtfCards(road) {
   }
   // Starship news pushes filed to a box (road.json feed_items) are posts too: same text and link as the push
   for (const f of Array.isArray(road.feed_items) ? road.feed_items : []) {
-    if (!f || !f.body || !["cryo", "raptor", "static", "pad"].includes(f.box) || (Number.isInteger(f.flight) ? f.flight : road.flight) !== road.flight) continue;
+    if (!f || !f.body || f.card_hide || !["cryo", "raptor", "static", "pad"].includes(f.box) || (Number.isInteger(f.flight) ? f.flight : road.flight) !== road.flight) continue;
     const h = { id: f.id, date: f.date, at: f.at, text: f.body, url: f.url, src: (String(f.url || "").match(/(?:x|twitter)\.com\/(\w+)\//) || [])[1] ? "@" + String(f.url).match(/(?:x|twitter)\.com\/(\w+)\//)[1] : "", kind: "feed" };
     const vv = rtfVeh(h.text, road);
     if (!vv.length && otherVehOnly(h.text, road)) continue; // e.g. "Booster 23 returned to Megabay 1": a Flight 16 item, never under Ship 42's Earlier updates

@@ -1710,6 +1710,7 @@ async function run(opts = {}) {
       if (g.dropped.size) notifications.splice(0, notifications.length, ...notifications.filter((n) => !(n.visible && g.dropped.has(n.visible.id))));
       notifications.push(...g.pushes);
     }
+    { const gone = require("./cleanup.js").latestEstimateOnly(road); if (gone.length) log(`older estimate(s) replaced by a newer one: ${gone.join(" | ")}`); }
     { const dropped = logText.scrubRejected(road); if (dropped.length) log(`dropped rejected / month-mixed-up line(s): ${dropped.join(" | ")}`); }
     try { // optional photo alternatives per milestone, for a later suggestion only (the picked photo is unchanged)
       const RP = require("./road-pick.js");

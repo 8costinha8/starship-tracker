@@ -8,9 +8,10 @@
    "post_id": "2108486994401825101",
    "post_url": "https://x.com/LabPadre/status/2108486994401825101",
    "author": "LabPadre",
-   "media_type": "video",
-   "image": "https://pbs.twimg.com/amplify_video_thumb/2108486743485792256/img/_Y2lLbcCzwdiu7HC.jpg",
-   "note": "Video of Ship 42 itself arriving at the Massey cryo stand on 9 Oct — the exact event."
+   "media_type": "photo",
+   "image": "images/ship-cryo.jpg",
+   "note": "3 Nov: Bernardo restored the original Ship 42 cryo standing photo (images/ship-cryo.jpg, used before the s42-cryo-labpadre stills), linked to and credited @LabPadre. Manual pick, locked: the auto picker never replaces it.",
+   "keep_image": true
   },
   {
    "category": "cryo",

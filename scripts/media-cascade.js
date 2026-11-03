@@ -108,7 +108,7 @@ async function runCascade(road, posts, { now = Date.now(), picks = [], frameFor 
       let curTier = climbTier((h.media_override && h.media_override.author) || own.author);
       let cur = Number.isFinite(cs.best_q) ? cs.best_q : quality(curTier, h.media_override && h.media_override.image ? { q: 1 } : null);
       for (const p of matches.sort((a, b) => climbTier(handleOf(b)) - climbTier(handleOf(a)))) { // lower tiers first, SpaceX last
-        if (h.media_locked) break;
+        if (h.media_locked || (h.media_override && h.media_override.keep_image)) break;
         const t = tierOf(handleOf(p)), ct = climbTier(handleOf(p));
         if (t === 3) continue; // tier 3: a first signal only
         if (ct > curTier) { res.skipped.push(`${h.id}: @${handleOf(p)} is a lower tier than the card's media (one-way climb)`); continue; }
