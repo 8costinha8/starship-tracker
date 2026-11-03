@@ -1,11 +1,11 @@
 {
   "scripts": {
     "check-flights": {
-      "at": "2026-11-02T23:15:22.067Z",
+      "at": "2026-11-03T00:15:23.569Z",
       "status": "ok",
       "error": null,
       "consecutive_failures": 0,
-      "last_ok": "2026-11-02T23:15:22.067Z"
+      "last_ok": "2026-11-03T00:15:23.569Z"
     },
     "check-road": {
       "at": "2026-11-02T21:01:18.671Z",
@@ -15,12 +15,12 @@
       "last_ok": "2026-11-02T21:01:18.671Z"
     }
   },
-  "updated": "2026-11-02T23:15:22.067Z",
+  "updated": "2026-11-03T00:15:23.569Z",
   "status": "ok",
   "consecutive_failures": 0,
   "alert": false,
   "last_error": null,
-  "committed_at": "2026-11-02T23:15:22.067Z",
+  "committed_at": "2026-11-03T00:15:23.569Z",
   "render_check": {
     "at": "2026-11-02T06:01:07.513Z",
     "status": "failed",
