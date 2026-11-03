@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "3 Nov",
-  "updatedAt": "2026-11-03T06:00:44.804Z",
+  "updatedAt": "2026-11-03T11:01:20.942Z",
   "categories": [
     {
       "id": "cryo",
@@ -323,8 +323,7 @@
             "post_id": "2111681468724601021",
             "author": "TrackingTheSB",
             "type": "photo",
-            "image": "https://pbs.twimg.com/media/HU4y2cUbwAE6od-.jpg",
-            "crop": "top"
+            "image": "https://pbs.twimg.com/media/HU4y2cUbwAE6od-.jpg"
           },
           "tier": 2,
           "milestone": {
@@ -374,8 +373,7 @@
             "post_id": "2110889490336350574",
             "author": "StarshipGazer",
             "type": "photo",
-            "image": "https://pbs.twimg.com/media/HUtiVIybkAAu4_E.jpg",
-            "crop": "top"
+            "image": "https://pbs.twimg.com/media/HUtiVIybkAAu4_E.jpg"
           },
           "tier": 2,
           "milestone": {
@@ -867,8 +865,7 @@
             "author": "Flight2Starship",
             "type": "photo",
             "image": "https://pbs.twimg.com/media/HUhjfCvWoAAeQ3A.jpg",
-            "credit_only": true,
-            "crop": "bottom"
+            "credit_only": true
           },
           "tier": 1,
           "hedged": true,
@@ -1172,8 +1169,7 @@
             "image": "images/s42-static-fire.jpg",
             "credit_only": true,
             "keep_image": true,
-            "locked": true,
-            "crop": "top"
+            "locked": true
           },
           "milestone": {
             "key": "static_fire|15|S42",
@@ -1691,8 +1687,7 @@
             "image": "images/b22-static-fire-spacex.jpg",
             "credit_only": true,
             "keep_image": true,
-            "locked": true,
-            "crop": "top"
+            "locked": true
           },
           "flight": 15,
           "tier": 1,
@@ -1951,8 +1946,7 @@
             "author": "LabPadre",
             "type": "video",
             "image": "images/2114063568735768864-frame.jpg",
-            "keep_image": true,
-            "crop": "top"
+            "keep_image": true
           },
           "tier": 2,
           "milestone": {
