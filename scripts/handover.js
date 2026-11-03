@@ -17,6 +17,25 @@
   const NO_PHOTO = ["images/rtf-placeholder.jpg"];
   const BOX_ORDER = ["cryo", "raptor", "static", "pad", "faa", "date"];
   const sentence = (t) => { const s = String(t || "").replace(/\s+/g, " ").trim(); return s ? s.charAt(0).toUpperCase() + s.slice(1).replace(/[\s.;,]*$/, ".") : ""; };
+  // Merge consecutive sentences that repeat the same subject + verb ("Ship 42 fired 1 Raptor. Ship 42 fired all 6 Raptors."
+  // → "Ship 42 fired one Raptor, then all six."). Oldest first in, oldest first out.
+  const NUMW = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"];
+  const numWords = (t) => t.replace(/\b(\d{1,2})\b(?=\s+[A-Za-z])/g, (m, d) => (Number(d) <= 12 ? NUMW[Number(d)] : m));
+  const stem = (w) => w.toLowerCase().replace(/[^a-z0-9]/g, "").replace(/(es|s)$/, "");
+  function mergeTwo(a, b) {
+    const wa = a.replace(/\.$/, "").split(" "), wb = b.replace(/\.$/, "").split(" ");
+    let k = 0; while (k < wa.length && k < wb.length && wa[k].toLowerCase() === wb[k].toLowerCase()) k++;
+    if (k < 3 || k === wa.length || k === wb.length) return null; // need a shared "Subject N verb" and something new on both sides
+    const r1 = numWords(wa.slice(k).join(" ")).split(" "), r2 = numWords(wb.slice(k).join(" ")).split(" ");
+    if (/[,;:]/.test(r1.join(" ") + r2.join(" "))) return null; // keep it to simple clauses
+    for (let i = 1; r2.length > 1 && i <= r1.length && stem(r1[r1.length - i]) === stem(r2[r2.length - 1]); i++) r2.pop(); // shared tail words: "… all six Raptors" → "… all six"
+    return `${wa.slice(0, k).join(" ")} ${r1.join(" ")}, then ${r2.join(" ")}.`;
+  }
+  function mergeRepeats(list) { // [{ s, l }] oldest first
+    const out = [];
+    for (const x of list) { const prev = out[out.length - 1], m = prev && !prev.merged && mergeTwo(prev.s, x.s); if (m) out[out.length - 1] = { s: m, l: x.l, merged: true }; else out.push(x); }
+    return out;
+  }
   const key = (t) => String(t || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
   const photoOf = (h) => { const m = h && h.media_override; if (!m || !m.image || NO_PHOTO.includes(m.image) || /^https?:\/\/(?:video\.twimg|.*\.mp4)/.test(m.image)) return null;
     return { image: m.image, ...(m.post_url ? { post_url: m.post_url } : {}), ...(m.author ? { author: String(m.author).replace(/^@/, "") } : {}), ...(m.crop ? { crop: m.crop } : {}) }; };
@@ -36,6 +55,7 @@
         const seen = new Set(), lines = [];
         for (const l of (card.lines || []).slice().reverse()) { const s = sentence(l.text), k = key(s); if (!s || seen.has(k)) continue; seen.add(k); lines.push({ s, l }); }
         if (!lines.length) continue;
+        lines.splice(0, lines.length, ...mergeRepeats(lines));
         let text = ""; for (const { s } of lines.slice().reverse()) { const t = text ? `${s} ${text}` : s; if (t.length > 120) break; text = t; } // newest first, as many full sentences as fit
         if (!text) text = lines[lines.length - 1].s.slice(0, 119).replace(/\s+\S*$/, "") + ".";
         const pic = lines.slice().reverse().map(({ l }) => photoOf(l.card) || photoOf(byUrl[l.url])).find(Boolean) || vehiclePhoto(road, id, card.vehicle);
@@ -78,5 +98,5 @@
   }
   // True once the top card has moved past flight n (logged and the grace period is over).
   const heroPast = (liftoffIso, now) => { const t = Date.parse(liftoffIso || ""); return !Number.isFinite(t) || now - t >= GRACE_MS; };
-  return { GRACE_MS, summarize, syncStatuses, roll, heroPast, sentence };
+  return { GRACE_MS, summarize, syncStatuses, roll, heroPast, sentence, mergeRepeats, mergeTwo };
 });

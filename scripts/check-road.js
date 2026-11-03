@@ -1375,6 +1375,7 @@ async function run(opts = {}) {
   // The Road rolls over at the same moment as the top card (scripts/handover.js GRACE_MS after liftoff), never earlier.
   const graceLeft = lastN && road.flight <= lastN && !require("./handover.js").heroPast(loggedFlightDate(appJsText, lastN), clock());
   if (graceLeft) log(`Flight ${lastN} is in the log; the Road rolls over with the top card, ${Math.ceil(require("./handover.js").GRACE_MS / 3600000)} h after liftoff`);
+  if (lastN && road.flight === lastN) { const at = loggedFlightDate(appJsText, lastN); if (at && !(road.launched && road.launched.flight === lastN && road.launched.at === at)) { road.launched = { flight: lastN, at }; changed = true; } } // Launch date box: "Flight N launched on …"
   if (lastN && road.flight <= lastN && !graceLeft) {
     log(`Flight ${road.flight} is now in the flight log — starting Road to Flight ${lastN + 1}`);
     const ro = rolloverRoad(road, lastN, loggedFlightDate(appJsText, lastN) || new Date(clock()).toISOString(), log);

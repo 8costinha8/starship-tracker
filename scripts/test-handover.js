@@ -82,5 +82,25 @@ let c2 = null;
 // checker: never rolls over before the hero does
 { check(!H.heroPast(SIM.T0, at("C")) && H.heroPast(SIM.T0, at("C2")), "checker waits for the hero: no rollover at 01:05, rollover from 01:30"); }
 { const sum = CR.rolloverRoad(JSON.parse(JSON.stringify(S.roads.C)), 15, SIM.T0).road.archive[15].summary; check(sum && JSON.stringify(sum) === JSON.stringify(H.summarize(S.roads.C)), "checker freezes the same summary the app shows"); }
+// follow-up 1: after liftoff the Launch date box is history (past tense, Complete), not "Estimated NET … / No official date"
+{ const lift = /^Flight 15 launched on 12 Nov at 23:30 UK time\.$/;
+  const bB = FL.boxes(S.roads.B, "12 Nov").date; check(bB.status !== "done" && !lift.test(bB.latest), "B (in flight, not yet logged): Launch date box still the forecast");
+  const bC = FL.boxes(S.roads.C, "13 Nov").date, l0 = bC.cards[0].lines[0];
+  check(bC.status === "done" && bC.statusText === "Complete" && lift.test(bC.latest) && lift.test(l0.text) && l0.day === "12 Nov" && l0.time === "23:30", `C: Launch date box "${bC.latest}" · ${bC.statusText}`);
+  check(!/Estimated NET|No official/.test(JSON.stringify(bC.cards[0].lines[0]) + bC.latest), "C: no 'Estimated NET 12 Nov' / 'No official date' after liftoff");
+  const noL = JSON.parse(JSON.stringify(S.roads.C)); delete noL.launched; globalThis.ST_LAUNCH = (n) => (n === 15 ? SIM.T0 : null);
+  const bA = FL.boxes(noL, "13 Nov").date; delete globalThis.ST_LAUNCH; check(lift.test(bA.latest) && bA.statusText === "Complete", "C: the app gets the same line from its own Flight Log (ST_LAUNCH) before check-road writes road.launched");
+  const appSrc = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8"), crSrc = fs.readFileSync(path.join(__dirname, "check-road.js"), "utf8");
+  check(/window\.ST_LAUNCH = /.test(appSrc) && /road\.launched = \{ flight: lastN, at \}/.test(crSrc), "app sets ST_LAUNCH from FLIGHTS; check-road writes road.launched once the flight is logged");
+  const sumD = S.roads.D.archive[15].summary.items.find((e) => e.box === "date"); check(sumD && lift.test(sumD.text), "D: Flight 15's frozen summary carries 'Flight 15 launched on 12 Nov at 23:30 UK time.'");
+  check(S.roads.D.flight === 16 && FL.boxes(S.roads.D, "13 Nov").date.status !== "done", "D: the new Road's date box is Flight 16's forecast again"); }
+// follow-up 4: repeated subject + verb sentences merge (generic, in the summary builder)
+{ check(H.mergeTwo("Ship 42 fired 1 Raptor.", "Ship 42 fired all 6 Raptors.") === "Ship 42 fired one Raptor, then all six.", "merge: 'Ship 42 fired one Raptor, then all six.'");
+  check(H.mergeTwo("Booster 22 completed 2 cryo tests.", "Booster 22 completed its third cryo test.") === "Booster 22 completed two cryo tests, then its third.", "merge works for any vehicle / box (cryo)");
+  check(H.mergeTwo("Ship 42 completed a cryo test.", "Booster 22 completed a cryo test.") === null && H.mergeTwo("Ship 42 fired all 6 Raptors.", "Ship 42 fired all 6 Raptors.") === null, "no merge across vehicles or of identical sentences");
+  const txt = S.roads.D.archive[15].summary.items.map((e) => e.text);
+  check(txt.includes("Ship 42 fired one Raptor, then all six.") && !txt.some((x) => /Ship 42 fired 1 Raptor\. Ship 42 fired/.test(x)), "D: F15 static box reads 'Ship 42 fired one Raptor, then all six.'");
+  const rep = txt.filter((x) => { const ss = x.split(/(?<=\.) /); return ss.some((a, i) => i && a.split(" ").slice(0, 3).join(" ") === ss[i - 1].split(" ").slice(0, 3).join(" ")); });
+  check(!rep.length, `D: no summary box repeats the same subject + verb in back-to-back sentences (${rep.join(" | ")})`); }
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

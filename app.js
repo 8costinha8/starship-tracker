@@ -1477,7 +1477,8 @@ const logList = (heroN) => [...FLIGHTS].filter((f) => f.n !== heroN).sort((a, b)
 // moment (scripts/handover.js roll), even before the checker's own rollover lands in road.json.
 const MILESTONE_TITLE = /Liftoff|Success|Failure|Partial|Road to Flight|caught|scrub/i;
 const isMilestoneItem = (p) => !!(p && p.cat && /^feed-(?:flight|notice)$/.test(p.cat.id) && MILESTONE_TITLE.test(p.cat.name || ""));
-if (typeof window !== "undefined") window.ST_NOW = () => nowMs(); // FL.boxes "today" follows the app clock (sim / launch-day mock)
+if (typeof window !== "undefined") window.ST_NOW = () => nowMs();
+if (typeof window !== "undefined") window.ST_LAUNCH = (n) => { const f = FLIGHTS.find((x) => x.n === n); return f && f.date && Date.parse(f.date) <= nowMs() ? f.date : null; }; // Launch date box: past tense once the flight is logged // FL.boxes "today" follows the app clock (sim / launch-day mock)
 function roadForHero(road, heroN) {
   const H = typeof window !== "undefined" ? window.RoadHandover : null;
   if (!road || !H || !Number.isInteger(road.flight) || !Number.isInteger(heroN) || heroN <= road.flight || !isLaunched(road.flight)) return road;

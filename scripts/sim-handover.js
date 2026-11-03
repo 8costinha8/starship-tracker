@@ -30,6 +30,7 @@ function stages(base = JSON.parse(fs.readFileSync(path.join(ROOT, "road.json"), 
   add(B, "🚀 Liftoff!", "Flight 15 is in the air · Watch now", "2026-11-12T23:30:30.000Z");
   const Cr = cp(B);
   add(Cr, "🏁 Flight 15 — Success", "The story's up in the app.", "2026-11-13T00:45:00.000Z");
+  Cr.launched = { flight: 15, at: T0 }; // check-road run() writes this once Flight 15 is in the log
   // D: exactly check-road.js run() step 1 (+ the re-file passes that follow it)
   const { road } = C.rolloverRoad(cp(Cr), 15, T0);
   road.updated = "13 Nov"; road.updatedAt = "2026-11-13T09:00:00.000Z";
