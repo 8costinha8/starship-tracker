@@ -121,7 +121,7 @@ async function runCascade(road, posts, { now = Date.now(), picks = [], frameFor 
         // swap image AND link AND source post; text stays (locked); no caption, no label, no push
         h.url = p.url; h.src = `@${handleOf(p)}`; h.tier = Math.min(t, 2);
         h.x_post = { post_id: p.post_id, url: p.url, created_at: p.created_at, text: p.text, author: p.author, media: p.media || [] };
-        h.media_override = { post_url: p.url, post_id: p.post_id, author: handleOf(p), type: med.type, image: med.image, ...(med.thumb ? { thumb: med.thumb } : {}), ...(med.frame ? { frame: med.frame } : {}), auto: true, cascade: true, quality: q, checked_at: new Date(now).toISOString() };
+        h.media_override = { post_url: p.url, post_id: p.post_id, author: handleOf(p), type: med.type, image: med.image, ...(med.thumb ? { thumb: med.thumb } : {}), ...(med.frame ? { frame: med.frame } : {}), auto: true, cascade: true, quality: q, checked_at: new Date(now).toISOString(), crop: require("./road-pick.js").cropOf(cat.id, `${h.text || ""} ${h.x_text || ""}`) };
         delete h.media_context; delete h.alt_media; delete h.caption;
         cs.best_q = cur = q; curTier = ct;
         if (ct === 1) { h.media_locked = true; h.text_locked = true; res.locked = [...(res.locked || []), h.id]; log(`cascade LOCK: ${h.id} — SpaceX's own post, no more media or wording changes`); }

@@ -29,6 +29,9 @@
     if (/bqd|deluge|launch mount|service structure|tower|pad/.test(t)) return "pad";
     return null;
   }
+  // 3 Nov crop rule (no background extending / generative fill, ever): a picture that does not fit its slot is cover-cropped,
+  // aligned to the TOP of the vehicle for ships and boosters, to the BOTTOM for engines / Raptors. The B22 cryo top crop is the reference.
+  const cropOf = (cid, text) => { const t = String(text || ""); return (cid === "raptor" || /\b(raptor|rvac|engines?)\b/i.test(t)) && !/\b(static[- ]fire|cryo|roll(ed|s)? ?out|stack|lift(ed)? onto|transport)/i.test(t) ? "bottom" : "top"; };
   const isNewsPic = (p) => NEWS.includes(lc(p.author)) || /\/news_img\/|nasaspaceflight\.com|spaceflightnow\.com|spacenews\.com/i.test(String(p.image || "")) || !!p.link_card;
   const atOf = (e) => { for (const v of [e && e.completed_at, e && e.at, e && e.x_post && e.x_post.created_at, e && e.publishedAt]) if (v && Number.isFinite(Date.parse(v))) return Date.parse(v); return 0; };
   const handleOf = (e) => (e.media_override && e.media_override.author) || (e.x_post && e.x_post.author && e.x_post.author.username) || (/^@/.test(e.src || "") ? e.src : "");
@@ -36,7 +39,7 @@
   function picsOf(e) {
     const out = [], url = (e.media_override && e.media_override.post_url) || (e.x_post && e.x_post.url) || e.url || null;
     const mo = e.media_override;
-    if (mo && mo.image) out.push({ image: mo.image, type: mo.type || "photo", post_url: mo.post_url || url, author: mo.author || handleOf(e), manual: !!mo.keep_image, locked: !!(mo.keep_image || mo.locked || e.media_locked || tierOf(mo.author) === 1), w: 0 });
+    if (mo && mo.image) out.push({ image: mo.image, type: mo.type || "photo", post_url: mo.post_url || url, author: mo.author || handleOf(e), manual: !!mo.keep_image, locked: !!(mo.keep_image || mo.locked || e.media_locked || tierOf(mo.author) === 1), w: 0, crop: mo.crop || null });
     for (const m of (e.x_post && e.x_post.media) || []) { const img = m.type === "photo" ? m.url : m.poster; if (img && !out.some((p) => p.image === img)) out.push({ image: img, type: m.type, post_url: url, author: handleOf(e), manual: false, w: m.width || 0 }); }
     return out;
   }
@@ -52,9 +55,12 @@
   function bestOf(group) {
     let best = null;
     group.forEach((e) => picsOf(e).forEach((p) => { const s = score(p, e); if (!best || s > best.s || (s === best.s && atOf(e) > atOf(best.e))) best = { s, p, e }; }));
-    return best && { ...best.p, from: best.e };
+    return best && { ...best.p, crop: best.p.crop || cropOf(best.e.cid, `${best.e.text || ""} ${best.e.x_text || ""}`), from: best.e };
   }
   function cardPicture(entries, { cid, done = null } = {}) {
+    const r = cardPicture0(entries, { cid, done }); if (r && !r.crop_set) { r.crop = (r.from && r.from.media_override && r.from.media_override.crop) || cropOf(cid, `${(r.from && r.from.text) || ""} ${(r.from && r.from.x_text) || ""}`); } return r;
+  }
+  function cardPicture0(entries, { cid, done = null } = {}) {
     const list = entries.slice().sort((x, y) => atOf(y) - atOf(x));
     if (done) return bestOf(groupOf(list, cid, done));
     for (const e of list) { const b = bestOf(groupOf(list, cid, e)); if (b) return b; } // newest event that has any picture
@@ -66,5 +72,5 @@
     groupOf(entries, cid, anchor).forEach((e) => picsOf(e).forEach((p) => { if ((!best || p.image !== best.image) && !out.some((o) => o.image === p.image)) out.push({ image: p.image, type: p.type, post_url: p.post_url, author: String(p.author || "").replace(/^@/, "") }); }));
     return out.slice(0, 6);
   }
-  return { NEWS, isNewsPic, rankOf, alternativesOf, cardPicture, kindOf, groupOf, bestOf, tierOf, SAME_EVENT_H };
+  return { cropOf, NEWS, isNewsPic, rankOf, alternativesOf, cardPicture, kindOf, groupOf, bestOf, tierOf, SAME_EVENT_H };
 });

@@ -92,7 +92,8 @@
             "author": "RGVaerialphotos",
             "type": "video",
             "image": "https://pbs.twimg.com/amplify_video_thumb/2115312114298654720/img/45WwvTRmJ8YoB0Fq.jpg",
-            "keep_image": true
+            "keep_image": true,
+            "crop": "top"
           }
         },
         {
@@ -150,7 +151,8 @@
             "author": "LabPadre",
             "type": "video",
             "image": "https://pbs.twimg.com/amplify_video_thumb/2114755310996901888/img/xXXdVirUtQa3phNk.jpg",
-            "keep_image": true
+            "keep_image": true,
+            "crop": "top"
           }
         },
         {
@@ -218,7 +220,8 @@
             "author": "Blobifie",
             "type": "photo",
             "image": "https://pbs.twimg.com/media/HVWEyTyaQAA-KCA.jpg",
-            "keep_image": true
+            "keep_image": true,
+            "crop": "top"
           }
         },
         {
@@ -276,7 +279,8 @@
             "author": "Bettybronxton",
             "type": "video",
             "image": "https://pbs.twimg.com/amplify_video_thumb/2113350470194302976/img/ikUTmqE7ByY6tWFo.jpg",
-            "keep_image": true
+            "keep_image": true,
+            "crop": "top"
           },
           "unverified": true,
           "note": "both posts relay LabPadre"
@@ -319,7 +323,8 @@
             "post_id": "2111681468724601021",
             "author": "TrackingTheSB",
             "type": "photo",
-            "image": "https://pbs.twimg.com/media/HU4y2cUbwAE6od-.jpg"
+            "image": "https://pbs.twimg.com/media/HU4y2cUbwAE6od-.jpg",
+            "crop": "top"
           },
           "tier": 2,
           "milestone": {
@@ -369,7 +374,8 @@
             "post_id": "2110889490336350574",
             "author": "StarshipGazer",
             "type": "photo",
-            "image": "https://pbs.twimg.com/media/HUtiVIybkAAu4_E.jpg"
+            "image": "https://pbs.twimg.com/media/HUtiVIybkAAu4_E.jpg",
+            "crop": "top"
           },
           "tier": 2,
           "milestone": {
@@ -469,7 +475,8 @@
             "author": "StarshipGazer",
             "type": "photo",
             "image": "https://pbs.twimg.com/media/HUf3gx6acAAlglM.jpg",
-            "keep_image": true
+            "keep_image": true,
+            "crop": "top"
           },
           "cascade": {
             "first_at": "2026-10-13T08:49:28.000Z",
@@ -541,7 +548,8 @@
             "author": "Blobifie",
             "type": "photo",
             "image": "https://pbs.twimg.com/media/HUdSuq2a8AAAfgu.jpg",
-            "keep_image": true
+            "keep_image": true,
+            "crop": "top"
           }
         },
         {
@@ -588,7 +596,8 @@
             "author": "LabPadre",
             "type": "photo",
             "image": "images/ship-cryo.jpg",
-            "keep_image": true
+            "keep_image": true,
+            "crop": "top"
           },
           "imageChecked2": true,
           "flight": 15,
@@ -723,7 +732,8 @@
             "image": "images/b22-cryo-starshipgazer.jpg",
             "keep_image": true,
             "note": "31 Oct: photo 2 of @StarshipGazer's 9 Sep 2026 post (X media HR0EnCrWEAM50a1, credited on the Starship SpaceX Wiki file page); badge and photo open that post. Watermark kept.",
-            "post_id": "2097839813114068995"
+            "post_id": "2097839813114068995",
+            "crop": "top"
           },
           "imageChecked2": true,
           "flight": 15,
@@ -834,7 +844,8 @@
             "type": "photo",
             "image": "https://pbs.twimg.com/media/HVXY5SCacAADfbX.jpg",
             "credit_only": true,
-            "fixed": "2026-11-01 B22 engine photo carried over from the refiled jig card"
+            "fixed": "2026-11-01 B22 engine photo carried over from the refiled jig card",
+            "crop": "top"
           }
         },
         {
@@ -856,7 +867,8 @@
             "author": "Flight2Starship",
             "type": "photo",
             "image": "https://pbs.twimg.com/media/HUhjfCvWoAAeQ3A.jpg",
-            "credit_only": true
+            "credit_only": true,
+            "crop": "bottom"
           },
           "tier": 1,
           "hedged": true,
@@ -938,7 +950,8 @@
             "post_id": "2098104487428694216",
             "author": "NASASpaceflight",
             "type": "video",
-            "image": "https://pbs.twimg.com/amplify_video_thumb/2098104422446649344/img/RNpZZjZzOhOPObst.jpg"
+            "image": "https://pbs.twimg.com/amplify_video_thumb/2098104422446649344/img/RNpZZjZzOhOPObst.jpg",
+            "crop": "bottom"
           },
           "imageChecked2": true,
           "xChecked": true,
@@ -1044,7 +1057,8 @@
             "author": "RGVaerialphotos",
             "type": "video",
             "image": "https://pbs.twimg.com/amplify_video_thumb/2115698557118525440/img/JcPi0ZRB6O6GSRW0.jpg",
-            "video_url": "https://video.twimg.com/amplify_video/2115698557118525440/vid/avc1/2560x1440/6WsYhIBrj3Pci0My.mp4"
+            "video_url": "https://video.twimg.com/amplify_video/2115698557118525440/vid/avc1/2560x1440/6WsYhIBrj3Pci0My.mp4",
+            "crop": "top"
           },
           "tier": 2,
           "push": {
@@ -1158,7 +1172,8 @@
             "image": "images/s42-static-fire.jpg",
             "credit_only": true,
             "keep_image": true,
-            "locked": true
+            "locked": true,
+            "crop": "top"
           },
           "milestone": {
             "key": "static_fire|15|S42",
@@ -1420,7 +1435,8 @@
             "type": "video",
             "image": "https://pbs.twimg.com/amplify_video_thumb/2114691314495418368/img/yaSu0o2nwISYaNZ-.jpg",
             "keep_image": true,
-            "fixed": "2026-10-28 own-post media (was 2114632668461900071)"
+            "fixed": "2026-10-28 own-post media (was 2114632668461900071)",
+            "crop": "top"
           },
           "time_fix": "was 01:51; set to its own post (Blobifie 12:11 GMT 'has arrived')"
         },
@@ -1470,7 +1486,8 @@
             "author": "Blobifie",
             "type": "video",
             "image": "https://pbs.twimg.com/amplify_video_thumb/2114686073846837248/img/uEHvSZZHMQwvHU0S.jpg",
-            "video_url": "https://video.twimg.com/amplify_video/2114686073846837248/vid/avc1/1280x720/6qjZOzFGc4aH-ZQA.mp4?tag=14"
+            "video_url": "https://video.twimg.com/amplify_video/2114686073846837248/vid/avc1/1280x720/6qjZOzFGc4aH-ZQA.mp4?tag=14",
+            "crop": "top"
           },
           "tier": 2,
           "push": {
@@ -1577,7 +1594,8 @@
             "author": "NASASpaceflight",
             "type": "video",
             "image": "https://pbs.twimg.com/amplify_video_thumb/2114567980231053312/img/EitC83F_WspGNa1A.jpg",
-            "video_url": "https://video.twimg.com/amplify_video/2114567980231053312/vid/avc1/1112x620/qE2pzsDpyqd7NXFh.mp4"
+            "video_url": "https://video.twimg.com/amplify_video/2114567980231053312/vid/avc1/1112x620/qE2pzsDpyqd7NXFh.mp4",
+            "crop": "top"
           },
           "tier": 1,
           "push": {
@@ -1673,7 +1691,8 @@
             "image": "images/b22-static-fire-spacex.jpg",
             "credit_only": true,
             "keep_image": true,
-            "locked": true
+            "locked": true,
+            "crop": "top"
           },
           "flight": 15,
           "tier": 1,
@@ -1824,7 +1843,8 @@
             "type": "video",
             "image": "https://pbs.twimg.com/amplify_video_thumb/2114335137450143744/img/hdkbpWHvz5KOQq-M.jpg",
             "keep_image": true,
-            "fixed": "2026-10-28 own-post media (was 2113834862339617215)"
+            "fixed": "2026-10-28 own-post media (was 2113834862339617215)",
+            "crop": "top"
           },
           "tier": 3,
           "push": {
@@ -1875,7 +1895,8 @@
             "post_id": "2114317866409595106",
             "author": "Blobifie",
             "type": "photo",
-            "image": "https://pbs.twimg.com/media/HVeQ1S4bIAARYFp.jpg"
+            "image": "https://pbs.twimg.com/media/HVeQ1S4bIAARYFp.jpg",
+            "crop": "top"
           },
           "tier": 2,
           "push": {
@@ -1930,7 +1951,8 @@
             "author": "LabPadre",
             "type": "video",
             "image": "images/2114063568735768864-frame.jpg",
-            "keep_image": true
+            "keep_image": true,
+            "crop": "top"
           },
           "tier": 2,
           "milestone": {
@@ -2031,7 +2053,8 @@
             "auto": true,
             "quality": 5,
             "media_score": 310,
-            "checked_at": "2026-10-24T15:30:00.000Z"
+            "checked_at": "2026-10-24T15:30:00.000Z",
+            "crop": "top"
           },
           "tier": 2,
           "milestone": {
@@ -2155,7 +2178,8 @@
             "author": "Blobifie",
             "type": "video",
             "image": "images/2113955770337550391-frame.jpg",
-            "keep_image": true
+            "keep_image": true,
+            "crop": "top"
           },
           "tier": 2,
           "milestone": {
@@ -2332,7 +2356,8 @@
             "post_id": "2117381830253101176",
             "author": "Blobifie",
             "type": "photo",
-            "image": "https://pbs.twimg.com/media/HWJzfqOaIAAv24s.jpg"
+            "image": "https://pbs.twimg.com/media/HWJzfqOaIAAv24s.jpg",
+            "crop": "top"
           },
           "tier": 2,
           "milestone": {
@@ -2418,7 +2443,8 @@
             "author": "TrackingTheSB",
             "type": "photo",
             "image": "https://pbs.twimg.com/media/HVsYHvSaQAAzZ3c.jpg",
-            "keep_image": true
+            "keep_image": true,
+            "crop": "top"
           }
         },
         {
@@ -2476,7 +2502,8 @@
             "author": "Blobifie",
             "type": "video",
             "image": "https://pbs.twimg.com/amplify_video_thumb/2115205652226445312/img/waES-njaUObm4rp_.jpg",
-            "keep_image": true
+            "keep_image": true,
+            "crop": "top"
           },
           "unverified": true,
           "note": "one author (Blobifie ×2)",
@@ -2546,7 +2573,8 @@
             "author": "Blobifie",
             "type": "photo",
             "image": "https://pbs.twimg.com/media/HVmQW1fbIAA2hgT.jpg",
-            "keep_image": true
+            "keep_image": true,
+            "crop": "top"
           }
         },
         {
@@ -2614,7 +2642,8 @@
             "author": "NASASpaceflight",
             "type": "video",
             "image": "https://pbs.twimg.com/amplify_video_thumb/2114798512785215489/img/LstBkhCTiy2Xrbok.jpg",
-            "keep_image": true
+            "keep_image": true,
+            "crop": "top"
           },
           "cascade": {
             "first_at": "2026-10-26T19:17:26.000Z",
@@ -2676,7 +2705,8 @@
             "type": "photo",
             "image": "https://pbs.twimg.com/media/HVh97ShaIAAhZ2k.jpg",
             "keep_image": true,
-            "fixed": "2026-10-28 own-post media (was 2114586836236743107)"
+            "fixed": "2026-10-28 own-post media (was 2114586836236743107)",
+            "crop": "top"
           },
           "tier": 2,
           "push": {
@@ -2734,7 +2764,8 @@
             "post_id": "2113834862339617215",
             "author": "RGVaerialphotos",
             "type": "photo",
-            "image": "https://pbs.twimg.com/media/HVXY5SCacAADfbX.jpg"
+            "image": "https://pbs.twimg.com/media/HVXY5SCacAADfbX.jpg",
+            "crop": "bottom"
           },
           "tier": 2,
           "push": {
@@ -2808,7 +2839,8 @@
             "post_id": "2113664154762457446",
             "author": "NASASpaceflight",
             "type": "video",
-            "image": "https://pbs.twimg.com/amplify_video_thumb/2113663995030675456/img/06zbEvN_3i4BdJfZ.jpg"
+            "image": "https://pbs.twimg.com/amplify_video_thumb/2113663995030675456/img/06zbEvN_3i4BdJfZ.jpg",
+            "crop": "top"
           },
           "tier": 1,
           "push": {
@@ -2867,7 +2899,8 @@
             "author": "Blobifie",
             "type": "video",
             "image": "https://pbs.twimg.com/amplify_video_thumb/2112678295435464704/img/9a4tS6nMnzIHT1_6.jpg",
-            "fixed": "2026-11-01 own X post (videos only: chopsticks thumbnail; was placeholder)"
+            "fixed": "2026-11-01 own X post (videos only: chopsticks thumbnail; was placeholder)",
+            "crop": "top"
           }
         },
         {
@@ -2958,7 +2991,8 @@
             "author": "TrackingTheSB",
             "type": "photo",
             "image": "https://pbs.twimg.com/media/HSBuEQiaYAAIOHV.jpg",
-            "fixed": "2026-11-01 own X post photo (was placeholder)"
+            "fixed": "2026-11-01 own X post photo (was placeholder)",
+            "crop": "top"
           }
         }
       ],
@@ -2984,7 +3018,8 @@
             "post_id": "2103953927624356245",
             "author": "NASASpaceflight",
             "type": "photo",
-            "image": "https://pbs.twimg.com/media/HTK-2HuXwAIKtUN.png"
+            "image": "https://pbs.twimg.com/media/HTK-2HuXwAIKtUN.png",
+            "crop": "top"
           },
           "imageChecked2": true,
           "flight": 15,

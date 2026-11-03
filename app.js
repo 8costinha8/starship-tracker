@@ -527,7 +527,7 @@ function predictedNet(f, road, now = nowMs()) {
   if (f.date && !roughNet(f, now)) return null; // LL2 has a day-or-better date
   const d = new Date(`${p.net}T00:00:00Z`);
   if (!Number.isFinite(d.getTime()) || d.getTime() + DAY < now) return null; // stale
-  const label = `NET ${d.toLocaleDateString("en-GB", { timeZone: "UTC", day: "numeric", month: "short" })} · predicted`;
+  const label = `NET ${d.toLocaleDateString("en-GB", { timeZone: "UTC", day: "numeric", month: "short" })}`; // 3 Nov: just "NET 12 Nov" (no source, no "predicted")
   const basis = p.basis || p.sources.map((s) => s.name).filter(Boolean).join(" · ");
   return { label, basis };
 }
@@ -669,12 +669,13 @@ function Connector({ label, dashed }) {
 // "Result pending" when LL2 still hasn't posted Success/Failure.
 const RESULT_PENDING_AFTER_MS = 4 * 60 * 60 * 1000;
 
-function Countdown({ flight }) {
+function Countdown({ flight, road }) {
   const now = useNow(true);
   const status = effectiveStatus(flight, now);
 
   if (status === "tbc") {
-    return <div className="cd"><span className="cd-val cd-tbc">Date to be confirmed</span></div>;
+    const pred = predictedNet(flight, road, now); // 3 Nov: a predicted date replaces LL2's "Date to be confirmed" on the hero pill
+    return <div className="cd"><span className="cd-val cd-tbc">{pred ? pred.label : "Date to be confirmed"}</span></div>;
   }
   if (status === "inflight") {
     const since = now - new Date(flight.date).getTime();
@@ -764,12 +765,12 @@ function NextFlightCard({ f, checkedAt, road, children }) {
   return (
     <section className="next" aria-label={`${status === "inflight" ? "Current" : status === "done" ? "Latest" : "Next"} flight: Flight ${f.n}`}>
       <div className="next-top">
-        <Countdown flight={f} />
+        <Countdown flight={f} road={road} />
         <WatchLiveBadge flight={f} now={now} />
       </div>
       <div className="next-title"><span className="t-word">Starship Flight</span><span className="t-num">{f.n || "—"}</span></div>
       <dl className="facts">
-        <dt>{dateLabel}</dt><dd>{dateText}{predicted && scrub(predicted.basis) && <span className="pred-basis">{scrub(predicted.basis)}</span>}</dd>
+        <dt>{dateLabel}</dt><dd>{dateText}</dd>
         {win && <><dt>Window</dt><dd>{win}</dd></>}
         <dt>Site</dt><dd>{siteLine(f)}</dd>
         <dt>Vehicle</dt><dd>{vehicleLine(f)}</dd>
@@ -1530,12 +1531,14 @@ function SplitMedia({ pair, onPhotoTap, alt }) {
         {pair.map((m, i) => (
           <a key={i} href={m.image} target="_blank" rel="noopener noreferrer" aria-label={`${alt} \u2014 photo ${i + 1}`}
             onClick={(e) => { e.stopPropagation(); if (onPhotoTap) { e.preventDefault(); onPhotoTap(m.image, `${alt} \u2014 photo ${i + 1}`); } }}>
-            <img src={localImg(m.image)} alt="" loading="lazy" referrerPolicy="no-referrer" onError={imgFallback(m.image, () => setBad((b) => ({ ...b, [i]: true })))} /></a>))}
+            <img className={cropClass(m)} src={localImg(m.image)} alt="" loading="lazy" referrerPolicy="no-referrer" onError={imgFallback(m.image, () => setBad((b) => ({ ...b, [i]: true })))} /></a>))}
         <SrcBadge author={pair[1].author} url={pair[1].post_url} image={pair[1].image} />
       </div>
     </div>
   );
 }
+// 3 Nov crop rule: a photo that does not fit its slot is cover-cropped (never extended): top of the vehicle for ships and boosters, bottom for engines
+const cropClass = (m) => (m && m.crop === "bottom" ? "crop-bottom" : "crop-top");
 function PickMedia({ mo }) {
   if (mo.pair) return <SplitMedia pair={mo.pair} onPhotoTap={mo.onPhotoTap} alt={mo.alt} />;
   return <OneMedia mo={mo} />;
@@ -1546,7 +1549,7 @@ function OneMedia({ mo }) {
   return (
     <div className="xm">
       <div className="xm-grid n1"><a href={mo.post_url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
-        <img src={localImg(mo.image)} alt="" loading="lazy" referrerPolicy="no-referrer" onError={imgFallback(mo.image, () => setBad(true))} />{mo.type === "video" && PLAY_ICON}</a>
+        <img className={cropClass(mo)} src={localImg(mo.image)} alt="" loading="lazy" referrerPolicy="no-referrer" onError={imgFallback(mo.image, () => setBad(true))} />{mo.type === "video" && PLAY_ICON}</a>
         <SrcBadge author={mo.author} url={mo.post_url} image={mo.image} keep={!!mo.keep_image} /></div>
       {/* credit-only photo: the photo and its badge already open the photo's post; the card keeps one View on X (its own post) */}
       {mo.credit_only && <div className="xm-foot"><span className="xm-ctx">{`Photo · @${mo.author}`}</span></div>}
@@ -1648,17 +1651,20 @@ const isShipCryo = (h, cat) => { const t = `${h.x_text || ""} ${h.text || ""} ${
 const ownLocalMedia = (mo) => !!mo && /^images\//.test(String(mo.image || "")) && mo.image !== SHIP_CRYO_IMAGE && !!mo.author;
 const roadMediaOf = (h, cat) => (isShipCryo(h, cat) && !(h.media_override && (h.media_override.keep_image || ownLocalMedia(h.media_override)))
   ? { post_url: urlOf(h), author: (h.media_override && h.media_override.author) || "", type: "photo", image: SHIP_CRYO_IMAGE } : h.media_override);
+// 3 Nov: a combined pill ("Cryo tests · Ship 42") shows as two same-style pills side by side, no dot separator
+const pillParts = (name) => String(name || "").split(/\s+·\s+/).filter(Boolean);
 function FeedPost({ p, onPhotoTap, idx, st }) {
   const { h, cat } = p;
   const mo1 = roadMediaOf(h, cat), pair = splitOf(h, mo1);
-  const mo = pair ? { ...mo1, pair, onPhotoTap, alt: scrub(h.card_text || h.x_text || h.text) } : mo1; // two-photo split rides on the picked picture
+  const crop = mo1 && (mo1.crop || (window.RoadPick ? window.RoadPick.cropOf(cat.id, `${h.text || ""} ${h.card_text || ""}`) : "top"));
+  const mo = mo1 ? (pair ? { ...mo1, crop, pair: pair.map((m) => ({ ...m, crop })), onPhotoTap, alt: scrub(h.card_text || h.x_text || h.text) } : { ...mo1, crop }) : mo1; // two-photo split rides on the picked picture
   return (
     <article className={"post" + (urlOf(h) ? " post-tap" : "")} id={`post-${p.id}`} data-id={p.id} data-entry={h.id || undefined} data-xposts={(h.x_posts || []).join(" ") || undefined} style={catVars(cat.id, cat.color)}
       {...linkProps(h)}>
       <div className="post-top">
-        <span className={"chip chip-" + cat.id}><span className="chip-i"><CatIcon c={cat} /></span>{cat.name}</span>
-        <span className="post-date">{cardDate(h)}</span>
+        {pillParts(cat.name).map((t, i) => <span key={i} className={"chip chip-" + cat.id + (i ? " chip-2" : "")}>{!i && <span className="chip-i"><CatIcon c={cat} /></span>}{t}</span>)}
         {st && <span className={"badge badge-" + st.status + " post-status"}>{st.text}</span>}
+        <span className="post-date">{cardDate(h)}</span>
       </div>
       <p className="post-text">{scrub(h.card_text || h.x_text || h.text)}</p>
       {mo ? <PickMedia mo={mo} /> : h.media_context ? <ContextMedia mc={h.media_context} /> : !h.milestone && h.x_post && <XMedia x={h.x_post} />}
@@ -1813,7 +1819,7 @@ function rtfCards(road) {
     const h = { ...main, id: `rtf-${cid}-${v}`, updates: rows, alt_media: null, complete: !!doneOne, milestone: doneOne ? main.milestone : { phase: "progress" } };
     // picture: newest event (incomplete) or the completing event (done); best photo among that event's posts (scripts/road-pick.js)
     const pic = window.RoadPick ? window.RoadPick.cardPicture(list, { cid, done: doneOne || null }) : null;
-    if (pic) h.media_override = { image: pic.image, type: pic.type, post_url: pic.post_url, author: String(pic.author || "").replace(/^@/, ""), keep_image: pic.manual, credit_only: pic.from !== main && !!pic.author };
+    if (pic) h.media_override = { image: pic.image, type: pic.type, post_url: pic.post_url, author: String(pic.author || "").replace(/^@/, ""), keep_image: pic.manual, credit_only: pic.from !== main && !!pic.author, crop: pic.crop };
     else if (!doneOne) h.media_override = { image: RTF_PLACEHOLDER, type: "photo", post_url: urlOf(main) };
     h.rtf_pic = pic ? pic.from : null; h.media_context = null;
     out.push({ h, cat: { ...cat, name: `${cat.name} · ${vname(v)}` }, ci: 0, hi: 0, id: h.id, flight: road.flight, done: !!doneOne });
@@ -2464,8 +2470,8 @@ textarea.feedback-field { resize: none; min-height: 112px; }
    (no fixed height, no empty bottom space). */
 section.road .callout-head { grid-template-columns: auto 1fr auto; column-gap: 8px; row-gap: 3px; align-items: center; padding: 10px 12px 11px 16px; }
 section.road .callout-body { display: contents; }
-section.road .callout-icon { grid-row: 1; grid-column: 1; font-size: 18px; line-height: 1; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; }
-section.road .callout-icon .cat-img { height: 20px; }
+section.road .callout-icon { grid-row: 1; grid-column: 1; font-size: 18px; line-height: 1; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; }
+section.road .callout-icon .cat-img { height: 25px; } /* 3 Nov: Raptor icon slightly bigger */
 section.road .callout-name { grid-row: 1; grid-column: 2; min-width: 0; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 section.road .callout-head > .badge, section.road .callout-head > .badge-wrap { grid-row: 1; grid-column: 3; justify-self: end; }
 section.road .callout-head .badge { padding: 3px 8px; font-size: 10.5px; }
@@ -2588,7 +2594,8 @@ section.road .callout-latest { grid-row: 2; grid-column: 2 / -1; margin-top: 0; 
 .cat-img { height: 1.2em; width: auto; vertical-align: middle; display: inline-block; }
 .chip-i { font-size: 12px; line-height: 1; letter-spacing: 0; }
 .post-sep { color: var(--faint); font-size: 12.5px; }
-.post-date { font-size: 12.5px; font-weight: 600; color: var(--muted); white-space: nowrap; }
+.post-date { font-size: 12.5px; font-weight: 600; color: var(--muted); white-space: nowrap; margin-left: auto; text-align: right; } /* 3 Nov: right edge, in line with View on X */
+.post-top { gap: 6px; } .post-top .chip-2 { margin-left: -1px; }
 .post-top .mini-unc { margin-left: auto; vertical-align: 0; }
 .post-text { margin: 9px 0 0; font-size: 14.5px; line-height: 1.5; color: var(--text); }
 .post-photo { margin-top: 10px; }
@@ -2738,7 +2745,8 @@ section.road .callout-latest { grid-row: 2; grid-column: 2 / -1; margin-top: 0; 
 .xm-grid > a, .xm-grid > video { position: relative; display: block; min-height: 0; min-width: 0; }
 .xm-grid img, .xm-grid video { width: 100%; height: 100%; object-fit: cover; display: block; }
 /* cropped card photos keep the top of the vehicle */
-.xm-grid img, .xm-split img { object-position: center 20%; }
+.xm-grid img, .xm-split img { object-position: center top; } /* 3 Nov: no background extending; cover-crop, vehicles keep their top */
+.xm-grid img.crop-bottom, .xm-split img.crop-bottom { object-position: center bottom; } /* engines / Raptors keep their bottom */
 .xm-grid, .xm-split { position: relative; }
 /* photo source badge: 22px avatar, bottom-right, thin white ring + soft dark shadow */
 .xm-grid > a.src-badge, .xm-split > a.src-badge { position: absolute; right: 8px; bottom: 8px; z-index: 2; width: 22px; height: 22px; min-width: 0; border-radius: 50%; overflow: hidden;
