@@ -22,13 +22,9 @@
   "last_error": null,
   "committed_at": "2026-11-03T05:30:47.195Z",
   "render_check": {
-    "at": "2026-11-02T06:01:07.513Z",
-    "status": "failed",
-    "failures": 3,
-    "items": [
-      "[render-tense] Feed news-mvy7to1c-c7241c: \"Ship 45 completes methane tank and starts liquid oxygen tank\" is present tense on screen",
-      "[render-tense] Feed news-mvy7to1c-c7241c: \"Ship 45 completes methane tank and starts liquid oxygen tank\" has no verb (fragment)",
-      "[render-punctuation] Feed news-mvycu1v4-3745f1: \"Flight 15 vehicles tested ahead of November launch\" has no full stop"
-    ]
+    "at": "2026-11-03T06:00:44.461Z",
+    "status": "ok",
+    "failures": 0,
+    "items": []
   }
 }

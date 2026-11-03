@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "3 Nov",
-  "updatedAt": "2026-11-03T04:30:55.106Z",
+  "updatedAt": "2026-11-03T06:00:44.804Z",
   "categories": [
     {
       "id": "cryo",
@@ -2399,14 +2399,6 @@
             "url": "https://x.com/efraser77/status/2117466177400434911",
             "at": "2026-11-03T03:57:31.000Z"
           },
-          "photo_alternatives": [
-            {
-              "image": "https://pbs.twimg.com/amplify_video_thumb/2117465535130779648/img/-R3kVAgAKvd_6b-Q.jpg",
-              "type": "video",
-              "post_url": "https://x.com/efraser77/status/2117466177400434911",
-              "author": "efraser77"
-            }
-          ],
           "edited_from": "Booster 22 getting ready in MB1 with BQD work on Pad 2.",
           "edited": true
         },
@@ -2471,15 +2463,7 @@
             "url": "https://x.com/Blobifie/status/2117381830253101176",
             "at": "2026-11-02T22:22:22.000Z"
           },
-          "frameChecked": true,
-          "photo_alternatives": [
-            {
-              "image": "https://pbs.twimg.com/amplify_video_thumb/2117465535130779648/img/-R3kVAgAKvd_6b-Q.jpg",
-              "type": "video",
-              "post_url": "https://x.com/efraser77/status/2117466177400434911",
-              "author": "efraser77"
-            }
-          ]
+          "frameChecked": true
         },
         {
           "id": "f16-s43-2115315741709001123",
@@ -4032,26 +4016,23 @@
     "https://pbs.twimg.com/amplify_video_thumb/2112035083679043584/img/dw7Zle9xo9YHSp0k.jpg": "images/cache/amplify_video_thumb_2112035083679043584_img_dw7Zle9xo9YHSp0k.jpg",
     "https://pbs.twimg.com/media/HTwdsecaIAAK_9e.jpg": "images/cache/media_HTwdsecaIAAK_9e.jpg",
     "https://pbs.twimg.com/amplify_video_thumb/2112678295435464704/img/9a4tS6nMnzIHT1_6.jpg": "images/cache/amplify_video_thumb_2112678295435464704_img_9a4tS6nMnzIHT1_6.jpg",
-    "https://pbs.twimg.com/media/HSBuEQiaYAAIOHV.jpg": "images/cache/media_HSBuEQiaYAAIOHV.jpg"
+    "https://pbs.twimg.com/media/HSBuEQiaYAAIOHV.jpg": "images/cache/media_HSBuEQiaYAAIOHV.jpg",
+    "https://pbs.twimg.com/media/HWJzfqOaIAAv24s.jpg": "images/cache/media_HWJzfqOaIAAv24s.jpg"
   },
   "self_check": {
-    "at": "2026-11-02T06:01:07.513Z",
-    "fixes": 3,
-    "flags": 4,
+    "at": "2026-11-03T06:00:44.461Z",
+    "fixes": 1,
+    "flags": 1,
     "counts": {
-      "source-badge": 1,
-      "image-cache": 2
+      "image-cache": 1
     },
     "judge_calls": 0,
     "flagged": [
-      "[launch-date] feed \"NET Nov 2026\" (flight-mvsjfivy-8b129a) is a month-only Launch Library date; hero day NET 12 Nov is the higher-tier value",
-      "[render-tense] Feed news-mvy7to1c-c7241c: \"Ship 45 completes methane tank and starts liquid oxygen tank\" is present tense on screen",
-      "[render-tense] Feed news-mvy7to1c-c7241c: \"Ship 45 completes methane tank and starts liquid oxygen tank\" has no verb (fragment)",
-      "[render-punctuation] Feed news-mvycu1v4-3745f1: \"Flight 15 vehicles tested ahead of November launch\" has no full stop"
+      "[launch-date] feed \"NET Nov 2026\" (flight-mvsjfivy-8b129a) is a month-only Launch Library date; hero day NET 12 Nov is the higher-tier value"
     ],
     "render": {
-      "status": "failed",
-      "failures": 3
+      "status": "ok",
+      "failures": 0
     }
   }
 }
