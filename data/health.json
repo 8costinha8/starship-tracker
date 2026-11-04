@@ -22,9 +22,11 @@
   "last_error": null,
   "committed_at": "2026-11-04T06:01:40.765Z",
   "render_check": {
-    "at": "2026-11-03T06:00:44.461Z",
-    "status": "ok",
-    "failures": 0,
-    "items": []
+    "at": "2026-11-04T06:02:27.377Z",
+    "status": "failed",
+    "failures": 1,
+    "items": [
+      "[render-punctuation] Feed news-mw1caeo0-1457b7: \"Third of four tower cranes at Starbase Gigabay has boom removed\" has no full stop"
+    ]
   }
 }

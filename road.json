@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "4 Nov",
-  "updatedAt": "2026-11-04T00:45:34.372Z",
+  "updatedAt": "2026-11-04T06:02:27.573Z",
   "categories": [
     {
       "id": "cryo",
@@ -844,7 +844,21 @@
             "credit_only": true,
             "fixed": "2026-11-01 B22 engine photo carried over from the refiled jig card",
             "crop": "top"
-          }
+          },
+          "updates": [
+            {
+              "date": "25 Oct",
+              "at": "2026-10-25T19:49:01.000Z",
+              "text": "Booster 22 completed a full-duration static fire for Flight 15.",
+              "card_text": "Booster 22 completed a full-duration static fire for Flight 15.",
+              "url": "https://x.com/SpaceX/status/2114444137067844004",
+              "src": "@SpaceX",
+              "handle": "SpaceX",
+              "phase": "progress",
+              "tier": 1,
+              "self_check": "from feed news-mvo8qv2g-e23cc6"
+            }
+          ]
         },
         {
           "date": "14 Oct",
@@ -3266,7 +3280,8 @@
       "url": "https://x.com/efraser77/status/2117766071575089429",
       "at": "2026-11-03T23:49:12.000Z",
       "date": "3 Nov",
-      "flight": 15
+      "flight": 15,
+      "src": "@efraser77"
     },
     {
       "id": "news-mvycu1v4-3745f1",
@@ -3921,19 +3936,21 @@
     "https://pbs.twimg.com/media/HWJzfqOaIAAv24s.jpg": "images/cache/media_HWJzfqOaIAAv24s.jpg"
   },
   "self_check": {
-    "at": "2026-11-03T06:00:44.461Z",
-    "fixes": 1,
-    "flags": 1,
+    "at": "2026-11-04T06:02:27.377Z",
+    "fixes": 2,
+    "flags": 2,
     "counts": {
-      "image-cache": 1
+      "missing-row": 1,
+      "source-badge": 1
     },
     "judge_calls": 0,
     "flagged": [
-      "[launch-date] feed \"NET Nov 2026\" (flight-mvsjfivy-8b129a) is a month-only Launch Library date; hero day NET 12 Nov is the higher-tier value"
+      "[launch-date] feed \"NET Nov 2026\" (flight-mvsjfivy-8b129a) is a month-only Launch Library date; hero day NET 12 Nov is the higher-tier value",
+      "[render-punctuation] Feed news-mw1caeo0-1457b7: \"Third of four tower cranes at Starbase Gigabay has boom removed\" has no full stop"
     ],
     "render": {
-      "status": "ok",
-      "failures": 0
+      "status": "failed",
+      "failures": 1
     }
   }
 }

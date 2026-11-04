@@ -1,6 +1,18 @@
 {
   "items": [
     {
+      "date": "2026-11-04T06:02:27.572Z",
+      "type": "render-punctuation",
+      "item": "Feed news-mw1caeo0-1457b7",
+      "values": [
+        "Third of four tower cranes at Starbase Gigabay has boom removed"
+      ],
+      "sources": [],
+      "reason": "card and feed lines are full sentences",
+      "kept": null,
+      "msg": "Feed news-mw1caeo0-1457b7: \"Third of four tower cranes at Starbase Gigabay has boom removed\" has no full stop"
+    },
+    {
       "date": "2026-11-02T06:01:08.031Z",
       "type": "render-punctuation",
       "item": "Feed news-mvycu1v4-3745f1",
