@@ -493,6 +493,18 @@
       "verdict": "silent: minor pad_work — a push went out 20.2h ago (quiet window 24h)",
       "gate": "hold passed (1 run)",
       "key": "starship|pad_work|3 Nov"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Flight 15 may see both booster and ship caught at base",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mw2npcig-f44b5b",
+      "url": "https://www.youtube.com/watch?v=8Dsld-4HrXY",
+      "at": "2026-11-04T21:56:31.000Z",
+      "sent_at": "2026-11-04T22:16:05.511Z",
+      "where": "feed",
+      "verdict": "sent",
+      "gate": "not an X tracker post",
+      "key": "B22|other|4 Nov"
     }
   ]
 }
