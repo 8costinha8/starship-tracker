@@ -505,6 +505,18 @@
       "verdict": "sent",
       "gate": "not an X tracker post",
       "key": "B22|other|4 Nov"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "More deluge testing took place at Starbase today",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mw2xdk08-ec25f3",
+      "url": "https://x.com/efraser77/status/2118168243030622462",
+      "at": "2026-11-05T02:27:17.000Z",
+      "sent_at": "2026-11-05T03:01:36.411Z",
+      "where": "feed",
+      "verdict": "silent: minor pad_work — a push went out 4.8h ago (quiet window 24h)",
+      "gate": "hold passed (1 run)",
+      "key": "starship|pad_work|5 Nov"
     }
   ]
 }
