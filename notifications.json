@@ -529,6 +529,18 @@
       "verdict": "sent",
       "gate": "not an X tracker post",
       "key": "starship|launch_date|5 Nov"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Starship flight 15 has a tentative target date of Friday 13 November",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mw43922g-ea7dc1",
+      "url": "https://x.com/LabPadre/status/2118463243530174498",
+      "at": "2026-11-05T21:59:31.000Z",
+      "sent_at": "2026-11-05T22:26:09.688Z",
+      "where": "feed",
+      "verdict": "silent: minor other — a push went out 0.4h ago (quiet window 24h)",
+      "gate": "hold passed (1 run)",
+      "key": "F15|other|5 Nov"
     }
   ]
 }
