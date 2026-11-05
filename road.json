@@ -4,8 +4,8 @@
     "B22",
     "S42"
   ],
-  "updated": "4 Nov",
-  "updatedAt": "2026-11-04T22:16:04.159Z",
+  "updated": "5 Nov",
+  "updatedAt": "2026-11-05T02:32:01.239Z",
   "categories": [
     {
       "id": "cryo",
@@ -3272,6 +3272,16 @@
     }
   ],
   "feed_items": [
+    {
+      "id": "news-mw2xdk08-ec25f3",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "More deluge testing took place at Starbase today",
+      "url": "https://x.com/efraser77/status/2118168243030622462",
+      "at": "2026-11-05T02:27:17.000Z",
+      "date": "5 Nov",
+      "flight": 15
+    },
     {
       "id": "news-mw2npcig-f44b5b",
       "kind": "news",
