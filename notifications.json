@@ -517,6 +517,18 @@
       "verdict": "silent: minor pad_work — a push went out 4.8h ago (quiet window 24h)",
       "gate": "hold passed (1 run)",
       "key": "starship|pad_work|5 Nov"
+    },
+    {
+      "title": "📅 New estimated date",
+      "body": "NET 13 Nov",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=flight-mw43aanl-eaa14d",
+      "url": "",
+      "at": "2026-11-05T22:00:28.785Z",
+      "sent_at": "2026-11-05T22:01:31.275Z",
+      "where": "feed",
+      "verdict": "sent",
+      "gate": "not an X tracker post",
+      "key": "starship|launch_date|5 Nov"
     }
   ]
 }
