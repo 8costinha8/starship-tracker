@@ -1,6 +1,30 @@
 {
   "items": [
     {
+      "date": "2026-11-05T06:00:47.186Z",
+      "type": "render-punctuation",
+      "item": "Feed news-mw2npcig-f44b5b",
+      "values": [
+        "Flight 15 may see both booster and ship caught at base"
+      ],
+      "sources": [],
+      "reason": "card and feed lines are full sentences",
+      "kept": null,
+      "msg": "Feed news-mw2npcig-f44b5b: \"Flight 15 may see both booster and ship caught at base\" has no full stop"
+    },
+    {
+      "date": "2026-11-05T06:00:47.186Z",
+      "type": "render-punctuation",
+      "item": "Feed news-mw2xdk08-ec25f3",
+      "values": [
+        "More deluge testing took place at Starbase today"
+      ],
+      "sources": [],
+      "reason": "card and feed lines are full sentences",
+      "kept": null,
+      "msg": "Feed news-mw2xdk08-ec25f3: \"More deluge testing took place at Starbase today\" has no full stop"
+    },
+    {
       "date": "2026-11-04T06:02:27.572Z",
       "type": "render-punctuation",
       "item": "Feed news-mw1caeo0-1457b7",

@@ -22,10 +22,12 @@
   "last_error": null,
   "committed_at": "2026-11-05T05:30:50.000Z",
   "render_check": {
-    "at": "2026-11-04T06:02:27.377Z",
+    "at": "2026-11-05T06:00:46.887Z",
     "status": "failed",
-    "failures": 1,
+    "failures": 3,
     "items": [
+      "[render-punctuation] Feed news-mw2xdk08-ec25f3: \"More deluge testing took place at Starbase today\" has no full stop",
+      "[render-punctuation] Feed news-mw2npcig-f44b5b: \"Flight 15 may see both booster and ship caught at base\" has no full stop",
       "[render-punctuation] Feed news-mw1caeo0-1457b7: \"Third of four tower cranes at Starbase Gigabay has boom removed\" has no full stop"
     ]
   }
