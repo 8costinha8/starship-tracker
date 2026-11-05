@@ -541,6 +541,18 @@
       "verdict": "silent: minor other — a push went out 0.4h ago (quiet window 24h)",
       "gate": "hold passed (1 run)",
       "key": "F15|other|5 Nov"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Starship pad 39a undergoes full water deluge test",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mw44pp4o-5bca28",
+      "url": "https://x.com/NASASpaceflight/status/2118473546813043048",
+      "at": "2026-11-05T22:40:27.000Z",
+      "sent_at": "2026-11-05T23:01:37.084Z",
+      "where": "feed",
+      "verdict": "silent: minor pad_work — a push went out 1.0h ago (quiet window 24h)",
+      "gate": "hold passed (1 run)",
+      "key": "starship|pad_work|5 Nov"
     }
   ]
 }
