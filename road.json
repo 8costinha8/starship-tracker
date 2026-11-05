@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "5 Nov",
-  "updatedAt": "2026-11-05T06:00:47.189Z",
+  "updatedAt": "2026-11-05T22:01:30.095Z",
   "categories": [
     {
       "id": "cryo",
@@ -3089,27 +3089,6 @@
       "log_latest": "Flight 15 NET 12 Nov (unofficial)."
     }
   ],
-  "predicted": {
-    "flight": 15,
-    "net": "2026-11-12",
-    "mode": "auto",
-    "basis": "X @TrackingTheSB · X @StarshipGazer",
-    "sources": [
-      {
-        "name": "X @TrackingTheSB",
-        "url": "https://x.com/TrackingTheSB/status/2116973778219749564",
-        "note": "names 2026-11-12",
-        "seen_at": "2026-11-01T19:20:54.000Z"
-      },
-      {
-        "name": "X @StarshipGazer",
-        "url": "https://x.com/StarshipGazer/status/2116272970125709417",
-        "note": "names 2026-11-12",
-        "seen_at": "2026-10-30T20:56:09.000Z"
-      }
-    ],
-    "updatedAt": "2026-11-01T19:31:04.832Z"
-  },
   "feedVerified": "2026-10-16T17:53:11.334Z",
   "feedJudged": "2026-10-16T17:57:57.301Z",
   "imagesVerified": "2026-10-16T21:22:55.023Z",
@@ -3272,6 +3251,25 @@
     }
   ],
   "feed_items": [
+    {
+      "id": "flight-mw43aanl-eaa14d",
+      "kind": "flight",
+      "title": "📅 New estimated date",
+      "body": "NET 13 Nov",
+      "at": "2026-11-05T22:00:28.785Z",
+      "date": "5 Nov",
+      "flight": 15
+    },
+    {
+      "id": "news-mw43922g-ea7dc1",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Starship flight 15 has a tentative target date of Friday 13 November",
+      "url": "https://x.com/LabPadre/status/2118463243530174498",
+      "at": "2026-11-05T21:59:31.000Z",
+      "date": "5 Nov",
+      "flight": 15
+    },
     {
       "id": "news-mw2xdk08-ec25f3",
       "kind": "news",
