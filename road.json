@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "5 Nov",
-  "updatedAt": "2026-11-05T22:26:08.326Z",
+  "updatedAt": "2026-11-05T22:45:59.963Z",
   "categories": [
     {
       "id": "cryo",
@@ -3251,6 +3251,16 @@
     }
   ],
   "feed_items": [
+    {
+      "id": "news-mw44pp4o-5bca28",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Starship pad 39a undergoes full water deluge test",
+      "url": "https://x.com/NASASpaceflight/status/2118473546813043048",
+      "at": "2026-11-05T22:40:27.000Z",
+      "date": "5 Nov",
+      "flight": 15
+    },
     {
       "id": "flight-mw43aanl-eaa14d",
       "kind": "flight",
