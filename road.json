@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "6 Nov",
-  "updatedAt": "2026-11-06T04:01:18.771Z",
+  "updatedAt": "2026-11-06T04:15:46.262Z",
   "categories": [
     {
       "id": "cryo",
@@ -2247,8 +2247,71 @@
       "name": "Pad activity",
       "color": "#A88BFF",
       "status": "complete",
-      "latest": "Complete",
+      "latest": "Pad 2 completed chopstick and deluge testing.",
       "history": [
+        {
+          "id": "x-2118557148183683543",
+          "date": "6 Nov",
+          "log_date": "6 Nov",
+          "at": "2026-11-06T04:12:39.000Z",
+          "text": "Pad 2 completed chopstick and deluge testing.",
+          "x_text": "Pad 2 completed chopstick and deluge testing.",
+          "push_text": "Pad 2 testing chopsticks and deluge system.",
+          "card_text": "Pad 2 completed chopstick and deluge testing.",
+          "log_text": "Pad 2 completed chopstick and deluge testing.",
+          "status_line": "Pad 2 testing completed.",
+          "url": "https://x.com/RGVaerialphotos/status/2118557148183683543",
+          "src": "@RGVaerialphotos",
+          "trust": "trusted",
+          "x_first": true,
+          "stage": "pad",
+          "hardware": "Pad 2",
+          "x_post": {
+            "post_id": "2118557148183683543",
+            "url": "https://x.com/RGVaerialphotos/status/2118557148183683543",
+            "created_at": "2026-11-06T04:12:39.000Z",
+            "text": "Timelapse of Pad 2 chopstick and deluge testing yesterday.",
+            "author": {
+              "name": "RGV Aerial Photography",
+              "username": "RGVaerialphotos",
+              "avatar": "https://pbs.twimg.com/profile_images/2019953617743097856/PJqBBhpU_normal.jpg"
+            },
+            "media": [
+              {
+                "type": "video",
+                "poster": "https://pbs.twimg.com/amplify_video_thumb/2118556199486664704/img/JuDLPSPJnlzhbkTC.jpg",
+                "video_url": "https://video.twimg.com/amplify_video/2118556199486664704/vid/avc1/3840x2160/qfZDifrNQBFw4krW.mp4"
+              }
+            ]
+          },
+          "x_posts": [
+            "2118557148183683543"
+          ],
+          "xChecked": true,
+          "imageChecked2": true,
+          "media_override": {
+            "post_url": "https://x.com/RGVaerialphotos/status/2118557148183683543",
+            "post_id": "2118557148183683543",
+            "author": "RGVaerialphotos",
+            "type": "video",
+            "image": "https://pbs.twimg.com/amplify_video_thumb/2118556199486664704/img/JuDLPSPJnlzhbkTC.jpg",
+            "video_url": "https://video.twimg.com/amplify_video/2118556199486664704/vid/avc1/3840x2160/qfZDifrNQBFw4krW.mp4"
+          },
+          "tier": 2,
+          "milestone": {
+            "key": "pad_work|15|PAD2",
+            "type": "pad_work",
+            "flight": 15,
+            "hardware": "PAD2",
+            "phase": "completed"
+          },
+          "complete": true,
+          "push": {
+            "title": "🏗️ Pad activity · Flight 15",
+            "url": "https://x.com/RGVaerialphotos/status/2118557148183683543",
+            "at": "2026-11-06T04:12:39.000Z"
+          }
+        },
         {
           "id": "x-2118553539345883303",
           "date": "6 Nov",
@@ -2981,101 +3044,9 @@
             "fixed": "2026-11-01 own X post (videos only: chopsticks thumbnail; was placeholder)",
             "crop": "top"
           }
-        },
-        {
-          "id": "s42-pad2-sep",
-          "date": "12 Sep",
-          "at": "2026-09-12T15:39:52.000Z",
-          "text": "Ship 42 was lifted to catch height by the Pad 2 chopsticks.",
-          "log_text": "Ship 42 was lifted to catch height by the Pad 2 chopsticks.",
-          "url": "https://x.com/TrackingTheSB/status/2098798758335225974",
-          "src": "@TrackingTheSB",
-          "trust": "trusted",
-          "hardware": "S42",
-          "flight": 15,
-          "log_only": true,
-          "updates": [
-            {
-              "date": "9 Sep",
-              "log_date": "9 Sep",
-              "at": "2026-09-09T13:05:06.000Z",
-              "text": "9 Sep: Ship 42 made a short second trip to Massey's; no test confirmed.",
-              "log_text": "9 Sep: Ship 42 made a short second trip to Massey's; no test confirmed.",
-              "url": "https://x.com/LabPadre/status/2097672648314573085",
-              "src": "@LabPadre",
-              "handle": "LabPadre",
-              "phase": "progress",
-              "tier": 2
-            },
-            {
-              "date": "11 Sep",
-              "log_date": "11 Sep",
-              "at": "2026-09-11T01:41:01.000Z",
-              "text": "Ship 42 headed to the launch site for catch testing.",
-              "log_text": "Ship 42 headed to the launch site for catch testing.",
-              "url": "https://x.com/NASASpaceflight/status/2098225266573103386",
-              "src": "@NASASpaceflight",
-              "handle": "NASASpaceflight",
-              "phase": "progress",
-              "tier": 1
-            },
-            {
-              "date": "12 Sep",
-              "log_date": "12 Sep",
-              "at": "2026-09-12T16:07:56.000Z",
-              "text": "Ship 42 lifted to the top of the tower.",
-              "log_text": "Ship 42 lifted to the top of the tower.",
-              "url": "https://x.com/colleenadastra/status/2098805821714862525",
-              "src": "@colleenadastra",
-              "handle": "colleenadastra",
-              "phase": "progress",
-              "tier": 2
-            },
-            {
-              "date": "13 Sep",
-              "log_date": "13 Sep",
-              "at": "2026-09-13T08:34:31.000Z",
-              "text": "Ship 42 rolled back to Megabay 2.",
-              "log_text": "Ship 42 rolled back to Megabay 2.",
-              "url": "https://x.com/LabPadre/status/2099054105666691428",
-              "src": "@LabPadre",
-              "handle": "LabPadre",
-              "phase": "completed",
-              "tier": 2
-            },
-            {
-              "date": "13 Sep",
-              "at": "2026-09-13T04:02:00.000Z",
-              "text": "Ship 42 was deployed from the Pad 2 chopsticks after its tests.",
-              "url": "https://x.com/NASASpaceflight/status/2098985653849542753",
-              "src": "@NASASpaceflight",
-              "handle": "NASASpaceflight",
-              "phase": "completed",
-              "tier": 1
-            },
-            {
-              "date": "11–12 Sep",
-              "text": "S42 lifted by Pad 2 chopsticks in a catch position. SQD arm connect tests.",
-              "src": "NSF",
-              "phase": "progress",
-              "tier": 2,
-              "log_text": "Ship 42 was lifted by the Pad 2 chopsticks for catch and arm tests.",
-              "card_text": "Ship 42 was lifted by the Pad 2 chopsticks in a catch position, with ship quick-disconnect arm connection tests."
-            }
-          ],
-          "date_range": "11–13 Sep",
-          "media_override": {
-            "post_url": "https://x.com/TrackingTheSB/status/2098798758335225974",
-            "post_id": "2098798758335225974",
-            "author": "TrackingTheSB",
-            "type": "photo",
-            "image": "https://pbs.twimg.com/media/HSBuEQiaYAAIOHV.jpg",
-            "fixed": "2026-11-01 own X post photo (was placeholder)",
-            "crop": "top"
-          }
         }
       ],
-      "log_latest": "Starbase tower deluge test done."
+      "log_latest": "Pad 2 testing completed."
     },
     {
       "id": "faa",
