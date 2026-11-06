@@ -22,13 +22,14 @@
   "last_error": null,
   "committed_at": "2026-11-06T05:30:42.845Z",
   "render_check": {
-    "at": "2026-11-05T06:00:46.887Z",
+    "at": "2026-11-06T06:01:31.668Z",
     "status": "failed",
-    "failures": 3,
+    "failures": 4,
     "items": [
-      "[render-punctuation] Feed news-mw2xdk08-ec25f3: \"More deluge testing took place at Starbase today\" has no full stop",
-      "[render-punctuation] Feed news-mw2npcig-f44b5b: \"Flight 15 may see both booster and ship caught at base\" has no full stop",
-      "[render-punctuation] Feed news-mw1caeo0-1457b7: \"Third of four tower cranes at Starbase Gigabay has boom removed\" has no full stop"
+      "[render-tense] Feed news-mw44pp4o-5bca28: \"Starship pad 39a undergoes full water deluge test\" has no verb (fragment)",
+      "[render-punctuation] Feed news-mw44pp4o-5bca28: \"Starship pad 39a undergoes full water deluge test\" has no full stop",
+      "[render-punctuation] Feed news-mw43922g-ea7dc1: \"Starship flight 15 has a tentative target date of Friday 13 November\" has no full stop",
+      "[render-mismatch] Flight Log pad Launch pad 6 Nov: \"Starbase tower completed deluge test.\" ≠ Road card Pad activity · Launch pad › 6 Nov · 03:58: \"Starbase tower completed deluge system test.\" (same post https://x.com/efraser77/status/2118553539345883303)"
     ]
   }
 }

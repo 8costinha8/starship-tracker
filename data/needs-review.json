@@ -1,6 +1,55 @@
 {
   "items": [
     {
+      "date": "2026-11-06T06:01:31.968Z",
+      "type": "render-mismatch",
+      "item": "https://x.com/efraser77/status/2118553539345883303",
+      "values": [
+        "Starbase tower completed deluge test.",
+        "Starbase tower completed deluge system test."
+      ],
+      "sources": [],
+      "reason": "one wording per event on card and feed",
+      "kept": null,
+      "msg": "Flight Log pad Launch pad 6 Nov: \"Starbase tower completed deluge test.\" ≠ Road card Pad activity · Launch pad › 6 Nov · 03:58: \"Starbase tower completed deluge system test.\" (same post https://x.com/efraser77/status/2118553539345883303)"
+    },
+    {
+      "date": "2026-11-06T06:01:31.968Z",
+      "type": "render-punctuation",
+      "item": "Feed news-mw43922g-ea7dc1",
+      "values": [
+        "Starship flight 15 has a tentative target date of Friday 13 November"
+      ],
+      "sources": [],
+      "reason": "card and feed lines are full sentences",
+      "kept": null,
+      "msg": "Feed news-mw43922g-ea7dc1: \"Starship flight 15 has a tentative target date of Friday 13 November\" has no full stop"
+    },
+    {
+      "date": "2026-11-06T06:01:31.968Z",
+      "type": "render-punctuation",
+      "item": "Feed news-mw44pp4o-5bca28",
+      "values": [
+        "Starship pad 39a undergoes full water deluge test"
+      ],
+      "sources": [],
+      "reason": "card and feed lines are full sentences",
+      "kept": null,
+      "msg": "Feed news-mw44pp4o-5bca28: \"Starship pad 39a undergoes full water deluge test\" has no full stop"
+    },
+    {
+      "date": "2026-11-06T06:01:31.968Z",
+      "type": "render-tense",
+      "item": "Feed news-mw44pp4o-5bca28",
+      "values": [
+        "Starship pad 39a undergoes full water deluge test"
+      ],
+      "sources": [],
+      "reason": "full past-tense sentences on cards and feed",
+      "kept": null,
+      "msg": "Feed news-mw44pp4o-5bca28: \"Starship pad 39a undergoes full water deluge test\" has no verb (fragment)"
+    },
+    {
       "date": "2026-10-31T16:36:12.228Z",
       "type": "event-time",
       "item": "cryo S42 9 Oct",

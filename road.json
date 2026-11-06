@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "6 Nov",
-  "updatedAt": "2026-11-06T05:45:57.215Z",
+  "updatedAt": "2026-11-06T06:01:31.969Z",
   "categories": [
     {
       "id": "cryo",
@@ -3319,7 +3319,8 @@
       "url": "https://x.com/NASASpaceflight/status/2118473546813043048",
       "at": "2026-11-05T22:40:27.000Z",
       "date": "5 Nov",
-      "flight": 15
+      "flight": 15,
+      "src": "@NASASpaceflight"
     },
     {
       "id": "flight-mw43aanl-eaa14d",
@@ -3338,7 +3339,8 @@
       "url": "https://x.com/LabPadre/status/2118463243530174498",
       "at": "2026-11-05T21:59:31.000Z",
       "date": "5 Nov",
-      "flight": 15
+      "flight": 15,
+      "src": "@LabPadre"
     },
     {
       "id": "news-mw2xdk08-ec25f3",
@@ -4022,25 +4024,28 @@
     "https://pbs.twimg.com/media/HTwdsecaIAAK_9e.jpg": "images/cache/media_HTwdsecaIAAK_9e.jpg",
     "https://pbs.twimg.com/amplify_video_thumb/2112678295435464704/img/9a4tS6nMnzIHT1_6.jpg": "images/cache/amplify_video_thumb_2112678295435464704_img_9a4tS6nMnzIHT1_6.jpg",
     "https://pbs.twimg.com/media/HSBuEQiaYAAIOHV.jpg": "images/cache/media_HSBuEQiaYAAIOHV.jpg",
-    "https://pbs.twimg.com/media/HWJzfqOaIAAv24s.jpg": "images/cache/media_HWJzfqOaIAAv24s.jpg"
+    "https://pbs.twimg.com/media/HWJzfqOaIAAv24s.jpg": "images/cache/media_HWJzfqOaIAAv24s.jpg",
+    "https://pbs.twimg.com/amplify_video_thumb/2118556199486664704/img/JuDLPSPJnlzhbkTC.jpg": "images/cache/amplify_video_thumb_2118556199486664704_img_JuDLPSPJnlzhbkTC.jpg",
+    "https://pbs.twimg.com/amplify_video_thumb/2118553103364743168/img/6_7b41bKYn_grAjt.jpg": "images/cache/amplify_video_thumb_2118553103364743168_img_6_7b41bKYn_grAjt.jpg"
   },
   "self_check": {
-    "at": "2026-11-05T06:00:46.887Z",
-    "fixes": 1,
+    "at": "2026-11-06T06:01:31.668Z",
+    "fixes": 4,
     "flags": 4,
     "counts": {
-      "source-badge": 1
+      "source-badge": 2,
+      "image-cache": 2
     },
     "judge_calls": 0,
     "flagged": [
-      "[launch-date] feed \"NET Nov 2026\" (flight-mvsjfivy-8b129a) is a month-only Launch Library date; hero day NET 12 Nov is the higher-tier value",
-      "[render-punctuation] Feed news-mw2xdk08-ec25f3: \"More deluge testing took place at Starbase today\" has no full stop",
-      "[render-punctuation] Feed news-mw2npcig-f44b5b: \"Flight 15 may see both booster and ship caught at base\" has no full stop",
-      "[render-punctuation] Feed news-mw1caeo0-1457b7: \"Third of four tower cranes at Starbase Gigabay has boom removed\" has no full stop"
+      "[render-tense] Feed news-mw44pp4o-5bca28: \"Starship pad 39a undergoes full water deluge test\" has no verb (fragment)",
+      "[render-punctuation] Feed news-mw44pp4o-5bca28: \"Starship pad 39a undergoes full water deluge test\" has no full stop",
+      "[render-punctuation] Feed news-mw43922g-ea7dc1: \"Starship flight 15 has a tentative target date of Friday 13 November\" has no full stop",
+      "[render-mismatch] Flight Log pad Launch pad 6 Nov: \"Starbase tower completed deluge test.\" ≠ Road card Pad activity · Launch pad › 6 Nov · 03:58: \"Starbase tower completed deluge system test.\" (same post https://x.com/efraser77/status/2118553539345883303)"
     ],
     "render": {
       "status": "failed",
-      "failures": 3
+      "failures": 4
     }
   }
 }
