@@ -83,7 +83,7 @@ text (road / mission-update, else null): ONE short plain sentence (max 20 words)
 push_text / card_text (road only, else null): two wordings of the same fact.
 ${require("./text-split.js").PROMPT_RULES}
 topic (mission-update only, else null): one of ${MISSION_TOPICS.map((t) => `"${t}"`).join(", ")}.
-log_text (road only, else null): the Flight Log line. ONE short plain sentence (max 15 words), vehicle + action + place, full names ("Ship 42", "Booster 22", "Pad 2"), ending with a full stop, e.g. "Ship 42 completed its cryo tests at Massey's.", "Booster 22 heads to Pad 2 for a potential static fire test.". A finished step says "completed" or "completes" (never finished/wrapped up). Write "its", never "it's"; no doubled words; never "is been"; never "Ship 42's completes"; no filler such as "has been transported" (say "heads back to" / "rolled to"). No times, dates, handles, links, source or outlet names. Keep hedges (could, reportedly). Satellites are "deployed".
+log_text (road only, else null): the Flight Log line — MUST match card_text for the same post (one wording on the Flight Log and the Road card). ONE short plain sentence (max 15 words), vehicle + action + place, full names ("Ship 42", "Booster 22", "Pad 2"), ending with a full stop, e.g. "Ship 42 completed its cryo tests at Massey's.", "Booster 22 heads to Pad 2 for a potential static fire test.". A finished step says "completed" or "completes" (never finished/wrapped up). Write "its", never "it's"; no doubled words; never "is been"; never "Ship 42's completes"; no filler such as "has been transported" (say "heads back to" / "rolled to"). No times, dates, handles, links, source or outlet names. Keep hedges (could, reportedly). Satellites are "deployed".
 status_line (road only, else null): the section's overview status line: short and direct, about 6 words (max 8), one line, the plain current state, ending with a full stop, same rules for ships and boosters, e.g. "No Flight 15 licence yet.", "Booster 22 static fire done.", "Ship 42 Raptors installed.", "Ship 42 heading to Massey's.", "Flight 15 NET 8 November.". No hedging filler, no reasons, no source or outlet names, no handles, links or times. Keep a real hedge in one word if needed ("Ship 43 cryo test possible.").
 attribution (mission-update only, else null): who said it, 2-3 words, e.g. "Musk confirmed", "SpaceX", "FAA", "NSF reports". The text NEVER repeats the person or org named in the attribution: no "Elon Musk says …" when the credit is Elon Musk; write the fact itself, e.g. text "SpaceX is attempting a double catch on Flight 15", attribution "Elon Musk".
 Posts:
@@ -199,7 +199,7 @@ function placePost(road, post, cls, now = Date.now(), picks = []) {
     h.x_posts = [...new Set([...(h.x_posts || []), post.post_id])];
     if ((tier === 3 || cls.inferred) && h.milestone.phase !== "expected") { // a rumour never rewrites an advanced entry: it goes under it as a line
       if (cls.inferred) h.trust = "unconfirmed";
-      h.updates = [{ date: dayLabel(post.created_at), log_date: logDate, at: new Date(at).toISOString(), text: cls.text, ...pair, ...(logText ? { log_text: logText } : {}), url: post.url, src: `@${post.author.username}`, tier, reported: claimed }, ...(h.updates || [])].slice(0, 20);
+      h.updates = [{ date: dayLabel(post.created_at), log_date: logDate, at: new Date(at).toISOString(), text: cls.text, ...pair, ...(logText ? { log_text: logText, card_text: logText } : {}), url: post.url, src: `@${post.author.username}`, tier, reported: claimed }, ...(h.updates || [])].slice(0, 20);
       return { box: life.c, entry: h, merged: true, phase: null, accurate, tier };
     }
     const to = accurate && PHASES.indexOf(phase) > PHASES.indexOf(from) ? phase : from;
@@ -212,6 +212,7 @@ function placePost(road, post, cls, now = Date.now(), picks = []) {
       if (logText) h.log_text = logText; else delete h.log_text;
       if (statusLine) h.status_line = statusLine; else delete h.status_line;
       delete h.push_text; delete h.card_text; Object.assign(h, { date: dayLabel(post.created_at), log_date: logDate, at: new Date(at).toISOString(), text: cls.text, x_text: cls.text, ...pair, url: post.url, src: `@${post.author.username}`, x_post: post });
+      if (logText) h.card_text = logText; // Flight Log and Road card share one wording for the same post
       }
     }
     if (h.updates) h.updates = h.updates.filter((u) => !logText_.isRejected(road, life.c.id, u) && !logText_.isMonthMixup(h, u)); // a rejected or month-mixed-up line never comes back
@@ -232,7 +233,7 @@ function placePost(road, post, cls, now = Date.now(), picks = []) {
     return { box: prev.c, entry: h, merged: true, accurate, tier };
   }
   const official = OFFICIAL.has(post.author.username.toLowerCase());
-  const entry = { id: "x-" + post.post_id, date: dayLabel(post.created_at), log_date: logDate, at: new Date(at).toISOString(), text: cls.text, x_text: cls.text, ...pair, ...(logText ? { log_text: logText } : {}), ...(statusLine ? { status_line: statusLine } : {}),
+  const entry = { id: "x-" + post.post_id, date: dayLabel(post.created_at), log_date: logDate, at: new Date(at).toISOString(), text: cls.text, x_text: cls.text, ...pair, ...(logText ? { log_text: logText, card_text: logText } : {}), ...(statusLine ? { status_line: statusLine } : {}),
     url: post.url, src: `@${post.author.username}`, trust: "trusted", ...(official ? { official: true } : {}), x_first: true, stage: cls.stage,
     hardware: cls.hardware || null, ...(Number.isInteger(cls.flight) ? { flight: cls.flight } : {}) /* optional flight tag (not asked for yet: untagged = the app's default) */, x_post: post, x_posts: [post.post_id], xChecked: true, imageChecked2: true,
     ...(m && (claimed !== "expected" || cls.media_fit === "shows-event") ? { media_override: overrideFor(post, m) } : {}) };

@@ -1314,7 +1314,7 @@ function pushGateFor(state, road, xf, { token, fetchFn = fetch, ask = null, log 
     try { const [cls] = await xFirstMod.classifyPosts(road, [post], road.categories.map((x) => ({ id: x.id, name: x.name })), ask || ((prompt, o) => writer.askJson(prompt, { ...o, log }))); line = cls && (cls.log_text || cls.text); if (cls && cls.status_line) h.status_line = cls.status_line; } catch (e) { log(`edit rewrite failed (${e.message}) — push held back`); return { ...n, body: "" }; }
     if (!line) return { ...n, body: "" }; // no usable line → checkVisible blocks it (never the stale text)
     h.edited_from = h.x_text || h.text; // kept out of Earlier updates: the wrong line never shows again
-    h.text = h.x_text = line; h.log_text = line; Object.assign(h, TXS.pairFrom({ text: line }, { confirmed: TXS.isConfirmed(h) })); h.x_post = post; h.edited = true; c.latest = line.slice(0, 160); gate.dirty = true;
+    h.text = h.x_text = line; h.log_text = line; Object.assign(h, TXS.pairFrom({ text: line }, { confirmed: TXS.isConfirmed(h) })); h.card_text = line; /* Flight Log + Road: one wording */ h.x_post = post; h.edited = true; c.latest = line.slice(0, 160); gate.dirty = true;
     return { ...n, body: line, source_text: text };
   };
   return gate;

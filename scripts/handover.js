@@ -31,9 +31,30 @@
     for (let i = 1; r2.length > 1 && i <= r1.length && stem(r1[r1.length - i]) === stem(r2[r2.length - 1]); i++) r2.pop(); // shared tail words: "… all six Raptors" → "… all six"
     return `${wa.slice(0, k).join(" ")} ${r1.join(" ")}, then ${r2.join(" ")}.`;
   }
+  // Active + passive of the same lift/move: "Pad 2 chopsticks lifted Ship 42 without the stabiliser arms." +
+  // "Ship 42 was lifted to catch height by the Pad 2 chopsticks." → one sentence.
+  function mergeVoice(a, b) {
+    const tryMerge = (actS, pasS) => {
+      const act = String(actS).match(/^(.+?)\s+(lifted|raised|moved|rolled|lowered)\s+((?:Ship|Booster) \d+)(.*)\.$/i);
+      const pas = String(pasS).match(/^((?:Ship|Booster) \d+)\s+was\s+(lifted|raised|moved|rolled|lowered)(.*)$/i);
+      if (!act || !pas || act[2].toLowerCase() !== pas[2].toLowerCase() || act[3].toLowerCase() !== pas[1].toLowerCase()) return null;
+      let rest = (pas[3] || "").replace(/\.$/, "").trim();
+      const by = rest.match(/\s+by\s+(.+)$/i);
+      if (by && by[1].trim().replace(/^the\s+/i, "").toLowerCase() !== act[1].toLowerCase()) return null;
+      if (by) rest = rest.slice(0, by.index).trim();
+      const bits = [];
+      for (const r of [rest, (act[4] || "").trim()]) if (r && !bits.some((x) => x.toLowerCase().includes(r.toLowerCase()) || r.toLowerCase().includes(x.toLowerCase()))) bits.push(r);
+      return `${act[1]} ${act[2].toLowerCase()} ${act[3]}${bits.length ? " " + bits.join(" ") : ""}.`;
+    };
+    return tryMerge(a, b) || tryMerge(b, a);
+  }
   function mergeRepeats(list) { // [{ s, l }] oldest first
     const out = [];
-    for (const x of list) { const prev = out[out.length - 1], m = prev && !prev.merged && mergeTwo(prev.s, x.s); if (m) out[out.length - 1] = { s: m, l: x.l, merged: true }; else out.push(x); }
+    for (const x of list) {
+      const prev = out[out.length - 1];
+      const m = prev && !prev.merged && (mergeTwo(prev.s, x.s) || mergeVoice(prev.s, x.s));
+      if (m) out[out.length - 1] = { s: m, l: x.l, merged: true }; else out.push(x);
+    }
     return out;
   }
   const key = (t) => String(t || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
@@ -98,5 +119,5 @@
   }
   // True once the top card has moved past flight n (logged and the grace period is over).
   const heroPast = (liftoffIso, now) => { const t = Date.parse(liftoffIso || ""); return !Number.isFinite(t) || now - t >= GRACE_MS; };
-  return { GRACE_MS, summarize, syncStatuses, roll, heroPast, sentence, mergeRepeats, mergeTwo };
+  return { GRACE_MS, summarize, syncStatuses, roll, heroPast, sentence, mergeRepeats, mergeTwo, mergeVoice };
 });

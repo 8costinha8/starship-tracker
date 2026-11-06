@@ -57,9 +57,33 @@ For EACH item decide:
 - "push": true only for a genuinely new, concrete Starship development (tests, vehicle moves, launch dates, licences, results, official announcements). false for trivia, jokes/memes, opinions, replies, livestream/ads, non-Starship topics, vague teasers, or anything already covered by a recent push (R…).
 - "dup": "R<n>" if it is the same story as a recent push, else null.
 - "story": a short id; items that report the SAME story get the SAME id (e.g. NSF and SpaceX on one static fire).
-- "headline": one plain sentence under 85 characters that ONLY restates what the item says (no new facts, numbers or names; keep hedges like "may"/"reportedly"). British English. No source name, no emoji.
+- "headline": one FULL past-tense sentence under 85 characters that ONLY restates what the item says (no new facts, numbers or names; keep hedges like "may"/"reportedly"). Must contain a finite verb and END with a full stop. Proper caps ("Pad 39A", "Flight 15", "Ship 42", "Booster 22"). British English. No source name, no emoji. Never a verbless headline fragment ("Pad 39a undergoes full water deluge test" → "Pad 39A completed a full water deluge test.").
 - "reason": max 10 words.
-Reply with ONLY a JSON array, one entry per item: [{"item": 1, "push": true, "dup": null, "story": "b22-static-fire", "headline": "...", "reason": "..."}]`;
+Reply with ONLY a JSON array, one entry per item: [{"item": 1, "push": true, "dup": null, "story": "b22-static-fire", "headline": "Booster 22 completed a static fire at Massey's.", "reason": "..."}]`;
+}
+
+// Deterministic post-process: proper caps, past-tense nudges for common present verbs, always a full stop.
+// Fragments with no finite verb are flagged (ok:false) so decideNews skips them rather than inventing facts.
+const FINITE = /\b(?:was|were|is|are|had|has|have|did|does|do|could|would|should|will|may|might|can|said|says|made|took|went|came|left|ran|began|rose|got|held|saw|set|put|lit|led|sat|met|told|kept|brought|found|gave|shot|stood|spun|fell|drove|flew|built|sent|won|hit|cut|let|shut|split|struck|wound|swung|tore|wore|threw|grew|knew|drew|broke|chose|rode|spoke|stuck|hung|dug|slid|bent|lost|paid|read|heard|meant|felt|caught|bought|fought|taught|thought|sought|lay|laid|appears?|shows?|remains?|took place|took place)\b|\b\w{3,}ed\b/i;
+function finishHeadline(s) {
+  let t = String(s || "").replace(/\s+/g, " ").trim();
+  if (!t) return { ok: false, reason: "empty", text: "" };
+  t = t.replace(/\bpad\s+(\d+[a-z]?)\b/gi, (_, p) => `Pad ${p.toUpperCase()}`)
+       .replace(/\bflight\s+(\d+)\b/gi, (_, n) => `Flight ${n}`)
+       .replace(/\bship\s+(\d+)\b/gi, (_, n) => `Ship ${n}`)
+       .replace(/\bbooster\s+(\d+)\b/gi, (_, n) => `Booster ${n}`);
+  // common present-tense news verbs → past (only whole-word; keep hedges like "may")
+  t = t.replace(/\bundergoes\b(?=\s+(?!a\b|an\b|the\b))/gi, "completed a").replace(/\bundergoes\b/gi, "completed").replace(/\bundergo\b(?=\s+(?!a\b|an\b|the\b))/gi, "complete a").replace(/\bundergo\b/gi, "complete")
+       .replace(/\bcompletes\b/gi, "completed").replace(/\bperforms\b/gi, "performed")
+       .replace(/\bconducts\b/gi, "conducted").replace(/\bfires\b/gi, "fired")
+       .replace(/\brolls\b/gi, "rolled").replace(/\barrives\b/gi, "arrived")
+       .replace(/\bheads\b/gi, "headed").replace(/\bleaves\b/gi, "left")
+       .replace(/\breturns\b/gi, "returned").replace(/\bmoves\b/gi, "moved");
+  t = t.replace(/[.!?\s]+$/, "") + ".";
+  t = t.charAt(0).toUpperCase() + t.slice(1);
+  if (t.length > 90) return { ok: false, reason: "too long", text: t };
+  if (t.split(/\s+/).length >= 3 && !FINITE.test(t)) return { ok: false, reason: "no verb (fragment)", text: t };
+  return { ok: true, text: t };
 }
 
 // Words / numbers / vehicle names in the headline must come from the item.
@@ -87,12 +111,15 @@ function decideNews(items, reply, news, now, log = () => {}) {
     const sid = String(r.story || it.key).toLowerCase();
     if (stories.has(sid)) { log(`news: skip "${it.title}" (${it.src}) — same story as another item this run (${sid})`); continue; }
     stories.add(sid);
-    const headline = String(r.headline || "").replace(/\s+/g, " ").trim().replace(/[.\s]+$/, "");
-    if (!grounded(headline, `${it.title} ${it.text}`)) { log(`news: skip "${it.title}" — headline not grounded in the item: "${headline}"`); continue; }
+    const raw = String(r.headline || "").replace(/\s+/g, " ").trim();
+    const done = finishHeadline(raw);
+    if (!done.ok) { log(`news: skip "${it.title}" — headline ${done.reason}: "${raw}"`); continue; }
+    const headline = done.text;
+    if (!grounded(headline.replace(/[.!?]$/, ""), `${it.title} ${it.text}`)) { log(`news: skip "${it.title}" — headline not grounded in the item: "${headline}"`); continue; }
     if (news.count >= NEWS_DAILY_CAP) { log(`news: daily cap (${NEWS_DAILY_CAP}) reached — not sent: "${headline}"`); continue; }
     news.count++;
     news.sent.push({ key: it.key, url: it.url || undefined, story: sid, headline, src: it.src, at: new Date(now).toISOString() });
-    pushes.push({ title: "🚀 Starship", body: headline, link: NEWS_LINK, kind: "news", url: it.url || "", at: it.publishedAt && Number.isFinite(Date.parse(it.publishedAt)) ? new Date(it.publishedAt).toISOString() : new Date(now).toISOString() }); // at: the source post's own time
+    pushes.push({ title: "🚀 Starship", body: headline, link: NEWS_LINK, kind: "news", url: it.url || "", at: it.publishedAt && Number.isFinite(Date.parse(it.publishedAt)) ? new Date(it.publishedAt).toISOString() : new Date(now).toISOString() }); // at: the source post's own time; body = the feed line (one source)
   }
   return pushes;
 }
@@ -106,4 +133,4 @@ function trimNews(news, now) {
   return news;
 }
 
-module.exports = { NEWS_DAILY_CAP, NEWS_LINK, londonDay, freshNewsState, newsCandidates, buildNewsPrompt, grounded, decideNews, trimNews };
+module.exports = { NEWS_DAILY_CAP, NEWS_LINK, londonDay, freshNewsState, newsCandidates, buildNewsPrompt, finishHeadline, grounded, decideNews, trimNews };

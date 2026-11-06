@@ -36,7 +36,7 @@ const listed = (prompt) => (prompt.split("New items:")[1] || "").trim().split("\
   // 1. first run after deploy: seed, never push the backlog
   stored = { seen: [] };
   await runWith([it("x:1", "SpaceX", "official", "Starship Flight 15 vehicles stacked at Pad 2"), it("x:2", "NSF", "trusted", "Booster 22 rolls to Massey's for static fire")], [{ item: 1, push: true, story: "a", headline: "Starship Flight 15 vehicles stacked at Pad 2" }]);
-  check(pushes.length === 0 && newsPrompts.length === 0, "first run: nothing pushed, Claude not called");
+  check(pushes.filter((p) => p.kind === "news").length === 0 && newsPrompts.length === 0, "first run: nothing pushed, Claude not called");
   check(stored.news && stored.news.seen.includes("x:1") && stored.news.seen.includes("x:2"), "first run: current items seeded as seen");
   // already-seen items stay quiet next run
   await runWith([it("x:1", "SpaceX", "official", "Starship Flight 15 vehicles stacked at Pad 2")], []);
@@ -51,7 +51,7 @@ const listed = (prompt) => (prompt.split("New items:")[1] || "").trim().split("\
     { item: 2, push: true, dup: null, story: "b22-static", headline: "Booster 22 completed a static fire at Massey's" },
   ]);
   check(newsPrompts.length === 1, "one Claude call for the run's new items");
-  check(pushes.length === 1 && pushes[0].body === "Booster 22 completed a static fire at Massey's", `same story from 2 sources → 1 push: "${pushes[0] && pushes[0].body}"`);
+  check(pushes.length === 1 && pushes[0].body === "Booster 22 completed a static fire at Massey's.", `same story from 2 sources → 1 push: "${pushes[0] && pushes[0].body}"`);
   check(pushes[0] && pushes[0].title === "🚀 Starship" && pushes[0].link.startsWith(N.NEWS_LINK + "&item="), "push format: 🚀 Starship, opens the Updates feed");
   // same story later from another outlet → Claude flags it dup of a recent push
   await runWith([it("rss:sn1", "SpaceNews", "trusted", "SpaceX fires Booster 22 at Massey's in a static fire test for Starship", 0.2)],
@@ -75,14 +75,14 @@ const listed = (prompt) => (prompt.split("New items:")[1] || "").trim().split("\
   // 4. cap: at most 6 per London day, persisted; resets the next day
   const day1 = Date.parse("2026-10-20T09:00:00Z");
   stored.news.day = N.londonDay(day1); stored.news.count = 0; stored.news.sent = [];
-  const many = Array.from({ length: 8 }, (_, i) => ({ key: `cap:${i}`, title: "NSF post", text: `Starship update number ${i + 1}: Raptor engine test stand firing`, url: `https://example.com/cap${i}`, publishedAt: new Date(day1 - 600000).toISOString(), src: `Outlet${i}`, source: `o${i}`, tier: "trusted" }));
-  await runWith(many, many.map((m, i) => ({ item: i + 1, push: true, story: `s${i}`, headline: `Starship update number ${i + 1}: Raptor engine test stand firing` })), day1);
-  check(pushes.length === 6 && stored.news.count === 6, `8 stories in one day → 6 sent (cap persisted: ${stored.news.count})`);
-  await runWith([{ ...many[0], key: "cap:x", url: "https://example.com/capx", text: "Starship Raptor engine test stand firing again today", publishedAt: new Date(day1 + 3600000 - 600000).toISOString() }], [{ item: 1, push: true, story: "later", headline: "Starship Raptor engine test stand firing again today" }], day1 + 3600000);
-  check(pushes.length === 0, "same day, cap already reached → not sent");
+  const many = Array.from({ length: 8 }, (_, i) => ({ key: `cap:${i}`, title: "NSF post", text: `Starship Raptor stand completed firing number ${i + 1} at the test site`, url: `https://example.com/cap${i}`, publishedAt: new Date(day1 - 600000).toISOString(), src: `Outlet${i}`, source: `o${i}`, tier: "trusted" }));
+  await runWith(many, many.map((m, i) => ({ item: i + 1, push: true, story: `s${i}`, headline: `Starship Raptor stand completed firing number ${i + 1}` })), day1);
+  { const np = pushes.filter((p) => p.kind === "news"); check(np.length === 6 && stored.news.count === 6, `8 stories in one day → 6 sent (cap persisted: ${stored.news.count})`); }
+  await runWith([{ ...many[0], key: "cap:x", url: "https://example.com/capx", text: "Starship Raptor engine test stand fired again today", publishedAt: new Date(day1 + 3600000 - 600000).toISOString() }], [{ item: 1, push: true, story: "later", headline: "Starship Raptor engine test stand fired again today" }], day1 + 3600000);
+  check(pushes.filter((p) => p.kind === "news").length === 0, "same day, cap already reached → not sent");
   const day2 = Date.parse("2026-10-21T08:00:00Z");
-  await runWith([{ ...many[0], key: "cap:y", url: "https://example.com/capy", text: "Starship Raptor test stand firing on a new day", publishedAt: new Date(day2 - 600000).toISOString() }], [{ item: 1, push: true, story: "nextday", headline: "Starship Raptor test stand firing on a new day" }], day2);
-  check(pushes.length === 1 && stored.news.count === 1, "next London day → counter resets, push sent");
+  await runWith([{ ...many[0], key: "cap:y", url: "https://example.com/capy", text: "Starship Raptor test stand fired on a new day", publishedAt: new Date(day2 - 600000).toISOString() }], [{ item: 1, push: true, story: "nextday", headline: "Starship Raptor test stand fired on a new day" }], day2);
+  check(pushes.filter((p) => p.kind === "news").length === 1 && stored.news.count === 1, "next London day → counter resets, push sent");
 
   // 5. Claude down → items retried next run, never lost or double-sent
   await runWith([it("x:40", "NSF", "trusted", "Ship 42 completed its third cryo test", 0.1)], () => { throw new Error("overloaded"); });
