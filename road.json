@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "6 Nov",
-  "updatedAt": "2026-11-06T06:01:31.969Z",
+  "updatedAt": "2026-11-06T08:01:12.365Z",
   "categories": [
     {
       "id": "cryo",
@@ -3311,6 +3311,16 @@
     }
   ],
   "feed_items": [
+    {
+      "id": "news-mw4opazs-004e88",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Ship 43.1 is in the can crusher at Massey's",
+      "url": "https://x.com/RGVaerialphotos/status/2118614364983066746",
+      "at": "2026-11-06T08:00:01.000Z",
+      "date": "6 Nov",
+      "flight": 15
+    },
     {
       "id": "news-mw44pp4o-5bca28",
       "kind": "news",
