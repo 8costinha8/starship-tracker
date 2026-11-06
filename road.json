@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "6 Nov",
-  "updatedAt": "2026-11-06T04:15:46.262Z",
+  "updatedAt": "2026-11-06T05:45:57.215Z",
   "categories": [
     {
       "id": "cryo",
@@ -2246,9 +2246,75 @@
       "icon": "🏗️",
       "name": "Pad activity",
       "color": "#A88BFF",
-      "status": "complete",
-      "latest": "Pad 2 chopstick and deluge testing completed.",
+      "status": "progress",
+      "latest": "Deluge and catch testing performed at the pad.",
       "history": [
+        {
+          "id": "x-2118577080837574862",
+          "date": "6 Nov",
+          "log_date": "6 Nov",
+          "at": "2026-11-06T05:31:51.000Z",
+          "text": "Deluge and catch testing performed at the pad.",
+          "x_text": "Deluge and catch testing performed at the pad.",
+          "push_text": "Deluge and catch tests running at the pad.",
+          "card_text": "Deluge and catch tests performed at the pad.",
+          "log_text": "Pad 2 deluge and catch tests completed.",
+          "status_line": "Pad work ongoing for Flight 15.",
+          "url": "https://x.com/Blobifie/status/2118577080837574862",
+          "src": "@Blobifie",
+          "trust": "trusted",
+          "x_first": true,
+          "stage": "pad",
+          "hardware": null,
+          "flight": 15,
+          "x_post": {
+            "post_id": "2118577080837574862",
+            "url": "https://x.com/Blobifie/status/2118577080837574862",
+            "created_at": "2026-11-06T05:31:51.000Z",
+            "text": "There has been 3 deluge tests and some catch testing performed over the past ~48 hours but i was too lazy to screenshot them so heres a photo of some workers working on the sticks and butters from south park https://t.co/Lzuorjw8li",
+            "author": {
+              "name": "Blobifi",
+              "username": "Blobifie",
+              "avatar": "https://pbs.twimg.com/profile_images/2091766013562159104/xgHLFjBX_normal.jpg"
+            },
+            "media": [
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HWayLZfbMAAAeGZ.jpg"
+              },
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HWayltcakAARxNF.png"
+              }
+            ]
+          },
+          "x_posts": [
+            "2118577080837574862"
+          ],
+          "xChecked": true,
+          "imageChecked2": true,
+          "tier": 2,
+          "milestone": {
+            "key": "pad_work|15|-",
+            "type": "pad_work",
+            "flight": 15,
+            "hardware": null,
+            "phase": "progress"
+          },
+          "push": {
+            "title": "🏗️ Pad activity: In progress",
+            "url": "https://x.com/Blobifie/status/2118577080837574862",
+            "at": "2026-11-06T05:31:51.000Z"
+          },
+          "photo_alternatives": [
+            {
+              "image": "https://pbs.twimg.com/media/HWayltcakAARxNF.png",
+              "type": "photo",
+              "post_url": "https://x.com/Blobifie/status/2118577080837574862",
+              "author": "Blobifie"
+            }
+          ]
+        },
         {
           "id": "x-2118557148183683543",
           "date": "6 Nov",
@@ -2994,61 +3060,9 @@
           },
           "log_text": "Pad 1 flame trench wall work is progressing at Starbase.",
           "card_text": "Starbase Pad 1 Flame Trench wall work was progressing."
-        },
-        {
-          "trust": "trusted",
-          "src": "@Blobifie",
-          "tier": 2,
-          "date": "20 Oct",
-          "at": "2026-10-20T22:56:16.000Z",
-          "text": "SpaceX performing more catch testing at tower top with launch and landing deluge tests.",
-          "url": "https://x.com/Blobifie/status/2112679319818686934",
-          "phase": "progress",
-          "log_text": "SpaceX ran more catch and deluge tests at the tower top.",
-          "id": "x-2112967167767433728-pad",
-          "split_from": "x-2112967167767433728",
-          "updates": [
-            {
-              "date": "9 Oct",
-              "at": "2026-10-08T23:00:08.000Z",
-              "text": "Pad 2's chopsticks are undergoing maintenance.",
-              "url": "https://www.youtube.com/watch?v=dPqDD39cBEw",
-              "src": "NSF",
-              "phase": "progress",
-              "tier": 1,
-              "log_text": "Pad 2 chopsticks are undergoing maintenance.",
-              "card_text": "Pad 2's chopsticks were undergoing maintenance."
-            },
-            {
-              "date": "30 Sep",
-              "text": "Pad 2 clear after Flight 14. New servicing structure going in for hold-down clamp work.",
-              "src": "NSF",
-              "phase": "progress",
-              "tier": 2,
-              "log_text": "Pad 2 is clear after Flight 14, with a new service structure going in.",
-              "card_text": "Pad 2 was clear after Flight 14; a new servicing structure was going in for hold-down clamp work."
-            },
-            {
-              "text": "Pad 2 booster quick disconnects were purged, likely ahead of Booster 22.",
-              "at": "2026-10-21T18:00:04.000Z",
-              "date": "21 Oct",
-              "url": "https://x.com/NASASpaceflight/status/2112967167767433728",
-              "src": "@NASASpaceflight"
-            }
-          ],
-          "card_text": "SpaceX performed more catch testing at the tower top, with launch and landing deluge tests.",
-          "media_override": {
-            "post_url": "https://x.com/Blobifie/status/2112679319818686934",
-            "post_id": "2112679319818686934",
-            "author": "Blobifie",
-            "type": "video",
-            "image": "https://pbs.twimg.com/amplify_video_thumb/2112678295435464704/img/9a4tS6nMnzIHT1_6.jpg",
-            "fixed": "2026-11-01 own X post (videos only: chopsticks thumbnail; was placeholder)",
-            "crop": "top"
-          }
         }
       ],
-      "log_latest": "Pad 2 testing completed."
+      "log_latest": "Pad work ongoing for Flight 15."
     },
     {
       "id": "faa",
