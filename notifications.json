@@ -600,6 +600,17 @@
       "verdict": "silent: minor other — a push went out 4.2h ago (quiet window 24h)",
       "gate": "hold passed (1 run)",
       "key": "S43|other|6 Nov"
+    },
+    {
+      "title": "📅 Flight 15",
+      "body": "Flight 15 now NET 13 Nov (was 12 Nov) · unofficial",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=launch_date-mw53vcbn-c8c2a8",
+      "url": "",
+      "at": "2026-11-06T15:04:36.899Z",
+      "sent_at": "2026-11-06T15:05:32.132Z",
+      "where": "feed",
+      "verdict": "sent",
+      "key": "F15|launch_date|6 Nov"
     }
   ]
 }
