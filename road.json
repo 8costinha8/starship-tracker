@@ -5,11 +5,11 @@
     "S42"
   ],
   "updated": "6 Nov",
-  "updatedAt": "2026-11-06T08:30:36.592Z",
+  "updatedAt": "2026-11-06T15:04:36.899Z",
   "categories": [
     {
       "id": "cryo",
-      "icon": "\u2744\ufe0f",
+      "icon": "❄️",
       "name": "Cryo tests",
       "color": "#BFE6FF",
       "status": "done",
@@ -610,7 +610,7 @@
           },
           "updates": [
             {
-              "date": "3\u20134 Sep",
+              "date": "3–4 Sep",
               "text": "Ship 42 completed two back-to-back cryo tests.",
               "src": "Next Spaceflight",
               "phase": "progress",
@@ -811,7 +811,7 @@
     },
     {
       "id": "raptor",
-      "icon": "\ud83d\udd25",
+      "icon": "🔥",
       "name": "Raptor engines",
       "color": "#0E0F11",
       "status": "done",
@@ -922,7 +922,7 @@
           "url": "https://x.com/LabPadre/status/2105350891859501311",
           "at": "2026-09-30T17:35:42.000Z",
           "hardware": "S42",
-          "note": "one author (LabPadre \u00d72)",
+          "note": "one author (LabPadre ×2)",
           "unverified": true,
           "updates": [
             {
@@ -998,10 +998,10 @@
             }
           ],
           "hardware": "S42",
-          "date_range": "10\u201313 Sep",
+          "date_range": "10–13 Sep",
           "split": {
             "from": "Ship 42 headed back for its six Raptors; Booster 22 returned to Megabay 1 for its engines.",
-            "booster_part": "Booster 22 returned to Megabay 1 for its engines. \u2192 Booster 22 Raptor card"
+            "booster_part": "Booster 22 returned to Megabay 1 for its engines. → Booster 22 Raptor card"
           }
         }
       ],
@@ -1009,7 +1009,7 @@
     },
     {
       "id": "static",
-      "icon": "\ud83d\udca5",
+      "icon": "💥",
       "name": "Static fires",
       "color": "#FF9A3D",
       "status": "done",
@@ -1073,13 +1073,13 @@
           },
           "tier": 2,
           "push": {
-            "title": "\ud83c\udfd7\ufe0f Pad activity \u00b7 Flight 15",
+            "title": "🏗️ Pad activity · Flight 15",
             "url": "https://x.com/RGVaerialphotos/status/2115701286096277589",
             "at": "2026-10-29T07:03:21.000Z"
           },
           "edited": true,
           "edited_from": "Ship 42 arrived back at the launch site. (RGVaerialphotos post edited within a minute; corrected 29 Oct)",
-          "data_fix": "29 Oct: rollback after static fires, moved pad \u2192 static | 29 Oct: one event = one card \u2014 Blobifie 06:37 and LabPadre 07:52 posts of the same rollback merged in as updates",
+          "data_fix": "29 Oct: rollback after static fires, moved pad → static | 29 Oct: one event = one card — Blobifie 06:37 and LabPadre 07:52 posts of the same rollback merged in as updates",
           "updates": [
             {
               "date": "29 Oct",
@@ -1342,7 +1342,7 @@
           "completed_at": "2026-10-27T21:45:25.000Z",
           "completed_src": "https://x.com/LabPadre/status/2115404622638837866",
           "push": {
-            "title": "\ud83d\udca5 Static fires: Completed",
+            "title": "💥 Static fires: Completed",
             "url": "https://x.com/NASASpaceflight/status/2115231900961005856",
             "at": "2026-10-27T23:59:18.000Z"
           },
@@ -1433,7 +1433,7 @@
           "imageChecked2": true,
           "tier": 2,
           "push": {
-            "title": "\u2744\ufe0f Cryo tests: In progress",
+            "title": "❄️ Cryo tests: In progress",
             "url": "https://x.com/Blobifie/status/2114535368758542634",
             "at": "2026-10-26T01:51:32.000Z"
           },
@@ -1501,7 +1501,7 @@
           },
           "tier": 2,
           "push": {
-            "title": "\ud83c\udfd7\ufe0f Pad activity \u00b7 Flight 15",
+            "title": "🏗️ Pad activity · Flight 15",
             "url": "https://x.com/Blobifie/status/2114686191627030843",
             "at": "2026-10-26T11:50:51.000Z"
           },
@@ -1609,7 +1609,7 @@
           },
           "tier": 1,
           "push": {
-            "title": "\u2744\ufe0f Cryo tests \u00b7 Flight 15",
+            "title": "❄️ Cryo tests · Flight 15",
             "url": "https://x.com/NASASpaceflight/status/2114568166651428965",
             "at": "2026-10-26T04:01:52.000Z"
           },
@@ -1741,7 +1741,7 @@
           "log_date": "25 Oct",
           "complete": true,
           "push": {
-            "title": "\ud83d\udca5 Static fires: Completed",
+            "title": "💥 Static fires: Completed",
             "url": "https://x.com/NASASpaceflight/status/2114320643470549259",
             "at": "2026-10-25T11:38:18.000Z"
           },
@@ -1857,7 +1857,7 @@
           },
           "tier": 3,
           "push": {
-            "title": "\ud83d\udca5 Static fires \u00b7 Flight 15",
+            "title": "💥 Static fires · Flight 15",
             "url": "https://x.com/LabPadre/status/2114335419785679308",
             "at": "2026-10-25T12:37:01.000Z"
           },
@@ -1909,7 +1909,7 @@
           },
           "tier": 2,
           "push": {
-            "title": "\ud83d\udca5 Static fires \u00b7 Flight 15",
+            "title": "💥 Static fires · Flight 15",
             "url": "https://x.com/Blobifie/status/2114317866409595106",
             "at": "2026-10-25T11:27:16.000Z"
           },
@@ -1972,7 +1972,7 @@
           },
           "complete": true,
           "push": {
-            "title": "\ud83c\udfd7\ufe0f Pad activity: Done",
+            "title": "🏗️ Pad activity: Done",
             "url": "https://x.com/Blobifie/status/2114016319679201462",
             "at": "2026-10-24T15:29:01.000Z"
           },
@@ -2099,7 +2099,7 @@
             }
           ],
           "push": {
-            "title": "\ud83c\udfd7\ufe0f Pad activity: Completed",
+            "title": "🏗️ Pad activity: Completed",
             "url": "https://x.com/NASASpaceflight/status/2113954013615952349",
             "at": "2026-10-24T11:21:26.000Z"
           },
@@ -2198,7 +2198,7 @@
             "phase": "progress"
           },
           "push": {
-            "title": "\ud83d\udca5 Static fires \u00b7 Flight 15",
+            "title": "💥 Static fires · Flight 15",
             "url": "https://x.com/Blobifie/status/2113955770337550391",
             "at": "2026-10-24T11:28:25.000Z"
           },
@@ -2243,7 +2243,7 @@
     },
     {
       "id": "pad",
-      "icon": "\ud83c\udfd7\ufe0f",
+      "icon": "🏗️",
       "name": "Pad activity",
       "color": "#A88BFF",
       "status": "progress",
@@ -2302,7 +2302,7 @@
             "phase": "progress"
           },
           "push": {
-            "title": "\ud83c\udfd7\ufe0f Pad activity: In progress",
+            "title": "🏗️ Pad activity: In progress",
             "url": "https://x.com/Blobifie/status/2118577080837574862",
             "at": "2026-11-06T05:31:51.000Z"
           },
@@ -2375,7 +2375,7 @@
           },
           "complete": true,
           "push": {
-            "title": "\ud83c\udfd7\ufe0f Pad activity \u00b7 Flight 15",
+            "title": "🏗️ Pad activity · Flight 15",
             "url": "https://x.com/RGVaerialphotos/status/2118557148183683543",
             "at": "2026-11-06T04:12:39.000Z"
           },
@@ -2404,7 +2404,7 @@
             "post_id": "2118553539345883303",
             "url": "https://x.com/efraser77/status/2118553539345883303",
             "created_at": "2026-11-06T03:58:19.000Z",
-            "text": "More deluges! This time it was a reverse of yesterday. The tower at LC-39a in Florida got the double test, Starbase just got one, but it was pretty in the evening light :) \ud83c\udfa5: https://t.co/U5mmqMAp4x / https://t.co/MzeTxmvuth @NASASpaceflight",
+            "text": "More deluges! This time it was a reverse of yesterday. The tower at LC-39a in Florida got the double test, Starbase just got one, but it was pretty in the evening light :) 🎥: https://t.co/U5mmqMAp4x / https://t.co/MzeTxmvuth @NASASpaceflight",
             "author": {
               "name": "Erik Fraser",
               "username": "efraser77",
@@ -2447,7 +2447,7 @@
           },
           "complete": true,
           "push": {
-            "title": "\ud83c\udfd7\ufe0f Pad activity: Complete",
+            "title": "🏗️ Pad activity: Complete",
             "url": "https://x.com/efraser77/status/2118553539345883303",
             "at": "2026-11-06T03:58:19.000Z"
           },
@@ -2475,7 +2475,7 @@
             "post_id": "2117466177400434911",
             "url": "https://x.com/efraser77/status/2117466177400434911",
             "created_at": "2026-11-03T03:57:31.000Z",
-            "text": "It may seem rather quiet at Starbase tonight, but looks can be deceiving! Booster 22 is getting ready in MB1 and the BQD\u2019s are getting some attention on Pad 2. #wenhop\n\n\ud83c\udfa5: https://t.co/U5mmqMAp4x | @NASASpaceflight https://t.co/1rzmz7tgqZ",
+            "text": "It may seem rather quiet at Starbase tonight, but looks can be deceiving! Booster 22 is getting ready in MB1 and the BQD’s are getting some attention on Pad 2. #wenhop\n\n🎥: https://t.co/U5mmqMAp4x | @NASASpaceflight https://t.co/1rzmz7tgqZ",
             "author": {
               "name": "Erik Fraser",
               "username": "efraser77",
@@ -2516,7 +2516,7 @@
             "from": "x-2114578590792859900"
           },
           "push": {
-            "title": "\ud83c\udfd7\ufe0f Pad activity (unconfirmed)",
+            "title": "🏗️ Pad activity (unconfirmed)",
             "url": "https://x.com/efraser77/status/2117466177400434911",
             "at": "2026-11-03T03:57:31.000Z"
           },
@@ -2581,7 +2581,7 @@
           },
           "complete": true,
           "push": {
-            "title": "\ud83c\udfd7\ufe0f Pad activity (unconfirmed)",
+            "title": "🏗️ Pad activity (unconfirmed)",
             "url": "https://x.com/Blobifie/status/2117381830253101176",
             "at": "2026-11-02T22:22:22.000Z"
           },
@@ -2608,7 +2608,7 @@
             "post_id": "2115315741709001123",
             "url": "https://x.com/TrackingTheSB/status/2115315741709001123",
             "created_at": "2026-10-28T05:32:28.000Z",
-            "text": "Ship 43 has entered Megabay 2. Booster 23 left on its way to Massey's shortly after.\n\nFollow Our Journey: https://t.co/UqJI1NQiUk \n\n\ud83d\udcf7NSF | Starbase Live | https://t.co/PX4wBcpee0  \n\n#Tracking \u2060#Starship #Starbase #SpaceX https://t.co/V7yd5XDEWy",
+            "text": "Ship 43 has entered Megabay 2. Booster 23 left on its way to Massey's shortly after.\n\nFollow Our Journey: https://t.co/UqJI1NQiUk \n\n📷NSF | Starbase Live | https://t.co/PX4wBcpee0  \n\n#Tracking ⁠#Starship #Starbase #SpaceX https://t.co/V7yd5XDEWy",
             "author": {
               "name": "StarshipTracking",
               "username": "TrackingTheSB"
@@ -2718,7 +2718,7 @@
             "crop": "top"
           },
           "unverified": true,
-          "note": "one author (Blobifie \u00d72)",
+          "note": "one author (Blobifie ×2)",
           "card_text": "Ship 43 likely ran post-catch pusher tests."
         },
         {
@@ -2922,7 +2922,7 @@
           },
           "tier": 2,
           "push": {
-            "title": "\ud83c\udfd7\ufe0f Pad activity: In progress",
+            "title": "🏗️ Pad activity: In progress",
             "url": "https://x.com/RGVaerialphotos/status/2114578590792859900",
             "at": "2026-10-26T04:43:17.000Z"
           },
@@ -2981,7 +2981,7 @@
           },
           "tier": 2,
           "push": {
-            "title": "\ud83d\udd25 Raptor engines \u00b7 Flight 15",
+            "title": "🔥 Raptor engines · Flight 15",
             "url": "https://x.com/RGVaerialphotos/status/2113834862339617215",
             "at": "2026-10-24T03:27:58.000Z"
           },
@@ -3056,7 +3056,7 @@
           },
           "tier": 1,
           "push": {
-            "title": "\ud83c\udfd7\ufe0f Pad activity \u00b7 Flight 15",
+            "title": "🏗️ Pad activity · Flight 15",
             "url": "https://x.com/NASASpaceflight/status/2113664154762457446",
             "at": "2026-10-23T16:09:39.000Z"
           },
@@ -3068,7 +3068,7 @@
     },
     {
       "id": "faa",
-      "icon": "\ud83d\udcdc",
+      "icon": "📜",
       "name": "FAA licence",
       "color": "#2FD3B0",
       "status": "pending",
@@ -3108,12 +3108,12 @@
     },
     {
       "id": "date",
-      "icon": "\ud83d\uddd3\ufe0f",
+      "icon": "🗓️",
       "name": "Launch date",
       "color": "#FFC93D",
       "status": "progress",
       "doneText": "Confirmed",
-      "latest": "Flight 15 targets NET 12 Nov (unofficial)",
+      "latest": "Flight 15 targets NET 13 Nov (unofficial)",
       "history": [
         {
           "date": "14 Oct",
@@ -3141,12 +3141,12 @@
           "superseded": {
             "by": "launch_date-mvv5rls0-69f74f",
             "date": "30 Oct",
-            "why": "FAA planning slide \u00b7 NSF, 30 Oct: Flight 15 NET 12 Nov (was 8 Nov)"
+            "why": "FAA planning slide · NSF, 30 Oct: Flight 15 NET 12 Nov (was 8 Nov)"
           },
           "card_text": "Flight 15 was targeting NET 8 November (since moved to NET 12 Nov), with plans to catch both vehicles."
         }
       ],
-      "log_latest": "Flight 15 NET 12 Nov (unofficial)."
+      "log_latest": "Flight 15 NET 13 Nov (unofficial)."
     }
   ],
   "feedVerified": "2026-10-16T17:53:11.334Z",
@@ -3160,12 +3160,12 @@
           {
             "box": "cryo",
             "vehicle": "Ship 41",
-            "text": "At least 2 cryo tests \u00b7 last confirmed 30 Jun"
+            "text": "At least 2 cryo tests · last confirmed 30 Jun"
           },
           {
             "box": "cryo",
             "vehicle": "Booster 21",
-            "text": "At least 2 cryo tests \u00b7 last 20 Jul"
+            "text": "At least 2 cryo tests · last 20 Jul"
           },
           {
             "box": "raptor",
@@ -3180,17 +3180,17 @@
           {
             "box": "static",
             "vehicle": "Ship 41",
-            "text": "2 static fires \u00b7 20 and 21 Aug"
+            "text": "2 static fires · 20 and 21 Aug"
           },
           {
             "box": "static",
             "vehicle": "Booster 21",
-            "text": "1 static fire \u00b7 28 Aug"
+            "text": "1 static fire · 28 Aug"
           },
           {
             "box": "pad",
             "vehicle": "Full stack",
-            "text": "Stacked 23 Sep \u00b7 wet dress rehearsal 24 Sep"
+            "text": "Stacked 23 Sep · wet dress rehearsal 24 Sep"
           },
           {
             "box": "faa",
@@ -3312,9 +3312,18 @@
   ],
   "feed_items": [
     {
+      "id": "launch_date-mw53vcbn-c8c2a8",
+      "kind": "launch_date",
+      "title": "📅 Flight 15",
+      "body": "Flight 15 now NET 13 Nov (was 12 Nov) · unofficial",
+      "at": "2026-11-06T15:04:36.899Z",
+      "date": "6 Nov",
+      "flight": 15
+    },
+    {
       "id": "news-mw4opazs-004e88",
       "kind": "news",
-      "title": "\ud83d\ude80 Starship",
+      "title": "🚀 Starship",
       "body": "Ship 43.1 was in the can crusher at Massey's.",
       "url": "https://x.com/RGVaerialphotos/status/2118614364983066746",
       "at": "2026-11-06T08:00:01.000Z",
@@ -3326,7 +3335,7 @@
     {
       "id": "news-mw44pp4o-5bca28",
       "kind": "news",
-      "title": "\ud83d\ude80 Starship",
+      "title": "🚀 Starship",
       "body": "Pad 39A completed a full water deluge test.",
       "url": "https://x.com/NASASpaceflight/status/2118473546813043048",
       "at": "2026-11-05T22:40:27.000Z",
@@ -3338,7 +3347,7 @@
     {
       "id": "flight-mw43aanl-eaa14d",
       "kind": "flight",
-      "title": "\ud83d\udcc5 New estimated date",
+      "title": "📅 New estimated date",
       "body": "NET 13 Nov",
       "at": "2026-11-05T22:00:28.785Z",
       "date": "5 Nov",
@@ -3347,7 +3356,7 @@
     {
       "id": "news-mw43922g-ea7dc1",
       "kind": "news",
-      "title": "\ud83d\ude80 Starship",
+      "title": "🚀 Starship",
       "body": "Starship Flight 15 has a tentative target date of Friday 13 November.",
       "url": "https://x.com/LabPadre/status/2118463243530174498",
       "at": "2026-11-05T21:59:31.000Z",
@@ -3359,7 +3368,7 @@
     {
       "id": "news-mw2xdk08-ec25f3",
       "kind": "news",
-      "title": "\ud83d\ude80 Starship",
+      "title": "🚀 Starship",
       "body": "More deluge testing took place at Starbase today.",
       "url": "https://x.com/efraser77/status/2118168243030622462",
       "at": "2026-11-05T02:27:17.000Z",
@@ -3370,7 +3379,7 @@
     {
       "id": "news-mw2npcig-f44b5b",
       "kind": "news",
-      "title": "\ud83d\ude80 Starship",
+      "title": "🚀 Starship",
       "body": "Flight 15 may see both booster and ship caught at base.",
       "url": "https://www.youtube.com/watch?v=8Dsld-4HrXY",
       "at": "2026-11-04T21:56:31.000Z",
@@ -3380,7 +3389,7 @@
     {
       "id": "news-mw1caeo0-1457b7",
       "kind": "news",
-      "title": "\ud83d\ude80 Starship",
+      "title": "🚀 Starship",
       "body": "Third of four tower cranes at Starbase Gigabay has boom removed.",
       "url": "https://x.com/efraser77/status/2117766071575089429",
       "at": "2026-11-03T23:49:12.000Z",
@@ -3391,7 +3400,7 @@
     {
       "id": "news-mvycu1v4-3745f1",
       "kind": "news",
-      "title": "\ud83d\ude80 Starship",
+      "title": "🚀 Starship",
       "body": "Flight 15 vehicles were tested ahead of the November launch.",
       "url": "https://www.youtube.com/watch?v=9i5-UQGTMHQ",
       "at": "2026-11-01T21:41:10.000Z",
@@ -3401,7 +3410,7 @@
     {
       "id": "news-mvy7to1c-c7241c",
       "kind": "news",
-      "title": "\ud83d\ude80 Starship",
+      "title": "🚀 Starship",
       "body": "Ship 45 completed its methane tank and started its liquid oxygen tank.",
       "url": "https://x.com/TrackingTheSB/status/2116973778219749564",
       "at": "2026-11-01T19:20:54.000Z",
@@ -3413,7 +3422,7 @@
     {
       "id": "news-mvvriszs-0c1ff5",
       "kind": "news",
-      "title": "\ud83d\ude80 Starship",
+      "title": "🚀 Starship",
       "body": "Booster 24's methane tank was lifted inside Megabay 1 that evening",
       "url": "https://x.com/efraser77/status/2116351708150497473",
       "at": "2026-10-31T02:09:01.000Z",
@@ -3426,7 +3435,7 @@
     {
       "id": "news-mvviedow-8ae8e8",
       "kind": "news",
-      "title": "\ud83d\ude80 Starship",
+      "title": "🚀 Starship",
       "body": "SpaceX completed three static fires in three days for Flight 15.",
       "url": "https://www.nasaspaceflight.com/2026/10/spacex-static-fires-flight-15/",
       "at": "2026-10-30T21:53:38.000Z",
@@ -3436,14 +3445,14 @@
       "refiled_pin": true,
       "rerouted": {
         "from": "static",
-        "why": "covers both vehicles (B22 25 Oct, S42 \u00d72 27 Oct): no single vehicle card; not shown in a Ship 42 drawer"
+        "why": "covers both vehicles (B22 25 Oct, S42 ×2 27 Oct): no single vehicle card; not shown in a Ship 42 drawer"
       }
     },
     {
       "id": "launch_date-mvv5rls0-69f74f",
       "kind": "launch_date",
-      "title": "\ud83d\udcc5 Flight 15",
-      "body": "Flight 15 now NET 12 Nov (was 8 Nov) \u00b7 unofficial",
+      "title": "📅 Flight 15",
+      "body": "Flight 15 now NET 12 Nov (was 8 Nov) · unofficial",
       "at": "2026-10-30T16:00:00.000Z",
       "date": "30 Oct",
       "flight": 15,
@@ -3452,7 +3461,7 @@
     {
       "id": "news-mvuqvczs-7b7a15",
       "kind": "news",
-      "title": "\ud83d\ude80 Starship",
+      "title": "🚀 Starship",
       "body": "Booster 23 returned to Megabay 1 from the Massey outpost.",
       "url": "https://x.com/LabPadre/status/2116093506200453375",
       "at": "2026-10-30T09:03:01.000Z",
@@ -3465,7 +3474,7 @@
     {
       "id": "news-mvtv609c-f58a18",
       "kind": "news",
-      "title": "\ud83d\ude80 Starship",
+      "title": "🚀 Starship",
       "body": "Flight 15 reportedly slipped by four days to 12 November.",
       "url": "https://x.com/LabPadre/status/2115870155188449596",
       "at": "2026-10-29T18:15:30.000Z",
@@ -3477,7 +3486,7 @@
     {
       "id": "news-mvt772o8-49339e",
       "kind": "news",
-      "title": "\ud83d\ude80 Starship",
+      "title": "🚀 Starship",
       "body": "Ship 42 and the tiled barrel section arrived back at the production site.",
       "url": "https://x.com/RGVaerialphotos/status/2115701286096277589",
       "at": "2026-10-29T07:04:29.000Z",
@@ -3490,7 +3499,7 @@
     {
       "id": "flight-mvsjfivy-8b129a",
       "kind": "flight",
-      "title": "\ud83d\udcc5 New estimated date",
+      "title": "📅 New estimated date",
       "body": "NET Nov 2026",
       "at": "2026-10-28T19:59:12.478Z",
       "date": "28 Oct",
@@ -3499,7 +3508,7 @@
     {
       "id": "news-mvsb9c8o-97f884",
       "kind": "news",
-      "title": "\ud83d\ude80 Starship",
+      "title": "🚀 Starship",
       "body": "Ship 42 completed a full-duration six-engine static fire and deorbit burn simulation.",
       "url": "https://x.com/SpaceX/status/2115476295169814978",
       "at": "2026-10-28T16:10:27.000Z",
@@ -3518,7 +3527,7 @@
     {
       "id": "news-mvrm1w14-668ed2",
       "kind": "news",
-      "title": "\ud83d\ude80 Starship",
+      "title": "🚀 Starship",
       "body": "Ship 43 returned to the production site from chopstick tests.",
       "url": "https://x.com/NASASpaceflight/status/2115298718035370428",
       "at": "2026-10-28T04:24:49.000Z",
@@ -3531,7 +3540,7 @@
     {
       "id": "news-mvozi9xs-e0267f",
       "kind": "news",
-      "title": "\ud83d\ude80 Starship",
+      "title": "🚀 Starship",
       "body": "Ship 42 was transported to the Massey's test site, with an engine section in tow.",
       "url": "https://x.com/RGVaerialphotos/status/2114632668461900071",
       "at": "2026-10-26T08:18:10.000Z",
@@ -3545,7 +3554,7 @@
     {
       "id": "news-mvown148-6ecbdb",
       "kind": "news",
-      "title": "\ud83d\ude80 Starship",
+      "title": "🚀 Starship",
       "body": "Booster 22 was moved onto its transporter ahead of returning to Megabay 1.",
       "url": "https://x.com/RGVaerialphotos/status/2114612462184178003",
       "at": "2026-10-26T06:57:53.000Z",
@@ -3558,7 +3567,7 @@
     {
       "id": "news-mvortxmw-db27d7",
       "kind": "news",
-      "title": "\ud83d\ude80 Starship",
+      "title": "🚀 Starship",
       "body": "Booster 22 was lifted off the launch mount to catch height.",
       "url": "https://x.com/RGVaerialphotos/status/2114578590792859900",
       "at": "2026-10-26T04:43:17.000Z",
@@ -3572,7 +3581,7 @@
     {
       "id": "news-mvopynkg-826d56",
       "kind": "news",
-      "title": "\ud83d\ude80 Starship",
+      "title": "🚀 Starship",
       "body": "Ship 43 was transported by road to the production site.",
       "url": "https://x.com/TrackingTheSB/status/2114565423912108360",
       "at": "2026-10-26T03:50:58.000Z",
@@ -3586,7 +3595,7 @@
     {
       "id": "news-mvo8qv2g-e23cc6",
       "kind": "news",
-      "title": "\ud83d\ude80 Starship",
+      "title": "🚀 Starship",
       "body": "Booster 22 completed a full-duration static fire for Flight 15.",
       "url": "https://x.com/SpaceX/status/2114444137067844004",
       "at": "2026-10-25T19:49:01.000Z",
@@ -3602,7 +3611,7 @@
     {
       "id": "news-mvntvaz4-93c869",
       "kind": "news",
-      "title": "\ud83d\ude80 Starship",
+      "title": "🚀 Starship",
       "body": "Propellant loading began on Booster 22 for its static fire test.",
       "url": "https://x.com/NASASpaceflight/status/2114339334753284398",
       "at": "2026-10-25T12:52:34.000Z",
@@ -3615,7 +3624,7 @@
     {
       "id": "news-mvmgoq8g-00233b",
       "kind": "news",
-      "title": "\ud83d\ude80 Starship",
+      "title": "🚀 Starship",
       "body": "Booster 22 was lifted onto launch Pad 2.",
       "url": "https://x.com/NASASpaceflight/status/2113992853093601306",
       "at": "2026-10-24T13:55:46.000Z",
@@ -3629,7 +3638,7 @@
     {
       "id": "news-mvm4mfz4-21e7ea",
       "kind": "news",
-      "title": "\ud83d\ude80 Starship",
+      "title": "🚀 Starship",
       "body": "Booster 22 left Mega Bay 1, preparing to roll out to the launch site for testing.",
       "url": "https://x.com/NASASpaceflight/status/2113907865060819060",
       "at": "2026-10-24T08:18:04.000Z",
@@ -3687,6 +3696,20 @@
   "predicted_candidates": [
     {
       "flight": 15,
+      "source": "X @LabPadre",
+      "url": "https://x.com/LabPadre/status/2118463243530174498",
+      "date": "2026-11-13",
+      "seen_at": "2026-11-05T21:59:31.000Z"
+    },
+    {
+      "flight": 15,
+      "source": "X @NASASpaceflight",
+      "url": "https://x.com/NASASpaceflight/status/2118405788821827970",
+      "date": "2026-11-13",
+      "seen_at": "2026-11-05T18:11:12.000Z"
+    },
+    {
+      "flight": 15,
       "source": "X @TrackingTheSB",
       "url": "https://x.com/TrackingTheSB/status/2116973778219749564",
       "date": "2026-11-12",
@@ -3719,7 +3742,7 @@
                 "url": "https://x.com/LabPadre/status/2108486994401825101"
               },
               {
-                "day": "3\u20134 Sep",
+                "day": "3–4 Sep",
                 "time": "09:59",
                 "text": "Ship 42 completed two back-to-back cryo proof tests.",
                 "at": "2026-09-04T08:59:00Z",
@@ -3731,7 +3754,7 @@
             "vehicle": "B22",
             "lines": [
               {
-                "day": "9\u201310 Sep",
+                "day": "9–10 Sep",
                 "time": "08:02",
                 "text": "Booster 22 completed its first full cryo proof test.",
                 "at": "2026-09-10T07:02:00Z",
@@ -4054,5 +4077,26 @@
       "failures": 0
     },
     "note": "2026-11-06 feed sentence + Launch pad wording fixes cleared prior render flags"
+  },
+  "predicted": {
+    "flight": 15,
+    "net": "2026-11-13",
+    "mode": "auto",
+    "basis": "X @LabPadre · X @NASASpaceflight",
+    "sources": [
+      {
+        "name": "X @LabPadre",
+        "url": "https://x.com/LabPadre/status/2118463243530174498",
+        "note": "names 2026-11-13",
+        "seen_at": "2026-11-05T21:59:31.000Z"
+      },
+      {
+        "name": "X @NASASpaceflight",
+        "url": "https://x.com/NASASpaceflight/status/2118405788821827970",
+        "note": "names 2026-11-13",
+        "seen_at": "2026-11-05T18:11:12.000Z"
+      }
+    ],
+    "updatedAt": "2026-11-06T15:04:36.899Z"
   }
 }
