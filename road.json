@@ -2247,19 +2247,19 @@
       "name": "Pad activity",
       "color": "#A88BFF",
       "status": "complete",
-      "latest": "Pad 2 completed chopstick and deluge testing.",
+      "latest": "Pad 2 chopstick and deluge testing completed.",
       "history": [
         {
           "id": "x-2118557148183683543",
           "date": "6 Nov",
           "log_date": "6 Nov",
           "at": "2026-11-06T04:12:39.000Z",
-          "text": "Pad 2 completed chopstick and deluge testing.",
-          "x_text": "Pad 2 completed chopstick and deluge testing.",
-          "push_text": "Pad 2 testing chopsticks and deluge system.",
-          "card_text": "Pad 2 completed chopstick and deluge testing.",
-          "log_text": "Pad 2 completed chopstick and deluge testing.",
-          "status_line": "Pad 2 testing completed.",
+          "text": "Pad 2 chopstick and deluge testing completed.",
+          "x_text": "Pad 2 chopstick and deluge testing completed.",
+          "push_text": "Pad 2 chopstick and deluge testing completed.",
+          "card_text": "Pad 2 chopstick and deluge testing completed.",
+          "log_text": "Pad 2 chopstick and deluge testing completed.",
+          "status_line": "Pad 2 infrastructure testing ongoing.",
           "url": "https://x.com/RGVaerialphotos/status/2118557148183683543",
           "src": "@RGVaerialphotos",
           "trust": "trusted",
@@ -2270,7 +2270,7 @@
             "post_id": "2118557148183683543",
             "url": "https://x.com/RGVaerialphotos/status/2118557148183683543",
             "created_at": "2026-11-06T04:12:39.000Z",
-            "text": "Timelapse of Pad 2 chopstick and deluge testing yesterday.",
+            "text": "Timelapse of Pad 2 chopstick and deluge testing yesterday. https://t.co/jVOkROi8Se",
             "author": {
               "name": "RGV Aerial Photography",
               "username": "RGVaerialphotos",
@@ -2310,7 +2310,9 @@
             "title": "🏗️ Pad activity · Flight 15",
             "url": "https://x.com/RGVaerialphotos/status/2118557148183683543",
             "at": "2026-11-06T04:12:39.000Z"
-          }
+          },
+          "edited_from": "Pad 2 completed chopstick and deluge testing.",
+          "edited": true
         },
         {
           "id": "x-2118553539345883303",
