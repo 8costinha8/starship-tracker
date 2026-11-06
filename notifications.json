@@ -588,6 +588,18 @@
       "verdict": "silent: duplicate starship|pad_work|6 Nov",
       "gate": "second trusted source agrees",
       "key": "starship|pad_work|6 Nov"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Ship 43.1 is in the can crusher at Massey's",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mw4opazs-004e88",
+      "url": "https://x.com/RGVaerialphotos/status/2118614364983066746",
+      "at": "2026-11-06T08:00:01.000Z",
+      "sent_at": "2026-11-06T08:30:37.753Z",
+      "where": "feed",
+      "verdict": "silent: minor other — a push went out 4.2h ago (quiet window 24h)",
+      "gate": "hold passed (1 run)",
+      "key": "S43|other|6 Nov"
     }
   ]
 }
