@@ -2247,19 +2247,19 @@
       "name": "Pad activity",
       "color": "#A88BFF",
       "status": "progress",
-      "latest": "Deluge and catch testing performed at the pad.",
+      "latest": "Pad deluge and catch tests completed.",
       "history": [
         {
           "id": "x-2118577080837574862",
           "date": "6 Nov",
           "log_date": "6 Nov",
           "at": "2026-11-06T05:31:51.000Z",
-          "text": "Deluge and catch testing performed at the pad.",
-          "x_text": "Deluge and catch testing performed at the pad.",
-          "push_text": "Deluge and catch tests running at the pad.",
-          "card_text": "Deluge and catch tests performed at the pad.",
-          "log_text": "Pad 2 deluge and catch tests completed.",
-          "status_line": "Pad work ongoing for Flight 15.",
+          "text": "Pad deluge and catch tests completed.",
+          "x_text": "Pad deluge and catch tests completed.",
+          "push_text": "Pad deluge and catch tests completed.",
+          "card_text": "Pad deluge and catch tests completed.",
+          "log_text": "Pad deluge and catch tests completed.",
+          "status_line": "Pad work progressing for Flight 15.",
           "url": "https://x.com/Blobifie/status/2118577080837574862",
           "src": "@Blobifie",
           "trust": "trusted",
@@ -2271,7 +2271,7 @@
             "post_id": "2118577080837574862",
             "url": "https://x.com/Blobifie/status/2118577080837574862",
             "created_at": "2026-11-06T05:31:51.000Z",
-            "text": "There has been 3 deluge tests and some catch testing performed over the past ~48 hours but i was too lazy to screenshot them so heres a photo of some workers working on the sticks and butters from south park https://t.co/Lzuorjw8li",
+            "text": "There has been 3 deluge tests and some catch testing performed over the past ~48 hours but i was too lazy to screenshot them so heres a photo of some workers working on the sticks and butters from south park https://t.co/Lzuorjw8li https://t.co/ER4MzMibYh",
             "author": {
               "name": "Blobifi",
               "username": "Blobifie",
@@ -2313,7 +2313,9 @@
               "post_url": "https://x.com/Blobifie/status/2118577080837574862",
               "author": "Blobifie"
             }
-          ]
+          ],
+          "edited_from": "Deluge and catch testing performed at the pad.",
+          "edited": true
         },
         {
           "id": "x-2118557148183683543",
