@@ -4,8 +4,8 @@
     "B22",
     "S42"
   ],
-  "updated": "5 Nov",
-  "updatedAt": "2026-11-05T23:01:35.927Z",
+  "updated": "6 Nov",
+  "updatedAt": "2026-11-06T04:01:18.771Z",
   "categories": [
     {
       "id": "cryo",
@@ -2246,9 +2246,80 @@
       "icon": "🏗️",
       "name": "Pad activity",
       "color": "#A88BFF",
-      "status": "progress",
-      "latest": "Booster 22 heads to preparation in Mega Bay 1.",
+      "status": "complete",
+      "latest": "Complete",
       "history": [
+        {
+          "id": "x-2118553539345883303",
+          "date": "6 Nov",
+          "log_date": "6 Nov",
+          "at": "2026-11-06T03:58:19.000Z",
+          "text": "Starbase tower completed deluge system test.",
+          "x_text": "Starbase tower completed deluge system test.",
+          "push_text": "Starbase tower deluge test completed.",
+          "card_text": "Starbase tower completed deluge system test.",
+          "log_text": "Starbase tower completed deluge test.",
+          "status_line": "Starbase tower deluge test done.",
+          "url": "https://x.com/efraser77/status/2118553539345883303",
+          "src": "@efraser77",
+          "trust": "trusted",
+          "x_first": true,
+          "stage": "pad",
+          "hardware": "Starbase",
+          "flight": 15,
+          "x_post": {
+            "post_id": "2118553539345883303",
+            "url": "https://x.com/efraser77/status/2118553539345883303",
+            "created_at": "2026-11-06T03:58:19.000Z",
+            "text": "More deluges! This time it was a reverse of yesterday. The tower at LC-39a in Florida got the double test, Starbase just got one, but it was pretty in the evening light :) 🎥: https://t.co/U5mmqMAp4x / https://t.co/MzeTxmvuth @NASASpaceflight",
+            "author": {
+              "name": "Erik Fraser",
+              "username": "efraser77",
+              "avatar": "https://pbs.twimg.com/profile_images/1480766056163516418/kpdQxuPR_normal.jpg"
+            },
+            "media": [
+              {
+                "type": "video",
+                "poster": "https://pbs.twimg.com/amplify_video_thumb/2118553103364743168/img/6_7b41bKYn_grAjt.jpg",
+                "video_url": "https://video.twimg.com/amplify_video/2118553103364743168/vid/avc1/1280x720/lPVqfhwWv1kQxECR.mp4?tag=14"
+              }
+            ],
+            "link": {
+              "url": "https://www.youtube.com/watch?v=mhJRzQsLZGg",
+              "title": "Starbase Live: 24/7 Starship & Super Heavy Development From SpaceX's Boca Chica Facility",
+              "description": "Starship is SpaceX's fully reusable launch system which is being de...",
+              "image": "https://pbs.twimg.com/news_img/2116900323457445888/1bnZChkM?format=jpg&name=orig"
+            }
+          },
+          "x_posts": [
+            "2118553539345883303"
+          ],
+          "xChecked": true,
+          "imageChecked2": true,
+          "media_override": {
+            "post_url": "https://x.com/efraser77/status/2118553539345883303",
+            "post_id": "2118553539345883303",
+            "author": "efraser77",
+            "type": "video",
+            "image": "https://pbs.twimg.com/amplify_video_thumb/2118553103364743168/img/6_7b41bKYn_grAjt.jpg",
+            "video_url": "https://video.twimg.com/amplify_video/2118553103364743168/vid/avc1/1280x720/lPVqfhwWv1kQxECR.mp4?tag=14"
+          },
+          "tier": 2,
+          "milestone": {
+            "key": "pad_work|15|STARBASE",
+            "type": "pad_work",
+            "flight": 15,
+            "hardware": "STARBASE",
+            "phase": "completed"
+          },
+          "complete": true,
+          "push": {
+            "title": "🏗️ Pad activity: Complete",
+            "url": "https://x.com/efraser77/status/2118553539345883303",
+            "at": "2026-11-06T03:58:19.000Z"
+          },
+          "frameChecked": true
+        },
         {
           "id": "x-2117466177400434911",
           "date": "3 Nov",
@@ -3004,7 +3075,7 @@
           }
         }
       ],
-      "log_latest": "Booster 22 lifted to catch height."
+      "log_latest": "Starbase tower deluge test done."
     },
     {
       "id": "faa",
