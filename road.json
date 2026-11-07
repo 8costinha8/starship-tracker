@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "7 Nov",
-  "updatedAt": "2026-11-07T15:30:34.854Z",
+  "updatedAt": "2026-11-07T15:46:02.968Z",
   "categories": [
     {
       "id": "cryo",
@@ -3340,6 +3340,16 @@
       "date": "7 Nov",
       "flight": 15,
       "box": "static"
+    },
+    {
+      "id": "news-mw6cps00-434c6a",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Starship targeted its first return to the launch site on Flight 15.",
+      "url": "https://www.spacex.com/updates#starship-catch",
+      "at": "2026-11-07T12:00:00.000Z",
+      "date": "7 Nov",
+      "flight": 15
     },
     {
       "id": "launch_date-mw53vcbn-c8c2a8",
