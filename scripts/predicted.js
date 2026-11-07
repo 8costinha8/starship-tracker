@@ -93,6 +93,9 @@ function upsertMentions(list, mentions, n) {
 function ll2State(next) {
   if (!next || !next.status && !next.precision && !next.date) return "unknown";
   if (LAUNCHED.includes(next.status)) return "launched";
+  if (next.status === "TBD") {
+    return next.date && Number.isFinite(Date.parse(next.date)) && /^(DAY|HR|MIN|SEC)$/.test(next.precision || "") ? "net" : "unconfirmed";
+  }
   if (next.status === "Go" || next.status === "Hold") return "confirmed";
   const p = next.precision || "";
   if (p) return ROUGH_PRECISION.test(p) ? "unconfirmed" : "confirmed";
@@ -115,9 +118,9 @@ function computePredicted({ road, target, next, lastLogged, mentions = [], now =
 
   if (predicted && Number(predicted.flight) !== target) { predicted = null; reason = `next flight is now ${target}`; }
   else if (predicted && lastLogged && Number(predicted.flight) <= lastLogged) { predicted = null; reason = "flight is in the log"; }
-  else if (predicted && (lls === "launched" || lls === "confirmed")) { predicted = null; reason = `LL2 ${lls}`; }
+  else if (predicted && (lls === "launched" || lls === "confirmed" || lls === "net")) { predicted = null; reason = `LL2 ${lls}`; }
   else if (predicted && predicted.net && predicted.net < isoDay(now - DAY)) { predicted = null; reason = "predicted day has passed"; }
-  if (lls === "launched" || lls === "confirmed" || (lastLogged && target <= lastLogged)) return { predicted, candidates, reason };
+  if (lls === "launched" || lls === "confirmed" || lls === "net" || (lastLogged && target <= lastLogged)) return { predicted, candidates, reason };
 
   // 2+ distinct sources on one day; ties → newest supporting mention
   const byDay = new Map();

@@ -279,6 +279,7 @@ function ll2Spend(n) {
 // LL2 counts a time as exact only at second/minute/hour precision.
 function exactTime(f) {
   if (!f || !f.date || !Number.isFinite(new Date(f.date).getTime())) return false;
+  if (f.ll2Status === "TBD") return false; // a dated TBD never supplies an exact T-0
   const p = f.netPrecision || "";
   return p ? /^(SEC|MIN|HR)$/.test(p) : !looksLikePlaceholder(new Date(f.date));
 }
@@ -341,11 +342,13 @@ const IN_FLIGHT_FALLBACK_MS = 2 * 60 * 60 * 1000;
 function effectiveStatus(flight, now = nowMs()) {
   if (!flight) return "tbc";
   const s = flight.status;
-  if (s === "inflight" || s === "done" || s === "tbc") return s;
+  if (s === "inflight" || s === "done") return s;
+  if (usableTbdDate(flight)) return "net"; // a dated TBD is NET, never an exact launch time
+  if (s === "tbc") return s;
   if (!flight.date) return s;
   if (roughNet(flight, now)) return "tbc"; // only a rough LL2 date: no countdown
   const t0 = new Date(flight.date).getTime();
-  if (Number.isFinite(t0) && now >= t0 && now <= t0 + IN_FLIGHT_FALLBACK_MS) return "inflight";
+  if (exactTime(flight) && Number.isFinite(t0) && now >= t0 && now <= t0 + IN_FLIGHT_FALLBACK_MS) return "inflight";
   return s;
 }
 
@@ -546,6 +549,15 @@ function predictedNet(f, road, now = nowMs()) {
   return { label, basis };
 }
 
+// Day-or-better TBD is a usable NET day, not a confirmed T-0. Missing precision stays unknown.
+function usableTbdDate(f) {
+  return !!(f && f.ll2Status === "TBD" && /^(DAY|HR|MIN|SEC)$/.test(f.netPrecision || "") && f.date && Number.isFinite(Date.parse(f.date)));
+}
+function netDayLabel(f) {
+  return `NET ${fmt(f.date, { day: "numeric", month: "short" })}`;
+}
+function dateOnlyNet(f) { return usableTbdDate(f) || !!(f && f.netPrecision === "DAY" && f.date && Number.isFinite(Date.parse(f.date))); }
+
 // Turns LL2's launch detail into the card's data.
 function flightFromLL2(full) {
   const boosterSerial = full.rocket?.launcher_stage?.[0]?.launcher?.serial_number || "";
@@ -555,6 +567,7 @@ function flightFromLL2(full) {
   return {
     n: flightNumber(full.name),
     status: mapLL2Status(abbrev),
+    ll2Status: abbrev,
     outcome: mapLL2Outcome(abbrev),
     date: full.net,
     netPrecision: full.net_precision?.abbrev || "",
@@ -718,6 +731,8 @@ function Countdown({ flight, road }) {
     );
   }
 
+  if (status === "net" && dateOnlyNet(flight)) return <div className="cd"><span className="cd-val">{netDayLabel(flight)}</span></div>;
+
   const rawDiff = new Date(flight.date).getTime() - now;
   if (rawDiff < -RESULT_PENDING_AFTER_MS) {
     return <div className="cd"><span className="cd-val cd-tbc">Result pending</span></div>;
@@ -775,6 +790,7 @@ function NextFlightCard({ f, checkedAt, road, children }) {
   let dateText = "To be confirmed";
   if (status === "inflight" || status === "done") dateText = f.date ? fmtLaunchedLondon(f.date) : dateText;
   else if (status !== "tbc" && f.date) dateText = fmtDateTimeLondon(f.date);
+  if (status === "net" && dateOnlyNet(f)) dateText = netDayLabel(f);
   const rough = status === "tbc" ? roughNet(f, now) : null;
   if (rough) dateText = rough.label;
   const predicted = predictedNet(f, road, now);
