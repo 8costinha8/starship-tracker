@@ -695,6 +695,18 @@
       "verdict": "silent: duplicate starship|other|7 Nov",
       "gate": "second trusted source agrees",
       "key": "starship|other|7 Nov"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "Flight 15 will catch the booster followed by the ship the next day (SpaceX, 7 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/NASASpaceflight/status/2119094964789375269",
+      "at": "2026-11-07T15:49:45.000Z",
+      "sent_at": "2026-11-07T16:30:24.620Z",
+      "where": "mission",
+      "verdict": "silent: minor other — a push went out 0.5h ago (quiet window 24h)",
+      "gate": "hold passed (1 run)",
+      "key": "B22|other|7 Nov"
     }
   ]
 }
