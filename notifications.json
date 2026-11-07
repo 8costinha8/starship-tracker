@@ -707,6 +707,18 @@
       "verdict": "silent: minor other — a push went out 0.5h ago (quiet window 24h)",
       "gate": "hold passed (1 run)",
       "key": "B22|other|7 Nov"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Ship 42 was confirmed for a catch attempt on Flight 15.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mw6lov68-8f7179",
+      "url": "https://x.com/Blobifie/status/2119100371696263652",
+      "at": "2026-11-07T16:11:14.000Z",
+      "sent_at": "2026-11-07T16:45:31.364Z",
+      "where": "feed",
+      "verdict": "silent: minor other — a push went out 0.7h ago (quiet window 24h)",
+      "gate": "hold passed (1 run)",
+      "key": "S42|other|7 Nov"
     }
   ]
 }
