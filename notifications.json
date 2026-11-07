@@ -635,6 +635,30 @@
       "verdict": "silent: minor transport — a push went out 23.0h ago (quiet window 24h)",
       "gate": "hold passed (1 run)",
       "key": "S40|transport|7 Nov"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Starship targeted its first return to the launch site on Flight 15.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mw6cps00-434c6a",
+      "url": "https://www.spacex.com/updates#starship-catch",
+      "at": "2026-11-07T12:00:00.000Z",
+      "sent_at": "2026-11-07T15:46:04.183Z",
+      "where": "feed",
+      "verdict": "silent: minor transport — a push went out 23.7h ago (quiet window 24h)",
+      "gate": "post already older than the hold",
+      "key": "F15|transport|7 Nov"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Ship 40 appeared in Megabay 2 with raceway covers removed.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mw6jkips-73c35e",
+      "url": "https://x.com/Blobifie/status/2119085433498075301",
+      "at": "2026-11-07T15:11:52.000Z",
+      "sent_at": "2026-11-07T15:46:04.285Z",
+      "where": "feed",
+      "verdict": "silent: minor other — a push went out 23.7h ago (quiet window 24h)",
+      "gate": "hold passed (1 run)",
+      "key": "S40|other|7 Nov"
     }
   ]
 }
