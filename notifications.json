@@ -623,6 +623,18 @@
       "verdict": "sent",
       "gate": "official source",
       "key": "B22|other|6 Nov"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Ship 40 was lifted onto a transport stand inside Megabay 2.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mw6i0uuw-399d48",
+      "url": "https://x.com/Blobifie/status/2119074540693385489",
+      "at": "2026-11-07T14:28:35.000Z",
+      "sent_at": "2026-11-07T15:01:04.417Z",
+      "where": "feed",
+      "verdict": "silent: minor transport — a push went out 23.0h ago (quiet window 24h)",
+      "gate": "hold passed (1 run)",
+      "key": "S40|transport|7 Nov"
     }
   ]
 }
