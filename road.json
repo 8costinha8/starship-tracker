@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "7 Nov",
-  "updatedAt": "2026-11-07T06:00:45.123Z",
+  "updatedAt": "2026-11-07T14:31:03.407Z",
   "categories": [
     {
       "id": "cryo",
@@ -3319,6 +3319,16 @@
     }
   ],
   "feed_items": [
+    {
+      "id": "news-mw6i0uuw-399d48",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Ship 40 was lifted onto a transport stand inside Megabay 2.",
+      "url": "https://x.com/Blobifie/status/2119074540693385489",
+      "at": "2026-11-07T14:28:35.000Z",
+      "date": "7 Nov",
+      "flight": 15
+    },
     {
       "id": "launch_date-mw53vcbn-c8c2a8",
       "kind": "launch_date",
