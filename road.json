@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "7 Nov",
-  "updatedAt": "2026-11-07T16:16:00.839Z",
+  "updatedAt": "2026-11-07T16:30:23.550Z",
   "categories": [
     {
       "id": "cryo",
@@ -3343,7 +3343,8 @@
       "url": "https://x.com/Blobifie/status/2119100371696263652",
       "at": "2026-11-07T16:11:14.000Z",
       "date": "7 Nov",
-      "flight": 15
+      "flight": 15,
+      "box": "pad"
     },
     {
       "id": "news-mw6licls-0b2f64",
