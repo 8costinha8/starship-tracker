@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "7 Nov",
-  "updatedAt": "2026-11-07T15:01:03.120Z",
+  "updatedAt": "2026-11-07T15:15:57.904Z",
   "categories": [
     {
       "id": "cryo",
@@ -3319,6 +3319,16 @@
     }
   ],
   "feed_items": [
+    {
+      "id": "news-mw6jkips-73c35e",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Ship 40 appeared in Megabay 2 with raceway covers removed.",
+      "url": "https://x.com/Blobifie/status/2119085433498075301",
+      "at": "2026-11-07T15:11:52.000Z",
+      "date": "7 Nov",
+      "flight": 15
+    },
     {
       "id": "news-mw6i0uuw-399d48",
       "kind": "news",
