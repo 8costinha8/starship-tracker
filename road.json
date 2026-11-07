@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "7 Nov",
-  "updatedAt": "2026-11-07T16:01:25.884Z",
+  "updatedAt": "2026-11-07T16:16:00.839Z",
   "categories": [
     {
       "id": "cryo",
@@ -3308,6 +3308,14 @@
         "src": "@NASASpaceflight",
         "url": "https://x.com/NASASpaceflight/status/2119094964789375269",
         "post_id": "2119094964789375269"
+      },
+      {
+        "topic": "landing",
+        "line": "Flight controllers may tumble Starship during reentry to break up safely (SpaceX, 7 Nov).",
+        "at": "2026-11-07T16:06:10.000Z",
+        "src": "@Blobifie",
+        "url": "https://x.com/Blobifie/status/2119099099039571987",
+        "post_id": "2119099099039571987"
       }
     ]
   },
@@ -3327,6 +3335,26 @@
     }
   ],
   "feed_items": [
+    {
+      "id": "news-mw6lov68-8f7179",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Ship 42 was confirmed for a catch attempt on Flight 15.",
+      "url": "https://x.com/Blobifie/status/2119100371696263652",
+      "at": "2026-11-07T16:11:14.000Z",
+      "date": "7 Nov",
+      "flight": 15
+    },
+    {
+      "id": "news-mw6licls-0b2f64",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Flight controllers gained options to tumble Starship on reentry.",
+      "url": "https://x.com/Blobifie/status/2119099099039571987",
+      "at": "2026-11-07T16:06:10.000Z",
+      "date": "7 Nov",
+      "flight": 15
+    },
     {
       "id": "flight-mw6lawnq-3cabdd",
       "kind": "flight",
