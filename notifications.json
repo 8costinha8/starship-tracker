@@ -671,6 +671,30 @@
       "verdict": "sent",
       "gate": "not an X tracker post",
       "key": "starship|other|7 Nov"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "Flight controllers may tumble Starship during reentry to break up safely (SpaceX, 7 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/Blobifie/status/2119099099039571987",
+      "at": "2026-11-07T16:06:10.000Z",
+      "sent_at": "2026-11-07T16:16:02.192Z",
+      "where": "mission",
+      "verdict": "silent: duplicate starship|other|7 Nov",
+      "gate": "second trusted source agrees",
+      "key": "starship|other|7 Nov"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Flight controllers gained options to tumble Starship on reentry.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mw6licls-0b2f64",
+      "url": "https://x.com/Blobifie/status/2119099099039571987",
+      "at": "2026-11-07T16:06:10.000Z",
+      "sent_at": "2026-11-07T16:16:02.306Z",
+      "where": "feed",
+      "verdict": "silent: duplicate starship|other|7 Nov",
+      "gate": "second trusted source agrees",
+      "key": "starship|other|7 Nov"
     }
   ]
 }
