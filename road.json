@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "7 Nov",
-  "updatedAt": "2026-11-07T15:46:02.968Z",
+  "updatedAt": "2026-11-07T16:01:25.884Z",
   "categories": [
     {
       "id": "cryo",
@@ -3300,6 +3300,14 @@
         "src": "@elonmusk",
         "url": "https://x.com/elonmusk/status/2118732082843435305",
         "post_id": "2118732082843435305"
+      },
+      {
+        "topic": "catch",
+        "line": "Flight 15 will catch the booster followed by the ship the next day (SpaceX, 7 Nov).",
+        "at": "2026-11-07T15:49:45.000Z",
+        "src": "@NASASpaceflight",
+        "url": "https://x.com/NASASpaceflight/status/2119094964789375269",
+        "post_id": "2119094964789375269"
       }
     ]
   },
@@ -3319,6 +3327,15 @@
     }
   ],
   "feed_items": [
+    {
+      "id": "flight-mw6lawnq-3cabdd",
+      "kind": "flight",
+      "title": "🚧 Launch delayed",
+      "body": "Now 13 Nov 22:45",
+      "at": "2026-11-07T16:00:22.742Z",
+      "date": "7 Nov",
+      "flight": 15
+    },
     {
       "id": "news-mw6jkips-73c35e",
       "kind": "news",
