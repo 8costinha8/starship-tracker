@@ -4,8 +4,8 @@
     "B22",
     "S42"
   ],
-  "updated": "6 Nov",
-  "updatedAt": "2026-11-06T16:01:17.988Z",
+  "updated": "7 Nov",
+  "updatedAt": "2026-11-07T06:00:45.123Z",
   "categories": [
     {
       "id": "cryo",
@@ -3338,7 +3338,8 @@
       "date": "6 Nov",
       "flight": 16,
       "later_flight": true,
-      "push_text": "Ship 43.1 is in the can crusher at Massey's"
+      "push_text": "Ship 43.1 is in the can crusher at Massey's",
+      "src": "@RGVaerialphotos"
     },
     {
       "id": "news-mw44pp4o-5bca28",
@@ -4081,16 +4082,17 @@
     "https://pbs.twimg.com/amplify_video_thumb/2118553103364743168/img/6_7b41bKYn_grAjt.jpg": "images/cache/amplify_video_thumb_2118553103364743168_img_6_7b41bKYn_grAjt.jpg"
   },
   "self_check": {
-    "at": "2026-11-06T08:56:00.000Z",
-    "fixes": 0,
+    "at": "2026-11-07T06:00:44.814Z",
+    "fixes": 1,
     "flags": 0,
-    "counts": {},
+    "counts": {
+      "source-badge": 1
+    },
     "judge_calls": 0,
     "flagged": [],
     "render": {
       "status": "ok",
       "failures": 0
-    },
-    "note": "2026-11-06 feed sentence + Launch pad wording fixes cleared prior render flags"
+    }
   }
 }
