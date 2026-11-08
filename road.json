@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "8 Nov",
-  "updatedAt": "2026-11-08T06:01:26.435Z",
+  "updatedAt": "2026-11-08T06:15:33.161Z",
   "categories": [
     {
       "id": "cryo",
@@ -3344,7 +3344,8 @@
       "at": "2026-11-08T05:53:30.000Z",
       "date": "8 Nov",
       "flight": 15,
-      "src": "@Blobifie"
+      "src": "@Blobifie",
+      "box": "static"
     },
     {
       "id": "news-mw75hriw-5e45dd",
