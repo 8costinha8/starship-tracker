@@ -3828,6 +3828,13 @@
   "predicted_candidates": [
     {
       "flight": 15,
+      "source": "X @TrackingTheSB",
+      "url": "https://x.com/TrackingTheSB/status/2119535444278788493",
+      "date": "2026-11-13",
+      "seen_at": "2026-11-08T21:00:03.000Z"
+    },
+    {
+      "flight": 15,
       "source": "NSF",
       "url": "https://www.nasaspaceflight.com/2026/11/starship-flight-15-awaits-faa/",
       "date": "2026-11-13",
@@ -3846,13 +3853,6 @@
       "url": "https://x.com/NASASpaceflight/status/2118405788821827970",
       "date": "2026-11-13",
       "seen_at": "2026-11-05T18:11:12.000Z"
-    },
-    {
-      "flight": 15,
-      "source": "X @TrackingTheSB",
-      "url": "https://x.com/TrackingTheSB/status/2116973778219749564",
-      "date": "2026-11-12",
-      "seen_at": "2026-11-01T19:20:54.000Z"
     },
     {
       "flight": 15,
