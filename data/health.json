@@ -8,19 +8,19 @@
       "last_ok": "2026-11-08T16:30:22.707Z"
     },
     "check-road": {
-      "at": "2026-11-08T15:15:43.978Z",
+      "at": "2026-11-08T17:30:25.339Z",
       "status": "ok",
       "error": null,
       "consecutive_failures": 0,
-      "last_ok": "2026-11-08T15:15:43.978Z"
+      "last_ok": "2026-11-08T17:30:25.339Z"
     }
   },
-  "updated": "2026-11-08T16:30:22.707Z",
+  "updated": "2026-11-08T17:30:25.339Z",
   "status": "ok",
   "consecutive_failures": 0,
   "alert": false,
   "last_error": null,
-  "committed_at": "2026-11-08T16:30:22.707Z",
+  "committed_at": "2026-11-08T17:30:25.339Z",
   "render_check": {
     "at": "2026-11-08T06:01:26.099Z",
     "status": "failed",
