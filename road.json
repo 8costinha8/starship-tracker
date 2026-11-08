@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "8 Nov",
-  "updatedAt": "2026-11-08T00:31:00.948Z",
+  "updatedAt": "2026-11-08T01:31:19.707Z",
   "categories": [
     {
       "id": "cryo",
@@ -3287,14 +3287,6 @@
       },
       {
         "topic": "catch",
-        "line": "SpaceX plans to try catching both Booster 22 and Ship 42 (Elon Musk, 6 Nov).",
-        "at": "2026-11-06T15:47:47.000Z",
-        "src": "@elonmusk",
-        "url": "https://x.com/elonmusk/status/2118732082843435305",
-        "post_id": "2118732082843435305"
-      },
-      {
-        "topic": "catch",
         "line": "Flight 15 will catch the booster followed by the ship the next day (SpaceX, 7 Nov).",
         "at": "2026-11-07T15:49:45.000Z",
         "src": "@NASASpaceflight",
@@ -3316,6 +3308,14 @@
         "src": "@NASASpaceflight",
         "url": "https://x.com/NASASpaceflight/status/2119217458729124052",
         "post_id": "2119217458729124052"
+      },
+      {
+        "topic": "catch",
+        "line": "SpaceX ready to attempt tower catch of Ship on Flight 15 (SpaceX, 8 Nov).",
+        "at": "2026-11-08T01:25:35.000Z",
+        "src": "@SpaceflightNow",
+        "url": "https://x.com/SpaceflightNow/status/2119239880920510952",
+        "post_id": "2119239880920510952"
       }
     ]
   },
@@ -3335,6 +3335,16 @@
     }
   ],
   "feed_items": [
+    {
+      "id": "news-mw75hriw-5e45dd",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "SpaceX stated readiness for a Starship tower catch attempt.",
+      "url": "https://x.com/SpaceflightNow/status/2119239880920510952",
+      "at": "2026-11-08T01:25:35.000Z",
+      "date": "8 Nov",
+      "flight": 15
+    },
     {
       "id": "news-mw72afio-c6e295",
       "kind": "news",
