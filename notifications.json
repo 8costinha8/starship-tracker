@@ -743,6 +743,18 @@
       "verdict": "silent: minor other — a push went out 8.5h ago (quiet window 24h)",
       "gate": "hold passed (1 run)",
       "key": "F15|other|7 Nov"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "SpaceX ready to attempt tower catch of Ship on Flight 15 (SpaceX, 8 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/SpaceflightNow/status/2119239880920510952",
+      "at": "2026-11-08T01:25:35.000Z",
+      "sent_at": "2026-11-08T02:00:38.609Z",
+      "where": "mission",
+      "verdict": "silent: minor pad_work — a push went out 10.0h ago (quiet window 24h)",
+      "gate": "hold passed (1 run)",
+      "key": "S42|pad_work|8 Nov"
     }
   ]
 }
