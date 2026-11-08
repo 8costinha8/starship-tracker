@@ -1,6 +1,31 @@
 {
   "items": [
     {
+      "date": "2026-11-08T06:01:26.433Z",
+      "type": "render-date",
+      "item": "pad|S42",
+      "values": [
+        "12 Sep · 16:39",
+        "7 Nov · 16:11"
+      ],
+      "sources": [],
+      "reason": "one event time on every view",
+      "kept": null,
+      "msg": "pad S42: Flight Log shows 12 Sep · 16:39 (\"Ship 42 was lifted to catch height by the Pad 2 chopsticks.\"), no Road card line at that time (card 7 Nov · 16:11)"
+    },
+    {
+      "date": "2026-11-08T06:01:26.433Z",
+      "type": "render-tense",
+      "item": "Feed news-mw72afio-c6e295",
+      "values": [
+        "Starbase prepared for a Flight 15 double catch."
+      ],
+      "sources": [],
+      "reason": "full past-tense sentences on cards and feed",
+      "kept": null,
+      "msg": "Feed news-mw72afio-c6e295: \"Starbase prepared for a Flight 15 double catch.\" is a headline fragment (no subject article / auxiliary)"
+    },
+    {
       "date": "2026-11-06T06:01:31.968Z",
       "type": "render-mismatch",
       "item": "https://x.com/efraser77/status/2118553539345883303",

@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "8 Nov",
-  "updatedAt": "2026-11-08T02:00:37.399Z",
+  "updatedAt": "2026-11-08T06:01:26.435Z",
   "categories": [
     {
       "id": "cryo",
@@ -3336,6 +3336,17 @@
   ],
   "feed_items": [
     {
+      "id": "news-mw7f2b2o-0823fc",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Ship 40 was moved into the Gigabay starfactory bay.",
+      "url": "https://x.com/Blobifie/status/2119307301056344128",
+      "at": "2026-11-08T05:53:30.000Z",
+      "date": "8 Nov",
+      "flight": 15,
+      "src": "@Blobifie"
+    },
+    {
       "id": "news-mw75hriw-5e45dd",
       "kind": "news",
       "title": "🚀 Starship",
@@ -3343,7 +3354,8 @@
       "url": "https://x.com/SpaceflightNow/status/2119239880920510952",
       "at": "2026-11-08T01:25:35.000Z",
       "date": "8 Nov",
-      "flight": 15
+      "flight": 15,
+      "src": "@SpaceflightNow"
     },
     {
       "id": "news-mw72afio-c6e295",
@@ -3364,7 +3376,8 @@
       "at": "2026-11-07T16:11:14.000Z",
       "date": "7 Nov",
       "flight": 15,
-      "box": "pad"
+      "box": "pad",
+      "src": "@Blobifie"
     },
     {
       "id": "news-mw6licls-0b2f64",
@@ -3374,7 +3387,8 @@
       "url": "https://x.com/Blobifie/status/2119099099039571987",
       "at": "2026-11-07T16:06:10.000Z",
       "date": "7 Nov",
-      "flight": 15
+      "flight": 15,
+      "src": "@Blobifie"
     },
     {
       "id": "flight-mw6lawnq-3cabdd",
@@ -3394,7 +3408,8 @@
       "at": "2026-11-07T15:11:52.000Z",
       "date": "7 Nov",
       "flight": 15,
-      "box": "static"
+      "box": "static",
+      "src": "@Blobifie"
     },
     {
       "id": "news-mw6i0uuw-399d48",
@@ -3405,7 +3420,8 @@
       "at": "2026-11-07T14:28:35.000Z",
       "date": "7 Nov",
       "flight": 15,
-      "box": "static"
+      "box": "static",
+      "src": "@Blobifie"
     },
     {
       "id": "news-mw6cps00-434c6a",
@@ -4180,17 +4196,20 @@
     "https://pbs.twimg.com/amplify_video_thumb/2118553103364743168/img/6_7b41bKYn_grAjt.jpg": "images/cache/amplify_video_thumb_2118553103364743168_img_6_7b41bKYn_grAjt.jpg"
   },
   "self_check": {
-    "at": "2026-11-07T06:00:44.814Z",
-    "fixes": 1,
-    "flags": 0,
+    "at": "2026-11-08T06:01:26.099Z",
+    "fixes": 6,
+    "flags": 2,
     "counts": {
-      "source-badge": 1
+      "source-badge": 6
     },
     "judge_calls": 0,
-    "flagged": [],
+    "flagged": [
+      "[render-tense] Feed news-mw72afio-c6e295: \"Starbase prepared for a Flight 15 double catch.\" is a headline fragment (no subject article / auxiliary)",
+      "[render-date] pad S42: Flight Log shows 12 Sep · 16:39 (\"Ship 42 was lifted to catch height by the Pad 2 chopsticks.\"), no Road card line at that time (card 7 Nov · 16:11)"
+    ],
     "render": {
-      "status": "ok",
-      "failures": 0
+      "status": "failed",
+      "failures": 2
     }
   }
 }
