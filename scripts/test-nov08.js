@@ -61,6 +61,23 @@ async function classify(first, second, nowIso = "2026-11-07T16:00:00Z") {
   got = await classify(launch(16, "TBD", "2026-12-31T00:00:00Z", "Q4"), launch(16, "TBC", "2027-01-20T00:00:00Z", "DAY"), "2026-10-20T03:00:00Z");
   check(got.length === 1 && got[0].title === "🚧 Launch delayed", "a real later-date slip of the same flight still pushes Launch delayed");
 
+  got = await classify(launch(15, "Go", "2026-11-13T00:00:00Z", "MIN"), launch(15, "TBC", "2026-11-13T01:00:00Z", "MIN"));
+  check(got.length === 1 && got[0].title === "🚧 Launch delayed", `exact midnight slip is Launch delayed: "${got[0] && got[0].title}" / "${got[0] && got[0].body}"`);
+  check(got[0] && !/New estimated time/i.test(got[0].title), "exact midnight slip is not New estimated time");
+  check(!flights.isPlaceholderTimeUpgrade(
+    { date: "2026-11-13T00:00:00Z", precision: "MIN" },
+    { date: "2026-11-13T01:00:00Z", precision: "MIN" }
+  ), "helper: a genuine exact midnight time is not a placeholder upgrade");
+  check(!flights.isPlaceholderTimeUpgrade(
+    { date: "2026-11-13T00:00:00Z" },
+    { date: "2026-11-13T01:00:00Z", precision: "MIN" }
+  ), "helper: unknown prior precision is not a placeholder upgrade");
+  got = await classify(
+    { name: "Starship | Flight 15", url: "https://ll2.test/15", net: "2026-11-13T00:00:00Z", status: { abbrev: "TBD" } },
+    launch(15, "TBC", "2026-11-13T01:00:00Z", "MIN")
+  );
+  check(got.length === 1 && got[0].title === "🚧 Launch delayed", `unknown prior precision is treated as a delay: "${got[0] && got[0].title}"`);
+
   // 3. Ship 40 live items + tagging logic
   for (const id of ["news-mw7f2b2o-0823fc", "news-mw6jkips-73c35e", "news-mw6i0uuw-399d48"]) {
     const f = (live.feed_items || []).find((x) => x.id === id);

@@ -96,13 +96,10 @@ function ukDayKey(iso) {
   return `${p.year}-${p.month}-${p.day}`;
 }
 
-// A midnight clock or a date-only / rough precision is a placeholder, not a real window time.
-function isMidnightOrDateOnly(iso, precision) {
-  if (!isExactTime(precision)) return true;
-  if (!iso || !Number.isFinite(Date.parse(iso))) return false;
-  const d = new Date(iso);
-  const uk = d.toLocaleString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false, timeZone: "Europe/London" });
-  return uk === "00:00:00" || (d.getUTCHours() === 0 && d.getUTCMinutes() === 0 && d.getUTCSeconds() === 0);
+// Explicit Launch Library precision that is day or coarser (DAY, WK, month, quarter…).
+// Empty or missing precision is not evidence. Midnight on the clock is never evidence.
+function isCoarseOrPlaceholderPrecision(precision) {
+  return !!precision && !isExactTime(precision);
 }
 
 function fmtNetTime(iso) {
@@ -113,10 +110,11 @@ function fmtNetTime(iso) {
   return `NET ${day} ${month} · ${time} UK`;
 }
 
-// Same UK date, upgrading a midnight / date-only placeholder to a real window time is not a delay.
+// Same UK date, upgrading a coarse / date-only precision to a real window time is not a delay.
+// A genuine exact time that happens to be 00:00, or a prior entry with unknown precision, is a delay.
 function isPlaceholderTimeUpgrade(prev, current) {
   return !!(prev && current && prev.date && current.date
-    && isMidnightOrDateOnly(prev.date, prev.precision)
+    && isCoarseOrPlaceholderPrecision(prev.precision)
     && isExactTime(current.precision)
     && ukDayKey(prev.date) === ukDayKey(current.date));
 }
@@ -391,8 +389,9 @@ async function run(deps) {
       const timeUpgrade = isPlaceholderTimeUpgrade(prev, current);
       // Earlier date: only say "confirmed" when LL2 has an exact time.
       // A rough date (e.g. NET 19 Oct, no time yet) is just a new estimate.
-      // A same-UK-date upgrade from a midnight / date-only placeholder to a real
+      // A same-UK-date upgrade from an explicit day-or-coarser precision to a real
       // window time is a new estimate, not a delay (the calendar day did not slip).
+      // Midnight alone, or unknown prior precision, is treated as a delay.
       notification = timeUpgrade
         ? current.status === "confirmed"
           ? { title: "✅ Launch time confirmed", body: fmtDateTime(current.date) }
