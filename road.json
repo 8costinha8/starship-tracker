@@ -2247,18 +2247,18 @@
       "name": "Pad activity",
       "color": "#A88BFF",
       "status": "complete",
-      "latest": "Complete",
+      "latest": "Pad 2 completed another deluge test.",
       "history": [
         {
           "id": "x-2119447093546991754",
           "date": "8 Nov",
           "log_date": "8 Nov",
           "at": "2026-11-08T15:08:59.000Z",
-          "text": "Another deluge test completed at Pad 2.",
-          "x_text": "Another deluge test completed at Pad 2.",
-          "push_text": "Deluge test underway at Pad 2.",
-          "card_text": "Pad 2 completed a deluge test.",
-          "log_text": "Pad 2 completed a deluge test.",
+          "text": "Pad 2 completed another deluge test.",
+          "x_text": "Pad 2 completed another deluge test.",
+          "push_text": "Pad 2 completed another deluge test.",
+          "card_text": "Pad 2 completed another deluge test.",
+          "log_text": "Pad 2 completed another deluge test.",
           "status_line": "Pad 2 deluge test completed.",
           "url": "https://x.com/RGVaerialphotos/status/2119447093546991754",
           "src": "@RGVaerialphotos",
@@ -2270,7 +2270,7 @@
             "post_id": "2119447093546991754",
             "url": "https://x.com/RGVaerialphotos/status/2119447093546991754",
             "created_at": "2026-11-08T15:08:59.000Z",
-            "text": "Another deluge test down at Pad 2 this morning.",
+            "text": "Another deluge test down at Pad 2 this morning. https://t.co/XBzeskhgtS",
             "author": {
               "name": "RGV Aerial Photography",
               "username": "RGVaerialphotos",
@@ -2311,7 +2311,9 @@
             "url": "https://x.com/RGVaerialphotos/status/2119447093546991754",
             "at": "2026-11-08T15:08:59.000Z"
           },
-          "frameChecked": true
+          "frameChecked": true,
+          "edited_from": "Another deluge test completed at Pad 2.",
+          "edited": true
         },
         {
           "id": "x-2118577080837574862",
