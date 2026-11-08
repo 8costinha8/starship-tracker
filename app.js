@@ -1514,14 +1514,22 @@ function buildFeed(road) {
     const t = doneToLabel(f.title), m = t.match(/^(\p{Extended_Pictographic}\uFE0F?)\s*(.*)$/u);
     const at = Date.parse(f.event_at || f.at) || 0; // event_at: the event's own time when the post came later (self-check)
     const own = f.box && road.categories.find((c) => c.id === f.box); // filed by purpose (e.g. a Starship news push about B22's static fire → Static fires)
+    const ids = [...String(f.body || "").matchAll(/\b(?:(B|S)(\d{2,3})|(Booster|Ship)\s+(\d{2,3}))\b/gi)].map((x) => ((x[1] || x[3])[0]).toUpperCase() + (x[2] || x[4]));
+    const mine = (road.vehicles || []).map((v) => String(v).toUpperCase());
+    let fl = Number.isInteger(f.flight) ? f.flight : road.flight;
+    if (!Number.isInteger(f.flight) && ids.length && !ids.some((v) => mine.includes(v))) {
+      const hw = road.hardware_flights || {};
+      const known = ids.map((v) => hw[v]).find((n) => Number.isInteger(n));
+      fl = known != null ? known : null; // named vehicles that are not this Road's hardware never default to it
+    }
     posts.push({ h: { id: f.id, date: f.date, text: f.body, src: f.src || (String(f.url || "").match(/x\.com\/([A-Za-z0-9_]{1,15})\/status\//) ? "@" + String(f.url).match(/x\.com\/([A-Za-z0-9_]{1,15})\/status\//)[1] : ""), url: f.url, publishedAt: f.event_at || f.at, trust: "trusted", kind: "feed" },
       cat: own || { id: "feed-" + (f.kind || "news"), name: m ? m[2] : t, icon: m ? m[1] : "", color: "#AAB6D6" }, ci: 99, hi: fi, id: f.id,
-      day: at, at, flight: Number.isInteger(f.flight) ? f.flight : road.flight, when: at });
+      day: at, at, flight: fl, when: at });
   });
   // the Road's own flight stays while the top card still shows it (logged, before the rollover); the just-flown flight's
   // launch-day updates (Liftoff, result) stay in its own section after the rollover
   const keep = (p) => p.flight === road.flight || (isMilestoneItem(p) && p.flight === road.flight - 1); // Road page stays full until rollover; Liftoff/result stay above the new Road
-  for (let i = posts.length - 1; i >= 0; i--) if (keep(posts[i]) && posts[i].flight <= road.flight) continue; else if (isLaunched(posts[i].flight)) posts.splice(i, 1); else if (posts[i].flight > road.flight) posts.splice(i, 1); // later flights (B23/S43 → 16): only on their own Road, kept in the data until rollover // launched flights: Flight Log card only
+  for (let i = posts.length - 1; i >= 0; i--) if (!Number.isInteger(posts[i].flight)) posts.splice(i, 1); else if (keep(posts[i]) && posts[i].flight <= road.flight) continue; else if (isLaunched(posts[i].flight)) posts.splice(i, 1); else if (posts[i].flight > road.flight) posts.splice(i, 1); // later flights (B23/S43 → 16): only on their own Road, kept in the data until rollover // launched flights: Flight Log card only // unassigned other-vehicle news: not on this Road
   // sections by date: the next flight to fly on top, then later flights in flying order (15, then 16…);
   // inside a section newest first by the card's post date (else its entry date)
   const rank = (n) => (n === road.flight ? -Infinity : n);
@@ -1855,7 +1863,7 @@ function rtfCards(road) {
   }
   // Starship news pushes filed to a box (road.json feed_items) are posts too: same text and link as the push
   for (const f of Array.isArray(road.feed_items) ? road.feed_items : []) {
-    if (!f || !f.body || f.card_hide || !["cryo", "raptor", "static", "pad"].includes(f.box) || (Number.isInteger(f.flight) ? f.flight : road.flight) !== road.flight) continue;
+    if (!f || !f.body || f.card_hide || f.later_flight || !["cryo", "raptor", "static", "pad"].includes(f.box) || (Number.isInteger(f.flight) ? f.flight : road.flight) !== road.flight) continue;
     const h = { id: f.id, date: f.date, at: f.at, text: f.body, url: f.url, src: (String(f.url || "").match(/(?:x|twitter)\.com\/(\w+)\//) || [])[1] ? "@" + String(f.url).match(/(?:x|twitter)\.com\/(\w+)\//)[1] : "", kind: "feed" };
     const vv = rtfVeh(h.text, road);
     if (!vv.length && otherVehOnly(h.text, road)) continue; // e.g. "Booster 23 returned to Megabay 1": a Flight 16 item, never under Ship 42's Earlier updates

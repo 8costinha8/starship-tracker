@@ -116,6 +116,8 @@ function refile(road) {
   }
   for (const f of road.feed_items || []) {
     if (!f || !f.body || f.kind !== "news" || f.refiled_pin || f.later_flight) continue; // a hand re-file (audit) stays put; GUARD later-flight items have no box
+    const tag = require("./scope.js").feedFlight(road, f.body);
+    if (tag.other || tag.flight == null) { if (f.box) { moves.push({ id: f.id, text: f.body, from: f.box || "Starship news card", to: null, feed: true }); delete f.box; } continue; }
     const p = purposeOf(road, { text: f.body, date: f.date, at: f.at }, st);
     const vs = vehOf(f.body);
     const box = vs.length || p.box !== "pad" ? p.box : null;

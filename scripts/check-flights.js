@@ -89,6 +89,38 @@ function fmtEstimate(iso, precision) {
   return new Date(Date.UTC(d.getUTCFullYear(), m, 1)).toLocaleString("en-GB", { month: "short", year: "numeric", timeZone: "UTC" });
 }
 
+// UK calendar day of an ISO time ("2026-11-13"), for same-date comparisons.
+function ukDayKey(iso) {
+  if (!iso || !Number.isFinite(Date.parse(iso))) return "";
+  const p = Object.fromEntries(new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/London", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(new Date(iso)).map((x) => [x.type, x.value]));
+  return `${p.year}-${p.month}-${p.day}`;
+}
+
+// A midnight clock or a date-only / rough precision is a placeholder, not a real window time.
+function isMidnightOrDateOnly(iso, precision) {
+  if (!isExactTime(precision)) return true;
+  if (!iso || !Number.isFinite(Date.parse(iso))) return false;
+  const d = new Date(iso);
+  const uk = d.toLocaleString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false, timeZone: "Europe/London" });
+  return uk === "00:00:00" || (d.getUTCHours() === 0 && d.getUTCMinutes() === 0 && d.getUTCSeconds() === 0);
+}
+
+function fmtNetTime(iso) {
+  const d = new Date(iso);
+  const day = Number(d.toLocaleString("en-GB", { day: "numeric", timeZone: "Europe/London" }));
+  const month = d.toLocaleString("en-GB", { month: "short", timeZone: "Europe/London" });
+  const time = d.toLocaleString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "Europe/London" });
+  return `NET ${day} ${month} · ${time} UK`;
+}
+
+// Same UK date, upgrading a midnight / date-only placeholder to a real window time is not a delay.
+function isPlaceholderTimeUpgrade(prev, current) {
+  return !!(prev && current && prev.date && current.date
+    && isMidnightOrDateOnly(prev.date, prev.precision)
+    && isExactTime(current.precision)
+    && ukDayKey(prev.date) === ukDayKey(current.date));
+}
+
 // Pulls the last N `story:` blocks out of app.js as-is, just to give
 // the writer a feel for the voice — not a full parse, doesn't need to be.
 function recentStories(appJsText, count) {
@@ -356,13 +388,20 @@ async function run(deps) {
       // the result push is the 🏁 one above
     } else if (prev.date !== current.date) {
       const delayed = new Date(current.date) > new Date(prev.date);
+      const timeUpgrade = isPlaceholderTimeUpgrade(prev, current);
       // Earlier date: only say "confirmed" when LL2 has an exact time.
       // A rough date (e.g. NET 19 Oct, no time yet) is just a new estimate.
-      notification = delayed
-        ? { title: "🚧 Launch delayed", body: `Now ${fmtDateTime(current.date)}` }
-        : isExactTime(current.precision)
+      // A same-UK-date upgrade from a midnight / date-only placeholder to a real
+      // window time is a new estimate, not a delay (the calendar day did not slip).
+      notification = timeUpgrade
+        ? current.status === "confirmed"
           ? { title: "✅ Launch time confirmed", body: fmtDateTime(current.date) }
-          : { title: "📅 New estimated date", body: `NET ${fmtEstimate(current.date, current.precision)}` };
+          : { title: "📅 New estimated time", body: fmtNetTime(current.date) }
+        : delayed
+          ? { title: "🚧 Launch delayed", body: `Now ${fmtDateTime(current.date)}` }
+          : isExactTime(current.precision)
+            ? { title: "✅ Launch time confirmed", body: fmtDateTime(current.date) }
+            : { title: "📅 New estimated date", body: `NET ${fmtEstimate(current.date, current.precision)}` };
     } else if (prev.status !== current.status && current.status === "confirmed") {
       notification = { title: "✅ Launch time confirmed", body: fmtDateTime(current.date) };
     } else if (prev.status !== current.status && STATUS_WORDS[current.status] && prev.status !== "inflight" && prev.status !== "done") {
@@ -389,7 +428,7 @@ async function run(deps) {
   return { notification, current };
 }
 
-module.exports = { run, mapLL2Status, fmtDateTime, addFlightToAppJs };
+module.exports = { run, mapLL2Status, fmtDateTime, addFlightToAppJs, isPlaceholderTimeUpgrade, fmtNetTime, ukDayKey };
 
 if (require.main === module) { process.on("exit", () => console.log(writer.grokCallsLine())); }
 if (require.main === module) {

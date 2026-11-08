@@ -53,7 +53,15 @@ function addFeedItem(road, { title, body, url, at, kind, flight }) {
   title = cleanText(title); body = cleanText(body);
   const id = `${kind || "news"}-${Date.parse(at).toString(36)}-${require("crypto").createHash("sha1").update(title + body).digest("hex").slice(0, 6)}`;
   const list = (road.feed_items = road.feed_items || []);
-  if (!list.some((x) => x.id === id)) list.unshift({ id, kind: kind || "news", title, body, ...(url ? { url } : {}), at, date: ukDay(at), flight: flight || road.flight });
+  if (!list.some((x) => x.id === id)) {
+    const item = { id, kind: kind || "news", title, body, ...(url ? { url } : {}), at, date: ukDay(at) };
+    if (Number.isInteger(flight)) item.flight = flight;
+    else if ((kind || "news") === "news") {
+      const tag = require("./scope.js").feedFlight(road, body);
+      if (Number.isInteger(tag.flight)) { item.flight = tag.flight; if (tag.other) item.later_flight = true; }
+    } else item.flight = road.flight;
+    list.unshift(item);
+  }
   list.sort((a, b) => Date.parse(b.at) - Date.parse(a.at)); list.splice(FEED_KEEP);
   return { title, body, url, at, link: `${SITE}?feed=1&item=${encodeURIComponent(id)}`, kind: kind || "news", visible: { where: "feed", id } };
 }

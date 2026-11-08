@@ -1198,7 +1198,10 @@ function notificationFor(road, ch) {
   const n = notificationText(road, ch);
   const m = ch.entry.x_post && (ch.entry.x_post.media || [])[0];
   const img = (ch.entry.media_override && ch.entry.media_override.image) || (m && imageOf(m));
-  return { ...n, ...(ch.entry.push_text || ch.entry.log_text || ch.entry.x_text ? { body: ch.entry.push_text || ch.entry.log_text || ch.entry.x_text } : {}), /* the push says the visible Flight Log line */ link: ch.entry.id ? `${FEED_LINK}&entry=${encodeURIComponent(ch.entry.id)}` : FEED_LINK, ...(img ? { image: img } : {}),
+  const prefer = ch.entry.push_text || ch.entry.log_text || ch.entry.x_text;
+  const cardLine = ch.entry.card_text || ch.entry.text || "";
+  const body = String(prefer || n.body || cardLine || "").trim();
+  return { ...n, ...(body ? { body } : {}), /* the push says the visible Flight Log line, or the card line if that would be empty */ link: ch.entry.id ? `${FEED_LINK}&entry=${encodeURIComponent(ch.entry.id)}` : FEED_LINK, ...(img ? { image: img } : {}),
     url: ch.entry.url || (ch.entry.x_post && ch.entry.x_post.url) || "", at: (ch.entry.x_post && ch.entry.x_post.created_at) || ch.entry.at || new Date().toISOString(),
     ...(ch.entry.x_post ? { source_text: ch.entry.x_post.text || "", author: (ch.entry.x_post.author || {}).username || "", has_media: !!(ch.entry.x_post.media || []).length } : {}) };
 }

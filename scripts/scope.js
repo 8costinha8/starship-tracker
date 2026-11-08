@@ -22,6 +22,40 @@ function inferFlight(road, v) {
   if (!top || top.f <= road.flight || +m[2] <= top.n) return null; // only past the newest LATER-flight vehicle
   return { flight: top.f + (+m[2] - top.n), inferred: true };
 }
+// Flown vehicles from app.js FLIGHTS (S40 → Flight 13). Cached; never invents a flight.
+let _flown = null;
+function flownMap() {
+  if (_flown) return _flown;
+  _flown = Object.create(null);
+  try {
+    const fs = require("fs"), path = require("path");
+    const src = fs.readFileSync(path.join(__dirname, "..", "app.js"), "utf8");
+    const start = src.indexOf("const FLIGHTS = [");
+    const end = src.indexOf("\n];", start);
+    const block = start >= 0 && end > start ? src.slice(start, end) : "";
+    for (const m of block.matchAll(/\bn:\s*(\d+)\b[\s\S]*?\bbooster:\s*"([^"]*)"[\s\S]*?\bship:\s*"([^"]*)"/g)) {
+      const n = Number(m[1]);
+      for (const raw of [m[2], m[3]]) {
+        const k = hwKey(raw);
+        if (/^[BS]\d+$/.test(k)) _flown[k] = n;
+      }
+    }
+  } catch {}
+  return _flown;
+}
+// Which flight a news line belongs to. Vehicles that are not this Road's hardware never default to it.
+function feedFlight(road, text) {
+  const vs = vehOf(text);
+  if (!vs.length) return { flight: road.flight };
+  if (vs.some((v) => (road.vehicles || []).map(hwKey).includes(v))) return { flight: road.flight };
+  const known = vs.map((v) => flightOfVehicle(road, v)).find((f) => Number.isInteger(f));
+  if (known != null) return { flight: known, other: known !== road.flight };
+  const inf = vs.map((v) => inferFlight(road, v)).find((x) => x && Number.isInteger(x.flight));
+  if (inf) return { flight: inf.flight, other: inf.flight !== road.flight, inferred: !!inf.inferred };
+  const flown = vs.map((v) => flownMap()[v]).find((f) => Number.isInteger(f));
+  if (flown != null) return { flight: flown, other: flown !== road.flight };
+  return { flight: null, other: true };
+}
 // The vehicles a card is about: its hardware, else the vehicles its own text names.
 const cardVehicles = (h) => { const k = hwKey(h.hardware); return /^[BS]\d+$/.test(k) ? [k] : vehOf(h.x_text || h.text); };
 const cardFlight = (road, h) => (Number.isInteger(h.flight) ? h.flight : road.flight);
@@ -44,12 +78,17 @@ function enforce(road) {
     if (keep.length !== h.updates.length) { if (keep.length) h.updates = keep; else delete h.updates; }
   }
   for (const f of road.feed_items || []) {
-    if (!f || !f.box) continue;
+    if (!f || f.kind === "launch_date") continue;
     const vs = vehOf(f.body); if (!vs.length || vs.some((v) => (road.vehicles || []).map(hwKey).includes(v))) continue;
-    const inf = vs.map((v) => inferFlight(road, v)).find((x) => x && Number.isInteger(x.flight)), fl = inf && inf.flight;
-    if (fl && fl !== f.flight) { out.push({ id: f.id, text: f.body, from: `feed flight ${f.flight}`, why: `vehicle ${vs.join("/")} is Flight ${fl}` }); f.flight = fl; }
-    // 1 Nov: mapped later-flight hardware (S43/B23 → Flight 16) too, not only inferred
-    if (fl && fl > road.flight && f.box) { out.push({ id: f.id, text: f.body, from: `box ${f.box}`, why: `vehicle ${vs.join("/")} is Flight ${fl}, not filed to a Flight ${road.flight} box` }); delete f.box; f.later_flight = true; }
+    const tag = feedFlight(road, f.body), fl = tag.flight;
+    if (Number.isInteger(fl)) {
+      const other = fl !== road.flight;
+      if (f.flight !== fl) { out.push({ id: f.id, text: f.body, from: `feed flight ${f.flight}`, why: `vehicle ${vs.join("/")} is Flight ${fl}` }); f.flight = fl; }
+      if (other && (f.box || !f.later_flight)) { if (f.box) out.push({ id: f.id, text: f.body, from: `box ${f.box}`, why: `vehicle ${vs.join("/")} is Flight ${fl}, not filed to a Flight ${road.flight} box` }); delete f.box; f.later_flight = true; }
+    } else if (tag.other && (f.flight === road.flight || f.box)) {
+      out.push({ id: f.id, text: f.body, from: f.box ? `box ${f.box}` : `feed flight ${f.flight}`, why: `vehicle ${vs.join("/")} is not Flight ${road.flight} hardware` });
+      delete f.flight; delete f.box;
+    }
   }
   return out;
 }
@@ -66,4 +105,4 @@ function headlines(road) {
   }
   return out;
 }
-module.exports = { inferFlight, headlines, vehOf, flightOfVehicle, cardVehicles, belongs, enforce };
+module.exports = { inferFlight, headlines, vehOf, flightOfVehicle, cardVehicles, belongs, enforce, feedFlight, flownMap };

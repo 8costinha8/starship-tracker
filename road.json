@@ -2247,18 +2247,18 @@
       "name": "Pad activity",
       "color": "#A88BFF",
       "status": "progress",
-      "latest": "Pad deluge and catch tests completed.",
+      "latest": "Pad 2 completed deluge and catch tests.",
       "history": [
         {
           "id": "x-2118577080837574862",
           "date": "6 Nov",
           "log_date": "6 Nov",
           "at": "2026-11-06T05:31:51.000Z",
-          "text": "Pad deluge and catch tests completed.",
-          "x_text": "Pad deluge and catch tests completed.",
-          "push_text": "Pad deluge and catch tests completed.",
-          "card_text": "Pad deluge and catch tests completed.",
-          "log_text": "Pad deluge and catch tests completed.",
+          "text": "Pad 2 completed deluge and catch tests.",
+          "x_text": "Pad 2 completed deluge and catch tests.",
+          "push_text": "Pad 2 completed deluge and catch tests.",
+          "card_text": "Pad 2 completed deluge and catch tests.",
+          "log_text": "Pad 2 completed deluge and catch tests.",
           "status_line": "Pad work progressing for Flight 15.",
           "url": "https://x.com/Blobifie/status/2118577080837574862",
           "src": "@Blobifie",
@@ -2458,11 +2458,11 @@
           "date": "3 Nov",
           "log_date": "3 Nov",
           "at": "2026-11-03T03:57:31.000Z",
-          "text": "Booster 22 heads to preparation in Mega Bay 1.",
-          "x_text": "Booster 22 heads to preparation in Mega Bay 1.",
-          "push_text": "Booster 22 heads to preparation in Mega Bay 1.",
+          "text": "Booster 22 headed to preparation in Mega Bay 1.",
+          "x_text": "Booster 22 headed to preparation in Mega Bay 1.",
+          "push_text": "Booster 22 headed to preparation in Mega Bay 1.",
           "card_text": "Booster 22 headed to preparation in Mega Bay 1.",
-          "log_text": "Booster 22 heads to preparation in Mega Bay 1.",
+          "log_text": "Booster 22 headed to preparation in Mega Bay 1.",
           "status_line": "Booster 22 in Mega Bay 1 for Flight 15.",
           "url": "https://x.com/efraser77/status/2117466177400434911",
           "src": "@efraser77",
@@ -3062,6 +3062,44 @@
           },
           "log_text": "Pad 1 flame trench wall work is progressing at Starbase.",
           "card_text": "Starbase Pad 1 Flame Trench wall work was progressing."
+        },
+        {
+          "id": "x-2098798758335225974",
+          "date": "12 Sep",
+          "log_date": "12 Sep",
+          "at": "2026-09-12T15:39:00.000Z",
+          "text": "Ship 42 was lifted to catch height by the Pad 2 chopsticks.",
+          "x_text": "Ship 42 was lifted to catch height by the Pad 2 chopsticks.",
+          "push_text": "Ship 42 was lifted to catch height by the Pad 2 chopsticks.",
+          "card_text": "Ship 42 was lifted to catch height by the Pad 2 chopsticks.",
+          "log_text": "Ship 42 was lifted to catch height by the Pad 2 chopsticks.",
+          "url": "https://x.com/TrackingTheSB/status/2098798758335225974",
+          "src": "@TrackingTheSB",
+          "trust": "trusted",
+          "stage": "pad",
+          "hardware": "S42",
+          "flight": 15,
+          "no_push": true,
+          "audit": "quality-review-2026-11-08 (pinned Flight Log line)"
+        },
+        {
+          "id": "x-2098443279763464572",
+          "date": "11 Sep",
+          "log_date": "11 Sep",
+          "at": "2026-09-11T16:07:00.000Z",
+          "text": "Pad 2 chopsticks lifted Ship 42 without the stabiliser arms.",
+          "x_text": "Pad 2 chopsticks lifted Ship 42 without the stabiliser arms.",
+          "push_text": "Pad 2 chopsticks lifted Ship 42 without the stabiliser arms.",
+          "card_text": "Pad 2 chopsticks lifted Ship 42 without the stabiliser arms.",
+          "log_text": "Pad 2 chopsticks lifted Ship 42 without the stabiliser arms.",
+          "url": "https://x.com/Blobifie/status/2098443279763464572",
+          "src": "@Blobifie",
+          "trust": "trusted",
+          "stage": "pad",
+          "hardware": "S42",
+          "flight": 15,
+          "no_push": true,
+          "audit": "quality-review-2026-11-08 (pinned Flight Log line)"
         }
       ],
       "log_latest": "Pad work ongoing for Flight 15."
@@ -3072,7 +3110,7 @@
       "name": "FAA licence",
       "color": "#2FD3B0",
       "status": "pending",
-      "latest": "26 Sep licence covers Flight 14 only, no F15 change yet",
+      "latest": "The 26 Sep licence covers Flight 14 only, with no Flight 15 change yet.",
       "history": [
         {
           "date": "26 Sep",
@@ -3100,7 +3138,7 @@
             "phase": "expected",
             "migrated": true
           },
-          "log_text": "FAA licence issued for Flight 14 only, Flight 15 needs a modification.",
+          "log_text": "The FAA licence was issued for Flight 14 only; Flight 15 needs a licence modification.",
           "card_text": "The FAA licence was issued for Flight 14 only; Flight 15 needs a licence modification."
         }
       ],
@@ -3113,7 +3151,7 @@
       "color": "#FFC93D",
       "status": "progress",
       "doneText": "Confirmed",
-      "latest": "Flight 15 targets NET 13 Nov (unofficial)",
+      "latest": "Flight 15 is targeting NET 13 Nov, with the window opening at 22:45 UK, pending regulatory approval.",
       "history": [
         {
           "date": "14 Oct",
@@ -3143,10 +3181,10 @@
             "date": "30 Oct",
             "why": "FAA planning slide · NSF, 30 Oct: Flight 15 NET 12 Nov (was 8 Nov)"
           },
-          "card_text": "Flight 15 was targeting NET 8 November (since moved to NET 12 Nov), with plans to catch both vehicles."
+          "card_text": "Flight 15 was targeting NET 8 November (since moved to NET 13 Nov), with plans to catch both vehicles."
         }
       ],
-      "log_latest": "Flight 15 NET 13 Nov (unofficial)."
+      "log_latest": "Flight 15 is targeting NET 13 Nov, with the window opening at 22:45 UK, pending regulatory approval."
     }
   ],
   "feedVerified": "2026-10-16T17:53:11.334Z",
@@ -3343,9 +3381,9 @@
       "url": "https://x.com/Blobifie/status/2119307301056344128",
       "at": "2026-11-08T05:53:30.000Z",
       "date": "8 Nov",
-      "flight": 15,
+      "flight": 13,
       "src": "@Blobifie",
-      "box": "static"
+      "later_flight": true
     },
     {
       "id": "news-mw75hriw-5e45dd",
@@ -3362,7 +3400,7 @@
       "id": "news-mw72afio-c6e295",
       "kind": "news",
       "title": "🚀 Starship",
-      "body": "Starbase prepared for a Flight 15 double catch.",
+      "body": "Starbase was prepared for a Flight 15 double catch.",
       "url": "https://www.youtube.com/watch?v=gX3xmAalnPk",
       "at": "2026-11-07T23:55:54.000Z",
       "date": "7 Nov",
@@ -3394,8 +3432,8 @@
     {
       "id": "flight-mw6lawnq-3cabdd",
       "kind": "flight",
-      "title": "🚧 Launch delayed",
-      "body": "Now 13 Nov 22:45",
+      "title": "📅 New estimated time",
+      "body": "NET 13 Nov · 22:45 UK",
       "at": "2026-11-07T16:00:22.742Z",
       "date": "7 Nov",
       "flight": 15
@@ -3408,9 +3446,9 @@
       "url": "https://x.com/Blobifie/status/2119085433498075301",
       "at": "2026-11-07T15:11:52.000Z",
       "date": "7 Nov",
-      "flight": 15,
-      "box": "static",
-      "src": "@Blobifie"
+      "flight": 13,
+      "src": "@Blobifie",
+      "later_flight": true
     },
     {
       "id": "news-mw6i0uuw-399d48",
@@ -3420,9 +3458,9 @@
       "url": "https://x.com/Blobifie/status/2119074540693385489",
       "at": "2026-11-07T14:28:35.000Z",
       "date": "7 Nov",
-      "flight": 15,
-      "box": "static",
-      "src": "@Blobifie"
+      "flight": 13,
+      "src": "@Blobifie",
+      "later_flight": true
     },
     {
       "id": "news-mw6cps00-434c6a",
