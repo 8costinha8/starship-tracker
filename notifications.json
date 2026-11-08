@@ -719,6 +719,30 @@
       "verdict": "silent: minor other — a push went out 0.7h ago (quiet window 24h)",
       "gate": "hold passed (1 run)",
       "key": "S42|other|7 Nov"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Starbase prepared for a Flight 15 double catch.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mw72afio-c6e295",
+      "url": "https://www.youtube.com/watch?v=gX3xmAalnPk",
+      "at": "2026-11-07T23:55:54.000Z",
+      "sent_at": "2026-11-08T00:31:02.150Z",
+      "where": "feed",
+      "verdict": "silent: minor other — a push went out 8.5h ago (quiet window 24h)",
+      "gate": "not an X tracker post",
+      "key": "F15|other|7 Nov"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "SpaceX could attempt Flight 15 within a week with double catch (NSF reports, 7 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/NASASpaceflight/status/2119217458729124052",
+      "at": "2026-11-07T23:56:29.000Z",
+      "sent_at": "2026-11-08T00:31:02.269Z",
+      "where": "mission",
+      "verdict": "silent: minor other — a push went out 8.5h ago (quiet window 24h)",
+      "gate": "hold passed (1 run)",
+      "key": "F15|other|7 Nov"
     }
   ]
 }
