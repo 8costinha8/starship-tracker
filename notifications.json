@@ -815,6 +815,18 @@
       "verdict": "silent: duplicate F15|faa_licence|9 Nov",
       "gate": "hold passed (1 run)",
       "key": "F15|faa_licence|9 Nov"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "New marine hazard area announced for Starship Flight 15 on November 13 (LabPadre, 9 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/LabPadre/status/2119842240050676139",
+      "at": "2026-11-09T17:19:09.000Z",
+      "sent_at": "2026-11-09T18:01:00.324Z",
+      "where": "mission",
+      "verdict": "silent: minor other — a push went out 2.3h ago (quiet window 24h)",
+      "gate": "hold passed (1 run)",
+      "key": "F15|other|9 Nov"
     }
   ]
 }
