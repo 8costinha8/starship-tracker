@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "9 Nov",
-  "updatedAt": "2026-11-09T04:30:53.876Z",
+  "updatedAt": "2026-11-09T04:45:38.794Z",
   "categories": [
     {
       "id": "cryo",
@@ -3351,7 +3351,8 @@
       "url": "https://www.youtube.com/watch?v=gK4lb6ifxkY",
       "at": "2026-11-09T02:53:48.000Z",
       "date": "9 Nov",
-      "flight": 15
+      "flight": 15,
+      "box": "pad"
     },
     {
       "id": "news-mw7f2b2o-0823fc",
