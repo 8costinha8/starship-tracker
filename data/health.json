@@ -8,22 +8,22 @@
       "last_ok": "2026-11-09T09:45:20.693Z"
     },
     "check-road": {
-      "at": "2026-11-09T09:42:31.730Z",
+      "at": "2026-11-09T09:45:27.619Z",
       "status": "failed",
       "error": "watchdog: X read failed: HTTP 402 — the checker is blind to X (check the X API plan / bearer token)",
-      "consecutive_failures": 5,
+      "consecutive_failures": 6,
       "last_ok": "2026-11-09T07:15:36.153Z"
     }
   },
-  "updated": "2026-11-09T09:45:20.693Z",
+  "updated": "2026-11-09T09:45:27.619Z",
   "status": "failed",
-  "consecutive_failures": 5,
+  "consecutive_failures": 6,
   "alert": true,
   "last_error": {
-    "at": "2026-11-09T09:42:31.730Z",
+    "at": "2026-11-09T09:45:27.619Z",
     "error": "watchdog: X read failed: HTTP 402 — the checker is blind to X (check the X API plan / bearer token)"
   },
-  "committed_at": "2026-11-09T09:45:20.693Z",
+  "committed_at": "2026-11-09T09:45:27.619Z",
   "render_check": {
     "at": "2026-11-09T06:02:03.929Z",
     "status": "failed",
