@@ -2305,19 +2305,19 @@
       "name": "Pad activity",
       "color": "#A88BFF",
       "status": "progress",
-      "latest": "Booster 22 making moves ahead of potential rollout to Pad 2.",
+      "latest": "Booster 22 heads to Pad 2 for potential launch prep.",
       "history": [
         {
           "id": "x-2119899586005536831",
           "date": "9 Nov",
           "log_date": "9 Nov",
           "at": "2026-11-09T21:07:01.000Z",
-          "text": "Booster 22 making moves ahead of potential rollout to Pad 2.",
-          "x_text": "Booster 22 making moves ahead of potential rollout to Pad 2.",
-          "push_text": "Booster 22 making moves ahead of rollout to Pad 2.",
-          "card_text": "Booster 22 making moves ahead of potential rollout to Pad 2.",
-          "log_text": "Booster 22 making moves ahead of potential rollout to Pad 2.",
-          "status_line": "Booster 22 heading to Pad 2.",
+          "text": "Booster 22 heads to Pad 2 for potential launch prep.",
+          "x_text": "Booster 22 heads to Pad 2 for potential launch prep.",
+          "push_text": "Booster 22 heads to Pad 2 for potential launch prep.",
+          "card_text": "Booster 22 heads to Pad 2 for potential launch prep.",
+          "log_text": "Booster 22 heads to Pad 2 for potential launch prep.",
+          "status_line": "Booster 22 prepping for Pad 2 rollout.",
           "url": "https://x.com/NASASpaceflight/status/2119899586005536831",
           "src": "@NASASpaceflight",
           "trust": "trusted",
@@ -2329,7 +2329,7 @@
             "post_id": "2119899586005536831",
             "url": "https://x.com/NASASpaceflight/status/2119899586005536831",
             "created_at": "2026-11-09T21:07:01.000Z",
-            "text": "Starship Flight 15: Booster 22 is making moves, ahead of a potential roll to Pad 2 shortly. ➡️https://t.co/AvEjt0Aooa",
+            "text": "Starship Flight 15: Booster 22 is making moves, ahead of a potential roll to Pad 2 shortly. \n\n➡️https://t.co/AvEjt0Aooa https://t.co/EIreYIVOWL",
             "author": {
               "name": "NSF - NASASpaceflight.com",
               "username": "NASASpaceflight",
@@ -2367,7 +2367,9 @@
             "url": "https://x.com/NASASpaceflight/status/2119899586005536831",
             "at": "2026-11-09T21:07:01.000Z"
           },
-          "frameChecked": true
+          "frameChecked": true,
+          "edited_from": "Booster 22 making moves ahead of potential rollout to Pad 2.",
+          "edited": true
         },
         {
           "id": "x-2119447093546991754",
