@@ -86,7 +86,8 @@ const clone = (x) => JSON.parse(JSON.stringify(x));
   check(out.text.every((x) => x.after && x.before), "backfill: past-tense rows listed with before/after");
   // integration: the real checker run with the self-check forced → no push sent, no milestone created
   { const t4 = fs.mkdtempSync(path.join(os.tmpdir(), "scr-")), rp = path.join(t4, "road.json"), ap = path.join(t4, "app.js");
-    { const r9 = clone(road0); delete r9.predicted_candidates; delete r9.predicted; fs.writeFileSync(rp, JSON.stringify(r9, null, 2)); } fs.copyFileSync(path.join(ROOT, "app.js"), ap); // 9 Nov re-date: live date mentions (4 sources agree on 13 Nov) + next: null would add a predicted-date push this check is not about fs.copyFileSync(path.join(ROOT, "road-media.json"), path.join(t4, "road-media.json"));
+    { const r9 = clone(road0); delete r9.predicted_candidates; delete r9.predicted; fs.writeFileSync(rp, JSON.stringify(r9, null, 2)); } fs.copyFileSync(path.join(ROOT, "app.js"), ap); fs.copyFileSync(path.join(ROOT, "road-media.json"), path.join(t4, "road-media.json"));
+    // ↑ 9 Nov re-date: predicted_candidates/predicted stripped — live date mentions (4 sources agree on 13 Nov) + next: null would add a predicted-date push this check is not about
     const pushes = [], commits = [], logs = []; const ol = console.log; console.log = (...a) => logs.push(a.join(" "));
     let res; try { res = await require("./check-road.js").run({ mode: "dry-run", roadPath: rp, appJsPath: ap, selfCheckForce: true, sources: [], next: null,
       deps: { loadState: async () => ({ seen: [] }), saveState: async () => {}, push: async (n) => pushes.push(n) }, commit: (f, m) => commits.push(m),
