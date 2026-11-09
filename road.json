@@ -4,8 +4,8 @@
     "B22",
     "S42"
   ],
-  "updated": "8 Nov",
-  "updatedAt": "2026-11-08T15:45:40.806Z",
+  "updated": "9 Nov",
+  "updatedAt": "2026-11-09T04:30:53.876Z",
   "categories": [
     {
       "id": "cryo",
@@ -3343,6 +3343,16 @@
     }
   ],
   "feed_items": [
+    {
+      "id": "news-mw8o32ao-ae633c",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "SpaceX rolled Booster 22 to Starbase Pad 2.",
+      "url": "https://www.youtube.com/watch?v=gK4lb6ifxkY",
+      "at": "2026-11-09T02:53:48.000Z",
+      "date": "9 Nov",
+      "flight": 15
+    },
     {
       "id": "news-mw7f2b2o-0823fc",
       "kind": "news",
