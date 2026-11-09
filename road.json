@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "9 Nov",
-  "updatedAt": "2026-11-09T06:02:04.292Z",
+  "updatedAt": "2026-11-09T15:15:42.635Z",
   "categories": [
     {
       "id": "cryo",
@@ -3298,22 +3298,6 @@
       },
       {
         "topic": "catch",
-        "line": "Flight 15 will catch the booster followed by the ship the next day (SpaceX, 7 Nov).",
-        "at": "2026-11-07T15:49:45.000Z",
-        "src": "@NASASpaceflight",
-        "url": "https://x.com/NASASpaceflight/status/2119094964789375269",
-        "post_id": "2119094964789375269"
-      },
-      {
-        "topic": "landing",
-        "line": "Flight controllers may tumble Starship during reentry to break up safely (SpaceX, 7 Nov).",
-        "at": "2026-11-07T16:06:10.000Z",
-        "src": "@Blobifie",
-        "url": "https://x.com/Blobifie/status/2119099099039571987",
-        "post_id": "2119099099039571987"
-      },
-      {
-        "topic": "catch",
         "line": "SpaceX could attempt Flight 15 within a week with double catch (NSF reports, 7 Nov).",
         "at": "2026-11-07T23:56:29.000Z",
         "src": "@NASASpaceflight",
@@ -3327,6 +3311,22 @@
         "src": "@SpaceflightNow",
         "url": "https://x.com/SpaceflightNow/status/2119239880920510952",
         "post_id": "2119239880920510952"
+      },
+      {
+        "topic": "licence",
+        "line": "FAA issues new launch advisory for Starship Flight 15 Starbase operations (FAA, 9 Nov).",
+        "at": "2026-11-09T15:02:25.000Z",
+        "src": "@LabPadre",
+        "url": "https://x.com/LabPadre/status/2119807831092195435",
+        "post_id": "2119807831092195435"
+      },
+      {
+        "topic": "licence",
+        "line": "FAA issues new launch advisory for Starship Flight 15 reentry window (FAA, 9 Nov).",
+        "at": "2026-11-09T15:02:29.000Z",
+        "src": "@LabPadre",
+        "url": "https://x.com/LabPadre/status/2119807846019706982",
+        "post_id": "2119807846019706982"
       }
     ]
   },
@@ -3346,6 +3346,26 @@
     }
   ],
   "feed_items": [
+    {
+      "id": "news-mw9e45mw-826155",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "A launch advisory was issued for Starship Flight 15 reentry.",
+      "url": "https://x.com/LabPadre/status/2119807846019706982",
+      "at": "2026-11-09T15:02:29.000Z",
+      "date": "9 Nov",
+      "flight": 15
+    },
+    {
+      "id": "news-mw9e42js-6ba6fe",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "A launch advisory was issued for Starship Flight 15 at Starbase.",
+      "url": "https://x.com/LabPadre/status/2119807831092195435",
+      "at": "2026-11-09T15:02:25.000Z",
+      "date": "9 Nov",
+      "flight": 15
+    },
     {
       "id": "news-mw8o32ao-ae633c",
       "kind": "news",
