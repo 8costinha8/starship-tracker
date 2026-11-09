@@ -50,7 +50,7 @@ check(l42 && l42.complete && l42.inferred, "live: Ship 42 Raptors installed (inf
 check(l22 && l22.complete && l22.inferred, "live: Booster 22 Raptors installed (inferred from its static fire)");
 check(live.categories.find((c) => c.id === "raptor").status === "done", "live: Raptor box done (both vehicles inferred)");
 // overview status lines: short, direct, plain state (~6 words, max 8, one line)
-const lines = { faa: "No Flight 15 licence yet.", date: "Flight 15 NET 8 November." };
+const lines = { faa: "No Flight 15 licence yet." }; // 9 Nov: exact dated "Flight 15 NET 8 November." retired (the NET moved); the date line is still held to "short and plain" below
 for (const [id, t] of Object.entries(lines)) check(live.categories.find((c) => c.id === id).log_latest === t && !lt.lintStatusLine(t).length, `live ${id}: "${t}"`);
 for (const c of live.categories) { const v = cl.flightLogView(c, live); const s = cl.shortLine(require("fs").readFileSync(__dirname + "/../road.json") && (v.log_latest || v.latest)); check(!lt.lintStatusLine(s).length, `live ${c.id} overview "${s}" is short and plain`); }
 for (const [a, b] of [["Booster 22 completed its static fire at the launch site.", "Booster 22 static fire done."], ["Ship 42 completed further cryo tests.", "Ship 42 cryo tests done."], ["Ship 43 has all 6 Raptors installed.", "Ship 43 Raptors installed."], ["Booster 24 is getting its Raptors installed.", "Booster 24 Raptors going in."], ["Ship 44 rolls out to Massey's for cryo testing.", "Ship 44 heading to Massey's."]])

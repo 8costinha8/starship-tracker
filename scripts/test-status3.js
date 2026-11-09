@@ -10,7 +10,10 @@ check(b.static.status === "done" && b.static.statusText === "Complete", "Static 
 // 31 Oct: S42 12 Sep chopstick catch-height + QD arm tests (TrackingTheSB) are a completed pad test → ◐ In progress; prep alone still never moves the circle (flightlog.js PAD_TEST_DONE)
 check(b.pad.status === "progress" && b.pad.statusText === "In progress" && /tests in progress/.test(b.pad.latest), "Pad: a completed chopstick test → ◐ In progress (prep never moves the circle)");
 check(b.faa.status === "none" && b.faa.statusText === "Not yet", "FAA: no licence → ○ Not yet");
-check(b.date.status === "progress" && b.date.statusText === "Estimated" && /NET/.test(b.date.latest), "Launch date: unofficial NET → ◐ Estimated");
+// 9 Nov re-date: live road.predicted is cleared while Launch Library has a day-or-better date (predicted.js), so the ◐ case uses a fixture
+{ const pd = clone(); pd.predicted = { flight: 15, net: "2026-11-13", basis: "NSF · Elon Musk", sources: [{ name: "NSF" }, { name: "Elon Musk" }] }; const d = fl.boxes(pd).date;
+  check(d.status === "progress" && d.statusText === "Estimated" && /NET/.test(d.latest), "Launch date: unofficial NET → ◐ Estimated"); }
+check(live.predicted || (b.date.status === "none" && b.date.statusText === "Not confirmed"), "Launch date: no unofficial NET stored → ○ Not confirmed");
 { const r = clone(); delete r.predicted; const d = fl.boxes(r).date; check(d.status === "none" && d.statusText === "Not confirmed", "Launch date: no NET → ○ Not confirmed"); }
 { const r = clone(); r.official_date = { day: "8 Nov", text: "Flight 15 is set for 8 Nov." }; const d = fl.boxes(r).date; check(d.status === "done" && d.statusText === "Confirmed", "Launch date: SpaceX date → ● Confirmed"); }
 { const r = clone(); r.vehicles = [...r.vehicles, "S99"]; const c = fl.boxes(r).cryo; check(c.status === "progress" && c.statusText === "In progress", "Cryo: not every vehicle done → ◐ In progress"); }

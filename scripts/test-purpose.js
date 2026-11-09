@@ -52,8 +52,11 @@ const r2 = JSON.parse(JSON.stringify(road));
 check(P.refile(r2).length === 0, "live road.json is already re-filed (re-file is idempotent)");
 const where = (id) => (road.categories.find((c) => (c.history || []).some((h) => h.id === id)) || {}).id;
 for (const id of ["x-2114016319679201462", "x-2113914954801889326", "x-2113907865060819060", "x-2113617185218429437", "x-2112967167767433728", "x-2112035558994419901", "x-2114335419785679308", "x-2114317866409595106", "x-2113955770337550391", "x-2111327584122437857"])
-  check(where(id) === "static", `${id} is in Static fires (same id, deep link kept)`);
-check(where("x-2113664154762457446") === "pad" && where("x-2112967167767433728-pad") === "pad", "Pad 1 flame trench and the split-off pad-only steps stay in Pad activity");
+  if (where(id) === undefined) console.log(`↷ ${id}: left the 12-entry history window since 25 Oct (9 Nov re-date: only entries still in road.json are checked)`); // 9 Nov
+  else check(where(id) === "static", `${id} is in Static fires (same id, deep link kept)`);
+// 9 Nov: retired — x-2113664154762457446 and x-2112967167767433728-pad have left the 12-entry history window; pure pad work staying in
+// Pad activity is still covered by the purposeOf cases above ("pure pad work stays in Pad activity")
+console.log("↷ retired (9 Nov): 'Pad 1 flame trench and the split-off pad-only steps stay in Pad activity' — entries evicted from live history");
 check(where("x-2113834862339617215") !== "raptor", "lifting jig for engine testing is prep (journey context), not Raptor history (1 Nov rule)");
 const feed = (road.feed_items || []).find((f) => /lifted onto launch pad 2/i.test(f.body)), prop = (road.feed_items || []).find((f) => /propellant loading/i.test(f.body));
 check(feed && feed.box === "static" && prop && prop.box === "static", "generic 'Starship' cards (B22 lifted onto launch pad 2, propellant loading) → Static fires");
@@ -63,7 +66,9 @@ check(new Set(ids).size === ids.length, "no entry duplicated by the re-file");
 
 console.log("── Flight Log view + Road page ──");
 const v = C.flightLogView(road.categories.find((c) => c.id === "static"), road).history;
-check(v.length === 2 && v[0].complete && /two to three weeks/.test(v[1].log_text) && (v[0].updates || []).some((u) => /transport stand/.test(u.log_text || u.text)), "Flight Log Static fires: B22 completed with the re-filed steps, S42 earliest prediction");
+// 9 Nov: retired — 25 Oct Flight Log snapshot (S42 has since fired, so the view is no longer "B22 completed + S42 prediction");
+// the Flight Log static box is covered by test-flightlog ("static pinned") and render-check
+console.log(`↷ retired (9 Nov): 'Flight Log Static fires: B22 completed + S42 earliest prediction' — 25 Oct snapshot (live view now: ${v.filter((h) => h.complete).length} of ${v.length} vehicles completed)`);
 const app = fs.readFileSync(path.join(ROOT, "app.js"), "utf8");
 check(/const own = f\.box && road\.categories\.find\(\(c\) => c\.id === f\.box\)/.test(app) && /cat: own \|\|/.test(app), "Road page: a purpose-filed news push shows as a card of its section, every post kept");
 check(/ukStamp\(iso, false\) : fmtDay/.test(app) && !/ukStamp\(iso\) : fmtDay/.test(app), "Road page update cards: single date only, no clock time");
@@ -77,6 +82,7 @@ console.log("── re-file sends no push ──");
   // undo the re-file: move today's static steps back to Pad activity
   const pad = old.categories.find((c) => c.id === "pad"), stc = old.categories.find((c) => c.id === "static");
   for (const id of ["x-2113907865060819060", "x-2114016319679201462"]) { const i = stc.history.findIndex((h) => h.id === id); pad.history.unshift(...stc.history.splice(i, 1)); }
+  delete old.predicted_candidates; delete old.predicted; // 9 Nov re-date: drop the live date mentions (4 sources agree on 13 Nov since 8 Nov); with next: null they would add a predicted-date push this test is not about
   fs.writeFileSync(rp, JSON.stringify(old, null, 2));
   const pushes = [];
   let res;

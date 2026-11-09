@@ -23,5 +23,5 @@ ok(!cryoBox.history.some((h) => /S42/.test(h.hardware || "") && /massey/i.test(h
 const st = live.categories.find((c) => c.id === "static").history;
 ok(["x-2114568166651428965", "x-2114535368758542634"].every((id) => st.some((h) => h.id === id && !/cryo/i.test(h.text))), "road.json: both S42 Massey's entries re-filed to Static fires, wording fixed");
 const sf = st.find((h) => h.id === "x-2114904512217694216");
-ok(sf && sf.no_push && sf.x_post.media[0].type === "video" && /NASASpaceflight/.test(sf.url) && /-frame\.jpg$/.test(sf.media_override.image), "road.json: S42 static fire card (NSF video post, best frame, no push)");
+ok(sf && sf.no_push && sf.x_post.media[0].type === "video" && /NASASpaceflight/.test(sf.url) && /-frame\.jpg$|^images\/s42-static-fire\.jpg$/.test(sf.media_override.image), "road.json: S42 static fire card (NSF video post, best frame, no push)"); // 9 Nov re-date: since 31 Oct (f55f3a8) the picture is the SpaceX post frame images/s42-static-fire.jpg
 console.log(fail ? `\n❌ ${fail} check(s) failed` : "\nAll Massey's checks passed."); process.exit(fail ? 1 : 0);

@@ -37,14 +37,16 @@ const clone = (x) => JSON.parse(JSON.stringify(x));
   check(judgeCalls <= SC.JUDGE_CAP && r.calls <= SC.JUDGE_CAP, `judge calls capped (${r.calls} ≤ ${SC.JUDGE_CAP})`);
   check(fs.readdirSync(path.join(tmp, "images")).length === 0, "dry run downloads nothing");
   const dc = road.categories.find((c) => c.id === "date");
-  check(/NET 12 Nov/.test(dc.latest) && dc.status === "progress", "launch date: card follows the hero NET 12 Nov, pill no longer 'Not yet'");
-  check(road.feed_items[0].src === "@efraser77", "first feed item gets its source badge");
+  // 9 Nov: retired — 31 Oct live-snapshot checks (hero NET 12 Nov is now Launch Library NET 13 Nov and road.predicted is cleared; the 31 Oct
+  // first feed item is no longer first). The rules stay covered: render-check date rule (test-rendercheck), feed source badge (test-missed).
+  console.log("↷ retired (9 Nov): 'launch date follows the hero NET 12 Nov' and 'first feed item is @efraser77' — 31 Oct live snapshot");
   const b22 = road.categories.find((c) => c.id === "static").history.find((h) => h.id === "x-2114686191627030843");
   check(b22.updates.some((u) => /transporter/.test(u.text) && u.url.includes("2114612462184178003")), "B22 transporter move added to its card with its link");
   const rap = road.categories.find((c) => c.id === "raptor").history.find((h) => /reinstalled/.test(h.text));
   check(rap.superseded && /(?:were reportedly being reinstalled; all 6 Raptors were installed|were reinstalled; all 6 were in) by 26 Oct/.test(rap.card_text) && rap.text === "Ship 42's Raptor engines are reportedly being reinstalled.", "stale 'being reinstalled' superseded in card_text, text kept");
   check(r.flags.some((f) => /x-2114904512217694216/.test(f.msg)), "S42 static fire 27 vs 28 Oct flagged, not guessed");
-  check(road.categories.find((c) => c.id === "pad").history.find((h) => h.id === "s42-pad2-sep").date === "12 Sep", "S42 pad lift shows 12 Sep");
+  // 9 Nov: retired — s42-pad2-sep left the 12-entry pad history window; the 12 Sep line now comes from the Flight Log pins (test-nov09)
+  console.log("↷ retired (9 Nov): 'S42 pad lift shows 12 Sep' (entry s42-pad2-sep evicted; covered by test-nov09)");
   // judge cap with an always-answering judge on many clashes
   let n = 0; const many = clone(road0); for (let i = 0; i < 12; i++) many.categories[0].history.push({ id: `t${i}`, text: "Ship 42 completed a cryo test.", at: "2026-10-09T10:00:00Z", updates: [{ text: "Ship 42 likely in another cryo test.", at: "2026-10-09T18:00:00Z" }] });
   const rm = await SC.audit(many, { dryRun: true, root: tmp, log: () => {}, judge: async () => { n++; return "unsure"; } });
@@ -84,7 +86,7 @@ const clone = (x) => JSON.parse(JSON.stringify(x));
   check(out.text.every((x) => x.after && x.before), "backfill: past-tense rows listed with before/after");
   // integration: the real checker run with the self-check forced → no push sent, no milestone created
   { const t4 = fs.mkdtempSync(path.join(os.tmpdir(), "scr-")), rp = path.join(t4, "road.json"), ap = path.join(t4, "app.js");
-    fs.writeFileSync(rp, JSON.stringify(road0, null, 2)); fs.copyFileSync(path.join(ROOT, "app.js"), ap); fs.copyFileSync(path.join(ROOT, "road-media.json"), path.join(t4, "road-media.json"));
+    { const r9 = clone(road0); delete r9.predicted_candidates; delete r9.predicted; fs.writeFileSync(rp, JSON.stringify(r9, null, 2)); } fs.copyFileSync(path.join(ROOT, "app.js"), ap); // 9 Nov re-date: live date mentions (4 sources agree on 13 Nov) + next: null would add a predicted-date push this check is not about fs.copyFileSync(path.join(ROOT, "road-media.json"), path.join(t4, "road-media.json"));
     const pushes = [], commits = [], logs = []; const ol = console.log; console.log = (...a) => logs.push(a.join(" "));
     let res; try { res = await require("./check-road.js").run({ mode: "dry-run", roadPath: rp, appJsPath: ap, selfCheckForce: true, sources: [], next: null,
       deps: { loadState: async () => ({ seen: [] }), saveState: async () => {}, push: async (n) => pushes.push(n) }, commit: (f, m) => commits.push(m),

@@ -15,7 +15,7 @@ const check = (ok, msg) => { console.log(`${ok ? "✅" : "❌"} ${msg}`); if (!o
 const ROOT = path.join(__dirname, "..");
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "news-test-"));
 const roadPath = path.join(tmp, "road.json"), appJsPath = path.join(tmp, "app.js");
-fs.copyFileSync(path.join(ROOT, "road.json"), roadPath);
+{ const r0 = JSON.parse(fs.readFileSync(path.join(ROOT, "road.json"), "utf8")); r0.feed_items = []; delete r0.predicted_candidates; delete r0.predicted; fs.writeFileSync(roadPath, JSON.stringify(r0)); } // 9 Nov re-date: the live feed (37 items, newer than these Oct test stories) filled the 40-item feed, so the test pushes were trimmed as not visible
 fs.copyFileSync(path.join(ROOT, "app.js"), appJsPath);
 
 let stored = { seen: [] }, pushes = [], newsPrompts = [];

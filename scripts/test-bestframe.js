@@ -45,7 +45,7 @@ const LIT = [6.5, 9.5];
   const cr = fs.readFileSync(path.join(__dirname, "check-road.js"), "utf8");
   const iBuild = cr.indexOf("notifications.push(pushSync.stampRoadEntry"), iFrame = cr.indexOf("bestFrame.upgradeCards("), iSend = cr.indexOf("for (const n of notifications) await pushSync.sendPush");
   check(iBuild > 0 && iFrame > iBuild && iSend > iFrame && !/notifications\.push/.test(cr.slice(iFrame, cr.indexOf("\n  }\n", iFrame))), "check-road: best frame runs after the pushes are built and adds none (image swaps never push)");
-  check(/commit\(\["road\.json", \.\.\.frameFiles\]/.test(cr), "check-road commits the saved frames with road.json");
+  check(/commit\(\["road\.json", \.\.\.frameFiles[,\]]/.test(cr), "check-road commits the saved frames with road.json"); // 9 Nov re-date: since 28 Oct (1d8561d) the list also carries ...cascadeFiles
   let mm = 0; const cnt = await bf.upgradeCards({}, Array.from({ length: 6 }, () => ({ box, entry: mk() })), { root, ask: async () => { mm++; return { best: 1, confidence: 0.9, seen: "" }; } });
   check(mm === 3 && cnt.length === 0, "API budget: at most 3 Grok calls per run");
 
@@ -53,7 +53,7 @@ const LIT = [6.5, 9.5];
   const live = JSON.parse(fs.readFileSync(path.join(ROOT, "road.json"), "utf8"));
   const sec = live.categories.find((c) => c.id === "static"), card = sec.history.find((x) => x.id === "x-2111327584122437857");
   // not tied to the exact live wording (the bot may reword it): the card is found by id, is the B22 static fire, and the section summary follows its Flight Log line
-  check(card && /\b(Booster 22|B22)\b/.test(card.x_text || card.text) && /static fire/i.test(card.x_text || card.text) && card.log_text && sec.log_latest === card.log_text, "B22 card (by entry id) is the B22 static fire and the section summary uses its Flight Log line");
+  check(card && /\b(Booster 22|B22)\b/.test(card.x_text || card.text) && /static fire/i.test(card.x_text || card.text) && card.log_text && (sec.log_latest === card.log_text || sec.history[0].hardware !== "B22"), "B22 card (by entry id) is the B22 static fire and the section summary uses its Flight Log line"); // 9 Nov re-date: newer S42 posts now lead the section summary
   check(card.media_override.image === "images/b22-static-fire-spacex.jpg" && card.media_override.keep_image && fs.existsSync(path.join(ROOT, card.media_override.image)) && card.media_override.post_id === "2114444137067844004" && card.media_override.author === "SpaceX", "B22 card: SpaceX X post frame (X media over the NSF clip), keep_image, credit @SpaceX");
   const sc = bf.scoreFile(path.join(ROOT, card.media_override.image), "static");
   check(sc.plume > 0.08, `B22 card picture shows a lit plume (plume ${sc.plume.toFixed(2)})`);

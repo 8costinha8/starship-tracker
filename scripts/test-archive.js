@@ -31,6 +31,7 @@ const mk = () => ({ flight: 15, vehicles: ["B22", "S42"], updated: "1 Oct", upda
   const roadPath = path.join(tmp, "road.json"), appJsPath = path.join(tmp, "app.js");
   const live = JSON.parse(fs.readFileSync(path.join(ROOT, "road.json"), "utf8"));
   live.categories.find((c) => c.id === "pad").history.push({ date: "27 Sep", text: "Flight 14 pad prep done.", src: "NSF", trust: "trusted", flight: 14 });
+  delete live.predicted_candidates; delete live.predicted; // 9 Nov re-date: drop the live date mentions (4 sources agree on 13 Nov since 8 Nov); with next: null they would add a predicted-date push this test is not about
   fs.writeFileSync(roadPath, JSON.stringify(live)); fs.copyFileSync(path.join(ROOT, "app.js"), appJsPath);
   const sent = [], commits = []; let stored = { seen: [], news: { seen: [], pending: [], sent: [], count: 0, day: "2026-10-17" }, xFirst: { sinceId: "1", seen: [] } };
   await road.run({ xFirst: true, xToken: "", mode: "dry-run", roadPath, appJsPath, sources: [], next: null, askNews: async () => [], askDates: async () => [],

@@ -100,7 +100,8 @@
     const at = l && Number(l.flight) === Number(n) && l.at ? l.at : typeof globalThis !== "undefined" && typeof globalThis.ST_LAUNCH === "function" ? globalThis.ST_LAUNCH(n) : null;
     return at && Number.isFinite(Date.parse(at)) ? at : null;
   }
-  function boxes(road, today = ukDay(new Date(typeof globalThis !== "undefined" && typeof globalThis.ST_NOW === "function" ? globalThis.ST_NOW() : Date.now()).toISOString())) { // ST_NOW: the app clock
+  function boxes(road, today = ukDay(new Date(typeof globalThis !== "undefined" && typeof globalThis.ST_NOW === "function" ? globalThis.ST_NOW() : Date.now()).toISOString()), opts = {}) { // ST_NOW: the app clock
+    // opts.net: { n, date } = the hero's Launch Library NET (app only, display only). Never stored, never pushed: the checkers call boxes(road) without it.
     if (!road || !Array.isArray(road.categories)) return {};
     const vs = vehicles(road), n = road.flight;
     const pins = road.flightlog_pins && Number(road.flightlog_pins.flight) === Number(n) ? road.flightlog_pins : null;
@@ -125,6 +126,10 @@
         // Estimated (an unofficial NET date exists: road.predicted) / Confirmed (SpaceX's official date)
         const est = id === "date" && !off && road.predicted && road.predicted.net;
         status = off ? "done" : est ? "progress" : "none"; statusText = off ? DONE_LABEL[id] : est ? "Estimated" : id === "faa" ? "Not yet" : "Not confirmed"; latest = est ? `Estimated NET ${ukDay(road.predicted.net + "T12:00:00Z")}.` : head.text;
+        // 9 Nov: no official date yet but the hero shows a Launch Library NET → the box headline is just "NET 13 Nov" (same day as the hero; no source,
+        // no "Estimated", no prediction label). Display only: the line, pill and stored data are unchanged, so nothing new is pushed or logged.
+        const hn = id === "date" && !off && opts && opts.net && Number(opts.net.n) === Number(n) && Number.isFinite(Date.parse(opts.net.date)) ? opts.net : null;
+        if (hn) latest = `NET ${ukDay(hn.date)}`;
         const lift = id === "date" ? launchOf(road) : null; // after liftoff the date box is history, not a forecast
         if (lift) { const t = `Flight ${n} launched on ${ukDay(lift)} at ${ukTime(lift)} UK time.`; cards[0].lines[0] = { day: ukDay(lift), time: ukTime(lift), text: t, at: lift, url: "" }; status = "done"; statusText = "Complete"; latest = t; }
       } else {

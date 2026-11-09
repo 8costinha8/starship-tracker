@@ -9,7 +9,12 @@ const road = JSON.parse(fs.readFileSync(snap, "utf8"));
 const before = RC.check(road), has = (t, re) => before.some((f) => f.type === `render-${t}` && re.test(f.msg));
 check(has("date", /newest Launch date card says "Flight 15 is now targeting NET 8 November/), "launch date: stale NET 8 Nov card caught");
 check(has("date", /static S42: Flight Log shows 27 Oct · 21:45, Road card shows 28 Oct · 11:25/), "S42 static fire: two event times caught");
-check(has("date", /pad S42: Flight Log shows 13 Sep/), "S42 pad: 13 Sep vs 12 Sep caught");
+// 9 Nov: the Flight Log's pinned pad lines now also show in the vehicle's Road pad drawer (app.js rtfCards), so the 31 Oct case
+// (pinned 13 Sep 05:02 line with no Road post) is fixed by design; the detector still catches a Flight Log line the card does not show.
+{ const c = RC.view(road).cards.find((x) => x.id === "rtf-pad-S42");
+  check(!has("date", /pad S42:/) && c && c.rows.some((r) => r.when === "13 Sep · 05:02"), "S42 pad: pinned 13 Sep 05:02 Flight Log line now on the Road card drawer (no mismatch)");
+  const syn = JSON.parse(JSON.stringify(road)); syn.categories.find((x) => x.id === "pad").history.unshift({ id: "x-syn", date: "30 Oct", at: "2026-10-30T20:10:00.000Z", text: "Pad 2 chopsticks lifted Ship 42 to catch height again.", url: "https://x.com/Example/status/1", src: "@Example", trust: "trusted", hardware: "S42", flight: 15, feed_hide: true });
+  check(RC.check(syn).some((f) => f.type === "render-date" && /pad S42: Flight Log shows 30 Oct/.test(f.msg)), "S42 pad: a Flight Log line hidden from the Road card is still caught"); }
 check(!before.some((f) => f.type === "render-status"), "pad: the Flight Log headline follows its own pill (never 'Not yet' beside 'under way', 3 Nov handover fix)");
 check(["quick disconnects purging", "performing more catch", "has been moved", "completes three static fires", "completes full duration", "propellant loading has begun"].every((p) => before.some((f) => f.type === "render-tense" && f.msg.includes(p))), "present tense on screen caught (cards, drawers, Flight Log)");
 check(has("date", /cryo S42: Flight Log shows 9 Oct · 21:30, Road card shows 9 Oct · 15:36/), "S42 cryo 9 Oct: two times caught");

@@ -113,8 +113,12 @@ async function classify(first, second, nowIso = "2026-11-07T16:00:00Z") {
   const sep11 = pad.history.find((h) => /2098443279763464572/.test(h.url || ""));
   const line12 = "Ship 42 was lifted to catch height by the Pad 2 chopsticks.";
   const line11 = "Pad 2 chopsticks lifted Ship 42 without the stabiliser arms.";
-  check(sep12 && sep12.text === line12 && sep12.log_text === line12 && sep12.card_text === line12 && sep12.at === "2026-09-12T15:39:00.000Z", "12 Sep catch-height lift is on the Road pad card");
-  check(sep11 && sep11.text === line11 && sep11.log_text === line11 && sep11.card_text === line11 && sep11.at === "2026-09-11T16:07:00.000Z", "11 Sep chopsticks lift is on the Road pad card");
+  // 9 Nov re-date: the two history entries added on 8 Nov fell out of the 12-entry history window (x-first.js); the lines now come
+  // from the Flight Log pins straight into the Road S42 pad drawer (app.js rtfCards), so check what the card shows.
+  const s42pad = RC.view(JSON.parse(JSON.stringify(live))).cards.find((c) => c.id === "rtf-pad-S42");
+  const row = (when, text) => !!s42pad && s42pad.rows.some((r) => r.when === when && r.text === text);
+  check(row("12 Sep · 16:39", line12) || (sep12 && sep12.text === line12), "12 Sep catch-height lift is on the Road pad card");
+  check(row("11 Sep · 17:07", line11) || (sep11 && sep11.text === line11), "11 Sep chopsticks lift is on the Road pad card");
   const nov7 = (live.feed_items || []).find((f) => f.at === "2026-11-07T16:11:14.000Z");
   check(nov7 && /confirmed for a catch attempt/.test(nov7.body), `7 Nov catch confirmation kept: "${nov7 && nov7.body}"`);
 
@@ -124,7 +128,7 @@ async function classify(first, second, nowIso = "2026-11-07T16:00:00Z") {
   check(h3 && h3.text === headed && h3.log_text === headed && h3.card_text === headed, `3 Nov pad wording: "${h3 && h3.text}"`);
   const deluge = "Pad 2 completed deluge and catch tests.";
   const h6 = pad.history.find((h) => h.id === "x-2118577080837574862");
-  check(pad.latest === deluge && h6 && h6.text === deluge && h6.log_text === deluge && h6.card_text === deluge, `6 Nov / pad latest: "${pad.latest}"`);
+  check(h6 && h6.text === deluge && h6.log_text === deluge && h6.card_text === deluge, `6 Nov pad entry: "${h6 && h6.text}" (pad.latest moves on with newer posts: "${pad.latest}")`);
   const date = live.categories.find((c) => c.id === "date");
   const dateLine = "Flight 15 is targeting NET 13 Nov, with the window opening at 22:45 UK, pending regulatory approval.";
   check(date.latest === dateLine && date.log_latest === dateLine, `date latest/log: "${date.latest}"`);

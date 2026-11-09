@@ -26,7 +26,8 @@ check(A.logLine({ log_text: "Clean.", x_text: "X text", text: "Text", x_post: { 
 const card = fn("RoadCard"), bu = fn("BuildUp");
 check(!/x_text|x_post/.test(card) && /<p>\{scrub\(logLine\(h\)\)\}<\/p>/.test(card) && /<BuildUp h=\{h\} log onTap=\{onEntryTap \? \(u\) => onEntryTap\(m\.id, /.test(card) && /bu-text">\{scrub\(logLine\(u\)\)\}/.test(bu), "Road to Flight N card never reads x_text / x_post.text");
 check(/if \(m\.log_latest && !later\) return m\.log_latest;/.test(fn("boxLatest")) && !/x_text/.test(fn("boxLatest").split("\n").filter((l) => !/const later/.test(l)).join("\n")), "box headline: log_latest, else the clean line");
-check(cryo.log_latest === "Ship 42 completed its cryo tests at Massey's." && e("Ship 42").log_text === "Ship 42 completed further cryo tests." && e("Ship 42").updates.map((u) => u.log_text).join("|") === "Ship 42 completes its first cryo tests." && e("Booster 22").log_text === "Booster 22 completed its cryo test at Massey's.", "Cryo matches the target wording");
+// 9 Nov re-date: Cryo was reworded since (status line "Ship 42 cryo tests completed.", the S42 steps backfilled, B22 "first full cryo test")
+check(cryo.log_latest === "Ship 42 cryo tests completed." && e("Ship 42").log_text === "Ship 42 completed further cryo tests." && e("Ship 42").updates[0].log_text === "Ship 42 completed two back-to-back cryo tests." && e("Ship 42").updates.every((u) => u.log_text && !L.lintLogText(u.log_text).length) && e("Booster 22").log_text === "Booster 22 completed its first full cryo test.", "Cryo matches the target wording");
 
 // glow: Flight Log only, on completed vehicle boxes, and the same rule as the dot
 { const rp = app.indexOf("// Road to Flight N page"), page = app.slice(rp, app.indexOf("\n}\n", app.indexOf("function", rp)));

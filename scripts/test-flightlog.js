@@ -17,7 +17,7 @@ const fake = (flight, extra = {}) => ({ flight, vehicles: ["B30", "S50"], pad: "
     { date: "7 Mar", text: "Booster 30 completed a full-duration 33-engine static fire.", log_time: "15:00", at: "2027-03-07T15:00:00Z" }]),
   cat("pad", [
     { date: "1 Mar", text: "Pad 2 tank farm work continues.", at: "2027-03-01T08:00:00Z" },
-    { date: "2 Mar", text: "Pad 1 chopsticks catch tests at the tower top.", at: "2027-03-02T08:00:00Z" },
+    { date: "2 Mar", text: "Pad 1 chopsticks completed catch tests at the tower top.", at: "2027-03-02T08:00:00Z" }, // 9 Nov re-date: since 31 Oct only a COMPLETED pad test moves the circle (PAD_TEST_DONE); the old fixture wording read as prep
     { date: "3 Mar", text: "Ship 50 rolled to the launch site.", at: "2027-03-03T08:00:00Z" },
     { date: "4 Mar", text: "Ship 50 lifted by the Pad 1 chopsticks for catch tests.", at: "2027-03-04T08:00:00Z" }]),
   cat("faa", [{ date: "9 Mar", text: "Reports say the Flight 17 licence could come next week.", at: "2027-03-09T08:00:00Z" }]),
@@ -43,15 +43,17 @@ ok(b.date.status === "done" && b.date.cards[0].lines[0].text === "SpaceX set Fli
 const road = require("../road.json");
 b = F.boxes(road, "28 Oct");
 const L = (id, v) => (b[id].cards.find((c) => c.vehicle === v) || { lines: [] }).lines.map((l) => (l.time ? `${l.day} · ${l.time}` : l.day) + " " + l.text);
-ok(L("cryo", "S42").join("|") === "9 Oct · 21:30 Ship 42 completed its third cryo proof test.|3–4 Sep · 09:59 Two back-to-back cryo proof tests.", "S42 cryo pinned");
+// 9 Nov re-date: pins since corrected (9 Oct cryo time = the Road card's 15:36; full past-tense sentences, 1 Nov polish)
+ok(L("cryo", "S42").join("|") === "9 Oct · 15:36 Ship 42 completed its third cryo proof test.|3–4 Sep · 09:59 Ship 42 completed two back-to-back cryo proof tests.", "S42 cryo pinned");
 ok(L("cryo", "B22").join("|") === "10 Sep · 08:02 Booster 22 completed its first full cryo test.", "B22 cryo pinned (from its event record)");
-ok(L("raptor", "S42")[0] === "26 Oct Ship 42 ready with all 6 Raptors." && L("raptor", "B22")[0] === "24 Oct Booster 22 ready with all 33 Raptors.", "raptor pinned");
-ok(L("static", "S42").length === 2 && L("static", "B22").join() === "25 Oct · 13:22 Booster 22 completed a full-duration 33-engine static fire.", "static pinned");
-ok(L("pad", "pad").length === 6 && L("pad", "S42").length === 3 && L("pad", "B22").length === 1, "pad pinned cards");
+ok(L("raptor", "S42")[0] === "26 Oct Ship 42 was ready with all 6 Raptors." && L("raptor", "B22")[0] === "24 Oct Booster 22 was ready with all 33 Raptors.", "raptor pinned");
+ok(L("static", "S42").length === 2 && L("static", "B22").join() === "25 Oct · 13:22 Booster 22 completed a full-duration 33-engine static fire on Pad 2.", "static pinned");
+ok(L("pad", "pad").length >= 6 && L("pad", "S42").length === 2 && L("pad", "B22").length === 1, "pad pinned cards (Launch pad: 6 pins + newer auto lines)");
 ok(L("faa", "faa").join() === "28 Oct No Flight 15 licence yet." && L("date", "date").length === 6 && /^20 Oct On SpaceX's Q3 call/.test(L("date", "date")[1]), "faa/date headline today + earlier");
 const later = JSON.parse(JSON.stringify(road));
-later.categories.find((c) => c.id === "pad").history.unshift({ date: "30 Oct", text: "Pad 2 chopsticks catch tests at the tower top.", at: "2026-10-30T09:00:00Z" });
-ok(F.boxes(later, "30 Oct").pad.cards.find((c) => c.vehicle === "pad").lines[0].day === "30 Oct", "newer auto line added over pins");
+// 9 Nov re-date: live now has November pad lines, so the synthetic newer line is dated after all of them
+later.categories.find((c) => c.id === "pad").history.unshift({ date: "30 Dec", text: "Pad 2 chopsticks catch tests at the tower top.", at: "2026-12-30T09:00:00Z" });
+ok(F.boxes(later, "30 Dec").pad.cards.find((c) => c.vehicle === "pad").lines[0].day === "30 Dec", "newer auto line added over pins");
 later.flight = 16; ok(!F.boxes(later).cryo.cards.some((c) => /third cryo proof/.test(c.lines.map((l) => l.text).join())), "pins only for their flight");
 // wiring: app renders sub-cards, browser loads the module, prompt carries the rules
 const fs = require("fs"), app = fs.readFileSync(__dirname + "/../app.js", "utf8"), idx = fs.readFileSync(__dirname + "/../index.html", "utf8");

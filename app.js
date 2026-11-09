@@ -558,6 +558,11 @@ function netDayLabel(f) {
 }
 function dateOnlyNet(f) { return usableTbdDate(f) || !!(f && f.netPrecision === "DAY" && f.date && Number.isFinite(Date.parse(f.date))); }
 
+// 9 Nov: the hero's NET for the Road Launch date box ("NET 13 Nov"), only while the hero itself shows a Launch Library NET date.
+function heroNetFor(f, now = nowMs()) {
+  return f && f.n && f.date && Number.isFinite(Date.parse(f.date)) && effectiveStatus(f, now) === "net" ? { n: f.n, date: f.date } : null;
+}
+
 // Turns LL2's launch detail into the card's data.
 function flightFromLL2(full) {
   const boosterSerial = full.rocket?.launcher_stage?.[0]?.launcher?.serial_number || "";
@@ -1159,6 +1164,30 @@ function useRoad() {
     ? { ...road, categories: road.categories.map((c) => (isRaptorCat(c) ? { ...c, icon: <CatIcon c={c} /> } : c)) } : road), [road]);
 }
 
+// 9 Nov: "X feed offline" chip on the Road card. Shown only while check-road's last run recorded the X read failing with
+// HTTP 402 (X API credits depleted) in data/health.json; every checker run rewrites that file, so the chip goes away on its
+// own once X reads succeed again (status ok, error cleared). Read-only: the app never writes health or sends anything.
+const HEALTH_URL = "data/health.json";
+function xFeedOffline(health) {
+  const s = health && health.scripts && health.scripts["check-road"];
+  return !!(s && s.status === "failed" && /X read failed: HTTP 402\b/.test(String(s.error || "")));
+}
+function useXFeedOffline() {
+  const [off, setOff] = React.useState(false);
+  React.useEffect(() => {
+    if (SIM) return undefined;
+    let alive = true;
+    const load = () => fetch(`${HEALTH_URL}?t=${Date.now()}`, { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : null)).then((h) => { if (alive) setOff(xFeedOffline(h)); }).catch(() => {});
+    load();
+    const t = setInterval(load, 15 * 60 * 1000);
+    const vis = () => { if (document.visibilityState === "visible") load(); };
+    document.addEventListener("visibilitychange", vis);
+    return () => { alive = false; clearInterval(t); document.removeEventListener("visibilitychange", vis); };
+  }, []);
+  return off;
+}
+
 // Lifecycle/tier tags: data only, never shown in the app (Bernardo, 23 Oct). Kept for previews/tests.
 function Tags({ h }) {
   const phase = h.milestone && !h.hedged, tier = h.milestone && h.tier, unc = h.trust === "unconfirmed";
@@ -1205,12 +1234,13 @@ function boxLatest(m, road) {
   if (m.log_latest && !later) return m.log_latest;
   return later ? (own[0] ? logLine(own[0]) : "Nothing reported yet") : m.log_latest || m.latest;
 }
-function RoadCard({ road, onEntryTap, openReq }) {
+function RoadCard({ road, onEntryTap, openReq, heroNet }) {
   const [main, setMain] = React.useState(false);
+  const xOff = useXFeedOffline(); // 9 Nov: "X feed offline" chip while the checker's X read gets HTTP 402
   React.useEffect(() => { if (openReq) setMain(true); }, [openReq]); // header chip asks it to open
   const [open, setOpen] = React.useState(null);
   // Flight Log boxes: completed milestones only, one sub-card per vehicle (scripts/flightlog.js, same rules every flight).
-  const flogBoxes = road && window.RoadFlightLog ? window.RoadFlightLog.boxes(road) : null;
+  const flogBoxes = road && window.RoadFlightLog ? window.RoadFlightLog.boxes(road, undefined, { net: heroNet || null }) : null; // heroNet: Launch date box says "NET 13 Nov" like the hero (display only)
   const items = road && Array.isArray(road.categories) ? road.categories.filter((m) => !ROAD_HIDDEN.includes(m.id)).map((m) => logView(m, road)).map((m) => ({ ...m, status: rollupStatus(m, road) }))
     .map((m) => { const f = flogBoxes && flogBoxes[m.id]; return f ? { ...m, status: f.status, flog: f } : m; }) : [];
   const listRef = React.useRef(null);
@@ -1231,6 +1261,7 @@ function RoadCard({ road, onEntryTap, openReq }) {
         <span className="road-sum">
           <span className="road-dots">{items.map((m) => <i key={m.id} className={"dot dot-" + m.status} style={catVars(m.id, m.color)} title={m.name + ": " + label(m)} aria-label={m.name + ": " + label(m)} role="img" />)}</span>
           <span className="road-count">{done} of {items.length} done</span>
+          {xOff && <span className="road-xoff" title="The checker cannot read X right now (X API credits). Cards from other sources still update.">X feed offline</span>}
           <svg className="road-chev" width="20" height="20" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5l4 4 4-4" stroke="currentColor" strokeWidth="1.7" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </span>
       </button>
@@ -1869,6 +1900,13 @@ function rtfCards(road) {
     if (!vv.length && otherVehOnly(h.text, road)) continue; // e.g. "Booster 23 returned to Megabay 1": a Flight 16 item, never under Ship 42's Earlier updates
     if (vv.length) vv.forEach((v) => put(f.box, v, h)); else if (rtfPad(h, road) || f.box === "pad") put("pad", "pad", h); else loose.push([f.box, h]);
   }
+  // 9 Nov: the Flight Log's pinned pad lines (road.flightlog_pins, the agreed record for this flight) also show in the vehicle's Road pad
+  // drawer (rows only, never the card's main line), so the 12-entry history window can't drop them (S42 12 Sep lift to catch height
+  // under the 7 Nov catch confirmation). A pin whose post is still in the history shows once (rows dedupe by url).
+  const fp = road.flightlog_pins && Number(road.flightlog_pins.flight) === Number(road.flight) && road.flightlog_pins.boxes && road.flightlog_pins.boxes.pad;
+  const padPins = {};
+  for (const k of (fp && fp.cards) || []) if (vs.map(String).includes(k.vehicle)) for (const l of k.lines || []) if (l && l.text && Number.isFinite(Date.parse(l.at)))
+    (padPins[k.vehicle] = padPins[k.vehicle] || []).push({ text: l.text, at: l.at, date: l.day, url: l.url || "", src: (String(l.url || "").match(/(?:x|twitter)\.com\/(\w+)\//) || [])[1] ? "@" + String(l.url).match(/(?:x|twitter)\.com\/(\w+)\//)[1] : "" });
   for (const [cid, h] of loose) { const t = Date.parse(cardIso(h)) || 0; let best = null;
     for (const v of vs) for (const e of bucket[cid + "|" + v] || []) { const d = Math.abs((Date.parse(cardIso(e)) || 0) - t); if (!best || d < best.d) best = { d, v }; }
     if (best) put(cid, best.v, h); }
@@ -1885,6 +1923,7 @@ function rtfCards(road) {
       if (h !== main) add({ text: h.text, ...(h.card_text ? { card_text: h.card_text } : {}), at: cardIso(h) || h.at, date: h.date, url: urlOf(h) || h.url, src: h.src, handle: (h.x_post && h.x_post.author && h.x_post.author.username) || (h.media_override && h.media_override.author) || (String(h.src || "").startsWith("@") ? h.src : null) });
       for (const u of h.updates || []) { const uv = rtfVeh(u.text, road); if (v === "pad" ? !otherVehOnly(u.text, road) : uv.length ? uv.includes(v) : !otherVehOnly(u.text, road)) add({ text: u.text, ...(u.card_text ? { card_text: u.card_text } : {}), at: u.at, date: u.date, url: u.url, src: u.src, event_row: u.event_row, phase: u.phase, handle: u.handle || (String(u.src || "").startsWith("@") ? u.src : null) }); }
     }
+    if (cid === "pad") { for (const u of padPins[v] || []) add(u); rows.sort((a, b) => (Date.parse(b.at || "") || 0) - (Date.parse(a.at || "") || 0)); } // Flight Log pins: drawer rows
     const h = { ...main, id: `rtf-${cid}-${v}`, updates: rows, alt_media: null, complete: !!doneOne, milestone: doneOne ? main.milestone : { phase: "progress" } };
     // picture: newest event (incomplete) or the completing event (done); best photo among that event's posts (scripts/road-pick.js)
     const pic = window.RoadPick ? window.RoadPick.cardPicture(list, { cid, done: doneOne || null }) : null;
@@ -2225,7 +2264,7 @@ function StarshipTracker() {
         </header>
 
         <NextFlightCard f={nextFlight} checkedAt={checkedAt} road={road}>
-          <RoadCard road={road} onEntryTap={jumpToPost} openReq={roadOpenReq} />
+          <RoadCard road={road} onEntryTap={jumpToPost} openReq={roadOpenReq} heroNet={heroNetFor(liveNext, now)} />
         </NextFlightCard>
         <Connector dashed label={heroLogged ? daysLabel(daysBetween(flights[0].date, nextFlight.date)) : `${daysLabel(daysSinceLatest)} since the last flight`} />
 
@@ -2512,6 +2551,9 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .road-title { display: flex; justify-content: space-between; align-items: baseline; }
 .road-title h2 { font-size: 17px; font-weight: 700; margin: 0; }
 .road-upd { font-size: 12px; color: var(--faint); }
+.road-sum:has(.road-xoff) { gap: 8px; } /* room for the chip on a 390px phone */
+.road-sum:has(.road-xoff) .road-count { white-space: nowrap; }
+.road-xoff { flex: none; font-size: 10.5px; font-weight: 600; padding: 2px 6px; border-radius: 999px; background: rgba(238,120,120,.15); color: #F2A2A2; white-space: nowrap; } /* 9 Nov: X feed offline chip (pill-failure colours) */
 .road-sum { display: flex; align-items: center; gap: 10px; margin-top: 10px; color: var(--muted); font-size: 13px; }
 .road-dots { display: flex; gap: 6px; }
 .dot { width: 11px; height: 11px; border-radius: 50%; display: block; border: 1.5px solid var(--c); background: transparent; } /* ○ empty = not yet */

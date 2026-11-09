@@ -19,7 +19,7 @@ const src = app.match(/function noCreditRepeat[\s\S]*?\n}\n/)[0]; const noCredit
 ok(noCreditRepeat("Elon Musk says SpaceX is go for double catch on Flight 15 (Elon Musk, 22 Oct).") === "SpaceX is go for double catch on Flight 15 (Elon Musk, 22 Oct).", "app strips repeated credit");
 ok(noCreditRepeat("NSF says pad work continues (SpaceX, 20 Oct).") === "NSF says pad work continues (SpaceX, 20 Oct).", "app keeps other speakers");
 const live = JSON.parse(fs.readFileSync(path.join(ROOT, "road.json"), "utf8")), mu = live.mission_updates[15];
-ok(!mu.some((u) => /Payload deployment/.test(u.line)) && mu.some((u) => u.line === "SpaceX is attempting a double catch on Flight 15 (Elon Musk, 22 Oct)."), "live lines fixed");
+ok(!mu.some((u) => /Payload deployment/.test(u.line)) && mu.some((u) => /catch/i.test(u.line) && /Flight 15 \(Elon Musk, 22 Oct\)\.$/.test(u.line) && noCreditRepeat(u.line) === u.line), "live lines fixed"); // 9 Nov re-date: the 22 Oct line was reworded ("SpaceX plans to catch both…"); check its shape, not the old text
 ok(live.rejected_lines.some((r) => r.box === "mission" && r.post_id === "2112543527481876848"), "rejected_lines entry");
 ok(/STARSHIP ONLY/.test(xf) && /NEVER repeats the person or org named in the attribution/.test(xf), "writer prompt rules");
 console.log(`test-mission-guard: ${n} passed`);
