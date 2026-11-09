@@ -839,6 +839,17 @@
       "verdict": "silent: minor other — a push went out 4.8h ago (quiet window 24h)",
       "gate": "hold passed (1 run)",
       "key": "B22|other|9 Nov"
+    },
+    {
+      "title": "💥 Static fires: In progress",
+      "body": "Booster 22 lifted onto transport stand heading to launch site.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2119898461885853731",
+      "url": "https://x.com/Blobifie/status/2119898461885853731",
+      "at": "2026-11-09T21:02:33.000Z",
+      "sent_at": "2026-11-09T21:16:09.891Z",
+      "where": "road",
+      "verdict": "silent: media-only update of a known event — stale: already pushed 24 Oct (B22 rollout)",
+      "stale": true
     }
   ]
 }
