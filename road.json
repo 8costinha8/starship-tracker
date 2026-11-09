@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "9 Nov",
-  "updatedAt": "2026-11-09T15:45:31.782Z",
+  "updatedAt": "2026-11-09T17:30:44.162Z",
   "categories": [
     {
       "id": "cryo",
@@ -3298,14 +3298,6 @@
       },
       {
         "topic": "catch",
-        "line": "SpaceX could attempt Flight 15 within a week with double catch (NSF reports, 7 Nov).",
-        "at": "2026-11-07T23:56:29.000Z",
-        "src": "@NASASpaceflight",
-        "url": "https://x.com/NASASpaceflight/status/2119217458729124052",
-        "post_id": "2119217458729124052"
-      },
-      {
-        "topic": "catch",
         "line": "SpaceX ready to attempt tower catch of Ship on Flight 15 (SpaceX, 8 Nov).",
         "at": "2026-11-08T01:25:35.000Z",
         "src": "@SpaceflightNow",
@@ -3327,6 +3319,14 @@
         "src": "@LabPadre",
         "url": "https://x.com/LabPadre/status/2119807846019706982",
         "post_id": "2119807846019706982"
+      },
+      {
+        "topic": "trajectory",
+        "line": "New marine hazard area announced for Starship Flight 15 on November 13 (LabPadre, 9 Nov).",
+        "at": "2026-11-09T17:19:09.000Z",
+        "src": "@LabPadre",
+        "url": "https://x.com/LabPadre/status/2119842240050676139",
+        "post_id": "2119842240050676139"
       }
     ]
   },
@@ -3346,6 +3346,16 @@
     }
   ],
   "feed_items": [
+    {
+      "id": "news-mw9izwso-d561fb",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "A new marine hazard area was issued for Flight 15.",
+      "url": "https://x.com/LabPadre/status/2119842240050676139",
+      "at": "2026-11-09T17:19:09.000Z",
+      "date": "9 Nov",
+      "flight": 15
+    },
     {
       "id": "news-mw9e45mw-826155",
       "kind": "news",
