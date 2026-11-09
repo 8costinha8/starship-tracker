@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "9 Nov",
-  "updatedAt": "2026-11-09T21:45:52.378Z",
+  "updatedAt": "2026-11-09T22:01:33.667Z",
   "categories": [
     {
       "id": "cryo",
@@ -2369,7 +2369,18 @@
           },
           "frameChecked": true,
           "edited_from": "Booster 22 making moves ahead of potential rollout to Pad 2.",
-          "edited": true
+          "edited": true,
+          "cascade": {
+            "first_at": "2026-11-09T21:07:01.000Z",
+            "sources": [
+              {
+                "post_id": "2119899586005536831",
+                "author": "NASASpaceflight",
+                "tier": 2,
+                "at": "2026-11-09T21:07:01.000Z"
+              }
+            ]
+          }
         },
         {
           "id": "x-2119447093546991754",
@@ -2435,7 +2446,15 @@
           },
           "frameChecked": true,
           "edited_from": "Another deluge test completed at Pad 2.",
-          "edited": true
+          "edited": true,
+          "photo_alternatives": [
+            {
+              "image": "https://pbs.twimg.com/amplify_video_thumb/2119446229587460096/img/8vJyqi7hzyPGKgfY.jpg",
+              "type": "video",
+              "post_url": "https://x.com/RGVaerialphotos/status/2119447093546991754",
+              "author": "RGVaerialphotos"
+            }
+          ]
         },
         {
           "id": "x-2118577080837574862",
