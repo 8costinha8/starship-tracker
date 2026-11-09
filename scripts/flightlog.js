@@ -100,8 +100,17 @@
     const at = l && Number(l.flight) === Number(n) && l.at ? l.at : typeof globalThis !== "undefined" && typeof globalThis.ST_LAUNCH === "function" ? globalThis.ST_LAUNCH(n) : null;
     return at && Number.isFinite(Date.parse(at)) ? at : null;
   }
-  function boxes(road, today = ukDay(new Date(typeof globalThis !== "undefined" && typeof globalThis.ST_NOW === "function" ? globalThis.ST_NOW() : Date.now()).toISOString()), opts = {}) { // ST_NOW: the app clock
-    // opts.net: { n, date } = the hero's Launch Library NET (app only, display only). Never stored, never pushed: the checkers call boxes(road) without it.
+  // last NET named in road.json's Launch date line for flight n (app display only, while the hero lookup is pending); "" if none
+function lastKnownNet(road, n) {
+  const c = ((road && road.categories) || []).find((x) => x.id === "date") || {};
+  for (const s of [c.log_latest, c.latest]) {
+    const m = /\bNET (\d{1,2} (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec))[a-z]*\b/.exec(String(s || "")), f = /\bFlight (\d+)\b/.exec(String(s || ""));
+    if (m && (!f || Number(f[1]) === Number(n))) return `NET ${m[1]}`;
+  }
+  return "";
+}
+function boxes(road, today = ukDay(new Date(typeof globalThis !== "undefined" && typeof globalThis.ST_NOW === "function" ? globalThis.ST_NOW() : Date.now()).toISOString()), opts = {}) { // ST_NOW: the app clock
+    // opts.net: { n, date } = the hero's Launch Library NET (app only, display only); opts.pending: that lookup hasn't answered yet. Never stored, never pushed: the checkers call boxes(road) without it.
     if (!road || !Array.isArray(road.categories)) return {};
     const vs = vehicles(road), n = road.flight;
     const pins = road.flightlog_pins && Number(road.flightlog_pins.flight) === Number(n) ? road.flightlog_pins : null;
@@ -130,6 +139,9 @@
         // no "Estimated", no prediction label). Display only: the line, pill and stored data are unchanged, so nothing new is pushed or logged.
         const hn = id === "date" && !off && opts && opts.net && Number(opts.net.n) === Number(n) && Number.isFinite(Date.parse(opts.net.date)) ? opts.net : null;
         if (hn) latest = `NET ${ukDay(hn.date)}`;
+        // 9 Nov: while the hero's Launch Library lookup is still pending (fresh load, no cache), never flash "No official Flight N
+        // date yet": show the last NET in road.json's own date line for this flight ("Flight 15 NET 13 Nov." → "NET 13 Nov"), else nothing.
+        else if (id === "date" && !off && !est && opts && opts.pending) latest = lastKnownNet(road, n);
         const lift = id === "date" ? launchOf(road) : null; // after liftoff the date box is history, not a forecast
         if (lift) { const t = `Flight ${n} launched on ${ukDay(lift)} at ${ukTime(lift)} UK time.`; cards[0].lines[0] = { day: ukDay(lift), time: ukTime(lift), text: t, at: lift, url: "" }; status = "done"; statusText = "Complete"; latest = t; }
       } else {

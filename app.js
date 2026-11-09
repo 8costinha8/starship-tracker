@@ -594,6 +594,7 @@ function flightFromLL2(full) {
 function useNextFlight() {
   const [live, setLive] = React.useState(null);
   const [checkedAt, setCheckedAt] = React.useState(null);
+  const [settled, setSettled] = React.useState(false); // 9 Nov: false until the first Launch Library lookup answers (or is skipped)
   React.useEffect(() => {
     const persist = !getMock();
     let meta = { data: null, fetchedAt: 0, ttl: 0, url: null, listAt: 0, failedAt: 0 };
@@ -603,7 +604,7 @@ function useNextFlight() {
         const c = JSON.parse(localStorage.getItem(CACHE_KEY));
         if (c?.data && c.fetchedAt > meta.fetchedAt) { // includes a fresher copy saved by another tab
           meta = { ...meta, url: null, listAt: 0, ttl: CACHE_MS, ...c };
-          setLive(c.data); setCheckedAt(c.fetchedAt);
+          setLive(c.data); setCheckedAt(c.fetchedAt); setSettled(true);
         }
       } catch {}
     };
@@ -617,7 +618,7 @@ function useNextFlight() {
       if (d && !finished(d) && now - meta.fetchedAt < meta.ttl) return; // still fresh
       if (now - meta.failedAt < RETRY_AFTER_FAIL_MS) return;
       const detailOnly = !!(d && meta.url && !finished(d) && isHot(d, now) && now - meta.listAt < LIST_EVERY_MS);
-      if (!ll2Spend(detailOnly ? 1 : 2)) return; // over the hourly LL2 budget: a later tick tries again
+      if (!ll2Spend(detailOnly ? 1 : 2)) { setSettled(true); return; } // over the hourly LL2 budget: a later tick tries again
       busy = true;
       let seenMax = LAST_LOGGED_N;
       let listAt = meta.listAt;
@@ -641,7 +642,7 @@ function useNextFlight() {
           if (persist) { try { localStorage.setItem(CACHE_KEY, JSON.stringify(meta)); } catch {} }
         })
         .catch(() => { meta.failedAt = nowMs(); })
-        .finally(() => { busy = false; });
+        .finally(() => { busy = false; setSettled(true); });
     };
     load();
     // Cheap local tick (no network unless due); the demo's fake clock needs a fast one.
@@ -651,7 +652,7 @@ function useNextFlight() {
     document.addEventListener("visibilitychange", onVisible);
     return () => { clearInterval(id); document.removeEventListener("visibilitychange", onVisible); };
   }, []);
-  return { flight: applyMockOverride(live), checkedAt };
+  return { flight: applyMockOverride(live), checkedAt, settled };
 }
 
 /* ───────────── pieces ───────────── */
@@ -1234,13 +1235,13 @@ function boxLatest(m, road) {
   if (m.log_latest && !later) return m.log_latest;
   return later ? (own[0] ? logLine(own[0]) : "Nothing reported yet") : m.log_latest || m.latest;
 }
-function RoadCard({ road, onEntryTap, openReq, heroNet }) {
+function RoadCard({ road, onEntryTap, openReq, heroNet, netPending }) {
   const [main, setMain] = React.useState(false);
   const xOff = useXFeedOffline(); // 9 Nov: "X feed offline" chip while the checker's X read gets HTTP 402
   React.useEffect(() => { if (openReq) setMain(true); }, [openReq]); // header chip asks it to open
   const [open, setOpen] = React.useState(null);
   // Flight Log boxes: completed milestones only, one sub-card per vehicle (scripts/flightlog.js, same rules every flight).
-  const flogBoxes = road && window.RoadFlightLog ? window.RoadFlightLog.boxes(road, undefined, { net: heroNet || null }) : null; // heroNet: Launch date box says "NET 13 Nov" like the hero (display only)
+  const flogBoxes = road && window.RoadFlightLog ? window.RoadFlightLog.boxes(road, undefined, { net: heroNet || null, pending: !!netPending }) : null; // heroNet: Launch date box says "NET 13 Nov" like the hero (display only)
   const items = road && Array.isArray(road.categories) ? road.categories.filter((m) => !ROAD_HIDDEN.includes(m.id)).map((m) => logView(m, road)).map((m) => ({ ...m, status: rollupStatus(m, road) }))
     .map((m) => { const f = flogBoxes && flogBoxes[m.id]; return f ? { ...m, status: f.status, flog: f } : m; }) : [];
   const listRef = React.useRef(null);
@@ -2015,7 +2016,7 @@ function StarshipTracker() {
   const cardEls = React.useRef({});
   const pending = React.useRef(null);
   const now = useNow(false);
-  const { flight: liveNext, checkedAt } = useNextFlight();
+  const { flight: liveNext, checkedAt, settled: nextSettled } = useNextFlight();
   const nextFlight = liveNext || placeholderFlight(LAST_LOGGED_N + 1);
   const road = React.useMemo(() => roadForHero(rawRoad, nextFlight.n), [rawRoad, nextFlight.n]); // rolls over with the top card
 
@@ -2264,7 +2265,7 @@ function StarshipTracker() {
         </header>
 
         <NextFlightCard f={nextFlight} checkedAt={checkedAt} road={road}>
-          <RoadCard road={road} onEntryTap={jumpToPost} openReq={roadOpenReq} heroNet={heroNetFor(liveNext, now)} />
+          <RoadCard road={road} onEntryTap={jumpToPost} openReq={roadOpenReq} heroNet={heroNetFor(liveNext, now)} netPending={!liveNext && !nextSettled} />
         </NextFlightCard>
         <Connector dashed label={heroLogged ? daysLabel(daysBetween(flights[0].date, nextFlight.date)) : `${daysLabel(daysSinceLatest)} since the last flight`} />
 

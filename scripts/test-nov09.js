@@ -36,7 +36,7 @@ const appFn = (name) => { const i = APP.indexOf(`function ${name}(`); const j = 
   const heroSrc = APP.slice(APP.indexOf("function heroNetFor("), APP.indexOf("\n}\n", APP.indexOf("function heroNetFor(")) + 2);
   const heroNetFor = new Function("effectiveStatus", "nowMs", `${heroSrc}; return heroNetFor;`)((f) => f.status, () => Date.parse("2026-11-09T09:30:00Z"));
   check(JSON.stringify(heroNetFor({ n: 15, status: "net", date: NET.date })) === JSON.stringify(NET) && heroNetFor({ n: 15, status: "tbc", date: NET.date }) === null && heroNetFor(null) === null, "heroNetFor: only a hero NET date is passed to the Road card");
-  check(/<RoadCard [^>]*heroNet=\{heroNetFor\(liveNext, now\)\}/.test(APP) && /RoadFlightLog\.boxes\(road, undefined, \{ net: heroNet \|\| null \}\)/.test(APP), "app: RoadCard gets the hero NET and passes it to the Flight Log boxes");
+  check(/<RoadCard [^>]*heroNet=\{heroNetFor\(liveNext, now\)\}/.test(APP) && /RoadFlightLog\.boxes\(road, undefined, \{ net: heroNet \|\| null(?:, pending: !!netPending)? \}\)/.test(APP), "app: RoadCard gets the hero NET and passes it to the Flight Log boxes");
   // no checker passes a NET: the stored data, pushes and alerts can't see the new headline
   const writers = fs.readdirSync(__dirname).filter((f) => f.endsWith(".js") && !f.startsWith("test-")).filter((f) => /\.boxes\([^)]*net\s*:/.test(fs.readFileSync(path.join(__dirname, f), "utf8")));
   check(writers.length === 0, `no checker script passes a NET to boxes() (${writers.join(", ") || "none"})`);
