@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "9 Nov",
-  "updatedAt": "2026-11-09T04:45:38.794Z",
+  "updatedAt": "2026-11-09T06:02:04.292Z",
   "categories": [
     {
       "id": "cryo",
@@ -4213,23 +4213,23 @@
     "https://pbs.twimg.com/media/HSBuEQiaYAAIOHV.jpg": "images/cache/media_HSBuEQiaYAAIOHV.jpg",
     "https://pbs.twimg.com/media/HWJzfqOaIAAv24s.jpg": "images/cache/media_HWJzfqOaIAAv24s.jpg",
     "https://pbs.twimg.com/amplify_video_thumb/2118556199486664704/img/JuDLPSPJnlzhbkTC.jpg": "images/cache/amplify_video_thumb_2118556199486664704_img_JuDLPSPJnlzhbkTC.jpg",
-    "https://pbs.twimg.com/amplify_video_thumb/2118553103364743168/img/6_7b41bKYn_grAjt.jpg": "images/cache/amplify_video_thumb_2118553103364743168_img_6_7b41bKYn_grAjt.jpg"
+    "https://pbs.twimg.com/amplify_video_thumb/2118553103364743168/img/6_7b41bKYn_grAjt.jpg": "images/cache/amplify_video_thumb_2118553103364743168_img_6_7b41bKYn_grAjt.jpg",
+    "https://pbs.twimg.com/amplify_video_thumb/2119446229587460096/img/8vJyqi7hzyPGKgfY.jpg": "images/cache/amplify_video_thumb_2119446229587460096_img_8vJyqi7hzyPGKgfY.jpg"
   },
   "self_check": {
-    "at": "2026-11-08T06:01:26.099Z",
-    "fixes": 6,
-    "flags": 2,
+    "at": "2026-11-09T06:02:03.929Z",
+    "fixes": 1,
+    "flags": 1,
     "counts": {
-      "source-badge": 6
+      "image-cache": 1
     },
     "judge_calls": 0,
     "flagged": [
-      "[render-tense] Feed news-mw72afio-c6e295: \"Starbase prepared for a Flight 15 double catch.\" is a headline fragment (no subject article / auxiliary)",
       "[render-date] pad S42: Flight Log shows 12 Sep · 16:39 (\"Ship 42 was lifted to catch height by the Pad 2 chopsticks.\"), no Road card line at that time (card 7 Nov · 16:11)"
     ],
     "render": {
       "status": "failed",
-      "failures": 2
+      "failures": 1
     }
   }
 }
