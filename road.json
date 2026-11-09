@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "9 Nov",
-  "updatedAt": "2026-11-09T21:16:08.602Z",
+  "updatedAt": "2026-11-09T21:30:51.833Z",
   "categories": [
     {
       "id": "cryo",
@@ -3464,6 +3464,16 @@
   ],
   "feed_items": [
     {
+      "id": "news-mw9rrxc8-6ac1cd",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Booster 22 was brought out of Megabay 1.",
+      "url": "https://x.com/LabPadre/status/2119904079321412037",
+      "at": "2026-11-09T21:24:53.000Z",
+      "date": "9 Nov",
+      "flight": 15
+    },
+    {
       "id": "news-mw9izwso-d561fb",
       "kind": "news",
       "title": "🚀 Starship",
@@ -3925,20 +3935,6 @@
       "flight": 15,
       "src": "@NASASpaceflight",
       "push_text": "Booster 22 is being lifted onto launch pad 2",
-      "box": "static",
-      "card_hide": "2026-11-03 near-duplicate of a row already on the Booster 22 static fire card"
-    },
-    {
-      "id": "news-mvm4mfz4-21e7ea",
-      "kind": "news",
-      "title": "🚀 Starship",
-      "body": "Booster 22 left Mega Bay 1, preparing to roll out to the launch site for testing.",
-      "url": "https://x.com/NASASpaceflight/status/2113907865060819060",
-      "at": "2026-10-24T08:18:04.000Z",
-      "date": "24 Oct",
-      "flight": 15,
-      "src": "@NASASpaceflight",
-      "push_text": "Booster 22 has left Mega Bay 1 preparing to roll out to the launch site for testing",
       "box": "static",
       "card_hide": "2026-11-03 near-duplicate of a row already on the Booster 22 static fire card"
     }
