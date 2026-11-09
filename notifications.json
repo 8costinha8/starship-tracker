@@ -827,6 +827,18 @@
       "verdict": "silent: minor other — a push went out 2.3h ago (quiet window 24h)",
       "gate": "hold passed (1 run)",
       "key": "F15|other|9 Nov"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "Flight 15 targeting double catch of booster and ship (NSF reports, 9 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/NASASpaceflight/status/2119882968650953113",
+      "at": "2026-11-09T20:00:59.000Z",
+      "sent_at": "2026-11-09T20:30:33.449Z",
+      "where": "mission",
+      "verdict": "silent: minor other — a push went out 4.8h ago (quiet window 24h)",
+      "gate": "hold passed (1 run)",
+      "key": "B22|other|9 Nov"
     }
   ]
 }
