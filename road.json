@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "9 Nov",
-  "updatedAt": "2026-11-09T18:00:58.815Z",
+  "updatedAt": "2026-11-09T20:06:05.953Z",
   "categories": [
     {
       "id": "cryo",
@@ -3297,14 +3297,6 @@
         "data_fix": "restored 29 Oct: a14b353 overwrote it (mission updates are now additive)"
       },
       {
-        "topic": "catch",
-        "line": "SpaceX ready to attempt tower catch of Ship on Flight 15 (SpaceX, 8 Nov).",
-        "at": "2026-11-08T01:25:35.000Z",
-        "src": "@SpaceflightNow",
-        "url": "https://x.com/SpaceflightNow/status/2119239880920510952",
-        "post_id": "2119239880920510952"
-      },
-      {
         "topic": "licence",
         "line": "FAA issues new launch advisory for Starship Flight 15 Starbase operations (FAA, 9 Nov).",
         "at": "2026-11-09T15:02:25.000Z",
@@ -3327,6 +3319,14 @@
         "src": "@LabPadre",
         "url": "https://x.com/LabPadre/status/2119842240050676139",
         "post_id": "2119842240050676139"
+      },
+      {
+        "topic": "catch",
+        "line": "Flight 15 targeting double catch of booster and ship (NSF reports, 9 Nov).",
+        "at": "2026-11-09T20:00:59.000Z",
+        "src": "@NASASpaceflight",
+        "url": "https://x.com/NASASpaceflight/status/2119882968650953113",
+        "post_id": "2119882968650953113"
       }
     ]
   },
