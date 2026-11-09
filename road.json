@@ -856,7 +856,8 @@
               "handle": "SpaceX",
               "phase": "progress",
               "tier": 1,
-              "self_check": "from feed news-mvo8qv2g-e23cc6"
+              "self_check": "from feed news-mvo8qv2g-e23cc6",
+              "log_text": "Booster 22 completed a full-duration static fire for Flight 15."
             }
           ]
         },
@@ -1091,7 +1092,8 @@
               "handle": "RGVaerialphotos",
               "phase": "progress",
               "tier": 2,
-              "self_check": "from feed news-mvt772o8-49339e"
+              "self_check": "from feed news-mvt772o8-49339e",
+              "log_text": "Ship 42 and the tiled barrel section arrived back at the production site."
             },
             {
               "date": "29 Oct",
@@ -1520,7 +1522,8 @@
               "handle": "RGVaerialphotos",
               "phase": "progress",
               "tier": 2,
-              "self_check": "from feed news-mvown148-6ecbdb"
+              "self_check": "from feed news-mvown148-6ecbdb",
+              "log_text": "Booster 22 was moved onto its transporter ahead of returning to Megabay 1."
             },
             {
               "date": "26 Oct",
@@ -2597,8 +2600,8 @@
           "text": "OLM painted dark grey at the launch mount.",
           "x_text": "OLM painted dark grey at the launch mount.",
           "push_text": "OLM at Pad 2 painted dark grey.",
-          "card_text": "OLM at Pad 2 painted dark grey.",
-          "log_text": "Pad 2 OLM painted dark grey.",
+          "card_text": "Pad 2 launch mount painted dark grey.",
+          "log_text": "Pad 2 launch mount painted dark grey.",
           "status_line": "Pad 2 OLM maintenance completed.",
           "url": "https://x.com/Blobifie/status/2117381830253101176",
           "src": "@Blobifie",
@@ -3121,7 +3124,7 @@
       "color": "#FFC93D",
       "status": "progress",
       "doneText": "Confirmed",
-      "latest": "Flight 15 is targeting NET 13 Nov, with the window opening at 22:45 UK, pending regulatory approval.",
+      "latest": "Flight 15 NET 13 Nov.",
       "history": [
         {
           "date": "14 Oct",
@@ -3145,16 +3148,16 @@
             "migrated": true
           },
           "updates": [],
-          "log_text": "Flight 15 is targeting NET 8 November, with plans to catch both vehicles.",
+          "log_text": "Flight 15 was targeting NET 8 November, with plans to catch both vehicles.",
           "superseded": {
             "by": "launch_date-mvv5rls0-69f74f",
             "date": "30 Oct",
             "why": "FAA planning slide · NSF, 30 Oct: Flight 15 NET 12 Nov (was 8 Nov)"
           },
-          "card_text": "Flight 15 was targeting NET 8 November (since moved to NET 13 Nov), with plans to catch both vehicles."
+          "card_text": "Flight 15 was targeting NET 8 November, with plans to catch both vehicles."
         }
       ],
-      "log_latest": "Flight 15 is targeting NET 13 Nov, with the window opening at 22:45 UK, pending regulatory approval."
+      "log_latest": "Flight 15 NET 13 Nov."
     }
   ],
   "feedVerified": "2026-10-16T17:53:11.334Z",
@@ -4081,7 +4084,7 @@
               {
                 "day": "14 Oct",
                 "time": "",
-                "text": "Reports said Flight 15 was targeting NET 8 November (since moved to NET 12 Nov).",
+                "text": "Reports said Flight 15 was targeting NET 8 November.",
                 "at": "2026-10-14T18:22:50Z",
                 "url": "https://www.youtube.com/watch?v=eeS1nYInJ2w"
               },

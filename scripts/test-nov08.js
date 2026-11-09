@@ -130,9 +130,10 @@ async function classify(first, second, nowIso = "2026-11-07T16:00:00Z") {
   const h6 = pad.history.find((h) => h.id === "x-2118577080837574862");
   check(h6 && h6.text === deluge && h6.log_text === deluge && h6.card_text === deluge, `6 Nov pad entry: "${h6 && h6.text}" (pad.latest moves on with newer posts: "${pad.latest}")`);
   const date = live.categories.find((c) => c.id === "date");
-  const dateLine = "Flight 15 is targeting NET 13 Nov, with the window opening at 22:45 UK, pending regulatory approval.";
-  check(date.latest === dateLine && date.log_latest === dateLine, `date latest/log: "${date.latest}"`);
-  check(/NET 13 Nov/.test(date.history[0].card_text) && !/NET 12 Nov/.test(date.history[0].card_text), `14 Oct card_text moved forward to 13 Nov: "${date.history[0].card_text}"`);
+  // (9 Nov follow-up: the 8 Nov wording "Flight 15 is targeting NET 13 Nov, with the window opening at 22:45 UK, pending regulatory approval." was replaced)
+  // 9 Nov follow-up (Tusk): the 8 Nov wording was replaced by the short line, and the 14 Oct line now states only what was announced then
+  check(date.latest === "Flight 15 NET 13 Nov." && date.log_latest === "Flight 15 NET 13 Nov.", `date latest/log: "${date.latest}"`);
+  check(/NET 8 November/.test(date.history[0].card_text) && !/since moved|NET 12 Nov/.test(date.history[0].card_text) && date.history[0].card_text === date.history[0].log_text, `14 Oct card_text states only the 14 Oct announcement: "${date.history[0].card_text}"`);
   const faa = live.categories.find((c) => c.id === "faa");
   check(faa.latest === "The 26 Sep licence covers Flight 14 only, with no Flight 15 change yet." && /[.]$/.test(faa.latest), `FAA latest: "${faa.latest}"`);
   check(faa.history[0].log_text === faa.history[0].card_text, "FAA history log_text and card_text match");
