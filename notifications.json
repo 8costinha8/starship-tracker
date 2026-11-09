@@ -791,6 +791,30 @@
       "verdict": "silent: minor pad_work — a push went out 12.7h ago (quiet window 24h)",
       "gate": "not an X tracker post",
       "key": "B22|pad_work|9 Nov"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "FAA issues new launch advisory for Starship Flight 15 reentry window (FAA, 9 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/LabPadre/status/2119807846019706982",
+      "at": "2026-11-09T15:02:29.000Z",
+      "sent_at": "2026-11-09T15:45:33.294Z",
+      "where": "mission",
+      "verdict": "sent",
+      "gate": "hold passed (1 run)",
+      "key": "F15|faa_licence|9 Nov"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "FAA issues new launch advisory for Starship Flight 15 Starbase operations (FAA, 9 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/LabPadre/status/2119807831092195435",
+      "at": "2026-11-09T15:02:25.000Z",
+      "sent_at": "2026-11-09T15:45:34.006Z",
+      "where": "mission",
+      "verdict": "silent: duplicate F15|faa_licence|9 Nov",
+      "gate": "hold passed (1 run)",
+      "key": "F15|faa_licence|9 Nov"
     }
   ]
 }
