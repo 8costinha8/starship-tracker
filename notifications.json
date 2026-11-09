@@ -779,6 +779,18 @@
       "verdict": "sent",
       "gate": "hold passed (1 run)",
       "key": "starship|pad_work|8 Nov"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "SpaceX rolled Booster 22 to Starbase Pad 2.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mw8o32ao-ae633c",
+      "url": "https://www.youtube.com/watch?v=gK4lb6ifxkY",
+      "at": "2026-11-09T02:53:48.000Z",
+      "sent_at": "2026-11-09T04:30:54.992Z",
+      "where": "feed",
+      "verdict": "silent: minor pad_work — a push went out 12.7h ago (quiet window 24h)",
+      "gate": "not an X tracker post",
+      "key": "B22|pad_work|9 Nov"
     }
   ]
 }
