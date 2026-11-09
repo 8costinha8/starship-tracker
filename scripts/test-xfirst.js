@@ -17,7 +17,7 @@ const xReply = (posts, newest) => ({ ok: true, status: 200, json: async () => ({
   const roadPath = path.join(tmp, "road.json"), appJsPath = path.join(tmp, "app.js");
   fs.copyFileSync(path.join(ROOT, "road.json"), roadPath); fs.copyFileSync(path.join(ROOT, "app.js"), appJsPath);
   { // this scenario is "S43 with no cryo done yet": drop the real Flight 16 audit cards (Road page only) from the fixture copy
-    const rj = JSON.parse(fs.readFileSync(roadPath, "utf8")); for (const c of rj.categories) c.history = (c.history || []).filter((h) => !(h.audit && h.flight === 16)); fs.writeFileSync(roadPath, JSON.stringify(rj, null, 2) + "\n"); }
+    const rj = JSON.parse(fs.readFileSync(roadPath, "utf8")); for (const c of rj.categories) c.history = (c.history || []).filter((h) => !(h.audit && h.flight === 16) && !(h.at && Date.parse(h.at) > NOW)); /* 9 Nov: rows dated after the test clock (16 Oct) dropped — history is now date-sorted (history-cap.js), so live November rows would sit above the test posts */ fs.writeFileSync(roadPath, JSON.stringify(rj, null, 2) + "\n"); }
   const before = JSON.parse(fs.readFileSync(roadPath, "utf8"));
   const oldCards = before.categories.flatMap((c) => (c.history || []).filter((h) => h.kind !== "check").map((h) => `${c.id}|${h.date}|${h.text}`));
   const mediaBefore = fs.readFileSync(path.join(ROOT, "road-media.json"), "utf8");
@@ -54,8 +54,10 @@ const xReply = (posts, newest) => ({ ok: true, status: 200, json: async () => ({
   check(urls.length === 1 && urls[0].searchParams.get("since_id") === "900", "next run reads only posts since the last id (one X call)");
   check(asks.length === 1 && !/#1007/.test(asks[0]) && /#1003/.test(asks[0]), "ONE batched writer call; Elon's non-Starship post never sent");
   check(/memes, opinions, jokes, renders/.test(asks[0]) && /"cryo"/.test(asks[0]) && /"faa"/.test(asks[0]), "prompt: road (with a stage) / news / skip, memes/opinions/renders skipped");
-  const cryo = B("cryo").history[0];
-  check(cryo.id === "x-1001" && cryo.x_first && cryo.stage === "cryo" && cryo.x_text === "Ship 43 rolled to Massey's for cryo testing." && cryo.src === "@LabPadre" && cryo.url === "https://x.com/RGVaerialphotos/status/1002", "road post → card on top of its stage box (writer text, @author, link)");
+  // 9 Nov: history is date-sorted (history-cap.js), so the card is found by id and the box must read newest first
+  const cryo = B("cryo").history.find((h) => h.id === "x-1001") || {}, ats = B("cryo").history.filter((h) => h.at).map((h) => h.at);
+  check(ats.every((t, i) => !i || ats[i - 1] >= t), "cryo box reads newest first");
+  check(cryo.id === "x-1001" && cryo.x_first && cryo.stage === "cryo" && cryo.x_text === "Ship 43 rolled to Massey's for cryo testing." && cryo.src === "@LabPadre" && cryo.url === "https://x.com/RGVaerialphotos/status/1002", "road post → card in its stage box (writer text, @author, link)");
   check(cryo.x_posts.join() === "1001,1002" && cryo.media_override.type === "video" && cryo.media_override.image === "https://pbs.twimg.com/1002-poster.jpg" && cryo.media_override.author === "RGVaerialphotos", "S43 (no cryo done yet) posts within 48h merge into one card; video beats photo (preview image)");
   check(B("static").history[0].media_override.image === "https://pbs.twimg.com/1005-poster.jpg" && B("pad").history[0].media_override.image === "https://pbs.twimg.com/1006.jpg", "video card uses its preview image, photo card its photo");
   check(!/(status\/|x[-:])100[34]\b/.test(JSON.stringify(r)), "skip and news posts make no card");

@@ -1131,7 +1131,7 @@ function applyUpdates(road, items, updates, log, limit) {
     }
     const placeholder = (box.history || []).filter(isCheck);
     if (placeholder.length) log(`removed "no news yet" line from [${box.id}]: real news landed`);
-    box.history = sortHistory([entry, ...(box.history || []).filter((h) => !isCheck(h))]).slice(0, LIMITS.historyPerBox);
+    box.history = [entry, ...(box.history || []).filter((h) => !isCheck(h))]; capHistory(box, LIMITS.historyPerBox, road); // agreed Flight Log rows are never trimmed
     changes.push(change);
   }
   return changes;
@@ -1141,30 +1141,7 @@ function applyUpdates(road, items, updates, log, limit) {
 // ("7 Oct", "9–10 Sep", "30 Sep–2 Oct": the last day counts). Same London day:
 // real news goes above a "no news yet" check line; both have "at" → by time;
 // otherwise the current order is kept (stable sort).
-const MONTHS = { jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11 };
-function londonDayKey(d) {
-  const p = Object.fromEntries(new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/London", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(d).map((x) => [x.type, x.value]));
-  return Number(`${p.year}${p.month}${p.day}`);
-}
-function historyDayKey(h, now = new Date()) {
-  if (h.at && Number.isFinite(new Date(h.at).getTime())) return londonDayKey(new Date(h.at));
-  const m = [...String(h.date || "").matchAll(/(\d{1,2})\s*([A-Za-z]{3})[a-z]*\.?(?:\s+(\d{4}))?/g)].pop();
-  if (!m || MONTHS[m[2].toLowerCase()] === undefined) return null;
-  const month = MONTHS[m[2].toLowerCase()], day = Number(m[1]);
-  let year = m[3] ? Number(m[3]) : now.getUTCFullYear();
-  if (!m[3] && Date.UTC(year, month, day) > now.getTime() + 7 * 86400000) year -= 1; // "28 Dec" seen in January
-  return year * 10000 + (month + 1) * 100 + day;
-}
-function sortHistory(list, now = new Date()) {
-  return list.map((h, i) => ({ h, i, k: historyDayKey(h, now) }))
-    .sort((a, b) => {
-      if (a.k !== b.k) return a.k === null ? 1 : b.k === null ? -1 : b.k - a.k; // undated go last
-      if (isCheck(a.h) !== isCheck(b.h)) return isCheck(a.h) ? 1 : -1; // same day: real news wins
-      if (a.h.at && b.h.at && a.h.at !== b.h.at) return String(b.h.at).localeCompare(String(a.h.at));
-      return a.i - b.i;
-    })
-    .map((x) => x.h);
-}
+const { MONTHS, londonDayKey, historyDayKey, sortHistory, capHistory } = require("./history-cap.js"); // moved to history-cap.js 9 Nov (shared with x-first.js), unchanged
 
 // "No news yet" lines (kind: "check") are no longer made (11 Oct 2026): the app
 // shows seen / new entries instead. This now only clears out any old ones,

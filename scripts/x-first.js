@@ -168,6 +168,8 @@ function contextImage(road, stage, hardware, exceptId, picks = []) {
   const best = cands[0]; if (best) delete best.prefer;
   return best || null;
 }
+// the Road history limit lives in check-road.js LIMITS.historyPerBox (read at call time: check-road requires this file first)
+function historyPerBox() { const n = Number(((require("./check-road.js") || {}).LIMITS || {}).historyPerBox); return Number.isFinite(n) && n > 0 ? n : 12; }
 function placePost(road, post, cls, now = Date.now(), picks = []) {
   cls = { ...cls, text: require("./push-sync.js").cleanText(cls.text) }; // no public source names in app text
   const TS = require("./text-split.js"), confirmedCls = !cls.inferred && cls.speculative !== true && !cls.journey_likely;
@@ -242,7 +244,7 @@ function placePost(road, post, cls, now = Date.now(), picks = []) {
   if (cls.inferred) entry.trust = "unconfirmed";
   if (type) { entry.milestone = { key: mk, type, flight, hardware: key || null, phase }; if (!Number.isInteger(entry.flight) && flight !== road.flight) entry.flight = flight; if (phase === "completed") entry.complete = true; }
   if (!entry.media_override && type) { const cx = contextImage(road, cls.stage, cls.hardware, entry.id, picks); if (cx) entry.media_context = cx; }
-  box.history = [entry, ...(box.history || [])].slice(0, 12);
+  box.history = [entry, ...(box.history || [])]; require("./history-cap.js").capHistory(box, historyPerBox(), road, new Date(now)); // agreed Flight Log rows are never trimmed
   if (require("./summary-scope.js").inScope(road, entry) && entry.trust !== "unconfirmed") { box.latest = cls.text.slice(0, 160); if (statusLine || logText) box.log_latest = statusLine || require("./cleanup.js").shortLine(logText); } // a later flight's post never becomes this flight's headline
   return { box, entry, merged: false, accurate, tier, phase: type ? { from: null, to: phase } : null };
 }
