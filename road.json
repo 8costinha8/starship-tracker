@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "10 Nov",
-  "updatedAt": "2026-11-10T14:15:37.426Z",
+  "updatedAt": "2026-11-10T14:31:58.864Z",
   "categories": [
     {
       "id": "cryo",
@@ -2366,12 +2366,16 @@
           "xChecked": true,
           "imageChecked2": true,
           "media_override": {
-            "post_url": "https://x.com/CSI_Starbase/status/2120046271859921250",
-            "post_id": "2120046271859921250",
-            "author": "CSI_Starbase",
-            "type": "video",
-            "image": "https://pbs.twimg.com/amplify_video_thumb/2120045857915686913/img/VuupYK7GChXb2QMk.jpg",
-            "video_url": "https://video.twimg.com/amplify_video/2120045857915686913/vid/avc1/1920x1080/COKP-lozMqmANeip.mp4"
+            "post_url": "https://x.com/colleenadastra/status/2120050105134825906",
+            "post_id": "2120050105134825906",
+            "author": "colleenadastra",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HWvq8UtXAAAkRrQ.jpg",
+            "auto": true,
+            "quality": 5,
+            "media_score": 683,
+            "checked_at": "2026-11-10T14:30:55.620Z",
+            "crop": "top"
           },
           "tier": 2,
           "milestone": {
@@ -2391,8 +2395,8 @@
             {
               "image": "https://pbs.twimg.com/amplify_video_thumb/2120045857915686913/img/VuupYK7GChXb2QMk.jpg",
               "type": "video",
-              "post_url": "https://x.com/CSI_Starbase/status/2120046271859921250",
-              "author": "CSI_Starbase"
+              "post_url": "https://x.com/colleenadastra/status/2120050105134825906",
+              "author": "colleenadastra"
             },
             {
               "image": "https://pbs.twimg.com/media/HWvIsxEbwAAY2v9.jpg",
@@ -2402,7 +2406,15 @@
             }
           ],
           "edited_from": "Booster 22 lifted to top of tower ready for launch.",
-          "edited": true
+          "edited": true,
+          "alt_media": {
+            "post_url": "https://x.com/CSI_Starbase/status/2120046271859921250",
+            "post_id": "2120046271859921250",
+            "author": "CSI_Starbase",
+            "type": "video",
+            "image": "https://pbs.twimg.com/amplify_video_thumb/2120045857915686913/img/VuupYK7GChXb2QMk.jpg",
+            "show": false
+          }
         },
         {
           "id": "x-2117466177400434911",
@@ -2492,8 +2504,8 @@
             {
               "image": "https://pbs.twimg.com/amplify_video_thumb/2120045857915686913/img/VuupYK7GChXb2QMk.jpg",
               "type": "video",
-              "post_url": "https://x.com/CSI_Starbase/status/2120046271859921250",
-              "author": "CSI_Starbase"
+              "post_url": "https://x.com/colleenadastra/status/2120050105134825906",
+              "author": "colleenadastra"
             },
             {
               "image": "https://pbs.twimg.com/media/HWvIsxEbwAAY2v9.jpg",
