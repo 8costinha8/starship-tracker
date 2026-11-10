@@ -40,7 +40,8 @@ const logHash = crypto.createHash("sha1").update(fn("RoadCard") + cssLog).digest
 // 9 Nov (Bernardo's 3 Nov rule, Tusk batch): re-approved with the Launch date box taking the hero NET and the "X feed offline" chip;
 // 9 Nov (Tusk, capHistory batch): + netPending (no "No official date" flash while the hero lookup is pending)
 // 10 Nov (one-date display): RoadCard folds the Launch date box to a single authoritative NET; checkers unchanged
-check(logHash === "c4a0b9d83674207f865180846fdf36a1e01a8f4c", "Flight Log card code and CSS byte-identical to the approved version (three-state ○◐● status, full-only counter)");
+// 10 Nov (ui3): display-only vehicle label, pad feed lines on the Flight Log, and FAA "Licence not yet issued"
+check(logHash === "ebe15a421e88538ec6861a1a296ec9dbfdfebfe7", "Flight Log card code and CSS byte-identical to the approved version (three-state ○◐● status, full-only counter)");
 check(/<summary>Earlier updates<\/summary>/.test(fn("BuildUp")) && /\.buildup:not\(\.feed-bu\) summary \{ display: inline-flex; align-items: center; gap: 4px;/.test(app) && !/<a /.test(fn("BuildUp").split(": <li key={i}><div")[0]), "Flight Log build-up has no count, chevron inline at text height; a new X url doesn't turn its line into a link");
 // Flight Log earlier updates: no @handle chips; a post-backed line is an invisible tap area → Road to Flight card; others inert
 { const B = fn("BuildUp"), css = app.split("\n").filter((l) => /li\.bu-tap/.test(l)).join("\n");

@@ -7,7 +7,14 @@ let pass = 0, fail = 0; const check = (ok, name) => { if (ok) { pass++; console.
 const snap = path.join(__dirname, "..", "data", "snapshots", "2026-10-31-render", "road.json");
 const road = JSON.parse(fs.readFileSync(snap, "utf8"));
 const before = RC.check(road), has = (t, re) => before.some((f) => f.type === `render-${t}` && re.test(f.msg));
-check(has("date", /newest Launch date card says "Flight 15 is now targeting NET 8 November/), "launch date: stale NET 8 Nov card caught");
+// 10 Nov: the Road view keeps only the newest Launch date card (including unboxed
+// launch_date feed items), so this snapshot's 30 Oct slip is the card render-check
+// sees and it matches predicted NET. The stale-card detector is still covered
+// when later launch_date items are removed.
+check(!has("date", /newest Launch date card says /), "launch date: 31 Oct snapshot's newest card matches predicted NET");
+{ const syn = JSON.parse(JSON.stringify(road));
+  syn.feed_items = (syn.feed_items || []).filter((f) => f.kind !== "launch_date");
+  check(RC.check(syn).some((f) => f.type === "render-date" && /newest Launch date card says "Flight 15 is now targeting NET 8 November/.test(f.msg)), "launch date: stale NET 8 Nov card still caught when it is the newest"); }
 check(has("date", /static S42: Flight Log shows 27 Oct · 21:45, Road card shows 28 Oct · 11:25/), "S42 static fire: two event times caught");
 // 9 Nov: the Flight Log's pinned pad lines now also show in the vehicle's Road pad drawer (app.js rtfCards), so the 31 Oct case
 // (pinned 13 Sep 05:02 line with no Road post) is fixed by design; the detector still catches a Flight Log line the card does not show.

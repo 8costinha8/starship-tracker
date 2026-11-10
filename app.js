@@ -476,9 +476,11 @@ function heroVehicles(f, road) {
   const boo = road.vehicles.find((v) => /^B\d+$/i.test(v)), ship = road.vehicles.find((v) => /^S\d+$/i.test(v));
   return boo || ship ? { ...f, ...(boo ? { booster: boo } : {}), ...(ship ? { ship } : {}) } : f;
 }
+function vehicleLabel(f) {
+  return f && f.block ? `Vehicle ${f.block}` : "Vehicle";
+}
 function vehicleLine(f) {
   const parts = [];
-  if (f.block) parts.push(f.block);
   if (f.booster) parts.push(`Booster ${String(f.booster).replace(/^B/i, "")}`);
   if (f.ship) parts.push(`Ship ${String(f.ship).replace(/^S/i, "")}`);
   return parts.length ? parts.join(", ") : "To be announced";
@@ -588,6 +590,52 @@ function launchDateDisplay(flogDate, netLabel) {
   // Unofficial: keep only the box header (latest). Drop the inner Flight Log entry so the date is not
   // repeated as a day stamp plus the same NET label under the headline. No "No official" wording.
   return { ...flogDate, latest: label, cards: [] };
+}
+// Display only (RoadCard): current-flight pad feed items on the Flight Log vehicle cards, newest first.
+// Checkers still call boxes() and do not see these lines. 7 Nov S42 catch confirmation is a feed item only.
+function feedPadLines(road) {
+  const vs = ((road && road.vehicles) || []).map(String);
+  const out = Object.fromEntries(vs.map((v) => [v, []]));
+  for (const f of (road && road.feed_items) || []) {
+    if (!f || !f.body || f.card_hide || f.later_flight || f.box !== "pad") continue;
+    if ((Number.isInteger(f.flight) ? f.flight : road.flight) !== road.flight) continue;
+    const t = String(f.body || "");
+    const named = vs.filter((v) => new RegExp(`\\b(?:${v[0] === "S" || v[0] === "s" ? "ship\\s*|s" : "booster\\s*|b"})${v.slice(1)}\\b`, "i").test(t));
+    if (!named.length) continue;
+    const p = Number.isFinite(Date.parse(f.at)) ? ukParts(f.at) : null;
+    const line = { day: (p ? `${p.day} ${p.mon}` : (f.date || "")), time: p && p.time && p.time !== "00:00" ? p.time : "", text: f.body, at: f.at || "", url: f.url || "", id: f.id };
+    for (const v of named) out[v].push(line);
+  }
+  for (const v of vs) out[v].sort((a, b) => (Date.parse(b.at || "") || 0) - (Date.parse(a.at || "") || 0));
+  return out;
+}
+function flogPadDisplay(flogPad, road) {
+  if (!flogPad || !road) return flogPad;
+  const extra = feedPadLines(road);
+  const vName = (v) => (/^S/i.test(v) ? `Ship ${v.slice(1)}` : /^B/i.test(v) ? `Booster ${v.slice(1)}` : v);
+  const cards = (flogPad.cards || []).map((c) => {
+    const add = extra[c.vehicle] || [];
+    if (!add.length) return c;
+    const seen = new Set((c.lines || []).flatMap((l) => [l.url, l.text].filter(Boolean)));
+    const fresh = add.filter((l) => !seen.has(l.url) && !seen.has(l.text));
+    if (!fresh.length) return c;
+    const lines = [...fresh, ...(c.lines || [])].sort((a, b) => (Date.parse(b.at || "") || 0) - (Date.parse(a.at || "") || 0));
+    return { ...c, lines };
+  });
+  const have = new Set(cards.map((c) => c.vehicle));
+  for (const v of (road.vehicles || []).map(String)) {
+    if (have.has(v) || !(extra[v] || []).length) continue;
+    cards.push({ vehicle: v, name: vName(v), lines: extra[v] });
+  }
+  return { ...flogPad, cards };
+}
+// Display only: no official licence → "Licence not yet issued" with no date. boxes() output is unchanged.
+function faaLicenceDisplay(flogFaa) {
+  if (!flogFaa || flogFaa.status === "done") return flogFaa;
+  const line = { day: "", time: "", text: "Licence not yet issued" };
+  const card = (flogFaa.cards && flogFaa.cards[0]) || { vehicle: "faa", name: "FAA licence" };
+  const rest = (card.lines || []).slice(1);
+  return { ...flogFaa, latest: "Licence not yet issued", cards: [{ ...card, lines: [line, ...rest] }] };
 }
 
 // Turns LL2's launch detail into the card's data.
@@ -839,7 +887,7 @@ function NextFlightCard({ f, checkedAt, road, children }) {
         <dt>{dateLabel}</dt><dd>{dateText}</dd>
         {win && <><dt>Window</dt><dd>{win}</dd></>}
         <dt>Site</dt><dd>{siteLine(f)}</dd>
-        <dt>Vehicle</dt><dd>{vehicleLine(heroVehicles(f, road))}</dd>
+        <dt>{vehicleLabel(heroVehicles(f, road))}</dt><dd>{vehicleLine(heroVehicles(f, road))}</dd>
       </dl>
       {Number(f.n) === 15 && missionCardText(road, 15) ? (
         <p className="next-note">{scrub(fillMissionCard(missionCardText(road, 15), f, road))}</p>
@@ -1277,7 +1325,7 @@ function RoadCard({ road, onEntryTap, openReq, heroNet, netPending }) {
   const flogBoxes = road && window.RoadFlightLog ? window.RoadFlightLog.boxes(road, undefined, { net: heroNet || null, pending: !!netPending }) : null; // heroNet: Launch date box says "NET 13 Nov" like the hero (display only)
   const dateNet = authoritativeNetLabel(road, heroNet);
   const items = road && Array.isArray(road.categories) ? road.categories.filter((m) => !ROAD_HIDDEN.includes(m.id)).map((m) => logView(m, road)).map((m) => ({ ...m, status: rollupStatus(m, road) }))
-    .map((m) => { const f = flogBoxes && flogBoxes[m.id]; const flog = (m.id === "date" && f) ? launchDateDisplay(f, dateNet) : f; return flog ? { ...m, status: flog.status, flog } : m; }) : [];
+    .map((m) => { const f = flogBoxes && flogBoxes[m.id]; const flog = (m.id === "date" && f) ? launchDateDisplay(f, dateNet) : (m.id === "pad" && f) ? flogPadDisplay(f, road) : (m.id === "faa" && f) ? faaLicenceDisplay(f) : f; return flog ? { ...m, status: flog.status, flog } : m; }) : [];
   const listRef = React.useRef(null);
   if (!items.length) return null;
   const title = `Road to Flight ${road.flight}`;
@@ -2013,14 +2061,46 @@ function rtfCards(road) {
   }
   return out;
 }
+// Display only (Road to Flight view): keep only the newest Launch date card for this
+// flight — date-box history plus launch_date feed items, even when a later slip was
+// never filed to the date box. Older cards stay in road.json and in the Flight Log.
+// The rule is newest-by-time; no date is hard-coded.
+function isRoadLaunchDatePost(p) {
+  const id = p && p.cat && p.cat.id;
+  return id === "date" || id === "feed-launch_date";
+}
+function currentLaunchDateId(posts, flight) {
+  let best = null, bestAt = -Infinity;
+  for (const p of posts || []) {
+    if (!isRoadLaunchDatePost(p)) continue;
+    if (Number.isInteger(p.flight) && Number(p.flight) !== Number(flight)) continue;
+    const at = Number(p.when) || Number(p.at) || 0;
+    if (at > bestAt) { bestAt = at; best = p; }
+  }
+  return best ? best.id : null;
+}
+function launchDateCat(road) {
+  const c = ((road && road.categories) || []).find((x) => x.id === "date");
+  return c ? { id: c.id, name: c.name, icon: c.icon, color: c.color } : { id: "date", name: "Launch date", icon: "🗓️", color: "#FFC93D" };
+}
+function asLaunchDatePost(p, road) {
+  if (!p || (p.cat && p.cat.id === "date")) return p;
+  return { ...p, cat: launchDateCat(road) };
+}
 function rtfRows(road) {
   const { posts, rows } = buildFeed(road);
+  const keepDateId = currentLaunchDateId(posts, road.flight);
   const res = []; let inCur = false, tail = [], head = [], headAt = -1;
   // fixed real-world order for the next flight: Cryo, Raptor, Static fires, Pad (cards above), then FAA licence, then Launch date last
   const flush = () => { tail.sort((x, y) => (x.post.cat.id === "date") - (y.post.cat.id === "date")); res.push(...tail); tail = []; };
   for (const r of rows) {
     if (r.section) { flush(); inCur = r.section.n === road.flight; res.push(r); if (inCur) { headAt = res.length; rtfCards(road).forEach((p) => res.push(p.empty ? { empty: p } : { post: p })); } continue; }
-    if (inCur && ["faa", "date"].includes(r.post.cat.id)) { tail.push(r); continue; } // FAA and Launch date: unchanged single cards, at the bottom
+    if (inCur && isRoadLaunchDatePost(r.post)) {
+      if (keepDateId && r.post.id !== keepDateId) continue; // superseded Launch date cards: hidden here, kept in the data
+      tail.push({ ...r, post: asLaunchDatePost(r.post, road) });
+      continue;
+    }
+    if (inCur && r.post.cat.id === "faa") { tail.push(r); continue; } // FAA: at the bottom, Launch date after it
     if (inCur && isMilestoneItem(r.post)) { head.push(r); continue; } // Liftoff, result, "Road to Flight N": on top, newest first
     if (inCur) continue;
     flush(); res.push(r);
@@ -2034,7 +2114,8 @@ function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap }) {
   const idx = React.useMemo(() => entryIndex(road), [road]);
   // Launch date: the section status pill (Not confirmed / Estimated / Confirmed, from the Flight Log) rides on this flight's newest date card
   const dateSt = React.useMemo(() => { const f = road && window.RoadFlightLog ? window.RoadFlightLog.boxes(road) : null; const d = f && f.date;
-    const top = d && posts.find((q) => q.cat && q.cat.id === "date" && (q.h.flight == null || q.h.flight === road.flight));
+    const keepId = currentLaunchDateId(posts, road.flight);
+    const top = d && keepId && posts.find((q) => q.id === keepId);
     return top ? { id: top.id, status: d.status, text: d.statusText } : null; }, [road, posts]);
   if (!posts.length) return null;
   return (
