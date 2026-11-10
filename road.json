@@ -2305,19 +2305,19 @@
       "name": "Pad activity",
       "color": "#A88BFF",
       "status": "complete",
-      "latest": "Complete",
+      "latest": "Booster 22 lifted to the top of the tower.",
       "history": [
         {
           "id": "x-2120046271859921250",
           "date": "10 Nov",
           "log_date": "10 Nov",
           "at": "2026-11-10T06:49:54.000Z",
-          "text": "Booster 22 lifted to top of tower ready for launch.",
-          "x_text": "Booster 22 lifted to top of tower ready for launch.",
-          "push_text": "Booster 22 lifted to top of tower, ready for launch.",
-          "card_text": "Booster 22 lifted to top of tower ready for launch.",
-          "log_text": "Booster 22 lifted to top of tower ready for launch.",
-          "status_line": "Booster 22 at launch mount ready.",
+          "text": "Booster 22 lifted to the top of the tower.",
+          "x_text": "Booster 22 lifted to the top of the tower.",
+          "push_text": "Booster 22 lifted to the top of the tower.",
+          "card_text": "Booster 22 lifted to the top of the tower.",
+          "log_text": "Booster 22 lifted to the top of the tower.",
+          "status_line": "Booster 22 on launch mount.",
           "url": "https://x.com/CSI_Starbase/status/2120046271859921250",
           "src": "@CSI_Starbase",
           "trust": "trusted",
@@ -2329,7 +2329,7 @@
             "post_id": "2120046271859921250",
             "url": "https://x.com/CSI_Starbase/status/2120046271859921250",
             "created_at": "2026-11-10T06:49:54.000Z",
-            "text": "After a long and wet journey, followed by a really odd lifting procedure taking it all the way to the top of the tower..... Booster 22 is ready for launch! 🎥: @LabPadre",
+            "text": "After a long and wet journey, followed by a really odd lifting procedure taking it all the way to the top of the tower.....\n\n Booster 22 is ready for launch!\n\n🎥: @LabPadre https://t.co/NlnUDEhOB6",
             "author": {
               "name": "Zack Golden",
               "username": "CSI_Starbase",
@@ -2377,7 +2377,9 @@
               "post_url": "https://x.com/CSI_Starbase/status/2120046271859921250",
               "author": "CSI_Starbase"
             }
-          ]
+          ],
+          "edited_from": "Booster 22 lifted to top of tower ready for launch.",
+          "edited": true
         },
         {
           "id": "x-2117466177400434911",
