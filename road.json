@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "10 Nov",
-  "updatedAt": "2026-11-10T11:15:32.612Z",
+  "updatedAt": "2026-11-10T11:30:57.893Z",
   "categories": [
     {
       "id": "cryo",
@@ -3626,14 +3626,6 @@
         "data_fix": "restored 29 Oct: a14b353 overwrote it (mission updates are now additive)"
       },
       {
-        "topic": "licence",
-        "line": "FAA issues new launch advisory for Starship Flight 15 reentry window (FAA, 9 Nov).",
-        "at": "2026-11-09T15:02:29.000Z",
-        "src": "@LabPadre",
-        "url": "https://x.com/LabPadre/status/2119807846019706982",
-        "post_id": "2119807846019706982"
-      },
-      {
         "topic": "trajectory",
         "line": "New marine hazard area announced for Starship Flight 15 on November 13 (LabPadre, 9 Nov).",
         "at": "2026-11-09T17:19:09.000Z",
@@ -3656,6 +3648,14 @@
         "src": "@LabPadre",
         "url": "https://x.com/LabPadre/status/2119907200529207572",
         "post_id": "2119907200529207572"
+      },
+      {
+        "topic": "catch",
+        "line": "Starship Flight 15 set for double-catch attempt (NASASpaceflight, 10 Nov).",
+        "at": "2026-11-10T11:27:46.000Z",
+        "src": "@NASASpaceflight",
+        "url": "https://x.com/NASASpaceflight/status/2120116199053017535",
+        "post_id": "2120116199053017535"
       }
     ]
   },
