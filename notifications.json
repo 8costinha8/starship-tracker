@@ -1471,6 +1471,29 @@
       "where": "feed",
       "verdict": "blocked: visible title differs: \"🚀 Starship\" vs push \"Correction · 🚀 Starship\"",
       "gate": "corrects \"Booster 22 heads to Pad 2 for potential launch prep.\" (2026-11-09T21:46:06.337Z)"
+    },
+    {
+      "title": "🏗️ Pad activity: In progress",
+      "body": "Pad activity: In progress (10 Nov)",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=status-pad-progress-2120080014549098871",
+      "url": "https://x.com/Blobifie/status/2120080014549098871",
+      "at": "2026-11-10T09:03:59.000Z",
+      "sent_at": "2026-11-10T09:45:31.124Z",
+      "where": "road",
+      "verdict": "silent: minor pad_work — a push went out 2.7h ago (quiet window 24h)",
+      "gate": "hold passed (1 run)",
+      "key": "starship|pad_work|10 Nov"
+    },
+    {
+      "title": "Correction · 🚀 Starship",
+      "body": "Booster 22 was brought out of Megabay 1.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mw9rrxc8-6ac1cd",
+      "url": "https://x.com/LabPadre/status/2119904079321412037",
+      "at": "2026-11-09T21:24:53.000Z",
+      "sent_at": "2026-11-10T09:45:31.132Z",
+      "where": "feed",
+      "verdict": "blocked: visible title differs: \"🚀 Starship\" vs push \"Correction · 🚀 Starship\"",
+      "gate": "corrects \"Booster 22 heads to Pad 2 for potential launch prep.\" (2026-11-09T21:46:06.337Z)"
     }
   ]
 }
