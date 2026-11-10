@@ -1664,6 +1664,10 @@ async function run(opts = {}) {
   if (queued.length) { changed = true; notifications.push(...queued); log(`${queued.length} check-flights push(es) queued → sent after the commit`); } // saved + committed with road.json, then pushed
 
   // 4b3. Pushes held by the push gate on an earlier run (waiting for a second source / one more run)
+  { // already decided (logged sent / blocked / silent in notifications.json): handled, leave the held list without a re-check or re-log (10 Nov loop)
+    const pg = state.pushGate, done = pushSync.readLog(notifLogPath).pushes;
+    if (pg && Array.isArray(pg.pending)) pg.pending = pg.pending.filter((x) => !(x && x.n && done.some((r) => r.verdict && r.url === x.n.url && r.body === x.n.body)));
+  }
   const heldBefore = ((state.pushGate || {}).pending || []).map((x) => x.n).filter((n) => n && !notifications.some((m) => m.url === n.url && m.body === n.body));
   if (heldBefore.length) { changed = true; notifications.push(...heldBefore); log(`${heldBefore.length} held push(es) re-checked this run`); }
 

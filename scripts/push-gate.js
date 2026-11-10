@@ -62,13 +62,15 @@ function correctionOf(n, history, { vehicles = [] } = {}) {
    Returns { action: send|hold|drop|media_only, n (possibly edited), reason, big, correction } */
 async function evaluate(n, { history = [], state = {}, now = Date.now(), seenPosts = [], vehicles = [], refetch = null } = {}) {
   const pend = (state.pending = state.pending || []);
+  const key = n.url || n.body;
   const corr = correctionOf(n, history, { vehicles });
+  // decided this run (correction / stale): leave the held list, or it is re-queued and re-logged every run (10 Nov loop)
+  if (corr || staleCheck(n, history, { vehicles }).stale) state.pending = pend.filter((x) => x.key !== key);
   if (corr) return { action: "send", n: { ...n, title: `Correction · ${n.title.replace(/^Correction · /, "")}` }, reason: `corrects "${corr.body}" (${corr.sent_at})`, correction: true, big: true };
   const st = staleCheck(n, history, { vehicles });
   if (st.stale) return { action: st.media_only ? "media_only" : "drop", n, reason: `stale: ${st.reason}` };
   const big = isOfficial(n) && (st.cls.milestone || BIG.test(`${n.body || ""} ${n.source_text || ""}`));
   if (n.kind === "notice" || n.where === "mission-scheduled" || isOfficial(n) || !/x\.com\//.test(n.url || "")) return { action: "send", n, reason: isOfficial(n) ? "official source" : "not an X tracker post", big };
-  const key = n.url || n.body;
   let p = pend.find((x) => x.key === key);
   const ok = corroborated(n, seenPosts, { vehicles });
   // a post already older than the hold (e.g. found late after an outage) does not wait again — it is still re-read below

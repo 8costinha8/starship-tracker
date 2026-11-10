@@ -1,0 +1,150 @@
+{
+  "items": [
+    {
+      "date": "2026-11-10T06:00:47.892Z",
+      "type": "render-tense",
+      "item": "Road card Pad activity · Booster 22 › 9 Nov · 21:07",
+      "values": [
+        "Booster 22 heads to Pad 2 for potential launch prep."
+      ],
+      "sources": [],
+      "reason": "cards and feed text are past tense (push wording stays present)",
+      "kept": null,
+      "msg": "Road card Pad activity · Booster 22 › 9 Nov · 21:07: \"Booster 22 heads to Pad 2 for potential launch prep.\" is present tense on screen"
+    },
+    {
+      "date": "2026-11-10T06:00:47.892Z",
+      "type": "render-tense",
+      "item": "Road card Pad activity · Booster 22 › 9 Nov · 21:07",
+      "values": [
+        "Booster 22 heads to Pad 2 for potential launch prep."
+      ],
+      "sources": [],
+      "reason": "full past-tense sentences on cards and feed",
+      "kept": null,
+      "msg": "Road card Pad activity · Booster 22 › 9 Nov · 21:07: \"Booster 22 heads to Pad 2 for potential launch prep.\" has no verb (fragment)"
+    },
+    {
+      "date": "2026-11-08T06:01:26.433Z",
+      "type": "render-date",
+      "item": "pad|S42",
+      "values": [
+        "12 Sep · 16:39",
+        "7 Nov · 16:11"
+      ],
+      "sources": [],
+      "reason": "one event time on every view",
+      "kept": null,
+      "msg": "pad S42: Flight Log shows 12 Sep · 16:39 (\"Ship 42 was lifted to catch height by the Pad 2 chopsticks.\"), no Road card line at that time (card 7 Nov · 16:11)"
+    },
+    {
+      "date": "2026-11-08T06:01:26.433Z",
+      "type": "render-tense",
+      "item": "Feed news-mw72afio-c6e295",
+      "values": [
+        "Starbase prepared for a Flight 15 double catch."
+      ],
+      "sources": [],
+      "reason": "full past-tense sentences on cards and feed",
+      "kept": null,
+      "msg": "Feed news-mw72afio-c6e295: \"Starbase prepared for a Flight 15 double catch.\" is a headline fragment (no subject article / auxiliary)"
+    },
+    {
+      "date": "2026-11-06T06:01:31.968Z",
+      "type": "render-mismatch",
+      "item": "https://x.com/efraser77/status/2118553539345883303",
+      "values": [
+        "Starbase tower completed deluge test.",
+        "Starbase tower completed deluge system test."
+      ],
+      "sources": [],
+      "reason": "one wording per event on card and feed",
+      "kept": null,
+      "msg": "Flight Log pad Launch pad 6 Nov: \"Starbase tower completed deluge test.\" ≠ Road card Pad activity · Launch pad › 6 Nov · 03:58: \"Starbase tower completed deluge system test.\" (same post https://x.com/efraser77/status/2118553539345883303)"
+    },
+    {
+      "date": "2026-11-06T06:01:31.968Z",
+      "type": "render-punctuation",
+      "item": "Feed news-mw43922g-ea7dc1",
+      "values": [
+        "Starship flight 15 has a tentative target date of Friday 13 November"
+      ],
+      "sources": [],
+      "reason": "card and feed lines are full sentences",
+      "kept": null,
+      "msg": "Feed news-mw43922g-ea7dc1: \"Starship flight 15 has a tentative target date of Friday 13 November\" has no full stop"
+    },
+    {
+      "date": "2026-11-06T06:01:31.968Z",
+      "type": "render-punctuation",
+      "item": "Feed news-mw44pp4o-5bca28",
+      "values": [
+        "Starship pad 39a undergoes full water deluge test"
+      ],
+      "sources": [],
+      "reason": "card and feed lines are full sentences",
+      "kept": null,
+      "msg": "Feed news-mw44pp4o-5bca28: \"Starship pad 39a undergoes full water deluge test\" has no full stop"
+    },
+    {
+      "date": "2026-11-06T06:01:31.968Z",
+      "type": "render-tense",
+      "item": "Feed news-mw44pp4o-5bca28",
+      "values": [
+        "Starship pad 39a undergoes full water deluge test"
+      ],
+      "sources": [],
+      "reason": "full past-tense sentences on cards and feed",
+      "kept": null,
+      "msg": "Feed news-mw44pp4o-5bca28: \"Starship pad 39a undergoes full water deluge test\" has no verb (fragment)"
+    },
+    {
+      "date": "2026-10-31T16:36:12.228Z",
+      "type": "event-time",
+      "item": "cryo S42 9 Oct",
+      "values": [
+        "2026-10-09T14:36:44.000Z",
+        "2026-10-09T20:30:41.000Z"
+      ],
+      "sources": [
+        "https://x.com/LabPadre/status/2108486994401825101",
+        "https://x.com/TrackingTheSB/status/2108656416366202950"
+      ],
+      "reason": "both tier 2; the 21:30 frost post reads as a later observation. Completion time kept on the Flight Log and Road card; the frost post stays as an Earlier update.",
+      "kept": "9 Oct 15:36 UK (completion post, LabPadre)",
+      "msg": "S42 cryo 9 Oct: completion 15:36 UK kept over the 21:30 frost post (tiers equal, unclear) — Flight Log and Road card now agree"
+    },
+    {
+      "date": "2026-10-31T16:14:48.578Z",
+      "type": "event-time",
+      "item": "Ship 42 completed further cryo tests.",
+      "values": [
+        "2026-10-09T14:36:44.000Z",
+        "2026-10-09T20:30:41.000Z"
+      ],
+      "sources": [
+        "https://x.com/LabPadre/status/2108486994401825101",
+        "https://x.com/TrackingTheSB/status/2108656416366202950"
+      ],
+      "reason": "completion time precedes an in-test observation on the same card",
+      "kept": "card time 2026-10-09T14:36:44.000Z (higher-tier/first source)",
+      "msg": "Ship 42 completed further cryo tests. \"Ship 42 completed further cryo tests.\" 9 Oct 15:xx UK precedes in-test row \"Frost on both tanks: Ship 42 likely in another cryo test.\" 2026-10-09T20:30:41.000Z on the same card"
+    },
+    {
+      "date": "2026-10-31T16:14:48.578Z",
+      "type": "launch-date",
+      "item": "flight-mvsjfivy-8b129a",
+      "values": [
+        "NET Nov 2026",
+        "NET 12 Nov"
+      ],
+      "sources": [
+        "FAA planning slide · NSF"
+      ],
+      "reason": "feed item is history (not rewritten); hero/card use the higher-tier day",
+      "kept": "hero NET 12 Nov",
+      "msg": "feed \"NET Nov 2026\" (flight-mvsjfivy-8b129a) is a month-only Launch Library date; hero day NET 12 Nov is the higher-tier value"
+    }
+  ],
+  "_about": "Self-check (scripts/self-check.js) clashes it could not settle by rule: the higher-tier value was kept; a human decides."
+}
