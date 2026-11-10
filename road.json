@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "10 Nov",
-  "updatedAt": "2026-11-10T01:16:41.810Z",
+  "updatedAt": "2026-11-10T01:31:46.028Z",
   "categories": [
     {
       "id": "cryo",
@@ -2379,9 +2379,18 @@
                 "author": "NASASpaceflight",
                 "tier": 2,
                 "at": "2026-11-09T21:07:01.000Z"
+              },
+              {
+                "post_id": "2119963170706178324",
+                "author": "StarshipGazer",
+                "tier": 2,
+                "at": "2026-11-10T01:19:41.000Z"
               }
-            ]
-          }
+            ],
+            "confirmed": true,
+            "confirmed_at": "2026-11-10T01:31:26.913Z"
+          },
+          "text_locked": true
         },
         {
           "id": "x-2119447093546991754",
