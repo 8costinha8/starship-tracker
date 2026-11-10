@@ -1924,6 +1924,18 @@
       "where": "feed",
       "verdict": "blocked: visible title differs: \"🚀 Starship\" vs push \"Correction · 🚀 Starship\"",
       "gate": "corrects \"Booster 22 heads to Pad 2 for potential launch prep.\" (2026-11-09T21:46:06.337Z)"
+    },
+    {
+      "title": "🏗️ Pad activity · Flight 15",
+      "body": "Pad 1 flame trench construction continues.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2120268988621971885",
+      "url": "https://x.com/NASASpaceflight/status/2120268988621971885",
+      "at": "2026-11-10T21:34:54.000Z",
+      "sent_at": "2026-11-10T21:45:43.480Z",
+      "where": "road",
+      "verdict": "sent",
+      "gate": "second trusted source agrees",
+      "key": "starship|pad_work|10 Nov"
     }
   ]
 }
