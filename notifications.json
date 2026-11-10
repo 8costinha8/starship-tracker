@@ -1593,6 +1593,29 @@
       "where": "feed",
       "verdict": "blocked: visible title differs: \"🚀 Starship\" vs push \"Correction · 🚀 Starship\"",
       "gate": "corrects \"Booster 22 heads to Pad 2 for potential launch prep.\" (2026-11-09T21:46:06.337Z)"
+    },
+    {
+      "title": "Correction · 🚀 Starship",
+      "body": "Booster 22 was brought out of Megabay 1.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mw9rrxc8-6ac1cd",
+      "url": "https://x.com/LabPadre/status/2119904079321412037",
+      "at": "2026-11-09T21:24:53.000Z",
+      "sent_at": "2026-11-10T12:00:28.005Z",
+      "where": "feed",
+      "verdict": "blocked: visible title differs: \"🚀 Starship\" vs push \"Correction · 🚀 Starship\"",
+      "gate": "corrects \"Booster 22 heads to Pad 2 for potential launch prep.\" (2026-11-09T21:46:06.337Z)"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "Starship Flight 15 set for double-catch attempt (NASASpaceflight, 10 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/NASASpaceflight/status/2120116199053017535",
+      "at": "2026-11-10T11:27:46.000Z",
+      "sent_at": "2026-11-10T12:00:28.104Z",
+      "where": "mission",
+      "verdict": "silent: minor other — a push went out 5.0h ago (quiet window 24h)",
+      "gate": "hold passed (1 run)",
+      "key": "F15|other|10 Nov"
     }
   ]
 }
