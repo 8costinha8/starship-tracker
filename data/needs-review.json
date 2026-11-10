@@ -1,6 +1,30 @@
 {
   "items": [
     {
+      "date": "2026-11-10T06:00:47.892Z",
+      "type": "render-tense",
+      "item": "Road card Pad activity · Booster 22 › 9 Nov · 21:07",
+      "values": [
+        "Booster 22 heads to Pad 2 for potential launch prep."
+      ],
+      "sources": [],
+      "reason": "cards and feed text are past tense (push wording stays present)",
+      "kept": null,
+      "msg": "Road card Pad activity · Booster 22 › 9 Nov · 21:07: \"Booster 22 heads to Pad 2 for potential launch prep.\" is present tense on screen"
+    },
+    {
+      "date": "2026-11-10T06:00:47.892Z",
+      "type": "render-tense",
+      "item": "Road card Pad activity · Booster 22 › 9 Nov · 21:07",
+      "values": [
+        "Booster 22 heads to Pad 2 for potential launch prep."
+      ],
+      "sources": [],
+      "reason": "full past-tense sentences on cards and feed",
+      "kept": null,
+      "msg": "Road card Pad activity · Booster 22 › 9 Nov · 21:07: \"Booster 22 heads to Pad 2 for potential launch prep.\" has no verb (fragment)"
+    },
+    {
       "date": "2026-11-08T06:01:26.433Z",
       "type": "render-date",
       "item": "pad|S42",

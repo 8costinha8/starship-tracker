@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "10 Nov",
-  "updatedAt": "2026-11-10T05:45:33.635Z",
+  "updatedAt": "2026-11-10T06:00:47.917Z",
   "categories": [
     {
       "id": "cryo",
@@ -2415,7 +2415,21 @@
             "type": "video",
             "image": "https://pbs.twimg.com/amplify_video_thumb/2119998394651566081/img/hT6j0B7lQUL3hfrf.jpg",
             "show": false
-          }
+          },
+          "updates": [
+            {
+              "date": "10 Nov",
+              "at": "2026-11-10T03:34:45.000Z",
+              "text": "Booster 22 was lifted for installation on Pad 2.",
+              "card_text": "Booster 22 was lifted for installation on Pad 2.",
+              "url": "https://x.com/NASASpaceflight/status/2119997160473141572",
+              "src": "@NASASpaceflight",
+              "handle": "NASASpaceflight",
+              "phase": "progress",
+              "tier": 1,
+              "self_check": "from feed news-mwa4zkso-902bd2"
+            }
+          ]
         },
         {
           "id": "x-2119447093546991754",
@@ -3544,7 +3558,8 @@
       "at": "2026-11-10T04:20:44.000Z",
       "date": "10 Nov",
       "flight": 15,
-      "box": "pad"
+      "box": "pad",
+      "src": "@RGVaerialphotos"
     },
     {
       "id": "news-mwa4zkso-902bd2",
@@ -3555,7 +3570,8 @@
       "at": "2026-11-10T03:34:45.000Z",
       "date": "10 Nov",
       "flight": 15,
-      "box": "pad"
+      "box": "pad",
+      "src": "@NASASpaceflight"
     },
     {
       "id": "news-mw9rrxc8-6ac1cd",
@@ -3566,7 +3582,8 @@
       "at": "2026-11-09T21:24:53.000Z",
       "date": "9 Nov",
       "flight": 15,
-      "box": "pad"
+      "box": "pad",
+      "src": "@LabPadre"
     },
     {
       "id": "news-mw9izwso-d561fb",
@@ -3576,7 +3593,8 @@
       "url": "https://x.com/LabPadre/status/2119842240050676139",
       "at": "2026-11-09T17:19:09.000Z",
       "date": "9 Nov",
-      "flight": 15
+      "flight": 15,
+      "src": "@LabPadre"
     },
     {
       "id": "news-mw9e45mw-826155",
@@ -3586,7 +3604,8 @@
       "url": "https://x.com/LabPadre/status/2119807846019706982",
       "at": "2026-11-09T15:02:29.000Z",
       "date": "9 Nov",
-      "flight": 15
+      "flight": 15,
+      "src": "@LabPadre"
     },
     {
       "id": "news-mw9e42js-6ba6fe",
@@ -3596,7 +3615,8 @@
       "url": "https://x.com/LabPadre/status/2119807831092195435",
       "at": "2026-11-09T15:02:25.000Z",
       "date": "9 Nov",
-      "flight": 15
+      "flight": 15,
+      "src": "@LabPadre"
     },
     {
       "id": "news-mw8o32ao-ae633c",
@@ -4430,22 +4450,28 @@
     "https://pbs.twimg.com/media/HWJzfqOaIAAv24s.jpg": "images/cache/media_HWJzfqOaIAAv24s.jpg",
     "https://pbs.twimg.com/amplify_video_thumb/2118556199486664704/img/JuDLPSPJnlzhbkTC.jpg": "images/cache/amplify_video_thumb_2118556199486664704_img_JuDLPSPJnlzhbkTC.jpg",
     "https://pbs.twimg.com/amplify_video_thumb/2118553103364743168/img/6_7b41bKYn_grAjt.jpg": "images/cache/amplify_video_thumb_2118553103364743168_img_6_7b41bKYn_grAjt.jpg",
-    "https://pbs.twimg.com/amplify_video_thumb/2119446229587460096/img/8vJyqi7hzyPGKgfY.jpg": "images/cache/amplify_video_thumb_2119446229587460096_img_8vJyqi7hzyPGKgfY.jpg"
+    "https://pbs.twimg.com/amplify_video_thumb/2119446229587460096/img/8vJyqi7hzyPGKgfY.jpg": "images/cache/amplify_video_thumb_2119446229587460096_img_8vJyqi7hzyPGKgfY.jpg",
+    "https://pbs.twimg.com/media/HWtkT5bakAEtyUO.jpg": "images/cache/media_HWtkT5bakAEtyUO.jpg",
+    "https://pbs.twimg.com/media/HWueuXHacAEIP85.jpg": "images/cache/media_HWueuXHacAEIP85.jpg",
+    "https://pbs.twimg.com/media/HWvIsxEbwAAY2v9.jpg": "images/cache/media_HWvIsxEbwAAY2v9.jpg"
   },
   "self_check": {
-    "at": "2026-11-09T06:02:03.929Z",
-    "fixes": 1,
-    "flags": 1,
+    "at": "2026-11-10T06:00:47.343Z",
+    "fixes": 10,
+    "flags": 2,
     "counts": {
-      "image-cache": 1
+      "missing-row": 1,
+      "source-badge": 6,
+      "image-cache": 3
     },
     "judge_calls": 0,
     "flagged": [
-      "[render-date] pad S42: Flight Log shows 12 Sep · 16:39 (\"Ship 42 was lifted to catch height by the Pad 2 chopsticks.\"), no Road card line at that time (card 7 Nov · 16:11)"
+      "[render-tense] Road card Pad activity · Booster 22 › 9 Nov · 21:07: \"Booster 22 heads to Pad 2 for potential launch prep.\" has no verb (fragment)",
+      "[render-tense] Road card Pad activity · Booster 22 › 9 Nov · 21:07: \"Booster 22 heads to Pad 2 for potential launch prep.\" is present tense on screen"
     ],
     "render": {
       "status": "failed",
-      "failures": 1
+      "failures": 2
     }
   }
 }

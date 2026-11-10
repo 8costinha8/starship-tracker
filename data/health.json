@@ -25,11 +25,12 @@
   },
   "committed_at": "2026-11-10T05:15:23.506Z",
   "render_check": {
-    "at": "2026-11-09T06:02:03.929Z",
+    "at": "2026-11-10T06:00:47.343Z",
     "status": "failed",
-    "failures": 1,
+    "failures": 2,
     "items": [
-      "[render-date] pad S42: Flight Log shows 12 Sep · 16:39 (\"Ship 42 was lifted to catch height by the Pad 2 chopsticks.\"), no Road card line at that time (card 7 Nov · 16:11)"
+      "[render-tense] Road card Pad activity · Booster 22 › 9 Nov · 21:07: \"Booster 22 heads to Pad 2 for potential launch prep.\" has no verb (fragment)",
+      "[render-tense] Road card Pad activity · Booster 22 › 9 Nov · 21:07: \"Booster 22 heads to Pad 2 for potential launch prep.\" is present tense on screen"
     ]
   }
 }
