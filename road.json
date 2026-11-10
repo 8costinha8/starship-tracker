@@ -3681,6 +3681,10 @@
   "mission_card": {
     "15": "Flight 15 is Starship's next flight, expected NET {NET}. It's aiming for the first double catch — both the ship and booster returning to the launch site towers. The main unknown is whether the heat shield and flip maneuver hold up under reentry at that scale. Beyond that, it's a straightforward step up from Flight 14's profile."
   },
+  "mission_card_template": {
+    "text": "{Flight N} is Starship's next flight, expected NET {NET}. {main highlight or goal}. {main unknown}. {how it steps up from Flight N-1}.",
+    "rules": "About 4 plain-text sentences. No citations, no sources, no stacked dates. {NET} is filled by the app from the hero Launch Library date. Fill the slots from X and tracked sources. Modelled on the approved 10 Nov Flight 15 card."
+  },
   "rejected_lines": [
     {
       "box": "cryo",
