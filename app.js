@@ -2089,6 +2089,7 @@ function asLaunchDatePost(p, road) {
 }
 function rtfRows(road) {
   const { posts, rows } = buildFeed(road);
+  if (!road) return { posts, rows };
   const keepDateId = currentLaunchDateId(posts, road.flight);
   const res = []; let inCur = false, tail = [], head = [], headAt = -1;
   // fixed real-world order for the next flight: Cryo, Raptor, Static fires, Pad (cards above), then FAA licence, then Launch date last
@@ -2114,7 +2115,7 @@ function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap }) {
   const idx = React.useMemo(() => entryIndex(road), [road]);
   // Launch date: the section status pill (Not confirmed / Estimated / Confirmed, from the Flight Log) rides on this flight's newest date card
   const dateSt = React.useMemo(() => { const f = road && window.RoadFlightLog ? window.RoadFlightLog.boxes(road) : null; const d = f && f.date;
-    const keepId = currentLaunchDateId(posts, road.flight);
+    const keepId = road && currentLaunchDateId(posts, road.flight);
     const top = d && keepId && posts.find((q) => q.id === keepId);
     return top ? { id: top.id, status: d.status, text: d.statusText } : null; }, [road, posts]);
   if (!posts.length) return null;

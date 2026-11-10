@@ -83,5 +83,15 @@ check(helperSrc.length > 100 && !/\b\d{1,2} (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|S
 const checkers = fs.readdirSync(__dirname).filter((f) => /\.js$/.test(f) && !/^test-/.test(f)).filter((f) => /currentLaunchDateId|isRoadLaunchDatePost|asLaunchDatePost/.test(fs.readFileSync(path.join(__dirname, f), "utf8")));
 check(!checkers.length, `no checker or script calls the display helpers (${checkers.join(", ") || "none"})`);
 
+// 6. first paint: UpdatesFeed calls rtfRows before road has loaded
+{
+  const app = RC.appFns();
+  let rows = null, err = null;
+  try { rows = app.rtfRows(null); } catch (e) { err = e; }
+  check(!err && rows && Array.isArray(rows.posts) && Array.isArray(rows.rows), "rtfRows(null) returns empty posts/rows and does not throw");
+  try { rows = app.rtfRows(undefined); err = null; } catch (e) { err = e; }
+  check(!err && rows && Array.isArray(rows.rows), "rtfRows(undefined) does not throw");
+}
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
