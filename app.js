@@ -2021,7 +2021,7 @@ function rtfCards(road) {
   }
   // Starship news pushes filed to a box (road.json feed_items) are posts too: same text and link as the push
   for (const f of Array.isArray(road.feed_items) ? road.feed_items : []) {
-    if (!f || !f.body || f.card_hide || f.later_flight || !["cryo", "raptor", "static", "pad"].includes(f.box) || (Number.isInteger(f.flight) ? f.flight : road.flight) !== road.flight) continue;
+    if (!f || !f.body || f.card_hide || (f.later_flight && f.flight !== road.flight) || !["cryo", "raptor", "static", "pad"].includes(f.box) || (Number.isInteger(f.flight) ? f.flight : road.flight) !== road.flight) continue;
     const h = { id: f.id, date: f.date, at: f.at, text: f.body, url: f.url, src: (String(f.url || "").match(/(?:x|twitter)\.com\/(\w+)\//) || [])[1] ? "@" + String(f.url).match(/(?:x|twitter)\.com\/(\w+)\//)[1] : "", kind: "feed" };
     const vv = rtfVeh(h.text, road);
     if (!vv.length && otherVehOnly(h.text, road)) continue; // e.g. "Booster 23 returned to Megabay 1": a Flight 16 item, never under Ship 42's Earlier updates
@@ -2061,6 +2061,59 @@ function rtfCards(road) {
   }
   return out;
 }
+function vehiclesForFlight(road, n) {
+  const set = new Set();
+  for (const [v, f] of Object.entries((road && road.hardware_flights) || {})) if (f === n) set.add(v);
+  for (const c of (road && road.categories) || []) for (const h of c.history || []) {
+    if (h.flight !== n) continue;
+    const hk = String(h.hardware || "").toUpperCase().replace(/^SHIP\s*/, "S").replace(/^BOOSTER\s*/, "B");
+    if (/^[SB]\d+$/.test(hk)) set.add(hk);
+  }
+  const all = [...set];
+  return [...all.filter((v) => /^S/i.test(v)).sort(), ...all.filter((v) => /^B/i.test(v)).sort()];
+}
+function roadForFlight(road, n) {
+  if (!road || !Number.isInteger(n)) return road;
+  const vehicles = vehiclesForFlight(road, n);
+  // Assign flights against the real Road (unknown items stay on the current flight).
+  // The preview then keeps only this flight's steps, so a Flight 15 pad test cannot appear on Flight 16.
+  const categories = (road.categories || []).map((c) => ({
+    ...c,
+    history: (c.history || []).filter((h) => flightOf(h, road) === n),
+    latest: undefined,
+    log_latest: undefined,
+  }));
+  const feed_items = (Array.isArray(road.feed_items) ? road.feed_items : []).filter((f) => Number.isInteger(f.flight) && f.flight === n);
+  const pins = road.flightlog_pins && Number(road.flightlog_pins.flight) === n ? road.flightlog_pins : null;
+  return { ...road, flight: n, vehicles, categories, feed_items, flightlog_pins: pins };
+}
+// Display only: a "returned to Megabay 2" headline is not pad activity.
+// If this Flight 16 card is the post-chopstick return, promote a pad-accurate
+// main line (chopstick / tower work) and keep the return in Earlier updates,
+// so the Pad activity tag is only shown on a pad event.
+const F16_MEGABAY_RETURN = /returned to megabay|returned to the production site/i;
+const F16_PAD_EVENT = /chopstick|tower|pusher|catch|pad\s*2|deluge|stack|lifted|lift to/i;
+function relabelF16Cards(cards) {
+  return (cards || []).map((p) => {
+    if (!p || p.empty || !p.h || !p.cat || p.cat.id !== "pad") return p;
+    const main = String((p.h.card_text || p.h.text) || "");
+    if (!F16_MEGABAY_RETURN.test(main) || /after cryo/i.test(main)) return p;
+    const rows = Array.isArray(p.h.updates) ? p.h.updates : [];
+    const better = rows.find((u) => F16_PAD_EVENT.test(String(u.card_text || u.text || "")));
+    if (!better) return p;
+    const shown = better.card_text || better.text;
+    const returnRow = { text: p.h.text, ...(p.h.card_text ? { card_text: p.h.card_text } : {}), at: p.h.at, date: p.h.date, url: p.h.url, src: p.h.src };
+    const updates = [returnRow, ...rows.filter((u) => (u.text || "") !== (better.text || ""))];
+    // FeedPost reads card_text || x_text || text, so clear the old return wording on all three.
+    return { ...p, h: { ...p.h, text: shown, card_text: shown, x_text: shown, at: better.at || p.h.at, date: better.date || p.h.date, url: better.url || p.h.url, src: better.src || p.h.src, updates } };
+  });
+}
+function peekCardTime(p) {
+  const h = p && p.h;
+  if (!h) return 0;
+  return (typeof cardIso === "function" && Date.parse(cardIso(h))) || Date.parse(h.at || "") || Date.parse(h.publishedAt || "") || 0;
+}
+
 // Display only (Road to Flight view): keep only the newest Launch date card for this
 // flight — date-box history plus launch_date feed items, even when a later slip was
 // never filed to the date box. Older cards stay in road.json and in the Flight Log.
@@ -2110,7 +2163,7 @@ function rtfRows(road) {
   if (head.length && headAt >= 0) res.splice(headAt, 0, ...head);
   return { posts, rows: res };
 }
-function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap }) {
+function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap, peekOpen, onTogglePeek }) {
   const { posts, rows } = React.useMemo(() => rtfRows(road), [road]);
   const idx = React.useMemo(() => entryIndex(road), [road]);
   // Launch date: the section status pill (Not confirmed / Estimated / Confirmed, from the Flight Log) rides on this flight's newest date card
@@ -2118,7 +2171,19 @@ function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap }) {
     const keepId = road && currentLaunchDateId(posts, road.flight);
     const top = d && keepId && posts.find((q) => q.id === keepId);
     return top ? { id: top.id, status: d.status, text: d.statusText } : null; }, [road, posts]);
+  const peekN = road && Number.isInteger(road.flight) ? road.flight + 1 : null;
+  const peekRoad = React.useMemo(() => (peekN && road ? roadForFlight(road, peekN) : null), [road, peekN]);
+  const peekCards = React.useMemo(() => {
+    if (!peekRoad) return [];
+    const cards = relabelF16Cards(rtfCards(peekRoad).filter((c) => !c.empty));
+    return cards.slice().sort((a, b) => peekCardTime(b) - peekCardTime(a)); // newest first
+  }, [peekRoad]);
   if (!posts.length) return null;
+  const chevron = (
+    <svg className={"rtf-chevron" + (peekOpen ? " open" : "")} width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
+      <path d="M2.25 4.25 L6 8 L9.75 4.25" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
   return (
     <aside className="feed-pane" aria-label="Updates feed" aria-hidden={!wide && !shown}>
       <div className="feed" ref={scrollRef}>
@@ -2134,6 +2199,26 @@ function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap }) {
                 : r.section.next ? <span className="fdiv-next">Next flight</span> : null}</span></div>
             : r.empty ? null : <FeedPost key={r.post.id} p={r.post} onPhotoTap={onPhotoTap} idx={idx} st={dateSt && dateSt.id === r.post.id ? dateSt : null} />)}
           <p className="end">That's every update so far.</p>
+          {peekN && (
+            <button type="button" className="rtf-teaser" onClick={onTogglePeek} aria-expanded={!!peekOpen}>
+              <span>{peekOpen ? "Hide Flight 16 updates" : `After Flight ${road.flight} · see Road to Flight ${peekN} so far`}</span>
+              {chevron}
+            </button>
+          )}
+          {peekN && (
+            <div className={"rtf-peek-wrap" + (peekOpen ? " open" : "") + (reduceMotion() ? " rtf-no-motion" : "")} aria-hidden={!peekOpen}>
+              <div className="rtf-peek-inner">
+                <div className="rtf-peek" id="rtf-peek">
+                  <div className="rtf-peek-rule" aria-hidden="true" />
+                  <p className="rtf-peek-eyebrow">After Flight {road.flight}</p>
+                  <h2 className="rtf-peek-title">{`Road to Flight ${peekN} so far`}</h2>
+                  {peekCards.length
+                    ? <div className="rtf-peek-cards">{peekCards.map((c) => <FeedPost key={c.id} p={c} onPhotoTap={onPhotoTap} idx={idx} st={null} />)}</div>
+                    : <p className="rtf-soon">Coming soon</p>}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </aside>
@@ -2356,6 +2441,7 @@ function StarshipTracker() {
 
   // Header link: (slide the phone feed away,) glide to the Road box in the top card and open it.
   const [roadOpenReq, setRoadOpenReq] = React.useState(0);
+  const [peekOpen, setPeekOpen] = React.useState(false);
   const openRoad = () => {
     const go = () => {
       const el = document.querySelector(".next .road");
@@ -2365,6 +2451,8 @@ function StarshipTracker() {
     };
     if (!wide && feedOpen) { setFeedOpen(false); setTimeout(go, reduceMotion() ? 0 : Math.round(FEED_SLIDE_MS * 0.6)); } else go();
   };
+  const togglePeek = () => setPeekOpen((v) => !v);
+  React.useEffect(() => { if (!wide && !feedOpen && !dragging) setPeekOpen(false); }, [wide, feedOpen, dragging]);
   const chip = <RoadChip road={road} onOpen={openRoad} />;
   const phoneHeader = !wide && road && road.flight && Array.isArray(road.categories) ? (
     <PhoneHeader road={road} feedOpen={feedOpen} onAbout={() => setAboutOpen(true)}
@@ -2438,7 +2526,7 @@ function StarshipTracker() {
 
         <p className="end">That's every flight so far.</p>
       </div>
-      <UpdatesFeed road={road} wide={wide} shown={feedOn} onBack={() => setFeedOpen(false)} scrollRef={feedScroll} onPhotoTap={(src, alt) => setLightbox({ src, alt })} />
+      <UpdatesFeed road={road} wide={wide} shown={feedOn} onBack={() => setFeedOpen(false)} scrollRef={feedScroll} onPhotoTap={(src, alt) => setLightbox({ src, alt })} peekOpen={peekOpen} onTogglePeek={togglePeek} />
       </div>
       {phoneHeader}
       <AboutPanel
@@ -2846,7 +2934,47 @@ section.road .callout-latest { grid-row: 2; grid-column: 2 / -1; margin-top: 0; 
 }
 .feed-head .brand { line-height: 1.3; }
 .feed-list { padding: 14px 18px calc(72px + env(safe-area-inset-bottom)); max-width: 440px; margin: 0 auto; }
-.feed-list .end { margin-top: 22px; }
+.feed-list .end { margin-top: 24px; }
+.feed-list > .post:has(+ .end) { margin-bottom: 0; }
+.rtf-teaser {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  width: 100%; min-height: 44px; margin: 12px 0 0; padding: 10px 8px;
+  border: 0; background: none; box-shadow: none; cursor: pointer;
+  color: var(--faint); font: inherit; font-size: 14px; font-weight: 500;
+  text-align: center; line-height: 1.35;
+}
+.rtf-teaser:active { color: color-mix(in srgb, var(--faint) 90%, #fff); }
+.rtf-chevron { flex: none; transition: transform 200ms ease-out; }
+.rtf-chevron.open { transform: rotate(180deg); }
+.rtf-peek-wrap {
+  display: grid; grid-template-rows: 0fr; opacity: 0;
+  transition: grid-template-rows 250ms ease, opacity 250ms ease;
+  pointer-events: none;
+}
+.rtf-peek-wrap.open { grid-template-rows: 1fr; opacity: 1; pointer-events: auto; }
+.rtf-peek-wrap.rtf-no-motion { transition: none; }
+.rtf-peek-inner { overflow: hidden; min-height: 0; }
+.rtf-peek { margin-top: 32px; padding-bottom: 32px; }
+.rtf-peek-rule { height: 0; border: 0; border-top: 1px solid rgba(170,190,245,.12); margin: 0 24px; }
+.rtf-peek-eyebrow {
+  margin: 16px 0 0; padding: 0;
+  font-size: 12px; font-weight: 500; line-height: 1.3;
+  color: var(--faint); letter-spacing: .08em;
+  font-variant: small-caps; text-transform: uppercase; text-align: left;
+}
+.rtf-peek-title {
+  margin: 4px 0 0; padding: 0;
+  font-size: 18px; font-weight: 600; line-height: 1.3;
+  color: var(--text); text-align: left;
+}
+.rtf-peek-cards { margin-top: 16px; }
+.rtf-peek-cards .post { margin-bottom: 12px; }
+.rtf-peek-cards .post:last-child { margin-bottom: 0; }
+.rtf-soon {
+  margin: 16px 0 0; padding: 0;
+  font-size: 14px; font-weight: 500; line-height: 1.45;
+  color: var(--faint); text-align: left;
+}
 .post {
   position: relative; margin-bottom: 10px;
   background: var(--card); border: 1px solid rgba(170,190,245,.12); border-radius: 18px;
