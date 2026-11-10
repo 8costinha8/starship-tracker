@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "10 Nov",
-  "updatedAt": "2026-11-10T10:00:34.816Z",
+  "updatedAt": "2026-11-10T10:16:05.804Z",
   "categories": [
     {
       "id": "cryo",
@@ -2393,6 +2393,12 @@
               "type": "video",
               "post_url": "https://x.com/CSI_Starbase/status/2120046271859921250",
               "author": "CSI_Starbase"
+            },
+            {
+              "image": "https://pbs.twimg.com/media/HWvIsxEbwAAY2v9.jpg",
+              "type": "photo",
+              "post_url": "https://x.com/colleenadastra/status/2120050105134825906",
+              "author": "colleenadastra"
             }
           ],
           "edited_from": "Booster 22 lifted to top of tower ready for launch.",
@@ -2471,11 +2477,16 @@
           "push_text": "Booster 22 has been lifted to the top of the tower.",
           "card_text": "Booster 22 lifted to the top of the tower at Pad 2.",
           "media_override": {
-            "post_url": "https://x.com/RGVaerialphotos/status/2120008731362754606",
-            "post_id": "2120008731362754606",
-            "author": "RGVaerialphotos",
+            "post_url": "https://x.com/colleenadastra/status/2120050105134825906",
+            "post_id": "2120050105134825906",
+            "author": "colleenadastra",
             "type": "photo",
-            "image": "https://pbs.twimg.com/media/HWvIsxEbwAAY2v9.jpg"
+            "image": "https://pbs.twimg.com/media/HWvq8UtXAAAkRrQ.jpg",
+            "auto": true,
+            "quality": 4,
+            "media_score": 223,
+            "checked_at": "2026-11-10T10:15:29.298Z",
+            "crop": "top"
           },
           "photo_alternatives": [
             {
@@ -2483,8 +2494,22 @@
               "type": "video",
               "post_url": "https://x.com/CSI_Starbase/status/2120046271859921250",
               "author": "CSI_Starbase"
+            },
+            {
+              "image": "https://pbs.twimg.com/media/HWvIsxEbwAAY2v9.jpg",
+              "type": "photo",
+              "post_url": "https://x.com/colleenadastra/status/2120050105134825906",
+              "author": "colleenadastra"
             }
-          ]
+          ],
+          "alt_media": {
+            "post_url": "https://x.com/RGVaerialphotos/status/2120008731362754606",
+            "post_id": "2120008731362754606",
+            "author": "RGVaerialphotos",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HWvIsxEbwAAY2v9.jpg",
+            "show": false
+          }
         },
         {
           "id": "x-2119899586005536831",
