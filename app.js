@@ -585,9 +585,9 @@ function launchDateDisplay(flogDate, netLabel) {
   if (!flogDate || flogDate.status === "done") return flogDate;
   const label = String(netLabel || "").trim();
   if (!/^NET \d{1,2} (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)$/.test(label)) return flogDate;
-  const day = label.slice(4);
-  const card = (flogDate.cards && flogDate.cards[0]) || { vehicle: "date", name: "Launch date" };
-  return { ...flogDate, latest: label, cards: [{ ...card, lines: [{ day, time: "", text: label }] }] };
+  // Unofficial: keep only the box header (latest). Drop the inner Flight Log entry so the date is not
+  // repeated as a day stamp plus the same NET label under the headline. No "No official" wording.
+  return { ...flogDate, latest: label, cards: [] };
 }
 
 // Turns LL2's launch detail into the card's data.

@@ -1,5 +1,7 @@
-/* 10 Nov: the Road to Flight Launch date box shows only one date — the hero's Launch Library NET,
-   else lastKnownNet from road.json. Display only (app.js). No network: node scripts/test-onedate.js */
+/* 10 Nov: the Road to Flight Launch date box shows the date exactly once — the header "NET 13 Nov"
+   from the hero's Launch Library NET, else lastKnownNet from road.json. While unofficial, the inner
+   Flight Log entry is dropped so the date is not repeated. Display only (app.js). No network:
+   node scripts/test-onedate.js */
 const fs = require("fs"), path = require("path"), F = require("./flightlog.js");
 let pass = 0, fail = 0; const check = (ok, name) => { if (ok) { pass++; console.log(`✅ ${name}`); } else { fail++; console.log(`❌ ${name}`); } };
 const ROOT = path.join(__dirname, ".."), clone = (x) => JSON.parse(JSON.stringify(x));
@@ -28,29 +30,27 @@ const dc = fx.categories.find((c) => c.id === "date");
 dc.latest = dc.log_latest = "Flight 15 NET 13 Nov.";
 const raw = (opts) => F.boxes(clone(fx), "10 Nov", opts).date;
 const view = (flog, road, heroNet) => fns.launchDateDisplay(flog, fns.authoritativeNetLabel(road, heroNet));
-const linesOf = (d) => ((d.cards || [])[0] || {}).lines || [];
-const datesIn = (d) => {
-  const blob = JSON.stringify(linesOf(d)) + " " + (d.latest || "");
-  return [...new Set((blob.match(/\b\d{1,2} (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b/g) || []))];
-};
+const linesOf = (d) => (d.cards || []).flatMap((c) => c.lines || []);
+const boxText = (d) => [d.latest, ...linesOf(d).flatMap((l) => [l.day, l.time, l.text])].filter(Boolean).join("\n");
+const countLabel = (d, label) => boxText(d).split(label).length - 1;
 
 // 1. hero Launch Library NET wins, and the box has only that date
 const withHero = view(raw({ net: { n: 15, date: "2026-11-13T22:45:00Z" } }), fx, { n: 15, date: "2026-11-13T22:45:00Z" });
 check(withHero.latest === "NET 13 Nov", `hero NET is the headline: "${withHero.latest}"`);
-check(linesOf(withHero).length === 1 && linesOf(withHero)[0].text === "NET 13 Nov" && linesOf(withHero)[0].day === "13 Nov", "hero NET is the only card line, dated 13 Nov not today");
-check(datesIn(withHero).length === 1 && datesIn(withHero)[0] === "13 Nov", "only one launch date renders (13 Nov)");
+check((withHero.cards || []).length === 0 && linesOf(withHero).length === 0, "unofficial: the inner Flight Log entry is dropped; only the header remains");
+check(countLabel(withHero, "NET 13 Nov") === 1 && countLabel(withHero, "13 Nov") === 1, "date text renders exactly once in that box (header only)");
 check(!/No official/.test(JSON.stringify(withHero)), "no 'No official Flight 15 date yet' in the display");
-check(!/8 November|10 Nov/.test(JSON.stringify(linesOf(withHero))), "stale 8 November / 10 Nov rows are not shown");
+check(!/8 November|10 Nov/.test(boxText(withHero)), "stale 8 November / 10 Nov rows are not shown");
 
 // 2. no hero NET: fall back to lastKnownNet from road.json, never a hard-coded date
 const fallback = view(raw({}), fx, null);
 check(fns.lastKnownNetLabel(fx, 15) === "NET 13 Nov" && fallback.latest === "NET 13 Nov", "no hero NET → lastKnownNet 'NET 13 Nov'");
-check(linesOf(fallback).length === 1 && linesOf(fallback)[0].text === "NET 13 Nov" && datesIn(fallback).join() === "13 Nov", "fallback also renders exactly one date");
+check((fallback.cards || []).length === 0 && countLabel(fallback, "NET 13 Nov") === 1 && countLabel(fallback, "13 Nov") === 1, "fallback also renders the date exactly once (header only)");
 check(!/13 Nov/.test(extract("authoritativeNetLabel") + extract("launchDateDisplay") + extract("lastKnownNetLabel")), "helpers never hard-code 13 Nov");
 
 // 3. late-evening UK stays on the hero's UK day
 const late = view(raw({}), fx, { n: 15, date: "2026-11-13T23:30:00Z" });
-check(late.latest === "NET 13 Nov" && linesOf(late)[0].day === "13 Nov", "23:30 UTC in November stays 13 Nov UK");
+check(late.latest === "NET 13 Nov" && countLabel(late, "NET 13 Nov") === 1, "23:30 UTC in November stays 13 Nov UK, once in the header");
 
 // 4. official / launched (status done) is not replaced
 const officialRoad = clone(fx); officialRoad.official_date = { at: "2026-11-13T22:45:00Z", text: "Flight 15 is set for 13 Nov." };
