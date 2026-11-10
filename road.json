@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "10 Nov",
-  "updatedAt": "2026-11-10T18:45:41.045Z",
+  "updatedAt": "2026-11-10T19:16:39.323Z",
   "categories": [
     {
       "id": "cryo",
@@ -2574,15 +2574,15 @@
           "xChecked": true,
           "imageChecked2": true,
           "media_override": {
-            "post_url": "https://x.com/StarshipGazer/status/2119963170706178324",
-            "post_id": "2119963170706178324",
-            "author": "StarshipGazer",
+            "post_url": "https://x.com/SpaceX/status/2120220290219208884",
+            "post_id": "2120220290219208884",
+            "author": "SpaceX",
             "type": "photo",
-            "image": "https://pbs.twimg.com/media/HWueuXHacAEIP85.jpg",
+            "image": "https://pbs.twimg.com/media/HWyJD07XwAANxuA.jpg",
             "auto": true,
-            "quality": 4,
-            "media_score": 544,
-            "checked_at": "2026-11-10T04:15:52.966Z",
+            "quality": 5,
+            "media_score": 7121,
+            "checked_at": "2026-11-10T19:15:31.136Z",
             "crop": "top"
           },
           "tier": 1,
@@ -2634,11 +2634,11 @@
           "text_locked": true,
           "likely": true,
           "alt_media": {
-            "post_url": "https://x.com/RGVaerialphotos/status/2119998556929192383",
-            "post_id": "2119998556929192383",
-            "author": "RGVaerialphotos",
-            "type": "video",
-            "image": "https://pbs.twimg.com/amplify_video_thumb/2119998394651566081/img/hT6j0B7lQUL3hfrf.jpg",
+            "post_url": "https://x.com/SpaceX/status/2120220290219208884",
+            "post_id": "2120220290219208884",
+            "author": "SpaceX",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HWyJGbQXcAAwXqr.jpg",
             "show": false
           },
           "updates": [
@@ -2725,8 +2725,8 @@
             {
               "image": "https://pbs.twimg.com/amplify_video_thumb/2119998394651566081/img/hT6j0B7lQUL3hfrf.jpg",
               "type": "video",
-              "post_url": "https://x.com/StarshipGazer/status/2119963170706178324",
-              "author": "StarshipGazer"
+              "post_url": "https://x.com/SpaceX/status/2120220290219208884",
+              "author": "SpaceX"
             },
             {
               "image": "https://pbs.twimg.com/amplify_video_thumb/2119446229587460096/img/8vJyqi7hzyPGKgfY.jpg",
