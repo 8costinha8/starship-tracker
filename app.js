@@ -562,6 +562,33 @@ function dateOnlyNet(f) { return usableTbdDate(f) || !!(f && f.netPrecision === 
 function heroNetFor(f, now = nowMs()) {
   return f && f.n && f.date && Number.isFinite(Date.parse(f.date)) && effectiveStatus(f, now) === "net" ? { n: f.n, date: f.date } : null;
 }
+// 10 Nov: the Launch date box keeps only one date in the display — the hero's Launch Library NET,
+// else the last NET in road.json (same lastKnownNet rule as the pending-lookup fallback). Never hard-coded.
+// Official or post-liftoff lines (status done) are left alone. Display only: checkers and push logic unchanged.
+function lastKnownNetLabel(road, n) {
+  const c = ((road && road.categories) || []).find((x) => x.id === "date") || {};
+  for (const s of [c.log_latest, c.latest]) {
+    const m = /\bNET (\d{1,2} (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec))[a-z]*\b/.exec(String(s || "")), f = /\bFlight (\d+)\b/.exec(String(s || ""));
+    if (m && (!f || Number(f[1]) === Number(n))) return `NET ${m[1]}`;
+  }
+  return "";
+}
+function authoritativeNetLabel(road, heroNet) {
+  const n = road && road.flight;
+  if (heroNet && Number(heroNet.n) === Number(n) && heroNet.date && Number.isFinite(Date.parse(heroNet.date))) {
+    const p = ukParts(heroNet.date);
+    return `NET ${p.day} ${p.mon}`;
+  }
+  return lastKnownNetLabel(road, n);
+}
+function launchDateDisplay(flogDate, netLabel) {
+  if (!flogDate || flogDate.status === "done") return flogDate;
+  const label = String(netLabel || "").trim();
+  if (!/^NET \d{1,2} (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)$/.test(label)) return flogDate;
+  const day = label.slice(4);
+  const card = (flogDate.cards && flogDate.cards[0]) || { vehicle: "date", name: "Launch date" };
+  return { ...flogDate, latest: label, cards: [{ ...card, lines: [{ day, time: "", text: label }] }] };
+}
 
 // Turns LL2's launch detail into the card's data.
 function flightFromLL2(full) {
@@ -1248,8 +1275,9 @@ function RoadCard({ road, onEntryTap, openReq, heroNet, netPending }) {
   const [open, setOpen] = React.useState(null);
   // Flight Log boxes: completed milestones only, one sub-card per vehicle (scripts/flightlog.js, same rules every flight).
   const flogBoxes = road && window.RoadFlightLog ? window.RoadFlightLog.boxes(road, undefined, { net: heroNet || null, pending: !!netPending }) : null; // heroNet: Launch date box says "NET 13 Nov" like the hero (display only)
+  const dateNet = authoritativeNetLabel(road, heroNet);
   const items = road && Array.isArray(road.categories) ? road.categories.filter((m) => !ROAD_HIDDEN.includes(m.id)).map((m) => logView(m, road)).map((m) => ({ ...m, status: rollupStatus(m, road) }))
-    .map((m) => { const f = flogBoxes && flogBoxes[m.id]; return f ? { ...m, status: f.status, flog: f } : m; }) : [];
+    .map((m) => { const f = flogBoxes && flogBoxes[m.id]; const flog = (m.id === "date" && f) ? launchDateDisplay(f, dateNet) : f; return flog ? { ...m, status: flog.status, flog } : m; }) : [];
   const listRef = React.useRef(null);
   if (!items.length) return null;
   const title = `Road to Flight ${road.flight}`;
