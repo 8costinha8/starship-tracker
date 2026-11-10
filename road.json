@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "10 Nov",
-  "updatedAt": "2026-11-10T19:16:39.323Z",
+  "updatedAt": "2026-11-10T21:45:31.897Z",
   "categories": [
     {
       "id": "cryo",
@@ -2305,8 +2305,68 @@
       "name": "Pad activity",
       "color": "#A88BFF",
       "status": "progress",
-      "latest": "Booster 22 heads to Pad 2 for potential launch prep.",
+      "latest": "Second sloped wall section installed in Pad 1 flame trench.",
       "history": [
+        {
+          "id": "x-2120268988621971885",
+          "date": "10 Nov",
+          "log_date": "10 Nov",
+          "at": "2026-11-10T21:34:54.000Z",
+          "text": "Second sloped wall section installed in Pad 1 flame trench.",
+          "x_text": "Second sloped wall section installed in Pad 1 flame trench.",
+          "push_text": "Second sloped wall section being installed in Pad 1 flame trench.",
+          "card_text": "Pad 1 flame trench work continues.",
+          "log_text": "Pad 1 flame trench work continues.",
+          "status_line": "Pad 1 flame trench work in progress.",
+          "url": "https://x.com/NASASpaceflight/status/2120268988621971885",
+          "src": "@NASASpaceflight",
+          "trust": "trusted",
+          "x_first": true,
+          "stage": "pad",
+          "hardware": "Pad 1",
+          "x_post": {
+            "post_id": "2120268988621971885",
+            "url": "https://x.com/NASASpaceflight/status/2120268988621971885",
+            "created_at": "2026-11-10T21:34:54.000Z",
+            "text": "Meanwhile, over at Starbase Pad 1, the second of four sloped wall sections is currently being installed in the Pad 1 flame trench. https://t.co/HSumkyMfYU",
+            "author": {
+              "name": "NSF - NASASpaceflight.com",
+              "username": "NASASpaceflight",
+              "avatar": "https://pbs.twimg.com/profile_images/1637919260298158080/kRT8BkYf_normal.jpg"
+            },
+            "media": [
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HWy0d_WWkAAXaXu.jpg"
+              }
+            ],
+            "link": {
+              "url": "https://www.youtube.com/watch?v=mhJRzQsLZGg",
+              "title": "Starbase Live: 24/7 Starship & Super Heavy Development From SpaceX's Boca Chica Facility",
+              "description": "Starship is SpaceX's fully reusable launch system which is being de...",
+              "image": "https://pbs.twimg.com/news_img/2119446392393629696/4gPy-1dQ?format=jpg&name=orig"
+            }
+          },
+          "x_posts": [
+            "2120268988621971885"
+          ],
+          "xChecked": true,
+          "imageChecked2": true,
+          "media_override": {
+            "post_url": "https://x.com/NASASpaceflight/status/2120268988621971885",
+            "post_id": "2120268988621971885",
+            "author": "NASASpaceflight",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HWy0d_WWkAAXaXu.jpg"
+          },
+          "tier": 1,
+          "push": {
+            "title": "🏗️ Pad activity · Flight 15",
+            "url": "https://x.com/NASASpaceflight/status/2120268988621971885",
+            "at": "2026-11-10T21:34:54.000Z"
+          },
+          "frameChecked": true
+        },
         {
           "id": "status-pad-progress-2120080014549098871",
           "kind": "status",
@@ -3423,7 +3483,7 @@
           "journey_context": "engine prep (1 Nov: not a Raptor milestone)"
         }
       ],
-      "log_latest": "Booster 22 prepping for Pad 2 rollout."
+      "log_latest": "Pad 1 flame trench work in progress."
     },
     {
       "id": "faa",
