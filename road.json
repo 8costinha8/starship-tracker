@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "10 Nov",
-  "updatedAt": "2026-11-10T03:30:47.944Z",
+  "updatedAt": "2026-11-10T03:46:00.262Z",
   "categories": [
     {
       "id": "cryo",
@@ -2318,7 +2318,7 @@
           "card_text": "Booster 22 heads to Pad 2 for potential launch prep.",
           "log_text": "Booster 22 heads to Pad 2 for potential launch prep.",
           "status_line": "Booster 22 prepping for Pad 2 rollout.",
-          "url": "https://x.com/NASASpaceflight/status/2119899586005536831",
+          "url": "https://x.com/RGVaerialphotos/status/2119998556929192383",
           "src": "@NASASpaceflight",
           "trust": "trusted",
           "x_first": true,
@@ -2326,40 +2326,40 @@
           "hardware": "B22",
           "flight": 15,
           "x_post": {
-            "post_id": "2119899586005536831",
-            "url": "https://x.com/NASASpaceflight/status/2119899586005536831",
-            "created_at": "2026-11-09T21:07:01.000Z",
-            "text": "Starship Flight 15: Booster 22 is making moves, ahead of a potential roll to Pad 2 shortly. \n\n➡️https://t.co/AvEjt0Aooa https://t.co/EIreYIVOWL",
+            "post_id": "2119998556929192383",
+            "url": "https://x.com/RGVaerialphotos/status/2119998556929192383",
+            "created_at": "2026-11-10T03:40:18.000Z",
+            "text": "Booster 22 is being lifted by Pad 2's chopsticks.",
             "author": {
-              "name": "NSF - NASASpaceflight.com",
-              "username": "NASASpaceflight",
-              "avatar": "https://pbs.twimg.com/profile_images/1637919260298158080/kRT8BkYf_normal.jpg"
+              "name": "RGV Aerial Photography",
+              "username": "RGVaerialphotos",
+              "avatar": "https://pbs.twimg.com/profile_images/2019953617743097856/PJqBBhpU_normal.jpg"
             },
             "media": [
               {
-                "type": "photo",
-                "url": "https://pbs.twimg.com/media/HWtlWpHW0AEcsHj.jpg"
+                "type": "video",
+                "poster": "https://pbs.twimg.com/amplify_video_thumb/2119998394651566081/img/hT6j0B7lQUL3hfrf.jpg",
+                "video_url": "https://video.twimg.com/amplify_video/2119998394651566081/vid/avc1/3840x2160/aCGeZPMnopiTK-pQ.mp4"
               }
-            ],
-            "link": {
-              "url": "https://www.youtube.com/live/2L5mTBR6Djs",
-              "title": "Lining up for the Double Catch! - Countdown to Launch",
-              "description": "Flight 15 as soon as November 13🔗 NSF Store: https://www.nasaspac...",
-              "image": "https://pbs.twimg.com/news_img/2119883686023696385/NcSt_HV5?format=jpg&name=orig"
-            }
+            ]
           },
           "x_posts": [
             "2119899586005536831",
-            "2119918277732487200"
+            "2119918277732487200",
+            "2119998556929192383",
+            "2119997604302143555",
+            "2119997434667368485",
+            "2119997160473141572"
           ],
           "xChecked": true,
           "imageChecked2": true,
           "media_override": {
-            "post_url": "https://x.com/NASASpaceflight/status/2119899586005536831",
-            "post_id": "2119899586005536831",
-            "author": "NASASpaceflight",
-            "type": "photo",
-            "image": "https://pbs.twimg.com/media/HWtlWpHW0AEcsHj.jpg"
+            "post_url": "https://x.com/RGVaerialphotos/status/2119998556929192383",
+            "post_id": "2119998556929192383",
+            "author": "RGVaerialphotos",
+            "type": "video",
+            "image": "https://pbs.twimg.com/amplify_video_thumb/2119998394651566081/img/hT6j0B7lQUL3hfrf.jpg",
+            "video_url": "https://video.twimg.com/amplify_video/2119998394651566081/vid/avc1/3840x2160/aCGeZPMnopiTK-pQ.mp4"
           },
           "tier": 1,
           "hedged": true,
@@ -2368,7 +2368,6 @@
             "url": "https://x.com/NASASpaceflight/status/2119899586005536831",
             "at": "2026-11-09T21:07:01.000Z"
           },
-          "frameChecked": true,
           "edited_from": "Booster 22 making moves ahead of potential rollout to Pad 2.",
           "edited": true,
           "cascade": {
@@ -3495,6 +3494,16 @@
   ],
   "feed_items": [
     {
+      "id": "news-mwa4zkso-902bd2",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Booster 22 was lifted for installation on Pad 2.",
+      "url": "https://x.com/NASASpaceflight/status/2119997160473141572",
+      "at": "2026-11-10T03:34:45.000Z",
+      "date": "10 Nov",
+      "flight": 15
+    },
+    {
       "id": "news-mw9rrxc8-6ac1cd",
       "kind": "news",
       "title": "🚀 Starship",
@@ -3955,20 +3964,6 @@
       "box": "static",
       "src": "@NASASpaceflight",
       "push_text": "Booster 22 propellant loading has begun for static fire test"
-    },
-    {
-      "id": "news-mvmgoq8g-00233b",
-      "kind": "news",
-      "title": "🚀 Starship",
-      "body": "Booster 22 was lifted onto launch Pad 2.",
-      "url": "https://x.com/NASASpaceflight/status/2113992853093601306",
-      "at": "2026-10-24T13:55:46.000Z",
-      "date": "24 Oct",
-      "flight": 15,
-      "src": "@NASASpaceflight",
-      "push_text": "Booster 22 is being lifted onto launch pad 2",
-      "box": "static",
-      "card_hide": "2026-11-03 near-duplicate of a row already on the Booster 22 static fire card"
     }
   ],
   "milestones": {
