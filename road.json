@@ -2305,19 +2305,19 @@
       "name": "Pad activity",
       "color": "#A88BFF",
       "status": "progress",
-      "latest": "Second sloped wall section installed in Pad 1 flame trench.",
+      "latest": "Pad 1 flame trench construction continues.",
       "history": [
         {
           "id": "x-2120268988621971885",
           "date": "10 Nov",
           "log_date": "10 Nov",
           "at": "2026-11-10T21:34:54.000Z",
-          "text": "Second sloped wall section installed in Pad 1 flame trench.",
-          "x_text": "Second sloped wall section installed in Pad 1 flame trench.",
-          "push_text": "Second sloped wall section being installed in Pad 1 flame trench.",
-          "card_text": "Pad 1 flame trench work continues.",
-          "log_text": "Pad 1 flame trench work continues.",
-          "status_line": "Pad 1 flame trench work in progress.",
+          "text": "Pad 1 flame trench construction continues.",
+          "x_text": "Pad 1 flame trench construction continues.",
+          "push_text": "Pad 1 flame trench construction continues.",
+          "card_text": "Pad 1 flame trench construction continues.",
+          "log_text": "Pad 1 flame trench construction continues.",
+          "status_line": "Pad 1 flame trench work ongoing.",
           "url": "https://x.com/NASASpaceflight/status/2120268988621971885",
           "src": "@NASASpaceflight",
           "trust": "trusted",
@@ -2328,7 +2328,7 @@
             "post_id": "2120268988621971885",
             "url": "https://x.com/NASASpaceflight/status/2120268988621971885",
             "created_at": "2026-11-10T21:34:54.000Z",
-            "text": "Meanwhile, over at Starbase Pad 1, the second of four sloped wall sections is currently being installed in the Pad 1 flame trench. https://t.co/HSumkyMfYU",
+            "text": "Meanwhile, over at Starbase Pad 1, the second of four sloped wall sections is currently being installed in the Pad 1 flame trench.\n\nhttps://t.co/HSumkyMfYU https://t.co/xqn9eNK6iT",
             "author": {
               "name": "NSF - NASASpaceflight.com",
               "username": "NASASpaceflight",
@@ -2365,7 +2365,9 @@
             "url": "https://x.com/NASASpaceflight/status/2120268988621971885",
             "at": "2026-11-10T21:34:54.000Z"
           },
-          "frameChecked": true
+          "frameChecked": true,
+          "edited_from": "Second sloped wall section installed in Pad 1 flame trench.",
+          "edited": true
         },
         {
           "id": "status-pad-progress-2120080014549098871",
