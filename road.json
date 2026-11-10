@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "10 Nov",
-  "updatedAt": "2026-11-10T06:45:38.341Z",
+  "updatedAt": "2026-11-10T07:00:52.440Z",
   "categories": [
     {
       "id": "cryo",
@@ -2304,9 +2304,169 @@
       "icon": "🏗️",
       "name": "Pad activity",
       "color": "#A88BFF",
-      "status": "progress",
-      "latest": "Booster 22 heads to Pad 2 for potential launch prep.",
+      "status": "complete",
+      "latest": "Complete",
       "history": [
+        {
+          "id": "x-2120046271859921250",
+          "date": "10 Nov",
+          "log_date": "10 Nov",
+          "at": "2026-11-10T06:49:54.000Z",
+          "text": "Booster 22 lifted to top of tower ready for launch.",
+          "x_text": "Booster 22 lifted to top of tower ready for launch.",
+          "push_text": "Booster 22 lifted to top of tower, ready for launch.",
+          "card_text": "Booster 22 lifted to top of tower ready for launch.",
+          "log_text": "Booster 22 lifted to top of tower ready for launch.",
+          "status_line": "Booster 22 at launch mount ready.",
+          "url": "https://x.com/CSI_Starbase/status/2120046271859921250",
+          "src": "@CSI_Starbase",
+          "trust": "trusted",
+          "x_first": true,
+          "stage": "pad",
+          "hardware": "B22",
+          "flight": 15,
+          "x_post": {
+            "post_id": "2120046271859921250",
+            "url": "https://x.com/CSI_Starbase/status/2120046271859921250",
+            "created_at": "2026-11-10T06:49:54.000Z",
+            "text": "After a long and wet journey, followed by a really odd lifting procedure taking it all the way to the top of the tower..... Booster 22 is ready for launch! 🎥: @LabPadre",
+            "author": {
+              "name": "Zack Golden",
+              "username": "CSI_Starbase",
+              "avatar": "https://pbs.twimg.com/profile_images/1597348837588353031/2JTg9lFE_normal.jpg"
+            },
+            "media": [
+              {
+                "type": "video",
+                "poster": "https://pbs.twimg.com/amplify_video_thumb/2120045857915686913/img/VuupYK7GChXb2QMk.jpg",
+                "video_url": "https://video.twimg.com/amplify_video/2120045857915686913/vid/avc1/1920x1080/COKP-lozMqmANeip.mp4"
+              }
+            ]
+          },
+          "x_posts": [
+            "2120046271859921250"
+          ],
+          "xChecked": true,
+          "imageChecked2": true,
+          "media_override": {
+            "post_url": "https://x.com/CSI_Starbase/status/2120046271859921250",
+            "post_id": "2120046271859921250",
+            "author": "CSI_Starbase",
+            "type": "video",
+            "image": "https://pbs.twimg.com/amplify_video_thumb/2120045857915686913/img/VuupYK7GChXb2QMk.jpg",
+            "video_url": "https://video.twimg.com/amplify_video/2120045857915686913/vid/avc1/1920x1080/COKP-lozMqmANeip.mp4"
+          },
+          "tier": 2,
+          "milestone": {
+            "key": "stacked|15|B22",
+            "type": "stacked",
+            "flight": 15,
+            "hardware": "B22",
+            "phase": "completed"
+          },
+          "complete": true,
+          "push": {
+            "title": "🏗️ Pad activity: Complete",
+            "url": "https://x.com/CSI_Starbase/status/2120046271859921250",
+            "at": "2026-11-10T06:49:54.000Z"
+          },
+          "photo_alternatives": [
+            {
+              "image": "https://pbs.twimg.com/amplify_video_thumb/2120045857915686913/img/VuupYK7GChXb2QMk.jpg",
+              "type": "video",
+              "post_url": "https://x.com/CSI_Starbase/status/2120046271859921250",
+              "author": "CSI_Starbase"
+            }
+          ]
+        },
+        {
+          "id": "x-2117466177400434911",
+          "date": "10 Nov",
+          "log_date": "10 Nov",
+          "at": "2026-11-10T04:20:44.000Z",
+          "text": "Booster 22 lifted to the top of the tower at Pad 2.",
+          "x_text": "Booster 22 lifted to the top of the tower at Pad 2.",
+          "log_text": "Booster 22 lifted to the top of the tower at Pad 2.",
+          "status_line": "Booster 22 at Pad 2 for launch prep.",
+          "url": "https://x.com/RGVaerialphotos/status/2120008731362754606",
+          "src": "@RGVaerialphotos",
+          "trust": "unconfirmed",
+          "x_first": true,
+          "stage": "pad",
+          "hardware": "B22",
+          "flight": 15,
+          "x_post": {
+            "post_id": "2120008731362754606",
+            "url": "https://x.com/RGVaerialphotos/status/2120008731362754606",
+            "created_at": "2026-11-10T04:20:44.000Z",
+            "text": "Booster 22 has been lifted to the top of the tower.",
+            "author": {
+              "name": "RGV Aerial Photography",
+              "username": "RGVaerialphotos",
+              "avatar": "https://pbs.twimg.com/profile_images/2019953617743097856/PJqBBhpU_normal.jpg"
+            },
+            "media": [
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HWvIsxEbwAAY2v9.jpg"
+              }
+            ]
+          },
+          "x_posts": [
+            "2117466177400434911",
+            "2120008731362754606"
+          ],
+          "xChecked": true,
+          "imageChecked2": true,
+          "tier": 2,
+          "milestone": {
+            "key": "pad_work|15|B22",
+            "type": "pad_work",
+            "flight": 15,
+            "hardware": "B22",
+            "phase": "expected"
+          },
+          "push": {
+            "title": "🏗️ Pad activity (unconfirmed)",
+            "url": "https://x.com/efraser77/status/2117466177400434911",
+            "at": "2026-11-03T03:57:31.000Z"
+          },
+          "edited_from": "Booster 22 getting ready in MB1 with BQD work on Pad 2.",
+          "edited": true,
+          "updates": [
+            {
+              "date": "3 Nov",
+              "log_date": "3 Nov",
+              "at": "2026-11-03T03:57:31.000Z",
+              "text": "Booster 22 headed to preparation in Mega Bay 1.",
+              "push_text": "Booster 22 headed to preparation in Mega Bay 1.",
+              "card_text": "Booster 22 headed to preparation in Mega Bay 1.",
+              "log_text": "Booster 22 headed to preparation in Mega Bay 1.",
+              "url": "https://x.com/efraser77/status/2117466177400434911",
+              "src": "@efraser77",
+              "phase": "expected",
+              "tier": 2,
+              "note": "later post did not match the vehicle/pad numbers; status unchanged"
+            }
+          ],
+          "push_text": "Booster 22 has been lifted to the top of the tower.",
+          "card_text": "Booster 22 lifted to the top of the tower at Pad 2.",
+          "media_override": {
+            "post_url": "https://x.com/RGVaerialphotos/status/2120008731362754606",
+            "post_id": "2120008731362754606",
+            "author": "RGVaerialphotos",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HWvIsxEbwAAY2v9.jpg"
+          },
+          "photo_alternatives": [
+            {
+              "image": "https://pbs.twimg.com/amplify_video_thumb/2120045857915686913/img/VuupYK7GChXb2QMk.jpg",
+              "type": "video",
+              "post_url": "https://x.com/CSI_Starbase/status/2120046271859921250",
+              "author": "CSI_Starbase"
+            }
+          ]
+        },
         {
           "id": "x-2119899586005536831",
           "date": "9 Nov",
@@ -2715,86 +2875,6 @@
             "at": "2026-11-06T03:58:19.000Z"
           },
           "frameChecked": true
-        },
-        {
-          "id": "x-2117466177400434911",
-          "date": "10 Nov",
-          "log_date": "10 Nov",
-          "at": "2026-11-10T04:20:44.000Z",
-          "text": "Booster 22 lifted to the top of the tower at Pad 2.",
-          "x_text": "Booster 22 lifted to the top of the tower at Pad 2.",
-          "log_text": "Booster 22 lifted to the top of the tower at Pad 2.",
-          "status_line": "Booster 22 at Pad 2 for launch prep.",
-          "url": "https://x.com/RGVaerialphotos/status/2120008731362754606",
-          "src": "@RGVaerialphotos",
-          "trust": "unconfirmed",
-          "x_first": true,
-          "stage": "pad",
-          "hardware": "B22",
-          "flight": 15,
-          "x_post": {
-            "post_id": "2120008731362754606",
-            "url": "https://x.com/RGVaerialphotos/status/2120008731362754606",
-            "created_at": "2026-11-10T04:20:44.000Z",
-            "text": "Booster 22 has been lifted to the top of the tower.",
-            "author": {
-              "name": "RGV Aerial Photography",
-              "username": "RGVaerialphotos",
-              "avatar": "https://pbs.twimg.com/profile_images/2019953617743097856/PJqBBhpU_normal.jpg"
-            },
-            "media": [
-              {
-                "type": "photo",
-                "url": "https://pbs.twimg.com/media/HWvIsxEbwAAY2v9.jpg"
-              }
-            ]
-          },
-          "x_posts": [
-            "2117466177400434911",
-            "2120008731362754606"
-          ],
-          "xChecked": true,
-          "imageChecked2": true,
-          "tier": 2,
-          "milestone": {
-            "key": "pad_work|15|B22",
-            "type": "pad_work",
-            "flight": 15,
-            "hardware": "B22",
-            "phase": "expected"
-          },
-          "push": {
-            "title": "🏗️ Pad activity (unconfirmed)",
-            "url": "https://x.com/efraser77/status/2117466177400434911",
-            "at": "2026-11-03T03:57:31.000Z"
-          },
-          "edited_from": "Booster 22 getting ready in MB1 with BQD work on Pad 2.",
-          "edited": true,
-          "updates": [
-            {
-              "date": "3 Nov",
-              "log_date": "3 Nov",
-              "at": "2026-11-03T03:57:31.000Z",
-              "text": "Booster 22 headed to preparation in Mega Bay 1.",
-              "push_text": "Booster 22 headed to preparation in Mega Bay 1.",
-              "card_text": "Booster 22 headed to preparation in Mega Bay 1.",
-              "log_text": "Booster 22 headed to preparation in Mega Bay 1.",
-              "url": "https://x.com/efraser77/status/2117466177400434911",
-              "src": "@efraser77",
-              "phase": "expected",
-              "tier": 2,
-              "note": "later post did not match the vehicle/pad numbers; status unchanged"
-            }
-          ],
-          "push_text": "Booster 22 has been lifted to the top of the tower.",
-          "card_text": "Booster 22 lifted to the top of the tower at Pad 2.",
-          "media_override": {
-            "post_url": "https://x.com/RGVaerialphotos/status/2120008731362754606",
-            "post_id": "2120008731362754606",
-            "author": "RGVaerialphotos",
-            "type": "photo",
-            "image": "https://pbs.twimg.com/media/HWvIsxEbwAAY2v9.jpg"
-          }
         },
         {
           "id": "x-2117381830253101176",
@@ -3279,7 +3359,7 @@
           "journey_context": "engine prep (1 Nov: not a Raptor milestone)"
         }
       ],
-      "log_latest": "Booster 22 heading to Pad 2."
+      "log_latest": "Booster 22 at launch mount ready."
     },
     {
       "id": "faa",
@@ -4052,6 +4132,17 @@
           "https://x.com/NASASpaceflight/status/2115198496521195971"
         ],
         "data_fix": "30 Oct audit: 2 static fires (27 Oct); LabPadre 2115404622638837866 and TrackingTheSB 2115643620556763279 were recaps, removed"
+      }
+    },
+    "flight": {
+      "stacked": {
+        "count": 1,
+        "dates": [
+          "2026-11-10T06:49:54.000Z"
+        ],
+        "src": [
+          "https://x.com/CSI_Starbase/status/2120046271859921250"
+        ]
       }
     }
   },
