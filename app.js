@@ -814,8 +814,14 @@ function NextFlightCard({ f, checkedAt, road, children }) {
         <dt>Site</dt><dd>{siteLine(f)}</dd>
         <dt>Vehicle</dt><dd>{vehicleLine(heroVehicles(f, road))}</dd>
       </dl>
-      <p className="next-note">{scrub(f.note)}</p>
-      {missionLines(road, f.n).map((u, i) => <p className="next-upd" key={i}>{scrub(u.line)}</p>)}
+      {Number(f.n) === 15 && missionCardText(road, 15) ? (
+        <p className="next-note">{scrub(fillMissionCard(missionCardText(road, 15), f, road))}</p>
+      ) : (
+        <>
+          <p className="next-note">{scrub(f.note)}</p>
+          {missionLines(road, f.n).map((u, i) => <p className="next-upd" key={i}>{scrub(u.line)}</p>)}
+        </>
+      )}
       {showWatch && (
         <div className="watch-where">
           <span className="watch-where-h">Where to watch</span>
@@ -1500,6 +1506,50 @@ function pastSummary(road, n) {
   const color = (id) => (road.categories.find((c) => c.id === id) || {}).color || PAST_COLOR[id] || "#AAB6D6";
   return items.filter((e) => e && e.text && e.vehicle).map((e) => ({ box: e.box, vehicle: e.vehicle, text: e.text, label: PAST_LABEL[e.box] || e.box, color: color(e.box), photo: e.photo && e.photo.image ? e.photo : null }));
 }
+// --- mission-card helpers (tested by scripts/test-missioncard.js) ---
+// Hand-written Next-flight card copy (road.json mission_card[n]). Checkers never read or write this field.
+// {NET} is filled from the hero's Launch Library date (day + full month, e.g. "13 November").
+// If that date is unavailable, use the last NET already stored in road.json's Launch date line —
+// the same lastKnownNet parse as the 9 Nov date-pending fix — expanded to a full month name.
+// Never show a source or a stacked second date.
+function missionCardText(road, n) {
+  const raw = road && road.mission_card && typeof (road.mission_card[n] ?? road.mission_card[String(n)]) === "string"
+    ? (road.mission_card[n] ?? road.mission_card[String(n)]) : "";
+  return raw.trim();
+}
+function lastKnownNetDay(road, n) {
+  const MON = { Jan: "January", Feb: "February", Mar: "March", Apr: "April", May: "May", Jun: "June", Jul: "July", Aug: "August", Sep: "September", Oct: "October", Nov: "November", Dec: "December" };
+  const c = ((road && road.categories) || []).find((x) => x.id === "date") || {};
+  for (const s of [c.log_latest, c.latest]) {
+    const m = /\bNET (\d{1,2} (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec))[a-z]*\b/.exec(String(s || "")), f = /\bFlight (\d+)\b/.exec(String(s || ""));
+    if (m && (!f || Number(f[1]) === Number(n))) {
+      const [day, mon] = m[1].split(" ");
+      return `${day} ${MON[mon] || mon}`;
+    }
+  }
+  return "";
+}
+function heroNetIso(f) {
+  if (!f || !f.date || !Number.isFinite(Date.parse(f.date))) return null;
+  const p = f.netPrecision || "";
+  if (p && /^(WK|M|Q[1-4]|H[12]|Y|FY|DEC)$/.test(p)) return null;
+  if (!p) {
+    const d = new Date(f.date), next = new Date(d.getTime() + 86400000);
+    if (d.getUTCHours() === 0 && d.getUTCMinutes() === 0 && d.getUTCSeconds() === 0 && next.getUTCDate() === 1) return null;
+  }
+  return f.date;
+}
+function missionCardNet(f, road) {
+  const iso = heroNetIso(f);
+  if (iso) return fmt(iso, { day: "numeric", month: "long" });
+  return lastKnownNetDay(road, f && f.n);
+}
+function fillMissionCard(text, f, road) {
+  const net = missionCardNet(f, road);
+  return String(text).replace(/\{NET\}/g, net || "to be confirmed");
+}
+function showMissionCard(road, n) { return Number(n) === 15 && !!missionCardText(road, 15); }
+// --- end mission-card helpers ---
 // Mission updates for the upcoming flight (road.json "mission_updates", written by the checker
 // from X posts about the mission itself: catch plans, objectives, payload…). Text lines only.
 // The text never repeats the credited name: "Elon Musk says X (Elon Musk, 22 Oct)." → "X (Elon Musk, 22 Oct)."

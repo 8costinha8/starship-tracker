@@ -3678,6 +3678,9 @@
       }
     ]
   },
+  "mission_card": {
+    "15": "Flight 15 is Starship's next flight, expected NET {NET}. It's aiming for the first double catch — both the ship and booster returning to the launch site towers. The main unknown is whether the heat shield and flip maneuver hold up under reentry at that scale. Beyond that, it's a straightforward step up from Flight 14's profile."
+  },
   "rejected_lines": [
     {
       "box": "cryo",
