@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "10 Nov",
-  "updatedAt": "2026-11-10T04:00:51.766Z",
+  "updatedAt": "2026-11-10T04:18:36.818Z",
   "categories": [
     {
       "id": "cryo",
@@ -2349,17 +2349,22 @@
             "2119998556929192383",
             "2119997604302143555",
             "2119997434667368485",
-            "2119997160473141572"
+            "2119997160473141572",
+            "2120006244018843717"
           ],
           "xChecked": true,
           "imageChecked2": true,
           "media_override": {
-            "post_url": "https://x.com/RGVaerialphotos/status/2119998556929192383",
-            "post_id": "2119998556929192383",
-            "author": "RGVaerialphotos",
-            "type": "video",
-            "image": "https://pbs.twimg.com/amplify_video_thumb/2119998394651566081/img/hT6j0B7lQUL3hfrf.jpg",
-            "video_url": "https://video.twimg.com/amplify_video/2119998394651566081/vid/avc1/3840x2160/aCGeZPMnopiTK-pQ.mp4"
+            "post_url": "https://x.com/StarshipGazer/status/2119963170706178324",
+            "post_id": "2119963170706178324",
+            "author": "StarshipGazer",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HWueuXHacAEIP85.jpg",
+            "auto": true,
+            "quality": 4,
+            "media_score": 544,
+            "checked_at": "2026-11-10T04:15:52.966Z",
+            "crop": "top"
           },
           "tier": 1,
           "hedged": true,
@@ -2384,12 +2389,27 @@
                 "author": "StarshipGazer",
                 "tier": 2,
                 "at": "2026-11-10T01:19:41.000Z"
+              },
+              {
+                "post_id": "2120006244018843717",
+                "author": "efraser77",
+                "tier": 2,
+                "at": "2026-11-10T04:10:51.000Z"
               }
             ],
             "confirmed": true,
             "confirmed_at": "2026-11-10T01:31:26.913Z"
           },
-          "text_locked": true
+          "text_locked": true,
+          "likely": true,
+          "alt_media": {
+            "post_url": "https://x.com/RGVaerialphotos/status/2119998556929192383",
+            "post_id": "2119998556929192383",
+            "author": "RGVaerialphotos",
+            "type": "video",
+            "image": "https://pbs.twimg.com/amplify_video_thumb/2119998394651566081/img/hT6j0B7lQUL3hfrf.jpg",
+            "show": false
+          }
         },
         {
           "id": "x-2119447093546991754",
@@ -2457,6 +2477,12 @@
           "edited_from": "Another deluge test completed at Pad 2.",
           "edited": true,
           "photo_alternatives": [
+            {
+              "image": "https://pbs.twimg.com/amplify_video_thumb/2119998394651566081/img/hT6j0B7lQUL3hfrf.jpg",
+              "type": "video",
+              "post_url": "https://x.com/StarshipGazer/status/2119963170706178324",
+              "author": "StarshipGazer"
+            },
             {
               "image": "https://pbs.twimg.com/amplify_video_thumb/2119446229587460096/img/8vJyqi7hzyPGKgfY.jpg",
               "type": "video",
@@ -4306,9 +4332,11 @@
         "cryo": 1,
         "static": 1
       },
-      "pending": [],
+      "pending": [
+        "x-2120006244018843717"
+      ],
       "likely": null,
-      "at": "2026-11-09T21:02:33.000Z",
+      "at": "2026-11-10T04:10:51.000Z",
       "counted": [
         "https://x.com/Blobifie/status/2097943705911193755",
         "https://x.com/LabPadre/status/2098045579234259249",
