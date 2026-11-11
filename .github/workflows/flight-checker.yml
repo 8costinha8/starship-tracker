@@ -43,6 +43,7 @@ on:
 
 permissions:
   contents: write   # needed so the checkers can commit + push app.js / road.json
+  actions: write    # needed so check-flights can dispatch mission-alert.yml
 
 # never let two runs overlap (both could try to push at once)
 concurrency:
@@ -67,6 +68,7 @@ jobs:
           XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
           WRITER: ${{ inputs.writer || 'grok' }}
           TEST_MODE: ${{ inputs.test_mode }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       # Road to Flight N card. Runs even if the step above failed.
       - run: node scripts/check-road.js
         if: ${{ !cancelled() && !inputs.test_push && !inputs.send_push }}

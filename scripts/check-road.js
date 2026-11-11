@@ -1735,6 +1735,14 @@ async function run(opts = {}) {
     if (!save) console.log("\nroad.json would become:\n" + json);
   } else {
     log("no change to the Road card");
+    // check-flights may already have written mission_alerts (dispatched / liftoff) to road.json in this job.
+    // Commit that file through the existing live commit path so the marker is not lost when this run has no other Road changes.
+    if (save && mode === "live" && !opts.roadPath) {
+      try {
+        const dirty = execSync("git status --porcelain -- road.json", { cwd: ROOT, stdio: "pipe" }).toString().trim();
+        if (dirty) commit("road.json", `Auto: Road to Flight ${road.flight} — mission alerts`);
+      } catch (e) { log(`mission alerts commit skipped: ${e.message}`); }
+    }
   }
 
   // 5b. Push log (title, body, link, source, time, verdict) → notifications.json

@@ -321,6 +321,30 @@ const liftoffHist = (at = LIFTOFF) => [{
     check(manual.mission_alerts.liftoff_actual === LIFTOFF && manual.mission_alerts.liftoff_source === "manual", "manual liftoff is not overwritten by a later LL2 time");
   }
 
+  // ── 14. dispatch request shape: ref main, inputs match mission-alert.yml, stubbed fetch ──
+  {
+    const calls = [];
+    const fetchFn = async (url, opts) => { calls.push({ url, ...(opts || {}) }); return { status: 204 }; };
+    const sendAt = "2026-11-13T22:46:35.000Z";
+    const res = await MA.dispatchMissionAlert(
+      { key: "booster_soon", send_at: sendAt },
+      { repo: "8costinha8/starship-tracker", token: "test-token", fetchFn }
+    );
+    const wantUrl = "https://api.github.com/repos/8costinha8/starship-tracker/actions/workflows/mission-alert.yml/dispatches";
+    check(res.ok && res.status === 204 && calls.length === 1, `dispatch once, HTTP 204 (${res.status}, ${calls.length} call(s))`);
+    check(calls[0].url === wantUrl && calls[0].method === "POST", `POST ${wantUrl}`);
+    const body = JSON.parse(calls[0].body);
+    check(body.ref === "main", `dispatch ref is main (${body.ref})`);
+    check(body.inputs.key === "booster_soon" && body.inputs.send_at === sendAt && body.inputs.dry_run === "false" && body.inputs.outcome === undefined, `inputs match mission-alert.yml (key, send_at, dry_run=false, no outcome)`);
+    calls.length = 0;
+    const res2 = await MA.dispatchMissionAlert(
+      { key: "ship_result", outcome: "caught", dry_run: true },
+      { repo: "8costinha8/starship-tracker", token: "test-token", fetchFn }
+    );
+    const body2 = JSON.parse(calls[0].body);
+    check(res2.ok && body2.ref === "main" && body2.inputs.key === "ship_result" && body2.inputs.outcome === "caught" && body2.inputs.dry_run === "true" && body2.inputs.send_at === undefined, "result dispatch: outcome + dry_run inputs, no send_at");
+  }
+
   check(!fcm.includes("send") && blocked.length === 0 && !(globalThis.__GITBLOCK || []).length, `zero real side effects (FCM ${fcm.length}, fetch ${blocked.length}, git ${(globalThis.__GITBLOCK || []).length})`);
 
   console.log(failed ? `\n❌ ${failed} check(s) failed` : "\n✅ All checks passed. (Offline — dry_run on, FCM stubbed, nothing real was sent.)");
