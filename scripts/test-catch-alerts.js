@@ -421,6 +421,29 @@ const liftoffHist = (at = LIFTOFF) => [{
     check(/^silent:/.test(r4.verdict), `main-style: after send_at refresh, prior log row is silent (${r4.verdict})`);
   }
 
+  // ── 17. B3: ship_result lost at T+22h still pushes inside the quiet window ──
+  {
+    const tPlus = T0 + 22.5 * 3600000;
+    const deorbitAt = new Date(tPlus - 30 * 60000).toISOString();
+    const history = [
+      ...liftoffHist(),
+      { title: "⏱️ Deorbit in 5 min", body: "Watch live", at: deorbitAt, sent_at: deorbitAt, verdict: "sent", key: "15|deorbit_soon", alert_key: "15|deorbit_soon" },
+    ];
+    const road = baseRoad();
+    const a = await send(road, { key: "ship_result", outcome: "lost", now: nowFn(tPlus), history });
+    check(a.row.verdict === "dry_run" && a.row.title === "❌ Ship lost in reentry" && a.row.body === "Flight 15", `ship_result lost at T+22h sends once inside the quiet window (${a.row.verdict})`);
+    const b = await send(road, { key: "ship_result", outcome: "lost", now: nowFn(tPlus + 1000), history: [...history, ...a.rows] });
+    check(/^silent:/.test(b.row.verdict) && /duplicate|already on the card/.test(b.row.verdict), `duplicate ship_result lost stays silent (${b.row.verdict})`);
+    const sent = [a.row, b.row].filter((r) => r.verdict === "dry_run" || r.verdict === "sent");
+    check(sent.length === 1, `duplicate ship_result still gives only 1 push (${sent.length})`);
+
+    const catchAt = new Date(tPlus).toISOString();
+    const shipCatch = { title: "Ship caught", body: "Ship 42 was caught at the tower.", at: catchAt, sent_at: catchAt, verdict: "sent" };
+    shipCatch.key = policy.classify(shipCatch, { vehicles: ["B22", "S42"], now: tPlus }).key;
+    const c = await send(baseRoad(), { key: "ship_result", outcome: "caught", now: nowFn(tPlus + 60000), history: [...history, shipCatch] });
+    check(/^silent:/.test(c.row.verdict) && /duplicate|already on the card|catch/.test(c.row.verdict + (c.row.key || "")), `classifier catch then manual ship_result stays silent (${c.row.verdict})`);
+  }
+
   check(!fcm.includes("send") && blocked.length === 0 && !(globalThis.__GITBLOCK || []).length, `zero real side effects (FCM ${fcm.length}, fetch ${blocked.length}, git ${(globalThis.__GITBLOCK || []).length})`);
 
   console.log(failed ? `\n❌ ${failed} check(s) failed` : "\n✅ All checks passed. (Offline — dry_run on, FCM stubbed, nothing real was sent.)");

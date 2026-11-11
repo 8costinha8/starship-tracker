@@ -232,7 +232,12 @@ async function sendMissionAlert(opts = {}) {
     let resultCls = null;
     if (RESULT_KEYS.has(key)) {
       resultCls = pp.decide({ title: copy.title, body: copy.title, at }, history, { now: now(), vehicles: road.vehicles || [] });
-      if (!resultCls.push) {
+      // Silence result keys only for a true duplicate / "already on the card".
+      // Quiet-window or "minor" verdicts still push (a ship loss at T+22h is past the 3h
+      // vehicle_lost window, so classify() would otherwise mute it).
+      const reason = String(resultCls.reason || "");
+      const resultDupe = /duplicate/.test(reason) || /already on the card/.test(reason);
+      if (!resultCls.push && resultDupe) {
         const row = { title: copy.title, body: copy.body, verdict: `silent: ${resultCls.reason}`, key: resultCls.cls && resultCls.cls.key, alert_key: ownKey(flight, key), at };
         logRows.push(row);
         log(`(silent) mission-alert ${key} — ${resultCls.reason}`);
