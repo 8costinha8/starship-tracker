@@ -23,14 +23,14 @@ const SCHEDULED_TEXT = {
 };
 const RESULT_TEXT = {
   booster_result: {
-    caught: { title: "✅ Booster caught!", body: "✅ Booster caught!" },
-    lost: { title: "❌ Booster lost", body: "❌ Booster lost" },
-    splashed: { title: "🌊 Booster splashed down", body: "🌊 Booster splashed down" },
+    caught: { title: "✅ Booster caught!" },
+    lost: { title: "❌ Booster lost" },
+    splashed: { title: "🌊 Booster splashed down" },
   },
   ship_result: {
-    caught: { title: "✅ Ship caught!", body: "✅ Ship caught!" },
-    lost: { title: "❌ Ship lost in reentry", body: "❌ Ship lost in reentry" },
-    splashed: { title: "🌊 Ship splashed down", body: "🌊 Ship splashed down" },
+    caught: { title: "✅ Ship caught!" },
+    lost: { title: "❌ Ship lost in reentry" },
+    splashed: { title: "🌊 Ship splashed down" },
   },
 };
 const DEFAULT_TEMPLATE = [
@@ -79,13 +79,17 @@ function isAborted(alerts, key) {
   const ov = (alerts.overrides && alerts.overrides[key]) || {};
   return ov.skip === true || ov.abort === true;
 }
-function resultText(key, outcome) {
+function resultText(key, outcome, flight) {
   const table = RESULT_TEXT[key];
   if (!table || !outcome) return null;
-  return table[String(outcome).toLowerCase()] || null;
+  const hit = table[String(outcome).toLowerCase()];
+  if (!hit || !hit.title) return null;
+  const body = Number.isInteger(flight) ? `Flight ${flight}` : null;
+  if (!body) return null;
+  return { title: hit.title, body };
 }
-function copyFor(alerts, key, outcome) {
-  if (RESULT_KEYS.has(key)) return resultText(key, outcome);
+function copyFor(alerts, key, outcome, flight) {
+  if (RESULT_KEYS.has(key)) return resultText(key, outcome, flight ?? flightOf(alerts));
   const ev = resolvedEvent(alerts, key);
   const fallback = SCHEDULED_TEXT[key] || {};
   const title = ev.title || fallback.title;
@@ -197,15 +201,22 @@ async function sendMissionAlert(opts = {}) {
 
     if (SCHEDULED.has(key)) {
       const liftoff = resolveLiftoff(alerts);
-      if (!liftoff) return skip("missing liftoff_actual");
-      const ev = resolvedEvent(alerts, key);
-      if (!ev.t_plus && !send_at) return skip("missing timeline (manual-only)");
-      if (key === "booster_soon" && isTooLateBoosterSoon(liftoff, now())) return skip("booster_soon too late (>T+5)");
+      // Hand-send (no send_at): send immediately, even without liftoff_actual.
+      // The >T+5 skip applies only when liftoff is known.
+      if (!send_at) {
+        if (liftoff && key === "booster_soon" && isTooLateBoosterSoon(liftoff, now())) return skip("booster_soon too late (>T+5)");
+      } else {
+        if (!liftoff) return skip("missing liftoff_actual");
+        if (key === "booster_soon" && isTooLateBoosterSoon(liftoff, now())) return skip("booster_soon too late (>T+5)");
+      }
     }
-    const copy = copyFor(alerts, key, outcome);
+    const copy = copyFor(alerts, key, outcome, flight);
     if (!copy) return skip(RESULT_KEYS.has(key) ? "missing or unknown outcome" : "missing alert text");
 
-    const history = [...(opts.history || []), ...logRows];
+    // Prefer the on-disk push log after any send_at refresh so dedupe sees what is on main.
+    let prior = opts.history;
+    if (opts.logPath) prior = ps.readLog(opts.logPath).pushes;
+    const history = [...(prior || []), ...logRows];
     if (priorOwn(history, flight, key)) {
       const row = { title: copy.title, body: copy.body, verdict: `silent: duplicate ${ownKey(flight, key)}`, key: ownKey(flight, key), alert_key: ownKey(flight, key), at: new Date(now()).toISOString() };
       logRows.push(row);
@@ -214,10 +225,24 @@ async function sendMissionAlert(opts = {}) {
     }
 
     const at = new Date(now()).toISOString();
+    // Visible body is "Flight N", which classify() would treat as a minor update. Decide on the
+    // title (where the outcome words are) so result alerts still share vehicle|catch / vehicle_lost
+    // with the classifier, without changing classify() itself.
+    const pp = require("./push-policy.js");
+    let resultCls = null;
+    if (RESULT_KEYS.has(key)) {
+      resultCls = pp.decide({ title: copy.title, body: copy.title, at }, history, { now: now(), vehicles: road.vehicles || [] });
+      if (!resultCls.push) {
+        const row = { title: copy.title, body: copy.body, verdict: `silent: ${resultCls.reason}`, key: resultCls.cls && resultCls.cls.key, alert_key: ownKey(flight, key), at };
+        logRows.push(row);
+        log(`(silent) mission-alert ${key} — ${resultCls.reason}`);
+        return row;
+      }
+    }
+
     const n = ps.addFeedItem(road, { title: copy.title, body: copy.body, at, kind: "mission_alert", flight });
     n.kind = "mission_alert";
 
-    const usePolicy = RESULT_KEYS.has(key); // share vehicle|catch / vehicle_lost with the classifier
     const send = dry_run
       ? async () => { throw new Error("FCM blocked (dry_run)"); }
       : (opts.send || (async () => { throw new Error("no send function"); }));
@@ -229,20 +254,15 @@ async function sendMissionAlert(opts = {}) {
       logRows,
       history,
       shadow: false,
-      policy: usePolicy,
+      policy: false, // scheduled + results: own flight|key / pre-checked result key; body is not classifier text
       log,
       now,
     });
     row.alert_key = ownKey(flight, key);
-    if (!row.key) row.key = usePolicy ? row.key : ownKey(flight, key);
-    if (!row.key) row.key = ownKey(flight, key);
+    row.key = (resultCls && resultCls.cls && resultCls.cls.key) || row.key || ownKey(flight, key);
     if (dry_run && row.verdict === "not sent (test mode)") {
       row.verdict = "dry_run";
       row.dedupe_only = true; // blocks a later classifier catch / rerun; is not a real push
-      if (usePolicy && !row.key) {
-        const cls = require("./push-policy.js").classify(n, { vehicles: road.vehicles || [], now: now() });
-        row.key = cls.key;
-      }
     }
     if (opts.logPath && opts.saveLog) ps.writeLog(opts.logPath, logRows.filter((r) => !r._written));
     return row;
@@ -327,7 +347,7 @@ async function dispatchMissionAlert({ key, send_at, outcome, dry_run }, { repo, 
 
 function refreshRoadFromMain(root = ROOT) {
   execSync("git fetch origin main", { cwd: root, stdio: "pipe" });
-  execSync("git checkout origin/main -- road.json", { cwd: root, stdio: "pipe" });
+  execSync("git checkout origin/main -- road.json notifications.json", { cwd: root, stdio: "pipe" });
   return JSON.parse(fs.readFileSync(path.join(root, "road.json"), "utf8"));
 }
 
@@ -345,6 +365,7 @@ async function main() {
     roadPath, logPath, save: !dry_run, saveLog: !dry_run,
     send, log: console.log,
     refreshRoad: send_at ? () => refreshRoadFromMain(ROOT) : undefined,
+    history: ps.readLog(logPath).pushes,
   });
   if (!dry_run && (row.verdict === "sent") && process.env.CI) {
     const run = (c) => execSync(c, { cwd: ROOT, stdio: "pipe" });

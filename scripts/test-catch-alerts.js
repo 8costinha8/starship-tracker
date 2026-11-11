@@ -141,7 +141,7 @@ const liftoffHist = (at = LIFTOFF) => [{
         const road = baseRoad();
         const { row } = await send(road, { key, outcome, now: nowFn(T0 + 10 * 60000), history: liftoffHist() });
         const text = want[key][outcome];
-        check(row.verdict === "dry_run" && row.title === text && row.body === text, `${key}/${outcome} text is "${text}" (got "${row.title}" / ${row.verdict})`);
+        check(row.verdict === "dry_run" && row.title === text && row.body === "Flight 15", `${key}/${outcome} title is "${text}", body is "Flight 15" (got "${row.title}" / "${row.body}" / ${row.verdict})`);
       }
     }
   }
@@ -251,7 +251,7 @@ const liftoffHist = (at = LIFTOFF) => [{
     check(road.mission_alerts.flight === 16 && res.dispatched.length === 0 && !road.mission_alerts.events.some((e) => e.t_plus), "checker hook rolls F15 → F16 and does not dispatch without a timeline");
   }
 
-  // ── 8. missing timeline ⇒ no scheduled alerts ──
+  // ── 8. missing timeline ⇒ no scheduled (auto) alerts; a hand-send still goes out ──
   {
     const alerts = MA.emptyAlerts(15);
     alerts.liftoff_actual = LIFTOFF;
@@ -259,7 +259,7 @@ const liftoffHist = (at = LIFTOFF) => [{
     const road = baseRoad();
     delete road.mission_alerts.events.find((e) => e.key === "booster_soon").t_plus;
     const { row } = await send(road, { key: "booster_soon", now: nowFn(T0 + 95000) });
-    check(/^skipped: missing timeline/.test(row.verdict), `send without t_plus is skipped (${row.verdict})`);
+    check(row.verdict === "dry_run", `hand-send without t_plus still sends (${row.verdict})`);
   }
 
   // ── 9. dry_run sends nothing (FCM never called) ──
@@ -273,7 +273,7 @@ const liftoffHist = (at = LIFTOFF) => [{
     const { row } = await send(road, { key: "booster_soon", now: nowFn(T0 + 95000) });
     check(row.verdict === "dry_run" && row.title === "🎯 Booster catch in 5 min" && row.alert_key === "16|booster_soon", `Flight 16 booster_soon works (${row.verdict}, ${row.alert_key})`);
     const { row: r2 } = await send(road, { key: "ship_result", outcome: "splashed", now: nowFn(T0 + 23 * 3600000), history: liftoffHist() });
-    check(r2.verdict === "dry_run" && r2.title === "🌊 Ship splashed down", `Flight 16 ship splashdown works (${r2.verdict})`);
+    check(r2.verdict === "dry_run" && r2.title === "🌊 Ship splashed down" && r2.body === "Flight 16", `Flight 16 ship splashdown works (${r2.verdict}, body "${r2.body}")`);
   }
 
   // ── 11. unknown / missing data: send nothing, don't crash ──
@@ -282,8 +282,6 @@ const liftoffHist = (at = LIFTOFF) => [{
     cases.push((await send(baseRoad(), { key: "not_a_real_key", now: nowFn(T0) })).row);
     const noAlerts = baseRoad(); delete noAlerts.mission_alerts;
     cases.push((await send(noAlerts, { key: "booster_soon", now: nowFn(T0 + 95000) })).row);
-    const noLift = baseRoad(); noLift.mission_alerts.liftoff_actual = null; noLift.mission_alerts.liftoff_source = null;
-    cases.push((await send(noLift, { key: "booster_soon", now: nowFn(T0 + 95000) })).row);
     cases.push((await send(baseRoad(), { key: "booster_result", now: nowFn(T0 + 7 * 60000), history: liftoffHist() })).row); // missing outcome
     cases.push((await send(baseRoad(), { key: "booster_result", outcome: "exploded", now: nowFn(T0 + 7 * 60000), history: liftoffHist() })).row);
     cases.push((await send(null, { key: "booster_soon", now: nowFn(T0) })).row);
@@ -343,6 +341,84 @@ const liftoffHist = (at = LIFTOFF) => [{
     );
     const body2 = JSON.parse(calls[0].body);
     check(res2.ok && body2.ref === "main" && body2.inputs.key === "ship_result" && body2.inputs.outcome === "caught" && body2.inputs.dry_run === "true" && body2.inputs.send_at === undefined, "result dispatch: outcome + dry_run inputs, no send_at");
+  }
+
+  // ── 15. B2 hand-send: no send_at sends immediately, even without liftoff_actual ──
+  {
+    const road = baseRoad();
+    road.mission_alerts.liftoff_actual = null;
+    road.mission_alerts.liftoff_source = null;
+    const a = await send(road, { key: "booster_soon", now: nowFn(T0) });
+    check(a.row.verdict === "dry_run" && a.row.title === "🎯 Booster catch in 5 min", `no send_at and no liftoff: booster_soon sends once (${a.row.verdict})`);
+    const b = await send(road, { key: "booster_soon", now: nowFn(T0), history: a.rows });
+    check(/^silent: duplicate/.test(b.row.verdict), `no send_at and no liftoff: rerun is silent (${b.row.verdict})`);
+    const d = baseRoad();
+    d.mission_alerts.liftoff_actual = null;
+    d.mission_alerts.liftoff_source = null;
+    const c = await send(d, { key: "deorbit_soon", now: nowFn(T0) });
+    check(c.row.verdict === "dry_run" && c.row.title === "⏱️ Deorbit in 5 min", `no send_at and no liftoff: deorbit_soon sends once (${c.row.verdict})`);
+  }
+  {
+    // liftoff known and past T+5: skip (hand-send and send_at)
+    const road = baseRoad();
+    const { row } = await send(road, { key: "booster_soon", now: nowFn(T0 + 6 * 60000) });
+    check(/^skipped: booster_soon too late/.test(row.verdict), `liftoff known and past T+5: hand-send skipped (${row.verdict})`);
+    const { row: r2 } = await send(road, { key: "booster_soon", send_at: new Date(T0 + 6 * 60000).toISOString(), now: nowFn(T0 + 6 * 60000) });
+    check(/^skipped: booster_soon too late/.test(r2.verdict), `liftoff known and past T+5: send_at skipped (${r2.verdict})`);
+  }
+
+  // ── 16. B1 main-style file wiring: road.json + notifications.json on disk ──
+  {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "catch-main-"));
+    const roadPath = path.join(dir, "road.json");
+    const logPath = path.join(dir, "notifications.json");
+    const writeRoad = (r) => fs.writeFileSync(roadPath, JSON.stringify(r, null, 2) + "\n");
+    const writeLog = (pushes) => fs.writeFileSync(logPath, JSON.stringify({ pushes }, null, 2) + "\n");
+    const runMainStyle = (opts) => MA.sendMissionAlert({
+      dry_run: true, save: false, send: fcmSend, sleep: opts.sleep || noSleep,
+      log: () => {}, now: opts.now || nowFn(T0 + 95000),
+      roadPath, logPath,
+      history: ps.readLog(logPath).pushes,
+      key: opts.key, outcome: opts.outcome, send_at: opts.send_at,
+      refreshRoad: opts.refreshRoad,
+    });
+
+    // prior sent row for the same flight|key ⇒ silent
+    writeRoad(baseRoad());
+    const priorAt = new Date(T0 + 95000).toISOString();
+    writeLog([{ title: "🎯 Booster catch in 5 min", body: "Watch live", at: priorAt, sent_at: priorAt, verdict: "sent", key: "15|booster_soon", alert_key: "15|booster_soon" }]);
+    const r1 = await runMainStyle({ key: "booster_soon" });
+    check(/^silent:/.test(r1.verdict) && r1.verdict !== "dry_run" && r1.verdict !== "sent", `main-style: prior flight|key is silent (${r1.verdict})`);
+
+    // classifier catch row ⇒ manual booster_result / ship_result silent
+    const catchAt = new Date(T0 + 7 * 60000).toISOString();
+    const boosterCatch = { title: "Booster caught", body: "Booster 22 was caught at the tower.", at: catchAt, sent_at: catchAt, verdict: "sent" };
+    boosterCatch.key = policy.classify(boosterCatch, { vehicles: ["B22", "S42"], now: T0 + 7 * 60000 }).key;
+    writeRoad(baseRoad());
+    writeLog([...liftoffHist(), boosterCatch]);
+    const r2 = await runMainStyle({ key: "booster_result", outcome: "caught", now: nowFn(T0 + 8 * 60000) });
+    check(/^silent:/.test(r2.verdict) && /catch/.test(r2.verdict + (r2.key || "")), `main-style: classifier booster catch silences booster_result (${r2.verdict}, ${r2.key})`);
+
+    const shipAt = new Date(T0 + 23 * 3600000).toISOString();
+    const shipCatch = { title: "Ship caught", body: "Ship 42 was caught at the tower.", at: shipAt, sent_at: shipAt, verdict: "sent" };
+    shipCatch.key = policy.classify(shipCatch, { vehicles: ["B22", "S42"], now: T0 + 23 * 3600000 }).key;
+    writeRoad(baseRoad());
+    writeLog([...liftoffHist(), shipCatch]);
+    const r3 = await runMainStyle({ key: "ship_result", outcome: "caught", now: nowFn(T0 + 23 * 3600000 + 60000) });
+    check(/^silent:/.test(r3.verdict) && /catch/.test(r3.verdict + (r3.key || "")), `main-style: classifier ship catch silences ship_result (${r3.verdict}, ${r3.key})`);
+
+    // after send_at sleep, history is re-read from the refreshed notifications.json
+    writeRoad(baseRoad());
+    writeLog([]);
+    const lateLog = [{ title: "🎯 Booster catch in 5 min", body: "Watch live", at: priorAt, sent_at: priorAt, verdict: "sent", key: "15|booster_soon", alert_key: "15|booster_soon" }];
+    const r4 = await runMainStyle({
+      key: "booster_soon",
+      send_at: new Date(T0 + 95000).toISOString(),
+      now: nowFn(T0 + 95000 - 1000),
+      sleep: async () => {},
+      refreshRoad: async () => { writeLog(lateLog); return JSON.parse(fs.readFileSync(roadPath, "utf8")); },
+    });
+    check(/^silent:/.test(r4.verdict), `main-style: after send_at refresh, prior log row is silent (${r4.verdict})`);
   }
 
   check(!fcm.includes("send") && blocked.length === 0 && !(globalThis.__GITBLOCK || []).length, `zero real side effects (FCM ${fcm.length}, fetch ${blocked.length}, git ${(globalThis.__GITBLOCK || []).length})`);
