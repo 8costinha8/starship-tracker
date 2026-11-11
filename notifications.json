@@ -1960,6 +1960,18 @@
       "verdict": "sent",
       "gate": "hold passed (1 run)",
       "key": "S42|other|11 Nov"
+    },
+    {
+      "title": "💥 Static fires · Flight 15",
+      "body": "Ship 42 lifted onto transport stand.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2120647062765355431",
+      "url": "https://x.com/Blobifie/status/2120647062765355431",
+      "at": "2026-11-11T22:37:14.000Z",
+      "sent_at": "2026-11-11T23:01:05.073Z",
+      "where": "road",
+      "verdict": "sent",
+      "gate": "hold passed (1 run)",
+      "key": "S42|transport|11 Nov"
     }
   ]
 }
