@@ -1948,6 +1948,18 @@
       "verdict": "silent: minor transport — a push went out 9.3h ago (quiet window 24h)",
       "gate": "hold passed (1 run)",
       "key": "starship|transport|11 Nov"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Starlink speed loader left Starfactory to load Ship 42.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mwcofsuw-afd53b",
+      "url": "https://x.com/NASASpaceflight/status/2120641416384922015",
+      "at": "2026-11-11T22:14:47.000Z",
+      "sent_at": "2026-11-11T22:45:39.223Z",
+      "where": "feed",
+      "verdict": "sent",
+      "gate": "hold passed (1 run)",
+      "key": "S42|other|11 Nov"
     }
   ]
 }
