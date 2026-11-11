@@ -8,14 +8,14 @@
       "last_ok": "2026-11-11T21:00:37.343Z"
     },
     "check-road": {
-      "at": "2026-11-11T15:15:36.630Z",
+      "at": "2026-11-11T22:00:41.726Z",
       "status": "ok",
       "error": null,
       "consecutive_failures": 0,
-      "last_ok": "2026-11-11T15:15:36.630Z"
+      "last_ok": "2026-11-11T22:00:41.726Z"
     }
   },
-  "updated": "2026-11-11T21:00:37.343Z",
+  "updated": "2026-11-11T22:00:41.726Z",
   "status": "ok",
   "consecutive_failures": 0,
   "alert": false,
@@ -23,7 +23,7 @@
     "at": "2026-11-09T09:45:27.619Z",
     "error": "watchdog: X read failed: HTTP 402 — the checker is blind to X (check the X API plan / bearer token)"
   },
-  "committed_at": "2026-11-11T21:00:37.343Z",
+  "committed_at": "2026-11-11T22:00:41.726Z",
   "render_check": {
     "at": "2026-11-11T06:00:46.977Z",
     "status": "failed",
