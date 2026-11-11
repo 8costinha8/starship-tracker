@@ -1588,7 +1588,11 @@ function pastSummary(road, n) {
   if (!road || !Array.isArray(road.categories)) return [];
   const a = road.archive && road.archive[n], items = (a && a.summary && a.summary.items) || [];
   const color = (id) => (road.categories.find((c) => c.id === id) || {}).color || PAST_COLOR[id] || "#AAB6D6";
-  return items.filter((e) => e && e.text && e.vehicle).map((e) => ({ box: e.box, vehicle: e.vehicle, text: e.text, label: PAST_LABEL[e.box] || e.box, color: color(e.box), photo: e.photo && e.photo.image ? e.photo : null }));
+  // Display rule for every flight (by box id / type, never by flight number): show per-vehicle
+  // Cryo, Raptor and Static fire, vehicle or stack Pad boxes (Ship, Booster, Full stack), and the
+  // Licence (FAA) box. Hide Launch date (already in the card details) and the general Launch pad
+  // (pad-activity) box. The frozen archive data is left as it is.
+  return items.filter((e) => e && e.text && e.vehicle && e.box !== "date" && !(e.box === "pad" && /^(?:pad|Launch pad)$/i.test(String(e.vehicle)))).map((e) => ({ box: e.box, vehicle: e.vehicle, text: e.text, label: PAST_LABEL[e.box] || e.box, color: color(e.box), photo: e.photo && e.photo.image ? e.photo : null }));
 }
 // --- mission-card helpers (tested by scripts/test-missioncard.js) ---
 // Hand-written Next-flight card copy (road.json mission_card[n]). Checkers never read or write this field.
