@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "11 Nov",
-  "updatedAt": "2026-11-11T23:00:38.720Z",
+  "updatedAt": "2026-11-11T23:15:24.767Z",
   "categories": [
     {
       "id": "cryo",
@@ -1014,65 +1014,8 @@
       "name": "Static fires",
       "color": "#FF9A3D",
       "status": "progress",
-      "latest": "Ship 42 lifted onto transport stand.",
+      "latest": "Booster 22 lifted onto transport stand for return to launch site.",
       "history": [
-        {
-          "id": "x-2120647062765355431",
-          "date": "11 Nov",
-          "log_date": "11 Nov",
-          "at": "2026-11-11T22:37:14.000Z",
-          "text": "Ship 42 lifted onto transport stand.",
-          "x_text": "Ship 42 lifted onto transport stand.",
-          "push_text": "Ship 42 lifted onto transport stand.",
-          "card_text": "Ship 42 lifted onto transport stand.",
-          "log_text": "Ship 42 lifted onto transport stand.",
-          "status_line": "Ship 42 moved to transport stand.",
-          "url": "https://x.com/Blobifie/status/2120647062765355431",
-          "src": "@Blobifie",
-          "trust": "trusted",
-          "x_first": true,
-          "stage": "static",
-          "hardware": "S42",
-          "flight": 15,
-          "x_post": {
-            "post_id": "2120647062765355431",
-            "url": "https://x.com/Blobifie/status/2120647062765355431",
-            "created_at": "2026-11-11T22:37:14.000Z",
-            "text": "Ship 42 has been lifted onto a transport stand and the starlink loading box has been moved to the ring yard! https://t.co/DaiOCTPdDA https://t.co/ssIMEiGRgX",
-            "author": {
-              "name": "Blobifi",
-              "username": "Blobifie",
-              "avatar": "https://pbs.twimg.com/profile_images/2091766013562159104/xgHLFjBX_normal.jpg"
-            },
-            "media": [
-              {
-                "type": "photo",
-                "url": "https://pbs.twimg.com/media/HW4NLtuaQAAdk8Y.jpg"
-              }
-            ]
-          },
-          "x_posts": [
-            "2120647062765355431"
-          ],
-          "xChecked": true,
-          "imageChecked2": true,
-          "media_override": {
-            "post_url": "https://x.com/Blobifie/status/2120647062765355431",
-            "post_id": "2120647062765355431",
-            "author": "Blobifie",
-            "type": "photo",
-            "image": "https://pbs.twimg.com/media/HW4NLtuaQAAdk8Y.jpg"
-          },
-          "tier": 2,
-          "push": {
-            "title": "💥 Static fires · Flight 15",
-            "url": "https://x.com/Blobifie/status/2120647062765355431",
-            "at": "2026-11-11T22:37:14.000Z"
-          },
-          "frameChecked": true,
-          "edited_from": "Ship 42 lifted onto transport stand after static fire.",
-          "edited": true
-        },
         {
           "id": "x-2119898461885853731",
           "date": "9 Nov",
@@ -2354,7 +2297,7 @@
         }
       ],
       "doneText": "Complete",
-      "log_latest": "Ship 42 moved after static fire."
+      "log_latest": "Booster 22 heading to Pad 2."
     },
     {
       "id": "pad",
@@ -2364,6 +2307,64 @@
       "status": "progress",
       "latest": "Pad 1 flame trench construction continues.",
       "history": [
+        {
+          "id": "x-2120647062765355431",
+          "date": "11 Nov",
+          "log_date": "11 Nov",
+          "at": "2026-11-11T22:37:14.000Z",
+          "text": "Ship 42 lifted onto transport stand.",
+          "x_text": "Ship 42 lifted onto transport stand.",
+          "push_text": "Ship 42 lifted onto transport stand.",
+          "card_text": "Ship 42 lifted onto transport stand.",
+          "log_text": "Ship 42 lifted onto transport stand.",
+          "status_line": "Ship 42 moved to transport stand.",
+          "url": "https://x.com/Blobifie/status/2120647062765355431",
+          "src": "@Blobifie",
+          "trust": "trusted",
+          "x_first": true,
+          "stage": "pad",
+          "hardware": "S42",
+          "flight": 15,
+          "x_post": {
+            "post_id": "2120647062765355431",
+            "url": "https://x.com/Blobifie/status/2120647062765355431",
+            "created_at": "2026-11-11T22:37:14.000Z",
+            "text": "Ship 42 has been lifted onto a transport stand and the starlink loading box has been moved to the ring yard! https://t.co/DaiOCTPdDA https://t.co/ssIMEiGRgX",
+            "author": {
+              "name": "Blobifi",
+              "username": "Blobifie",
+              "avatar": "https://pbs.twimg.com/profile_images/2091766013562159104/xgHLFjBX_normal.jpg"
+            },
+            "media": [
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HW4NLtuaQAAdk8Y.jpg"
+              }
+            ]
+          },
+          "x_posts": [
+            "2120647062765355431"
+          ],
+          "xChecked": true,
+          "imageChecked2": true,
+          "media_override": {
+            "post_url": "https://x.com/Blobifie/status/2120647062765355431",
+            "post_id": "2120647062765355431",
+            "author": "Blobifie",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HW4NLtuaQAAdk8Y.jpg"
+          },
+          "tier": 2,
+          "push": {
+            "title": "💥 Static fires · Flight 15",
+            "url": "https://x.com/Blobifie/status/2120647062765355431",
+            "at": "2026-11-11T22:37:14.000Z"
+          },
+          "frameChecked": true,
+          "edited_from": "Ship 42 lifted onto transport stand after static fire.",
+          "edited": true,
+          "refiled_from": "static"
+        },
         {
           "id": "x-2120268988621971885",
           "date": "10 Nov",
