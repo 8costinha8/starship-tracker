@@ -1584,15 +1584,38 @@ const PAST_LABEL = { cryo: "Cryo", raptor: "Raptor", static: "Static fire", pad:
 const CAT_FILL = { raptor: { "--bg": "#0E0F11", "--on": "#E8EAEE", "--t": "#0E0F11" } }; // Raptor (A2): near-black #0E0F11 ring, fill, accent and connector; white title, see-through pill (CSS below)
 const catVars = (id, c) => Object.assign({ "--c": c }, CAT_FILL[id] || {});
 const PAST_COLOR = { cryo: "#BFE6FF", raptor: "#0E0F11", static: "#FF9A3D", pad: "#A88BFF", faa: "#2FD3B0", date: "#FFC93D" };
+const pastIsLaunchPad = (e) => e && e.box === "pad" && /^(?:pad|Launch pad)$/i.test(String(e.vehicle));
+// Drop live status fragments like "Pad activity: In progress (10 Nov)" so they are never shown raw.
+function pastPadSentences(text) {
+  const t = String(text || "").replace(/\s*Pad activity:\s*[^.]*\.?/gi, " ").replace(/\s+/g, " ").trim();
+  return t ? t.split(/(?<=\.)\s+/).map((s) => s.trim()).filter(Boolean) : [];
+}
+function pastPadCard(padItems) {
+  if (!padItems.length) return null;
+  if (padItems.length === 1) return padItems[0]; // already the F14-style combined card
+  const first = (ok) => padItems.filter(ok);
+  const ordered = first((e) => /full stack/i.test(e.vehicle)).concat(first(pastIsLaunchPad), first((e) => !/full stack/i.test(e.vehicle) && !pastIsLaunchPad(e)));
+  const seen = new Set(), sentences = [];
+  for (const e of ordered) for (const s of pastPadSentences(e.text)) { if (s && !seen.has(s)) { seen.add(s); sentences.push(s); } }
+  if (!sentences.length) return null;
+  const photo = padItems.map((e) => e.photo).find((p) => p && p.image) || null;
+  return { box: "pad", vehicle: "Full stack", text: sentences.join(" "), ...(photo ? { photo } : {}) };
+}
+function pastLicenceCard(faaItems) {
+  return faaItems[0] || { box: "faa", vehicle: "Licence", text: "Licence pending." };
+}
 function pastSummary(road, n) {
   if (!road || !Array.isArray(road.categories)) return [];
   const a = road.archive && road.archive[n], items = (a && a.summary && a.summary.items) || [];
   const color = (id) => (road.categories.find((c) => c.id === id) || {}).color || PAST_COLOR[id] || "#AAB6D6";
-  // Display rule for every flight (by box id / type, never by flight number): show per-vehicle
-  // Cryo, Raptor and Static fire, vehicle or stack Pad boxes (Ship, Booster, Full stack), and the
-  // Licence (FAA) box. Hide Launch date (already in the card details) and the general Launch pad
-  // (pad-activity) box. The frozen archive data is left as it is.
-  return items.filter((e) => e && e.text && e.vehicle && e.box !== "date" && !(e.box === "pad" && /^(?:pad|Launch pad)$/i.test(String(e.vehicle)))).map((e) => ({ box: e.box, vehicle: e.vehicle, text: e.text, label: PAST_LABEL[e.box] || e.box, color: color(e.box), photo: e.photo && e.photo.image ? e.photo : null }));
+  // Display rule for every flight (by box id / type, never by flight number): rows 1–3 are
+  // per-vehicle Cryo, Raptor and Static fire; row 4 is one combined Pad card (Full stack) and
+  // one Licence card. Launch date is hidden (already in the card details). The frozen archive
+  // is left as it is.
+  const raw = items.filter((e) => e && e.text && e.vehicle && e.box !== "date");
+  if (!raw.length) return []; // no invented past section when the archive has nothing for this flight
+  const row = [...raw.filter((e) => e.box !== "pad" && e.box !== "faa"), pastPadCard(raw.filter((e) => e.box === "pad")), pastLicenceCard(raw.filter((e) => e.box === "faa"))].filter(Boolean);
+  return row.map((e) => ({ box: e.box, vehicle: e.vehicle, text: e.text, label: PAST_LABEL[e.box] || e.box, color: color(e.box), photo: e.photo && e.photo.image ? e.photo : null }));
 }
 // --- mission-card helpers (tested by scripts/test-missioncard.js) ---
 // Hand-written Next-flight card copy (road.json mission_card[n]). Checkers never read or write this field.
