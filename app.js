@@ -473,7 +473,7 @@ function applyMockOverride(data) {
 // Hero vehicles: LL2's serials, else the Road's own vehicles for that flight (B23 / S43 are known before LL2 lists them).
 function heroVehicles(f, road) {
   if (!f || f.booster || f.ship || !road || road.flight !== f.n || !Array.isArray(road.vehicles)) return f;
-  const boo = road.vehicles.find((v) => /^B\d+$/i.test(v)), ship = road.vehicles.find((v) => /^S\d+$/i.test(v));
+  const vs = roadVehicles(road), boo = vs.find((v) => /^B/i.test(v)), ship = vs.find((v) => /^S/i.test(v));
   return boo || ship ? { ...f, ...(boo ? { booster: boo } : {}), ...(ship ? { ship } : {}) } : f;
 }
 function vehicleLabel(f) {
@@ -481,9 +481,17 @@ function vehicleLabel(f) {
 }
 function vehicleLine(f) {
   const parts = [];
-  if (f.booster) parts.push(`Booster ${String(f.booster).replace(/^B/i, "")}`);
-  if (f.ship) parts.push(`Ship ${String(f.ship).replace(/^S/i, "")}`);
+  if (f && isVehId(f.booster)) parts.push(`Booster ${String(f.booster).replace(/^B/i, "")}`);
+  if (f && isVehId(f.ship)) parts.push(`Ship ${String(f.ship).replace(/^S/i, "")}`);
   return parts.length ? parts.join(", ") : "To be announced";
+}
+// Vehicle ids only: ignore blanks/undefined so a comparison can never match on
+// undefined (an empty preview road used to make `undefined === ship` true, then .slice threw).
+function isVehId(v) {
+  return typeof v === "string" && /^[SB]\d+$/i.test(v);
+}
+function roadVehicles(road) {
+  return ((road && road.vehicles) || []).filter(isVehId);
 }
 
 function siteLine(f) {
@@ -594,7 +602,7 @@ function launchDateDisplay(flogDate, netLabel) {
 // Display only (RoadCard): current-flight pad feed items on the Flight Log vehicle cards, newest first.
 // Checkers still call boxes() and do not see these lines. 7 Nov S42 catch confirmation is a feed item only.
 function feedPadLines(road) {
-  const vs = ((road && road.vehicles) || []).map(String);
+  const vs = roadVehicles(road);
   const out = Object.fromEntries(vs.map((v) => [v, []]));
   for (const f of (road && road.feed_items) || []) {
     if (!f || !f.body || f.card_hide || f.later_flight || f.box !== "pad") continue;
@@ -612,7 +620,7 @@ function feedPadLines(road) {
 function flogPadDisplay(flogPad, road) {
   if (!flogPad || !road) return flogPad;
   const extra = feedPadLines(road);
-  const vName = (v) => (/^S/i.test(v) ? `Ship ${v.slice(1)}` : /^B/i.test(v) ? `Booster ${v.slice(1)}` : v);
+  const vName = (v) => (!isVehId(v) ? "Launch pad" : /^S/i.test(v) ? `Ship ${v.slice(1)}` : /^B/i.test(v) ? `Booster ${v.slice(1)}` : v);
   const cards = (flogPad.cards || []).map((c) => {
     const add = extra[c.vehicle] || [];
     if (!add.length) return c;
@@ -623,7 +631,7 @@ function flogPadDisplay(flogPad, road) {
     return { ...c, lines };
   });
   const have = new Set(cards.map((c) => c.vehicle));
-  for (const v of (road.vehicles || []).map(String)) {
+  for (const v of roadVehicles(road)) {
     if (have.has(v) || !(extra[v] || []).length) continue;
     cards.push({ vehicle: v, name: vName(v), lines: extra[v] });
   }
@@ -889,8 +897,8 @@ function NextFlightCard({ f, checkedAt, road, children }) {
         <dt>Site</dt><dd>{siteLine(f)}</dd>
         <dt>{vehicleLabel(heroVehicles(f, road))}</dt><dd>{vehicleLine(heroVehicles(f, road))}</dd>
       </dl>
-      {Number(f.n) === 15 && missionCardText(road, 15) ? (
-        <p className="next-note">{scrub(fillMissionCard(missionCardText(road, 15), f, road))}</p>
+      {showMissionCard(road, f.n, f, now) ? (
+        <p className="next-note">{scrub(fillMissionCard(missionCardText(road, f.n), f, road))}</p>
       ) : (
         <>
           <p className="next-note">{scrub(f.note)}</p>
@@ -1302,7 +1310,7 @@ const logHw = (h) => { const m = String((h.milestone && h.milestone.hardware) ||
 // Every current-flight vehicle's latest entry in the section is completed → the section is done.
 function rollupStatus(c, road) {
   if (!c || !ROLLUP_IDS.includes(c.id)) return c && c.status; // per-vehicle test sections only
-  const vs = (road.vehicles || []).map((v) => String(v).toUpperCase());
+  const vs = roadVehicles(road).map((v) => v.toUpperCase());
   const own = (c.history || []).filter((h) => h && h.kind !== "check" && !(h.flight > road.flight) && h.trust !== "unconfirmed" && logHw(h));
   if (!vs.length || !own.length) return c.status;
   const fin = logDone;
@@ -1624,7 +1632,15 @@ function fillMissionCard(text, f, road) {
   const net = missionCardNet(f, road);
   return String(text).replace(/\{NET\}/g, net || "to be confirmed");
 }
-function showMissionCard(road, n) { return Number(n) === 15 && !!missionCardText(road, 15); }
+function showMissionCard(road, n, f, now) {
+  if (!missionCardText(road, n)) return false;
+  if (road && road.launched && Number(road.launched.flight) === Number(n)) return false;
+  if (f && Number(f.n) === Number(n)) {
+    const st = (typeof effectiveStatus === "function") ? effectiveStatus(f, now) : f.status;
+    if (st === "inflight" || st === "done") return false;
+  }
+  return true;
+}
 // --- end mission-card helpers ---
 // Mission updates for the upcoming flight (road.json "mission_updates", written by the checker
 // from X posts about the mission itself: catch plans, objectives, payload…). Text lines only.
@@ -1993,21 +2009,21 @@ function PhoneHeader({ road, feedOpen, onAbout, onFeed, onBack, onHint }) {
 const RTF_PLACEHOLDER = "images/rtf-placeholder.jpg";
 const RTF_CATS = { cryo: /cryo/i, raptor: /raptor|engine/i, static: /static[- ]fire/i };
 const rtfVeh = (s, road) => { const out = []; const t = String(s || "");
-  const ship = (road.vehicles || []).find((v) => /^S/i.test(v)), boo = (road.vehicles || []).find((v) => /^B/i.test(v));
-  if (ship && new RegExp(`\\b(ship\\s*|s)${ship.slice(1)}\\b`, "i").test(t)) out.push(ship);
-  if (boo && new RegExp(`\\b(booster\\s*|b)${boo.slice(1)}\\b`, "i").test(t)) out.push(boo);
+  const vs = roadVehicles(road), ship = vs.find((v) => /^S/i.test(v)), boo = vs.find((v) => /^B/i.test(v));
+  if (isVehId(ship) && new RegExp(`\\b(ship\\s*|s)${ship.slice(1)}\\b`, "i").test(t)) out.push(ship);
+  if (isVehId(boo) && new RegExp(`\\b(booster\\s*|b)${boo.slice(1)}\\b`, "i").test(t)) out.push(boo);
   return out; };
 // Every vehicle id a line names (B23, Ship 43…): a line naming only other vehicles never joins this flight's cards.
 const vehIds = (s) => { const o = new Set(); for (const m of String(s || "").matchAll(/\b(?:(B|S)(\d{2,3})|(Booster|Ship)\s+(\d{2,3}))\b/gi)) o.add(((m[1] || m[3])[0]).toUpperCase() + (m[2] || m[4])); return [...o]; };
-const otherVehOnly = (s, road) => { const ids = vehIds(s), mine = (road.vehicles || []).map((v) => String(v).toUpperCase()); return ids.length > 0 && !ids.some((v) => mine.includes(v)); };
+const otherVehOnly = (s, road) => { const ids = vehIds(s), mine = roadVehicles(road).map((v) => v.toUpperCase()); return ids.length > 0 && !ids.some((v) => mine.includes(v)); };
 const rtfPad = (h, road) => new RegExp(`\\b${String(road.pad || "Pad 2").replace(/\s+/, "[- ]?")}\\b`, "i").test(`${h.hardware || ""} ${h.text || ""}`);
 const rtfHandle = (u) => handleOf(u) || (u.src && /^@/.test(u.src) ? u.src : null);
 const rtfIsDone = (h, cid) => isDoneCard(h) && (!RTF_CATS[cid] || RTF_CATS[cid].test(`${h.text || ""} ${h.x_text || ""}`)) && !/ahead|could|expected/i.test(h.text || "");
 function rtfCards(road) {
   const cats = Object.fromEntries((road.categories || []).map((c) => [c.id, c]));
-  const vs = road.vehicles || [];
+  const vs = roadVehicles(road);
   const ship = vs.find((v) => /^S/i.test(v)), boo = vs.find((v) => /^B/i.test(v));
-  const vname = (v) => (v === ship ? `Ship ${v.slice(1)}` : v === boo ? `Booster ${v.slice(1)}` : "Launch pad");
+  const vname = (v) => (!isVehId(v) ? "Launch pad" : ship && v === ship ? `Ship ${v.slice(1)}` : boo && v === boo ? `Booster ${v.slice(1)}` : "Launch pad");
   const mine = (h) => isRealEntry(h) && !h.feed_hide && !(h.flight > road.flight) && flightOf(h, road) === road.flight && h.trust !== "unconfirmed";
   const bucket = {}, loose = []; // "cid|veh" -> entries
   const put = (cid, v, h) => { (bucket[cid + "|" + v] = bucket[cid + "|" + v] || []).push(h); };
@@ -2038,7 +2054,8 @@ function rtfCards(road) {
     for (const v of vs) for (const e of bucket[cid + "|" + v] || []) { const d = Math.abs((Date.parse(cardIso(e)) || 0) - t); if (!best || d < best.d) best = { d, v }; }
     if (best) put(cid, best.v, h); }
   const out = [];
-  for (const cid of ["cryo", "raptor", "static", "pad"]) for (const v of cid === "pad" ? [ship, boo, "pad"] : [ship, boo]) {
+  const cols = [ship, boo].filter(isVehId);
+  for (const cid of ["cryo", "raptor", "static", "pad"]) for (const v of cid === "pad" ? [...cols, "pad"] : cols) {
     const cat = cats[cid]; const list = (bucket[cid + "|" + v] || []).slice().sort((a, b) => (Date.parse(cardIso(b)) || 0) - (Date.parse(cardIso(a)) || 0));
     const doneOne = cid === "pad" ? list.find((h) => isDoneCard(h) && /wet dress/i.test(h.text || "")) : list.find((h) => rtfIsDone(h, cid));
     const main = doneOne || list[0];
@@ -2224,7 +2241,7 @@ function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap, peekOpe
             ? <div className="fdiv" id={`fsec-${r.section.n}`} key={"f" + r.section.n}><span><b>{`Flight ${r.section.n}`}</b>{(r.section.flown || r.section.next) && <> <i>·</i> </>}{r.section.flown
                 ? <><span className={"fdiv-" + r.section.flown.outcome}>{OUTCOME_LABEL[r.section.flown.outcome] || r.section.flown.outcome}</span> <i>·</i> {ukStamp(new Date(r.section.flown.day).toISOString(), false, true)}</>
                 : r.section.next ? <span className="fdiv-next">Next flight</span> : null}</span></div>
-            : r.empty ? null : <FeedPost key={r.post.id} p={r.post} onPhotoTap={onPhotoTap} idx={idx} st={dateSt && dateSt.id === r.post.id ? dateSt : null} />)}
+            : r.empty ? null : <ErrorBoundary key={r.post.id} where={"feed:" + r.post.id}><FeedPost p={r.post} onPhotoTap={onPhotoTap} idx={idx} st={dateSt && dateSt.id === r.post.id ? dateSt : null} /></ErrorBoundary>)}
           <p className="end">That's every update so far.</p>
           {peekN && (
             <button type="button" className="rtf-teaser" onClick={onTogglePeek} aria-expanded={!!peekOpen}>
@@ -2240,7 +2257,7 @@ function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap, peekOpe
                   <p className="rtf-peek-eyebrow">After Flight {road.flight}</p>
                   <h2 className="rtf-peek-title">{`Road to Flight ${peekN} so far`}</h2>
                   {peekCards.length
-                    ? <div className="rtf-peek-cards">{peekCards.map((c) => <FeedPost key={c.id} p={c} onPhotoTap={onPhotoTap} idx={idx} st={null} />)}</div>
+                    ? <div className="rtf-peek-cards">{peekCards.map((c) => <ErrorBoundary key={c.id} where={"feed:" + c.id}><FeedPost p={c} onPhotoTap={onPhotoTap} idx={idx} st={null} /></ErrorBoundary>)}</div>
                     : <p className="rtf-soon">Coming soon</p>}
                 </div>
               </div>
@@ -2539,14 +2556,14 @@ function StarshipTracker() {
             : <span />}
         </header>
 
-        <NextFlightCard f={nextFlight} checkedAt={checkedAt} road={road}>
-          <RoadCard road={road} onEntryTap={jumpToPost} openReq={roadOpenReq} heroNet={heroNetFor(liveNext, now)} netPending={!liveNext && !nextSettled} />
-        </NextFlightCard>
+        <ErrorBoundary where={"hero:" + ((nextFlight && nextFlight.n) || "")}><NextFlightCard f={nextFlight} checkedAt={checkedAt} road={road}>
+          <ErrorBoundary where="log"><RoadCard road={road} onEntryTap={jumpToPost} openReq={roadOpenReq} heroNet={heroNetFor(liveNext, now)} netPending={!liveNext && !nextSettled} /></ErrorBoundary>
+        </NextFlightCard></ErrorBoundary>
         <Connector dashed label={heroLogged ? daysLabel(daysBetween(flights[0].date, nextFlight.date)) : `${daysLabel(daysSinceLatest)} since the last flight`} />
 
         {flights.map((f, i) => (
           <div key={f.n}>
-            <FlightCard f={f} open={openId === f.n} onTap={handleTap} onPhotoTap={(src, alt) => setLightbox({ src, alt })} register={register} road={road} />
+            <ErrorBoundary where={"past:" + f.n}><FlightCard f={f} open={openId === f.n} onTap={handleTap} onPhotoTap={(src, alt) => setLightbox({ src, alt })} register={register} road={road} /></ErrorBoundary>
             {i < flights.length - 1 && <Connector label={daysLabel(daysBetween(flights[i + 1].date, f.date))} />}
           </div>
         ))}
@@ -3195,5 +3212,11 @@ section.road .callout-latest { grid-row: 2; grid-column: 2 / -1; margin-top: 0; 
   background: rgba(10,16,32,.62); padding: 3px 8px; border-radius: 999px; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
 `;
 
+class ErrorBoundary extends React.Component {
+  constructor(props) { super(props); this.state = { error: null }; }
+  static getDerivedStateFromError(error) { return { error }; }
+  componentDidCatch(error, info) { console.error(this.props.where || "app", error, info && info.componentStack); }
+  render() { return this.state.error ? (this.props.fallback || null) : this.props.children; }
+}
 const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(<StarshipTracker />);
+root.render(<ErrorBoundary where="app"><StarshipTracker /></ErrorBoundary>);

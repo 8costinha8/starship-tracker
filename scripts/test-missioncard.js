@@ -44,11 +44,11 @@ check(F.boxes(road, undefined, { pending: true }).date.latest === "NET 13 Nov", 
 check(helpers.showMissionCard(road, 15) === true, "showMissionCard: next flight 15 with a copy → true");
 check(helpers.showMissionCard(road, 16) === false, "showMissionCard: next flight 16 → false even if mission_card[15] exists");
 check(helpers.showMissionCard({ ...road, mission_card: {} }, 15) === false, "showMissionCard: flight 15 but no copy → false (current behaviour)");
-check(helpers.missionCardText({ mission_card: { 16: "later" } }, 16) === "later" && helpers.showMissionCard({ mission_card: { 16: "later" } }, 16) === false, "a Flight 16 copy would not be shown by this Flight 15-only switch");
+check(helpers.missionCardText({ mission_card: { 16: "later" } }, 16) === "later" && helpers.showMissionCard({ mission_card: { 16: "later" } }, 16) === true, "a Flight 16 copy is shown when present (generic for any flight, not Flight-15-only)");
 
 const body = (n) => { const a = app.indexOf(`function ${n}(`); return app.slice(a, app.indexOf("\nfunction ", a + 10)); };
 const nf = body("NextFlightCard");
-check(/Number\(f\.n\) === 15 && missionCardText\(road, 15\)/.test(nf), "NextFlightCard: hand-written copy only when the next flight is 15 and mission_card[\"15\"] exists");
+check(/showMissionCard\(road, f\.n, f, now\)/.test(nf), "NextFlightCard: hand-written copy when showMissionCard is true for that flight");
 check(nf.indexOf("scrub(f.note)") > 0 && nf.indexOf("missionLines(road, f.n)") > nf.indexOf("scrub(f.note)"), "otherwise the LL2 note and missionLines still render (Flight 16+ / no copy)");
 check(!/missionCardText|fillMissionCard|showMissionCard/.test(body("FlightCard")) && !/missionCardText|fillMissionCard/.test(body("FeedPost")), "Flight Log cards and the feed are unchanged");
 check(nf.indexOf("missionLines(road, f.n)") < nf.indexOf("showWatch &&"), "missionLines stay on the Next flight card path only, still above Where to watch");
