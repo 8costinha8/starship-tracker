@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "11 Nov",
-  "updatedAt": "2026-11-11T06:00:47.550Z",
+  "updatedAt": "2026-11-11T06:31:32.869Z",
   "categories": [
     {
       "id": "cryo",
@@ -2632,7 +2632,9 @@
             "2120034800732119260",
             "2120080014549098871",
             "2120220290219208884",
-            "2120357044662464619"
+            "2120357044662464619",
+            "2120403684899336502",
+            "2120402630681960485"
           ],
           "xChecked": true,
           "imageChecked2": true,
@@ -2717,7 +2719,8 @@
               "tier": 1,
               "self_check": "from feed news-mwa4zkso-902bd2"
             }
-          ]
+          ],
+          "journey_pin": true
         },
         {
           "id": "x-2119447093546991754",
@@ -3765,6 +3768,16 @@
   ],
   "feed_items": [
     {
+      "id": "news-mwbqjkm8-692ead",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "The transport stand returned to production.",
+      "url": "https://x.com/efraser77/status/2120402630681960485",
+      "at": "2026-11-11T06:25:56.000Z",
+      "date": "11 Nov",
+      "flight": 15
+    },
+    {
       "id": "news-mwa6mpnk-feff22",
       "kind": "news",
       "title": "🚀 Starship",
@@ -4224,22 +4237,6 @@
       "src": "@TrackingTheSB",
       "push_text": "Ship 43 is being transported by road to the production site",
       "later_flight": true
-    },
-    {
-      "id": "news-mvo8qv2g-e23cc6",
-      "kind": "news",
-      "title": "🚀 Starship",
-      "body": "Booster 22 completed a full-duration static fire for Flight 15.",
-      "url": "https://x.com/SpaceX/status/2114444137067844004",
-      "at": "2026-10-25T19:49:01.000Z",
-      "date": "25 Oct",
-      "flight": 15,
-      "event_at": "2026-10-25T13:22:00.000Z",
-      "event_card": "x-2111327584122437857",
-      "src": "@SpaceX",
-      "push_text": "Full duration static fire completed for booster preparing for flight 15",
-      "box": "static",
-      "card_hide": "2026-11-03 near-duplicate of a row already on the Booster 22 static fire card"
     }
   ],
   "milestones": {
@@ -4592,11 +4589,9 @@
         "cryo": 1,
         "static": 1
       },
-      "pending": [
-        "x-2120006244018843717"
-      ],
+      "pending": [],
       "likely": null,
-      "at": "2026-11-11T03:24:48.000Z",
+      "at": "2026-11-11T06:25:56.000Z",
       "counted": [
         "https://x.com/Blobifie/status/2097943705911193755",
         "https://x.com/LabPadre/status/2098045579234259249",
