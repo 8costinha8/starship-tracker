@@ -3778,17 +3778,6 @@
       "flight": 15
     },
     {
-      "id": "launch_date-mwawmpn4-475819",
-      "kind": "launch_date",
-      "title": "📅 Flight 15",
-      "body": "SpaceX set the launch window for 13 Nov at 22:45 UK.",
-      "url": "https://www.spacex.com/launches/starship-flight-15",
-      "at": "2026-11-10T16:28:34.000Z",
-      "date": "10 Nov",
-      "flight": 15,
-      "box": "date"
-    },
-    {
       "id": "news-mwa6mpnk-feff22",
       "kind": "news",
       "title": "🚀 Starship",
@@ -3932,6 +3921,17 @@
       "at": "2026-11-07T16:00:22.742Z",
       "date": "7 Nov",
       "flight": 15
+    },
+    {
+      "id": "launch_date-mw6kyrcw-475819",
+      "kind": "launch_date",
+      "title": "📅 Flight 15",
+      "body": "SpaceX set the launch window for 13 Nov at 22:45 UK.",
+      "url": "https://www.spacex.com/launches/starship-flight-15",
+      "at": "2026-11-07T15:50:56.000Z",
+      "date": "7 Nov",
+      "flight": 15,
+      "box": "date"
     },
     {
       "id": "news-mw6jkips-73c35e",
