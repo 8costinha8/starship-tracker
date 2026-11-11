@@ -1014,19 +1014,19 @@
       "name": "Static fires",
       "color": "#FF9A3D",
       "status": "progress",
-      "latest": "Ship 42 lifted onto transport stand after static fire.",
+      "latest": "Ship 42 lifted onto transport stand.",
       "history": [
         {
           "id": "x-2120647062765355431",
           "date": "11 Nov",
           "log_date": "11 Nov",
           "at": "2026-11-11T22:37:14.000Z",
-          "text": "Ship 42 lifted onto transport stand after static fire.",
-          "x_text": "Ship 42 lifted onto transport stand after static fire.",
+          "text": "Ship 42 lifted onto transport stand.",
+          "x_text": "Ship 42 lifted onto transport stand.",
           "push_text": "Ship 42 lifted onto transport stand.",
           "card_text": "Ship 42 lifted onto transport stand.",
           "log_text": "Ship 42 lifted onto transport stand.",
-          "status_line": "Ship 42 moved after static fire.",
+          "status_line": "Ship 42 moved to transport stand.",
           "url": "https://x.com/Blobifie/status/2120647062765355431",
           "src": "@Blobifie",
           "trust": "trusted",
@@ -1038,7 +1038,7 @@
             "post_id": "2120647062765355431",
             "url": "https://x.com/Blobifie/status/2120647062765355431",
             "created_at": "2026-11-11T22:37:14.000Z",
-            "text": "Ship 42 has been lifted onto a transport stand and the starlink loading box has been moved to the ring yard! https://t.co/DaiOCTPdDA",
+            "text": "Ship 42 has been lifted onto a transport stand and the starlink loading box has been moved to the ring yard! https://t.co/DaiOCTPdDA https://t.co/ssIMEiGRgX",
             "author": {
               "name": "Blobifi",
               "username": "Blobifie",
@@ -1069,7 +1069,9 @@
             "url": "https://x.com/Blobifie/status/2120647062765355431",
             "at": "2026-11-11T22:37:14.000Z"
           },
-          "frameChecked": true
+          "frameChecked": true,
+          "edited_from": "Ship 42 lifted onto transport stand after static fire.",
+          "edited": true
         },
         {
           "id": "x-2119898461885853731",
