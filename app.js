@@ -2139,6 +2139,32 @@ function asLaunchDatePost(p, road) {
   if (!p || (p.cat && p.cat.id === "date")) return p;
   return { ...p, cat: launchDateCat(road) };
 }
+// Display only: a SpaceX-published window with no official_date and no FAA
+// licence yet shows "Pending approval" (Estimated / progress style) on the
+// newest Launch date card. boxes() itself is unchanged. No flight numbers
+// are hard-coded.
+function isSpaceXLaunchSource(url) {
+  try {
+    const u = new URL(String(url || ""));
+    const host = u.hostname.replace(/^www\./i, "").toLowerCase();
+    if (host === "spacex.com" || host === "content.spacex.com") return true;
+    if ((host === "x.com" || host === "twitter.com") && /^\/spacex(?:\/|$)/i.test(u.pathname)) return true;
+    return false;
+  } catch { return false; }
+}
+function launchDateCardBadge(road, post, flog) {
+  const d = flog && flog.date;
+  if (!d || !post) return null;
+  const base = { id: post.id, status: d.status, text: d.statusText };
+  const url = (post.h && (post.h.url || (post.h.x_post && post.h.x_post.url))) || post.url || "";
+  const faa = flog && flog.faa;
+  // same check as faaLicenceDisplay: the "Licence not yet issued" path runs when the box exists and is not done
+  const licenceNotIssued = !!(faa && faa.status !== "done");
+  if (!(road && road.official_date) && isSpaceXLaunchSource(url) && licenceNotIssued) {
+    return { ...base, status: "progress", text: "Pending approval" };
+  }
+  return base;
+}
 function rtfRows(road) {
   const { posts, rows } = buildFeed(road);
   if (!road) return { posts, rows };
@@ -2165,11 +2191,13 @@ function rtfRows(road) {
 function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap, peekOpen, onTogglePeek }) {
   const { posts, rows } = React.useMemo(() => rtfRows(road), [road]);
   const idx = React.useMemo(() => entryIndex(road), [road]);
-  // Launch date: the section status pill (Not confirmed / Estimated / Confirmed, from the Flight Log) rides on this flight's newest date card
+  // Launch date: the section status pill rides on this flight's newest date card.
+  // "Pending approval" (progress style) replaces it when there is no official_date,
+  // the card is from SpaceX, and the FAA licence is not yet issued; otherwise the Flight Log badge stays.
   const dateSt = React.useMemo(() => { const f = road && window.RoadFlightLog ? window.RoadFlightLog.boxes(road) : null; const d = f && f.date;
     const keepId = road && currentLaunchDateId(posts, road.flight);
     const top = d && keepId && posts.find((q) => q.id === keepId);
-    return top ? { id: top.id, status: d.status, text: d.statusText } : null; }, [road, posts]);
+    return top ? launchDateCardBadge(road, top, f) : null; }, [road, posts]);
   const peekN = road && Number.isInteger(road.flight) ? road.flight + 1 : null;
   const peekRoad = React.useMemo(() => (peekN && road ? roadForFlight(road, peekN) : null), [road, peekN]);
   const peekCards = React.useMemo(() => {

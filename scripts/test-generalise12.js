@@ -1,7 +1,9 @@
-/* Display only: the Road peek toggle labels the next flight from peekN, and a
+/* Display only: the Road peek toggle labels the next flight from peekN; a
    Megabay / production-site return is promoted off the main line of every Road
-   pad card (any flight, including the current view). node scripts/test-generalise12.js */
-const fs = require("fs"), path = require("path"), RC = require("./render-check.js");
+   pad card (any flight, including the current view); and a SpaceX window with
+   no official_date and no FAA licence shows a Pending approval badge.
+   node scripts/test-generalise12.js */
+const fs = require("fs"), path = require("path"), RC = require("./render-check.js"), F = require("./flightlog.js");
 let pass = 0, fail = 0;
 const check = (ok, name) => { if (ok) { pass++; console.log(`✅ ${name}`); } else { fail++; console.log(`❌ ${name}`); } };
 const ROOT = path.join(__dirname, "..");
@@ -88,6 +90,73 @@ const synCryo = padRoad({
 const s99cryo = RC.view(synCryo).cards.find((c) => c.id === "rtf-pad-S99");
 check(s99cryo && s99cryo.text === "Ship 99 returned to Megabay 2 after cryo testing.",
   "a Megabay return after cryo is left as the main line");
+
+// 6. Launch date badge: "Pending approval" only when all three conditions hold
+const srcFn = (name) => { const i = APP.indexOf(`function ${name}(`); return i < 0 ? "" : APP.slice(i, APP.indexOf("\n}\n", i) + 2); };
+const badgeFns = new Function(`${srcFn("isSpaceXLaunchSource")}\n${srcFn("launchDateCardBadge")}\nreturn { isSpaceXLaunchSource, launchDateCardBadge };`)();
+check(/function launchDateCardBadge\(/.test(APP) && /return top \? launchDateCardBadge\(road, top, f\) : null/.test(APP),
+  "UpdatesFeed uses launchDateCardBadge for the Launch date pill (display only)");
+check(!/Pending approval/.test(fs.readFileSync(path.join(__dirname, "flightlog.js"), "utf8")),
+  "flightlog.js is unchanged (no Pending approval badge there)");
+
+const sx = badgeFns.isSpaceXLaunchSource;
+check(sx("https://www.spacex.com/launches/starship-flight-17") && sx("https://spacex.com/x") && sx("https://content.spacex.com/y")
+  && sx("https://x.com/SpaceX/status/1") && sx("https://twitter.com/spacex/status/1"),
+  "SpaceX page and @SpaceX post URLs are recognised");
+check(!sx("https://www.nasaspaceflight.com/x") && !sx("https://x.com/LabPadre/status/1") && !sx("https://x.com/SpaceXNews/status/1") && !sx(""),
+  "non-SpaceX URLs are not treated as SpaceX");
+
+function dateRoad(extra) {
+  return Object.assign({
+    flight: 17, vehicles: ["S99", "B99"],
+    categories: [
+      { id: "cryo", name: "Cryo tests", history: [] },
+      { id: "raptor", name: "Raptor", history: [] },
+      { id: "static", name: "Static fires", history: [] },
+      { id: "pad", name: "Pad activity", history: [] },
+      { id: "date", name: "Launch date", history: [] },
+      { id: "faa", name: "FAA licence", history: [] },
+    ],
+  }, extra || {});
+}
+function badgeOf(road, url) {
+  return badgeFns.launchDateCardBadge(road, { id: "launch_date-f17", h: { url, text: "SpaceX set the launch window." } }, F.boxes(road));
+}
+const sxUrl = "https://www.spacex.com/launches/starship-flight-17";
+const allTrue = badgeOf(dateRoad(), sxUrl);
+check(allTrue && allTrue.text === "Pending approval" && allTrue.status === "progress",
+  "Flight 17: all three conditions true → Pending approval (progress style)");
+
+const withOfficial = badgeOf(dateRoad({ official_date: { at: "2026-12-20T22:00:00Z", text: "Flight 17 is set for 20 Dec." } }), sxUrl);
+check(withOfficial && withOfficial.text === "Confirmed" && withOfficial.status === "done",
+  "Flight 17: official_date set → existing Confirmed badge");
+
+const notSx = badgeOf(dateRoad(), "https://www.nasaspaceflight.com/2026/11/window/");
+check(notSx && notSx.text === "Not confirmed" && notSx.status === "none",
+  "Flight 17: non-SpaceX source → existing Not confirmed badge");
+
+const licenced = badgeOf(dateRoad({ milestones: { flight: { licence: { dates: ["2026-12-01T00:00:00Z"], src: ["https://faa.gov"] } } } }), sxUrl);
+check(licenced && licenced.text === "Not confirmed" && licenced.status === "none",
+  "Flight 17: FAA licence issued → existing Not confirmed badge");
+
+const xPost = badgeOf(dateRoad(), "https://x.com/SpaceX/status/123");
+check(xPost && xPost.text === "Pending approval" && xPost.status === "progress",
+  "Flight 17: a SpaceX X post also qualifies");
+
+const estimated = badgeOf(dateRoad({ predicted: { flight: 17, net: "2026-12-20" } }), sxUrl);
+check(estimated && estimated.text === "Pending approval" && estimated.status === "progress",
+  "Flight 17: Estimated NET is still replaced when all three conditions hold");
+
+const estimatedNoSx = badgeOf(dateRoad({ predicted: { flight: 17, net: "2026-12-20" } }), "https://x.com/LabPadre/status/1");
+check(estimatedNoSx && estimatedNoSx.text === "Estimated" && estimatedNoSx.status === "progress",
+  "Flight 17: Estimated badge is kept when the source is not SpaceX");
+
+const liveFlog = F.boxes(live), liveDate = (live.feed_items || []).find((f) => f.id === (RC.view(live).cards.find((c) => c.cat === "date") || {}).id);
+const liveBadge = liveDate && badgeFns.launchDateCardBadge(live, { id: liveDate.id, h: { url: liveDate.url, text: liveDate.body } }, liveFlog);
+check(liveFlog.date && liveFlog.date.statusText === "Not confirmed",
+  "boxes() itself is unchanged on the live road (still Not confirmed)");
+check(liveBadge && liveBadge.text === "Pending approval" && liveBadge.status === "progress",
+  "live Flight 15 window card (SpaceX, no official_date, no FAA licence) shows Pending approval");
 
 console.log(fail ? `❌ ${fail} failed, ${pass} passed` : `✅ All generalise-12 checks passed (${pass}).`);
 process.exit(fail ? 1 : 0);
