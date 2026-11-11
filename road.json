@@ -4708,5 +4708,25 @@
       "status": "failed",
       "failures": 4
     }
+  },
+  "mission_alerts": {
+    "flight": 15,
+    "liftoff_actual": null,
+    "liftoff_source": null,
+    "events": [
+      { "key": "booster_soon", "t_plus": "00:01:35", "title": "🎯 Booster catch in 5 min", "body": "Watch live" },
+      { "key": "booster_result" },
+      { "key": "deorbit_soon", "t_plus": "21:30:57", "title": "⏱️ Deorbit in 5 min", "body": "Watch live" },
+      { "key": "ship_result" }
+    ],
+    "abort": {},
+    "overrides": {},
+    "dispatched": {},
+    "template": [
+      { "key": "booster_soon", "title": "🎯 Booster catch in 5 min", "body": "Watch live" },
+      { "key": "booster_result" },
+      { "key": "deorbit_soon", "title": "⏱️ Deorbit in 5 min", "body": "Watch live" },
+      { "key": "ship_result" }
+    ]
   }
 }

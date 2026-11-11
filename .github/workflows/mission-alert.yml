@@ -1,0 +1,50 @@
+name: Mission alert
+
+# Timed catch / deorbit / result pushes for the current flight.
+# Dispatched by the flight checker (or by hand) with workflow_dispatch.
+# Does not change the flight-checker or keeper cadence.
+
+on:
+  workflow_dispatch:
+    inputs:
+      key:
+        description: "Alert key: booster_soon, booster_result, deorbit_soon, ship_result"
+        required: true
+        type: string
+      outcome:
+        description: "Result outcome (caught, lost, splashed) — result keys only"
+        required: false
+        type: string
+        default: ""
+      send_at:
+        description: "ISO time to send (sleep until then, max 6 hours)"
+        required: false
+        type: string
+        default: ""
+      dry_run:
+        description: "Do everything except send a real push"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install firebase-admin
+      - run: node scripts/mission-alert.js
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          ALERT_KEY: ${{ inputs.key }}
+          ALERT_OUTCOME: ${{ inputs.outcome }}
+          SEND_AT: ${{ inputs.send_at }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          # GITHUB_TOKEN is provided by Actions itself; used only to re-read road.json after a wait
+          CI: true

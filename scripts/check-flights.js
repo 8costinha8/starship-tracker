@@ -274,6 +274,14 @@ function liveDeps() {
       pushSync.queuePush(n);
       console.log(`Queued "${notification.title}" (Updates feed entry ${n.visible.id}); check-road.js commits it, then sends.`);
     },
+    // Additive catch/deorbit hook. Existing tests do not pass missionAlert, so they never touch road.json.
+    missionAlert: {
+      sync: (args) => require("./mission-alert.js").syncFromChecker({
+        roadPath: path.join(__dirname, "..", "road.json"),
+        dispatch: (p) => require("./mission-alert.js").dispatchMissionAlert(p),
+        ...args,
+      }),
+    },
     async sendNow(notification) {
       const subs = await db.collection("subscribers").get();
       const tokens = subs.docs.map((d) => d.id);
@@ -421,6 +429,12 @@ async function run(deps) {
   // 6. Send it
   if (notification) await deps.push(notification);
   else console.log("Checked — no change since last run.");
+
+  // 6b. One dispatch hook for catch / deorbit mission alerts (due within 30 min, liftoff known).
+  if (deps.missionAlert && typeof deps.missionAlert.sync === "function") {
+    try { await deps.missionAlert.sync({ current, prev, now: now() }); }
+    catch (e) { console.log(`mission-alert hook: ${e && e.message}`); }
+  }
 
   // 7. Save today's data as the new "last known state" for next time
   await deps.saveState(current);
