@@ -1936,6 +1936,18 @@
       "verdict": "sent",
       "gate": "second trusted source agrees",
       "key": "starship|pad_work|10 Nov"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "The transport stand returned to production.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mwbqjkm8-692ead",
+      "url": "https://x.com/efraser77/status/2120402630681960485",
+      "at": "2026-11-11T06:25:56.000Z",
+      "sent_at": "2026-11-11T07:00:43.654Z",
+      "where": "feed",
+      "verdict": "silent: minor transport — a push went out 9.3h ago (quiet window 24h)",
+      "gate": "hold passed (1 run)",
+      "key": "starship|transport|11 Nov"
     }
   ]
 }
