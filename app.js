@@ -2059,7 +2059,7 @@ function rtfCards(road) {
     h.rtf_pic = pic ? pic.from : null; h.media_context = null;
     out.push({ h, cat: { ...cat, name: `${cat.name} · ${vname(v)}` }, ci: 0, hi: 0, id: h.id, flight: road.flight, done: !!doneOne });
   }
-  return out;
+  return relabelPadReturnCards(out);
 }
 function vehiclesForFlight(road, n) {
   const set = new Set();
@@ -2087,19 +2087,18 @@ function roadForFlight(road, n) {
   const pins = road.flightlog_pins && Number(road.flightlog_pins.flight) === n ? road.flightlog_pins : null;
   return { ...road, flight: n, vehicles, categories, feed_items, flightlog_pins: pins };
 }
-// Display only: a "returned to Megabay 2" headline is not pad activity.
-// If this Flight 16 card is the post-chopstick return, promote a pad-accurate
-// main line (chopstick / tower work) and keep the return in Earlier updates,
-// so the Pad activity tag is only shown on a pad event.
-const F16_MEGABAY_RETURN = /returned to megabay|returned to the production site/i;
-const F16_PAD_EVENT = /chopstick|tower|pusher|catch|pad\s*2|deluge|stack|lifted|lift to/i;
-function relabelF16Cards(cards) {
+// Display only: a Megabay or production-site return is not pad activity,
+// so promote a pad-accurate row as the main line and keep the return in
+// Earlier updates. Applies to every Road pad card for any flight.
+const MEGABAY_RETURN = /returned to megabay|returned to the production site/i;
+const PAD_EVENT = /chopstick|tower|pusher|catch|pad\s*2|deluge|stack|lifted|lift to/i;
+function relabelPadReturnCards(cards) {
   return (cards || []).map((p) => {
     if (!p || p.empty || !p.h || !p.cat || p.cat.id !== "pad") return p;
     const main = String((p.h.card_text || p.h.text) || "");
-    if (!F16_MEGABAY_RETURN.test(main) || /after cryo/i.test(main)) return p;
+    if (!MEGABAY_RETURN.test(main) || /after cryo/i.test(main)) return p;
     const rows = Array.isArray(p.h.updates) ? p.h.updates : [];
-    const better = rows.find((u) => F16_PAD_EVENT.test(String(u.card_text || u.text || "")));
+    const better = rows.find((u) => PAD_EVENT.test(String(u.card_text || u.text || "")));
     if (!better) return p;
     const shown = better.card_text || better.text;
     const returnRow = { text: p.h.text, ...(p.h.card_text ? { card_text: p.h.card_text } : {}), at: p.h.at, date: p.h.date, url: p.h.url, src: p.h.src };
@@ -2175,7 +2174,7 @@ function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap, peekOpe
   const peekRoad = React.useMemo(() => (peekN && road ? roadForFlight(road, peekN) : null), [road, peekN]);
   const peekCards = React.useMemo(() => {
     if (!peekRoad) return [];
-    const cards = relabelF16Cards(rtfCards(peekRoad).filter((c) => !c.empty));
+    const cards = rtfCards(peekRoad).filter((c) => !c.empty);
     return cards.slice().sort((a, b) => peekCardTime(b) - peekCardTime(a)); // newest first
   }, [peekRoad]);
   if (!posts.length) return null;
@@ -2201,7 +2200,7 @@ function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap, peekOpe
           <p className="end">That's every update so far.</p>
           {peekN && (
             <button type="button" className="rtf-teaser" onClick={onTogglePeek} aria-expanded={!!peekOpen}>
-              <span>{peekOpen ? "Hide Flight 16 updates" : `After Flight ${road.flight} · see Road to Flight ${peekN} so far`}</span>
+              <span>{peekOpen ? `Hide Flight ${peekN} updates` : `After Flight ${road.flight} · see Road to Flight ${peekN} so far`}</span>
               {chevron}
             </button>
           )}
