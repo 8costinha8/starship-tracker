@@ -2055,6 +2055,18 @@
       "verdict": "silent: minor other — a push went out 16.8h ago (quiet window 24h)",
       "gate": "second trusted source agrees",
       "key": "S42|other|12 Nov"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "A batch of NOTAMs was released ahead of Flight 15.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mwdv1ilc-0c30dd",
+      "url": "https://x.com/LabPadre/status/2120941544416944336",
+      "at": "2026-11-12T18:07:24.000Z",
+      "sent_at": "2026-11-12T18:45:35.332Z",
+      "where": "feed",
+      "verdict": "silent: minor other — a push went out 17.2h ago (quiet window 24h)",
+      "gate": "hold passed (1 run)",
+      "key": "F15|other|12 Nov"
     }
   ]
 }
