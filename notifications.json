@@ -1996,6 +1996,18 @@
       "verdict": "silent: minor other — a push went out 2.2h ago (quiet window 24h)",
       "gate": "not an X tracker post",
       "key": "F15|other|12 Nov"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Ship 42 was rolled to Pad 2 for Flight 15.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mwctkn6g-276b89",
+      "url": "https://www.youtube.com/watch?v=nTP0658r-Ak",
+      "at": "2026-11-12T00:38:31.000Z",
+      "sent_at": "2026-11-12T01:30:53.236Z",
+      "where": "feed",
+      "verdict": "sent",
+      "gate": "not an X tracker post",
+      "key": "S42|rollout|12 Nov"
     }
   ]
 }
