@@ -2031,6 +2031,18 @@
       "where": "feed",
       "verdict": "blocked: visible title differs: \"🚀 Starship\" vs push \"Correction · 🚀 Starship\"",
       "gate": "corrects \"Ship 42 was rolled to Pad 2 for Flight 15.\" (2026-11-12T01:30:53.236Z)"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "Ship 42 has 26 Starlinks installed (Blobifie reports, 12 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/Blobifie/status/2120929463701787055",
+      "at": "2026-11-12T17:19:23.000Z",
+      "sent_at": "2026-11-12T18:01:09.466Z",
+      "where": "mission",
+      "verdict": "silent: minor other — a push went out 16.5h ago (quiet window 24h)",
+      "gate": "hold passed (1 run)",
+      "key": "S42|other|12 Nov"
     }
   ]
 }
