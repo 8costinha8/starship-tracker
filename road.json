@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "12 Nov",
-  "updatedAt": "2026-11-12T19:45:58.485Z",
+  "updatedAt": "2026-11-12T20:01:19.837Z",
   "categories": [
     {
       "id": "cryo",
@@ -2395,7 +2395,7 @@
           "card_text": "Ship 42 lifted onto transport stand.",
           "log_text": "Ship 42 lifted onto transport stand.",
           "status_line": "Ship 42 moved to transport stand.",
-          "url": "https://x.com/Blobifie/status/2120647062765355431",
+          "url": "https://x.com/LabPadre/status/2120969888105976259",
           "src": "@Blobifie",
           "trust": "trusted",
           "x_first": true,
@@ -2403,35 +2403,38 @@
           "hardware": "S42",
           "flight": 15,
           "x_post": {
-            "post_id": "2120647062765355431",
-            "url": "https://x.com/Blobifie/status/2120647062765355431",
-            "created_at": "2026-11-11T22:37:14.000Z",
-            "text": "Ship 42 has been lifted onto a transport stand and the starlink loading box has been moved to the ring yard! https://t.co/DaiOCTPdDA https://t.co/ssIMEiGRgX",
+            "post_id": "2120969888105976259",
+            "url": "https://x.com/LabPadre/status/2120969888105976259",
+            "created_at": "2026-11-12T20:00:01.000Z",
+            "text": "Don't Panic! Ship 42 is on the way to the pad for Flight 15.",
             "author": {
-              "name": "Blobifi",
-              "username": "Blobifie",
-              "avatar": "https://pbs.twimg.com/profile_images/2091766013562159104/xgHLFjBX_normal.jpg"
+              "name": "Avid Space",
+              "username": "LabPadre",
+              "avatar": "https://pbs.twimg.com/profile_images/2018042465932988416/LR5UN4G0_normal.png"
             },
             "media": [
               {
-                "type": "photo",
-                "url": "https://pbs.twimg.com/media/HW4NLtuaQAAdk8Y.jpg"
+                "type": "video",
+                "poster": "https://pbs.twimg.com/amplify_video_thumb/2120969801539444737/img/jubsleUINWocErFL.jpg",
+                "video_url": "https://video.twimg.com/amplify_video/2120969801539444737/vid/avc1/1280x720/RWx-Lf5lsKK-ZiMt.mp4"
               }
             ]
           },
           "x_posts": [
             "2120647062765355431",
             "2120665456411578615",
-            "2120963190016086420"
+            "2120963190016086420",
+            "2120969888105976259"
           ],
           "xChecked": true,
           "imageChecked2": true,
           "media_override": {
-            "post_url": "https://x.com/Blobifie/status/2120647062765355431",
-            "post_id": "2120647062765355431",
-            "author": "Blobifie",
-            "type": "photo",
-            "image": "https://pbs.twimg.com/media/HW4NLtuaQAAdk8Y.jpg"
+            "post_url": "https://x.com/LabPadre/status/2120969888105976259",
+            "post_id": "2120969888105976259",
+            "author": "LabPadre",
+            "type": "video",
+            "image": "https://pbs.twimg.com/amplify_video_thumb/2120969801539444737/img/jubsleUINWocErFL.jpg",
+            "video_url": "https://video.twimg.com/amplify_video/2120969801539444737/vid/avc1/1280x720/RWx-Lf5lsKK-ZiMt.mp4"
           },
           "tier": 2,
           "push": {
@@ -2439,7 +2442,6 @@
             "url": "https://x.com/Blobifie/status/2120647062765355431",
             "at": "2026-11-11T22:37:14.000Z"
           },
-          "frameChecked": true,
           "edited_from": "Ship 42 lifted onto transport stand after static fire.",
           "edited": true,
           "refiled_from": "static",
