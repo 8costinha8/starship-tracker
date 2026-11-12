@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "12 Nov",
-  "updatedAt": "2026-11-12T20:27:51.962Z",
+  "updatedAt": "2026-11-12T22:01:41.073Z",
   "categories": [
     {
       "id": "cryo",
@@ -2311,43 +2311,62 @@
           "id": "x-2120958355892035972",
           "date": "12 Nov",
           "log_date": "12 Nov",
-          "at": "2026-11-12T19:03:02.000Z",
-          "text": "Ship 42 rolls toward the launch site for Flight 15.",
-          "x_text": "Ship 42 rolls toward the launch site for Flight 15.",
-          "log_text": "Ship 42 rolls toward the launch site for Flight 15.",
-          "status_line": "Ship 42 rolled for Flight 15.",
-          "url": "https://x.com/NASASpaceflight/status/2120955546807214226",
-          "src": "@NASASpaceflight",
+          "at": "2026-11-12T21:52:03.000Z",
+          "text": "Ship 42 rolled to Pad 2.",
+          "x_text": "Ship 42 rolled to Pad 2.",
+          "log_text": "Ship 42 heads to Pad 2.",
+          "status_line": "Ship 42 at Pad 2.",
+          "url": "https://x.com/SpaceflightNow/status/2120998355018957047",
+          "src": "@SpaceflightNow",
           "trust": "trusted",
           "x_first": true,
           "stage": "pad",
           "hardware": "S42",
           "flight": 15,
           "x_post": {
-            "post_id": "2120955546807214226",
-            "url": "https://x.com/NASASpaceflight/status/2120955546807214226",
-            "created_at": "2026-11-12T19:03:02.000Z",
-            "text": "SpaceX Rolls Ship 42 For Flight 15\n https://t.co/5OqA5XMBxA",
+            "post_id": "2120998355018957047",
+            "url": "https://x.com/SpaceflightNow/status/2120998355018957047",
+            "created_at": "2026-11-12T21:53:08.000Z",
+            "text": "A timelapse of Ship 42 as it passed by a long row of space enthusiasts on its way to Pad 2. Watch live pad views: https://t.co/rHWqkhjbKs",
             "author": {
-              "name": "NSF - NASASpaceflight.com",
-              "username": "NASASpaceflight",
-              "avatar": "https://pbs.twimg.com/profile_images/1637919260298158080/kRT8BkYf_normal.jpg"
+              "name": "Spaceflight Now",
+              "username": "SpaceflightNow",
+              "avatar": "https://pbs.twimg.com/profile_images/1374417148483829765/nNF5rshy_normal.jpg"
             },
-            "media": []
+            "media": [
+              {
+                "type": "video",
+                "poster": "https://pbs.twimg.com/amplify_video_thumb/2120998018455384064/img/JkGh-bmmgYX0nH7b.jpg",
+                "video_url": "https://video.twimg.com/amplify_video/2120998018455384064/vid/avc1/2160x3840/tDm-xeES2lXj4i7w.mp4"
+              }
+            ],
+            "link": {
+              "url": "https://www.youtube.com/live/thfYPsRqxmw?si=C3kQ6aAfPwZp3SIP",
+              "title": "Launch Pad Live: SpaceX Falcon Heavy, Falcon 9 and Starship at Cape Canaveral",
+              "description": "Watch live views of Florida's Space Coast and Starbase, Texas. Vi...",
+              "image": "https://pbs.twimg.com/news_img/2120998366842662912/kf8Gbrxs?format=jpg&name=orig"
+            }
           },
           "x_posts": [
             "2120958355892035972",
             "2120955546807214226",
-            "2120955519485522200"
+            "2120955519485522200",
+            "2120998355018957047",
+            "2120998082779418716"
           ],
           "xChecked": true,
           "imageChecked2": true,
           "media_override": {
-            "post_url": "https://x.com/SpaceflightNow/status/2120958355892035972",
-            "post_id": "2120958355892035972",
+            "post_url": "https://x.com/SpaceflightNow/status/2120975507676336473",
+            "post_id": "2120975507676336473",
             "author": "SpaceflightNow",
             "type": "photo",
-            "image": "https://pbs.twimg.com/media/HW8oWEZXQAETs9P.jpg"
+            "image": "https://pbs.twimg.com/media/HW83-XfXIAEEqIh.jpg",
+            "auto": true,
+            "quality": 4,
+            "media_score": 101,
+            "checked_at": "2026-11-12T22:00:46.833Z",
+            "crop": "top"
           },
           "tier": 1,
           "milestone": {
@@ -2362,6 +2381,20 @@
             {
               "date": "12 Nov",
               "log_date": "12 Nov",
+              "at": "2026-11-12T19:03:02.000Z",
+              "text": "Ship 42 rolls toward the launch site for Flight 15.",
+              "push_text": "Ship 42 rolls toward the launch site for Flight 15.",
+              "card_text": "Ship 42 rolls toward the launch site for Flight 15.",
+              "log_text": "Ship 42 rolls toward the launch site for Flight 15.",
+              "url": "https://x.com/NASASpaceflight/status/2120955546807214226",
+              "src": "@NASASpaceflight",
+              "phase": "progress",
+              "tier": 1,
+              "note": "later post did not match the vehicle/pad numbers; status unchanged"
+            },
+            {
+              "date": "12 Nov",
+              "log_date": "12 Nov",
               "at": "2026-11-12T19:14:12.000Z",
               "text": "SpaceX rolls Ship 42 to Pad 2 ahead of stacking on Booster 22.",
               "push_text": "Ship 42 rolls to Pad 2 for stacking on Booster 22.",
@@ -2373,16 +2406,51 @@
               "tier": 1
             }
           ],
-          "push_text": "Ship 42 rolls toward the launch site for Flight 15.",
-          "card_text": "Ship 42 rolls toward the launch site for Flight 15.",
           "push": {
             "title": "🏗️ Pad activity · Flight 15",
             "url": "https://x.com/NASASpaceflight/status/2120955546807214226",
             "at": "2026-11-12T19:03:02.000Z"
           },
-          "frameChecked": true,
           "edited_from": "SpaceX rolls Ship 42 for Flight 15.",
-          "edited": true
+          "edited": true,
+          "push_text": "Ship 42 moves to Pad 2 ahead of launch.",
+          "card_text": "Ship 42 heads to Pad 2.",
+          "alt_media": {
+            "post_url": "https://x.com/Blobifie/status/2120998082779418716",
+            "post_id": "2120998082779418716",
+            "author": "Blobifie",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HW9LpbEaEAEQ687.jpg",
+            "show": false
+          },
+          "cascade": {
+            "first_at": "2026-11-12T21:53:08.000Z",
+            "sources": [
+              {
+                "post_id": "2120998355018957047",
+                "author": "SpaceflightNow",
+                "tier": 3,
+                "at": "2026-11-12T21:53:08.000Z"
+              },
+              {
+                "post_id": "2120998082779418716",
+                "author": "Blobifie",
+                "tier": 2,
+                "at": "2026-11-12T21:52:03.000Z"
+              }
+            ],
+            "confirmed": true,
+            "confirmed_at": "2026-11-12T22:01:22.764Z"
+          },
+          "text_locked": true,
+          "photo_alternatives": [
+            {
+              "image": "https://pbs.twimg.com/amplify_video_thumb/2120998018455384064/img/JkGh-bmmgYX0nH7b.jpg",
+              "type": "video",
+              "post_url": "https://x.com/SpaceflightNow/status/2120975507676336473",
+              "author": "SpaceflightNow"
+            }
+          ]
         },
         {
           "id": "x-2120647062765355431",
@@ -3657,7 +3725,7 @@
           "journey_context": "engine prep (1 Nov: not a Raptor milestone)"
         }
       ],
-      "log_latest": "Ship 42 rolled to Pad 2."
+      "log_latest": "Ship 42 at Pad 2."
     },
     {
       "id": "faa",
@@ -4769,10 +4837,11 @@
         "x-2120958355892035972",
         "x-2120963190016086420",
         "x-2120975507676336473",
-        "x-2120974579258507337"
+        "x-2120974579258507337",
+        "x-2120998082779418716"
       ],
       "likely": null,
-      "at": "2026-11-12T20:18:40.000Z",
+      "at": "2026-11-12T21:52:03.000Z",
       "counted": [
         "https://x.com/LabPadre/status/2095620292823462214",
         "https://x.com/LabPadre/status/2108486994401825101",
