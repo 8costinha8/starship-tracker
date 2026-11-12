@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "12 Nov",
-  "updatedAt": "2026-11-12T23:00:51.274Z",
+  "updatedAt": "2026-11-12T23:46:14.116Z",
   "categories": [
     {
       "id": "cryo",
@@ -2346,7 +2346,8 @@
             "2121006013381857315",
             "2121005601689866369",
             "2121005568722964862",
-            "2121014257492115612"
+            "2121014257492115612",
+            "2121025801780916379"
           ],
           "xChecked": true,
           "imageChecked2": true,
@@ -2358,7 +2359,7 @@
             "image": "https://pbs.twimg.com/amplify_video_thumb/2121005989428133889/img/hiGF3kyQfWNAlKhb.jpg",
             "video_url": "https://video.twimg.com/amplify_video/2121005989428133889/vid/avc1/1056x592/5Kn2bXTcPvs6pizq.mp4"
           },
-          "tier": 2,
+          "tier": 1,
           "milestone": {
             "key": "stacked|15|S42",
             "type": "stacked",
