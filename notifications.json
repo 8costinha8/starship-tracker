@@ -2008,6 +2008,18 @@
       "verdict": "sent",
       "gate": "not an X tracker post",
       "key": "S42|rollout|12 Nov"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "Starship Flight 15 aims to complete the first full mission profile (NSF reports, 12 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/NASASpaceflight/status/2120690698668097998",
+      "at": "2026-11-12T01:30:37.000Z",
+      "sent_at": "2026-11-12T02:15:31.450Z",
+      "where": "mission",
+      "verdict": "silent: minor other — a push went out 0.7h ago (quiet window 24h)",
+      "gate": "hold passed (1 run)",
+      "key": "F15|other|12 Nov"
     }
   ]
 }
