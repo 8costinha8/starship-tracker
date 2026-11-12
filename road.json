@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "12 Nov",
-  "updatedAt": "2026-11-12T18:45:33.819Z",
+  "updatedAt": "2026-11-12T19:16:18.436Z",
   "categories": [
     {
       "id": "cryo",
@@ -2305,8 +2305,83 @@
       "name": "Pad activity",
       "color": "#A88BFF",
       "status": "progress",
-      "latest": "Pad 1 flame trench construction continues.",
+      "latest": "SpaceX rolls Ship 42 to Pad 2 ahead of stacking on Booster 22.",
       "history": [
+        {
+          "id": "x-2120958355892035972",
+          "date": "12 Nov",
+          "log_date": "12 Nov",
+          "at": "2026-11-12T19:03:02.000Z",
+          "text": "SpaceX rolls Ship 42 for Flight 15.",
+          "x_text": "SpaceX rolls Ship 42 for Flight 15.",
+          "log_text": "Ship 42 rolls to Pad 2 for Flight 15 stacking.",
+          "status_line": "Ship 42 rolled to Pad 2.",
+          "url": "https://x.com/NASASpaceflight/status/2120955546807214226",
+          "src": "@NASASpaceflight",
+          "trust": "trusted",
+          "x_first": true,
+          "stage": "pad",
+          "hardware": "S42",
+          "flight": 15,
+          "x_post": {
+            "post_id": "2120955546807214226",
+            "url": "https://x.com/NASASpaceflight/status/2120955546807214226",
+            "created_at": "2026-11-12T19:03:02.000Z",
+            "text": "SpaceX Rolls Ship 42 For Flight 15",
+            "author": {
+              "name": "NSF - NASASpaceflight.com",
+              "username": "NASASpaceflight",
+              "avatar": "https://pbs.twimg.com/profile_images/1637919260298158080/kRT8BkYf_normal.jpg"
+            },
+            "media": []
+          },
+          "x_posts": [
+            "2120958355892035972",
+            "2120955546807214226",
+            "2120955519485522200"
+          ],
+          "xChecked": true,
+          "imageChecked2": true,
+          "media_override": {
+            "post_url": "https://x.com/SpaceflightNow/status/2120958355892035972",
+            "post_id": "2120958355892035972",
+            "author": "SpaceflightNow",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HW8oWEZXQAETs9P.jpg"
+          },
+          "tier": 1,
+          "milestone": {
+            "key": "rollout|15|S42",
+            "type": "rollout",
+            "flight": 15,
+            "hardware": "S42",
+            "phase": "progress"
+          },
+          "likely": true,
+          "updates": [
+            {
+              "date": "12 Nov",
+              "log_date": "12 Nov",
+              "at": "2026-11-12T19:14:12.000Z",
+              "text": "SpaceX rolls Ship 42 to Pad 2 ahead of stacking on Booster 22.",
+              "push_text": "Ship 42 rolls to Pad 2 for stacking on Booster 22.",
+              "card_text": "Ship 42 rolls to Pad 2 ahead of stacking on Booster 22.",
+              "log_text": "Ship 42 rolls to Pad 2 ahead of stacking on Booster 22.",
+              "url": "https://x.com/SpaceflightNow/status/2120958355892035972",
+              "src": "@SpaceflightNow",
+              "phase": "progress",
+              "tier": 1
+            }
+          ],
+          "push_text": "SpaceX rolls Ship 42 to Pad 2 for Flight 15.",
+          "card_text": "Ship 42 rolls to Pad 2 for Flight 15 stacking.",
+          "push": {
+            "title": "🏗️ Pad activity · Flight 15",
+            "url": "https://x.com/NASASpaceflight/status/2120955546807214226",
+            "at": "2026-11-12T19:03:02.000Z"
+          },
+          "frameChecked": true
+        },
         {
           "id": "x-2120647062765355431",
           "date": "11 Nov",
@@ -3575,7 +3650,7 @@
           "journey_context": "engine prep (1 Nov: not a Raptor milestone)"
         }
       ],
-      "log_latest": "Pad 1 flame trench work in progress."
+      "log_latest": "Ship 42 rolled to Pad 2."
     },
     {
       "id": "faa",
@@ -4668,7 +4743,7 @@
       "count_note": "1 Nov: recounted from confirmed events (recaps, repeats and same-event posts add 0)"
     },
     "S42": {
-      "location": "Megabay 2",
+      "location": "pad",
       "open_test": null,
       "next_test": "launch",
       "last_test": {
@@ -4677,16 +4752,17 @@
         "start": "2026-10-27T21:45:25.000Z"
       },
       "engines": true,
-      "stacked": false,
+      "stacked": true,
       "done": {
         "cryo": 3,
         "static": 2
       },
       "pending": [
-        "x-2120665456411578615"
+        "x-2120665456411578615",
+        "x-2120958355892035972"
       ],
       "likely": null,
-      "at": "2026-11-11T23:50:19.000Z",
+      "at": "2026-11-12T19:14:12.000Z",
       "counted": [
         "https://x.com/LabPadre/status/2095620292823462214",
         "https://x.com/LabPadre/status/2108486994401825101",
