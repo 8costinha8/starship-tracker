@@ -2043,6 +2043,18 @@
       "verdict": "silent: minor other — a push went out 16.5h ago (quiet window 24h)",
       "gate": "hold passed (1 run)",
       "key": "S42|other|12 Nov"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "NOTAMs released covering re-entry locations and catch of Ship 42 for Flight 15 (LabPadre reports, 12 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/LabPadre/status/2120941544416944336",
+      "at": "2026-11-12T18:07:24.000Z",
+      "sent_at": "2026-11-12T18:16:01.918Z",
+      "where": "mission",
+      "verdict": "silent: minor other — a push went out 16.8h ago (quiet window 24h)",
+      "gate": "second trusted source agrees",
+      "key": "S42|other|12 Nov"
     }
   ]
 }
