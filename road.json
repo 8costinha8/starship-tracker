@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "12 Nov",
-  "updatedAt": "2026-11-12T22:45:46.136Z",
+  "updatedAt": "2026-11-12T23:00:51.274Z",
   "categories": [
     {
       "id": "cryo",
@@ -2345,7 +2345,8 @@
             "2121006374041899190",
             "2121006013381857315",
             "2121005601689866369",
-            "2121005568722964862"
+            "2121005568722964862",
+            "2121014257492115612"
           ],
           "xChecked": true,
           "imageChecked2": true,
@@ -2366,6 +2367,19 @@
             "phase": "progress"
           },
           "updates": [
+            {
+              "date": "12 Nov",
+              "log_date": "12 Nov",
+              "at": "2026-11-12T22:56:20.000Z",
+              "text": "Ship 42 pretty much stacked on Booster 22.",
+              "push_text": "Ship 42 pretty much stacked atop Booster 22.",
+              "card_text": "Ship 42 stacked on Booster 22.",
+              "log_text": "Ship 42 stacked on Booster 22.",
+              "url": "https://x.com/Blobifie/status/2121014257492115612",
+              "src": "@Blobifie",
+              "tier": 3,
+              "reported": "progress"
+            },
             {
               "date": "12 Nov",
               "log_date": "12 Nov",
@@ -2431,9 +2445,18 @@
                 "author": "efraser77",
                 "tier": 2,
                 "at": "2026-11-12T22:21:48.000Z"
+              },
+              {
+                "post_id": "2121014257492115612",
+                "author": "Blobifie",
+                "tier": 2,
+                "at": "2026-11-12T22:56:20.000Z"
               }
-            ]
-          }
+            ],
+            "confirmed": true,
+            "confirmed_at": "2026-11-12T23:00:41.190Z"
+          },
+          "text_locked": true
         },
         {
           "id": "x-2120958355892035972",
