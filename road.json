@@ -4,8 +4,8 @@
     "B22",
     "S42"
   ],
-  "updated": "11 Nov",
-  "updatedAt": "2026-11-11T23:15:24.767Z",
+  "updated": "12 Nov",
+  "updatedAt": "2026-11-12T00:01:40.159Z",
   "categories": [
     {
       "id": "cryo",
@@ -2343,7 +2343,8 @@
             ]
           },
           "x_posts": [
-            "2120647062765355431"
+            "2120647062765355431",
+            "2120665456411578615"
           ],
           "xChecked": true,
           "imageChecked2": true,
@@ -2363,7 +2364,8 @@
           "frameChecked": true,
           "edited_from": "Ship 42 lifted onto transport stand after static fire.",
           "edited": true,
-          "refiled_from": "static"
+          "refiled_from": "static",
+          "likely": true
         },
         {
           "id": "x-2120268988621971885",
@@ -3826,6 +3828,16 @@
   ],
   "feed_items": [
     {
+      "id": "news-mwcrunp4-73e961",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Ship 42 left megabay 2 and was inspected while the starlink box prepared for MB2 lift.",
+      "url": "https://x.com/Blobifie/status/2120665456411578615",
+      "at": "2026-11-11T23:50:19.000Z",
+      "date": "11 Nov",
+      "flight": 15
+    },
+    {
       "id": "news-mwcofsuw-afd53b",
       "kind": "news",
       "title": "🚀 Starship",
@@ -4276,19 +4288,6 @@
       "refiled_pin": true,
       "src": "@RGVaerialphotos",
       "push_text": "Ship 42 is being transported to the Massey's test site, with an engine section in tow"
-    },
-    {
-      "id": "news-mvown148-6ecbdb",
-      "kind": "news",
-      "title": "🚀 Starship",
-      "body": "Booster 22 was moved onto its transporter ahead of returning to Megabay 1.",
-      "url": "https://x.com/RGVaerialphotos/status/2114612462184178003",
-      "at": "2026-10-26T06:57:53.000Z",
-      "date": "26 Oct",
-      "flight": 15,
-      "box": "pad",
-      "src": "@RGVaerialphotos",
-      "push_text": "Booster 22 has been moved onto its transporter ahead of returning to Megabay 1"
     }
   ],
   "milestones": {
@@ -4668,9 +4667,11 @@
         "cryo": 3,
         "static": 2
       },
-      "pending": [],
+      "pending": [
+        "x-2120665456411578615"
+      ],
       "likely": null,
-      "at": "2026-10-29T07:52:15.000Z",
+      "at": "2026-11-11T23:50:19.000Z",
       "counted": [
         "https://x.com/LabPadre/status/2095620292823462214",
         "https://x.com/LabPadre/status/2108486994401825101",
