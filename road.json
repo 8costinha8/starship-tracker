@@ -2305,17 +2305,17 @@
       "name": "Pad activity",
       "color": "#A88BFF",
       "status": "progress",
-      "latest": "SpaceX rolls Ship 42 to Pad 2 ahead of stacking on Booster 22.",
+      "latest": "Ship 42 rolls toward the launch site for Flight 15.",
       "history": [
         {
           "id": "x-2120958355892035972",
           "date": "12 Nov",
           "log_date": "12 Nov",
           "at": "2026-11-12T19:03:02.000Z",
-          "text": "SpaceX rolls Ship 42 for Flight 15.",
-          "x_text": "SpaceX rolls Ship 42 for Flight 15.",
-          "log_text": "Ship 42 rolls to Pad 2 for Flight 15 stacking.",
-          "status_line": "Ship 42 rolled to Pad 2.",
+          "text": "Ship 42 rolls toward the launch site for Flight 15.",
+          "x_text": "Ship 42 rolls toward the launch site for Flight 15.",
+          "log_text": "Ship 42 rolls toward the launch site for Flight 15.",
+          "status_line": "Ship 42 rolled for Flight 15.",
           "url": "https://x.com/NASASpaceflight/status/2120955546807214226",
           "src": "@NASASpaceflight",
           "trust": "trusted",
@@ -2327,7 +2327,7 @@
             "post_id": "2120955546807214226",
             "url": "https://x.com/NASASpaceflight/status/2120955546807214226",
             "created_at": "2026-11-12T19:03:02.000Z",
-            "text": "SpaceX Rolls Ship 42 For Flight 15",
+            "text": "SpaceX Rolls Ship 42 For Flight 15\n https://t.co/5OqA5XMBxA",
             "author": {
               "name": "NSF - NASASpaceflight.com",
               "username": "NASASpaceflight",
@@ -2373,14 +2373,16 @@
               "tier": 1
             }
           ],
-          "push_text": "SpaceX rolls Ship 42 to Pad 2 for Flight 15.",
-          "card_text": "Ship 42 rolls to Pad 2 for Flight 15 stacking.",
+          "push_text": "Ship 42 rolls toward the launch site for Flight 15.",
+          "card_text": "Ship 42 rolls toward the launch site for Flight 15.",
           "push": {
             "title": "🏗️ Pad activity · Flight 15",
             "url": "https://x.com/NASASpaceflight/status/2120955546807214226",
             "at": "2026-11-12T19:03:02.000Z"
           },
-          "frameChecked": true
+          "frameChecked": true,
+          "edited_from": "SpaceX rolls Ship 42 for Flight 15.",
+          "edited": true
         },
         {
           "id": "x-2120647062765355431",
