@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "12 Nov",
-  "updatedAt": "2026-11-12T06:01:43.510Z",
+  "updatedAt": "2026-11-12T17:31:06.784Z",
   "categories": [
     {
       "id": "cryo",
@@ -3796,14 +3796,6 @@
         "post_id": "2120690698668097998"
       },
       {
-        "topic": "trajectory",
-        "line": "New marine hazard area announced for Starship Flight 15 on November 13 (LabPadre, 9 Nov).",
-        "at": "2026-11-09T17:19:09.000Z",
-        "src": "@LabPadre",
-        "url": "https://x.com/LabPadre/status/2119842240050676139",
-        "post_id": "2119842240050676139"
-      },
-      {
         "topic": "catch",
         "line": "Flight 15 targeting double catch of booster and ship (NSF reports, 9 Nov).",
         "at": "2026-11-09T20:00:59.000Z",
@@ -3826,6 +3818,14 @@
         "src": "@NASASpaceflight",
         "url": "https://x.com/NASASpaceflight/status/2120116199053017535",
         "post_id": "2120116199053017535"
+      },
+      {
+        "topic": "payload",
+        "line": "Ship 42 has 26 Starlinks installed (Blobifie reports, 12 Nov).",
+        "at": "2026-11-12T17:19:23.000Z",
+        "src": "@Blobifie",
+        "url": "https://x.com/Blobifie/status/2120929463701787055",
+        "post_id": "2120929463701787055"
       }
     ]
   },
@@ -3852,6 +3852,16 @@
     }
   ],
   "feed_items": [
+    {
+      "id": "news-mwdtbrlk-dc662f",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Ship 42 left Megabay 2 after its starlinks were installed.",
+      "url": "https://x.com/Blobifie/status/2120929463701787055",
+      "at": "2026-11-12T17:19:23.000Z",
+      "date": "12 Nov",
+      "flight": 15
+    },
     {
       "id": "news-mwcygodc-9eb18d",
       "kind": "news",
@@ -4295,15 +4305,6 @@
       "box": "static",
       "src": "@RGVaerialphotos",
       "push_text": "Ship 42 and the tiled barrel section have arrived back at the production site"
-    },
-    {
-      "id": "flight-mvsjfivy-8b129a",
-      "kind": "flight",
-      "title": "📅 New estimated date",
-      "body": "NET Nov 2026",
-      "at": "2026-10-28T19:59:12.478Z",
-      "date": "28 Oct",
-      "flight": 15
     }
   ],
   "milestones": {
