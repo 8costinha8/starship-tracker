@@ -2067,6 +2067,18 @@
       "verdict": "silent: minor other — a push went out 17.2h ago (quiet window 24h)",
       "gate": "hold passed (1 run)",
       "key": "F15|other|12 Nov"
+    },
+    {
+      "title": "🏗️ Pad activity · Flight 15",
+      "body": "Ship 42 rolls toward the launch site for Flight 15.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2120958355892035972",
+      "url": "https://x.com/NASASpaceflight/status/2120955546807214226",
+      "at": "2026-11-12T19:03:02.000Z",
+      "sent_at": "2026-11-12T19:46:10.779Z",
+      "where": "road",
+      "verdict": "sent",
+      "gate": "hold passed (1 run)",
+      "key": "S42|transport|12 Nov"
     }
   ]
 }
