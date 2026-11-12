@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "12 Nov",
-  "updatedAt": "2026-11-12T22:31:01.676Z",
+  "updatedAt": "2026-11-12T22:45:46.136Z",
   "categories": [
     {
       "id": "cryo",
@@ -2422,7 +2422,18 @@
             }
           ],
           "edited_from": "Ship 42 lifted in the air for stacking on Booster 22.",
-          "edited": true
+          "edited": true,
+          "cascade": {
+            "first_at": "2026-11-12T22:21:48.000Z",
+            "sources": [
+              {
+                "post_id": "2121005568722964862",
+                "author": "efraser77",
+                "tier": 2,
+                "at": "2026-11-12T22:21:48.000Z"
+              }
+            ]
+          }
         },
         {
           "id": "x-2120958355892035972",
@@ -2612,7 +2623,8 @@
             "2120969888105976259",
             "2120975507676336473",
             "2120974579258507337",
-            "2121003364909711585"
+            "2121003364909711585",
+            "2121008158634353091"
           ],
           "xChecked": true,
           "imageChecked2": true,
@@ -4959,7 +4971,7 @@
         "x-2120998082779418716"
       ],
       "likely": null,
-      "at": "2026-11-12T22:25:00.000Z",
+      "at": "2026-11-12T22:32:06.000Z",
       "counted": [
         "https://x.com/LabPadre/status/2095620292823462214",
         "https://x.com/LabPadre/status/2108486994401825101",
