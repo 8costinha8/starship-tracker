@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "12 Nov",
-  "updatedAt": "2026-11-12T01:15:37.851Z",
+  "updatedAt": "2026-11-12T01:30:52.008Z",
   "categories": [
     {
       "id": "cryo",
@@ -3838,6 +3838,16 @@
       "flight": 15
     },
     {
+      "id": "news-mwctkn6g-276b89",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Ship 42 was rolled to Pad 2 for Flight 15.",
+      "url": "https://www.youtube.com/watch?v=nTP0658r-Ak",
+      "at": "2026-11-12T00:38:31.000Z",
+      "date": "12 Nov",
+      "flight": 15
+    },
+    {
       "id": "news-mwcrunp4-73e961",
       "kind": "news",
       "title": "🚀 Starship",
@@ -4272,19 +4282,6 @@
         "from": "static",
         "why": "official recap of the 27 Oct six-engine static fire; kept on the Ship 42 static fire card (also_posts) at the event time"
       }
-    },
-    {
-      "id": "news-mvrm1w14-668ed2",
-      "kind": "news",
-      "title": "🚀 Starship",
-      "body": "Ship 43 returned to the production site from chopstick tests.",
-      "url": "https://x.com/NASASpaceflight/status/2115298718035370428",
-      "at": "2026-10-28T04:24:49.000Z",
-      "date": "28 Oct",
-      "flight": 16,
-      "src": "@NASASpaceflight",
-      "push_text": "Ship 43 has returned to the production site from chopstick tests",
-      "later_flight": true
     }
   ],
   "milestones": {
