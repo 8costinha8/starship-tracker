@@ -1972,6 +1972,18 @@
       "verdict": "sent",
       "gate": "hold passed (1 run)",
       "key": "S42|transport|11 Nov"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Ship 42 left megabay 2 and was inspected while the starlink box prepared for MB2 lift.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mwcrunp4-73e961",
+      "url": "https://x.com/Blobifie/status/2120665456411578615",
+      "at": "2026-11-11T23:50:19.000Z",
+      "sent_at": "2026-11-12T00:30:31.470Z",
+      "where": "feed",
+      "verdict": "silent: minor lift — a push went out 1.5h ago (quiet window 24h)",
+      "gate": "hold passed (1 run)",
+      "key": "S42|lift|11 Nov"
     }
   ]
 }
