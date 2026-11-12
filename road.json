@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "12 Nov",
-  "updatedAt": "2026-11-12T00:30:29.798Z",
+  "updatedAt": "2026-11-12T01:15:37.851Z",
   "categories": [
     {
       "id": "cryo",
@@ -3828,6 +3828,16 @@
   ],
   "feed_items": [
     {
+      "id": "news-mwctll4o-24a390",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Starship Flight 15 aims were detailed.",
+      "url": "https://www.youtube.com/watch?v=sUT812Icv7Y",
+      "at": "2026-11-12T00:39:15.000Z",
+      "date": "12 Nov",
+      "flight": 15
+    },
+    {
       "id": "news-mwcrunp4-73e961",
       "kind": "news",
       "title": "🚀 Starship",
@@ -4275,20 +4285,6 @@
       "src": "@NASASpaceflight",
       "push_text": "Ship 43 has returned to the production site from chopstick tests",
       "later_flight": true
-    },
-    {
-      "id": "news-mvozi9xs-e0267f",
-      "kind": "news",
-      "title": "🚀 Starship",
-      "body": "Ship 42 was transported to the Massey's test site, with an engine section in tow.",
-      "url": "https://x.com/RGVaerialphotos/status/2114632668461900071",
-      "at": "2026-10-26T08:18:10.000Z",
-      "date": "26 Oct",
-      "flight": 15,
-      "box": "static",
-      "refiled_pin": true,
-      "src": "@RGVaerialphotos",
-      "push_text": "Ship 42 is being transported to the Massey's test site, with an engine section in tow"
     }
   ],
   "milestones": {
