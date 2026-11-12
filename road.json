@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "12 Nov",
-  "updatedAt": "2026-11-12T22:16:06.462Z",
+  "updatedAt": "2026-11-12T22:31:01.676Z",
   "categories": [
     {
       "id": "cryo",
@@ -2307,6 +2307,121 @@
       "status": "progress",
       "latest": "Ship 42 rolls toward the launch site for Flight 15.",
       "history": [
+        {
+          "id": "x-2121006374041899190",
+          "date": "12 Nov",
+          "log_date": "12 Nov",
+          "at": "2026-11-12T22:21:48.000Z",
+          "text": "Ship 42 lifted in the air for stacking on Booster 22.",
+          "x_text": "Ship 42 lifted in the air for stacking on Booster 22.",
+          "log_text": "Ship 42 stacked on Booster 22 at Pad 2.",
+          "status_line": "Ship 42 stacked on Booster 22.",
+          "url": "https://x.com/efraser77/status/2121005568722964862",
+          "src": "@efraser77",
+          "trust": "unconfirmed",
+          "x_first": true,
+          "stage": "pad",
+          "hardware": "S42",
+          "flight": 15,
+          "x_post": {
+            "post_id": "2121005568722964862",
+            "url": "https://x.com/efraser77/status/2121005568722964862",
+            "created_at": "2026-11-12T22:21:48.000Z",
+            "text": "Update: In the air. @NASASpaceflight is live with commentary: https://t.co/qkTZJskAxC",
+            "author": {
+              "name": "Erik Fraser",
+              "username": "efraser77",
+              "avatar": "https://pbs.twimg.com/profile_images/1480766056163516418/kpdQxuPR_normal.jpg"
+            },
+            "media": [],
+            "link": {
+              "url": "https://www.youtube.com/watch?v=rXzCsW73e24",
+              "title": "SpaceX Stacks Ship 42 with Booster 22 ahead of Flight 15",
+              "description": "Join us as SpaceX stacks Ship 42 to Booster 22 at Pad 2 ahead of St...",
+              "image": "https://pbs.twimg.com/news_img/2121005574104190976/JBZCjHKS?format=jpg&name=orig"
+            }
+          },
+          "x_posts": [
+            "2121006374041899190",
+            "2121006013381857315",
+            "2121005601689866369",
+            "2121005568722964862"
+          ],
+          "xChecked": true,
+          "imageChecked2": true,
+          "media_override": {
+            "post_url": "https://x.com/NASASpaceflight/status/2121006013381857315",
+            "post_id": "2121006013381857315",
+            "author": "NASASpaceflight",
+            "type": "video",
+            "image": "https://pbs.twimg.com/amplify_video_thumb/2121005989428133889/img/hiGF3kyQfWNAlKhb.jpg",
+            "video_url": "https://video.twimg.com/amplify_video/2121005989428133889/vid/avc1/1056x592/5Kn2bXTcPvs6pizq.mp4"
+          },
+          "tier": 2,
+          "milestone": {
+            "key": "stacked|15|S42",
+            "type": "stacked",
+            "flight": 15,
+            "hardware": "S42",
+            "phase": "progress"
+          },
+          "updates": [
+            {
+              "date": "12 Nov",
+              "log_date": "12 Nov",
+              "at": "2026-11-12T22:21:56.000Z",
+              "text": "SpaceX hoists Ship 42 to stack atop Booster 22.",
+              "push_text": "SpaceX hoists Ship 42 onto Booster 22.",
+              "card_text": "Ship 42 stacked on Booster 22 at Pad 2.",
+              "log_text": "Ship 42 stacked on Booster 22 at Pad 2.",
+              "url": "https://x.com/SpaceflightNow/status/2121005601689866369",
+              "src": "@SpaceflightNow",
+              "phase": "progress",
+              "tier": 1
+            },
+            {
+              "date": "12 Nov",
+              "log_date": "12 Nov",
+              "at": "2026-11-12T22:23:34.000Z",
+              "text": "SpaceX stacks Ship 42 with Booster 22 at Pad 2.",
+              "push_text": "SpaceX stacks Ship 42 onto Booster 22.",
+              "card_text": "SpaceX stacks Ship 42 on Booster 22 at Pad 2.",
+              "log_text": "SpaceX stacks Ship 42 on Booster 22 at Pad 2.",
+              "url": "https://x.com/NASASpaceflight/status/2121006013381857315",
+              "src": "@NASASpaceflight",
+              "phase": "progress",
+              "tier": 1
+            },
+            {
+              "date": "12 Nov",
+              "log_date": "12 Nov",
+              "at": "2026-11-12T22:25:00.000Z",
+              "text": "Ship 42 is being lifted onto Booster 22 at Pad 2.",
+              "push_text": "Ship 42 is being lifted onto Booster 22.",
+              "card_text": "Ship 42 stacked on Booster 22 at Pad 2.",
+              "log_text": "Ship 42 stacked on Booster 22 at Pad 2.",
+              "url": "https://x.com/Blobifie/status/2121006374041899190",
+              "src": "@Blobifie",
+              "phase": "progress",
+              "tier": 2
+            }
+          ],
+          "push_text": "Ship 42 lifted for stacking on Booster 22.",
+          "card_text": "Ship 42 stacked on Booster 22 at Pad 2.",
+          "push": {
+            "title": "🏗️ Pad activity (unconfirmed)",
+            "url": "https://x.com/efraser77/status/2121005568722964862",
+            "at": "2026-11-12T22:21:48.000Z"
+          },
+          "photo_alternatives": [
+            {
+              "image": "https://pbs.twimg.com/amplify_video_thumb/2121005989428133889/img/hiGF3kyQfWNAlKhb.jpg",
+              "type": "video",
+              "post_url": "https://x.com/NASASpaceflight/status/2121006013381857315",
+              "author": "NASASpaceflight"
+            }
+          ]
+        },
         {
           "id": "x-2120958355892035972",
           "date": "12 Nov",
@@ -4842,7 +4957,7 @@
         "x-2120998082779418716"
       ],
       "likely": null,
-      "at": "2026-11-12T21:52:03.000Z",
+      "at": "2026-11-12T22:25:00.000Z",
       "counted": [
         "https://x.com/LabPadre/status/2095620292823462214",
         "https://x.com/LabPadre/status/2108486994401825101",
