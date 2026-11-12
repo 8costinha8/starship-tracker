@@ -2305,15 +2305,15 @@
       "name": "Pad activity",
       "color": "#A88BFF",
       "status": "progress",
-      "latest": "Ship 42 rolls toward the launch site for Flight 15.",
+      "latest": "Ship 42 stacked on Booster 22 at Pad 2.",
       "history": [
         {
           "id": "x-2121006374041899190",
           "date": "12 Nov",
           "log_date": "12 Nov",
           "at": "2026-11-12T22:21:48.000Z",
-          "text": "Ship 42 lifted in the air for stacking on Booster 22.",
-          "x_text": "Ship 42 lifted in the air for stacking on Booster 22.",
+          "text": "Ship 42 stacked on Booster 22 at Pad 2.",
+          "x_text": "Ship 42 stacked on Booster 22 at Pad 2.",
           "log_text": "Ship 42 stacked on Booster 22 at Pad 2.",
           "status_line": "Ship 42 stacked on Booster 22.",
           "url": "https://x.com/efraser77/status/2121005568722964862",
@@ -2327,7 +2327,7 @@
             "post_id": "2121005568722964862",
             "url": "https://x.com/efraser77/status/2121005568722964862",
             "created_at": "2026-11-12T22:21:48.000Z",
-            "text": "Update: In the air. @NASASpaceflight is live with commentary: https://t.co/qkTZJskAxC",
+            "text": "Update: In the air.\n\n@NASASpaceflight is live with commentary: https://t.co/qkTZJskAxC https://t.co/X6GvhU4tcm",
             "author": {
               "name": "Erik Fraser",
               "username": "efraser77",
@@ -2406,7 +2406,7 @@
               "tier": 2
             }
           ],
-          "push_text": "Ship 42 lifted for stacking on Booster 22.",
+          "push_text": "Ship 42 stacked on Booster 22 at Pad 2.",
           "card_text": "Ship 42 stacked on Booster 22 at Pad 2.",
           "push": {
             "title": "🏗️ Pad activity (unconfirmed)",
@@ -2420,7 +2420,9 @@
               "post_url": "https://x.com/NASASpaceflight/status/2121006013381857315",
               "author": "NASASpaceflight"
             }
-          ]
+          ],
+          "edited_from": "Ship 42 lifted in the air for stacking on Booster 22.",
+          "edited": true
         },
         {
           "id": "x-2120958355892035972",
