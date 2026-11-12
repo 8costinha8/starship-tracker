@@ -1984,6 +1984,18 @@
       "verdict": "silent: minor lift — a push went out 1.5h ago (quiet window 24h)",
       "gate": "hold passed (1 run)",
       "key": "S42|lift|11 Nov"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Starship Flight 15 aims were detailed.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mwctll4o-24a390",
+      "url": "https://www.youtube.com/watch?v=sUT812Icv7Y",
+      "at": "2026-11-12T00:39:15.000Z",
+      "sent_at": "2026-11-12T01:15:38.968Z",
+      "where": "feed",
+      "verdict": "silent: minor other — a push went out 2.2h ago (quiet window 24h)",
+      "gate": "not an X tracker post",
+      "key": "F15|other|12 Nov"
     }
   ]
 }
