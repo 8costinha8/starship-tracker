@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "12 Nov",
-  "updatedAt": "2026-11-12T01:30:52.008Z",
+  "updatedAt": "2026-11-12T01:45:53.947Z",
   "categories": [
     {
       "id": "cryo",
@@ -3762,13 +3762,12 @@
   "mission_updates": {
     "15": [
       {
-        "topic": "catch",
-        "line": "SpaceX plans to catch both Booster 22 and Ship 42 on Flight 15 (Elon Musk, 22 Oct).",
-        "at": "2026-10-21T23:05:30.000Z",
+        "topic": "objectives",
+        "line": "Starship Flight 15 aims to complete the first full mission profile (NSF reports, 12 Nov).",
+        "at": "2026-11-12T01:30:37.000Z",
         "src": "@NASASpaceflight",
-        "url": "https://x.com/NASASpaceflight/status/2113044031638741321",
-        "post_id": "2113044031638741321",
-        "data_fix": "restored 29 Oct: a14b353 overwrote it (mission updates are now additive)"
+        "url": "https://x.com/NASASpaceflight/status/2120690698668097998",
+        "post_id": "2120690698668097998"
       },
       {
         "topic": "trajectory",
@@ -3845,7 +3844,8 @@
       "url": "https://www.youtube.com/watch?v=nTP0658r-Ak",
       "at": "2026-11-12T00:38:31.000Z",
       "date": "12 Nov",
-      "flight": 15
+      "flight": 15,
+      "box": "pad"
     },
     {
       "id": "news-mwcrunp4-73e961",
