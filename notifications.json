@@ -2020,6 +2020,17 @@
       "verdict": "silent: minor other — a push went out 0.7h ago (quiet window 24h)",
       "gate": "hold passed (1 run)",
       "key": "F15|other|12 Nov"
+    },
+    {
+      "title": "Correction · 🚀 Starship",
+      "body": "Ship 42 was moved back inside Megabay 2 to have its Starlink V3s installed.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mwcygodc-9eb18d",
+      "url": "https://x.com/Blobifie/status/2120712033742291274",
+      "at": "2026-11-12T02:55:24.000Z",
+      "sent_at": "2026-11-12T03:01:03.259Z",
+      "where": "feed",
+      "verdict": "blocked: visible title differs: \"🚀 Starship\" vs push \"Correction · 🚀 Starship\"",
+      "gate": "corrects \"Ship 42 was rolled to Pad 2 for Flight 15.\" (2026-11-12T01:30:53.236Z)"
     }
   ]
 }
