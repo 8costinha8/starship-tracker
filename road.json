@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "12 Nov",
-  "updatedAt": "2026-11-12T02:15:29.410Z",
+  "updatedAt": "2026-11-12T03:00:59.802Z",
   "categories": [
     {
       "id": "cryo",
@@ -3827,6 +3827,16 @@
   ],
   "feed_items": [
     {
+      "id": "news-mwcygodc-9eb18d",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Ship 42 was moved back inside Megabay 2 to have its Starlink V3s installed.",
+      "url": "https://x.com/Blobifie/status/2120712033742291274",
+      "at": "2026-11-12T02:55:24.000Z",
+      "date": "12 Nov",
+      "flight": 15
+    },
+    {
       "id": "news-mwctll4o-24a390",
       "kind": "news",
       "title": "🚀 Starship",
@@ -4263,25 +4273,6 @@
       "at": "2026-10-28T19:59:12.478Z",
       "date": "28 Oct",
       "flight": 15
-    },
-    {
-      "id": "news-mvsb9c8o-97f884",
-      "kind": "news",
-      "title": "🚀 Starship",
-      "body": "Ship 42 completed a full-duration six-engine static fire and deorbit burn simulation.",
-      "url": "https://x.com/SpaceX/status/2115476295169814978",
-      "at": "2026-10-28T16:10:27.000Z",
-      "date": "28 Oct",
-      "flight": 15,
-      "src": "@SpaceX",
-      "push_text": "Ship 42 completes full duration six-engine static fire and deorbit burn simulation",
-      "event_at": "2026-10-27T21:45:25.000Z",
-      "event_card": "x-2114904512217694216",
-      "refiled_pin": true,
-      "rerouted": {
-        "from": "static",
-        "why": "official recap of the 27 Oct six-engine static fire; kept on the Ship 42 static fire card (also_posts) at the event time"
-      }
     }
   ],
   "milestones": {
