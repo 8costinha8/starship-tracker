@@ -1,6 +1,16 @@
 {
   "items": [
     {
+      "date": "2026-11-12T06:01:43.508Z",
+      "type": "missing-row",
+      "item": null,
+      "values": [],
+      "sources": [],
+      "reason": "feed news-mwcygodc-9eb18d \"Ship 42 was moved back inside Megabay 2 to have its Starlink V3s installed.\" (S42) is on no card and no same-vehicle card follows within 12 h",
+      "kept": null,
+      "msg": "feed news-mwcygodc-9eb18d \"Ship 42 was moved back inside Megabay 2 to have its Starlink V3s installed.\" (S42) is on no card and no same-vehicle card follows within 12 h"
+    },
+    {
       "date": "2026-11-11T06:00:47.547Z",
       "type": "render-fragment",
       "item": "Flight Log pad Launch pad 10 Nov",
