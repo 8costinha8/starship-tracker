@@ -1,11 +1,11 @@
 {
   "scripts": {
     "check-flights": {
-      "at": "2026-11-12T13:00:30.262Z",
+      "at": "2026-11-12T17:15:23.667Z",
       "status": "ok",
       "error": null,
       "consecutive_failures": 0,
-      "last_ok": "2026-11-12T13:00:30.262Z"
+      "last_ok": "2026-11-12T17:15:23.667Z"
     },
     "check-road": {
       "at": "2026-11-12T16:01:21.894Z",
@@ -15,7 +15,7 @@
       "last_ok": "2026-11-12T16:01:21.894Z"
     }
   },
-  "updated": "2026-11-12T16:01:21.894Z",
+  "updated": "2026-11-12T17:15:23.667Z",
   "status": "ok",
   "consecutive_failures": 0,
   "alert": false,
@@ -23,7 +23,7 @@
     "at": "2026-11-09T09:45:27.619Z",
     "error": "watchdog: X read failed: HTTP 402 — the checker is blind to X (check the X API plan / bearer token)"
   },
-  "committed_at": "2026-11-12T16:01:21.894Z",
+  "committed_at": "2026-11-12T17:15:23.667Z",
   "render_check": {
     "at": "2026-11-12T06:01:43.132Z",
     "status": "failed",
