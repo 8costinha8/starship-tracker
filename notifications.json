@@ -2079,6 +2079,18 @@
       "verdict": "sent",
       "gate": "hold passed (1 run)",
       "key": "S42|transport|12 Nov"
+    },
+    {
+      "title": "🏗️ Pad activity (unconfirmed)",
+      "body": "Ship 42 stacked on Booster 22 at Pad 2.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2121006374041899190",
+      "url": "https://x.com/efraser77/status/2121005568722964862",
+      "at": "2026-11-12T22:21:48.000Z",
+      "sent_at": "2026-11-12T22:31:14.269Z",
+      "where": "road",
+      "verdict": "sent",
+      "gate": "second trusted source agrees",
+      "key": "S42|pad_work|12 Nov"
     }
   ]
 }
