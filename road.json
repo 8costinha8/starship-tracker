@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "12 Nov",
-  "updatedAt": "2026-11-12T18:01:07.945Z",
+  "updatedAt": "2026-11-12T18:16:00.187Z",
   "categories": [
     {
       "id": "cryo",
@@ -3796,14 +3796,6 @@
         "post_id": "2120690698668097998"
       },
       {
-        "topic": "catch",
-        "line": "Flight 15 targeting double catch of booster and ship (NSF reports, 9 Nov).",
-        "at": "2026-11-09T20:00:59.000Z",
-        "src": "@NASASpaceflight",
-        "url": "https://x.com/NASASpaceflight/status/2119882968650953113",
-        "post_id": "2119882968650953113"
-      },
-      {
         "topic": "trajectory",
         "line": "New marine hazard area announced for Starship Flight 15 (U.S. Coast Guard, 9 Nov).",
         "at": "2026-11-09T21:37:17.000Z",
@@ -3826,6 +3818,14 @@
         "src": "@Blobifie",
         "url": "https://x.com/Blobifie/status/2120929463701787055",
         "post_id": "2120929463701787055"
+      },
+      {
+        "topic": "catch",
+        "line": "NOTAMs released covering re-entry locations and catch of Ship 42 for Flight 15 (LabPadre reports, 12 Nov).",
+        "at": "2026-11-12T18:07:24.000Z",
+        "src": "@LabPadre",
+        "url": "https://x.com/LabPadre/status/2120941544416944336",
+        "post_id": "2120941544416944336"
       }
     ]
   },
@@ -3852,6 +3852,16 @@
     }
   ],
   "feed_items": [
+    {
+      "id": "news-mwdv1ilc-0c30dd",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "A batch of NOTAMs was released ahead of Flight 15.",
+      "url": "https://x.com/LabPadre/status/2120941544416944336",
+      "at": "2026-11-12T18:07:24.000Z",
+      "date": "12 Nov",
+      "flight": 15
+    },
     {
       "id": "news-mwdtbrlk-dc662f",
       "kind": "news",
@@ -4293,19 +4303,6 @@
       "flight": 15,
       "src": "@LabPadre",
       "push_text": "Flight 15 has reportedly slipped by four days to 12 November"
-    },
-    {
-      "id": "news-mvt772o8-49339e",
-      "kind": "news",
-      "title": "🚀 Starship",
-      "body": "Ship 42 and the tiled barrel section arrived back at the production site.",
-      "url": "https://x.com/RGVaerialphotos/status/2115701286096277589",
-      "at": "2026-10-29T07:04:29.000Z",
-      "date": "29 Oct",
-      "flight": 15,
-      "box": "static",
-      "src": "@RGVaerialphotos",
-      "push_text": "Ship 42 and the tiled barrel section have arrived back at the production site"
     }
   ],
   "milestones": {
