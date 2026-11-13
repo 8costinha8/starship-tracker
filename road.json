@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "13 Nov",
-  "updatedAt": "2026-11-13T01:30:54.145Z",
+  "updatedAt": "2026-11-13T01:47:56.439Z",
   "categories": [
     {
       "id": "cryo",
@@ -2305,8 +2305,90 @@
       "name": "Pad activity",
       "color": "#A88BFF",
       "status": "progress",
-      "latest": "Ship 42 lifted onto transport stand.",
+      "latest": "SQD being connected to Ship 42 at the pad.",
       "history": [
+        {
+          "id": "x-2121053588348866651",
+          "date": "13 Nov",
+          "log_date": "13 Nov",
+          "at": "2026-11-13T01:32:37.000Z",
+          "text": "SQD being connected to Ship 42 at the pad.",
+          "x_text": "SQD being connected to Ship 42 at the pad.",
+          "push_text": "SQD connection underway on Ship 42.",
+          "card_text": "Ship 42 has SQD connected at Pad 2.",
+          "log_text": "Ship 42 has SQD connected at Pad 2.",
+          "status_line": "Ship 42 pad work underway.",
+          "url": "https://x.com/TrackingTheSB/status/2121053588348866651",
+          "src": "@TrackingTheSB",
+          "trust": "trusted",
+          "x_first": true,
+          "stage": "pad",
+          "hardware": "S42",
+          "flight": 15,
+          "x_post": {
+            "post_id": "2121053588348866651",
+            "url": "https://x.com/TrackingTheSB/status/2121053588348866651",
+            "created_at": "2026-11-13T01:32:37.000Z",
+            "text": "The SQD is being connected to Ship 42! Also, Starship Tracking has boots on the ground! Follow Our Journey: https://t.co/UqJI1NQiUk #Tracking ⁠#Starship #Starbase #SpaceX",
+            "author": {
+              "name": "StarshipTracking",
+              "username": "TrackingTheSB",
+              "avatar": "https://pbs.twimg.com/profile_images/2080475841004220416/c5TV2gnX_normal.jpg"
+            },
+            "media": [
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HW98TimawAAHxe_.jpg"
+              }
+            ],
+            "link": {
+              "url": "https://starship-tracking.com/",
+              "title": "Starship Tracking",
+              "description": "Starship Tracking follows SpaceX Starship activity across LC-39A, Starbase Texas, and Starbase Louisiana.",
+              "image": "https://pbs.twimg.com/news_img/2119953125188739072/rG-rp5wi?format=jpg&name=orig"
+            }
+          },
+          "x_posts": [
+            "2121053588348866651"
+          ],
+          "xChecked": true,
+          "imageChecked2": true,
+          "media_override": {
+            "post_url": "https://x.com/TrackingTheSB/status/2121053588348866651",
+            "post_id": "2121053588348866651",
+            "author": "TrackingTheSB",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HW98TimawAAHxe_.jpg"
+          },
+          "tier": 2,
+          "milestone": {
+            "key": "pad_work|15|S42",
+            "type": "pad_work",
+            "flight": 15,
+            "hardware": "S42",
+            "phase": "progress"
+          },
+          "push": {
+            "title": "🏗️ Pad activity · Flight 15",
+            "url": "https://x.com/TrackingTheSB/status/2121053588348866651",
+            "at": "2026-11-13T01:32:37.000Z"
+          },
+          "frameChecked": true,
+          "photo_alternatives": [
+            {
+              "image": "https://pbs.twimg.com/media/HW83-XfXIAEEqIh.jpg",
+              "type": "photo",
+              "post_url": "https://x.com/SpaceflightNow/status/2120975507676336473",
+              "author": "SpaceflightNow"
+            },
+            {
+              "image": "https://pbs.twimg.com/amplify_video_thumb/2120998018455384064/img/JkGh-bmmgYX0nH7b.jpg",
+              "type": "video",
+              "post_url": "https://x.com/SpaceflightNow/status/2120975507676336473",
+              "author": "SpaceflightNow"
+            }
+          ]
+        },
         {
           "id": "status-pad-progress-2121050758389154027",
           "kind": "status",
@@ -2618,6 +2700,12 @@
           "text_locked": true,
           "photo_alternatives": [
             {
+              "image": "https://pbs.twimg.com/media/HW83-XfXIAEEqIh.jpg",
+              "type": "photo",
+              "post_url": "https://x.com/SpaceflightNow/status/2120975507676336473",
+              "author": "SpaceflightNow"
+            },
+            {
               "image": "https://pbs.twimg.com/amplify_video_thumb/2120998018455384064/img/JkGh-bmmgYX0nH7b.jpg",
               "type": "video",
               "post_url": "https://x.com/SpaceflightNow/status/2120975507676336473",
@@ -2717,7 +2805,15 @@
               "tier": 2,
               "self_check": "from feed news-mwcrunp4-73e961"
             }
-          ]
+          ],
+          "alt_media": {
+            "post_url": "https://x.com/LabPadre/status/2120969888105976259",
+            "post_id": "2120969888105976259",
+            "author": "LabPadre",
+            "type": "video",
+            "image": "https://pbs.twimg.com/amplify_video_thumb/2120969801539444737/img/jubsleUINWocErFL.jpg",
+            "show": false
+          }
         },
         {
           "id": "x-2120268988621971885",
@@ -3348,141 +3444,6 @@
           "edited": true
         },
         {
-          "id": "x-2118553539345883303",
-          "date": "6 Nov",
-          "log_date": "6 Nov",
-          "at": "2026-11-06T03:58:19.000Z",
-          "text": "Starbase tower completed a deluge system test.",
-          "x_text": "Starbase tower completed a deluge system test.",
-          "push_text": "Starbase tower completed a deluge system test.",
-          "card_text": "Starbase tower completed a deluge system test.",
-          "log_text": "Starbase tower completed a deluge system test.",
-          "status_line": "Starbase tower deluge test done.",
-          "url": "https://x.com/efraser77/status/2118553539345883303",
-          "src": "@efraser77",
-          "trust": "trusted",
-          "x_first": true,
-          "stage": "pad",
-          "hardware": "Starbase",
-          "flight": 15,
-          "x_post": {
-            "post_id": "2118553539345883303",
-            "url": "https://x.com/efraser77/status/2118553539345883303",
-            "created_at": "2026-11-06T03:58:19.000Z",
-            "text": "More deluges! This time it was a reverse of yesterday. The tower at LC-39a in Florida got the double test, Starbase just got one, but it was pretty in the evening light :) 🎥: https://t.co/U5mmqMAp4x / https://t.co/MzeTxmvuth @NASASpaceflight",
-            "author": {
-              "name": "Erik Fraser",
-              "username": "efraser77",
-              "avatar": "https://pbs.twimg.com/profile_images/1480766056163516418/kpdQxuPR_normal.jpg"
-            },
-            "media": [
-              {
-                "type": "video",
-                "poster": "https://pbs.twimg.com/amplify_video_thumb/2118553103364743168/img/6_7b41bKYn_grAjt.jpg",
-                "video_url": "https://video.twimg.com/amplify_video/2118553103364743168/vid/avc1/1280x720/lPVqfhwWv1kQxECR.mp4?tag=14"
-              }
-            ],
-            "link": {
-              "url": "https://www.youtube.com/watch?v=mhJRzQsLZGg",
-              "title": "Starbase Live: 24/7 Starship & Super Heavy Development From SpaceX's Boca Chica Facility",
-              "description": "Starship is SpaceX's fully reusable launch system which is being de...",
-              "image": "https://pbs.twimg.com/news_img/2116900323457445888/1bnZChkM?format=jpg&name=orig"
-            }
-          },
-          "x_posts": [
-            "2118553539345883303"
-          ],
-          "xChecked": true,
-          "imageChecked2": true,
-          "media_override": {
-            "post_url": "https://x.com/efraser77/status/2118553539345883303",
-            "post_id": "2118553539345883303",
-            "author": "efraser77",
-            "type": "video",
-            "image": "https://pbs.twimg.com/amplify_video_thumb/2118553103364743168/img/6_7b41bKYn_grAjt.jpg",
-            "video_url": "https://video.twimg.com/amplify_video/2118553103364743168/vid/avc1/1280x720/lPVqfhwWv1kQxECR.mp4?tag=14"
-          },
-          "tier": 2,
-          "milestone": {
-            "key": "pad_work|15|STARBASE",
-            "type": "pad_work",
-            "flight": 15,
-            "hardware": "STARBASE",
-            "phase": "completed"
-          },
-          "complete": true,
-          "push": {
-            "title": "🏗️ Pad activity: Complete",
-            "url": "https://x.com/efraser77/status/2118553539345883303",
-            "at": "2026-11-06T03:58:19.000Z"
-          },
-          "frameChecked": true
-        },
-        {
-          "id": "x-2117381830253101176",
-          "date": "2 Nov",
-          "log_date": "2 Nov",
-          "at": "2026-11-02T22:22:22.000Z",
-          "text": "OLM painted dark grey at the launch mount.",
-          "x_text": "OLM painted dark grey at the launch mount.",
-          "push_text": "OLM at Pad 2 painted dark grey.",
-          "card_text": "Pad 2 launch mount painted dark grey.",
-          "log_text": "Pad 2 launch mount painted dark grey.",
-          "status_line": "Pad 2 OLM maintenance completed.",
-          "url": "https://x.com/Blobifie/status/2117381830253101176",
-          "src": "@Blobifie",
-          "trust": "unconfirmed",
-          "x_first": true,
-          "stage": "pad",
-          "hardware": "Pad 2",
-          "flight": 15,
-          "x_post": {
-            "post_id": "2117381830253101176",
-            "url": "https://x.com/Blobifie/status/2117381830253101176",
-            "created_at": "2026-11-02T22:22:22.000Z",
-            "text": "The OLM has been painted a dark grey https://t.co/RKcWwDozgG",
-            "author": {
-              "name": "Blobifi",
-              "username": "Blobifie",
-              "avatar": "https://pbs.twimg.com/profile_images/2091766013562159104/xgHLFjBX_normal.jpg"
-            },
-            "media": [
-              {
-                "type": "photo",
-                "url": "https://pbs.twimg.com/media/HWJzfqOaIAAv24s.jpg"
-              }
-            ]
-          },
-          "x_posts": [
-            "2117381830253101176"
-          ],
-          "xChecked": true,
-          "imageChecked2": true,
-          "media_override": {
-            "post_url": "https://x.com/Blobifie/status/2117381830253101176",
-            "post_id": "2117381830253101176",
-            "author": "Blobifie",
-            "type": "photo",
-            "image": "https://pbs.twimg.com/media/HWJzfqOaIAAv24s.jpg",
-            "crop": "top"
-          },
-          "tier": 2,
-          "milestone": {
-            "key": "pad_work|15|PAD2",
-            "type": "pad_work",
-            "flight": 15,
-            "hardware": "PAD2",
-            "phase": "completed"
-          },
-          "complete": true,
-          "push": {
-            "title": "🏗️ Pad activity (unconfirmed)",
-            "url": "https://x.com/Blobifie/status/2117381830253101176",
-            "at": "2026-11-02T22:22:22.000Z"
-          },
-          "frameChecked": true
-        },
-        {
           "id": "f16-s43-2115315741709001123",
           "date": "28 Oct",
           "at": "2026-10-28T05:32:28.000Z",
@@ -3901,7 +3862,7 @@
           "journey_context": "engine prep (1 Nov: not a Raptor milestone)"
         }
       ],
-      "log_latest": "Ship 42 moved to transport stand."
+      "log_latest": "Ship 42 pad work underway."
     },
     {
       "id": "faa",
@@ -4186,7 +4147,8 @@
       "url": "https://x.com/TrackingTheSB/status/2121050758389154027",
       "at": "2026-11-13T01:21:22.000Z",
       "date": "13 Nov",
-      "flight": 15
+      "flight": 15,
+      "box": "pad"
     },
     {
       "id": "news-mwe9iewo-e9b8c0",
@@ -5008,7 +4970,7 @@
         "x-2120998082779418716"
       ],
       "likely": null,
-      "at": "2026-11-13T01:21:22.000Z",
+      "at": "2026-11-13T01:32:37.000Z",
       "counted": [
         "https://x.com/LabPadre/status/2095620292823462214",
         "https://x.com/LabPadre/status/2108486994401825101",
