@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "13 Nov",
-  "updatedAt": "2026-11-13T21:16:12.156Z",
+  "updatedAt": "2026-11-13T21:45:47.164Z",
   "categories": [
     {
       "id": "cryo",
@@ -4271,6 +4271,15 @@
   ],
   "feed_items": [
     {
+      "id": "flight-mwfi9kn7-95ee39",
+      "kind": "flight",
+      "title": "📡 Livestream ready",
+      "body": "Liftoff in 60 min - tap to watch",
+      "at": "2026-11-13T21:45:17.251Z",
+      "date": "13 Nov",
+      "flight": 15
+    },
+    {
       "id": "flight-mwfdg7kn-8cd844",
       "kind": "flight",
       "title": "✅ Launch time confirmed",
@@ -4704,17 +4713,6 @@
       "at": "2026-11-04T21:56:31.000Z",
       "date": "4 Nov",
       "flight": 15
-    },
-    {
-      "id": "news-mw1caeo0-1457b7",
-      "kind": "news",
-      "title": "🚀 Starship",
-      "body": "Third of four tower cranes at Starbase Gigabay has boom removed.",
-      "url": "https://x.com/efraser77/status/2117766071575089429",
-      "at": "2026-11-03T23:49:12.000Z",
-      "date": "3 Nov",
-      "flight": 15,
-      "src": "@efraser77"
     }
   ],
   "milestones": {
