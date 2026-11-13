@@ -2451,6 +2451,18 @@
       "verdict": "silent: minor other — a push went out 0.0h ago (quiet window 24h)",
       "gate": "official source",
       "key": "starship|other|13 Nov"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "Ship 42 heat shield inspected while passing over storm (Blobifie reports, 13 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/Blobifie/status/2121385033495990695",
+      "at": "2026-11-13T23:29:40.000Z",
+      "sent_at": "2026-11-13T23:31:31.470Z",
+      "where": "mission",
+      "verdict": "silent: duplicate S42|other|13 Nov",
+      "gate": "second trusted source agrees",
+      "key": "S42|other|13 Nov"
     }
   ]
 }
