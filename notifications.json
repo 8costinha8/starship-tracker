@@ -2355,6 +2355,18 @@
       "verdict": "silent: duplicate F15|other|13 Nov",
       "gate": "second trusted source agrees",
       "key": "F15|other|13 Nov"
+    },
+    {
+      "title": "📡 Livestream ready",
+      "body": "Liftoff in 60 min - tap to watch",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=flight-mwfivx1x-95ee39",
+      "url": "",
+      "at": "2026-11-13T22:02:39.765Z",
+      "sent_at": "2026-11-13T22:02:44.219Z",
+      "where": "feed",
+      "verdict": "silent: duplicate starship|livestream|13 Nov",
+      "gate": "not an X tracker post",
+      "key": "starship|livestream|13 Nov"
     }
   ]
 }
