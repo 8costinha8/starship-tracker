@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "13 Nov",
-  "updatedAt": "2026-11-13T23:31:30.165Z",
+  "updatedAt": "2026-11-13T23:46:40.270Z",
   "categories": [
     {
       "id": "cryo",
@@ -4221,27 +4221,27 @@
       },
       {
         "topic": "trajectory",
-        "line": "Starship on suborbital trajectory, systems check for orbit (SpaceX, 13 Nov).",
-        "at": "2026-11-13T22:57:02.000Z",
-        "src": "@SpaceX",
-        "url": "https://x.com/SpaceX/status/2121376821635936710",
-        "post_id": "2121376821635936710"
-      },
-      {
-        "topic": "trajectory",
-        "line": "SpaceX polled go for Ship 42 orbital insertion burn (Spaceflight Now, 13 Nov).",
-        "at": "2026-11-13T23:11:37.000Z",
-        "src": "@SpaceflightNow",
-        "url": "https://x.com/SpaceflightNow/status/2121380494097133961",
-        "post_id": "2121380494097133961"
-      },
-      {
-        "topic": "trajectory",
         "line": "Starship to perform burn for 275 km orbit insertion (SpaceX, 13 Nov).",
         "at": "2026-11-13T23:11:46.000Z",
         "src": "@SpaceX",
         "url": "https://x.com/SpaceX/status/2121380531640369470",
         "post_id": "2121380531640369470"
+      },
+      {
+        "topic": "payload",
+        "line": "Ship 42 payload door open for deployment (Blobifie reports, 13 Nov).",
+        "at": "2026-11-13T23:22:25.000Z",
+        "src": "@Blobifie",
+        "url": "https://x.com/Blobifie/status/2121383209497944233",
+        "post_id": "2121383209497944233"
+      },
+      {
+        "topic": "payload",
+        "line": "Ship 42 payload bay door opened and deployment started (LabPadre reports, 13 Nov).",
+        "at": "2026-11-13T23:23:17.000Z",
+        "src": "@LabPadre",
+        "url": "https://x.com/LabPadre/status/2121383427727364351",
+        "post_id": "2121383427727364351"
       },
       {
         "topic": "other",
