@@ -9,8 +9,8 @@ const live = JSON.parse(fs.readFileSync(path.join(ROOT, "road.json"), "utf8"));
 const F = require("./flightlog.js");
 let fails = 0; const check = (ok, m) => { console.log((ok ? "✅ " : "❌ ") + m); if (!ok) fails++; };
 
-const EXPECTED = "Flight 15 is Starship's next flight, expected NET {NET}. It's aiming for the first double catch — both the ship and booster returning to the launch site towers. The main unknown is whether the heat shield and flip maneuver hold up under reentry at that scale. Beyond that, it's a straightforward step up from Flight 14's profile.";
-const FILLED = "Flight 15 is Starship's next flight, expected NET 13 November. It's aiming for the first double catch — both the ship and booster returning to the launch site towers. The main unknown is whether the heat shield and flip maneuver hold up under reentry at that scale. Beyond that, it's a straightforward step up from Flight 14's profile.";
+const EXPECTED = "Flight 15 is Starship's next flight, expected NET {NET}. It's aiming for the first double catch, with both the ship and booster returning to the launch site towers. Catching both stages of a rocket this size has never been done before.";
+const FILLED = "Flight 15 is Starship's next flight, expected NET 13 November. It's aiming for the first double catch, with both the ship and booster returning to the launch site towers. Catching both stages of a rocket this size has never been done before.";
 
 const start = app.indexOf("// --- mission-card helpers");
 const end = app.indexOf("// --- end mission-card helpers ---");
