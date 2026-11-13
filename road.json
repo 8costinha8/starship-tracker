@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "13 Nov",
-  "updatedAt": "2026-11-13T14:31:12.743Z",
+  "updatedAt": "2026-11-13T14:45:53.990Z",
   "categories": [
     {
       "id": "cryo",
@@ -4128,14 +4128,6 @@
         "post_id": "2120690698668097998"
       },
       {
-        "topic": "catch",
-        "line": "Starship Flight 15 set for double-catch attempt (NASASpaceflight, 10 Nov).",
-        "at": "2026-11-10T11:27:46.000Z",
-        "src": "@NASASpaceflight",
-        "url": "https://x.com/NASASpaceflight/status/2120116199053017535",
-        "post_id": "2120116199053017535"
-      },
-      {
         "topic": "payload",
         "line": "Ship 42 has 26 Starlinks installed (Blobifie reports, 12 Nov).",
         "at": "2026-11-12T17:19:23.000Z",
@@ -4158,6 +4150,14 @@
         "src": "@NASASpaceflight",
         "url": "https://x.com/NASASpaceflight/status/2121098593297699100",
         "post_id": "2121098593297699100"
+      },
+      {
+        "topic": "other",
+        "line": "Ship 42 is preparing for launch (Elon Musk, 13 Nov).",
+        "at": "2026-11-13T14:33:54.000Z",
+        "src": "@elonmusk",
+        "url": "https://x.com/elonmusk/status/2121250205806772283",
+        "post_id": "2121250205806772283"
       }
     ]
   },
