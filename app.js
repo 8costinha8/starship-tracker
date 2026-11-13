@@ -975,7 +975,7 @@ function FlightCard({ f, open, onTap, onPhotoTap, register, road }) {
                       <span className="past-veh">{e.vehicle}</span>
                       <span className="past-pill">{e.label}</span>
                     </div>
-                    <p>{String(e.text || "").split("\n").map((line, li) => (<React.Fragment key={li}>{li > 0 && <br />}{scrub(line)}</React.Fragment>))}</p>
+                    <p>{String(e.text || "").split("\n").map((line, li) => (<React.Fragment key={li}>{li > 0 && <br />}<span className="past-line">{scrub(line)}</span></React.Fragment>))}</p>
                   </div>
                 ))}
               </div>
@@ -2823,11 +2823,12 @@ a.watch-badge-live:active { transform: scale(.96); }
 .past-wrap { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .45s cubic-bezier(.2,.8,.2,1); }
 .past-wrap.open { grid-template-rows: 1fr; }
 .past-wrap-inner { overflow: hidden; min-height: 0; }
-.past-sum { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 0 14px; }
-.past-box { background: #1A2338; border: 1px solid rgba(170,190,245,.12); border-radius: 12px; padding: 8px 10px 9px; min-width: 0; }
+.past-sum { display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: 1fr; gap: 8px; margin: 0 0 14px; }
+.past-box { background: #1A2338; border: 1px solid rgba(170,190,245,.12); border-radius: 12px; padding: 8px 10px 9px; min-width: 0; height: 100%; box-sizing: border-box; }
 .past-box-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 4px 6px; }
 .past-veh { font-size: 11.5px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .past-box p { margin: 5px 0 0; font-size: 12px; line-height: 1.38; color: #C9D2E6; }
+.past-box[data-id="pad"] .past-line, .past-box[data-id="faa"] .past-line { display: inline-block; max-width: 100%; white-space: nowrap; }
 .past-pill { font-size: 9.5px; font-weight: 700; letter-spacing: .02em; padding: 2px 7px; border-radius: 999px; white-space: nowrap;
   color: var(--t, var(--c)); background: var(--bg, color-mix(in srgb, var(--c) 14%, transparent)); border: 1px solid color-mix(in srgb, var(--c) 38%, transparent); }
 .past-box[data-id="raptor"] .past-pill { color: #F2F4F8; background: rgba(14,15,17,.35); border: 1.5px solid #0E0F11; box-shadow: 0 0 0 1px rgba(255,255,255,.35); } /* same as .chip.chip-raptor: readable label on the near-black fill */
