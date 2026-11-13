@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "13 Nov",
-  "updatedAt": "2026-11-13T09:46:07.473Z",
+  "updatedAt": "2026-11-13T11:01:32.357Z",
   "categories": [
     {
       "id": "cryo",
@@ -4177,6 +4177,16 @@
   ],
   "feed_items": [
     {
+      "id": "news-mweuujoo-85363c",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Starship Flight 15 was twelve hours from launch as the FAA had not issued a licence.",
+      "url": "https://x.com/Blobifie/status/2121193796138676522",
+      "at": "2026-11-13T10:49:45.000Z",
+      "date": "13 Nov",
+      "flight": 15
+    },
+    {
       "id": "news-mwehc1so-0b6a15",
       "kind": "news",
       "title": "🚀 Starship",
@@ -4612,18 +4622,6 @@
       "at": "2026-11-01T21:41:10.000Z",
       "date": "1 Nov",
       "flight": 15
-    },
-    {
-      "id": "news-mvy7to1c-c7241c",
-      "kind": "news",
-      "title": "🚀 Starship",
-      "body": "Ship 45 completed its methane tank and started its liquid oxygen tank.",
-      "url": "https://x.com/TrackingTheSB/status/2116973778219749564",
-      "at": "2026-11-01T19:20:54.000Z",
-      "date": "1 Nov",
-      "flight": 18,
-      "later_flight": true,
-      "src": "@TrackingTheSB"
     }
   ],
   "milestones": {
