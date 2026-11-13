@@ -3935,18 +3935,18 @@
       "name": "FAA licence",
       "color": "#2FD3B0",
       "status": "complete",
-      "latest": "Confirmed",
+      "latest": "FAA approval has arrived for Starship Flight 15.",
       "history": [
         {
           "id": "x-2121317448477728883",
           "date": "13 Nov",
           "log_date": "13 Nov",
           "at": "2026-11-13T19:01:06.000Z",
-          "text": "FAA approval for Starship Flight 15 arrived.",
-          "x_text": "FAA approval for Starship Flight 15 arrived.",
-          "push_text": "FAA approval for Starship Flight 15 arrived.",
-          "card_text": "FAA approval for Starship Flight 15 arrived.",
-          "log_text": "FAA approval for Starship Flight 15 arrived.",
+          "text": "FAA approval has arrived for Starship Flight 15.",
+          "x_text": "FAA approval has arrived for Starship Flight 15.",
+          "push_text": "FAA approval has arrived for Starship Flight 15.",
+          "card_text": "FAA approval has arrived for Starship Flight 15.",
+          "log_text": "FAA approval has arrived for Starship Flight 15.",
           "status_line": "Flight 15 licence granted.",
           "url": "https://x.com/NASASpaceflight/status/2121317448477728883",
           "src": "@NASASpaceflight",
@@ -3959,7 +3959,7 @@
             "post_id": "2121317448477728883",
             "url": "https://x.com/NASASpaceflight/status/2121317448477728883",
             "created_at": "2026-11-13T19:01:06.000Z",
-            "text": "Starship Flight 15: FAA approval has arrived. Document: https://t.co/OmDSROfBhN Live: https://t.co/X8GB5wmir9",
+            "text": "Starship Flight 15: FAA approval has arrived.\n\nDocument: https://t.co/OmDSROfBhN\n\nLive: https://t.co/X8GB5wmir9 https://t.co/tpyHBHpH2k",
             "author": {
               "name": "NSF - NASASpaceflight.com",
               "username": "NASASpaceflight",
@@ -4003,7 +4003,9 @@
             "url": "https://x.com/NASASpaceflight/status/2121317448477728883",
             "at": "2026-11-13T19:01:06.000Z"
           },
-          "frameChecked": true
+          "frameChecked": true,
+          "edited_from": "FAA approval for Starship Flight 15 arrived.",
+          "edited": true
         },
         {
           "date": "26 Sep",
