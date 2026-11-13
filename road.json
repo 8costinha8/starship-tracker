@@ -2250,19 +2250,19 @@
       "name": "Pad activity",
       "color": "#A88BFF",
       "status": "progress",
-      "latest": "Pad 2 chopsticks opening ahead of Flight 15 launch.",
+      "latest": "Pad 2 chopsticks opening for launch and catch.",
       "history": [
         {
           "id": "x-2121314305836810700",
           "date": "13 Nov",
           "log_date": "13 Nov",
           "at": "2026-11-13T18:48:37.000Z",
-          "text": "Pad 2 chopsticks opening ahead of Flight 15 launch.",
-          "x_text": "Pad 2 chopsticks opening ahead of Flight 15 launch.",
+          "text": "Pad 2 chopsticks opening for launch and catch.",
+          "x_text": "Pad 2 chopsticks opening for launch and catch.",
           "push_text": "Pad 2 chopsticks opening for launch and catch.",
-          "card_text": "Pad 2 chopsticks opening ahead of launch and catch.",
-          "log_text": "Pad 2 chopsticks opening ahead of launch and catch.",
-          "status_line": "Pad 2 preparing for Flight 15.",
+          "card_text": "Pad 2 chopsticks opening for launch and catch.",
+          "log_text": "Pad 2 chopsticks opening for launch and catch.",
+          "status_line": "Pad 2 active for Flight 15 launch.",
           "url": "https://x.com/RGVaerialphotos/status/2121314305836810700",
           "src": "@RGVaerialphotos",
           "trust": "trusted",
@@ -2274,7 +2274,7 @@
             "post_id": "2121314305836810700",
             "url": "https://x.com/RGVaerialphotos/status/2121314305836810700",
             "created_at": "2026-11-13T18:48:37.000Z",
-            "text": "T-4 hours, Pad 2's chopsticks are opening ahead of launch and catch(es)",
+            "text": "T-4 hours, Pad 2's chopsticks are opening ahead of launch and catch(es) https://t.co/5hH5caavDB",
             "author": {
               "name": "RGV Aerial Photography",
               "username": "RGVaerialphotos",
@@ -2305,7 +2305,9 @@
             "url": "https://x.com/RGVaerialphotos/status/2121314305836810700",
             "at": "2026-11-13T18:48:37.000Z"
           },
-          "frameChecked": true
+          "frameChecked": true,
+          "edited_from": "Pad 2 chopsticks opening ahead of Flight 15 launch.",
+          "edited": true
         },
         {
           "id": "x-2118577080837574862",
