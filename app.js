@@ -2358,6 +2358,9 @@ function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap, peekOpe
   const curItems = React.useMemo(() => roadCatItems(road, { heroNet, netPending }), [road, heroNet, netPending]);
   const peekItems = React.useMemo(() => peekCatItems(peekRoad), [peekRoad]);
   const [curOpen, setCurOpen] = React.useState(true); // current flight starts open (same as the previous always-visible feed)
+  const [deckReady, setDeckReady] = React.useState(false); // skip the open morph on first paint
+  React.useEffect(() => { const id = requestAnimationFrame(() => setDeckReady(true)); return () => cancelAnimationFrame(id); }, []);
+  const deckClass = (open) => "deck-wrap" + (open ? " open" : "") + (reduceMotion() ? " deck-no-motion" : deckReady ? " deck-animate" : "");
   const curPosts = [], rest = [];
   let mode = "before";
   for (const r of rows) {
@@ -2386,7 +2389,7 @@ function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap, peekOpe
               <RoadFlightPill flight={road.flight} items={curItems} action="Next" open={curOpen} onClick={() => setCurOpen((v) => !v)} />
             </div>
           )}
-          <div className={"deck-wrap" + (curOpen ? " open" : "")} aria-hidden={!curOpen}>
+          <div className={deckClass(curOpen)} aria-hidden={!curOpen}>
             <div className="deck-inner">
               {curPosts.map(renderRow)}
             </div>
@@ -2396,7 +2399,7 @@ function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap, peekOpe
             <>
               <p className="rtf-above"><span className="rtf-above-dots" aria-hidden="true"><i /><i /><i /><i /></span>{`All Flight ${road.flight} updates above`}</p>
               <RoadFlightPill flight={peekN} items={peekItems} action={peekOpen ? "Hide" : "Open"} shortCount open={peekOpen} onClick={onTogglePeek} />
-              <div className={"deck-wrap" + (peekOpen ? " open" : "")} id="rtf-peek" aria-hidden={!peekOpen}>
+              <div className={deckClass(peekOpen)} id="rtf-peek" aria-hidden={!peekOpen}>
                 <div className="deck-inner deck-peek">
                   {peekCards.length
                     ? <div className="rtf-peek-cards">{peekCards.map((c) => <ErrorBoundary key={c.id} where={"feed:" + c.id}><FeedPost p={c} onPhotoTap={onPhotoTap} idx={idx} st={null} /></ErrorBoundary>)}</div>
@@ -3149,8 +3152,36 @@ button.feed-pill:active { border-color: rgba(170,190,245,.3); }
 .rtf-above-dots i { width: 5px; height: 5px; border-radius: 50%; background: rgba(170,190,245,.32); display: block; }
 .deck-wrap { display: grid; grid-template-rows: 0fr; }
 .deck-wrap.open { grid-template-rows: 1fr; }
+.deck-wrap.deck-animate { transition: grid-template-rows 300ms ease, opacity 300ms ease; }
+.deck-wrap.deck-animate:not(.open) { opacity: 0; pointer-events: none; }
+.deck-wrap.deck-no-motion { transition: none; }
 .deck-inner { min-height: 0; overflow: hidden; }
 .deck-peek { padding-top: 12px; padding-bottom: 8px; }
+/* Cards fan in on open (transform/opacity only). Total span stays inside 250–350ms. */
+.deck-wrap.deck-animate.open .deck-inner > .post,
+.deck-wrap.deck-animate.open .rtf-peek-cards .post,
+.deck-wrap.deck-animate.open .rtf-soon {
+  animation: deck-fan 200ms ease both;
+}
+.deck-wrap.deck-animate.open .deck-inner > .post:nth-child(1),
+.deck-wrap.deck-animate.open .rtf-peek-cards .post:nth-child(1) { animation-delay: 20ms; }
+.deck-wrap.deck-animate.open .deck-inner > .post:nth-child(2),
+.deck-wrap.deck-animate.open .rtf-peek-cards .post:nth-child(2) { animation-delay: 50ms; }
+.deck-wrap.deck-animate.open .deck-inner > .post:nth-child(3),
+.deck-wrap.deck-animate.open .rtf-peek-cards .post:nth-child(3) { animation-delay: 80ms; }
+.deck-wrap.deck-animate.open .deck-inner > .post:nth-child(4),
+.deck-wrap.deck-animate.open .rtf-peek-cards .post:nth-child(4) { animation-delay: 110ms; }
+.deck-wrap.deck-animate.open .deck-inner > .post:nth-child(5),
+.deck-wrap.deck-animate.open .rtf-peek-cards .post:nth-child(5) { animation-delay: 140ms; }
+.deck-wrap.deck-animate.open .deck-inner > .post:nth-child(n+6),
+.deck-wrap.deck-animate.open .rtf-peek-cards .post:nth-child(n+6) { animation-delay: 150ms; }
+@keyframes deck-fan {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: none; }
+}
+.deck-wrap.deck-no-motion .deck-inner > .post,
+.deck-wrap.deck-no-motion .rtf-peek-cards .post,
+.deck-wrap.deck-no-motion .rtf-soon { animation: none; }
 .rtf-teaser {
   display: flex; align-items: center; justify-content: center; gap: 6px;
   width: 100%; min-height: 44px; margin: 12px 0 0; padding: 10px 8px;
@@ -3159,7 +3190,7 @@ button.feed-pill:active { border-color: rgba(170,190,245,.3); }
   text-align: center; line-height: 1.35;
 }
 .rtf-teaser:active { color: color-mix(in srgb, var(--faint) 90%, #fff); }
-.rtf-chevron { flex: none; transition: transform 200ms ease-out; }
+.rtf-chevron { flex: none; transition: transform 300ms ease; }
 .rtf-chevron.open { transform: rotate(180deg); }
 .rtf-peek-wrap {
   display: grid; grid-template-rows: 0fr; opacity: 0;
