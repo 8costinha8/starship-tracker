@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "13 Nov",
-  "updatedAt": "2026-11-13T21:45:47.164Z",
+  "updatedAt": "2026-11-13T22:01:26.167Z",
   "categories": [
     {
       "id": "cryo",
@@ -4214,36 +4214,36 @@
         "post_id": "2120690698668097998"
       },
       {
-        "topic": "landing",
-        "line": "SpaceX launches Starship Flight 15 with booster catch (NASASpaceflight, 13 Nov).",
-        "at": "2026-11-13T17:01:13.000Z",
+        "topic": "other",
+        "line": "Starship Flight 15 is at T-60 minutes with all systems on track (NASASpaceflight, 13 Nov).",
+        "at": "2026-11-13T21:45:19.000Z",
         "src": "@NASASpaceflight",
-        "url": "https://x.com/NASASpaceflight/status/2121287277666029828",
-        "post_id": "2121287277666029828"
+        "url": "https://x.com/NASASpaceflight/status/2121358776167182520",
+        "post_id": "2121358776167182520"
       },
       {
-        "topic": "catch",
-        "line": "SpaceX plans first catch of both booster and ship on Flight 15 with off-ramps if needed (Spaceflight Now, 13 Nov).",
-        "at": "2026-11-13T17:22:03.000Z",
-        "src": "@SpaceflightNow",
-        "url": "https://x.com/SpaceflightNow/status/2121292523503030697",
-        "post_id": "2121292523503030697"
+        "topic": "other",
+        "line": "Teams will begin loading Starship with 12 million pounds of propellant (SpaceX, 13 Nov).",
+        "at": "2026-11-13T21:52:34.000Z",
+        "src": "@SpaceX",
+        "url": "https://x.com/SpaceX/status/2121360601377374680",
+        "post_id": "2121360601377374680"
       },
       {
-        "topic": "licence",
-        "line": "No official FAA word yet on Flight 15 licence (NASASpaceflight, 13 Nov).",
-        "at": "2026-11-13T18:03:41.000Z",
-        "src": "@NASASpaceflight",
-        "url": "https://x.com/NASASpaceflight/status/2121302998219641167",
-        "post_id": "2121302998219641167"
+        "topic": "other",
+        "line": "SpaceX has polled GO for propellant load ahead of Flight 15 (TrackingTheSB, 13 Nov).",
+        "at": "2026-11-13T21:53:30.000Z",
+        "src": "@TrackingTheSB",
+        "url": "https://x.com/TrackingTheSB/status/2121360835536715797",
+        "post_id": "2121360835536715797"
       },
       {
-        "topic": "licence",
-        "line": "FAA approval has arrived for Starship Flight 15 (NASASpaceflight, 13 Nov).",
-        "at": "2026-11-13T19:00:16.000Z",
-        "src": "@NASASpaceflight",
-        "url": "https://x.com/NASASpaceflight/status/2121317239580512295",
-        "post_id": "2121317239580512295"
+        "topic": "other",
+        "line": "Starship is go for propellant load ahead of Flight 15 (RGVaerialphotos, 13 Nov).",
+        "at": "2026-11-13T21:54:36.000Z",
+        "src": "@Blobifie",
+        "url": "https://x.com/Blobifie/status/2121361113069801544",
+        "post_id": "2121361113069801544"
       }
     ]
   },
@@ -4270,6 +4270,15 @@
     }
   ],
   "feed_items": [
+    {
+      "id": "flight-mwfit5i8-ba5006",
+      "kind": "flight",
+      "title": "🚧 Launch delayed",
+      "body": "Now 13 Nov 22:47",
+      "at": "2026-11-13T22:00:30.752Z",
+      "date": "13 Nov",
+      "flight": 15
+    },
     {
       "id": "flight-mwfi9kn7-95ee39",
       "kind": "flight",
@@ -4703,16 +4712,6 @@
       "date": "5 Nov",
       "flight": 15,
       "src": "@efraser77"
-    },
-    {
-      "id": "news-mw2npcig-f44b5b",
-      "kind": "news",
-      "title": "🚀 Starship",
-      "body": "Flight 15 may see both booster and ship caught at base.",
-      "url": "https://www.youtube.com/watch?v=8Dsld-4HrXY",
-      "at": "2026-11-04T21:56:31.000Z",
-      "date": "4 Nov",
-      "flight": 15
     }
   ],
   "milestones": {
