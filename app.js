@@ -238,6 +238,16 @@ const LIST_EVERY_MS = 60 * 60 * 1000;
 const LL2_HOURLY_BUDGET = 14;
 const LL2_LOG_KEY = "starship-ll2-calls-v1";
 const RETRY_AFTER_FAIL_MS = 2 * 60 * 1000;
+// 13 Nov (herofallback): a throttled LL2 (HTTP 429) says when it frees up ("Expected available in N seconds" / Retry-After).
+// Every tab waits until then (persisted, so reloads don't keep re-asking and extending the throttle), capped at 30 min; a 429 with
+// no hint waits 10 min. Other failures keep the 2-minute retry above.
+const LL2_BACKOFF_KEY = "starship-ll2-backoff-v1";
+const THROTTLE_DEFAULT_MS = 10 * 60 * 1000, THROTTLE_MAX_MS = 30 * 60 * 1000;
+// Last good Launch Library answer per flight ({ [n]: { n, url, data, at } }), never overwritten by a failure or a placeholder.
+// Used when LL2 fails and there's no usable cache: for the same upcoming flight (not logged / finished) and at most 48h old.
+// 48h covers an overnight scrub and a 24h recycle; anything older falls back to road.json's own NET, which the checker keeps current.
+const LL2_GOOD_KEY = "starship-ll2-lastgood-v1";
+const LAST_GOOD_MAX_MS = 48 * 60 * 60 * 1000;
 
 // Newest flight already in the log above (FLIGHTS). Once a flight is in the
 // log, the top card moves on to the next one — no manual edit needed.
@@ -448,7 +458,11 @@ function ll2Json(url) {
   if (mock === "sim") return fetch(`sim/${new URLSearchParams(window.location.search).get("ll2") || SIM}/ll2.json`).then((r) => r.json()).then((j) => url === LL2_ENDPOINT ? j : j.results.find((l) => l.url === url));
   if (mock === "launchday") return Promise.resolve(ldLL2(url));
   if (mock === "next" || mock === "none") return Promise.resolve(mockLL2(url));
-  return fetch(url).then((r) => r.json());
+  return fetch(url).then((r) => r.json().catch(() => null).then((j) => {
+    if (r.ok && j) return j;
+    const hint = Number(r.headers.get("Retry-After")) || Number((/available in (\d+) second/i.exec((j && j.detail) || "") || [])[1]) || 0;
+    throw Object.assign(new Error(`LL2 HTTP ${r.status}`), { status: r.status, retryAfterMs: hint * 1000 });
+  }));
 }
 
 function applyMockOverride(data) {
@@ -570,7 +584,7 @@ function dateOnlyNet(f) { return usableTbdDate(f) || !!(f && f.netPrecision === 
 
 // 9 Nov: the hero's NET for the Road Launch date box ("NET 13 Nov"), only while the hero itself shows a Launch Library NET date.
 function heroNetFor(f, now = nowMs()) {
-  return f && f.n && f.date && Number.isFinite(Date.parse(f.date)) && effectiveStatus(f, now) === "net" ? { n: f.n, date: f.date } : null;
+  return f && f.n && !f.fromRoad && f.date && Number.isFinite(Date.parse(f.date)) && effectiveStatus(f, now) === "net" ? { n: f.n, date: f.date } : null;
 }
 // 10 Nov: the Launch date box keeps only one date in the display — the hero's Launch Library NET,
 // else the last NET in road.json (same lastKnownNet rule as the pending-lookup fallback). Never hard-coded.
@@ -685,6 +699,60 @@ function flightFromLL2(full) {
   };
 }
 
+// 13 Nov (herofallback): cached Launch Library data is only shown for a flight that is still upcoming (not logged, not finished)
+// and at most 48h old (LAST_GOOD_MAX_MS). Placeholders ("no next flight listed") are not a cache of a real flight.
+function usableCachedFlight(d, at, now = nowMs()) {
+  if (!d || d.placeholder || d.n == null || !Number.isFinite(at)) return false;
+  if (now - at > LAST_GOOD_MAX_MS || at > now + 60000) return false;
+  return !isFinishedLaunch(d.n, d.status, d.date, now); // logged + past the post-liftoff grace, or done > 24h: not next any more
+}
+function readLastGood(now = nowMs()) {
+  if (getMock()) return null;
+  try {
+    const all = JSON.parse(localStorage.getItem(LL2_GOOD_KEY)) || {};
+    return Object.values(all).filter((g) => g && usableCachedFlight(g.data, g.at, now)).sort((a, b) => a.n - b.n)[0] || null; // the earliest still-upcoming flight is the next one
+  } catch { return null; }
+}
+function saveLastGood(data, url, at) {
+  if (getMock() || !data || data.placeholder || data.n == null) return;
+  try {
+    const all = JSON.parse(localStorage.getItem(LL2_GOOD_KEY)) || {};
+    all[data.n] = { n: data.n, url: url || null, data, at };
+    const keep = Object.values(all).sort((a, b) => b.at - a.at).slice(0, 3); // a few flights at most
+    localStorage.setItem(LL2_GOOD_KEY, JSON.stringify(Object.fromEntries(keep.map((g) => [g.n, g]))));
+  } catch {}
+}
+let ll2MemBackoff = 0;
+function ll2BackoffUntil() {
+  if (getMock()) return ll2MemBackoff;
+  try { return Number(localStorage.getItem(LL2_BACKOFF_KEY)) || 0; } catch { return 0; }
+}
+function noteLL2Failure(err, now = nowMs()) {
+  if (!err || err.status !== 429) return;
+  const until = now + Math.min(err.retryAfterMs > 0 ? err.retryAfterMs : THROTTLE_DEFAULT_MS, THROTTLE_MAX_MS);
+  if (getMock()) ll2MemBackoff = until; else { try { localStorage.setItem(LL2_BACKOFF_KEY, String(until)); } catch {} }
+}
+
+// 13 Nov (herofallback): when the hero has no Launch Library flight (lookup failed, throttled, no cache, or LL2 lists no next
+// flight) but road.json tracks that same flight with a NET, show road.json's NET day and pad instead of "To be confirmed" /
+// "To be announced". Uses the same NET line as the Road Launch date box (lastKnownNetLabel) and road.pad, so it works for any
+// flight N. Day-only (a dated TBD: "NET 13 Nov", no countdown to an invented time, no live Watch badge). Live data always wins.
+function roadNetIso(label, now = nowMs()) {
+  const m = /^NET (\d{1,2}) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)$/.exec(label || "");
+  if (!m) return null;
+  const y = new Date(now).getUTCFullYear(), mon = MON3.indexOf(m[2]), day = Number(m[1]);
+  // the year that puts the date nearest to now ("NET 3 Jan" seen in late December is next year's)
+  const best = [y - 1, y, y + 1].map((yy) => Date.UTC(yy, mon, day, 12)).sort((a, b) => Math.abs(a - now) - Math.abs(b - now))[0];
+  return new Date(best).toISOString(); // midday UTC: the same calendar day in UK time, summer or winter
+}
+function withRoadFallback(f, road, now = nowMs()) {
+  if (!f || !f.placeholder || !road || !Number.isInteger(road.flight) || Number(f.n) !== road.flight) return f;
+  const date = roadNetIso(lastKnownNetLabel(road, road.flight), now);
+  if (!date || Date.parse(date) + DAY < now) return f; // no NET in road.json, or that day has passed: keep the honest TBC
+  return { ...f, placeholder: false, fromRoad: true, status: "net", ll2Status: "TBD", netPrecision: "DAY", date,
+    pad: typeof road.pad === "string" ? road.pad : f.pad };
+}
+
 // Keeps the next-flight data fresh while the app is open: every hour normally,
 // every 5 minutes on launch day (isHot), paused while the tab is hidden, and
 // re-checked on return if stale. Every LL2 call goes through ll2Spend's
@@ -696,15 +764,32 @@ function useNextFlight() {
   React.useEffect(() => {
     const persist = !getMock();
     let meta = { data: null, fetchedAt: 0, ttl: 0, url: null, listAt: 0, failedAt: 0 };
+    // A cached "no next flight" placeholder only counts for the flight right after the log (the old detail-failure bug cached
+    // N+2 placeholders) and never over a last good copy of a real flight; a real flight's cache must be usableCachedFlight.
+    const usableCache = (c) => {
+      if (!c.data.placeholder) return usableCachedFlight(c.data, c.fetchedAt);
+      const g = readLastGood();
+      return c.data.n === LAST_LOGGED_N + 1 && !(g && g.n <= c.data.n);
+    };
     const readCache = () => {
       if (!persist) return;
       try {
         const c = JSON.parse(localStorage.getItem(CACHE_KEY));
-        if (c?.data && c.fetchedAt > meta.fetchedAt) { // includes a fresher copy saved by another tab
+        if (c?.data && c.fetchedAt > meta.fetchedAt && usableCache(c)) { // includes a fresher copy saved by another tab
           meta = { ...meta, url: null, listAt: 0, ttl: CACHE_MS, ...c };
           setLive(c.data); setCheckedAt(c.fetchedAt); setSettled(true);
         }
       } catch {}
+      if (!meta.data) applyLastGood();
+    };
+    // No usable cache (first visit, cache too old, a finished flight's): the last good LL2 copy for the next flight, if any.
+    // fetchedAt stays its real age, so the normal TTL decides whether to ask LL2 again.
+    const applyLastGood = () => {
+      const g = readLastGood();
+      if (!g) return false;
+      meta = { ...meta, data: g.data, fetchedAt: g.at, ttl: isHot(g.data) ? HOT_TTL_MS : CACHE_MS, url: g.url, listAt: 0 };
+      setLive(g.data); setCheckedAt(g.at); setSettled(true);
+      return true;
     };
     const finished = (d) => d && d.n != null && !d.placeholder && isFinishedLaunch(d.n, d.status, d.date);
     let busy = false;
@@ -715,6 +800,7 @@ function useNextFlight() {
       const d = meta.data;
       if (d && !finished(d) && now - meta.fetchedAt < meta.ttl) return; // still fresh
       if (now - meta.failedAt < RETRY_AFTER_FAIL_MS) return;
+      if (now < ll2BackoffUntil()) { setSettled(true); return; } // LL2 throttled us: wait until it said it frees up
       const detailOnly = !!(d && meta.url && !finished(d) && isHot(d, now) && now - meta.listAt < LIST_EVERY_MS);
       if (!ll2Spend(detailOnly ? 1 : 2)) { setSettled(true); return; } // over the hourly LL2 budget: a later tick tries again
       busy = true;
@@ -722,7 +808,7 @@ function useNextFlight() {
       let listAt = meta.listAt;
       // Step 1: find which launch is next (skipped on launch day if the list was read in the last hour).
       const step1 = detailOnly ? Promise.resolve(meta.url) : ll2Json(LL2_ENDPOINT).then((json) => {
-        if (!Array.isArray(json?.results)) return null; // throttled / error: keep what we have
+        if (!Array.isArray(json?.results) || !json.results.length) return null; // throttled / error / an empty answer: keep what we have
         listAt = nowMs();
         json.results.forEach((l) => { const n = flightNumber(l.name); if (n != null) seenMax = Math.max(seenMax, n); });
         const launch = pickNextLaunch(json.results);
@@ -732,14 +818,16 @@ function useNextFlight() {
       step1
         .then((url) => (!url ? null : url === "none" ? { url: null, full: "none" } : ll2Json(url).then((full) => ({ url, full }))))
         .then((res) => {
-          if (!res) { meta.failedAt = nowMs(); return; }
-          const data = res.full === "none" || !res.full?.name ? placeholderFlight(seenMax + 1) : flightFromLL2(res.full);
+          // 13 Nov: a failed detail call is a failure, not "no next flight" (it used to cache a Flight N+2 placeholder for an hour)
+          if (!res || (res.full !== "none" && !res.full?.name)) { meta.failedAt = nowMs(); if (!meta.data) applyLastGood(); return; }
+          const data = res.full === "none" ? placeholderFlight(seenMax + 1) : flightFromLL2(res.full);
           const at = nowMs();
           meta = { data, fetchedAt: at, ttl: isHot(data, at) ? HOT_TTL_MS : CACHE_MS, url: res.url, listAt, failedAt: 0 };
           setLive(data); setCheckedAt(at);
           if (persist) { try { localStorage.setItem(CACHE_KEY, JSON.stringify(meta)); } catch {} }
+          saveLastGood(data, res.url, at);
         })
-        .catch(() => { meta.failedAt = nowMs(); })
+        .catch((err) => { meta.failedAt = nowMs(); noteLL2Failure(err); if (!meta.data) applyLastGood(); })
         .finally(() => { busy = false; setSettled(true); });
     };
     load();
@@ -861,7 +949,7 @@ function WatchLiveBadge({ flight, now }) {
   // Stay clickable for the whole in-flight window; otherwise use the usual
   // lead/trail timing around the scheduled T-0.
   let active = status === "inflight";
-  if (!active && status !== "tbc" && flight.date) {
+  if (!active && status !== "tbc" && flight.date && !flight.fromRoad) { // road.json fallback has a day, not a T-0
     const t = new Date(flight.date).getTime();
     active = now >= t - WATCH_LIVE_LEAD_MS && now <= t + WATCH_LIVE_TRAIL_MS;
   }
@@ -2823,7 +2911,7 @@ function StarshipTracker() {
             : <span />}
         </header>
 
-        <ErrorBoundary where={"hero:" + ((nextFlight && nextFlight.n) || "")}><NextFlightCard f={nextFlight} checkedAt={checkedAt} road={road}>
+        <ErrorBoundary where={"hero:" + ((nextFlight && nextFlight.n) || "")}><NextFlightCard f={withRoadFallback(nextFlight, road, now)} checkedAt={checkedAt} road={road}>
           <ErrorBoundary where="log"><RoadCard road={road} onEntryTap={jumpToPost} openReq={roadOpenReq} heroNet={heroNetFor(liveNext, now)} netPending={!liveNext && !nextSettled} /></ErrorBoundary>
         </NextFlightCard></ErrorBoundary>
         <Connector dashed label={heroLogged ? daysLabel(daysBetween(flights[0].date, nextFlight.date)) : `${daysLabel(daysSinceLatest)} since the last flight`} />
