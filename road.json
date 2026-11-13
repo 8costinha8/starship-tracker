@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "13 Nov",
-  "updatedAt": "2026-11-13T04:15:45.724Z",
+  "updatedAt": "2026-11-13T04:45:50.666Z",
   "categories": [
     {
       "id": "cryo",
@@ -4085,14 +4085,6 @@
         "post_id": "2120690698668097998"
       },
       {
-        "topic": "trajectory",
-        "line": "New marine hazard area announced for Starship Flight 15 (U.S. Coast Guard, 9 Nov).",
-        "at": "2026-11-09T21:37:17.000Z",
-        "src": "@LabPadre",
-        "url": "https://x.com/LabPadre/status/2119907200529207572",
-        "post_id": "2119907200529207572"
-      },
-      {
         "topic": "catch",
         "line": "Starship Flight 15 set for double-catch attempt (NASASpaceflight, 10 Nov).",
         "at": "2026-11-10T11:27:46.000Z",
@@ -4115,6 +4107,14 @@
         "src": "@LabPadre",
         "url": "https://x.com/LabPadre/status/2120941544416944336",
         "post_id": "2120941544416944336"
+      },
+      {
+        "topic": "catch",
+        "line": "SpaceX plans to catch both Booster 22 and Ship 42 on Flight 15 (NASASpaceflight, 13 Nov).",
+        "at": "2026-11-13T04:31:27.000Z",
+        "src": "@NASASpaceflight",
+        "url": "https://x.com/NASASpaceflight/status/2121098593297699100",
+        "post_id": "2121098593297699100"
       }
     ]
   },
@@ -4141,6 +4141,16 @@
     }
   ],
   "feed_items": [
+    {
+      "id": "news-mwehc1so-0b6a15",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Countdown started at Starbase for a potentially historic Starship mission.",
+      "url": "https://x.com/NASASpaceflight/status/2121098593297699100",
+      "at": "2026-11-13T04:31:27.000Z",
+      "date": "13 Nov",
+      "flight": 15
+    },
     {
       "id": "news-mwedf26g-01f0ab",
       "kind": "news",
@@ -4572,19 +4582,6 @@
       "flight": 18,
       "later_flight": true,
       "src": "@TrackingTheSB"
-    },
-    {
-      "id": "news-mvvriszs-0c1ff5",
-      "kind": "news",
-      "title": "🚀 Starship",
-      "body": "Booster 24's methane tank was lifted inside Megabay 1 that evening",
-      "url": "https://x.com/efraser77/status/2116351708150497473",
-      "at": "2026-10-31T02:09:01.000Z",
-      "date": "31 Oct",
-      "flight": 17,
-      "later_flight": true,
-      "src": "@efraser77",
-      "push_text": "Booster 24 methane tank lifted inside Megabay 1 this evening"
     }
   ],
   "milestones": {
