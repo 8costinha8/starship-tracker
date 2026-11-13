@@ -4,8 +4,8 @@
     "B22",
     "S42"
   ],
-  "updated": "12 Nov",
-  "updatedAt": "2026-11-12T23:46:14.116Z",
+  "updated": "13 Nov",
+  "updatedAt": "2026-11-13T00:15:50.456Z",
   "categories": [
     {
       "id": "cryo",
@@ -2304,8 +2304,8 @@
       "icon": "🏗️",
       "name": "Pad activity",
       "color": "#A88BFF",
-      "status": "progress",
-      "latest": "Ship 42 stacked on Booster 22 at Pad 2.",
+      "status": "complete",
+      "latest": "Complete",
       "history": [
         {
           "id": "x-2121006374041899190",
@@ -2347,25 +2347,25 @@
             "2121005601689866369",
             "2121005568722964862",
             "2121014257492115612",
-            "2121025801780916379"
+            "2121025801780916379",
+            "2121032788560236660"
           ],
           "xChecked": true,
           "imageChecked2": true,
           "media_override": {
-            "post_url": "https://x.com/NASASpaceflight/status/2121006013381857315",
-            "post_id": "2121006013381857315",
-            "author": "NASASpaceflight",
-            "type": "video",
-            "image": "https://pbs.twimg.com/amplify_video_thumb/2121005989428133889/img/hiGF3kyQfWNAlKhb.jpg",
-            "video_url": "https://video.twimg.com/amplify_video/2121005989428133889/vid/avc1/1056x592/5Kn2bXTcPvs6pizq.mp4"
+            "post_url": "https://x.com/CSI_Starbase/status/2121032788560236660",
+            "post_id": "2121032788560236660",
+            "author": "CSI_Starbase",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HW9sEvoXMAALgwj.jpg"
           },
-          "tier": 1,
+          "tier": 2,
           "milestone": {
             "key": "stacked|15|S42",
             "type": "stacked",
             "flight": 15,
             "hardware": "S42",
-            "phase": "progress"
+            "phase": "completed"
           },
           "updates": [
             {
@@ -2424,16 +2424,16 @@
           "push_text": "Ship 42 stacked on Booster 22 at Pad 2.",
           "card_text": "Ship 42 stacked on Booster 22 at Pad 2.",
           "push": {
-            "title": "🏗️ Pad activity (unconfirmed)",
+            "title": "🏗️ Pad activity: Completed",
             "url": "https://x.com/efraser77/status/2121005568722964862",
             "at": "2026-11-12T22:21:48.000Z"
           },
           "photo_alternatives": [
             {
-              "image": "https://pbs.twimg.com/amplify_video_thumb/2121005989428133889/img/hiGF3kyQfWNAlKhb.jpg",
+              "image": "https://pbs.twimg.com/amplify_video_thumb/2120969801539444737/img/jubsleUINWocErFL.jpg",
               "type": "video",
-              "post_url": "https://x.com/NASASpaceflight/status/2121006013381857315",
-              "author": "NASASpaceflight"
+              "post_url": "https://x.com/LabPadre/status/2120969888105976259",
+              "author": "LabPadre"
             }
           ],
           "edited_from": "Ship 42 lifted in the air for stacking on Booster 22.",
@@ -2457,7 +2457,11 @@
             "confirmed": true,
             "confirmed_at": "2026-11-12T23:00:41.190Z"
           },
-          "text_locked": true
+          "text_locked": true,
+          "complete": true,
+          "completed_at": "2026-11-13T00:09:58.000Z",
+          "completed_src": "https://x.com/CSI_Starbase/status/2121032788560236660",
+          "frameChecked": true
         },
         {
           "id": "x-2120958355892035972",
@@ -3879,7 +3883,7 @@
           "journey_context": "engine prep (1 Nov: not a Raptor milestone)"
         }
       ],
-      "log_latest": "Ship 42 at Pad 2."
+      "log_latest": "Ship 42 stacked on Booster 22."
     },
     {
       "id": "faa",
@@ -4637,12 +4641,14 @@
     },
     "flight": {
       "stacked": {
-        "count": 1,
+        "count": 2,
         "dates": [
-          "2026-11-10T06:49:54.000Z"
+          "2026-11-10T06:49:54.000Z",
+          "2026-11-13T00:09:58.000Z"
         ],
         "src": [
-          "https://x.com/CSI_Starbase/status/2120046271859921250"
+          "https://x.com/CSI_Starbase/status/2120046271859921250",
+          "https://x.com/CSI_Starbase/status/2121032788560236660"
         ]
       }
     }
@@ -4988,7 +4994,7 @@
         "x-2120998082779418716"
       ],
       "likely": null,
-      "at": "2026-11-12T22:32:06.000Z",
+      "at": "2026-11-13T00:09:58.000Z",
       "counted": [
         "https://x.com/LabPadre/status/2095620292823462214",
         "https://x.com/LabPadre/status/2108486994401825101",
