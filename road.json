@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "13 Nov",
-  "updatedAt": "2026-11-13T17:16:21.131Z",
+  "updatedAt": "2026-11-13T17:31:01.257Z",
   "categories": [
     {
       "id": "cryo",
@@ -3404,10 +3404,16 @@
           },
           "photo_alternatives": [
             {
+              "image": "https://pbs.twimg.com/media/HW_MNvwa4AAa2kw.jpg",
+              "type": "photo",
+              "post_url": "https://x.com/SpaceX/status/2121044579470233638",
+              "author": "SpaceX"
+            },
+            {
               "image": "https://pbs.twimg.com/media/HW_MQ_UawAETCZz.jpg",
               "type": "photo",
-              "post_url": "https://x.com/Blobifie/status/2121138587878248780",
-              "author": "Blobifie"
+              "post_url": "https://x.com/SpaceX/status/2121044579470233638",
+              "author": "SpaceX"
             }
           ],
           "edited_from": "Deluge and catch testing performed at the pad.",
@@ -4146,14 +4152,6 @@
       },
       {
         "topic": "catch",
-        "line": "NOTAMs released covering re-entry locations and catch of Ship 42 for Flight 15 (LabPadre reports, 12 Nov).",
-        "at": "2026-11-12T18:07:24.000Z",
-        "src": "@LabPadre",
-        "url": "https://x.com/LabPadre/status/2120941544416944336",
-        "post_id": "2120941544416944336"
-      },
-      {
-        "topic": "catch",
         "line": "SpaceX plans to catch both Booster 22 and Ship 42 on Flight 15 (NASASpaceflight, 13 Nov).",
         "at": "2026-11-13T04:31:27.000Z",
         "src": "@NASASpaceflight",
@@ -4175,6 +4173,14 @@
         "src": "@NASASpaceflight",
         "url": "https://x.com/NASASpaceflight/status/2121287277666029828",
         "post_id": "2121287277666029828"
+      },
+      {
+        "topic": "catch",
+        "line": "SpaceX plans first catch of both booster and ship on Flight 15 with off-ramps if needed (Spaceflight Now, 13 Nov).",
+        "at": "2026-11-13T17:22:03.000Z",
+        "src": "@SpaceflightNow",
+        "url": "https://x.com/SpaceflightNow/status/2121292523503030697",
+        "post_id": "2121292523503030697"
       }
     ]
   },
