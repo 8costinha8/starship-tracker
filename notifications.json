@@ -2391,6 +2391,18 @@
       "verdict": "silent: duplicate F15|other|13 Nov",
       "gate": "official source",
       "key": "F15|other|13 Nov"
+    },
+    {
+      "title": "🚀 Liftoff!",
+      "body": "Flight 15 is in the air · Watch now",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=flight-mwfkybz8-c6bb88",
+      "url": "",
+      "at": "2026-11-13T23:00:31.652Z",
+      "sent_at": "2026-11-13T23:02:15.106Z",
+      "where": "feed",
+      "verdict": "sent",
+      "gate": "not an X tracker post",
+      "key": "F15|launch|13 Nov"
     }
   ]
 }
