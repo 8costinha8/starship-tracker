@@ -2199,6 +2199,30 @@
       "verdict": "sent",
       "gate": "official source",
       "key": "S42|other|13 Nov"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "SpaceX launches Starship Flight 15 with booster catch (NASASpaceflight, 13 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/NASASpaceflight/status/2121287277666029828",
+      "at": "2026-11-13T17:01:13.000Z",
+      "sent_at": "2026-11-13T17:46:33.954Z",
+      "where": "mission",
+      "verdict": "sent",
+      "gate": "hold passed (1 run)",
+      "key": "B22|launch|13 Nov"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "SpaceX plans first catch of both booster and ship on Flight 15 with off-ramps if needed (Spaceflight Now, 13 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/SpaceflightNow/status/2121292523503030697",
+      "at": "2026-11-13T17:22:03.000Z",
+      "sent_at": "2026-11-13T17:46:34.716Z",
+      "where": "mission",
+      "verdict": "silent: minor other — a push went out 0.0h ago (quiet window 24h)",
+      "gate": "hold passed (1 run)",
+      "key": "B22|other|13 Nov"
     }
   ]
 }
