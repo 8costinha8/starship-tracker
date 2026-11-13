@@ -1013,64 +1013,9 @@
       "icon": "💥",
       "name": "Static fires",
       "color": "#FF9A3D",
-      "status": "progress",
-      "latest": "Booster 22 lifted onto transport stand for return to launch site.",
+      "status": "done",
+      "latest": "Booster 22 completed its static fire on Pad 2.",
       "history": [
-        {
-          "id": "x-2119898461885853731",
-          "date": "9 Nov",
-          "log_date": "9 Nov",
-          "at": "2026-11-09T21:02:33.000Z",
-          "text": "Booster 22 lifted onto transport stand for return to launch site.",
-          "x_text": "Booster 22 lifted onto transport stand for return to launch site.",
-          "push_text": "Booster 22 lifted onto transport stand heading to launch site.",
-          "card_text": "Booster 22 lifted onto transport stand ahead of return to launch site.",
-          "log_text": "Booster 22 lifted onto transport stand ahead of return to launch site.",
-          "status_line": "Booster 22 heading to Pad 2.",
-          "url": "https://x.com/Blobifie/status/2119898461885853731",
-          "src": "@Blobifie",
-          "trust": "trusted",
-          "x_first": true,
-          "stage": "static",
-          "hardware": "B22",
-          "flight": 15,
-          "x_post": {
-            "post_id": "2119898461885853731",
-            "url": "https://x.com/Blobifie/status/2119898461885853731",
-            "created_at": "2026-11-09T21:02:33.000Z",
-            "text": "Booster 22 has been lifted onto a transport stand ahead of its return to the launch site!! https://t.co/EfcqndBlye",
-            "author": {
-              "name": "Blobifi",
-              "username": "Blobifie",
-              "avatar": "https://pbs.twimg.com/profile_images/2091766013562159104/xgHLFjBX_normal.jpg"
-            },
-            "media": [
-              {
-                "type": "photo",
-                "url": "https://pbs.twimg.com/media/HWtkT5bakAEtyUO.jpg"
-              }
-            ]
-          },
-          "x_posts": [
-            "2119898461885853731"
-          ],
-          "xChecked": true,
-          "imageChecked2": true,
-          "media_override": {
-            "post_url": "https://x.com/Blobifie/status/2119898461885853731",
-            "post_id": "2119898461885853731",
-            "author": "Blobifie",
-            "type": "photo",
-            "image": "https://pbs.twimg.com/media/HWtkT5bakAEtyUO.jpg"
-          },
-          "tier": 2,
-          "push": {
-            "title": "💥 Static fires: In progress",
-            "url": "https://x.com/Blobifie/status/2119898461885853731",
-            "at": "2026-11-09T21:02:33.000Z"
-          },
-          "frameChecked": true
-        },
         {
           "id": "x-2115701002095755563",
           "date": "29 Oct",
@@ -2297,7 +2242,7 @@
         }
       ],
       "doneText": "Complete",
-      "log_latest": "Booster 22 heading to Pad 2."
+      "log_latest": "Booster 22 completed its static fire."
     },
     {
       "id": "pad",
@@ -3251,6 +3196,63 @@
             }
           ],
           "journey_pin": true
+        },
+        {
+          "id": "x-2119898461885853731",
+          "date": "9 Nov",
+          "log_date": "9 Nov",
+          "at": "2026-11-09T21:02:33.000Z",
+          "text": "Booster 22 lifted onto transport stand for return to launch site.",
+          "x_text": "Booster 22 lifted onto transport stand for return to launch site.",
+          "push_text": "Booster 22 lifted onto transport stand heading to launch site.",
+          "card_text": "Booster 22 lifted onto transport stand ahead of return to launch site.",
+          "log_text": "Booster 22 lifted onto transport stand ahead of return to launch site.",
+          "status_line": "Booster 22 heading to Pad 2.",
+          "url": "https://x.com/Blobifie/status/2119898461885853731",
+          "src": "@Blobifie",
+          "trust": "trusted",
+          "x_first": true,
+          "stage": "pad",
+          "hardware": "B22",
+          "flight": 15,
+          "refiled_from": "static",
+          "refiled_pin": true,
+          "x_post": {
+            "post_id": "2119898461885853731",
+            "url": "https://x.com/Blobifie/status/2119898461885853731",
+            "created_at": "2026-11-09T21:02:33.000Z",
+            "text": "Booster 22 has been lifted onto a transport stand ahead of its return to the launch site!! https://t.co/EfcqndBlye",
+            "author": {
+              "name": "Blobifi",
+              "username": "Blobifie",
+              "avatar": "https://pbs.twimg.com/profile_images/2091766013562159104/xgHLFjBX_normal.jpg"
+            },
+            "media": [
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HWtkT5bakAEtyUO.jpg"
+              }
+            ]
+          },
+          "x_posts": [
+            "2119898461885853731"
+          ],
+          "xChecked": true,
+          "imageChecked2": true,
+          "media_override": {
+            "post_url": "https://x.com/Blobifie/status/2119898461885853731",
+            "post_id": "2119898461885853731",
+            "author": "Blobifie",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HWtkT5bakAEtyUO.jpg"
+          },
+          "tier": 2,
+          "push": {
+            "title": "💥 Static fires: In progress",
+            "url": "https://x.com/Blobifie/status/2119898461885853731",
+            "at": "2026-11-09T21:02:33.000Z"
+          },
+          "frameChecked": true
         },
         {
           "id": "x-2119447093546991754",
