@@ -73,9 +73,14 @@ let c2 = null;
   check(c2.categories.every((c, i) => c.status === road.categories[i].status && c.latest === road.categories[i].latest) && c2.vehicles.join() === road.vehicles.join(), "D: the app's own rollover (C2) and the checker's agree box for box");
   check(t.some((x) => /Road to Flight 16/.test(x)) && t.some((x) => /Liftoff/.test(x)) && t.some((x) => /Flight 15 — Success/.test(x)), "D: 'Road to Flight 16', Liftoff and Success show on the Road page (fix 4)");
   const b = FL.boxes(road, today); check(b.faa.cards[0].lines[0].day === "13 Nov", "D: FAA line refreshed for the new flight (fix 9)");
-  const sum = post.pastSummary(road, 15), txt = sum.map((e) => e.text);
+  const sum = post.pastSummary(road, 15), body = sum.filter((e) => e.box !== "pad" && e.box !== "faa"), txt = body.map((e) => e.text);
   check(sum.length >= 6 && ["cryo", "raptor", "static", "pad"].every((x) => sum.some((e) => e.box === x)), "D: Flight 15 summary covers every milestone, not only static fires (fix 7)");
-  check(txt.every((x) => /^[A-Z].*[.]$/.test(x) && !/At least|·|\b(?:is|are) (?:being|now)\b/.test(x)) && new Set(txt).size === txt.length, "D: summary is deduped past-tense full sentences (no 'At least 2 static fires · 27 Oct, 27 Oct') (fix 7)");
+  // Display rule (pastSummary): pad and licence cards are short two-line / pending wording, so the
+  // full-sentence check applies to the frozen cryo, raptor and static boxes only.
+  check(txt.every((x) => /^[A-Z].*[.]$/.test(x) && !/At least|·|\b(?:is|are) (?:being|now)\b/.test(x)) && new Set(sum.map((e) => e.text)).size === sum.length, "D: summary is deduped past-tense full sentences (no 'At least 2 static fires · 27 Oct, 27 Oct') (fix 7)");
+  const pad = sum.find((e) => e.box === "pad"), faa = sum.find((e) => e.box === "faa");
+  check(pad && pad.vehicle === "Full stack" && pad.text.split("\n").every((l) => /^(Stacked|Wet dress rehearsal) \d{1,2} [A-Z][a-z]{2}$/.test(l)), "D: Full stack card is short Stacked / Wet dress rehearsal lines");
+  check(faa && (faa.text === "Licence pending" || /^Launch licence issued \d{1,2} [A-Z][a-z]{2}$/.test(faa.text)), "D: Licence card is issued {date} or pending");
   check(sum.filter((e) => e.photo).length >= 6 && sum.every((e) => !e.photo || !/rtf-placeholder/.test(e.photo.image)), "D: summary items carry real photos (fix 7)");
   const fl = { n: 15, photo: { thumb: "images/rtf-placeholder.jpg", gallery: [] } }, g = post.galleryOf(fl, sum);
   check(g.length === 2 && g.every(Boolean) && !/rtf-placeholder/.test(post.thumbOf(fl, sum)), "D: no 'Photo to come' twice: gallery and thumb use the milestones' real photos (fix 7)"); }

@@ -975,7 +975,7 @@ function FlightCard({ f, open, onTap, onPhotoTap, register, road }) {
                       <span className="past-veh">{e.vehicle}</span>
                       <span className="past-pill">{e.label}</span>
                     </div>
-                    <p>{scrub(e.text)}</p>
+                    <p>{String(e.text || "").split("\n").map((line, li) => (<React.Fragment key={li}>{li > 0 && <br />}{scrub(line)}</React.Fragment>))}</p>
                   </div>
                 ))}
               </div>
@@ -1584,25 +1584,69 @@ const PAST_LABEL = { cryo: "Cryo", raptor: "Raptor", static: "Static fire", pad:
 const CAT_FILL = { raptor: { "--bg": "#0E0F11", "--on": "#E8EAEE", "--t": "#0E0F11" } }; // Raptor (A2): near-black #0E0F11 ring, fill, accent and connector; white title, see-through pill (CSS below)
 const catVars = (id, c) => Object.assign({ "--c": c }, CAT_FILL[id] || {});
 const PAST_COLOR = { cryo: "#BFE6FF", raptor: "#0E0F11", static: "#FF9A3D", pad: "#A88BFF", faa: "#2FD3B0", date: "#FFC93D" };
-const pastIsLaunchPad = (e) => e && e.box === "pad" && /^(?:pad|Launch pad)$/i.test(String(e.vehicle));
-// Drop live status fragments like "Pad activity: In progress (10 Nov)" so they are never shown raw.
-function pastPadSentences(text) {
-  const t = String(text || "").replace(/\s*Pad activity:\s*[^.]*\.?/gi, " ").replace(/\s+/g, " ").trim();
-  return t ? t.split(/(?<=\.)\s+/).map((s) => s.trim()).filter(Boolean) : [];
+const PAST_DAY = /(\d{1,2}\s+[A-Z][a-z]{2})/;
+const pastDay = (s) => { const m = String(s || "").match(PAST_DAY); return m ? m[1] : ""; };
+// Dates and lines for the Full stack / Licence cards: archive items, archive entries, and
+// any still-present history for that flight. Never invent a date; never key on the flight number.
+function pastFlightSources(road, n, box) {
+  const a = road && road.archive && road.archive[n];
+  const items = ((a && a.summary && a.summary.items) || []).filter((e) => e && (!box || e.box === box));
+  const entries = ((a && a.entries) || []).filter((e) => e && (!box || e.box === box));
+  const hist = ((road && road.categories) || []).flatMap((c) => (!box || c.id === box) ? (c.history || []).map((h) => ({ ...h, box: c.id })) : []).filter((h) => !h.flight || h.flight === n);
+  return items.concat(entries, hist);
 }
-function pastPadCard(padItems) {
-  if (!padItems.length) return null;
-  if (padItems.length === 1) return padItems[0]; // already the F14-style combined card
-  const first = (ok) => padItems.filter(ok);
-  const ordered = first((e) => /full stack/i.test(e.vehicle)).concat(first(pastIsLaunchPad), first((e) => !/full stack/i.test(e.vehicle) && !pastIsLaunchPad(e)));
-  const seen = new Set(), sentences = [];
-  for (const e of ordered) for (const s of pastPadSentences(e.text)) { if (s && !seen.has(s)) { seen.add(s); sentences.push(s); } }
-  if (!sentences.length) return null;
-  const photo = padItems.map((e) => e.photo).find((p) => p && p.image) || null;
-  return { box: "pad", vehicle: "Full stack", text: sentences.join(" "), ...(photo ? { photo } : {}) };
+function pastDateInText(text, re) {
+  const m = String(text || "").match(re);
+  return m && m[1] && PAST_DAY.test(m[1]) ? pastDay(m[1]) : "";
 }
-function pastLicenceCard(faaItems) {
-  return faaItems[0] || { box: "faa", vehicle: "Licence", text: "Licence pending." };
+function pastDateInSources(sources, textRe, dateRe) {
+  for (const e of sources) {
+    const blob = [e && e.text, e && e.log_text, e && e.card_text].filter(Boolean).join(" · ");
+    const fromText = dateRe && pastDateInText(blob, dateRe);
+    if (fromText) return fromText;
+    if (textRe && textRe.test(blob)) {
+      const d = pastDay(e.date || e.log_date || "");
+      if (d) return d;
+    }
+  }
+  return "";
+}
+function pastPadCard(padItems, sources) {
+  const src = (sources && sources.length ? sources : padItems) || [];
+  // Also split hand-written "A · B" lines so each half can carry its own date (Flight 14 style).
+  const halves = [];
+  for (const e of src) for (const part of String((e && e.text) || "").split(/\s*·\s*/)) if (part) halves.push({ text: part, date: e.date || e.log_date });
+  const all = src.concat(halves);
+  const stack = pastDateInSources(all, /\bstacked (?:on|onto|atop)\b/i, /Stacked\s+(\d{1,2}\s+[A-Z][a-z]{2})/i);
+  const wdr = pastDateInSources(all, /\b(?:wet dress(?: rehearsal)?|\bWDR\b)/i, /wet dress rehearsal\s+(\d{1,2}\s+[A-Z][a-z]{2})/i);
+  const lines = [];
+  if (stack) lines.push("Stacked " + stack);
+  if (wdr) lines.push("Wet dress rehearsal " + wdr);
+  const text = lines.length ? lines.join("\n") : "Not yet stacked";
+  const photo = (padItems || []).map((e) => e.photo).find((p) => p && p.image) || src.map((e) => e.photo).find((p) => p && p.image) || null;
+  if (!padItems.length && !stack && !wdr) return null;
+  return { box: "pad", vehicle: "Full stack", text, ...(photo ? { photo } : {}) };
+}
+function pastLicenceIssued(sources) {
+  for (const e of sources) {
+    const blob = [e && e.text, e && e.log_text, e && e.card_text].filter(Boolean).join(" ");
+    // A licence issued for another flight, or an explicit "not yet / needs a modification", is not a date for this card.
+    if (/needs a licence|licence modification|covers Flight|for Flight \d+ only|no .+licence yet|not yet issued|licence pending/i.test(blob)) continue;
+    const named = pastDateInText(blob, /Launch licence issued\s+(\d{1,2}\s+[A-Z][a-z]{2})/i);
+    if (named) return named;
+    if (/\blicence was issued\b/i.test(blob)) {
+      const d = pastDay(e.date || e.log_date || "") || pastDateInText(blob, PAST_DAY);
+      if (d) return d;
+    }
+  }
+  return "";
+}
+function pastLicenceCard(faaItems, sources) {
+  const src = (sources && sources.length ? sources : faaItems) || [];
+  const date = pastLicenceIssued(src);
+  const photo = (faaItems || []).map((e) => e.photo).find((p) => p && p.image) || src.map((e) => e.photo).find((p) => p && p.image) || null;
+  const text = date ? "Launch licence issued " + date : "Licence pending";
+  return { box: "faa", vehicle: "Licence", text, ...(photo ? { photo } : {}) };
 }
 function pastSummary(road, n) {
   if (!road || !Array.isArray(road.categories)) return [];
@@ -1611,10 +1655,12 @@ function pastSummary(road, n) {
   // Display rule for every flight (by box id / type, never by flight number): rows 1–3 are
   // per-vehicle Cryo, Raptor and Static fire; row 4 is one combined Pad card (Full stack) and
   // one Licence card. Launch date is hidden (already in the card details). The frozen archive
-  // is left as it is.
+  // is left as it is. Pad text is "Stacked {date}" and "Wet dress rehearsal {date}" on two
+  // lines, built from real events; a missing half is dropped. Licence is "Launch licence
+  // issued {date}", or "Licence pending" when there is no issue date for this flight.
   const raw = items.filter((e) => e && e.text && e.vehicle && e.box !== "date");
   if (!raw.length) return []; // no invented past section when the archive has nothing for this flight
-  const row = [...raw.filter((e) => e.box !== "pad" && e.box !== "faa"), pastPadCard(raw.filter((e) => e.box === "pad")), pastLicenceCard(raw.filter((e) => e.box === "faa"))].filter(Boolean);
+  const row = [...raw.filter((e) => e.box !== "pad" && e.box !== "faa"), pastPadCard(raw.filter((e) => e.box === "pad"), pastFlightSources(road, n, "pad")), pastLicenceCard(raw.filter((e) => e.box === "faa"), pastFlightSources(road, n, "faa"))].filter(Boolean);
   return row.map((e) => ({ box: e.box, vehicle: e.vehicle, text: e.text, label: PAST_LABEL[e.box] || e.box, color: color(e.box), photo: e.photo && e.photo.image ? e.photo : null }));
 }
 // --- mission-card helpers (tested by scripts/test-missioncard.js) ---
