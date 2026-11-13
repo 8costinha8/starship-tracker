@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "13 Nov",
-  "updatedAt": "2026-11-13T19:15:56.093Z",
+  "updatedAt": "2026-11-13T19:31:53.317Z",
   "categories": [
     {
       "id": "cryo",
@@ -4275,6 +4275,15 @@
   ],
   "feed_items": [
     {
+      "id": "flight-mwfdg7kn-8cd844",
+      "kind": "flight",
+      "title": "✅ Launch time confirmed",
+      "body": "13 Nov 22:45",
+      "at": "2026-11-13T19:30:28.823Z",
+      "date": "13 Nov",
+      "flight": 15
+    },
+    {
       "id": "news-mweuujoo-85363c",
       "kind": "news",
       "title": "🚀 Starship",
@@ -4710,16 +4719,6 @@
       "date": "3 Nov",
       "flight": 15,
       "src": "@efraser77"
-    },
-    {
-      "id": "news-mvycu1v4-3745f1",
-      "kind": "news",
-      "title": "🚀 Starship",
-      "body": "Flight 15 vehicles were tested ahead of the November launch.",
-      "url": "https://www.youtube.com/watch?v=9i5-UQGTMHQ",
-      "at": "2026-11-01T21:41:10.000Z",
-      "date": "1 Nov",
-      "flight": 15
     }
   ],
   "milestones": {
