@@ -2463,6 +2463,30 @@
       "verdict": "silent: duplicate S42|other|13 Nov",
       "gate": "second trusted source agrees",
       "key": "S42|other|13 Nov"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "Ship 42 payload bay door opened and deployment started (LabPadre reports, 13 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/LabPadre/status/2121383427727364351",
+      "at": "2026-11-13T23:23:17.000Z",
+      "sent_at": "2026-11-13T23:46:41.610Z",
+      "where": "mission",
+      "verdict": "silent: duplicate S42|other|13 Nov",
+      "gate": "second trusted source agrees",
+      "key": "S42|other|13 Nov"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "Ship 42 payload door open for deployment (Blobifie reports, 13 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/Blobifie/status/2121383209497944233",
+      "at": "2026-11-13T23:22:25.000Z",
+      "sent_at": "2026-11-13T23:46:41.677Z",
+      "where": "mission",
+      "verdict": "silent: duplicate S42|other|13 Nov",
+      "gate": "second trusted source agrees",
+      "key": "S42|other|13 Nov"
     }
   ]
 }
