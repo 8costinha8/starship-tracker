@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "13 Nov",
-  "updatedAt": "2026-11-13T19:02:51.968Z",
+  "updatedAt": "2026-11-13T19:15:56.093Z",
   "categories": [
     {
       "id": "cryo",
@@ -3934,9 +3934,77 @@
       "icon": "📜",
       "name": "FAA licence",
       "color": "#2FD3B0",
-      "status": "pending",
-      "latest": "The 26 Sep licence covers Flight 14 only, with no Flight 15 change yet.",
+      "status": "complete",
+      "latest": "Confirmed",
       "history": [
+        {
+          "id": "x-2121317448477728883",
+          "date": "13 Nov",
+          "log_date": "13 Nov",
+          "at": "2026-11-13T19:01:06.000Z",
+          "text": "FAA approval for Starship Flight 15 arrived.",
+          "x_text": "FAA approval for Starship Flight 15 arrived.",
+          "push_text": "FAA approval for Starship Flight 15 arrived.",
+          "card_text": "FAA approval for Starship Flight 15 arrived.",
+          "log_text": "FAA approval for Starship Flight 15 arrived.",
+          "status_line": "Flight 15 licence granted.",
+          "url": "https://x.com/NASASpaceflight/status/2121317448477728883",
+          "src": "@NASASpaceflight",
+          "trust": "trusted",
+          "x_first": true,
+          "stage": "faa",
+          "hardware": "FAA",
+          "flight": 15,
+          "x_post": {
+            "post_id": "2121317448477728883",
+            "url": "https://x.com/NASASpaceflight/status/2121317448477728883",
+            "created_at": "2026-11-13T19:01:06.000Z",
+            "text": "Starship Flight 15: FAA approval has arrived. Document: https://t.co/OmDSROfBhN Live: https://t.co/X8GB5wmir9",
+            "author": {
+              "name": "NSF - NASASpaceflight.com",
+              "username": "NASASpaceflight",
+              "avatar": "https://pbs.twimg.com/profile_images/1637919260298158080/kRT8BkYf_normal.jpg"
+            },
+            "media": [
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HXBuxEUXEAAkDox.jpg"
+              }
+            ],
+            "link": {
+              "url": "https://drs.faa.gov/browse/excelExternalWindow/DRSDOCID173891218620231102140506.0001%3FmodalOpened%3Dtrue%3FmodalOpened%3Dtrue?modalOpened=true",
+              "title": "Dynamic Regulatory System",
+              "lead": ""
+            }
+          },
+          "x_posts": [
+            "2121317448477728883"
+          ],
+          "xChecked": true,
+          "imageChecked2": true,
+          "media_override": {
+            "post_url": "https://x.com/NASASpaceflight/status/2121317448477728883",
+            "post_id": "2121317448477728883",
+            "author": "NASASpaceflight",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HXBuxEUXEAAkDox.jpg"
+          },
+          "tier": 1,
+          "milestone": {
+            "key": "licence|15|FAA",
+            "type": "licence",
+            "flight": 15,
+            "hardware": "FAA",
+            "phase": "completed"
+          },
+          "complete": true,
+          "push": {
+            "title": "📜 FAA licence: Confirmed",
+            "url": "https://x.com/NASASpaceflight/status/2121317448477728883",
+            "at": "2026-11-13T19:01:06.000Z"
+          },
+          "frameChecked": true
+        },
         {
           "date": "26 Sep",
           "text": "The FAA licence was issued for Flight 14 only; Flight 15 needs a licence modification.",
@@ -3967,7 +4035,7 @@
           "card_text": "The FAA licence was issued for Flight 14 only; Flight 15 needs a licence modification."
         }
       ],
-      "log_latest": "No Flight 15 licence yet."
+      "log_latest": "Flight 15 licence granted."
     },
     {
       "id": "date",
@@ -4688,6 +4756,15 @@
         "src": [
           "https://x.com/CSI_Starbase/status/2120046271859921250",
           "https://x.com/CSI_Starbase/status/2121032788560236660"
+        ]
+      },
+      "licence": {
+        "count": 1,
+        "dates": [
+          "2026-11-13T19:01:06.000Z"
+        ],
+        "src": [
+          "https://x.com/NASASpaceflight/status/2121317448477728883"
         ]
       }
     }
