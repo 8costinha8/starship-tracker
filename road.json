@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "13 Nov",
-  "updatedAt": "2026-11-13T02:03:13.187Z",
+  "updatedAt": "2026-11-13T02:31:11.247Z",
   "categories": [
     {
       "id": "cryo",
@@ -4142,6 +4142,16 @@
   ],
   "feed_items": [
     {
+      "id": "news-mwecycbs-a8f35c",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Ship 42 arrived at the launch site and was stacked onto Booster 21.",
+      "url": "https://x.com/RGVaerialphotos/status/2121067732984885419",
+      "at": "2026-11-13T02:28:49.000Z",
+      "date": "13 Nov",
+      "flight": 15
+    },
+    {
       "id": "news-mweajln4-cff1cb",
       "kind": "news",
       "title": "🚀 Starship",
@@ -4579,16 +4589,6 @@
         "from": "static",
         "why": "covers both vehicles (B22 25 Oct, S42 ×2 27 Oct): no single vehicle card; not shown in a Ship 42 drawer"
       }
-    },
-    {
-      "id": "launch_date-mvv5rls0-69f74f",
-      "kind": "launch_date",
-      "title": "📅 Flight 15",
-      "body": "Flight 15 moved to NET 12 Nov (from 8 Nov)",
-      "at": "2026-10-30T16:00:00.000Z",
-      "date": "30 Oct",
-      "flight": 15,
-      "box": "date"
     }
   ],
   "milestones": {
