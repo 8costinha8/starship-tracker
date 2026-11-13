@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "13 Nov",
-  "updatedAt": "2026-11-13T22:01:26.167Z",
+  "updatedAt": "2026-11-13T22:02:43.085Z",
   "categories": [
     {
       "id": "cryo",
@@ -4271,6 +4271,15 @@
   ],
   "feed_items": [
     {
+      "id": "flight-mwfivx1x-95ee39",
+      "kind": "flight",
+      "title": "📡 Livestream ready",
+      "body": "Liftoff in 60 min - tap to watch",
+      "at": "2026-11-13T22:02:39.765Z",
+      "date": "13 Nov",
+      "flight": 15
+    },
+    {
       "id": "flight-mwfit5i8-ba5006",
       "kind": "flight",
       "title": "🚧 Launch delayed",
@@ -4701,17 +4710,6 @@
       "flight": 15,
       "src": "@LabPadre",
       "push_text": "Starship flight 15 has a tentative target date of Friday 13 November"
-    },
-    {
-      "id": "news-mw2xdk08-ec25f3",
-      "kind": "news",
-      "title": "🚀 Starship",
-      "body": "More deluge testing took place at Starbase today.",
-      "url": "https://x.com/efraser77/status/2118168243030622462",
-      "at": "2026-11-05T02:27:17.000Z",
-      "date": "5 Nov",
-      "flight": 15,
-      "src": "@efraser77"
     }
   ],
   "milestones": {
