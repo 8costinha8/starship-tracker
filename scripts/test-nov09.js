@@ -21,7 +21,7 @@ const appFn = (name) => { const i = APP.indexOf(`function ${name}(`); const j = 
 
 (async () => {
   // ── 1. Launch date box: "NET 13 Nov", display only
-  const r0 = clone(live), before = JSON.stringify(r0);
+  const r0 = clone(live); delete r0.official_date; const before = JSON.stringify(r0); // 13 Nov: the no-official-date world (live carries a pinned official_date)
   const plain = FL.boxes(r0).date, withNet = FL.boxes(r0, undefined, { net: NET }).date;
   check(withNet.latest === "NET 13 Nov", `box headline with the hero NET: "${withNet.latest}"`);
   check(!/Estimated|unofficial|predict|NSF|Elon|SpaceX|\(/i.test(withNet.latest), "no 'Estimated', source or prediction label");

@@ -151,8 +151,9 @@ const estimatedNoSx = badgeOf(dateRoad({ predicted: { flight: 17, net: "2026-12-
 check(estimatedNoSx && estimatedNoSx.text === "Estimated" && estimatedNoSx.status === "progress",
   "Flight 17: Estimated badge is kept when the source is not SpaceX");
 
-const liveFlog = F.boxes(live), liveDate = (live.feed_items || []).find((f) => f.id === (RC.view(live).cards.find((c) => c.cat === "date") || {}).id);
-const liveBadge = liveDate && badgeFns.launchDateCardBadge(live, { id: liveDate.id, h: { url: liveDate.url, text: liveDate.body } }, liveFlog);
+const unoff = JSON.parse(JSON.stringify(live)); delete unoff.official_date; // 13 Nov: live now carries a pinned official_date; these two checks model the world without it
+const liveFlog = F.boxes(unoff), liveDate = (live.feed_items || []).find((f) => f.id === (RC.view(live).cards.find((c) => c.cat === "date") || {}).id);
+const liveBadge = liveDate && badgeFns.launchDateCardBadge(unoff, { id: liveDate.id, h: { url: liveDate.url, text: liveDate.body } }, liveFlog);
 check(liveFlog.date && liveFlog.date.statusText === "Not confirmed",
   "boxes() itself is unchanged on the live road (still Not confirmed)");
 check(liveBadge && liveBadge.text === "Pending approval" && liveBadge.status === "progress",

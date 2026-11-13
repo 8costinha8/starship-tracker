@@ -2,7 +2,8 @@
 const fs = require("fs"), path = require("path"), fl = require("./flightlog.js");
 let fails = 0, n = 0; const check = (ok, m) => { n++; console.log((ok ? "✅ " : "❌ ") + m); if (!ok) fails++; };
 const live = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "road.json"), "utf8"));
-const clone = () => JSON.parse(JSON.stringify(live));
+// 13 Nov: fixtures model the no-official-date world (live road.json carries a pinned official_date for Flight 15)
+const clone = () => { const r = JSON.parse(JSON.stringify(live)); delete r.official_date; return r; };
 const b = fl.boxes(live);
 check(b.cryo.status === "done" && b.cryo.statusText === "Complete", "Cryo: both vehicles done → ● Complete");
 check(b.raptor.status === "done" && b.raptor.statusText === "Installed", "Raptors: ● Installed");
@@ -13,7 +14,8 @@ check(b.faa.status === "none" && b.faa.statusText === "Not yet", "FAA: no licenc
 // 9 Nov re-date: live road.predicted is cleared while Launch Library has a day-or-better date (predicted.js), so the ◐ case uses a fixture
 { const pd = clone(); pd.predicted = { flight: 15, net: "2026-11-13", basis: "NSF · Elon Musk", sources: [{ name: "NSF" }, { name: "Elon Musk" }] }; const d = fl.boxes(pd).date;
   check(d.status === "progress" && d.statusText === "Estimated" && /NET/.test(d.latest), "Launch date: unofficial NET → ◐ Estimated"); }
-check(live.predicted || (b.date.status === "none" && b.date.statusText === "Not confirmed"), "Launch date: no unofficial NET stored → ○ Not confirmed");
+{ const r = clone(), d = fl.boxes(r).date; check(r.predicted || (d.status === "none" && d.statusText === "Not confirmed"), "Launch date: no unofficial NET stored → ○ Not confirmed"); }
+check(!live.official_date || (b.date.status === "done" && b.date.statusText === "Confirmed"), "Launch date: live pinned SpaceX date → ● Confirmed");
 { const r = clone(); delete r.predicted; const d = fl.boxes(r).date; check(d.status === "none" && d.statusText === "Not confirmed", "Launch date: no NET → ○ Not confirmed"); }
 { const r = clone(); r.official_date = { day: "8 Nov", text: "Flight 15 is set for 8 Nov." }; const d = fl.boxes(r).date; check(d.status === "done" && d.statusText === "Confirmed", "Launch date: SpaceX date → ● Confirmed"); }
 { const r = clone(); r.vehicles = [...r.vehicles, "S99"]; const c = fl.boxes(r).cryo; check(c.status === "progress" && c.statusText === "In progress", "Cryo: not every vehicle done → ◐ In progress"); }

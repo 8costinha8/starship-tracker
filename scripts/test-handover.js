@@ -106,7 +106,7 @@ let c2 = null;
 { const sum = CR.rolloverRoad(JSON.parse(JSON.stringify(S.roads.C)), 15, SIM.T0).road.archive[15].summary; check(sum && JSON.stringify(sum) === JSON.stringify(H.summarize(S.roads.C)), "checker freezes the same summary the app shows"); }
 // follow-up 1: after liftoff the Launch date box is history (past tense, Complete), not "Estimated NET … / No official date"
 { const lift = /^Flight 15 launched on 12 Nov at 23:30 UK time\.$/;
-  const bB = FL.boxes(S.roads.B, "12 Nov").date; check(bB.status !== "done" && !lift.test(bB.latest), "B (in flight, not yet logged): Launch date box still the forecast");
+  const bB = FL.boxes(S.roads.B, "12 Nov").date; check(bB.statusText !== "Complete" && !lift.test(bB.latest) && (bB.status !== "done" || bB.statusText === "Confirmed"), "B (in flight, not yet logged): Launch date box still the forecast (Confirmed only when SpaceX published the date)");
   const bC = FL.boxes(S.roads.C, "13 Nov").date, l0 = bC.cards[0].lines[0];
   check(bC.status === "done" && bC.statusText === "Complete" && lift.test(bC.latest) && lift.test(l0.text) && l0.day === "12 Nov" && l0.time === "23:30", `C: Launch date box "${bC.latest}" · ${bC.statusText}`);
   check(!/Estimated NET|No official/.test(JSON.stringify(bC.cards[0].lines[0]) + bC.latest), "C: no 'Estimated NET 12 Nov' / 'No official date' after liftoff");
