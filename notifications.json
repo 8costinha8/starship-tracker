@@ -2151,6 +2151,18 @@
       "verdict": "silent: minor other — a push went out 0.7h ago (quiet window 24h)",
       "gate": "second trusted source agrees",
       "key": "S42|other|13 Nov"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Alignment markers were added to Ship 42.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mwedf26g-01f0ab",
+      "url": "https://x.com/TrackingTheSB/status/2121071003577315825",
+      "at": "2026-11-13T02:41:49.000Z",
+      "sent_at": "2026-11-13T02:46:19.277Z",
+      "where": "feed",
+      "verdict": "silent: minor other — a push went out 1.0h ago (quiet window 24h)",
+      "gate": "second trusted source agrees",
+      "key": "S42|other|13 Nov"
     }
   ]
 }
