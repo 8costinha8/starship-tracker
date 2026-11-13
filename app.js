@@ -182,14 +182,6 @@ const siteLabel = (f) => f.site || DEFAULT_SITE;
 const WATCH_LIVE_LEAD_MS = 60 * 60 * 1000; // opens 60 min before scheduled launch
 const WATCH_LIVE_TRAIL_MS = 4 * 60 * 60 * 1000; // closes 4 hours after, well past a normal launch + stream
 const WATCH_LIVE_URL = "https://x.com/SpaceX";
-// "Where to watch" links on launch day (plain links; nothing is fetched from them).
-// The YouTube channel ids are the same ones scripts/check-road.js reads.
-const WATCH_LINKS = [
-  { label: "SpaceX on X", href: "https://x.com/SpaceX" },
-  { label: "SpaceX website", href: "https://www.spacex.com/launches/" },
-  { label: "Live pad cam 1", href: "https://www.youtube.com/channel/UCSUu1lih2RifWkKtDOJdsBA/live" },
-  { label: "Live pad cam 2", href: "https://www.youtube.com/channel/UCFwMITSkc1Fms6PoJoh1OUQ/live" },
-];
 
 const reduceMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -1101,7 +1093,6 @@ function NextFlightCard({ f, checkedAt, road, children }) {
   const status = effectiveStatus(f, now);
   const confirmed = status === "confirmed" && exactTime(f);
   const win = confirmed && f.windowStart ? windowText(f, now) : null;
-  const showWatch = confirmed || status === "inflight";
   const dateLabel = status === "net" ? "NET date" : status === "inflight" || status === "done" ? "Liftoff" : "Date";
   let dateText = "To be confirmed";
   if (status === "inflight" || status === "done") dateText = f.date ? fmtLaunchedLondon(f.date) : dateText;
@@ -1132,12 +1123,6 @@ function NextFlightCard({ f, checkedAt, road, children }) {
           <p className="next-note">{scrub(f.note)}</p>
           {missionLines(road, f.n).map((u, i) => <p className="next-upd" key={i}>{scrub(u.line)}</p>)}
         </>
-      )}
-      {showWatch && (
-        <div className="watch-where">
-          <span className="watch-where-h">Where to watch</span>
-          <ul>{WATCH_LINKS.map((l) => <li key={l.href}><a href={l.href} target="_blank" rel="noopener noreferrer">{l.label}</a></li>)}</ul>
-        </div>
       )}
       {status === "inflight" && checkedAt && <p className="auto-note">Auto-updating · last checked {fmtTimeLondon(checkedAt)}</p>}
       {children}
@@ -3144,11 +3129,6 @@ a.watch-badge-live:active { transform: scale(.96); }
 .facts .pred-basis { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }
 .next-note { font-size: 13.5px; line-height: 1.55; color: #CDD6EE; margin: 0; }
 .next-upd { font-size: 13.5px; line-height: 1.55; color: #CDD6EE; margin: 6px 0 0; } /* mission update line, same look as the note */
-.watch-where { margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(170,190,245,.16); }
-.watch-where-h { display: block; font-size: 12px; color: #AAB6D6; margin-bottom: 8px; }
-.watch-where ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
-.watch-where a { display: inline-block; font-size: 12.5px; font-weight: 600; color: var(--text); text-decoration: none; padding: 5px 10px; border-radius: 9px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.1); }
-.watch-where a:active { transform: scale(.96); }
 .auto-note { margin: 12px 0 0; font-size: 11.5px; color: var(--muted); opacity: .8; font-variant-numeric: tabular-nums; }
 
 /* connector between cards */
