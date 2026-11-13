@@ -2259,6 +2259,30 @@
       "verdict": "sent",
       "gate": "second trusted source agrees",
       "key": "F15|other|13 Nov"
+    },
+    {
+      "title": "✅ Launch time confirmed",
+      "body": "13 Nov 22:45",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=flight-mwfdg7kn-8cd844",
+      "url": "",
+      "at": "2026-11-13T19:30:28.823Z",
+      "sent_at": "2026-11-13T19:31:55.221Z",
+      "where": "feed",
+      "verdict": "sent",
+      "gate": "not an X tracker post",
+      "key": "flight|launch_date@13 Nov 22:45|13 Nov"
+    },
+    {
+      "title": "🏗️ Pad activity · Flight 15",
+      "body": "Pad 2 chopsticks opening for launch and catch.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2121314305836810700",
+      "url": "https://x.com/RGVaerialphotos/status/2121314305836810700",
+      "at": "2026-11-13T18:48:37.000Z",
+      "sent_at": "2026-11-13T19:32:23.120Z",
+      "where": "road",
+      "verdict": "sent",
+      "gate": "hold passed (1 run)",
+      "key": "starship|pad_work|13 Nov"
     }
   ]
 }
