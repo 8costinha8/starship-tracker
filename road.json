@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "13 Nov",
-  "updatedAt": "2026-11-13T02:46:17.672Z",
+  "updatedAt": "2026-11-13T03:01:50.180Z",
   "categories": [
     {
       "id": "cryo",
@@ -4149,7 +4149,8 @@
       "url": "https://x.com/TrackingTheSB/status/2121071003577315825",
       "at": "2026-11-13T02:41:49.000Z",
       "date": "13 Nov",
-      "flight": 15
+      "flight": 15,
+      "box": "pad"
     },
     {
       "id": "news-mwecycbs-a8f35c",
