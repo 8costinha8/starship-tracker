@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "13 Nov",
-  "updatedAt": "2026-11-13T23:16:46.680Z",
+  "updatedAt": "2026-11-13T23:31:30.165Z",
   "categories": [
     {
       "id": "cryo",
@@ -4220,14 +4220,6 @@
         "post_id": "2120690698668097998"
       },
       {
-        "topic": "landing",
-        "line": "Super Heavy diverted to offshore splashdown in Gulf (SpaceX, 13 Nov).",
-        "at": "2026-11-13T22:55:15.000Z",
-        "src": "@SpaceX",
-        "url": "https://x.com/SpaceX/status/2121376372576915909",
-        "post_id": "2121376372576915909"
-      },
-      {
         "topic": "trajectory",
         "line": "Starship on suborbital trajectory, systems check for orbit (SpaceX, 13 Nov).",
         "at": "2026-11-13T22:57:02.000Z",
@@ -4250,6 +4242,14 @@
         "src": "@SpaceX",
         "url": "https://x.com/SpaceX/status/2121380531640369470",
         "post_id": "2121380531640369470"
+      },
+      {
+        "topic": "other",
+        "line": "Ship 42 heat shield inspected while passing over storm (Blobifie reports, 13 Nov).",
+        "at": "2026-11-13T23:29:40.000Z",
+        "src": "@Blobifie",
+        "url": "https://x.com/Blobifie/status/2121385033495990695",
+        "post_id": "2121385033495990695"
       }
     ]
   },
