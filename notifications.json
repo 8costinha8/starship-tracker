@@ -2175,6 +2175,18 @@
       "verdict": "silent: minor other — a push went out 3.0h ago (quiet window 24h)",
       "gate": "second trusted source agrees",
       "key": "starship|other|13 Nov"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Starship Flight 15 was twelve hours from launch as the FAA had not issued a licence.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mweuujoo-85363c",
+      "url": "https://x.com/Blobifie/status/2121193796138676522",
+      "at": "2026-11-13T10:49:45.000Z",
+      "sent_at": "2026-11-13T11:15:59.502Z",
+      "where": "feed",
+      "verdict": "silent: minor other — a push went out 9.5h ago (quiet window 24h)",
+      "gate": "second trusted source agrees",
+      "key": "F15|other|13 Nov"
     }
   ]
 }
