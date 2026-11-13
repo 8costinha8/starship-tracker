@@ -1026,7 +1026,7 @@ function AboutPanel({ open, onClose, onManageNotifications }) {
           <dt>Flight data</dt><dd>Last checked {fmtDay(String(DATA_CHECKED).replace(new RegExp(" " + new Date().getFullYear() + "$"), ""))}.</dd>
           <dt>Next flight</dt><dd>Launch dates move often. The countdown runs off the best known date and is tagged NET (estimated) until SpaceX confirms the exact time.</dd>
         </dl>
-        <FeedbackForm />
+        {FEEDBACK_ENABLED && <FeedbackForm />}
         {/* Notifications sit at the very bottom, under the feedback box (same look as the rows above) */}
         <dl>
           <dt>Notifications</dt><dd><button className="notify-manage-btn" onClick={onManageNotifications}>Manage notifications</button></dd>
@@ -1100,6 +1100,10 @@ function NotifyModal({ open, onClose }) {
   );
 }
 
+// Hidden for now (security): set FEEDBACK_ENABLED to true to bring the box back.
+// When false, the About menu does not render it, and handleSend returns before any
+// network or Firebase write. notifications.js is unchanged.
+const FEEDBACK_ENABLED = false;
 // The "What would you add?" box at the bottom of the About menu: the text box
 // is right there, ready to type into, no extra tap. It sends a short note
 // straight to Firestore via window.STNotify.sendFeedback (in notifications.js).
@@ -1140,6 +1144,7 @@ function FeedbackForm() {
   const onBlur = () => { blurTimer.current = setTimeout(() => setTyping(false), 300); };
 
   const handleSend = async () => {
+    if (!FEEDBACK_ENABLED) return; // no network or Firebase write while the box is hidden
     if (!text.trim() || sending) return;
     setState("sending");
     let res = { ok: false };
