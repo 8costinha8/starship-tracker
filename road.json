@@ -2305,19 +2305,19 @@
       "name": "Pad activity",
       "color": "#A88BFF",
       "status": "progress",
-      "latest": "SQD being connected to Ship 42 at the pad.",
+      "latest": "Ship 42 has the SQD connected at the pad.",
       "history": [
         {
           "id": "x-2121053588348866651",
           "date": "13 Nov",
           "log_date": "13 Nov",
           "at": "2026-11-13T01:32:37.000Z",
-          "text": "SQD being connected to Ship 42 at the pad.",
-          "x_text": "SQD being connected to Ship 42 at the pad.",
-          "push_text": "SQD connection underway on Ship 42.",
-          "card_text": "Ship 42 has SQD connected at Pad 2.",
-          "log_text": "Ship 42 has SQD connected at Pad 2.",
-          "status_line": "Ship 42 pad work underway.",
+          "text": "Ship 42 has the SQD connected at the pad.",
+          "x_text": "Ship 42 has the SQD connected at the pad.",
+          "push_text": "Ship 42 has the SQD connected at the pad.",
+          "card_text": "Ship 42 has the SQD connected at the pad.",
+          "log_text": "Ship 42 has the SQD connected at the pad.",
+          "status_line": "Ship 42 pad work in progress.",
           "url": "https://x.com/TrackingTheSB/status/2121053588348866651",
           "src": "@TrackingTheSB",
           "trust": "trusted",
@@ -2329,7 +2329,7 @@
             "post_id": "2121053588348866651",
             "url": "https://x.com/TrackingTheSB/status/2121053588348866651",
             "created_at": "2026-11-13T01:32:37.000Z",
-            "text": "The SQD is being connected to Ship 42! Also, Starship Tracking has boots on the ground! Follow Our Journey: https://t.co/UqJI1NQiUk #Tracking ⁠#Starship #Starbase #SpaceX",
+            "text": "The SQD is being connected to Ship 42!\nAlso, Starship Tracking has boots on the ground!\n\nFollow Our Journey: https://t.co/UqJI1NQiUk\n\n#Tracking ⁠#Starship #Starbase #SpaceX https://t.co/XsQMLtztlJ",
             "author": {
               "name": "StarshipTracking",
               "username": "TrackingTheSB",
@@ -2387,7 +2387,9 @@
               "post_url": "https://x.com/SpaceflightNow/status/2120975507676336473",
               "author": "SpaceflightNow"
             }
-          ]
+          ],
+          "edited_from": "SQD being connected to Ship 42 at the pad.",
+          "edited": true
         },
         {
           "id": "status-pad-progress-2121050758389154027",
