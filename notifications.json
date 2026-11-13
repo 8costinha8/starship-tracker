@@ -2403,6 +2403,54 @@
       "verdict": "sent",
       "gate": "not an X tracker post",
       "key": "F15|launch|13 Nov"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "Super Heavy diverted to offshore splashdown in Gulf (SpaceX, 13 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/SpaceX/status/2121376372576915909",
+      "at": "2026-11-13T22:55:15.000Z",
+      "sent_at": "2026-11-13T23:16:48.100Z",
+      "where": "mission",
+      "verdict": "sent",
+      "gate": "official source",
+      "key": "B22|flight_results|13 Nov"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "Starship to perform burn for 275 km orbit insertion (SpaceX, 13 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/SpaceX/status/2121380531640369470",
+      "at": "2026-11-13T23:11:46.000Z",
+      "sent_at": "2026-11-13T23:16:48.639Z",
+      "where": "mission",
+      "verdict": "silent: minor other — a push went out 0.0h ago (quiet window 24h)",
+      "gate": "official source",
+      "key": "starship|other|13 Nov"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "SpaceX polled go for Ship 42 orbital insertion burn (Spaceflight Now, 13 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/SpaceflightNow/status/2121380494097133961",
+      "at": "2026-11-13T23:11:37.000Z",
+      "sent_at": "2026-11-13T23:16:48.798Z",
+      "where": "mission",
+      "verdict": "silent: duplicate S42|other|13 Nov",
+      "gate": "second trusted source agrees",
+      "key": "S42|other|13 Nov"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "Starship on suborbital trajectory, systems check for orbit (SpaceX, 13 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/SpaceX/status/2121376821635936710",
+      "at": "2026-11-13T22:57:02.000Z",
+      "sent_at": "2026-11-13T23:16:48.801Z",
+      "where": "mission",
+      "verdict": "silent: minor other — a push went out 0.0h ago (quiet window 24h)",
+      "gate": "official source",
+      "key": "starship|other|13 Nov"
     }
   ]
 }
