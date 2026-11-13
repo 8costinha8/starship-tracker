@@ -4721,6 +4721,15 @@
     }
   ],
   "pad": "Pad 2",
+  "official_date": {
+    "flight": 15,
+    "pin": "status",
+    "text": "SpaceX published the Flight 15 launch date on its flight page.",
+    "url": "https://www.spacex.com/launches/starship-flight-15",
+    "source_quote": "Flight 15 of Starship is preparing to launch as soon as Friday, November 13, pending regulatory approval. The 75-minute launch window will open at 4:45 p.m. CT.",
+    "verified_at": "2026-11-13T16:31:00Z",
+    "note": "Manual pin (13 Nov, launch-day): locks only the Confirmed status (Bernardo's rule: a date is confirmed once SpaceX publishes it on its own flight page). No date is stored here: the app shows the newest NET (hero Launch Library NET, else the Launch date line), so a slip shows the new date and stays Confirmed. Remove this key if SpaceX pulls the date."
+  },
   "flightlog_pins": {
     "flight": 15,
     "as_of": "2026-10-28",

@@ -591,7 +591,22 @@ function authoritativeNetLabel(road, heroNet) {
   }
   return lastKnownNetLabel(road, n);
 }
-function launchDateDisplay(flogDate, netLabel) {
+// 13 Nov: road.official_date with pin "status" = a manual pin of the CONFIRMED state only (SpaceX published the date on its own
+// flight page). It carries no date of its own, so the shown date is always the newest NET (the hero's Launch Library NET, else the
+// last NET in road.json's Launch date line): a slip shows the new date and stays Confirmed. For this flight only. If SpaceX pulls the
+// date (no NET left anywhere) the box goes back to In progress; removing the pin from road.json also restores the old states.
+function pinnedOfficialDate(road) {
+  const o = road && road.official_date;
+  return o && o.pin === "status" && Number(o.flight) === Number(road.flight) ? o : null;
+}
+function launchDateDisplay(flogDate, netLabel, road, heroNet) {
+  if (flogDate && flogDate.status === "done" && flogDate.statusText === "Confirmed" && pinnedOfficialDate(road)) { // not after liftoff ("Complete")
+    const label = String(netLabel || "").trim();
+    if (!/^NET \d{1,2} (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)$/.test(label)) return { ...flogDate, status: "progress", statusText: "In progress", latest: "Date to be confirmed", cards: [] };
+    const hp = heroNet && Number(heroNet.n) === Number(road.flight) && Number.isFinite(Date.parse(heroNet.date)) ? ukParts(heroNet.date) : null;
+    const time = hp && `NET ${hp.day} ${hp.mon}` === label && hp.time && hp.time !== "00:00" ? ` ${hp.time}` : "";
+    return { ...flogDate, latest: `Confirmed · ${label}${time}`, cards: [] }; // the pill already says Confirmed; no drawer, so the item is not tappable
+  }
   if (!flogDate || flogDate.status === "done") return flogDate;
   const label = String(netLabel || "").trim();
   if (!/^NET \d{1,2} (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)$/.test(label)) return flogDate;
@@ -1383,7 +1398,7 @@ function RoadCard({ road, onEntryTap, openReq, heroNet, netPending }) {
   const flogBoxes = road && window.RoadFlightLog ? window.RoadFlightLog.boxes(road, undefined, { net: heroNet || null, pending: !!netPending }) : null; // heroNet: Launch date box says "NET 13 Nov" like the hero (display only)
   const dateNet = authoritativeNetLabel(road, heroNet);
   const items = road && Array.isArray(road.categories) ? road.categories.filter((m) => !ROAD_HIDDEN.includes(m.id)).map((m) => logView(m, road)).map((m) => ({ ...m, status: rollupStatus(m, road) }))
-    .map((m) => { const f = flogBoxes && flogBoxes[m.id]; const flog = (m.id === "date" && f) ? launchDateDisplay(f, dateNet) : (m.id === "pad" && f) ? flogPadDisplay(f, road) : (m.id === "faa" && f) ? faaLicenceDisplay(f) : f; return flog ? { ...m, status: flog.status, flog } : m; }) : [];
+    .map((m) => { const f = flogBoxes && flogBoxes[m.id]; const flog = (m.id === "date" && f) ? launchDateDisplay(f, dateNet, road, heroNet) : (m.id === "pad" && f) ? flogPadDisplay(f, road) : (m.id === "faa" && f) ? faaLicenceDisplay(f) : f; return flog ? { ...m, status: flog.status, flog } : m; }) : [];
   const listRef = React.useRef(null);
   if (!items.length) return null;
   const title = `Road to Flight ${road.flight}`;
@@ -1393,6 +1408,10 @@ function RoadCard({ road, onEntryTap, openReq, heroNet, netPending }) {
   // invisible), so each pill's width = the widest label + the same padding + the same border. No measuring.
   const pillLabels = [...new Set(items.map(label))];
   const pill = (m) => <span className={"badge badge-" + m.status}><span className="badge-stack">{pillLabels.map((l) => <span key={l} className="badge-ghost" aria-hidden="true">{l}</span>)}<span className="badge-txt">{label(m)}</span></span></span>;
+  // 13 Nov: an item opens only if its drawer would show something (Flight Log cards with a line, or a history entry this card lists).
+  // Decided from the data, never from the item id or flight number. Others render as a plain div: no tap, hover, focus or aria-expanded.
+  const hasDrawer = (m) => (m.flog ? (m.flog.cards || []).some((c) => c && Array.isArray(c.lines) && c.lines.length > 0)
+    : (m.history || []).some((h) => isRealEntry(h) && !(h.flight > road.flight) && !isLaunched(h.flight)));
   const count = (m) => { if (m.flog || !ONE_CARD.includes(m.id) || m.status === "done" || !window.RoadCleanup) return null;
     const vp = window.RoadCleanup.vehicleProgress(m, road); return vp.total && vp.done ? `${vp.done} of ${vp.total}` : null; };
   return (
@@ -1408,10 +1427,12 @@ function RoadCard({ road, onEntryTap, openReq, heroNet, netPending }) {
       </button>
       <div className="road-list"><div className="road-list-inner" ref={listRef}>
       {items.map((m) => {
-        const isOpen = open === m.id;
+        const canOpen = hasDrawer(m), isOpen = canOpen && open === m.id;
+        const Head = canOpen ? "button" : "div";
+        const headProps = canOpen ? { className: "callout-head", tabIndex: main ? 0 : -1, "aria-expanded": isOpen, onClick: () => setOpen(isOpen ? null : m.id) } : { className: "callout-head callout-static" };
         return (
-          <div key={m.id} className={"callout" + (isOpen ? " open" : "")} style={catVars(m.id, m.color)} data-id={m.id}>
-            <button className="callout-head" tabIndex={main ? 0 : -1} aria-expanded={isOpen} onClick={() => setOpen(isOpen ? null : m.id)}>
+          <div key={m.id} className={"callout" + (isOpen ? " open" : "") + (canOpen ? "" : " callout-fixed")} style={catVars(m.id, m.color)} data-id={m.id}>
+            <Head {...headProps}>
               <span className="callout-icon">{m.icon}</span>
               <span className="callout-body">
                 <span className="callout-name">{m.name}</span>
@@ -1419,8 +1440,8 @@ function RoadCard({ road, onEntryTap, openReq, heroNet, netPending }) {
               </span>
               {count(m) ? <span className="badge-wrap">{pill(m)}<span className="badge-count">{count(m)}</span></span>
                 : pill(m)}
-            </button>
-            <div className="callout-hist"><div className="callout-hist-inner">
+            </Head>
+            {canOpen && <div className="callout-hist"><div className="callout-hist-inner">
               {m.flog ? m.flog.cards.map((c) => <FlogCard key={c.vehicle} c={c} />) : (m.history || []).map((h, i) => isRealEntry(h) && !(h.flight > road.flight) && !isLaunched(h.flight) && ( /* later flights' cards: Road page only */
                 <div className={"mini" + (onEntryTap ? " tappable" : "") + (logGlows(m, h, road) ? " glow done" : "")} key={i}
                   {...(onEntryTap ? { role: "button", tabIndex: isOpen ? 0 : -1, "aria-label": `${logDay(h)}: ${logLine(h)}. Show in the updates feed`,
@@ -1433,7 +1454,7 @@ function RoadCard({ road, onEntryTap, openReq, heroNet, netPending }) {
                   <BuildUp h={h} log onTap={onEntryTap ? (u) => onEntryTap(m.id, u && u._hi != null ? u._hi : (h._hi ?? i)) : null} />
                 </div>
               ))}
-            </div></div>
+            </div></div>}
           </div>
         );
       })}
@@ -3114,6 +3135,7 @@ textarea.feedback-field { resize: none; min-height: 112px; }
   grid-template-columns: 34px 1fr auto; gap: 10px; align-items: start; padding: 14px 14px 14px 18px;
 }
 .callout-icon { font-size: 22px; line-height: 1.2; }
+.callout-head.callout-static { cursor: default; -webkit-tap-highlight-color: transparent; } /* 13 Nov: item with no drawer: not tappable */
 /* Same size everywhere: every box head is the same height (summary clamped to 2 lines), every vehicle sub-card
    is full width with the same padding and minimum height. */
 /* Road box head: icon + title + pill on one centred top row; the summary sits under that row at full width
