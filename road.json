@@ -3430,11 +3430,14 @@
           "push_text": "Ship transport stand leaves launch complex.",
           "card_text": "Ship transport stand leaves the launch complex.",
           "media_override": {
-            "post_url": "https://x.com/Blobifie/status/2121138587878248780",
-            "post_id": "2121138587878248780",
-            "author": "Blobifie",
+            "post_url": "https://x.com/SpaceX/status/2121044579470233638",
+            "post_id": "2121044579470233638",
+            "author": "SpaceX",
             "type": "photo",
-            "image": "https://pbs.twimg.com/media/HW_MNvwa4AAa2kw.jpg"
+            "image": "images/pad-f15-both-vehicles.jpg",
+            "credit_only": true,
+            "keep_image": true,
+            "locked": true
           }
         },
         {

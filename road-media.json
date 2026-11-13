@@ -227,6 +227,21 @@
    "credit_only": true,
    "note": "Frame at 0:11 of the SpaceX video: B22 33-engine static fire on Pad 2, full plume, tower and booster top in frame. Replaces the NSF-watermarked clip frame (X post media over news-site pictures, 31 Oct).",
    "locked": true
+  },
+  {
+   "category": "pad",
+   "date": "13 Nov",
+   "entry": "Ship transport stand has left the launch complex.",
+   "flight": 15,
+   "post_id": "2121044579470233638",
+   "post_url": "https://x.com/SpaceX/status/2121044579470233638",
+   "author": "SpaceX",
+   "media_type": "photo",
+   "image": "images/pad-f15-both-vehicles.jpg",
+   "keep_image": true,
+   "credit_only": true,
+   "locked": true,
+   "note": "Hand pick (Tusk/Bernardo, 13 Nov): bottom-right photo from SpaceX's four-shot post (00:56 UK) of Ship 42 moving to the pad — both B22 and S42 at Pad 2, 4096x2304 original with no recompress and no crop. Pinned on the Launch pad face (entry x-2118577080837574862, card text 'Ship transport stand leaves the launch complex.'). Picture credit only (Photo · @SpaceX); the fact stays with @Blobifie. Locked so the auto picker never replaces it."
   }
  ]
 }
