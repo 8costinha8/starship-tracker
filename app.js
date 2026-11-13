@@ -2489,7 +2489,7 @@ function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap, peekOpe
         </header>
         <div className="feed-list">
           {Number.isInteger(road && road.flight) && (
-            <div className="feed-pill-wrap" id={`fsec-${road.flight}`}>
+            <div className={"feed-pill-wrap" + (curOpen && curPosts.some((r) => r && r.post) ? " is-merged" : "") + (reduceMotion() ? " no-motion" : "")} id={`fsec-${road.flight}`}>
               <RoadFlightPill flight={road.flight} items={curItems} action="Next" open={curOpen} onClick={() => setCurOpen((v) => !v)} />
             </div>
           )}
@@ -3244,13 +3244,33 @@ section.road .callout-latest { grid-row: 2; grid-column: 2 / -1; margin-top: 0; 
 .feed-list { padding: 14px 18px calc(72px + env(safe-area-inset-bottom)); max-width: 440px; margin: 0 auto; }
 .feed-list .end { margin-top: 24px; }
 .feed-list > .post:has(+ .end) { margin-bottom: 0; }
-.feed-pill-wrap { margin: 0 0 14px; }
+.feed-pill-wrap { margin: 0 0 14px; transition: margin-bottom 300ms ease; }
+.feed-pill-wrap.is-merged { margin-bottom: -1px; position: relative; z-index: 1; } /* -1px hides the shared seam; pill sits on the first card */
 .feed-pill { all: unset; box-sizing: border-box; width: 100%; display: flex; align-items: center; gap: 8px;
   padding: 9px 14px 9px 16px; border-radius: 999px; background: rgba(20,28,52,.55); border: 1px solid rgba(170,190,245,.18);
-  color: var(--text); font: inherit; -webkit-tap-highlight-color: transparent; }
+  color: var(--text); font: inherit; -webkit-tap-highlight-color: transparent;
+  transition: border-radius 300ms ease, background-color 300ms ease, border-color 300ms ease; }
+.feed-pill-wrap.is-merged .feed-pill {
+  border-radius: 18px 18px 0 0; background: #1C2438; border-color: rgba(170,190,245,.14); border-bottom-color: transparent;
+}
 button.feed-pill { cursor: pointer; }
 button.feed-pill:focus-visible { outline: 2px solid #A9BDF0; outline-offset: 2px; }
 button.feed-pill:active { border-color: rgba(170,190,245,.3); }
+/* When the current-flight pill is open, it becomes the first card's header: flush join, squared corners, colour fade. */
+.feed-list > .deck-wrap > .deck-inner > .post:first-child {
+  transition: border-radius 300ms ease, background 300ms ease, border-color 300ms ease, box-shadow 300ms ease;
+}
+.feed-list > .deck-wrap > .deck-inner > .post:first-child::after { transition: border-radius 300ms ease; }
+.feed-pill-wrap.is-merged + .deck-wrap .deck-inner > .post:first-child {
+  border-top-left-radius: 0; border-top-right-radius: 0;
+  border-color: rgba(170,190,245,.14); border-top-color: transparent; box-shadow: none;
+  background: linear-gradient(180deg, #1C2438 0%, var(--card) 72px);
+}
+.feed-pill-wrap.is-merged + .deck-wrap .deck-inner > .post:first-child::after { border-radius: 0 0 18px 18px; }
+.feed-pill-wrap.is-merged + .deck-wrap.deck-animate.open .deck-inner > .post:first-child { animation: none; } /* stay attached to the pill; don't fan in */
+.feed-pill-wrap.no-motion, .feed-pill-wrap.no-motion .feed-pill,
+.feed-pill-wrap.no-motion + .deck-wrap .deck-inner > .post:first-child,
+.feed-pill-wrap.no-motion + .deck-wrap .deck-inner > .post:first-child::after { transition: none; }
 .feed-pill-title { flex: none; font-size: 14px; font-weight: 700; white-space: nowrap; }
 .feed-pill .road-count { flex: 1; font-size: 12px; font-weight: 500; color: var(--muted); white-space: nowrap; }
 .feed-pill-action { flex: none; display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 600; color: var(--text); }
