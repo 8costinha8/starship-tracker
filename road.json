@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "13 Nov",
-  "updatedAt": "2026-11-13T01:15:35.189Z",
+  "updatedAt": "2026-11-13T01:30:54.145Z",
   "categories": [
     {
       "id": "cryo",
@@ -2304,9 +2304,26 @@
       "icon": "🏗️",
       "name": "Pad activity",
       "color": "#A88BFF",
-      "status": "complete",
-      "latest": "Complete",
+      "status": "progress",
+      "latest": "Ship 42 lifted onto transport stand.",
       "history": [
+        {
+          "id": "status-pad-progress-2121050758389154027",
+          "kind": "status",
+          "date": "13 Nov",
+          "at": "2026-11-13T01:21:22.000Z",
+          "text": "Pad activity: In progress (13 Nov)",
+          "src": "@TrackingTheSB",
+          "trust": "trusted",
+          "flight": 15,
+          "url": "https://x.com/TrackingTheSB/status/2121050758389154027",
+          "xChecked": true,
+          "push": {
+            "title": "🏗️ Pad activity: In progress",
+            "url": "https://x.com/TrackingTheSB/status/2121050758389154027",
+            "at": "2026-11-13T01:21:22.000Z"
+          }
+        },
         {
           "id": "x-2121006374041899190",
           "date": "12 Nov",
@@ -2652,7 +2669,8 @@
             "2120975507676336473",
             "2120974579258507337",
             "2121003364909711585",
-            "2121008158634353091"
+            "2121008158634353091",
+            "2121050758389154027"
           ],
           "xChecked": true,
           "imageChecked2": true,
@@ -3883,7 +3901,7 @@
           "journey_context": "engine prep (1 Nov: not a Raptor milestone)"
         }
       ],
-      "log_latest": "Ship 42 stacked on Booster 22."
+      "log_latest": "Ship 42 moved to transport stand."
     },
     {
       "id": "faa",
@@ -4160,6 +4178,16 @@
     }
   ],
   "feed_items": [
+    {
+      "id": "news-mweajln4-cff1cb",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "The SQD was connected to Ship 42.",
+      "url": "https://x.com/TrackingTheSB/status/2121050758389154027",
+      "at": "2026-11-13T01:21:22.000Z",
+      "date": "13 Nov",
+      "flight": 15
+    },
     {
       "id": "news-mwe9iewo-e9b8c0",
       "kind": "news",
@@ -4597,19 +4625,6 @@
       "date": "30 Oct",
       "flight": 15,
       "box": "date"
-    },
-    {
-      "id": "news-mvuqvczs-7b7a15",
-      "kind": "news",
-      "title": "🚀 Starship",
-      "body": "Booster 23 returned to Megabay 1 from the Massey outpost.",
-      "url": "https://x.com/LabPadre/status/2116093506200453375",
-      "at": "2026-10-30T09:03:01.000Z",
-      "date": "30 Oct",
-      "flight": 16,
-      "src": "@LabPadre",
-      "push_text": "Booster 23 has returned to Megabay 1 from the Massey outpost",
-      "later_flight": true
     }
   ],
   "milestones": {
@@ -4993,7 +5008,7 @@
         "x-2120998082779418716"
       ],
       "likely": null,
-      "at": "2026-11-13T00:09:58.000Z",
+      "at": "2026-11-13T01:21:22.000Z",
       "counted": [
         "https://x.com/LabPadre/status/2095620292823462214",
         "https://x.com/LabPadre/status/2108486994401825101",
