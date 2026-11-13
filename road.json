@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "13 Nov",
-  "updatedAt": "2026-11-13T05:15:57.381Z",
+  "updatedAt": "2026-11-13T06:01:07.308Z",
   "categories": [
     {
       "id": "cryo",
@@ -2637,11 +2637,23 @@
           "updates": [
             {
               "date": "12 Nov",
+              "at": "2026-11-12T17:19:23.000Z",
+              "text": "Ship 42 left Megabay 2 after its starlinks were installed.",
+              "card_text": "Ship 42 left Megabay 2 after its starlinks were installed.",
+              "url": "https://x.com/Blobifie/status/2120929463701787055",
+              "src": "@Blobifie",
+              "handle": "Blobifie",
+              "phase": "progress",
+              "tier": 2,
+              "self_check": "from feed news-mwdtbrlk-dc662f"
+            },
+            {
+              "date": "12 Nov",
               "log_date": "12 Nov",
               "at": "2026-11-12T19:03:02.000Z",
               "text": "Ship 42 rolls toward the launch site for Flight 15.",
               "push_text": "Ship 42 rolls toward the launch site for Flight 15.",
-              "card_text": "Ship 42 rolls toward the launch site for Flight 15.",
+              "card_text": "Ship 42 rolled toward the launch site for Flight 15.",
               "log_text": "Ship 42 rolls toward the launch site for Flight 15.",
               "url": "https://x.com/NASASpaceflight/status/2120955546807214226",
               "src": "@NASASpaceflight",
@@ -2655,7 +2667,7 @@
               "at": "2026-11-12T19:14:12.000Z",
               "text": "SpaceX rolls Ship 42 to Pad 2 ahead of stacking on Booster 22.",
               "push_text": "Ship 42 rolls to Pad 2 for stacking on Booster 22.",
-              "card_text": "Ship 42 rolls to Pad 2 ahead of stacking on Booster 22.",
+              "card_text": "Ship 42 rolled to Pad 2 ahead of stacking on Booster 22.",
               "log_text": "Ship 42 rolls to Pad 2 ahead of stacking on Booster 22.",
               "url": "https://x.com/SpaceflightNow/status/2120958355892035972",
               "src": "@SpaceflightNow",
@@ -4149,7 +4161,8 @@
       "url": "https://x.com/NASASpaceflight/status/2121098593297699100",
       "at": "2026-11-13T04:31:27.000Z",
       "date": "13 Nov",
-      "flight": 15
+      "flight": 15,
+      "src": "@NASASpaceflight"
     },
     {
       "id": "news-mwedf26g-01f0ab",
@@ -4160,7 +4173,8 @@
       "at": "2026-11-13T02:41:49.000Z",
       "date": "13 Nov",
       "flight": 15,
-      "box": "pad"
+      "box": "pad",
+      "src": "@TrackingTheSB"
     },
     {
       "id": "news-mwecycbs-a8f35c",
@@ -4171,7 +4185,8 @@
       "at": "2026-11-13T02:28:49.000Z",
       "date": "13 Nov",
       "flight": 15,
-      "box": "pad"
+      "box": "pad",
+      "src": "@RGVaerialphotos"
     },
     {
       "id": "news-mweajln4-cff1cb",
@@ -4182,7 +4197,8 @@
       "at": "2026-11-13T01:21:22.000Z",
       "date": "13 Nov",
       "flight": 15,
-      "box": "pad"
+      "box": "pad",
+      "src": "@TrackingTheSB"
     },
     {
       "id": "news-mwe9iewo-e9b8c0",
@@ -4193,7 +4209,8 @@
       "at": "2026-11-13T00:52:27.000Z",
       "date": "13 Nov",
       "flight": 15,
-      "box": "pad"
+      "box": "pad",
+      "src": "@LabPadre"
     },
     {
       "id": "news-mwdv1ilc-0c30dd",
@@ -4203,7 +4220,8 @@
       "url": "https://x.com/LabPadre/status/2120941544416944336",
       "at": "2026-11-12T18:07:24.000Z",
       "date": "12 Nov",
-      "flight": 15
+      "flight": 15,
+      "src": "@LabPadre"
     },
     {
       "id": "news-mwdtbrlk-dc662f",
@@ -4214,7 +4232,8 @@
       "at": "2026-11-12T17:19:23.000Z",
       "date": "12 Nov",
       "flight": 15,
-      "box": "pad"
+      "box": "pad",
+      "src": "@Blobifie"
     },
     {
       "id": "news-mwcygodc-9eb18d",
@@ -5025,28 +5044,47 @@
     "https://pbs.twimg.com/media/HWy0d_WWkAAXaXu.jpg": "images/cache/media_HWy0d_WWkAAXaXu.jpg",
     "https://pbs.twimg.com/media/HWvq8UtXAAAkRrQ.jpg": "images/cache/media_HWvq8UtXAAAkRrQ.jpg",
     "https://pbs.twimg.com/media/HWyJD07XwAANxuA.jpg": "images/cache/media_HWyJD07XwAANxuA.jpg",
-    "https://pbs.twimg.com/media/HW4NLtuaQAAdk8Y.jpg": "images/cache/media_HW4NLtuaQAAdk8Y.jpg"
+    "https://pbs.twimg.com/media/HW4NLtuaQAAdk8Y.jpg": "images/cache/media_HW4NLtuaQAAdk8Y.jpg",
+    "https://pbs.twimg.com/media/HW98TimawAAHxe_.jpg": "images/cache/media_HW98TimawAAHxe_.jpg",
+    "https://pbs.twimg.com/media/HW9sEvoXMAALgwj.jpg": "images/cache/media_HW9sEvoXMAALgwj.jpg",
+    "https://pbs.twimg.com/media/HW83-XfXIAEEqIh.jpg": "images/cache/media_HW83-XfXIAEEqIh.jpg",
+    "https://pbs.twimg.com/amplify_video_thumb/2120969801539444737/img/jubsleUINWocErFL.jpg": "images/cache/amplify_video_thumb_2120969801539444737_img_jubsleUINWocErFL.jpg"
   },
   "self_check": {
-    "at": "2026-11-12T06:01:43.132Z",
-    "fixes": 7,
-    "flags": 5,
+    "at": "2026-11-13T06:01:06.773Z",
+    "fixes": 14,
+    "flags": 19,
     "counts": {
-      "missing-row": 2,
-      "source-badge": 4,
-      "image-cache": 1
+      "missing-row": 1,
+      "past-tense": 2,
+      "source-badge": 7,
+      "image-cache": 4
     },
     "judge_calls": 0,
     "flagged": [
       "[missing-row] feed news-mwcygodc-9eb18d \"Ship 42 was moved back inside Megabay 2 to have its Starlink V3s installed.\" (S42) is on no card and no same-vehicle card follows within 12 h",
-      "[render-tense] Road card Pad activity · Launch pad: \"Pad activity: In progress (10 Nov)\" has no verb (fragment)",
+      "[render-tense] Road card Pad activity · Ship 42 › 12 Nov · 21:52: \"Ship 42 heads to Pad 2.\" has no verb (fragment)",
+      "[render-tense] Road card Pad activity · Launch pad: \"Pad activity: In progress (13 Nov)\" has no verb (fragment)",
+      "[render-tense] Road card Pad activity · Launch pad › 10 Nov · 09:03: \"Pad activity: In progress (10 Nov)\" has no verb (fragment)",
+      "[render-tense] Flight Log pad Launch pad 13 Nov: \"Pad activity: In progress (13 Nov)\" has no verb (fragment)",
       "[render-tense] Flight Log pad Launch pad 10 Nov: \"Pad activity: In progress (10 Nov)\" has no verb (fragment)",
-      "[render-fragment] Road card Pad activity · Launch pad: \"Pad activity: In progress (10 Nov)\" starts with a colon-led fragment ('Pad activity:')",
+      "[render-tense] Feed news-mwehc1so-0b6a15: \"Countdown started at Starbase for a potentially historic Starship mission.\" is a headline fragment (no subject article / auxiliary)",
+      "[render-tense] Road card Pad activity · Ship 42 › 12 Nov · 21:52: \"Ship 42 heads to Pad 2.\" is present tense on screen",
+      "[render-crossover] Pad activity · Ship 42 shows \"Ship 42 was stacked on Booster 22 ahead of launch.\" (names B22)",
+      "[render-crossover] Pad activity · Ship 42 shows \"Ship 42 rolled to Pad 2 ahead of stacking on Booster 22.\" (names B22)",
+      "[render-crossover] Pad activity · Booster 22 shows \"Ship 42 was stacked on Booster 22 ahead of launch.\" (names S42)",
+      "[render-shorthand] Road card Pad activity · Ship 42 › 13 Nov · 01:32: \"Ship 42 has the SQD connected at the pad.\" uses shorthand 'SQD'",
+      "[render-shorthand] Road card Pad activity · Ship 42 › 13 Nov · 01:21: \"The SQD was connected to Ship 42.\" uses shorthand 'SQD'",
+      "[render-fragment] Road card Pad activity · Launch pad: \"Pad activity: In progress (13 Nov)\" starts with a colon-led fragment ('Pad activity:')",
+      "[render-fragment] Road card Pad activity · Launch pad › 10 Nov · 09:03: \"Pad activity: In progress (10 Nov)\" starts with a colon-led fragment ('Pad activity:')",
+      "[render-shorthand] Feed news-mweajln4-cff1cb: \"The SQD was connected to Ship 42.\" uses shorthand 'SQD'",
+      "[render-shorthand] Flight Log pad Ship 42 13 Nov: \"Ship 42 has the SQD connected at the pad.\" uses shorthand 'SQD'",
+      "[render-fragment] Flight Log pad Launch pad 13 Nov: \"Pad activity: In progress (13 Nov)\" starts with a colon-led fragment ('Pad activity:')",
       "[render-fragment] Flight Log pad Launch pad 10 Nov: \"Pad activity: In progress (10 Nov)\" starts with a colon-led fragment ('Pad activity:')"
     ],
     "render": {
       "status": "failed",
-      "failures": 4
+      "failures": 18
     }
   },
   "mission_alerts": {
