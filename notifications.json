@@ -2283,6 +2283,18 @@
       "verdict": "sent",
       "gate": "hold passed (1 run)",
       "key": "starship|pad_work|13 Nov"
+    },
+    {
+      "title": "📡 Livestream ready",
+      "body": "Liftoff in 60 min - tap to watch",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=flight-mwfi9kn7-95ee39",
+      "url": "",
+      "at": "2026-11-13T21:45:17.251Z",
+      "sent_at": "2026-11-13T21:45:48.529Z",
+      "where": "feed",
+      "verdict": "sent",
+      "gate": "not an X tracker post",
+      "key": "starship|livestream|13 Nov"
     }
   ]
 }
