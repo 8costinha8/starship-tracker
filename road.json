@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "13 Nov",
-  "updatedAt": "2026-11-13T16:45:59.682Z",
+  "updatedAt": "2026-11-13T17:16:21.131Z",
   "categories": [
     {
       "id": "cryo",
@@ -4142,14 +4142,6 @@
         "post_id": "2120690698668097998"
       },
       {
-        "topic": "payload",
-        "line": "Ship 42 has 26 Starlinks installed (Blobifie reports, 12 Nov).",
-        "at": "2026-11-12T17:19:23.000Z",
-        "src": "@Blobifie",
-        "url": "https://x.com/Blobifie/status/2120929463701787055",
-        "post_id": "2120929463701787055"
-      },
-      {
         "topic": "catch",
         "line": "NOTAMs released covering re-entry locations and catch of Ship 42 for Flight 15 (LabPadre reports, 12 Nov).",
         "at": "2026-11-12T18:07:24.000Z",
@@ -4172,6 +4164,14 @@
         "src": "@elonmusk",
         "url": "https://x.com/elonmusk/status/2121250205806772283",
         "post_id": "2121250205806772283"
+      },
+      {
+        "topic": "landing",
+        "line": "SpaceX launches Starship Flight 15 with booster catch (NASASpaceflight, 13 Nov).",
+        "at": "2026-11-13T17:01:13.000Z",
+        "src": "@NASASpaceflight",
+        "url": "https://x.com/NASASpaceflight/status/2121287277666029828",
+        "post_id": "2121287277666029828"
       }
     ]
   },
