@@ -2235,6 +2235,18 @@
       "verdict": "silent: minor other — a push went out 0.5h ago (quiet window 24h)",
       "gate": "second trusted source agrees",
       "key": "F15|other|13 Nov"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "FAA approval has arrived for Starship Flight 15 (NASASpaceflight, 13 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/NASASpaceflight/status/2121317239580512295",
+      "at": "2026-11-13T19:00:16.000Z",
+      "sent_at": "2026-11-13T19:02:54.252Z",
+      "where": "mission",
+      "verdict": "silent: minor other — a push went out 1.3h ago (quiet window 24h)",
+      "gate": "second trusted source agrees",
+      "key": "F15|other|13 Nov"
     }
   ]
 }
