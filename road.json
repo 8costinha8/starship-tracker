@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "13 Nov",
-  "updatedAt": "2026-11-13T17:46:31.974Z",
+  "updatedAt": "2026-11-13T18:16:06.879Z",
   "categories": [
     {
       "id": "cryo",
@@ -4151,14 +4151,6 @@
         "post_id": "2120690698668097998"
       },
       {
-        "topic": "catch",
-        "line": "SpaceX plans to catch both Booster 22 and Ship 42 on Flight 15 (NASASpaceflight, 13 Nov).",
-        "at": "2026-11-13T04:31:27.000Z",
-        "src": "@NASASpaceflight",
-        "url": "https://x.com/NASASpaceflight/status/2121098593297699100",
-        "post_id": "2121098593297699100"
-      },
-      {
         "topic": "other",
         "line": "Ship 42 is preparing for launch (Elon Musk, 13 Nov).",
         "at": "2026-11-13T14:33:54.000Z",
@@ -4181,6 +4173,14 @@
         "src": "@SpaceflightNow",
         "url": "https://x.com/SpaceflightNow/status/2121292523503030697",
         "post_id": "2121292523503030697"
+      },
+      {
+        "topic": "licence",
+        "line": "No official FAA word yet on Flight 15 licence (NASASpaceflight, 13 Nov).",
+        "at": "2026-11-13T18:03:41.000Z",
+        "src": "@NASASpaceflight",
+        "url": "https://x.com/NASASpaceflight/status/2121302998219641167",
+        "post_id": "2121302998219641167"
       }
     ]
   },
