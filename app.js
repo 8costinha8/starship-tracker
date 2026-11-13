@@ -2497,6 +2497,15 @@ function StarshipTracker() {
     return () => window.removeEventListener("keydown", onEsc);
   }, [feedOpen, blocked]);
   React.useEffect(() => { if (wide) setFeedOpen(false); }, [wide]);
+  // Phone: one scroll owner per page. While Road is open it scrolls inside .feed, so the
+  // window (still sized by the hidden Flight Log) is locked; otherwise its scroll bar sits
+  // stale on screen and doesn't track. The Flight Log position is kept for the way back.
+  React.useEffect(() => {
+    if (wide || !feedOpen) return;
+    const de = document.documentElement, y = window.scrollY;
+    de.classList.add("feed-lock");
+    return () => { de.classList.remove("feed-lock"); if (Math.abs(window.scrollY - y) > 1) window.scrollTo(0, y); };
+  }, [wide, feedOpen]);
 
   // iOS-style swipe: the panel follows your finger, then settles open or shut
   // depending on how far / how fast you swiped. Vertical scrolling is left alone.
@@ -3045,8 +3054,8 @@ section.road .callout-latest { grid-row: 2; grid-column: 2 / -1; margin-top: 0; 
 .mini-unc { margin-left: 7px; font-size: 10px; font-weight: 700; letter-spacing: .02em; color: #FFC93D; border: 1px dashed rgba(255,201,61,.65); padding: 1px 6px; border-radius: 6px; vertical-align: 1px; } /* single smaller source: never shown as fact */
 
 /* updates feed */
-.feed { position: relative; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; scrollbar-width: none; }
-.feed::-webkit-scrollbar { display: none; }
+.feed { position: relative; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; }
+@media (min-width: 900px) { .feed { scrollbar-width: none; } .feed::-webkit-scrollbar { display: none; } } /* desktop column: no bar; phone Road page keeps its own (it owns the scroll) */
 .feed-head {
   position: sticky; top: 0; z-index: 3;
   display: grid; grid-template-columns: 40px 1fr 40px; align-items: center;
@@ -3170,7 +3179,8 @@ section.road .callout-latest { grid-row: 2; grid-column: 2 / -1; margin-top: 0; 
     opacity: calc(var(--fp) * 2 - .4); visibility: hidden;
     transition: transform var(--slide), opacity var(--slide); will-change: transform, opacity;
   }
-  .feed-pane .feed { height: 100%; }
+  .feed-pane .feed { height: 100%; scrollbar-width: thin; scrollbar-color: rgba(170,190,245,.35) transparent; }
+  html.feed-lock, html.feed-lock body { overflow: hidden; scrollbar-gutter: stable; } /* Road open: the window doesn't scroll (no stale bar), .feed does */
   .feed-on .feed-pane { visibility: visible; }
   .feed-on .st-wrap {
     -webkit-transform: translate3d(calc(var(--fp) * -100%), 0, 0); transform: translate3d(calc(var(--fp) * -100%), 0, 0);
