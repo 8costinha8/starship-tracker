@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "13 Nov",
-  "updatedAt": "2026-11-13T12:01:49.500Z",
+  "updatedAt": "2026-11-13T13:16:17.093Z",
   "categories": [
     {
       "id": "cryo",
@@ -2562,7 +2562,15 @@
           "complete": true,
           "completed_at": "2026-11-13T00:09:58.000Z",
           "completed_src": "https://x.com/CSI_Starbase/status/2121032788560236660",
-          "frameChecked": true
+          "frameChecked": true,
+          "alt_media": {
+            "post_url": "https://x.com/CSI_Starbase/status/2121032788560236660",
+            "post_id": "2121032788560236660",
+            "author": "CSI_Starbase",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HW9sEvoXMAALgwj.jpg",
+            "show": false
+          }
         },
         {
           "id": "x-2120958355892035972",
