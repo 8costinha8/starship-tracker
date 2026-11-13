@@ -2442,6 +2442,27 @@ function RoadFlightPill({ flight, items, action, open, onClick, shortCount, clas
   return <div className={cls}>{inner}</div>;
 }
 
+// Single action label on every Road-tab pill, both states. The chevron rotation shows open/closed.
+// To restore the old open-state wording, return open ? "Hide" : "Open".
+const ROAD_PILL_LABEL = (open) => "Open";
+
+// Shared Flight N / N+1 block: identical wrapper, spacing and 300ms morph (incl. open merge-into-first-card).
+function RoadFlightSection({ flight, items, open, onToggle, shortCount, hasCards, deckReady, deckId, children }) {
+  const merged = !!(open && hasCards);
+  const wrapCls = "feed-pill-wrap" + (merged ? " is-merged" : "") + (reduceMotion() ? " no-motion" : "");
+  const deckCls = "deck-wrap" + (open ? " open" : "") + (reduceMotion() ? " deck-no-motion" : deckReady ? " deck-animate" : "");
+  return (
+    <div className="feed-section">
+      <div className={wrapCls} id={`fsec-${flight}`}>
+        <RoadFlightPill flight={flight} items={items} action={ROAD_PILL_LABEL(open)} open={open} onClick={onToggle} shortCount={shortCount} />
+      </div>
+      <div className={deckCls} id={deckId} aria-hidden={!open}>
+        <div className="deck-inner">{children}</div>
+      </div>
+    </div>
+  );
+}
+
 function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap, peekOpen, onTogglePeek, heroNet, netPending }) {
   const { posts, rows } = React.useMemo(() => rtfRows(road), [road]);
   const idx = React.useMemo(() => entryIndex(road), [road]);
@@ -2464,7 +2485,6 @@ function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap, peekOpe
   const [curOpen, setCurOpen] = React.useState(true); // current flight starts open (same as the previous always-visible feed)
   const [deckReady, setDeckReady] = React.useState(false); // skip the open morph on first paint
   React.useEffect(() => { const id = requestAnimationFrame(() => setDeckReady(true)); return () => cancelAnimationFrame(id); }, []);
-  const deckClass = (open) => "deck-wrap" + (open ? " open" : "") + (reduceMotion() ? " deck-no-motion" : deckReady ? " deck-animate" : "");
   const curPosts = [], rest = [];
   let mode = "before";
   for (const r of rows) {
@@ -2489,29 +2509,18 @@ function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap, peekOpe
         </header>
         <div className="feed-list">
           {Number.isInteger(road && road.flight) && (
-            <div className={"feed-pill-wrap" + (curOpen && curPosts.some((r) => r && r.post) ? " is-merged" : "") + (reduceMotion() ? " no-motion" : "")} id={`fsec-${road.flight}`}>
-              <RoadFlightPill flight={road.flight} items={curItems} action="Next" open={curOpen} onClick={() => setCurOpen((v) => !v)} />
-            </div>
-          )}
-          <div className={deckClass(curOpen)} aria-hidden={!curOpen}>
-            <div className="deck-inner">
+            <RoadFlightSection flight={road.flight} items={curItems} open={curOpen} onToggle={() => setCurOpen((v) => !v)} hasCards={curPosts.some((r) => r && r.post)} deckReady={deckReady}>
               {curPosts.map(renderRow)}
-            </div>
-          </div>
-          {rest.map(renderRow)}
-          {peekN && (
-            <>
-              <p className="rtf-above"><span className="rtf-above-dots" aria-hidden="true"><i /><i /><i /><i /></span>{`All Flight ${road.flight} updates above`}</p>
-              <RoadFlightPill flight={peekN} items={peekItems} action={peekOpen ? "Hide" : "Open"} shortCount open={peekOpen} onClick={onTogglePeek} />
-              <div className={deckClass(peekOpen)} id="rtf-peek" aria-hidden={!peekOpen}>
-                <div className="deck-inner deck-peek">
-                  {peekCards.length
-                    ? <div className="rtf-peek-cards">{peekCards.map((c) => <ErrorBoundary key={c.id} where={"feed:" + c.id}><FeedPost p={c} onPhotoTap={onPhotoTap} idx={idx} st={null} /></ErrorBoundary>)}</div>
-                    : <p className="rtf-soon">Coming soon</p>}
-                </div>
-              </div>
-            </>
+            </RoadFlightSection>
           )}
+          {peekN && (
+            <RoadFlightSection flight={peekN} items={peekItems} open={peekOpen} onToggle={onTogglePeek} shortCount hasCards={peekCards.length > 0} deckReady={deckReady} deckId="rtf-peek">
+              {peekCards.length
+                ? peekCards.map((c) => <ErrorBoundary key={c.id} where={"feed:" + c.id}><FeedPost p={c} onPhotoTap={onPhotoTap} idx={idx} st={null} /></ErrorBoundary>)
+                : <p className="rtf-soon">Coming soon</p>}
+            </RoadFlightSection>
+          )}
+          {rest.map(renderRow)}
         </div>
       </div>
     </aside>
@@ -3244,7 +3253,8 @@ section.road .callout-latest { grid-row: 2; grid-column: 2 / -1; margin-top: 0; 
 .feed-list { padding: 14px 18px calc(72px + env(safe-area-inset-bottom)); max-width: 440px; margin: 0 auto; }
 .feed-list .end { margin-top: 24px; }
 .feed-list > .post:has(+ .end) { margin-bottom: 0; }
-.feed-pill-wrap { margin: 0 0 14px; transition: margin-bottom 300ms ease; }
+.feed-section { margin: 0 0 10px; } /* closed pills stack with one equal ~10px gap; N and N+1 share this wrapper */
+.feed-pill-wrap { margin: 0; transition: margin-bottom 300ms ease; }
 .feed-pill-wrap.is-merged { margin-bottom: -1px; position: relative; z-index: 1; } /* -1px hides the shared seam; pill sits on the first card */
 .feed-pill { all: unset; box-sizing: border-box; width: 100%; display: flex; align-items: center; gap: 8px;
   padding: 9px 14px 9px 16px; border-radius: 999px; background: rgba(20,28,52,.55); border: 1px solid rgba(170,190,245,.18);
@@ -3256,11 +3266,11 @@ section.road .callout-latest { grid-row: 2; grid-column: 2 / -1; margin-top: 0; 
 button.feed-pill { cursor: pointer; }
 button.feed-pill:focus-visible { outline: 2px solid #A9BDF0; outline-offset: 2px; }
 button.feed-pill:active { border-color: rgba(170,190,245,.3); }
-/* When the current-flight pill is open, it becomes the first card's header: flush join, squared corners, colour fade. */
-.feed-list > .deck-wrap > .deck-inner > .post:first-child {
+/* When a flight pill is open, it becomes the first card's header: flush join, squared corners, colour fade. */
+.feed-section > .deck-wrap > .deck-inner > .post:first-child {
   transition: border-radius 300ms ease, background 300ms ease, border-color 300ms ease, box-shadow 300ms ease;
 }
-.feed-list > .deck-wrap > .deck-inner > .post:first-child::after { transition: border-radius 300ms ease; }
+.feed-section > .deck-wrap > .deck-inner > .post:first-child::after { transition: border-radius 300ms ease; }
 .feed-pill-wrap.is-merged + .deck-wrap .deck-inner > .post:first-child {
   border-top-left-radius: 0; border-top-right-radius: 0;
   border-color: rgba(170,190,245,.14); border-top-color: transparent; box-shadow: none;
@@ -3274,41 +3284,28 @@ button.feed-pill:active { border-color: rgba(170,190,245,.3); }
 .feed-pill-title { flex: none; font-size: 14px; font-weight: 700; white-space: nowrap; }
 .feed-pill .road-count { flex: 1; font-size: 12px; font-weight: 500; color: var(--muted); white-space: nowrap; }
 .feed-pill-action { flex: none; display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 600; color: var(--text); }
-.rtf-above { margin: 22px 0 12px; text-align: center; font-size: 12.5px; color: var(--faint); }
-.rtf-above-dots { display: flex; justify-content: center; gap: 6px; margin: 0 0 8px; }
-.rtf-above-dots i { width: 5px; height: 5px; border-radius: 50%; background: rgba(170,190,245,.32); display: block; }
 .deck-wrap { display: grid; grid-template-rows: 0fr; }
 .deck-wrap.open { grid-template-rows: 1fr; }
 .deck-wrap.deck-animate { transition: grid-template-rows 300ms ease, opacity 300ms ease; }
 .deck-wrap.deck-animate:not(.open) { opacity: 0; pointer-events: none; }
 .deck-wrap.deck-no-motion { transition: none; }
 .deck-inner { min-height: 0; overflow: hidden; }
-.deck-peek .rtf-peek-cards { margin-top: 12px; margin-bottom: 8px; }
-.deck-peek .rtf-soon { margin-top: 12px; }
 /* Cards fan in on open (transform/opacity only). Total span stays inside 250–350ms. */
 .deck-wrap.deck-animate.open .deck-inner > .post,
-.deck-wrap.deck-animate.open .rtf-peek-cards .post,
 .deck-wrap.deck-animate.open .rtf-soon {
   animation: deck-fan 200ms ease both;
 }
-.deck-wrap.deck-animate.open .deck-inner > .post:nth-child(1),
-.deck-wrap.deck-animate.open .rtf-peek-cards .post:nth-child(1) { animation-delay: 20ms; }
-.deck-wrap.deck-animate.open .deck-inner > .post:nth-child(2),
-.deck-wrap.deck-animate.open .rtf-peek-cards .post:nth-child(2) { animation-delay: 50ms; }
-.deck-wrap.deck-animate.open .deck-inner > .post:nth-child(3),
-.deck-wrap.deck-animate.open .rtf-peek-cards .post:nth-child(3) { animation-delay: 80ms; }
-.deck-wrap.deck-animate.open .deck-inner > .post:nth-child(4),
-.deck-wrap.deck-animate.open .rtf-peek-cards .post:nth-child(4) { animation-delay: 110ms; }
-.deck-wrap.deck-animate.open .deck-inner > .post:nth-child(5),
-.deck-wrap.deck-animate.open .rtf-peek-cards .post:nth-child(5) { animation-delay: 140ms; }
-.deck-wrap.deck-animate.open .deck-inner > .post:nth-child(n+6),
-.deck-wrap.deck-animate.open .rtf-peek-cards .post:nth-child(n+6) { animation-delay: 150ms; }
+.deck-wrap.deck-animate.open .deck-inner > .post:nth-child(1) { animation-delay: 20ms; }
+.deck-wrap.deck-animate.open .deck-inner > .post:nth-child(2) { animation-delay: 50ms; }
+.deck-wrap.deck-animate.open .deck-inner > .post:nth-child(3) { animation-delay: 80ms; }
+.deck-wrap.deck-animate.open .deck-inner > .post:nth-child(4) { animation-delay: 110ms; }
+.deck-wrap.deck-animate.open .deck-inner > .post:nth-child(5) { animation-delay: 140ms; }
+.deck-wrap.deck-animate.open .deck-inner > .post:nth-child(n+6) { animation-delay: 150ms; }
 @keyframes deck-fan {
   from { opacity: 0; transform: translateY(-8px); }
   to { opacity: 1; transform: none; }
 }
 .deck-wrap.deck-no-motion .deck-inner > .post,
-.deck-wrap.deck-no-motion .rtf-peek-cards .post,
 .deck-wrap.deck-no-motion .rtf-soon { animation: none; }
 .rtf-teaser {
   display: flex; align-items: center; justify-content: center; gap: 6px;
@@ -3341,9 +3338,6 @@ button.feed-pill:active { border-color: rgba(170,190,245,.3); }
   font-size: 18px; font-weight: 600; line-height: 1.3;
   color: var(--text); text-align: left;
 }
-.rtf-peek-cards { margin-top: 16px; }
-.rtf-peek-cards .post { margin-bottom: 12px; }
-.rtf-peek-cards .post:last-child { margin-bottom: 0; }
 .rtf-soon {
   margin: 16px 0 0; padding: 0;
   font-size: 14px; font-weight: 500; line-height: 1.45;
