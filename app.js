@@ -931,6 +931,8 @@ const thumbOf = (f, past) => { const t = f.photo && f.photo.thumb; return t && t
 function FlightCard({ f, open, onTap, onPhotoTap, register, road }) {
   const past = React.useMemo(() => (isLaunched(f.n) ? pastSummary(road, f.n) : []), [road, f.n]); // launched flights only, never the next flight
   const [pastOpen, setPastOpen] = React.useState(false); // the Road list starts closed
+  // Archive flights only (the toggle already hides when pastSummary is empty): all six category dots filled.
+  const pastDots = React.useMemo(() => ((road && road.categories) || []).filter((m) => !ROAD_HIDDEN.includes(m.id)).map((m) => ({ id: m.id, name: m.name, color: m.color || PAST_COLOR[m.id] })), [road]);
   const onKey = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onTap(f.n); } };
   // While closed, tapping the thumb should expand the card like the rest of the header.
   // Once open, tapping the thumb opens the lightbox instead — so it needs to stop
@@ -964,8 +966,10 @@ function FlightCard({ f, open, onTap, onPhotoTap, register, road }) {
             {past.length > 0 && (<>
               <button type="button" className={"past-toggle" + (pastOpen ? " open" : "")} aria-expanded={pastOpen} aria-controls={`past-${f.n}`}
                 tabIndex={open ? 0 : -1} onClick={(e) => { e.stopPropagation(); setPastOpen((v) => !v); }} onKeyDown={(e) => e.stopPropagation()}>
-                {`Road to Flight ${f.n}`}
-                <svg className="past-chev" width="12" height="12" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5.5l4 4 4-4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                <span className="past-toggle-title">{`Road to Flight ${f.n}`}</span>
+                <span className="road-dots">{pastDots.map((m) => <i key={m.id} className="dot dot-done" style={catVars(m.id, m.color)} title={m.name + ": " + (ROAD_DONE_LABEL[m.id] || "Complete")} aria-label={m.name + ": " + (ROAD_DONE_LABEL[m.id] || "Complete")} role="img" />)}</span>
+                <span className="road-count">{pastDots.length} of {pastDots.length} done</span>
+                <svg className="past-chev" width="16" height="16" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5.5l4 4 4-4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
               </button>
               <div className={"past-wrap" + (pastOpen ? " open" : "")} id={`past-${f.n}`} aria-hidden={!pastOpen}><div className="past-wrap-inner">
               <div className="past-sum" aria-label={`Road to Flight ${f.n}`}>
@@ -1353,12 +1357,12 @@ function RoadCard({ road, onEntryTap, openReq, heroNet, netPending }) {
   return (
     <section className={"road" + (main ? " main-open" : "")} aria-label={title}>
       <button className="road-head" aria-expanded={main} onClick={() => { setMain(!main); setOpen(null); }}>
-        <span className="road-title"><h2>{title}</h2>{road.updated && <span className="road-upd">{`Updated ${road.updated}`}</span>}</span>
+        <span className="road-title"><h2>{title}</h2></span>
         <span className="road-sum">
           <span className="road-dots">{items.map((m) => <i key={m.id} className={"dot dot-" + m.status} style={catVars(m.id, m.color)} title={m.name + ": " + label(m)} aria-label={m.name + ": " + label(m)} role="img" />)}</span>
           <span className="road-count">{done} of {items.length} done</span>
           {xOff && <span className="road-xoff" title="The checker cannot read X right now (X API credits). Cards from other sources still update.">X feed offline</span>}
-          <svg className="road-chev" width="20" height="20" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5l4 4 4-4" stroke="currentColor" strokeWidth="1.7" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
+          <svg className="road-chev" width="16" height="16" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5l4 4 4-4" stroke="currentColor" strokeWidth="1.7" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </span>
       </button>
       <div className="road-list"><div className="road-list-inner" ref={listRef}>
@@ -2822,12 +2826,14 @@ a.watch-badge-live:active { transform: scale(.96); }
 .headline { font-size: 16px; font-weight: 600; margin: 6px 0 8px; }
 .story { font-size: 14px; line-height: 1.62; color: #C9D2E6; margin: 0 0 14px; }
 .gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.past-toggle { all: unset; box-sizing: border-box; display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 9px 0 11px; margin: 0 0 14px;
-  border-radius: 999px; font-size: 11.5px; font-weight: 600; letter-spacing: .01em; color: #C9D2E6; cursor: pointer; -webkit-tap-highlight-color: transparent;
-  background: var(--card); border: 1px solid rgba(170,190,245,.14); box-shadow: 0 10px 22px -18px rgba(8,12,28,.9); transition: background-color .15s, border-color .15s; }
+.past-toggle { all: unset; box-sizing: border-box; display: flex; align-items: center; gap: 8px; width: 100%; padding: 8px 12px 8px 14px; margin: 0 0 12px;
+  border-radius: 999px; font: inherit; font-size: 13px; font-weight: 700; color: var(--text); cursor: pointer; -webkit-tap-highlight-color: transparent;
+  background: rgba(12,16,32,.55); border: 1px solid rgba(170,190,245,.16); transition: background-color .15s, border-color .15s; }
+.past-toggle-title { flex: none; white-space: nowrap; }
+.past-toggle .road-count { flex: 1; font-size: 12px; font-weight: 500; color: var(--muted); white-space: nowrap; }
 .past-toggle:active { border-color: rgba(170,190,245,.3); }
 .past-toggle:focus-visible { outline: 2px solid rgba(170,190,245,.5); outline-offset: 2px; }
-.past-chev { color: var(--faint); transition: transform .35s; }
+.past-chev { color: var(--text); flex: none; transition: transform .35s; }
 .past-toggle.open .past-chev { transform: rotate(180deg); }
 .past-wrap { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .45s cubic-bezier(.2,.8,.2,1); }
 .past-wrap.open { grid-template-rows: 1fr; }
@@ -2924,29 +2930,29 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 }
 /* road to flight N (data in road.json) */
 .road {
-  margin: 18px 0 6px; border-radius: 22px; background: var(--card); border: 1px solid rgba(170,190,245,.14);
-  box-shadow: 0 18px 40px -28px rgba(8,12,28,.9);
+  margin: 16px 0 0; background: none; border: 0; box-shadow: none;
 }
-.road-head { all: unset; box-sizing: border-box; width: 100%; cursor: pointer; display: block; padding: 16px 16px 15px; }
-.road-head:focus-visible { outline: 2px solid #A9BDF0; outline-offset: 3px; border-radius: 22px; }
-.road-title { display: flex; justify-content: space-between; align-items: baseline; }
-.road-title h2 { font-size: 17px; font-weight: 700; margin: 0; }
-.road-upd { font-size: 12px; color: var(--faint); }
+.road-head { all: unset; box-sizing: border-box; width: 100%; cursor: pointer; display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px 8px 14px; border-radius: 999px; background: rgba(12,16,32,.55); border: 1px solid rgba(170,190,245,.16);
+  -webkit-tap-highlight-color: transparent; color: var(--text); }
+.road-head:focus-visible { outline: 2px solid #A9BDF0; outline-offset: 2px; border-radius: 999px; }
+.road-title { flex: none; }
+.road-title h2 { font-size: 13px; font-weight: 700; margin: 0; white-space: nowrap; }
 .road-sum:has(.road-xoff) { gap: 8px; } /* room for the chip on a 390px phone */
 .road-sum:has(.road-xoff) .road-count { white-space: nowrap; }
 .road-xoff { flex: none; font-size: 10.5px; font-weight: 600; padding: 2px 6px; border-radius: 999px; background: rgba(238,120,120,.15); color: #F2A2A2; white-space: nowrap; } /* 9 Nov: X feed offline chip (pill-failure colours) */
-.road-sum { display: flex; align-items: center; gap: 10px; margin-top: 10px; color: var(--muted); font-size: 13px; }
-.road-dots { display: flex; gap: 6px; }
-.dot { width: 11px; height: 11px; border-radius: 50%; display: block; border: 1.5px solid var(--c); background: transparent; } /* ○ empty = not yet */
+.road-sum { display: flex; align-items: center; gap: 8px; margin-top: 0; flex: 1; min-width: 0; color: var(--muted); font-size: 12px; }
+.road-dots { display: flex; gap: 5px; flex: none; }
+.dot { width: 9px; height: 9px; border-radius: 50%; display: block; border: 1.5px solid var(--c); background: transparent; } /* ○ empty = not yet */
 .dot-progress { background: linear-gradient(90deg, var(--c) 50%, transparent 50%); } /* ◐ half = one vehicle / one test completed */
 .dot-done, .dot-complete { background: var(--c); } /* ● full = every Flight N vehicle done, or official; ring and fill always the same colour */
-.road-count { flex: 1; }
-.road-chev { transition: transform .35s; }
+.road-count { flex: 1; white-space: nowrap; }
+.road-chev { flex: none; transition: transform .35s; }
 .main-open .road-chev { transform: rotate(180deg); }
 .road-list { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .5s cubic-bezier(.2,.8,.2,1); }
 .main-open .road-list { grid-template-rows: 1fr; }
-.road-list-inner { overflow: hidden; padding: 0 10px; }
-.main-open .road-list-inner { padding-top: 8px; padding-bottom: 16.5px; } /* 8px clear room above the first card (and its open glow, which overflow:hidden would clip); bottom gap matches the top: 26.5px each */
+.road-list-inner { overflow: hidden; padding: 0; }
+.main-open .road-list-inner { padding-top: 10px; padding-bottom: 0; }
 .callout {
   position: relative; border-radius: 18px; margin-bottom: 10px; overflow: hidden;
   background: var(--card); /* solid, like the flight log cards */
@@ -3244,12 +3250,8 @@ section.road .callout-latest { grid-row: 2; grid-column: 2 / -1; margin-top: 0; 
   .feed-head { background: linear-gradient(180deg, rgba(44,58,94,.985) 0%, rgba(38,51,84,.975) 100%); }
 }
 
-/* Road to Flight N as the bottom section of the next-flight card: a darker inset panel */
-.next .road {
-  margin: 16px -4px -6px; border-radius: 20px;
-  background: rgba(14,20,38,.42); border: 1px solid rgba(255,255,255,.06); box-shadow: none;
-}
-.next .road-head { padding: 15px 16px 14px; }
+/* Road to Flight N as a slim pill at the bottom of the next-flight card */
+.next .road { margin: 16px 0 0; }
 .next .road-chev { color: var(--text); flex: none; margin-right: -2px; }
 
 /* header: small "Road to Flight N ›" link next to the title */
