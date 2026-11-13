@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "13 Nov",
-  "updatedAt": "2026-11-13T18:16:06.879Z",
+  "updatedAt": "2026-11-13T19:02:51.968Z",
   "categories": [
     {
       "id": "cryo",
@@ -2250,8 +2250,163 @@
       "name": "Pad activity",
       "color": "#A88BFF",
       "status": "progress",
-      "latest": "Ship 42 has the SQD connected at the pad.",
+      "latest": "Pad 2 chopsticks opening ahead of Flight 15 launch.",
       "history": [
+        {
+          "id": "x-2121314305836810700",
+          "date": "13 Nov",
+          "log_date": "13 Nov",
+          "at": "2026-11-13T18:48:37.000Z",
+          "text": "Pad 2 chopsticks opening ahead of Flight 15 launch.",
+          "x_text": "Pad 2 chopsticks opening ahead of Flight 15 launch.",
+          "push_text": "Pad 2 chopsticks opening for launch and catch.",
+          "card_text": "Pad 2 chopsticks opening ahead of launch and catch.",
+          "log_text": "Pad 2 chopsticks opening ahead of launch and catch.",
+          "status_line": "Pad 2 preparing for Flight 15.",
+          "url": "https://x.com/RGVaerialphotos/status/2121314305836810700",
+          "src": "@RGVaerialphotos",
+          "trust": "trusted",
+          "x_first": true,
+          "stage": "pad",
+          "hardware": "Pad 2",
+          "flight": 15,
+          "x_post": {
+            "post_id": "2121314305836810700",
+            "url": "https://x.com/RGVaerialphotos/status/2121314305836810700",
+            "created_at": "2026-11-13T18:48:37.000Z",
+            "text": "T-4 hours, Pad 2's chopsticks are opening ahead of launch and catch(es)",
+            "author": {
+              "name": "RGV Aerial Photography",
+              "username": "RGVaerialphotos",
+              "avatar": "https://pbs.twimg.com/profile_images/2019953617743097856/PJqBBhpU_normal.jpg"
+            },
+            "media": [
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HXBsCAfaAAEbdXx.jpg"
+              }
+            ]
+          },
+          "x_posts": [
+            "2121314305836810700"
+          ],
+          "xChecked": true,
+          "imageChecked2": true,
+          "media_override": {
+            "post_url": "https://x.com/RGVaerialphotos/status/2121314305836810700",
+            "post_id": "2121314305836810700",
+            "author": "RGVaerialphotos",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HXBsCAfaAAEbdXx.jpg"
+          },
+          "tier": 2,
+          "push": {
+            "title": "🏗️ Pad activity · Flight 15",
+            "url": "https://x.com/RGVaerialphotos/status/2121314305836810700",
+            "at": "2026-11-13T18:48:37.000Z"
+          },
+          "frameChecked": true
+        },
+        {
+          "id": "x-2118577080837574862",
+          "date": "13 Nov",
+          "log_date": "13 Nov",
+          "at": "2026-11-13T07:10:22.000Z",
+          "text": "Ship transport stand has left the launch complex.",
+          "x_text": "Ship transport stand has left the launch complex.",
+          "log_text": "Ship transport stand leaves the launch complex.",
+          "status_line": "Pad activity ongoing.",
+          "url": "https://x.com/Blobifie/status/2121138587878248780",
+          "src": "@Blobifie",
+          "trust": "trusted",
+          "x_first": true,
+          "stage": "pad",
+          "hardware": null,
+          "flight": 15,
+          "x_post": {
+            "post_id": "2121138587878248780",
+            "url": "https://x.com/Blobifie/status/2121138587878248780",
+            "created_at": "2026-11-13T07:10:22.000Z",
+            "text": "The ship transport stand has also left the launch complex! https://t.co/CRiVwrkUfm",
+            "author": {
+              "name": "Blobifi",
+              "username": "Blobifie",
+              "avatar": "https://pbs.twimg.com/profile_images/2091766013562159104/xgHLFjBX_normal.jpg"
+            },
+            "media": [
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HW_MNvwa4AAa2kw.jpg"
+              },
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HW_MQ_UawAETCZz.jpg"
+              }
+            ]
+          },
+          "x_posts": [
+            "2118577080837574862",
+            "2121138587878248780"
+          ],
+          "xChecked": true,
+          "imageChecked2": true,
+          "tier": 2,
+          "milestone": {
+            "key": "pad_work|15|-",
+            "type": "pad_work",
+            "flight": 15,
+            "hardware": null,
+            "phase": "progress"
+          },
+          "push": {
+            "title": "🏗️ Pad activity: In progress",
+            "url": "https://x.com/Blobifie/status/2118577080837574862",
+            "at": "2026-11-06T05:31:51.000Z"
+          },
+          "photo_alternatives": [
+            {
+              "image": "https://pbs.twimg.com/media/HW_MNvwa4AAa2kw.jpg",
+              "type": "photo",
+              "post_url": "https://x.com/SpaceX/status/2121044579470233638",
+              "author": "SpaceX"
+            },
+            {
+              "image": "https://pbs.twimg.com/media/HW_MQ_UawAETCZz.jpg",
+              "type": "photo",
+              "post_url": "https://x.com/SpaceX/status/2121044579470233638",
+              "author": "SpaceX"
+            }
+          ],
+          "edited_from": "Deluge and catch testing performed at the pad.",
+          "edited": true,
+          "updates": [
+            {
+              "date": "6 Nov",
+              "log_date": "6 Nov",
+              "at": "2026-11-06T05:31:51.000Z",
+              "text": "Pad 2 completed deluge and catch tests.",
+              "push_text": "Pad 2 completed deluge and catch tests.",
+              "card_text": "Pad 2 completed deluge and catch tests.",
+              "log_text": "Pad 2 completed deluge and catch tests.",
+              "url": "https://x.com/Blobifie/status/2118577080837574862",
+              "src": "@Blobifie",
+              "phase": "progress",
+              "tier": 2
+            }
+          ],
+          "push_text": "Ship transport stand leaves launch complex.",
+          "card_text": "Ship transport stand leaves the launch complex.",
+          "media_override": {
+            "post_url": "https://x.com/SpaceX/status/2121044579470233638",
+            "post_id": "2121044579470233638",
+            "author": "SpaceX",
+            "type": "photo",
+            "image": "images/pad-f15-both-vehicles.jpg",
+            "credit_only": true,
+            "keep_image": true,
+            "locked": true
+          }
+        },
         {
           "id": "x-2121053588348866651",
           "date": "13 Nov",
@@ -2475,6 +2630,12 @@
             "at": "2026-11-12T22:21:48.000Z"
           },
           "photo_alternatives": [
+            {
+              "image": "https://pbs.twimg.com/media/HW9sEvoXMAALgwj.jpg",
+              "type": "photo",
+              "post_url": "https://x.com/CSI_Starbase/status/2121032788560236660",
+              "author": "CSI_Starbase"
+            },
             {
               "image": "https://pbs.twimg.com/amplify_video_thumb/2120969801539444737/img/jubsleUINWocErFL.jpg",
               "type": "video",
@@ -2725,7 +2886,8 @@
             "2120974579258507337",
             "2121003364909711585",
             "2121008158634353091",
-            "2121050758389154027"
+            "2121050758389154027",
+            "2121314627518697767"
           ],
           "xChecked": true,
           "imageChecked2": true,
@@ -3347,171 +3509,6 @@
           ]
         },
         {
-          "id": "x-2118577080837574862",
-          "date": "13 Nov",
-          "log_date": "13 Nov",
-          "at": "2026-11-13T07:10:22.000Z",
-          "text": "Ship transport stand has left the launch complex.",
-          "x_text": "Ship transport stand has left the launch complex.",
-          "log_text": "Ship transport stand leaves the launch complex.",
-          "status_line": "Pad activity ongoing.",
-          "url": "https://x.com/Blobifie/status/2121138587878248780",
-          "src": "@Blobifie",
-          "trust": "trusted",
-          "x_first": true,
-          "stage": "pad",
-          "hardware": null,
-          "flight": 15,
-          "x_post": {
-            "post_id": "2121138587878248780",
-            "url": "https://x.com/Blobifie/status/2121138587878248780",
-            "created_at": "2026-11-13T07:10:22.000Z",
-            "text": "The ship transport stand has also left the launch complex! https://t.co/CRiVwrkUfm",
-            "author": {
-              "name": "Blobifi",
-              "username": "Blobifie",
-              "avatar": "https://pbs.twimg.com/profile_images/2091766013562159104/xgHLFjBX_normal.jpg"
-            },
-            "media": [
-              {
-                "type": "photo",
-                "url": "https://pbs.twimg.com/media/HW_MNvwa4AAa2kw.jpg"
-              },
-              {
-                "type": "photo",
-                "url": "https://pbs.twimg.com/media/HW_MQ_UawAETCZz.jpg"
-              }
-            ]
-          },
-          "x_posts": [
-            "2118577080837574862",
-            "2121138587878248780"
-          ],
-          "xChecked": true,
-          "imageChecked2": true,
-          "tier": 2,
-          "milestone": {
-            "key": "pad_work|15|-",
-            "type": "pad_work",
-            "flight": 15,
-            "hardware": null,
-            "phase": "progress"
-          },
-          "push": {
-            "title": "🏗️ Pad activity: In progress",
-            "url": "https://x.com/Blobifie/status/2118577080837574862",
-            "at": "2026-11-06T05:31:51.000Z"
-          },
-          "photo_alternatives": [
-            {
-              "image": "https://pbs.twimg.com/media/HW_MNvwa4AAa2kw.jpg",
-              "type": "photo",
-              "post_url": "https://x.com/SpaceX/status/2121044579470233638",
-              "author": "SpaceX"
-            },
-            {
-              "image": "https://pbs.twimg.com/media/HW_MQ_UawAETCZz.jpg",
-              "type": "photo",
-              "post_url": "https://x.com/SpaceX/status/2121044579470233638",
-              "author": "SpaceX"
-            }
-          ],
-          "edited_from": "Deluge and catch testing performed at the pad.",
-          "edited": true,
-          "updates": [
-            {
-              "date": "6 Nov",
-              "log_date": "6 Nov",
-              "at": "2026-11-06T05:31:51.000Z",
-              "text": "Pad 2 completed deluge and catch tests.",
-              "push_text": "Pad 2 completed deluge and catch tests.",
-              "card_text": "Pad 2 completed deluge and catch tests.",
-              "log_text": "Pad 2 completed deluge and catch tests.",
-              "url": "https://x.com/Blobifie/status/2118577080837574862",
-              "src": "@Blobifie",
-              "phase": "progress",
-              "tier": 2
-            }
-          ],
-          "push_text": "Ship transport stand leaves launch complex.",
-          "card_text": "Ship transport stand leaves the launch complex.",
-          "media_override": {
-            "post_url": "https://x.com/SpaceX/status/2121044579470233638",
-            "post_id": "2121044579470233638",
-            "author": "SpaceX",
-            "type": "photo",
-            "image": "images/pad-f15-both-vehicles.jpg",
-            "credit_only": true,
-            "keep_image": true,
-            "locked": true
-          }
-        },
-        {
-          "id": "x-2118557148183683543",
-          "date": "6 Nov",
-          "log_date": "6 Nov",
-          "at": "2026-11-06T04:12:39.000Z",
-          "text": "Pad 2 chopstick and deluge testing completed.",
-          "x_text": "Pad 2 chopstick and deluge testing completed.",
-          "push_text": "Pad 2 chopstick and deluge testing completed.",
-          "card_text": "Pad 2 chopstick and deluge testing completed.",
-          "log_text": "Pad 2 chopstick and deluge testing completed.",
-          "status_line": "Pad 2 infrastructure testing ongoing.",
-          "url": "https://x.com/RGVaerialphotos/status/2118557148183683543",
-          "src": "@RGVaerialphotos",
-          "trust": "trusted",
-          "x_first": true,
-          "stage": "pad",
-          "hardware": "Pad 2",
-          "x_post": {
-            "post_id": "2118557148183683543",
-            "url": "https://x.com/RGVaerialphotos/status/2118557148183683543",
-            "created_at": "2026-11-06T04:12:39.000Z",
-            "text": "Timelapse of Pad 2 chopstick and deluge testing yesterday. https://t.co/jVOkROi8Se",
-            "author": {
-              "name": "RGV Aerial Photography",
-              "username": "RGVaerialphotos",
-              "avatar": "https://pbs.twimg.com/profile_images/2019953617743097856/PJqBBhpU_normal.jpg"
-            },
-            "media": [
-              {
-                "type": "video",
-                "poster": "https://pbs.twimg.com/amplify_video_thumb/2118556199486664704/img/JuDLPSPJnlzhbkTC.jpg",
-                "video_url": "https://video.twimg.com/amplify_video/2118556199486664704/vid/avc1/3840x2160/qfZDifrNQBFw4krW.mp4"
-              }
-            ]
-          },
-          "x_posts": [
-            "2118557148183683543"
-          ],
-          "xChecked": true,
-          "imageChecked2": true,
-          "media_override": {
-            "post_url": "https://x.com/RGVaerialphotos/status/2118557148183683543",
-            "post_id": "2118557148183683543",
-            "author": "RGVaerialphotos",
-            "type": "video",
-            "image": "https://pbs.twimg.com/amplify_video_thumb/2118556199486664704/img/JuDLPSPJnlzhbkTC.jpg",
-            "video_url": "https://video.twimg.com/amplify_video/2118556199486664704/vid/avc1/3840x2160/qfZDifrNQBFw4krW.mp4"
-          },
-          "tier": 2,
-          "milestone": {
-            "key": "pad_work|15|PAD2",
-            "type": "pad_work",
-            "flight": 15,
-            "hardware": "PAD2",
-            "phase": "completed"
-          },
-          "complete": true,
-          "push": {
-            "title": "🏗️ Pad activity · Flight 15",
-            "url": "https://x.com/RGVaerialphotos/status/2118557148183683543",
-            "at": "2026-11-06T04:12:39.000Z"
-          },
-          "edited_from": "Pad 2 completed chopstick and deluge testing.",
-          "edited": true
-        },
-        {
           "id": "f16-s43-2115315741709001123",
           "date": "28 Oct",
           "at": "2026-10-28T05:32:28.000Z",
@@ -3930,7 +3927,7 @@
           "journey_context": "engine prep (1 Nov: not a Raptor milestone)"
         }
       ],
-      "log_latest": "Pad activity ongoing."
+      "log_latest": "Pad 2 preparing for Flight 15."
     },
     {
       "id": "faa",
@@ -4151,14 +4148,6 @@
         "post_id": "2120690698668097998"
       },
       {
-        "topic": "other",
-        "line": "Ship 42 is preparing for launch (Elon Musk, 13 Nov).",
-        "at": "2026-11-13T14:33:54.000Z",
-        "src": "@elonmusk",
-        "url": "https://x.com/elonmusk/status/2121250205806772283",
-        "post_id": "2121250205806772283"
-      },
-      {
         "topic": "landing",
         "line": "SpaceX launches Starship Flight 15 with booster catch (NASASpaceflight, 13 Nov).",
         "at": "2026-11-13T17:01:13.000Z",
@@ -4181,6 +4170,14 @@
         "src": "@NASASpaceflight",
         "url": "https://x.com/NASASpaceflight/status/2121302998219641167",
         "post_id": "2121302998219641167"
+      },
+      {
+        "topic": "licence",
+        "line": "FAA approval has arrived for Starship Flight 15 (NASASpaceflight, 13 Nov).",
+        "at": "2026-11-13T19:00:16.000Z",
+        "src": "@NASASpaceflight",
+        "url": "https://x.com/NASASpaceflight/status/2121317239580512295",
+        "post_id": "2121317239580512295"
       }
     ]
   },
@@ -5045,7 +5042,7 @@
         "x-2120998082779418716"
       ],
       "likely": null,
-      "at": "2026-11-13T01:32:37.000Z",
+      "at": "2026-11-13T18:49:53.000Z",
       "counted": [
         "https://x.com/LabPadre/status/2095620292823462214",
         "https://x.com/LabPadre/status/2108486994401825101",
