@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "13 Nov",
-  "updatedAt": "2026-11-13T19:31:53.317Z",
+  "updatedAt": "2026-11-13T20:02:32.072Z",
   "categories": [
     {
       "id": "cryo",
@@ -2632,12 +2632,6 @@
             "at": "2026-11-12T22:21:48.000Z"
           },
           "photo_alternatives": [
-            {
-              "image": "https://pbs.twimg.com/media/HW9sEvoXMAALgwj.jpg",
-              "type": "photo",
-              "post_url": "https://x.com/CSI_Starbase/status/2121032788560236660",
-              "author": "CSI_Starbase"
-            },
             {
               "image": "https://pbs.twimg.com/amplify_video_thumb/2120969801539444737/img/jubsleUINWocErFL.jpg",
               "type": "video",
