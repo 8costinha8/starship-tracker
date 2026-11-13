@@ -17,7 +17,7 @@ function app(logged) {
   const decl = (name) => { const k = starts.findIndex((s) => s.name === name); if (k < 0) return null;
     let end = lines.length; for (let j = starts[k].i + 1; j < lines.length; j++) if (/^(?:\S)/.test(lines[j]) && !/^[}\])]/.test(lines[j])) { end = j; break; }
     return lines.slice(starts[k].i, end).join("\n"); };
-  const want = ["pickNextLaunch", "flightFromLL2", "roadForHero", "rtfRows", "logList", "daysLabel", "heroVehicles", "vehicleLine", "showWatchBadge", "effectiveStatus", "pastSummary", "galleryOf", "thumbOf", "DONE_GRACE_MS", "LAST_LOGGED_N", "isLaunched"];
+  const want = ["pickNextLaunch", "flightFromLL2", "roadForHero", "rtfRows", "logList", "daysLabel", "heroVehicles", "vehicleLine", "showWatchBadge", "effectiveStatus", "pastSummary", "pastTiers", "galleryOf", "thumbOf", "DONE_GRACE_MS", "LAST_LOGGED_N", "isLaunched"];
   const have = new Set(), parts = [];
   const add = (n) => { if (have.has(n)) return true; const d = decl(n); if (!d) return false; have.add(n); parts.unshift(d); return true; };
   want.forEach(add);
@@ -79,8 +79,25 @@ let c2 = null;
   // full-sentence check applies to the frozen cryo, raptor and static boxes only.
   check(txt.every((x) => /^[A-Z].*[.]$/.test(x) && !/At least|·|\b(?:is|are) (?:being|now)\b/.test(x)) && new Set(sum.map((e) => e.text)).size === sum.length, "D: summary is deduped past-tense full sentences (no 'At least 2 static fires · 27 Oct, 27 Oct') (fix 7)");
   const pad = sum.find((e) => e.box === "pad"), faa = sum.find((e) => e.box === "faa");
-  check(pad && pad.vehicle === "Full stack" && pad.text.split("\n").every((l) => /^(Stacked|Wet dress rehearsal) \d{1,2} [A-Z][a-z]{2}$/.test(l)), "D: Full stack card is short Stacked / Wet dress rehearsal lines");
+  check(pad && pad.vehicle === "Full stack" && !/\n/.test(pad.text) && /^(?:Stacked \d{1,2} [A-Z][a-z]{2}(?: · Wet dress \d{1,2} [A-Z][a-z]{2})?|Wet dress rehearsal \d{1,2} [A-Z][a-z]{2})$/.test(pad.text), "D: Full stack card is one line: Stacked {d} · Wet dress {d} (no line break)");
   check(faa && (faa.text === "Licence pending" || /^Launch licence issued \d{1,2} [A-Z][a-z]{2}$/.test(faa.text)), "D: Licence card is issued {date} or pending");
+  // Fixed-size past boxes: every box carries wording tiers (full → short → shortest); tier 0 is the text, at most 3,
+  // each one no longer than the one before, and no tier ever has a date the full text doesn't have.
+  const DAYS = (t) => (String(t).match(/\b\d{1,2} [A-Z][a-z]{2}\b/g) || []);
+  check(sum.every((e) => Array.isArray(e.tiers) && e.tiers.length >= 1 && e.tiers.length <= 3 && e.tiers[0] === e.text && e.tiers.every((t, k) => !k || t.length < e.tiers[k - 1].length)), "D: every past box has 1-3 wording tiers, full text first, each shorter than the last");
+  check(sum.every((e) => e.tiers.every((t) => DAYS(t).every((d) => DAYS(e.text).includes(d)))), "D: tiers never invent a date");
+  check(sum.filter((e) => ["cryo", "raptor", "static"].includes(e.box)).every((e) => e.tiers.length >= 2 && !e.tiers.slice(1).some((t) => t.startsWith(e.vehicle))), "D: cryo / raptor / static have shorter tiers that drop the vehicle name (already in the title)");
+  { const T = post.pastTiers;
+    const eq = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+    check(eq(T("cryo", "At least 2 cryo tests · last confirmed 30 Jun", "Ship 41"), ["At least 2 cryo tests · last confirmed 30 Jun", "2+ cryo tests · last 30 Jun", "2+ cryo · last 30 Jun"]), "tiers: cryo 'At least 2 cryo tests · last confirmed 30 Jun' → '2+ cryo tests · last 30 Jun' → '2+ cryo · last 30 Jun'");
+    check(eq(T("raptor", "Engines installed by 18 Aug", "Ship 41"), ["Engines installed by 18 Aug", "Engines in by 18 Aug", "Engines by 18 Aug"]), "tiers: raptor 'Engines installed by' → 'Engines in by' → 'Engines by'");
+    check(eq(T("static", "2 static fires · 20 and 21 Aug", "Ship 41"), ["2 static fires · 20 and 21 Aug", "2 static fires · 20, 21 Aug", "2 fires · 20, 21 Aug"]), "tiers: static '2 static fires · 20 and 21 Aug' → '20, 21 Aug' → '2 fires · 20, 21 Aug'");
+    check(eq(T("mystery", "Some new box text.", "Ship 99"), ["Some new box text."]) && eq(T("date", "Flight 15 launched on 12 Nov at 23:30 UK time.", "Launch date"), ["Flight 15 launched on 12 Nov at 23:30 UK time."]), "tiers: unknown box types keep the full text only (CSS clamp is the safety net)");
+    const live = JSON.parse(fs.readFileSync(path.join(ROOT, "road.json"), "utf8")), s14 = post.pastSummary(live, 14);
+    const p14 = s14.find((e) => e.box === "pad"), f14 = s14.find((e) => e.box === "faa");
+    check(p14 && eq(p14.tiers, ["Stacked 23 Sep · Wet dress 24 Sep", "Stacked 23 Sep · WDR 24 Sep", "Stacked 23 · WDR 24 Sep"]), "tiers: F14 pad 'Stacked 23 Sep · Wet dress 24 Sep' → '· WDR 24 Sep' → 'Stacked 23 · WDR 24 Sep'");
+    check(f14 && eq(f14.tiers, ["Launch licence issued 26 Sep", "Licence issued 26 Sep", "Issued 26 Sep"]), "tiers: F14 licence 'Launch licence issued 26 Sep' → 'Licence issued 26 Sep' → 'Issued 26 Sep'");
+    check(eq(faa.tiers, faa.text === "Licence pending" ? ["Licence pending"] : faa.tiers) && (pad.text !== "Stacked 12 Nov" || eq(pad.tiers, ["Stacked 12 Nov"])), "tiers: F15 stage D 'Stacked 12 Nov' / 'Licence pending' stay as they are (single event, no date invented)"); }
   check(sum.filter((e) => e.photo).length >= 6 && sum.every((e) => !e.photo || !/rtf-placeholder/.test(e.photo.image)), "D: summary items carry real photos (fix 7)");
   const fl = { n: 15, photo: { thumb: "images/rtf-placeholder.jpg", gallery: [] } }, g = post.galleryOf(fl, sum);
   check(g.length === 2 && g.every(Boolean) && !/rtf-placeholder/.test(post.thumbOf(fl, sum)), "D: no 'Photo to come' twice: gallery and thumb use the milestones' real photos (fix 7)"); }

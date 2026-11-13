@@ -975,11 +975,8 @@ function FlightCard({ f, open, onTap, onPhotoTap, register, road }) {
               <div className="past-sum" aria-label={`Road to Flight ${f.n}`}>
                 {past.map((e, i) => (
                   <div className="past-box" key={i} data-id={e.box} style={catVars(e.box, e.color)}>
-                    <div className="past-box-top">
-                      <span className="past-veh">{e.vehicle}</span>
-                      <span className="past-pill">{e.label}</span>
-                    </div>
-                    <p>{String(e.text || "").split("\n").map((line, li) => (<React.Fragment key={li}>{li > 0 && <br />}<span className="past-line">{scrub(line)}</span></React.Fragment>))}</p>
+                    <PastTop vehicle={e.vehicle} labels={e.labels || [e.label]} />
+                    <PastText tiers={(e.tiers && e.tiers.length ? e.tiers : [e.text]).map((t) => scrub(String(t || "")))} />
                   </div>
                 ))}
               </div>
@@ -1008,6 +1005,50 @@ function FlightCard({ f, open, onTap, onPhotoTap, register, road }) {
         </div>
       </div>
     </article>
+  );
+}
+
+// Past boxes (fixed size): pick the first wording tier that fits. usePastFit steps down one tier per pass after
+// layout (before paint) while overflows(el) is true, and starts again from the full tier whenever the width
+// changes (ResizeObserver; also covers collapsed → open) or web fonts finish loading.
+function usePastFit(count, key, overflows) {
+  const ref = React.useRef(null);
+  const [st, setSt] = React.useState({ key, i: 0 });
+  const i = st.key === key ? Math.min(st.i, count - 1) : 0;
+  React.useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el || !el.clientWidth || i >= count - 1) return;
+    if (overflows(el)) setSt({ key, i: i + 1 });
+  });
+  React.useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    let w = el.clientWidth, live = true;
+    const reset = () => live && setSt((s) => ({ key: s.key, i: 0, w: el.clientWidth }));
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(() => { if (el.clientWidth !== w) { w = el.clientWidth; reset(); } }) : null;
+    if (ro) ro.observe(el);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(reset);
+    return () => { live = false; if (ro) ro.disconnect(); };
+  }, []);
+  return [ref, i];
+}
+// Text: fits when it needs no more than 2 lines (scrollHeight vs 2 × line-height; the CSS 2-line clamp is the safety net).
+const pastTextOverflows = (el) => el.scrollHeight > 2 * (parseFloat(getComputedStyle(el).lineHeight) || 16.56) + 1;
+function PastText({ tiers }) {
+  const [ref, i] = usePastFit(tiers.length, tiers.join("\u0001"), pastTextOverflows);
+  // A date ("23 Sep") never breaks across the two lines.
+  return <p ref={ref} className="past-text" data-tier={i} title={i > 0 ? tiers[0] : undefined}>{String(tiers[i]).replace(/\b(\d{1,2}) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b/g, "$1\u00a0$2")}</p>;
+}
+// Title row: one line. If the vehicle name would be cut off next to the full pill, use the short pill wording (PAST_LABEL_SHORT).
+// Sub-pixel safe: the text's own width (Range) vs the span's box, since scrollWidth / clientWidth round to whole pixels.
+const pastTopOverflows = (el) => { const v = el.querySelector(".past-veh"); if (!v) return false; const r = document.createRange(); r.selectNodeContents(v); return r.getBoundingClientRect().width > v.getBoundingClientRect().width + 0.05; };
+function PastTop({ vehicle, labels }) {
+  const [ref, i] = usePastFit(labels.length, labels.join("\u0001"), pastTopOverflows);
+  return (
+    <div className="past-box-top" ref={ref}>
+      <span className="past-veh">{vehicle}</span>
+      <span className="past-pill" title={i > 0 ? labels[0] : undefined}>{labels[i]}</span>
+    </div>
   );
 }
 
@@ -1589,6 +1630,47 @@ function cardTime(h, road) {
 // pill): road.archive[n].summary.items, one small box per vehicle per category (written by hand for
 // Flight 14, frozen by the checker when later flights launch). The internal sources list is never shown.
 const PAST_LABEL = { cryo: "Cryo", raptor: "Raptor", static: "Static fire", pad: "Pad", faa: "FAA licence", date: "Launch date" };
+// Shorter pill wording when the title row is too narrow for the vehicle name + full pill (one fixed-height row).
+const PAST_LABEL_SHORT = { static: "Static", faa: "FAA" };
+// Past boxes are a fixed size (title row + 2 text lines); the TEXT is summarised to fit. Each box type has
+// wording tiers (full → short → shortest); the card shows the first tier that fits in 2 lines at the current
+// width (PastText measures it in the browser). Tiers only reword facts already in the text: every step is a
+// rewrite of the previous one (drop the vehicle name already shown in the title, abbreviate, use digits);
+// a date never changes and nothing is added. Keyed on box type, never on the flight number. Pad and Licence
+// build their own tiers from their real dates (pastPadCard / pastLicenceCard). Unknown types: full text only.
+const PAST_NUM = { one: "1", two: "2", three: "3", four: "4", five: "5", six: "6", seven: "7", eight: "8", nine: "9", ten: "10" };
+const PAST_TIER_COMMON = [[/^(?:was |has |have |is )/i, ""]]; // after the vehicle name is dropped (it is already in the title row)
+const PAST_TIER_RULES = {
+  cryo: [
+    [[/^At least (\d+)/i, "$1+"], [/\blast confirmed\b/i, "last"], [/\bthen its (first|second|third|fourth)\b/i, "then a $1"]],
+    [[/ cryo (?:proof )?tests?\b/i, (m) => / tests$/.test(m) ? " cryo tests" : " cryo test"], [/\b(one|two|three|four|five|six)\b/gi, (m) => PAST_NUM[m.toLowerCase()]],
+      [/\bthen a third\b/i, "then a 3rd"], [/\bthen a second\b/i, "then a 2nd"], [/^(\d+\+) cryo tests · last/i, "$1 cryo · last"],
+      [/^completed its first (full )?cryo test\.?$/i, "First $1cryo test done."], [/^completed (?=\d)/i, ""]],
+  ],
+  raptor: [
+    [[/^Engines installed by\b/i, "Engines in by"]],
+    [[/^Engines in by\b/i, "Engines by"], [/^ready with all (\d+) Raptors\.?$/i, "All $1 Raptors ready."]],
+  ],
+  static: [
+    [[/(\d{1,2}) and (\d{1,2}) ([A-Z][a-z]{2})\b/, "$1, $2 $3"]],
+    [[/^(\d+) static fires? ·/i, (m, k) => `${k} ${k === "1" ? "fire" : "fires"} ·`], [/\b(one|two|three|four|five|six)\b/gi, (m) => PAST_NUM[m.toLowerCase()]], [/^completed an? (?=full|short|\d)/i, ""], [/ on (?:Pad|OLM|Massey's)[^.]*(?=\.?$)/i, ""]],
+  ],
+};
+const pastCap = (t) => t ? t.charAt(0).toUpperCase() + t.slice(1) : t;
+function pastTiers(box, text, vehicle) {
+  const full = String(text || "").trim(), steps = PAST_TIER_RULES[box];
+  if (!steps || !full) return [full];
+  const out = [full];
+  const veh = vehicle ? new RegExp("^" + String(vehicle).replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\s+", "i") : null;
+  let cur = full;
+  steps.forEach((rules, k) => {
+    if (k === 0 && veh && veh.test(cur)) { cur = cur.replace(veh, ""); for (const [re, to] of PAST_TIER_COMMON) cur = cur.replace(re, to); }
+    for (const [re, to] of rules) cur = cur.replace(re, to);
+    cur = pastCap(cur.replace(/\s{2,}/g, " ").trim());
+    if (cur && cur !== out[out.length - 1]) out.push(cur);
+  });
+  return out.slice(0, 3);
+}
 // Category CSS vars. Raptor engines is near-black #0E0F11 (option A2): ring and fill identical, light rims and a graphite halo keep it visible on navy.
 const CAT_FILL = { raptor: { "--bg": "#0E0F11", "--on": "#E8EAEE", "--t": "#0E0F11" } }; // Raptor (A2): near-black #0E0F11 ring, fill, accent and connector; white title, see-through pill (CSS below)
 const catVars = (id, c) => Object.assign({ "--c": c }, CAT_FILL[id] || {});
@@ -1628,13 +1710,14 @@ function pastPadCard(padItems, sources) {
   const all = src.concat(halves);
   const stack = pastDateInSources(all, /\bstacked (?:on|onto|atop)\b/i, /Stacked\s+(\d{1,2}\s+[A-Z][a-z]{2})/i);
   const wdr = pastDateInSources(all, /\b(?:wet dress(?: rehearsal)?|\bWDR\b)/i, /wet dress rehearsal\s+(\d{1,2}\s+[A-Z][a-z]{2})/i);
-  const lines = [];
-  if (stack) lines.push("Stacked " + stack);
-  if (wdr) lines.push("Wet dress rehearsal " + wdr);
-  const text = lines.length ? lines.join("\n") : "Not yet stacked";
+  // One line, no break: "Stacked {d} · Wet dress {d}" → "Stacked {d} · WDR {d}" → "Stacked {dd} · WDR {d}" (same month only).
+  const sameMon = stack && wdr && stack.split(" ")[1] === wdr.split(" ")[1];
+  const tiers = stack && wdr ? ["Stacked " + stack + " · Wet dress " + wdr, "Stacked " + stack + " · WDR " + wdr, ...(sameMon ? ["Stacked " + stack.split(" ")[0] + " · WDR " + wdr] : [])]
+    : stack ? ["Stacked " + stack] : wdr ? ["Wet dress rehearsal " + wdr, "Wet dress " + wdr, "WDR " + wdr] : ["Not yet stacked"];
+  const text = tiers[0];
   const photo = (padItems || []).map((e) => e.photo).find((p) => p && p.image) || src.map((e) => e.photo).find((p) => p && p.image) || null;
   if (!padItems.length && !stack && !wdr) return null;
-  return { box: "pad", vehicle: "Full stack", text, ...(photo ? { photo } : {}) };
+  return { box: "pad", vehicle: "Full stack", text, tiers, ...(photo ? { photo } : {}) };
 }
 function pastLicenceIssued(sources) {
   for (const e of sources) {
@@ -1654,8 +1737,8 @@ function pastLicenceCard(faaItems, sources) {
   const src = (sources && sources.length ? sources : faaItems) || [];
   const date = pastLicenceIssued(src);
   const photo = (faaItems || []).map((e) => e.photo).find((p) => p && p.image) || src.map((e) => e.photo).find((p) => p && p.image) || null;
-  const text = date ? "Launch licence issued " + date : "Licence pending";
-  return { box: "faa", vehicle: "Licence", text, ...(photo ? { photo } : {}) };
+  const tiers = date ? ["Launch licence issued " + date, "Licence issued " + date, "Issued " + date] : ["Licence pending"];
+  return { box: "faa", vehicle: "Licence", text: tiers[0], tiers, ...(photo ? { photo } : {}) };
 }
 function pastSummary(road, n) {
   if (!road || !Array.isArray(road.categories)) return [];
@@ -1664,13 +1747,13 @@ function pastSummary(road, n) {
   // Display rule for every flight (by box id / type, never by flight number): rows 1–3 are
   // per-vehicle Cryo, Raptor and Static fire; row 4 is one combined Pad card (Full stack) and
   // one Licence card. Launch date is hidden (already in the card details). The frozen archive
-  // is left as it is. Pad text is "Stacked {date}" and "Wet dress rehearsal {date}" on two
-  // lines, built from real events; a missing half is dropped. Licence is "Launch licence
+  // is left as it is. Pad text is one line, "Stacked {date} · Wet dress {date}", built from
+  // real events; a missing half is dropped. Licence is "Launch licence
   // issued {date}", or "Licence pending" when there is no issue date for this flight.
   const raw = items.filter((e) => e && e.text && e.vehicle && e.box !== "date");
   if (!raw.length) return []; // no invented past section when the archive has nothing for this flight
   const row = [...raw.filter((e) => e.box !== "pad" && e.box !== "faa"), pastPadCard(raw.filter((e) => e.box === "pad"), pastFlightSources(road, n, "pad")), pastLicenceCard(raw.filter((e) => e.box === "faa"), pastFlightSources(road, n, "faa"))].filter(Boolean);
-  return row.map((e) => ({ box: e.box, vehicle: e.vehicle, text: e.text, label: PAST_LABEL[e.box] || e.box, color: color(e.box), photo: e.photo && e.photo.image ? e.photo : null }));
+  return row.map((e) => ({ box: e.box, vehicle: e.vehicle, text: e.text, tiers: e.tiers || pastTiers(e.box, e.text, e.vehicle), label: PAST_LABEL[e.box] || e.box, labels: [PAST_LABEL[e.box] || e.box, ...(PAST_LABEL_SHORT[e.box] ? [PAST_LABEL_SHORT[e.box]] : [])], color: color(e.box), photo: e.photo && e.photo.image ? e.photo : null }));
 }
 // --- mission-card helpers (tested by scripts/test-missioncard.js) ---
 // Hand-written Next-flight card copy (road.json mission_card[n]). Checkers never read or write this field.
@@ -2901,12 +2984,14 @@ a.watch-badge-live:active { transform: scale(.96); }
 .past-wrap { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .45s cubic-bezier(.2,.8,.2,1); }
 .past-wrap.open { grid-template-rows: 1fr; }
 .past-wrap-inner { overflow: hidden; min-height: 0; }
-.past-sum { display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: 1fr; gap: 8px; margin: 0 0 14px; }
-.past-box { background: #1A2338; border: 1px solid rgba(170,190,245,.12); border-radius: 12px; padding: 8px 10px 9px; min-width: 0; height: 100%; box-sizing: border-box; }
-.past-box-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 4px 6px; }
-.past-veh { font-size: 11.5px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.past-box p { margin: 5px 0 0; font-size: 12px; line-height: 1.38; color: #C9D2E6; }
-.past-pill { font-size: 9.5px; font-weight: 700; letter-spacing: .02em; padding: 2px 7px; border-radius: 999px; white-space: nowrap;
+/* Every past box is ONE fixed size at every width: border + padding + title row + gap + 2 text lines (= 76.1px). Text is summarised to fit (PastText tiers). */
+.past-sum { --past-lh: calc(12px * 1.38); --past-top: 19px; --past-gap: 5px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 0 14px;
+  grid-auto-rows: calc(2px + 8px + 9px + var(--past-top) + var(--past-gap) + 2 * var(--past-lh)); }
+.past-box { background: #1A2338; border: 1px solid rgba(170,190,245,.12); border-radius: 12px; padding: 8px 10px 9px; min-width: 0; height: 100%; box-sizing: border-box; overflow: hidden; }
+.past-box-top { display: flex; flex-wrap: nowrap; justify-content: space-between; align-items: center; gap: 6px; height: var(--past-top); min-width: 0; }
+.past-veh { font-size: 11.5px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.past-box p { margin: var(--past-gap) 0 0; font-size: 12px; line-height: var(--past-lh); color: #C9D2E6; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
+.past-pill { font-size: 9.5px; font-weight: 700; letter-spacing: .02em; padding: 2px 7px; border-radius: 999px; white-space: nowrap; flex-shrink: 0;
   color: var(--t, var(--c)); background: var(--bg, color-mix(in srgb, var(--c) 14%, transparent)); border: 1px solid color-mix(in srgb, var(--c) 38%, transparent); }
 .past-box[data-id="raptor"] .past-pill { color: #F2F4F8; background: rgba(14,15,17,.35); border: 1.5px solid #0E0F11; box-shadow: 0 0 0 1px rgba(255,255,255,.35); } /* same as .chip.chip-raptor: readable label on the near-black fill */
 .highlights-link {
