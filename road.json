@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "13 Nov",
-  "updatedAt": "2026-11-13T06:30:53.059Z",
+  "updatedAt": "2026-11-13T07:15:53.195Z",
   "categories": [
     {
       "id": "cryo",
@@ -3326,16 +3326,14 @@
         },
         {
           "id": "x-2118577080837574862",
-          "date": "6 Nov",
-          "log_date": "6 Nov",
-          "at": "2026-11-06T05:31:51.000Z",
-          "text": "Pad 2 completed deluge and catch tests.",
-          "x_text": "Pad 2 completed deluge and catch tests.",
-          "push_text": "Pad 2 completed deluge and catch tests.",
-          "card_text": "Pad 2 completed deluge and catch tests.",
-          "log_text": "Pad 2 completed deluge and catch tests.",
-          "status_line": "Pad work progressing for Flight 15.",
-          "url": "https://x.com/Blobifie/status/2118577080837574862",
+          "date": "13 Nov",
+          "log_date": "13 Nov",
+          "at": "2026-11-13T07:10:22.000Z",
+          "text": "Ship transport stand has left the launch complex.",
+          "x_text": "Ship transport stand has left the launch complex.",
+          "log_text": "Ship transport stand leaves the launch complex.",
+          "status_line": "Pad activity ongoing.",
+          "url": "https://x.com/Blobifie/status/2121138587878248780",
           "src": "@Blobifie",
           "trust": "trusted",
           "x_first": true,
@@ -3343,10 +3341,10 @@
           "hardware": null,
           "flight": 15,
           "x_post": {
-            "post_id": "2118577080837574862",
-            "url": "https://x.com/Blobifie/status/2118577080837574862",
-            "created_at": "2026-11-06T05:31:51.000Z",
-            "text": "There has been 3 deluge tests and some catch testing performed over the past ~48 hours but i was too lazy to screenshot them so heres a photo of some workers working on the sticks and butters from south park https://t.co/Lzuorjw8li https://t.co/ER4MzMibYh",
+            "post_id": "2121138587878248780",
+            "url": "https://x.com/Blobifie/status/2121138587878248780",
+            "created_at": "2026-11-13T07:10:22.000Z",
+            "text": "The ship transport stand has also left the launch complex! https://t.co/CRiVwrkUfm",
             "author": {
               "name": "Blobifi",
               "username": "Blobifie",
@@ -3355,16 +3353,17 @@
             "media": [
               {
                 "type": "photo",
-                "url": "https://pbs.twimg.com/media/HWayLZfbMAAAeGZ.jpg"
+                "url": "https://pbs.twimg.com/media/HW_MNvwa4AAa2kw.jpg"
               },
               {
                 "type": "photo",
-                "url": "https://pbs.twimg.com/media/HWayltcakAARxNF.png"
+                "url": "https://pbs.twimg.com/media/HW_MQ_UawAETCZz.jpg"
               }
             ]
           },
           "x_posts": [
-            "2118577080837574862"
+            "2118577080837574862",
+            "2121138587878248780"
           ],
           "xChecked": true,
           "imageChecked2": true,
@@ -3383,14 +3382,38 @@
           },
           "photo_alternatives": [
             {
-              "image": "https://pbs.twimg.com/media/HWayltcakAARxNF.png",
+              "image": "https://pbs.twimg.com/media/HW_MQ_UawAETCZz.jpg",
               "type": "photo",
-              "post_url": "https://x.com/Blobifie/status/2118577080837574862",
+              "post_url": "https://x.com/Blobifie/status/2121138587878248780",
               "author": "Blobifie"
             }
           ],
           "edited_from": "Deluge and catch testing performed at the pad.",
-          "edited": true
+          "edited": true,
+          "updates": [
+            {
+              "date": "6 Nov",
+              "log_date": "6 Nov",
+              "at": "2026-11-06T05:31:51.000Z",
+              "text": "Pad 2 completed deluge and catch tests.",
+              "push_text": "Pad 2 completed deluge and catch tests.",
+              "card_text": "Pad 2 completed deluge and catch tests.",
+              "log_text": "Pad 2 completed deluge and catch tests.",
+              "url": "https://x.com/Blobifie/status/2118577080837574862",
+              "src": "@Blobifie",
+              "phase": "progress",
+              "tier": 2
+            }
+          ],
+          "push_text": "Ship transport stand leaves launch complex.",
+          "card_text": "Ship transport stand leaves the launch complex.",
+          "media_override": {
+            "post_url": "https://x.com/Blobifie/status/2121138587878248780",
+            "post_id": "2121138587878248780",
+            "author": "Blobifie",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HW_MNvwa4AAa2kw.jpg"
+          }
         },
         {
           "id": "x-2118557148183683543",
@@ -3876,7 +3899,7 @@
           "journey_context": "engine prep (1 Nov: not a Raptor milestone)"
         }
       ],
-      "log_latest": "Ship 42 pad work underway."
+      "log_latest": "Pad activity ongoing."
     },
     {
       "id": "faa",
