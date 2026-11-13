@@ -2295,6 +2295,66 @@
       "verdict": "sent",
       "gate": "not an X tracker post",
       "key": "starship|livestream|13 Nov"
+    },
+    {
+      "title": "🚧 Launch delayed",
+      "body": "Now 13 Nov 22:47",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=flight-mwfit5i8-ba5006",
+      "url": "",
+      "at": "2026-11-13T22:00:30.752Z",
+      "sent_at": "2026-11-13T22:01:28.142Z",
+      "where": "feed",
+      "verdict": "sent",
+      "gate": "not an X tracker post",
+      "key": "flight|launch_date@13 Nov 22:47|13 Nov"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "Starship is go for propellant load ahead of Flight 15 (RGVaerialphotos, 13 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/Blobifie/status/2121361113069801544",
+      "at": "2026-11-13T21:54:36.000Z",
+      "sent_at": "2026-11-13T22:01:29.350Z",
+      "where": "mission",
+      "verdict": "silent: duplicate F15|other|13 Nov",
+      "gate": "second trusted source agrees",
+      "key": "F15|other|13 Nov"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "SpaceX has polled GO for propellant load ahead of Flight 15 (TrackingTheSB, 13 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/TrackingTheSB/status/2121360835536715797",
+      "at": "2026-11-13T21:53:30.000Z",
+      "sent_at": "2026-11-13T22:01:29.460Z",
+      "where": "mission",
+      "verdict": "silent: duplicate F15|other|13 Nov",
+      "gate": "second trusted source agrees",
+      "key": "F15|other|13 Nov"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "Teams will begin loading Starship with 12 million pounds of propellant (SpaceX, 13 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/SpaceX/status/2121360601377374680",
+      "at": "2026-11-13T21:52:34.000Z",
+      "sent_at": "2026-11-13T22:01:29.464Z",
+      "where": "mission",
+      "verdict": "silent: minor other — a push went out 0.0h ago (quiet window 24h)",
+      "gate": "official source",
+      "key": "starship|other|13 Nov"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "Starship Flight 15 is at T-60 minutes with all systems on track (NASASpaceflight, 13 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/NASASpaceflight/status/2121358776167182520",
+      "at": "2026-11-13T21:45:19.000Z",
+      "sent_at": "2026-11-13T22:01:29.572Z",
+      "where": "mission",
+      "verdict": "silent: duplicate F15|other|13 Nov",
+      "gate": "second trusted source agrees",
+      "key": "F15|other|13 Nov"
     }
   ]
 }
