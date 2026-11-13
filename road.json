@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "13 Nov",
-  "updatedAt": "2026-11-13T00:15:50.456Z",
+  "updatedAt": "2026-11-13T01:01:10.568Z",
   "categories": [
     {
       "id": "cryo",
@@ -4161,6 +4161,16 @@
   ],
   "feed_items": [
     {
+      "id": "news-mwe9iewo-e9b8c0",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Ship 42 was stacked on Booster 22 ahead of launch.",
+      "url": "https://x.com/LabPadre/status/2121043480411525168",
+      "at": "2026-11-13T00:52:27.000Z",
+      "date": "13 Nov",
+      "flight": 15
+    },
+    {
       "id": "news-mwdv1ilc-0c30dd",
       "kind": "news",
       "title": "🚀 Starship",
@@ -4599,18 +4609,6 @@
       "src": "@LabPadre",
       "push_text": "Booster 23 has returned to Megabay 1 from the Massey outpost",
       "later_flight": true
-    },
-    {
-      "id": "news-mvtv609c-f58a18",
-      "kind": "news",
-      "title": "🚀 Starship",
-      "body": "Flight 15 reportedly slipped by four days to 12 November.",
-      "url": "https://x.com/LabPadre/status/2115870155188449596",
-      "at": "2026-10-29T18:15:30.000Z",
-      "date": "29 Oct",
-      "flight": 15,
-      "src": "@LabPadre",
-      "push_text": "Flight 15 has reportedly slipped by four days to 12 November"
     }
   ],
   "milestones": {
