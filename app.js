@@ -736,7 +736,9 @@ function noteLL2Failure(err, now = nowMs()) {
 // 13 Nov (herofallback): when the hero has no Launch Library flight (lookup failed, throttled, no cache, or LL2 lists no next
 // flight) but road.json tracks that same flight with a NET, show road.json's NET day and pad instead of "To be confirmed" /
 // "To be announced". Uses the same NET line as the Road Launch date box (lastKnownNetLabel) and road.pad, so it works for any
-// flight N. Day-only (a dated TBD: "NET 13 Nov", no countdown to an invented time, no live Watch badge). Live data always wins.
+// flight N. Day-only (a dated TBD: "NET 13 Nov", no countdown to an invented time, no live Watch badge) unless the Road also
+// has a confirmed official date with a clock time — then the hero shows that UK time and a running NET countdown, the same as
+// live Launch Library data with a time. Live data always wins.
 function roadNetIso(label, now = nowMs()) {
   const m = /^NET (\d{1,2}) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)$/.exec(label || "");
   if (!m) return null;
@@ -745,8 +747,130 @@ function roadNetIso(label, now = nowMs()) {
   const best = [y - 1, y, y + 1].map((yy) => Date.UTC(yy, mon, day, 12)).sort((a, b) => Math.abs(a - now) - Math.abs(b - now))[0];
   return new Date(best).toISOString(); // midday UTC: the same calendar day in UK time, summer or winter
 }
+// Civil clock in a named zone → UTC ms. Iterates the zone offset so UK BST and US Central DST stay correct.
+function zonedLocalMs(year, mon0, day, hour, min, timeZone) {
+  let t = Date.UTC(year, mon0, day, hour, min);
+  for (let i = 0; i < 4; i++) {
+    const p = Object.fromEntries(new Intl.DateTimeFormat("en-GB", { timeZone, year: "numeric", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false }).formatToParts(new Date(t)).map((x) => [x.type, x.value]));
+    const hh = p.hour === "24" ? 0 : Number(p.hour);
+    const got = Date.UTC(Number(p.year), Number(p.month) - 1, Number(p.day), hh, Number(p.minute));
+    t += Date.UTC(year, mon0, day, hour, min) - got;
+  }
+  return t;
+}
+const CLOCK_ZONES = { UK: "Europe/London", GMT: "UTC", UTC: "UTC", CT: "America/Chicago", CST: "America/Chicago", CDT: "America/Chicago", ET: "America/New_York", EST: "America/New_York", EDT: "America/New_York" };
+// "22:45 UK", "4:45 p.m. CT". Times 0–12 without am/pm are ambiguous in prose (allowBareMorning for structured official_date.time).
+function parseClock(text, allowBareMorning = false) {
+  const m = /\b(\d{1,2}):(\d{2})(?:\s*:\d{2})?\s*(?:([ap])\.?\s*m\.?)?\s*(UK|GMT|UTC|CT|CST|CDT|ET|EST|EDT)?\b/i.exec(String(text || ""));
+  if (!m) return null;
+  let hour = Number(m[1]), min = Number(m[2]);
+  if (hour > 23 || min > 59) return null;
+  const ap = (m[3] || "").toLowerCase(), z = (m[4] || "").toUpperCase();
+  if (ap === "p" && hour < 12) hour += 12;
+  if (ap === "a" && hour === 12) hour = 0;
+  if (!ap && hour <= 12 && !allowBareMorning) return null;
+  return { hour, min, zone: CLOCK_ZONES[z] || "Europe/London" };
+}
+function dayInText(text) {
+  const t = String(text || "");
+  let m = /\b(\d{1,2}) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b/.exec(t);
+  if (m) return `${Number(m[1])} ${m[2]}`;
+  m = /\b(January|February|March|April|May|June|July|August|September|October|November|December) (\d{1,2})\b/.exec(t);
+  if (!m) return "";
+  const mon = m[1] === "May" ? "May" : LONG_MON[m[1]];
+  return mon ? `${Number(m[2])} ${mon}` : "";
+}
+// official_date for this flight (status pin, or a record with at/day/time). Other flights' pins are ignored.
+function officialDateOf(road) {
+  const o = road && road.official_date;
+  if (!o) return null;
+  if (o.flight != null && Number.isInteger(road.flight) && Number(o.flight) !== Number(road.flight)) return null;
+  return o;
+}
+function isoFromNetDayClock(dayLabel, clock, now) {
+  if (!clock || !dayLabel) return null;
+  const label = /^NET /i.test(dayLabel) ? dayLabel : `NET ${String(dayLabel).replace(/^NET /i, "")}`;
+  const mid = roadNetIso(label, now);
+  if (!mid) return null;
+  const d = new Date(mid), t = zonedLocalMs(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), clock.hour, clock.min, clock.zone || "Europe/London");
+  return Number.isFinite(t) ? new Date(t).toISOString() : null;
+}
+// The calendar day the official_date pin itself belongs to (at, .day, or a date named in the quote/text). Empty if none.
+function officialPinDay(o) {
+  if (!o) return "";
+  if (o.at && Number.isFinite(Date.parse(o.at))) {
+    const p = ukParts(o.at);
+    if (p.day && p.mon) return `${p.day} ${p.mon}`;
+  }
+  if (o.day) {
+    const d = String(o.day).replace(/^NET\s+/i, "").trim();
+    const m = /^(\d{1,2}) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)$/.exec(d);
+    if (m) return `${Number(m[1])} ${m[2]}`;
+    const named = dayInText(d);
+    if (named) return named;
+  }
+  return dayInText(o.source_quote) || dayInText(o.text) || "";
+}
+// When SpaceX has officially confirmed the date, pick a clock time from road.json (any flight): official_date.at / .time,
+// the pin's source_quote (e.g. "4:45 p.m. CT"), the Launch date line, or a same-day feed item. The official clock is used
+// only when the pin's own day equals the newest NET day (or there is no NET line, so the pin's day stands alone). If the
+// NET has slipped to a different day, return null so the hero stays day-only — never reuse the old clock on a new day.
+// Times in the pin are converted from their own zone (CT → America/Chicago, "22:45" / "22:45 UK" → Europe/London, ISO at
+// → as stored). No time, or no official day, → null (day-only fallback).
+function officialTimeIso(road, now = nowMs()) {
+  const o = officialDateOf(road);
+  if (!o) return null;
+  const netLabel = lastKnownNetLabel(road, road.flight), netDay = netLabel ? netLabel.replace(/^NET /, "") : "";
+  const pinDay = officialPinDay(o);
+  if (!pinDay) return null;
+  if (netDay && pinDay !== netDay) return null; // a slip: do not put the official clock on a day nobody announced
+  const day = netDay || pinDay;
+  const apply = (clock) => isoFromNetDayClock(day, clock, now);
+  if (o.at && Number.isFinite(Date.parse(o.at))) {
+    const p = ukParts(o.at);
+    if (p.time && p.time !== "00:00" && `${p.day} ${p.mon}` === day) return new Date(Date.parse(o.at)).toISOString();
+  }
+  if (o.time) {
+    const clock = parseClock(/[A-Za-z]/.test(o.time) ? o.time : `${o.time} UK`, true);
+    const iso = apply(clock);
+    if (iso) return iso;
+  }
+  for (const text of [o.source_quote, o.text]) {
+    const clock = parseClock(text);
+    if (!clock) continue;
+    const iso = apply(clock);
+    if (iso) return iso;
+  }
+  const cat = ((road.categories) || []).find((c) => c && c.id === "date") || {};
+  for (const s of [cat.log_latest, cat.latest]) {
+    const clock = parseClock(s);
+    if (!clock) continue;
+    const mentioned = dayInText(s);
+    if (mentioned && mentioned !== day) continue;
+    const iso = apply(clock);
+    if (iso) return iso;
+  }
+  const items = ((road.feed_items) || []).filter((it) => it && (it.flight == null || Number(it.flight) === Number(road.flight)));
+  items.sort((a, b) => (Date.parse(b.at || "") || 0) - (Date.parse(a.at || "") || 0));
+  for (const it of items) {
+    const text = `${it.body || ""} ${it.title || ""}`;
+    const clock = parseClock(text);
+    if (!clock) continue;
+    const mentioned = dayInText(text);
+    if (mentioned && mentioned !== day) continue;
+    const iso = apply(clock);
+    if (iso) return iso;
+  }
+  return null;
+}
 function withRoadFallback(f, road, now = nowMs()) {
   if (!f || !f.placeholder || !road || !Number.isInteger(road.flight) || Number(f.n) !== road.flight) return f;
+  const exact = officialTimeIso(road, now);
+  if (exact) {
+    if (Date.parse(exact) + DAY < now) return f; // a dated official time already a day past: keep the honest TBC
+    return { ...f, placeholder: false, fromRoad: true, status: "net", ll2Status: "TBC", netPrecision: "MIN", date: exact,
+      pad: typeof road.pad === "string" ? road.pad : f.pad };
+  }
   const date = roadNetIso(lastKnownNetLabel(road, road.flight), now);
   if (!date || Date.parse(date) + DAY < now) return f; // no NET in road.json, or that day has passed: keep the honest TBC
   return { ...f, placeholder: false, fromRoad: true, status: "net", ll2Status: "TBD", netPrecision: "DAY", date,
@@ -949,7 +1073,7 @@ function WatchLiveBadge({ flight, now }) {
   // Stay clickable for the whole in-flight window; otherwise use the usual
   // lead/trail timing around the scheduled T-0.
   let active = status === "inflight";
-  if (!active && status !== "tbc" && flight.date && !flight.fromRoad) { // road.json fallback has a day, not a T-0
+  if (!active && status !== "tbc" && flight.date && (!flight.fromRoad || exactTime(flight))) { // day-only road fallback has no T-0; a confirmed official time does
     const t = new Date(flight.date).getTime();
     active = now >= t - WATCH_LIVE_LEAD_MS && now <= t + WATCH_LIVE_TRAIL_MS;
   }
@@ -982,11 +1106,12 @@ function NextFlightCard({ f, checkedAt, road, children }) {
   let dateText = "To be confirmed";
   if (status === "inflight" || status === "done") dateText = f.date ? fmtLaunchedLondon(f.date) : dateText;
   else if (status !== "tbc" && f.date) dateText = fmtDateTimeLondon(f.date);
-  if (status === "net" && dateOnlyNet(f)) dateText = netDayLabel(f);
+  if (status === "net" && dateOnlyNet(f)) dateText = ukStamp(f.date, false); // day only: the label is already "NET date", so not "NET 13 Nov"
   const rough = status === "tbc" ? roughNet(f, now) : null;
   if (rough) dateText = rough.label;
   const predicted = predictedNet(f, road, now);
   if (predicted) dateText = predicted.label;
+  if (dateLabel === "NET date" && /^NET\s+/i.test(dateText)) dateText = dateText.replace(/^NET\s+/i, ""); // never "NET date: NET …"
   return (
     <section className="next" aria-label={`${status === "inflight" ? "Current" : status === "done" ? "Latest" : "Next"} flight: Flight ${f.n}`}>
       <div className="next-top">
