@@ -2287,7 +2287,58 @@ function rtfRows(road) {
   if (head.length && headAt >= 0) res.splice(headAt, 0, ...head);
   return { posts, rows: res };
 }
-function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap, peekOpen, onTogglePeek }) {
+
+// Category status for the slim Road pills (same rules as the Flight Log RoadCard: rollup + Flight Log boxes).
+function roadCatItems(road, { heroNet, netPending } = {}) {
+  const flogBoxes = road && window.RoadFlightLog ? window.RoadFlightLog.boxes(road, undefined, { net: heroNet || null, pending: !!netPending }) : null;
+  const dateNet = authoritativeNetLabel(road, heroNet);
+  return road && Array.isArray(road.categories) ? road.categories.filter((m) => !ROAD_HIDDEN.includes(m.id)).map((m) => logView(m, road)).map((m) => ({ ...m, status: rollupStatus(m, road) }))
+    .map((m) => { const f = flogBoxes && flogBoxes[m.id]; const flog = (m.id === "date" && f) ? launchDateDisplay(f, dateNet) : (m.id === "pad" && f) ? flogPadDisplay(f, road) : (m.id === "faa" && f) ? faaLicenceDisplay(f) : f; return flog ? { ...m, status: flog.status, flog } : m; }) : [];
+}
+// Next-flight dots: this flight's own history only, never the current flight's category.status.
+function peekCatItems(road) {
+  if (!road || !Array.isArray(road.categories)) return [];
+  return road.categories.filter((m) => !ROAD_HIDDEN.includes(m.id)).map((m) => {
+    const own = (m.history || []).filter((h) => isRealEntry(h) && !(h.flight > road.flight) && h.trust !== "unconfirmed");
+    let status = "pending";
+    if (ROLLUP_IDS.includes(m.id)) {
+      const vs = roadVehicles(road).map((v) => v.toUpperCase());
+      const last = {};
+      for (const h of own) { const v = logHw(h); if (v && !last[v]) last[v] = h; }
+      if (vs.length && vs.every((v) => last[v] && logDone(last[v]))) status = "done";
+      else if (own.length) status = "progress";
+    } else if (own.some(logDone)) status = "done";
+    else if (own.length) status = "progress";
+    return { id: m.id, name: m.name, color: m.color || PAST_COLOR[m.id], status };
+  });
+}
+function roadDotLabel(m) {
+  return (m.status === "done" || m.status === "complete") ? (ROAD_DONE_LABEL[m.id] || "Complete") : (ROAD_STATUS_TEXT[m.status] || m.status);
+}
+// Slim Flight N pill used on the Road tab (current flight at the top, next flight at the bottom).
+function RoadFlightPill({ flight, items, action, open, onClick, shortCount, className }) {
+  const done = items.filter((m) => m.status === "done" || m.status === "complete").length;
+  const n = items.length;
+  const count = shortCount ? `${done} of ${n}` : `${done} of ${n} done`;
+  const chevron = (
+    <svg className={"rtf-chevron" + (open ? " open" : "")} width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
+      <path d="M2.25 4.25 L6 8 L9.75 4.25" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+  const inner = (
+    <>
+      <span className="feed-pill-title">{`Flight ${flight}`}</span>
+      <span className="road-dots">{items.map((m) => <i key={m.id} className={"dot dot-" + m.status} style={catVars(m.id, m.color)} title={m.name + ": " + roadDotLabel(m)} aria-label={m.name + ": " + roadDotLabel(m)} role="img" />)}</span>
+      <span className="road-count">{count}</span>
+      {action && <span className="feed-pill-action">{action}{chevron}</span>}
+    </>
+  );
+  const cls = "feed-pill" + (className ? " " + className : "") + (open ? " open" : "");
+  if (onClick) return <button type="button" className={cls} onClick={onClick} aria-expanded={!!open}>{inner}</button>;
+  return <div className={cls}>{inner}</div>;
+}
+
+function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap, peekOpen, onTogglePeek, heroNet, netPending }) {
   const { posts, rows } = React.useMemo(() => rtfRows(road), [road]);
   const idx = React.useMemo(() => entryIndex(road), [road]);
   // Launch date: the section status pill rides on this flight's newest date card.
@@ -2304,12 +2355,23 @@ function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap, peekOpe
     const cards = rtfCards(peekRoad).filter((c) => !c.empty);
     return cards.slice().sort((a, b) => peekCardTime(b) - peekCardTime(a)); // newest first
   }, [peekRoad]);
+  const curItems = React.useMemo(() => roadCatItems(road, { heroNet, netPending }), [road, heroNet, netPending]);
+  const peekItems = React.useMemo(() => peekCatItems(peekRoad), [peekRoad]);
+  const [curOpen, setCurOpen] = React.useState(true); // current flight starts open (same as the previous always-visible feed)
+  const curPosts = [], rest = [];
+  let mode = "before";
+  for (const r of rows) {
+    if (r.section && r.section.next) { mode = "cur"; continue; } // the next-flight divider is replaced by the slim pill
+    if (r.section) { mode = "rest"; rest.push(r); continue; }
+    if (mode === "cur") curPosts.push(r);
+    else rest.push(r);
+  }
+  const renderRow = (r) => r.section
+    ? <div className="fdiv" id={`fsec-${r.section.n}`} key={"f" + r.section.n}><span><b>{`Flight ${r.section.n}`}</b>{(r.section.flown || r.section.next) && <> <i>·</i> </>}{r.section.flown
+        ? <><span className={"fdiv-" + r.section.flown.outcome}>{OUTCOME_LABEL[r.section.flown.outcome] || r.section.flown.outcome}</span> <i>·</i> {ukStamp(new Date(r.section.flown.day).toISOString(), false, true)}</>
+        : r.section.next ? <span className="fdiv-next">Next flight</span> : null}</span></div>
+    : r.empty ? null : <ErrorBoundary key={r.post.id} where={"feed:" + r.post.id}><FeedPost p={r.post} onPhotoTap={onPhotoTap} idx={idx} st={dateSt && dateSt.id === r.post.id ? dateSt : null} /></ErrorBoundary>;
   if (!posts.length) return null;
-  const chevron = (
-    <svg className={"rtf-chevron" + (peekOpen ? " open" : "")} width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
-      <path d="M2.25 4.25 L6 8 L9.75 4.25" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
   return (
     <aside className="feed-pane" aria-label="Updates feed" aria-hidden={!wide && !shown}>
       <div className="feed" ref={scrollRef}>
@@ -2319,31 +2381,29 @@ function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap, peekOpe
           <span />
         </header>
         <div className="feed-list">
-          {rows.map((r) => r.section
-            ? <div className="fdiv" id={`fsec-${r.section.n}`} key={"f" + r.section.n}><span><b>{`Flight ${r.section.n}`}</b>{(r.section.flown || r.section.next) && <> <i>·</i> </>}{r.section.flown
-                ? <><span className={"fdiv-" + r.section.flown.outcome}>{OUTCOME_LABEL[r.section.flown.outcome] || r.section.flown.outcome}</span> <i>·</i> {ukStamp(new Date(r.section.flown.day).toISOString(), false, true)}</>
-                : r.section.next ? <span className="fdiv-next">Next flight</span> : null}</span></div>
-            : r.empty ? null : <ErrorBoundary key={r.post.id} where={"feed:" + r.post.id}><FeedPost p={r.post} onPhotoTap={onPhotoTap} idx={idx} st={dateSt && dateSt.id === r.post.id ? dateSt : null} /></ErrorBoundary>)}
-          <p className="end">That's every update so far.</p>
-          {peekN && (
-            <button type="button" className="rtf-teaser" onClick={onTogglePeek} aria-expanded={!!peekOpen}>
-              <span>{peekOpen ? `Hide Flight ${peekN} updates` : `After Flight ${road.flight} · see Road to Flight ${peekN} so far`}</span>
-              {chevron}
-            </button>
+          {Number.isInteger(road && road.flight) && (
+            <div className="feed-pill-wrap" id={`fsec-${road.flight}`}>
+              <RoadFlightPill flight={road.flight} items={curItems} action="Next" open={curOpen} onClick={() => setCurOpen((v) => !v)} />
+            </div>
           )}
+          <div className={"deck-wrap" + (curOpen ? " open" : "")} aria-hidden={!curOpen}>
+            <div className="deck-inner">
+              {curPosts.map(renderRow)}
+            </div>
+          </div>
+          {rest.map(renderRow)}
           {peekN && (
-            <div className={"rtf-peek-wrap" + (peekOpen ? " open" : "") + (reduceMotion() ? " rtf-no-motion" : "")} aria-hidden={!peekOpen}>
-              <div className="rtf-peek-inner">
-                <div className="rtf-peek" id="rtf-peek">
-                  <div className="rtf-peek-rule" aria-hidden="true" />
-                  <p className="rtf-peek-eyebrow">After Flight {road.flight}</p>
-                  <h2 className="rtf-peek-title">{`Road to Flight ${peekN} so far`}</h2>
+            <>
+              <p className="rtf-above"><span className="rtf-above-dots" aria-hidden="true"><i /><i /><i /><i /></span>{`All Flight ${road.flight} updates above`}</p>
+              <RoadFlightPill flight={peekN} items={peekItems} action={peekOpen ? "Hide" : "Open"} shortCount open={peekOpen} onClick={onTogglePeek} />
+              <div className={"deck-wrap" + (peekOpen ? " open" : "")} id="rtf-peek" aria-hidden={!peekOpen}>
+                <div className="deck-inner deck-peek">
                   {peekCards.length
                     ? <div className="rtf-peek-cards">{peekCards.map((c) => <ErrorBoundary key={c.id} where={"feed:" + c.id}><FeedPost p={c} onPhotoTap={onPhotoTap} idx={idx} st={null} /></ErrorBoundary>)}</div>
                     : <p className="rtf-soon">Coming soon</p>}
                 </div>
               </div>
-            </div>
+            </>
           )}
         </div>
       </div>
@@ -2661,7 +2721,7 @@ function StarshipTracker() {
 
         <p className="end">That's every flight so far.</p>
       </div>
-      <UpdatesFeed road={road} wide={wide} shown={feedOn} onBack={() => setFeedOpen(false)} scrollRef={feedScroll} onPhotoTap={(src, alt) => setLightbox({ src, alt })} peekOpen={peekOpen} onTogglePeek={togglePeek} />
+      <UpdatesFeed road={road} wide={wide} shown={feedOn} onBack={() => setFeedOpen(false)} scrollRef={feedScroll} onPhotoTap={(src, alt) => setLightbox({ src, alt })} peekOpen={peekOpen} onTogglePeek={togglePeek} heroNet={heroNetFor(liveNext, now)} netPending={!liveNext && !nextSettled} />
       </div>
       {phoneHeader}
       <AboutPanel
@@ -3074,6 +3134,23 @@ section.road .callout-latest { grid-row: 2; grid-column: 2 / -1; margin-top: 0; 
 .feed-list { padding: 14px 18px calc(72px + env(safe-area-inset-bottom)); max-width: 440px; margin: 0 auto; }
 .feed-list .end { margin-top: 24px; }
 .feed-list > .post:has(+ .end) { margin-bottom: 0; }
+.feed-pill-wrap { margin: 0 0 14px; }
+.feed-pill { all: unset; box-sizing: border-box; width: 100%; display: flex; align-items: center; gap: 8px;
+  padding: 9px 14px 9px 16px; border-radius: 999px; background: rgba(20,28,52,.55); border: 1px solid rgba(170,190,245,.18);
+  color: var(--text); font: inherit; -webkit-tap-highlight-color: transparent; }
+button.feed-pill { cursor: pointer; }
+button.feed-pill:focus-visible { outline: 2px solid #A9BDF0; outline-offset: 2px; }
+button.feed-pill:active { border-color: rgba(170,190,245,.3); }
+.feed-pill-title { flex: none; font-size: 14px; font-weight: 700; white-space: nowrap; }
+.feed-pill .road-count { flex: 1; font-size: 12px; font-weight: 500; color: var(--muted); white-space: nowrap; }
+.feed-pill-action { flex: none; display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 600; color: var(--text); }
+.rtf-above { margin: 22px 0 12px; text-align: center; font-size: 12.5px; color: var(--faint); }
+.rtf-above-dots { display: flex; justify-content: center; gap: 6px; margin: 0 0 8px; }
+.rtf-above-dots i { width: 5px; height: 5px; border-radius: 50%; background: rgba(170,190,245,.32); display: block; }
+.deck-wrap { display: grid; grid-template-rows: 0fr; }
+.deck-wrap.open { grid-template-rows: 1fr; }
+.deck-inner { min-height: 0; overflow: hidden; }
+.deck-peek { padding-top: 12px; padding-bottom: 8px; }
 .rtf-teaser {
   display: flex; align-items: center; justify-content: center; gap: 6px;
   width: 100%; min-height: 44px; margin: 12px 0 0; padding: 10px 8px;
