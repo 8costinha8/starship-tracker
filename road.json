@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "13 Nov",
-  "updatedAt": "2026-11-13T22:02:43.085Z",
+  "updatedAt": "2026-11-13T22:16:44.994Z",
   "categories": [
     {
       "id": "cryo",
@@ -4215,14 +4215,6 @@
       },
       {
         "topic": "other",
-        "line": "Starship Flight 15 is at T-60 minutes with all systems on track (NASASpaceflight, 13 Nov).",
-        "at": "2026-11-13T21:45:19.000Z",
-        "src": "@NASASpaceflight",
-        "url": "https://x.com/NASASpaceflight/status/2121358776167182520",
-        "post_id": "2121358776167182520"
-      },
-      {
-        "topic": "other",
         "line": "Teams will begin loading Starship with 12 million pounds of propellant (SpaceX, 13 Nov).",
         "at": "2026-11-13T21:52:34.000Z",
         "src": "@SpaceX",
@@ -4244,6 +4236,14 @@
         "src": "@Blobifie",
         "url": "https://x.com/Blobifie/status/2121361113069801544",
         "post_id": "2121361113069801544"
+      },
+      {
+        "topic": "catch",
+        "line": "SpaceX will attempt to recover both stages of Starship for the first time (SpaceX, 13 Nov).",
+        "at": "2026-11-13T22:13:41.000Z",
+        "src": "@SpaceX",
+        "url": "https://x.com/SpaceX/status/2121365911601131986",
+        "post_id": "2121365911601131986"
       }
     ]
   },
