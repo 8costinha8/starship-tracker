@@ -2187,6 +2187,18 @@
       "verdict": "silent: minor other — a push went out 9.5h ago (quiet window 24h)",
       "gate": "second trusted source agrees",
       "key": "F15|other|13 Nov"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "Ship 42 is preparing for launch (Elon Musk, 13 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/elonmusk/status/2121250205806772283",
+      "at": "2026-11-13T14:33:54.000Z",
+      "sent_at": "2026-11-13T14:45:55.553Z",
+      "where": "mission",
+      "verdict": "sent",
+      "gate": "official source",
+      "key": "S42|other|13 Nov"
     }
   ]
 }
