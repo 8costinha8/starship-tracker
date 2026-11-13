@@ -2139,6 +2139,18 @@
       "verdict": "sent",
       "gate": "second trusted source agrees",
       "key": "S42|pad_work|13 Nov"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Ship 42 arrived at the launch site and was stacked onto Booster 21.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mwecycbs-a8f35c",
+      "url": "https://x.com/RGVaerialphotos/status/2121067732984885419",
+      "at": "2026-11-13T02:28:49.000Z",
+      "sent_at": "2026-11-13T02:31:12.581Z",
+      "where": "feed",
+      "verdict": "silent: minor other — a push went out 0.7h ago (quiet window 24h)",
+      "gate": "second trusted source agrees",
+      "key": "S42|other|13 Nov"
     }
   ]
 }
