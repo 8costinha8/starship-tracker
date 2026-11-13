@@ -2127,6 +2127,18 @@
       "verdict": "silent: minor other — a push went out 1.3h ago (quiet window 24h)",
       "gate": "second trusted source agrees",
       "key": "S42|other|13 Nov"
+    },
+    {
+      "title": "🏗️ Pad activity · Flight 15",
+      "body": "Ship 42 has the SQD connected at the pad.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2121053588348866651",
+      "url": "https://x.com/TrackingTheSB/status/2121053588348866651",
+      "at": "2026-11-13T01:32:37.000Z",
+      "sent_at": "2026-11-13T01:48:06.781Z",
+      "where": "road",
+      "verdict": "sent",
+      "gate": "second trusted source agrees",
+      "key": "S42|pad_work|13 Nov"
     }
   ]
 }
