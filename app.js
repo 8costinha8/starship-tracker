@@ -3156,7 +3156,8 @@ button.feed-pill:active { border-color: rgba(170,190,245,.3); }
 .deck-wrap.deck-animate:not(.open) { opacity: 0; pointer-events: none; }
 .deck-wrap.deck-no-motion { transition: none; }
 .deck-inner { min-height: 0; overflow: hidden; }
-.deck-peek { padding-top: 12px; padding-bottom: 8px; }
+.deck-peek .rtf-peek-cards { margin-top: 12px; margin-bottom: 8px; }
+.deck-peek .rtf-soon { margin-top: 12px; }
 /* Cards fan in on open (transform/opacity only). Total span stays inside 250–350ms. */
 .deck-wrap.deck-animate.open .deck-inner > .post,
 .deck-wrap.deck-animate.open .rtf-peek-cards .post,
