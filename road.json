@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "13 Nov",
-  "updatedAt": "2026-11-13T22:46:18.745Z",
+  "updatedAt": "2026-11-13T23:02:12.344Z",
   "categories": [
     {
       "id": "cryo",
@@ -4277,6 +4277,15 @@
   ],
   "feed_items": [
     {
+      "id": "flight-mwfkybz8-c6bb88",
+      "kind": "flight",
+      "title": "🚀 Liftoff!",
+      "body": "Flight 15 is in the air · Watch now",
+      "at": "2026-11-13T23:00:31.652Z",
+      "date": "13 Nov",
+      "flight": 15
+    },
+    {
       "id": "flight-mwfivx1x-95ee39",
       "kind": "flight",
       "title": "📡 Livestream ready",
@@ -4704,18 +4713,6 @@
       "at": "2026-11-05T22:00:28.785Z",
       "date": "5 Nov",
       "flight": 15
-    },
-    {
-      "id": "news-mw43922g-ea7dc1",
-      "kind": "news",
-      "title": "🚀 Starship",
-      "body": "Starship Flight 15 has a tentative target date of Friday 13 November.",
-      "url": "https://x.com/LabPadre/status/2118463243530174498",
-      "at": "2026-11-05T21:59:31.000Z",
-      "date": "5 Nov",
-      "flight": 15,
-      "src": "@LabPadre",
-      "push_text": "Starship flight 15 has a tentative target date of Friday 13 November"
     }
   ],
   "milestones": {
@@ -5225,8 +5222,8 @@
   },
   "mission_alerts": {
     "flight": 15,
-    "liftoff_actual": null,
-    "liftoff_source": null,
+    "liftoff_actual": "2026-11-13T22:47:36.000Z",
+    "liftoff_source": "ll2",
     "events": [
       {
         "key": "booster_soon",
