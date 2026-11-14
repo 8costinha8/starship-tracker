@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "14 Nov",
-  "updatedAt": "2026-11-14T02:15:58.465Z",
+  "updatedAt": "2026-11-14T03:16:22.672Z",
   "categories": [
     {
       "id": "cryo",
@@ -4220,14 +4220,6 @@
         "post_id": "2120690698668097998"
       },
       {
-        "topic": "other",
-        "line": "Ship 42 surpasses previous Starship time in space record (Blobifie, 14 Nov).",
-        "at": "2026-11-14T01:40:25.000Z",
-        "src": "@Blobifie",
-        "url": "https://x.com/Blobifie/status/2121417937773121915",
-        "post_id": "2121417937773121915"
-      },
-      {
         "topic": "landing",
         "line": "Booster 22 diverted to Gulf splashdown instead of tower catch on Flight 15 (SpaceflightNow, 14 Nov).",
         "at": "2026-11-14T01:40:37.000Z",
@@ -4250,6 +4242,14 @@
         "src": "@efraser77",
         "url": "https://x.com/efraser77/status/2121423260902621196",
         "post_id": "2121423260902621196"
+      },
+      {
+        "topic": "landing",
+        "line": "Booster 22 performed landing burn and splashdown (SpaceX, 14 Nov).",
+        "at": "2026-11-14T03:07:04.000Z",
+        "src": "@SpaceX",
+        "url": "https://x.com/SpaceX/status/2121439746740170859",
+        "post_id": "2121439746740170859"
       }
     ]
   },
