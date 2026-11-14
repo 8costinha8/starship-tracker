@@ -2926,6 +2926,54 @@
       "verdict": "silent: minor other — a push went out 0.9h ago (quiet window 24h)",
       "gate": "second trusted source agrees",
       "key": "S42|other|14 Nov"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "Ship 42 returns for a catch attempt by Pad 2 on Flight 15 (NASASpaceflight, 14 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/NASASpaceflight/status/2121689419606540539",
+      "at": "2026-11-14T19:39:11.000Z",
+      "sent_at": "2026-11-14T20:01:16.195Z",
+      "where": "mission",
+      "verdict": "silent: duplicate S42|transport|14 Nov",
+      "gate": "second trusted source agrees",
+      "key": "S42|transport|14 Nov"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "Ship 42 is on its final orbit during Flight 15 (TrackingTheSB, 14 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/TrackingTheSB/status/2121689245509169260",
+      "at": "2026-11-14T19:38:29.000Z",
+      "sent_at": "2026-11-14T20:01:16.272Z",
+      "where": "mission",
+      "verdict": "silent: minor other — a push went out 1.4h ago (quiet window 24h)",
+      "gate": "second trusted source agrees",
+      "key": "S42|other|14 Nov"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "Remote cameras prepared for Ship 42 catch attempt (14 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/RGVaerialphotos/status/2121694104790638868",
+      "at": "2026-11-14T19:57:48.000Z",
+      "sent_at": "2026-11-14T20:01:16.342Z",
+      "where": "mission",
+      "verdict": "silent: minor other — a push went out 1.4h ago (quiet window 24h)",
+      "gate": "second trusted source agrees",
+      "key": "S42|other|14 Nov"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "Team invited to join Ship 42 catch attempt (14 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/TrackingTheSB/status/2121691734384038122",
+      "at": "2026-11-14T19:48:23.000Z",
+      "sent_at": "2026-11-14T20:01:16.410Z",
+      "where": "mission",
+      "verdict": "silent: minor other — a push went out 1.4h ago (quiet window 24h)",
+      "gate": "second trusted source agrees",
+      "key": "S42|other|14 Nov"
     }
   ]
 }
