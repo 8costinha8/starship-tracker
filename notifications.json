@@ -3153,6 +3153,20 @@
       "verdict": "silent: minor other — a push went out 1.0h ago (quiet window 24h)",
       "gate": "second trusted source agrees",
       "key": "S42|other|14 Nov"
+    },
+    {
+      "title": "✅ Ship caught!",
+      "body": "Flight 15",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=mission_alert-mwgwydcg-f81d3a",
+      "url": "",
+      "at": "2026-11-14T21:24:14.992Z",
+      "sent_at": "2026-11-14T21:24:18.735Z",
+      "where": "feed",
+      "verdict": "sent",
+      "alert_key": "15|ship_result",
+      "key": "S42|catch|14 Nov",
+      "source_url": "https://x.com/NASASpaceflight/status/2121715006299639855",
+      "source": "@NASASpaceflight"
     }
   ]
 }
