@@ -2105,6 +2105,15 @@ function pastRoadFlights(road, flights, skip) {
     .filter((n) => n < road.flight && !(skip && skip.includes(n)) && (flights || []).some((f) => f.n === n && f.date) && pastSummary(road, n).length > 0)
     .sort((a, b) => a - b); // oldest on top, then the current flight's group below
 }
+// A flight's actual liftoff time (ISO): road.mission_alerts.liftoff_actual (the checker's LL2 / manual liftoff) for that
+// flight, else the logged flight's own date (FLIGHTS), else the hero's Launch Library T-0 once it is in flight. Never a post time.
+function liftoffIsoFor(road, n, flights, heroIso) {
+  const ok = (iso) => (iso && Number.isFinite(Date.parse(iso)) ? iso : null);
+  const a = road && road.mission_alerts;
+  if (a && Number(a.flight) === Number(n) && ok(a.liftoff_actual)) return a.liftoff_actual;
+  const f = (flights || []).find((x) => x.n === Number(n) && ok(x.date));
+  return f ? f.date : ok(heroIso);
+}
 function pastRoadGroup(road, n, flights, hidden) {
   const f = (flights || []).find((x) => x.n === n) || {};
   const cats = ((road && road.categories) || []).filter((m) => !(hidden || []).includes(m.id));
@@ -2113,7 +2122,8 @@ function pastRoadGroup(road, n, flights, hidden) {
   const rank = (id) => { const i = PAST_ROAD_ORDER.indexOf(id); return i < 0 ? 99 : i; };
   const sum = pastSummary(road, n).map((e, i) => ({ ...e, i })).sort((a, b) => rank(a.box) - rank(b.box) || (a.box === "pad" ? padFirst(a.vehicle) - padFirst(b.vehicle) : 0) || a.i - b.i);
   const cards = sum.filter((e) => cats.some((m) => m.id === e.box)).map((e, i) => ({ id: `past-${n}-${e.box}-${i}`, box: e.box, cat: cat(e.box), vehicle: e.vehicle, text: e.text, iso: null }));
-  if (f.date && cats.some((m) => m.id === "date")) cards.push({ id: `past-${n}-date`, box: "date", cat: cat("date"), vehicle: null, text: `Flight ${n} lifted off${f.pad ? ` from ${f.pad}` : ""}.`, iso: f.date });
+  const lift = liftoffIsoFor(road, n, flights);
+  if (lift && cats.some((m) => m.id === "date")) cards.push({ id: `past-${n}-date`, box: "date", cat: cat("date"), vehicle: null, text: `Flight ${n} lifted off${f.pad ? ` from ${f.pad}` : ""}.`, iso: lift });
   return { flight: n, items, cards };
 }
 // --- end past-road helpers ---
@@ -3242,7 +3252,7 @@ function PastPost({ c }) {
     </article>
   );
 }
-function RoadLiveRow({ p }) {
+function RoadLiveRow({ p, liftIso }) {
   const href = (p.h && p.h.url) || WATCH_LIVE_URL;
   return (
     <div className="rfs-row">
@@ -3251,9 +3261,7 @@ function RoadLiveRow({ p }) {
         <span className="rfs-sep" aria-hidden="true" />
         <span className="rfs-watch">Watch now</span>
       </a>
-      {(() => { const iso = cardIso(p.h); return iso
-        ? <span className="rfs-date"><span>{ukStamp(iso, false)}</span><span className="rfs-dsep">{" · "}</span><span>{feedTime(iso)}</span></span>
-        : <span className="rfs-date">{cardDate(p.h)}</span>; })()}
+      {liftIso && <span className="rfs-date">{`${ukStamp(liftIso, false)} · ${feedTime(liftIso)}`}</span>}
     </div>
   );
 }
@@ -3262,7 +3270,7 @@ function RoadLiveRow({ p }) {
 const relTop = (el, pane) => el.getBoundingClientRect().top - pane.getBoundingClientRect().top + pane.scrollTop;
 const rfsReveal = (el) => { const sec = el && el.closest && el.closest(".deck-wrap") && el.closest(".rfs"); if (!sec || (sec.classList.contains("is-open") && sec.classList.contains("show-all"))) return false;
   sec.dispatchEvent(new CustomEvent("rfs-reveal")); return true; };
-function RoadFlightSection({ flight, items, open, onToggle, shortCount, deckReady, deckId, live, sectionId, past, children }) {
+function RoadFlightSection({ flight, items, open, onToggle, shortCount, deckReady, deckId, live, liftIso, sectionId, past, children }) {
   const kids = React.Children.toArray(children).filter(Boolean);
   const [all, setAll] = React.useState(false);
   const ref = React.useRef(null), openRef = React.useRef(open), toggleRef = React.useRef(onToggle);
@@ -3278,7 +3286,7 @@ function RoadFlightSection({ flight, items, open, onToggle, shortCount, deckRead
   return (
     <div ref={ref} className={"feed-section rfs" + (open ? " is-open" : "") + (all ? " show-all" : "") + (live ? " has-live" : "") + (past ? " rfs-past" : "")} id={sectionId || `fsec-${flight}`} data-flight={flight}>
       <RoadFlightPill flight={flight} items={items} action={ROAD_PILL_LABEL(open)} open={open} onClick={onToggle} shortCount={shortCount} />
-      {live && <RoadLiveRow p={live} />}
+      {live && <RoadLiveRow p={live} liftIso={liftIso} />}
       <div className={deckCls} id={deckId} aria-hidden={!open}>
         <div className="deck-inner"><div className="rfs-feed">
           {shown}
@@ -3292,7 +3300,7 @@ function RoadFlightSection({ flight, items, open, onToggle, shortCount, deckRead
   );
 }
 
-function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap, peekOpen, onTogglePeek, heroNet, netPending }) {
+function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap, peekOpen, onTogglePeek, heroNet, netPending, heroLiftIso }) {
   const { posts, rows } = React.useMemo(() => rtfRows(road), [road]);
   const idx = React.useMemo(() => entryIndex(road), [road]);
   // Launch date: the section status pill rides on this flight's newest date card.
@@ -3350,7 +3358,7 @@ function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap, peekOpe
             </RoadFlightSection>
           ))}
           {Number.isInteger(road && road.flight) && (
-            <RoadFlightSection flight={road.flight} items={curItems} open={curOpen} onToggle={() => setCurOpen(!curOpen)} deckReady={deckReady} live={livePost}>
+            <RoadFlightSection flight={road.flight} items={curItems} open={curOpen} onToggle={() => setCurOpen(!curOpen)} deckReady={deckReady} live={livePost} liftIso={livePost ? liftoffIsoFor(road, road.flight, FLIGHTS, heroLiftIso) : null}>
               {curPosts.filter((r, i) => i !== liveIdx).map(renderRow)}
             </RoadFlightSection>
           )}
@@ -3682,7 +3690,8 @@ function StarshipTracker() {
 
         <p className="end">That's every flight so far.</p>
       </div>
-      <UpdatesFeed road={road} wide={wide} shown={feedOn} onBack={() => setFeedOpen(false)} scrollRef={feedScroll} onPhotoTap={(src, alt) => setLightbox({ src, alt })} peekOpen={peekOpen} onTogglePeek={togglePeek} heroNet={heroNetFor(liveNext, now)} netPending={!liveNext && !nextSettled} />
+      <UpdatesFeed road={road} wide={wide} shown={feedOn} onBack={() => setFeedOpen(false)} scrollRef={feedScroll} onPhotoTap={(src, alt) => setLightbox({ src, alt })} peekOpen={peekOpen} onTogglePeek={togglePeek} heroNet={heroNetFor(liveNext, now)} netPending={!liveNext && !nextSettled}
+        heroLiftIso={liveNext && ["inflight", "done"].includes(effectiveStatus(liveNext, now)) ? liveNext.date : null} />
       </div>
       {phoneHeader}
       <AboutPanel
@@ -4106,20 +4115,20 @@ button.feed-pill:focus-visible { outline: 2px solid #A9BDF0; outline-offset: 4px
 .feed-pill .road-count { flex: 1; margin-left: 6px; font-size: 14px; font-weight: 500; color: #9aa3bd; white-space: nowrap; }
 .feed-pill-action { flex: none; display: inline-flex; align-items: center; gap: 5px; font-size: 15px; font-weight: 600; color: #e8ecf7; }
 /* live row: glowing pill (text · dot · Watch now) and the push's UK time on the right */
-.rfs-row { display: flex; align-items: center; gap: 6px; margin-top: 16px; }
-.rfs-live { display: inline-flex; align-items: center; gap: 7px; min-width: 0; padding: 4px 4px 4px 11px; border-radius: 999px;
+.rfs-row { display: flex; flex-wrap: wrap; align-items: center; column-gap: 6px; row-gap: 8px; margin-top: 16px; } /* no room for the time: it drops to its own line, the pill never shrinks */
+.rfs-live { flex: none; display: inline-flex; align-items: center; gap: 7px; padding: 4px 4px 4px 11px; border-radius: 999px;
   border: 1px solid rgba(255,92,92,.85); box-shadow: 0 0 8px rgba(255,70,70,.45), inset 0 0 6px rgba(255,70,70,.18);
   background: rgba(255,70,70,.07); color: #e8ecf7; font-size: 13px; font-weight: 600; white-space: nowrap; text-decoration: none; -webkit-tap-highlight-color: transparent; }
-.rfs-live-txt { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.rfs-live-txt { white-space: nowrap; } /* the whole sentence always shows: no ellipsis, the font steps down on narrow cards instead */
 .rfs-sep { flex: none; width: 6px; height: 6px; border-radius: 50%; background: #ff8a8a; }
 .rfs-watch { flex: none; background: #ff5a5a; color: #fff; padding: 4px 9px; border-radius: 999px; font-weight: 700; }
 .rfs-live:active .rfs-watch { background: #ff4545; }
 .rfs-live:focus-visible { outline: 2px solid #A9BDF0; outline-offset: 2px; }
-.rfs-date { margin-left: auto; color: #9aa3bd; font-size: 12px; white-space: nowrap; line-height: 1; display: inline-flex; align-items: center; }
-.rfs-dsep { white-space: pre; }
-/* narrow phones (360): the date stacks over the time so the pill text is never cut */
-@container (max-width: 316px) { .rfs-date { flex-direction: column; align-items: flex-end; gap: 3px; } .rfs-dsep { display: none; }
-  .rfs .feed-pill .rc-full { display: none; } .rfs .feed-pill .rc-short { display: inline; } }
+.rfs-date { margin-left: auto; color: #9aa3bd; font-size: 12px; white-space: nowrap; line-height: 1; }
+/* narrow cards: shorter count on the bar; the pill steps down one font size (fits "Flight 115 is in the air" at 320 with a scrollbar), then another */
+@container (max-width: 316px) { .rfs .feed-pill .rc-full { display: none; } .rfs .feed-pill .rc-short { display: inline; } }
+@container (max-width: 256px) { .rfs .rfs-live { font-size: 12px; gap: 6px; padding: 3px 3px 3px 10px; } .rfs .rfs-watch { padding: 4px 8px; } .rfs .rfs-sep { width: 5px; height: 5px; } }
+@container (max-width: 228px) { .rfs .rfs-live { font-size: 11px; gap: 5px; padding: 3px 3px 3px 8px; } .rfs .rfs-watch { padding: 3px 7px; } }
 .feed-pill .rc-short { display: none; }
 .feed-pill .road-count { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 /* updates slide out inside the same card, under a divider */
