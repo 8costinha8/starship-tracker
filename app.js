@@ -1063,7 +1063,8 @@ function Countdown({ flight, road }) {
 
 // The Watch live badge only once the flight has a date (not for "Date to be confirmed" / a rough NET month).
 const showWatchBadge = (flight, status) => !!(flight && flight.date) && status !== "tbc";
-function WatchLiveBadge({ flight, now }) {
+function WatchLiveBadge({ flight, now, done }) {
+  if (done) return null; // mission complete (both stages resolved, or the manual override): no Watch live, like a past flight
   const status = effectiveStatus(flight, now);
   if (!showWatchBadge(flight, status)) return null; // no date yet: nothing to watch
   // No date yet (status "tbc"): still show the badge, just gray and not clickable.
@@ -1112,7 +1113,7 @@ function NextFlightCard({ f, checkedAt, road, children }) {
     <section className="next" aria-label={`${status === "inflight" ? "Current" : status === "done" ? "Latest" : "Next"} flight: Flight ${f.n}`}>
       <div className="next-top">
         <Countdown flight={f} road={road} />
-        <WatchLiveBadge flight={f} now={now} />
+        <WatchLiveBadge flight={f} now={now} done={missionComplete(road, f.n)} />
       </div>
       <div className="next-title"><span className="t-word">Starship Flight</span><span className="t-num">{f.n || "—"}</span></div>
       <dl className="facts">
@@ -2592,6 +2593,12 @@ function heroMissionLines(road, n, f, now) {
     }
   }
   if (lifted === false) return [];
+  const para = composeHeroParagraph(heroOutcomeItems(road, n), road);
+  return para ? [para] : [];
+}
+// The hero's structured outcomes for flight n (manual road.hero_lines win, a pending stage is upgraded by a later auto
+// result), with no liftoff gate: heroMissionLines adds that gate, missionComplete reads the stage results directly.
+function heroOutcomeItems(road, n) {
   const pickLatest = (arr) => arr.slice().sort((a, b) => (Date.parse(b.at || "") || 0) - (Date.parse(a.at || "") || 0))[0];
   const autoItems = [];
   for (const u of heroSourceLines(road, n)) {
@@ -2622,10 +2629,29 @@ function heroMissionLines(road, n, f, now) {
     autoItems.slice().sort((a, b) => (Date.parse(a.at || "") || 0) - (Date.parse(b.at || "") || 0)).forEach((o) => keys.set(o.stage + ":" + o.kind, o));
     outcomes = [...keys.values()];
   }
-  const para = composeHeroParagraph(outcomes, road);
-  return para ? [para] : [];
+  return outcomes;
 }
 // --- end hero-lines helpers ---
+// --- live-complete helpers (tracker-2026-11-14-livedone) ---
+// Display-only rule for every flight: once the hero has a confirmed final result for BOTH stages (the same booster +
+// ship "result" outcomes that switch the hero paragraph to the past tense), the mission is complete and every live
+// affordance goes back to normal: the hero's Watch live badge is dropped, and the Road card's red "Flight N is in the
+// air · Watch now" pill becomes a plain "Flight N lifted off" line with the launch date/time (same fix2 tiers).
+// One stage still open (or no result yet) keeps the live UI. Manual override wins: road.box_overrides[n].missionComplete
+// (true = complete now, false = keep live). Checkers, pushes and road.json write paths are not touched.
+function stageResults(road, n) {
+  const list = (heroOutcomeItems(road, n) || []).filter((o) => o && o.kind === "result" && (o.clause || o.line));
+  return { booster: list.some((o) => o.stage === "booster"), ship: list.some((o) => o.stage === "ship") };
+}
+function missionComplete(road, n) {
+  if (!road || n == null) return false;
+  const ov = typeof boxOverrides === "function" ? boxOverrides(road, n) : null;
+  if (ov && typeof ov.missionComplete === "boolean") return ov.missionComplete;
+  const r = stageResults(road, n);
+  return r.booster && r.ship;
+}
+const doneLineOf = (n) => `Flight ${n} lifted off`;
+// --- end live-complete helpers ---
 
 const isLaunched = (n) => FLIGHTS.some((x) => x.n === n);
 // "1 day" / "2 days"
@@ -3292,17 +3318,18 @@ function PastPost({ c }) {
     </article>
   );
 }
-function RoadLiveRow({ p, liftIso }) {
+function RoadLiveRow({ p, liftIso, done, flight }) {
   const href = (p.h && p.h.url) || WATCH_LIVE_URL;
   const rowRef = React.useRef(null);
-  useFitTier(rowRef, LIVE_TIERS, liveFits, `${liveLineOf(p)}|${liftIso || ""}`);
+  useFitTier(rowRef, LIVE_TIERS, liveFits, `${done ? doneLineOf(flight) : liveLineOf(p)}|${liftIso || ""}|${done ? 1 : 0}`);
   return (
-    <div className="rfs-row" ref={rowRef}>
-      <a className="rfs-live" data-entry={(p.h && p.h.id) || undefined} href={href} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} aria-label={`${liveLineOf(p)}. Watch now`}>
+    <div className={"rfs-row" + (done ? " rfs-row-done" : "")} ref={rowRef}>
+      {done ? <span className="rfs-live rfs-done" data-entry={(p.h && p.h.id) || undefined}><span className="rfs-live-txt">{doneLineOf(flight)}</span></span>
+      : <a className="rfs-live" data-entry={(p.h && p.h.id) || undefined} href={href} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} aria-label={`${liveLineOf(p)}. Watch now`}>
         <span className="rfs-live-txt">{scrub(liveLineOf(p))}</span>
         <span className="rfs-sep" aria-hidden="true" />
         <span className="rfs-watch">Watch now</span>
-      </a>
+      </a>}
       {liftIso && <span className="rfs-date"><span>{ukStamp(liftIso, false)}</span><span className="rfs-dsep">{" · "}</span><span>{feedTime(liftIso)}</span></span>}
     </div>
   );
@@ -3312,7 +3339,7 @@ function RoadLiveRow({ p, liftIso }) {
 const relTop = (el, pane) => el.getBoundingClientRect().top - pane.getBoundingClientRect().top + pane.scrollTop;
 const rfsReveal = (el) => { const sec = el && el.closest && el.closest(".deck-wrap") && el.closest(".rfs"); if (!sec || (sec.classList.contains("is-open") && sec.classList.contains("show-all"))) return false;
   sec.dispatchEvent(new CustomEvent("rfs-reveal")); return true; };
-function RoadFlightSection({ flight, items, open, onToggle, shortCount, deckReady, deckId, live, liftIso, sectionId, past, children }) {
+function RoadFlightSection({ flight, items, open, onToggle, shortCount, deckReady, deckId, live, liveDone, liftIso, sectionId, past, children }) {
   const kids = React.Children.toArray(children).filter(Boolean);
   const [all, setAll] = React.useState(false);
   const ref = React.useRef(null), openRef = React.useRef(open), toggleRef = React.useRef(onToggle);
@@ -3328,7 +3355,7 @@ function RoadFlightSection({ flight, items, open, onToggle, shortCount, deckRead
   return (
     <div ref={ref} className={"feed-section rfs" + (open ? " is-open" : "") + (all ? " show-all" : "") + (live ? " has-live" : "") + (past ? " rfs-past" : "")} id={sectionId || `fsec-${flight}`} data-flight={flight}>
       <RoadFlightPill flight={flight} items={items} action={ROAD_PILL_LABEL(open)} open={open} onClick={onToggle} shortCount={shortCount} />
-      {live && <RoadLiveRow p={live} liftIso={liftIso} />}
+      {live && <RoadLiveRow p={live} liftIso={liftIso} done={!!liveDone} flight={flight} />}
       <div className={deckCls} id={deckId} aria-hidden={!open}>
         <div className="deck-inner"><div className="rfs-feed">
           {shown}
@@ -3400,7 +3427,7 @@ function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap, peekOpe
             </RoadFlightSection>
           ))}
           {Number.isInteger(road && road.flight) && (
-            <RoadFlightSection flight={road.flight} items={curItems} open={curOpen} onToggle={() => setCurOpen(!curOpen)} deckReady={deckReady} live={livePost} liftIso={livePost ? liftoffIsoFor(road, road.flight, FLIGHTS, heroLiftIso) : null}>
+            <RoadFlightSection flight={road.flight} items={curItems} open={curOpen} onToggle={() => setCurOpen(!curOpen)} deckReady={deckReady} live={livePost} liveDone={livePost ? missionComplete(road, road.flight) : false} liftIso={livePost ? liftoffIsoFor(road, road.flight, FLIGHTS, heroLiftIso) : null}>
               {curPosts.filter((r, i) => i !== liveIdx).map(renderRow)}
             </RoadFlightSection>
           )}
@@ -4166,6 +4193,8 @@ button.feed-pill:focus-visible { outline: 2px solid #A9BDF0; outline-offset: 4px
 .rfs-watch { flex: none; background: #ff5a5a; color: #fff; padding: 4px 9px; border-radius: 999px; font-weight: 700; }
 .rfs-live:active .rfs-watch { background: #ff4545; }
 .rfs-live:focus-visible { outline: 2px solid #A9BDF0; outline-offset: 2px; }
+/* mission complete (both stages resolved): the live pill goes back to normal, a plain line with no red glow and no Watch now */
+.rfs-live.rfs-done { border-color: #3a4363; box-shadow: none; background: transparent; color: #c9d0e4; font-weight: 500; padding: 4px 11px; cursor: default; }
 .rfs-date { margin-left: auto; color: #9aa3bd; font-size: 12px; white-space: nowrap; line-height: 1; display: inline-flex; align-items: center; }
 .rfs-dsep { white-space: pre; }
 /* live-row tiers (data-fit, set by useFitTier from measured widths) */
