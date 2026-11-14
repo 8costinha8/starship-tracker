@@ -67,6 +67,15 @@ check(!H.pastRoadFlights(live, FLIGHTS, [14]).includes(14), "a flight still list
   const css = (app.match(/\.rfs-live-txt \{[^}]*\}/) || [""])[0];
   check(css && !/ellipsis|overflow:\s*hidden/.test(css), "pill text has no ellipsis / overflow clip: " + css);
   check(/\.rfs-row \{[^}]*flex-wrap: wrap/.test(app) && /\.rfs-live \{ flex: none;/.test(app), "pill never shrinks; the time wraps to its own line instead"); }
+// layout tiers (Tusk fix2): measured, in Bernardo's priority order; bar never ellipsises
+{ const tiers = (app.match(/const LIVE_TIERS = (\[[^\]]*\])/) || [])[1], bar = (app.match(/const BAR_TIERS = (\[[^\]]*\])/) || [])[1];
+  check(tiers === '["a", "b", "bt", "c", "ct", "bt12", "ct12", "bt11", "ct11"]', "live row tiers: one-line time beside → 2-line stack beside → tighter pill → wrap below → font steps: " + tiers);
+  check(bar === '["full", "short", "st", "st2"]', "bar tiers: 6 of 6 done → 6 of 6 → tighter dots/gaps → smaller title: " + bar);
+  check(/function useFitTier\(/.test(app) && /ResizeObserver/.test(app.slice(app.indexOf("function useFitTier("), app.indexOf("const BAR_TIERS"))), "tiers come from measured widths (ResizeObserver + fonts.ready), not one breakpoint");
+  check(!/@container \(max-width: \d+px\) \{ \.rfs/.test(app), "no fixed container breakpoints left on the flight card");
+  check(!/\.feed-pill \.road-count \{[^}]*ellipsis/.test(app), "bar count has no ellipsis");
+  const lf = app.slice(app.indexOf("function liveFits("), app.indexOf("function RoadFlightPill("));
+  check(/txt\.scrollWidth > txt\.clientWidth/.test(lf) && /row\.scrollWidth > row\.clientWidth/.test(lf), "a tier only counts if the pill text and row do not overflow"); }
 // checker code keeps road.archive (read only, scripts/ untouched)
 const cr = fs.readFileSync(path.join(ROOT, "scripts/check-road.js"), "utf8"), ho = fs.readFileSync(path.join(ROOT, "scripts/handover.js"), "utf8");
 check(/if \(old\.archive\) road\.archive = old\.archive;/.test(cr), "check-road.js rolloverRoad carries road.archive to the fresh Road");

@@ -3210,7 +3210,42 @@ function roadDotLabel(m) {
   return (m.status === "done" || m.status === "complete") ? (ROAD_DONE_LABEL[m.id] || "Complete") : (ROAD_STATUS_TEXT[m.status] || m.status);
 }
 // Slim Flight N pill used on the Road tab (current flight at the top, next flight at the bottom).
+// Measure-based layout tiers (Road flight card): try each tier in order on the element (data-fit) and keep the first
+// that fits at the current width. Re-runs when the width changes (any width: phone, scrollbar, desktop) and when web
+// fonts load. No breakpoints: the tier comes from the real text widths.
+function useFitTier(ref, tiers, fits, key) {
+  React.useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    let w = -1, live = true;
+    const run = () => {
+      if (!live || !el.isConnected || !el.clientWidth) return;
+      w = el.clientWidth;
+      for (const t of tiers) { el.dataset.fit = t; if (fits(el, t)) return; }
+    };
+    run();
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(() => { if (el.clientWidth !== w) run(); }) : null;
+    if (ro) ro.observe(el);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(run);
+    return () => { live = false; if (ro) ro.disconnect(); };
+  }, [key]);
+}
+// Bar: "6 of 6 done" → "6 of 6" → tighter dots/gaps → smaller title/action. Never an ellipsis.
+const BAR_TIERS = ["full", "short", "st", "st2"];
+const barFits = (el) => el.scrollWidth <= el.clientWidth;
+// Live row: (a) one-line time right of the pill, (b) time stacked in two lines right of the pill, (bt) the same with a
+// tighter pill padding, (c) time on its own line under the pill, (ct) the same with the tighter pill, then the pill font
+// steps down (12px, 11px). The pill text itself is never cut.
+const LIVE_TIERS = ["a", "b", "bt", "c", "ct", "bt12", "ct12", "bt11", "ct11"];
+function liveFits(row, t) {
+  if (row.scrollWidth > row.clientWidth) return false;
+  const pill = row.querySelector(".rfs-live"), txt = row.querySelector(".rfs-live-txt"), date = row.querySelector(".rfs-date");
+  if (!pill || (txt && txt.scrollWidth > txt.clientWidth) || pill.getBoundingClientRect().right > row.getBoundingClientRect().right + 0.5) return false;
+  if (!date || t.startsWith("c")) return true;
+  return date.getBoundingClientRect().top < pill.getBoundingClientRect().bottom - 1; // still beside the pill, not wrapped
+}
 function RoadFlightPill({ flight, items, action, open, onClick, shortCount, className }) {
+  const barRef = React.useRef(null);
   const done = items.filter((m) => m.status === "done" || m.status === "complete").length;
   const n = items.length;
   const count = shortCount ? `${done} of ${n}` : `${done} of ${n} done`;
@@ -3223,13 +3258,14 @@ function RoadFlightPill({ flight, items, action, open, onClick, shortCount, clas
     <>
       <span className="feed-pill-title">{`Flight ${flight}`}</span>
       <span className="road-dots">{items.map((m) => <i key={m.id} className={"dot dot-" + m.status} style={catVars(m.id, m.color)} title={m.name + ": " + roadDotLabel(m)} aria-label={m.name + ": " + roadDotLabel(m)} role="img" />)}</span>
-      <span className="road-count">{shortCount ? count : <><span className="rc-full">{count}</span><span className="rc-short" aria-hidden="true">{`${done} of ${n}`}</span></>}</span>
+      <span className="road-count">{shortCount ? count : <><span className="rc-full">{count}</span><span className="rc-short">{`${done} of ${n}`}</span></>}</span>
       {action && <span className="feed-pill-action">{action}{chevron}</span>}
     </>
   );
   const cls = "feed-pill" + (className ? " " + className : "") + (open ? " open" : "");
-  if (onClick) return <button type="button" className={cls} onClick={onClick} aria-expanded={!!open}>{inner}</button>;
-  return <div className={cls}>{inner}</div>;
+  useFitTier(barRef, BAR_TIERS, barFits, `${flight}|${count}|${action}`);
+  if (onClick) return <button type="button" ref={barRef} className={cls} onClick={onClick} aria-expanded={!!open}>{inner}</button>;
+  return <div ref={barRef} className={cls}>{inner}</div>;
 }
 
 // Road-tab flight card (Tusk mock: liftoff.html + toggle.html): header row (Flight N, dots, count,
@@ -3254,14 +3290,16 @@ function PastPost({ c }) {
 }
 function RoadLiveRow({ p, liftIso }) {
   const href = (p.h && p.h.url) || WATCH_LIVE_URL;
+  const rowRef = React.useRef(null);
+  useFitTier(rowRef, LIVE_TIERS, liveFits, `${liveLineOf(p)}|${liftIso || ""}`);
   return (
-    <div className="rfs-row">
+    <div className="rfs-row" ref={rowRef}>
       <a className="rfs-live" data-entry={(p.h && p.h.id) || undefined} href={href} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} aria-label={`${liveLineOf(p)}. Watch now`}>
         <span className="rfs-live-txt">{scrub(liveLineOf(p))}</span>
         <span className="rfs-sep" aria-hidden="true" />
         <span className="rfs-watch">Watch now</span>
       </a>
-      {liftIso && <span className="rfs-date">{`${ukStamp(liftIso, false)} · ${feedTime(liftIso)}`}</span>}
+      {liftIso && <span className="rfs-date"><span>{ukStamp(liftIso, false)}</span><span className="rfs-dsep">{" · "}</span><span>{feedTime(liftIso)}</span></span>}
     </div>
   );
 }
@@ -4124,13 +4162,32 @@ button.feed-pill:focus-visible { outline: 2px solid #A9BDF0; outline-offset: 4px
 .rfs-watch { flex: none; background: #ff5a5a; color: #fff; padding: 4px 9px; border-radius: 999px; font-weight: 700; }
 .rfs-live:active .rfs-watch { background: #ff4545; }
 .rfs-live:focus-visible { outline: 2px solid #A9BDF0; outline-offset: 2px; }
-.rfs-date { margin-left: auto; color: #9aa3bd; font-size: 12px; white-space: nowrap; line-height: 1; }
+.rfs-date { margin-left: auto; color: #9aa3bd; font-size: 12px; white-space: nowrap; line-height: 1; display: inline-flex; align-items: center; }
+.rfs-dsep { white-space: pre; }
+/* live-row tiers (data-fit, set by useFitTier from measured widths) */
+.rfs-row[data-fit^="b"] .rfs-date { flex-direction: column; align-items: flex-end; gap: 3px; }
+.rfs-row[data-fit^="b"] .rfs-dsep { display: none; }
+.rfs-row[data-fit^="bt"], .rfs-row[data-fit^="ct"] { column-gap: 4px; }
+.rfs-row[data-fit^="bt"] .rfs-live, .rfs-row[data-fit^="ct"] .rfs-live { gap: 5px; padding-left: 9px; }
+.rfs-row[data-fit^="bt"] .rfs-watch, .rfs-row[data-fit^="ct"] .rfs-watch { padding-left: 7px; padding-right: 7px; }
+.rfs-row[data-fit^="c"] .rfs-date { flex-basis: 100%; justify-content: flex-end; }
+.rfs-row[data-fit$="12"] .rfs-live { font-size: 12px; }
+.rfs-row[data-fit$="11"] .rfs-live { font-size: 11px; }
+.rfs-row[data-fit$="12"] .rfs-sep, .rfs-row[data-fit$="11"] .rfs-sep { width: 5px; height: 5px; }
 /* narrow cards: shorter count on the bar; the pill steps down one font size (fits "Flight 115 is in the air" at 320 with a scrollbar), then another */
-@container (max-width: 316px) { .rfs .feed-pill .rc-full { display: none; } .rfs .feed-pill .rc-short { display: inline; } }
-@container (max-width: 256px) { .rfs .rfs-live { font-size: 12px; gap: 6px; padding: 3px 3px 3px 10px; } .rfs .rfs-watch { padding: 4px 8px; } .rfs .rfs-sep { width: 5px; height: 5px; } }
-@container (max-width: 228px) { .rfs .rfs-live { font-size: 11px; gap: 5px; padding: 3px 3px 3px 8px; } .rfs .rfs-watch { padding: 3px 7px; } }
+/* bar tiers (data-fit, measured): full → short count → tighter dots and gaps → smaller title and action. No ellipsis. */
 .feed-pill .rc-short { display: none; }
-.feed-pill .road-count { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.feed-pill .road-count { flex: 1 0 auto; }
+.feed-pill[data-fit]:not([data-fit="full"]) .rc-full { display: none; }
+.feed-pill[data-fit]:not([data-fit="full"]) .rc-short { display: inline; }
+.feed-pill[data-fit^="st"] { gap: 6px; }
+.feed-pill[data-fit^="st"] .road-dots { gap: 4px; margin-left: 2px; }
+.feed-pill[data-fit^="st"] .road-dots .dot { width: 8px; height: 8px; }
+.feed-pill[data-fit^="st"] .road-count { margin-left: 2px; }
+.feed-pill[data-fit="st2"] .road-dots { gap: 3px; }
+.feed-pill[data-fit="st2"] .road-dots .dot { width: 7px; height: 7px; }
+.feed-pill[data-fit="st2"] .feed-pill-title { font-size: 16px; }
+.feed-pill[data-fit="st2"] .feed-pill-action { font-size: 14px; gap: 3px; }
 /* updates slide out inside the same card, under a divider */
 .rfs-feed { margin-top: 16px; padding-top: 14px; border-top: 1px solid #3a4363; display: flex; flex-direction: column; gap: 10px; }
 .rfs-feed .post { margin: 0; background: #222a43; border: 1px solid #343d5c; border-radius: 16px; padding: 12px; box-shadow: none; }
