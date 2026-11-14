@@ -2250,19 +2250,19 @@
       "name": "Pad activity",
       "color": "#A88BFF",
       "status": "progress",
-      "latest": "Pad 2 chopsticks raised back to catch position after inspection.",
+      "latest": "Pad 2 chopsticks raised back after inspection.",
       "history": [
         {
           "id": "x-2121493937852473798",
           "date": "14 Nov",
           "log_date": "14 Nov",
           "at": "2026-11-14T06:42:24.000Z",
-          "text": "Pad 2 chopsticks raised back to catch position after inspection.",
-          "x_text": "Pad 2 chopsticks raised back to catch position after inspection.",
-          "push_text": "Pad 2 chopsticks back in catch position after inspection.",
+          "text": "Pad 2 chopsticks raised back after inspection.",
+          "x_text": "Pad 2 chopsticks raised back after inspection.",
+          "push_text": "Pad 2 chopsticks raised back after inspection.",
           "card_text": "Pad 2 chopsticks raised back after inspection.",
           "log_text": "Pad 2 chopsticks raised back after inspection.",
-          "status_line": "Pad 2 chopsticks returned to catch position.",
+          "status_line": "Pad 2 chopsticks in catch position.",
           "url": "https://x.com/LabPadre/status/2121493937852473798",
           "src": "@LabPadre",
           "trust": "trusted",
@@ -2274,7 +2274,7 @@
             "post_id": "2121493937852473798",
             "url": "https://x.com/LabPadre/status/2121493937852473798",
             "created_at": "2026-11-14T06:42:24.000Z",
-            "text": "Pad 2's chopsticks have raised back to the catch position after brief inspection by workers. 📸 Nerdle Cam",
+            "text": "Pad 2's chopsticks have raised back to the catch position after brief inspection by workers. 📸 Nerdle Cam https://t.co/D7jiAUtcsa",
             "author": {
               "name": "Avid Space",
               "username": "LabPadre",
@@ -2321,7 +2321,9 @@
               "post_url": "https://x.com/RGVaerialphotos/status/2121314305836810700",
               "author": "RGVaerialphotos"
             }
-          ]
+          ],
+          "edited_from": "Pad 2 chopsticks raised back to catch position after inspection.",
+          "edited": true
         },
         {
           "id": "x-2121314305836810700",
