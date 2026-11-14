@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "14 Nov",
-  "updatedAt": "2026-11-14T01:31:27.542Z",
+  "updatedAt": "2026-11-14T01:46:02.277Z",
   "categories": [
     {
       "id": "cryo",
@@ -4220,22 +4220,6 @@
         "post_id": "2120690698668097998"
       },
       {
-        "topic": "landing",
-        "line": "Booster 22 debris visible on Boca Chica beach after Flight 15 (RGVaerialphotos, 14 Nov).",
-        "at": "2026-11-14T00:01:28.000Z",
-        "src": "@RGVaerialphotos",
-        "url": "https://x.com/RGVaerialphotos/status/2121393039482433916",
-        "post_id": "2121393039482433916"
-      },
-      {
-        "topic": "trajectory",
-        "line": "Ship 42 passed the first Hawaii return window and will stay in orbit (SpaceX, 14 Nov).",
-        "at": "2026-11-14T00:04:43.000Z",
-        "src": "@LabPadre",
-        "url": "https://x.com/LabPadre/status/2121393857573138712",
-        "post_id": "2121393857573138712"
-      },
-      {
         "topic": "trajectory",
         "line": "Starship is now in a long coast phase around Earth (SpaceX, 14 Nov).",
         "at": "2026-11-14T00:08:38.000Z",
@@ -4250,6 +4234,22 @@
         "src": "@SpaceNews_Inc",
         "url": "https://x.com/SpaceNews_Inc/status/2121412342994858309",
         "post_id": "2121412342994858309"
+      },
+      {
+        "topic": "other",
+        "line": "Ship 42 surpasses previous Starship time in space record (Blobifie, 14 Nov).",
+        "at": "2026-11-14T01:40:25.000Z",
+        "src": "@Blobifie",
+        "url": "https://x.com/Blobifie/status/2121417937773121915",
+        "post_id": "2121417937773121915"
+      },
+      {
+        "topic": "landing",
+        "line": "Booster 22 diverted to Gulf splashdown instead of tower catch on Flight 15 (SpaceflightNow, 14 Nov).",
+        "at": "2026-11-14T01:40:37.000Z",
+        "src": "@SpaceflightNow",
+        "url": "https://x.com/SpaceflightNow/status/2121417991367663707",
+        "post_id": "2121417991367663707"
       }
     ]
   },
