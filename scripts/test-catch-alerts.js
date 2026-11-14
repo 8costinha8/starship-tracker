@@ -247,7 +247,10 @@ const liftoffHist = (at = LIFTOFF) => [{
   {
     const road = baseRoad(15);
     const current = { n: 16, status: "tbc", date: "2026-12-01T00:00:00.000Z" };
-    const res = await MA.syncFromChecker({ road, current, now: T0 + 3 * 3600000, dispatch: async () => { throw new Error("must not dispatch on rollover"); }, writeRoad: () => {} });
+    // shipalerts 14 Nov: the rollover is held for 30 h after liftoff (ship still flying), then happens.
+    const held = await MA.syncFromChecker({ road, current, now: T0 + 3 * 3600000, dispatch: async () => { throw new Error("must not dispatch on rollover"); }, writeRoad: () => {} });
+    check(road.mission_alerts.flight === 15 && held.dispatched.length === 0 && road.mission_alerts.events.some((e) => e.t_plus), "checker hook holds the F15 → F16 rollover within 30 h of liftoff (timeline kept)");
+    const res = await MA.syncFromChecker({ road, current, now: T0 + 31 * 3600000, dispatch: async () => { throw new Error("must not dispatch on rollover"); }, writeRoad: () => {} });
     check(road.mission_alerts.flight === 16 && res.dispatched.length === 0 && !road.mission_alerts.events.some((e) => e.t_plus), "checker hook rolls F15 → F16 and does not dispatch without a timeline");
   }
 
