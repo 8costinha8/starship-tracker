@@ -1361,7 +1361,7 @@ async function run(opts = {}) {
     const ro = rolloverRoad(road, lastN, loggedFlightDate(appJsText, lastN) || new Date(clock()).toISOString(), log);
     road = ro.road; const fi = ro.fi, sendAfter = ro.sendAfter;
     changed = rolledOver = true;
-    state.pendingPush = { sendAfter, flight: road.flight, ...fi }; // already in the Updates feed (committed with this run)
+    state.pendingPush = JSON.parse(JSON.stringify({ sendAfter, flight: road.flight, ...fi })); // already in the Updates feed (committed with this run); JSON round-trip drops undefined fields (e.g. url), which Firestore rejects
     log(`"${state.pendingPush.title}" push scheduled for ${state.pendingPush.sendAfter} (09:00 London, morning after the launch day)`);
   }
 
