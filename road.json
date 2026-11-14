@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "14 Nov",
-  "updatedAt": "2026-11-14T04:01:39.271Z",
+  "updatedAt": "2026-11-14T05:45:49.630Z",
   "categories": [
     {
       "id": "cryo",
@@ -4220,36 +4220,36 @@
         "post_id": "2120690698668097998"
       },
       {
-        "topic": "trajectory",
-        "line": "Ship 42 passed S41 landing burn point in flight (Blobifie, 14 Nov).",
-        "at": "2026-11-14T01:58:16.000Z",
+        "topic": "catch",
+        "line": "SpaceX continues Flight 15 mission with good heat shield for potential catch (SpaceX, 14 Nov).",
+        "at": "2026-11-14T05:41:15.000Z",
+        "src": "@SpaceflightNow",
+        "url": "https://x.com/SpaceflightNow/status/2121478547327820002",
+        "post_id": "2121478547327820002"
+      },
+      {
+        "topic": "landing",
+        "line": "Booster 22 automatically aborted return to Pad 2 due to GNC issue (Dan Huot, 14 Nov).",
+        "at": "2026-11-14T05:41:51.000Z",
+        "src": "@NASASpaceflight",
+        "url": "https://x.com/NASASpaceflight/status/2121478699245609370",
+        "post_id": "2121478699245609370"
+      },
+      {
+        "topic": "landing",
+        "line": "Booster 22 aborted landing attempt due to GNC issue leading to splashdown (Dan Huot, 14 Nov).",
+        "at": "2026-11-14T05:42:58.000Z",
         "src": "@Blobifie",
-        "url": "https://x.com/Blobifie/status/2121422433534222651",
-        "post_id": "2121422433534222651"
+        "url": "https://x.com/Blobifie/status/2121478981237268777",
+        "post_id": "2121478981237268777"
       },
       {
-        "topic": "trajectory",
-        "line": "Flight 15 sets record for longest Starship flight time (NSF reports, 14 Nov).",
-        "at": "2026-11-14T02:01:34.000Z",
-        "src": "@efraser77",
-        "url": "https://x.com/efraser77/status/2121423260902621196",
-        "post_id": "2121423260902621196"
-      },
-      {
-        "topic": "landing",
-        "line": "Booster 22 performed landing burn and splashdown (SpaceX, 14 Nov).",
-        "at": "2026-11-14T03:07:04.000Z",
+        "topic": "catch",
+        "line": "Starship continues in orbit with healthy heatshield ahead of planned catch (SpaceX, 14 Nov).",
+        "at": "2026-11-14T05:44:58.000Z",
         "src": "@SpaceX",
-        "url": "https://x.com/SpaceX/status/2121439746740170859",
-        "post_id": "2121439746740170859"
-      },
-      {
-        "topic": "landing",
-        "line": "Booster 22 to attempt soft landing on Flight 15 (LabPadre, 14 Nov).",
-        "at": "2026-11-14T03:51:11.000Z",
-        "src": "@LabPadre",
-        "url": "https://x.com/LabPadre/status/2121450849259884871",
-        "post_id": "2121450849259884871"
+        "url": "https://x.com/SpaceX/status/2121479482582441991",
+        "post_id": "2121479482582441991"
       }
     ]
   },
