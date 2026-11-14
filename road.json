@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "14 Nov",
-  "updatedAt": "2026-11-14T00:17:14.834Z",
+  "updatedAt": "2026-11-14T00:31:01.909Z",
   "categories": [
     {
       "id": "cryo",
@@ -4294,7 +4294,8 @@
       "url": "https://x.com/LabPadre/status/2121394419421077960",
       "at": "2026-11-14T00:06:57.000Z",
       "date": "14 Nov",
-      "flight": 15
+      "flight": 15,
+      "box": "pad"
     },
     {
       "id": "news-mwfn8vp4-3123db",
@@ -4304,7 +4305,8 @@
       "url": "https://x.com/LabPadre/status/2121393857573138712",
       "at": "2026-11-14T00:04:43.000Z",
       "date": "14 Nov",
-      "flight": 15
+      "flight": 15,
+      "box": "pad"
     },
     {
       "id": "news-mwfn24n4-4a303e",
