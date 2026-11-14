@@ -1117,14 +1117,11 @@ function NextFlightCard({ f, checkedAt, road, children }) {
         <dt>{vehicleLabel(heroVehicles(f, road))}</dt><dd>{vehicleLine(heroVehicles(f, road))}</dd>
       </dl>
       {showMissionCard(road, f.n, f, now) ? (
-        <p className="next-note">{scrub(fillMissionCard(missionCardText(road, f.n), f, road))}</p>
+        <p className="next-note">{cleanHeroNote(fillMissionCard(missionCardText(road, f.n), f, road))}</p>
       ) : (
-        <>
-          <p className="next-note">{scrub(f.note)}</p>
-          {missionLines(road, f.n).map((u, i) => <p className="next-upd" key={i}>{scrub(u.line)}</p>)}
-        </>
+        <p className="next-note">{cleanHeroNote(f.note)}</p>
       )}
-      {status === "inflight" && checkedAt && <p className="auto-note">Auto-updating · last checked {fmtTimeLondon(checkedAt)}</p>}
+      {heroMissionLines(road, f.n, f, now).map((line, i) => <p className="next-upd" key={i}>{line}</p>)}
       {children}
     </section>
   );
@@ -1587,7 +1584,76 @@ function boxLatest(m, road) {
   if (m.log_latest && !later) return m.log_latest;
   return later ? (own[0] ? logLine(own[0]) : "Nothing reported yet") : m.log_latest || m.latest;
 }
-function RoadCard({ road, onEntryTap, openReq, heroNet, netPending }) {
+
+// --- road-liftoff helpers (tracker-2026-11-14-herotrim) ---
+// Display-only: once this flight has a confirmed liftoff (mission_alerts.liftoff_actual
+// that is due, or the hero is inflight/done), every still-open Road box renders as
+// complete (N of N). Pad headline stays factual: "Stacked {d}" when a stack date is
+// known, else "Pad activity complete." — never an invented WDR date. Pre-launch
+// logic is unchanged. road.box_overrides[flight] wins. Checkers and road.json stay put.
+function boxOverrides(road, n) {
+  const raw = road && road.box_overrides;
+  return (raw && (raw[n] || raw[String(n)])) || null;
+}
+function roadLiftedOff(road, f, now) {
+  const n = road && road.flight;
+  const ov = boxOverrides(road, n);
+  if (ov && typeof ov.liftedOff === "boolean") return ov.liftedOff;
+  const t = Number.isFinite(now) ? now : (typeof nowMs === "function" ? nowMs() : Date.now());
+  if (f && Number(f.n) === Number(n)) {
+    const st = (typeof effectiveStatus === "function") ? effectiveStatus(f, t) : f.status;
+    if (st === "inflight" || st === "done") return true;
+    if (st === "confirmed" || st === "net" || st === "tbc") return false;
+  }
+  const a = road && road.mission_alerts;
+  const iso = a && Number(a.flight) === Number(n) && a.liftoff_actual;
+  if (iso && Number.isFinite(Date.parse(iso))) return t >= Date.parse(iso);
+  return false;
+}
+function stackedHeadline(road) {
+  const dates = ((((road || {}).milestones || {}).flight || {}).stacked || {}).dates || [];
+  const last = dates.map((d) => Date.parse(d)).filter(Number.isFinite).sort((a, b) => b - a)[0];
+  if (Number.isFinite(last) && typeof ukParts === "function") {
+    const p = ukParts(new Date(last).toISOString());
+    if (p && p.day && p.mon) return `Stacked ${p.day} ${p.mon}`;
+  }
+  const pad = ((road && road.categories) || []).find((c) => c.id === "pad");
+  for (const h of (pad && pad.history) || []) {
+    const blob = [h.text, h.card_text, h.log_text].filter(Boolean).join(" ");
+    const named = blob.match(/Stacked\s+(\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec))/i);
+    if (named) return `Stacked ${named[1]}`;
+    if (/\bstacked (?:on|onto|atop)\b/i.test(blob)) {
+      const d = String(h.date || h.log_date || "").match(/^(\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec))/);
+      if (d) return `Stacked ${d[1]}`;
+    }
+  }
+  return "";
+}
+function afterLiftoffLatest(flog, id, road) {
+  if (id === "pad") return stackedHeadline(road) || "Pad activity complete.";
+  return (flog && flog.latest) || "Complete";
+}
+function afterLiftoffFlog(flog, id, road, f, now) {
+  const ov = boxOverrides(road, road && road.flight);
+  const one = ov && ov[id];
+  if (one && one.status) {
+    return { ...(flog || {}), status: one.status, statusText: one.statusText || ((one.status === "done" || one.status === "complete") ? "Complete" : (flog && flog.statusText)), latest: one.latest != null ? one.latest : (flog && flog.latest) };
+  }
+  if (!flog) return flog;
+  if (!roadLiftedOff(road, f, now)) return flog;
+  if (flog.status === "done" || flog.status === "complete") return flog;
+  return { ...flog, status: "done", statusText: "Complete", latest: afterLiftoffLatest(flog, id, road) };
+}
+function decorateFlogItem(m, flog, road, heroNet, heroFlight, now) {
+  let f = flog;
+  if (m.id === "date" && f) f = launchDateDisplay(f, (typeof authoritativeNetLabel === "function" ? authoritativeNetLabel(road, heroNet) : ""), road, heroNet);
+  else if (m.id === "pad" && f) f = flogPadDisplay(f, road);
+  else if (m.id === "faa" && f) f = faaLicenceDisplay(f);
+  f = afterLiftoffFlog(f, m.id, road, heroFlight, now);
+  return f ? { ...m, status: f.status, flog: f } : m;
+}
+// --- end road-liftoff helpers ---
+function RoadCard({ road, onEntryTap, openReq, heroNet, netPending, heroFlight }) {
   const [main, setMain] = React.useState(false);
   const xOff = useXFeedOffline(); // 9 Nov: "X feed offline" chip while the checker's X read gets HTTP 402
   React.useEffect(() => { if (openReq) setMain(true); }, [openReq]); // header chip asks it to open
@@ -1596,7 +1662,7 @@ function RoadCard({ road, onEntryTap, openReq, heroNet, netPending }) {
   const flogBoxes = road && window.RoadFlightLog ? window.RoadFlightLog.boxes(road, undefined, { net: heroNet || null, pending: !!netPending }) : null; // heroNet: Launch date box says "NET 13 Nov" like the hero (display only)
   const dateNet = authoritativeNetLabel(road, heroNet);
   const items = road && Array.isArray(road.categories) ? road.categories.filter((m) => !ROAD_HIDDEN.includes(m.id)).map((m) => logView(m, road)).map((m) => ({ ...m, status: rollupStatus(m, road) }))
-    .map((m) => { const f = flogBoxes && flogBoxes[m.id]; const flog = (m.id === "date" && f) ? launchDateDisplay(f, dateNet, road, heroNet) : (m.id === "pad" && f) ? flogPadDisplay(f, road) : (m.id === "faa" && f) ? faaLicenceDisplay(f) : f; return flog ? { ...m, status: flog.status, flog } : m; }) : [];
+    .map((m) => decorateFlogItem(m, flogBoxes && flogBoxes[m.id], road, heroNet, heroFlight)) : [];
   const listRef = React.useRef(null);
   if (!items.length) return null;
   const title = `Road to Flight ${road.flight}`;
@@ -2042,6 +2108,119 @@ function missionLines(road, n) {
   return Array.isArray(list) ? list.filter((u) => u && typeof u.line === "string" && u.line && !rej.some((r) => r.post_id === u.post_id))
     .map((u) => ({ ...u, line: noCreditRepeat(u.line) })).slice(0, 5) : [];
 }
+// --- hero-lines helpers (tracker-2026-11-14-herotrim) ---
+// Display-only: the hero keeps one clean current-status line per stage (result if
+// it exists, else the latest pending catch/return/landing attempt) plus non-stage
+// results (orbit, deployed, records). Progress, preview, "aims to" and "passed X
+// point" lines are dropped. Credits and dates are stripped. Manual road.hero_lines
+// overrides win. Checkers and road.json are not touched.
+const HERO_MON = "Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec";
+function stripHeroCredit(line) {
+  let t = String(line || "").trim();
+  if (typeof scrub === "function") t = scrub(t);
+  t = t.replace(new RegExp("\\s*\\((?:[^()]{0,120},\\s*)?\\d{1,2}\\s+(?:" + HERO_MON + ")\\)\\.?\\s*$", "i"), "");
+  t = t.replace(/\s+/g, " ").replace(/[.\s]+$/, "").trim();
+  if (t) t = t.replace(/[.]+$/, "") + ".";
+  return t;
+}
+function cleanHeroNote(note) {
+  let t = String(note || "");
+  t = t.replace(/\s*\(\s*a group of Starlink satellites known as Starlink Group\s+\d+-\d+\s*\)/gi, "");
+  t = typeof scrub === "function" ? scrub(t) : t;
+  t = t.replace(/\s{2,}/g, " ").replace(/\s+([.,;:!?])/g, "$1").trim();
+  return t;
+}
+function isDroppedHeroLine(text) {
+  const t = String(text || "");
+  if (/\baims to\b/i.test(t)) return true;
+  if (/\bpassed\b[\s\S]{0,80}\bpoint\b/i.test(t)) return true;
+  if (/\bexplained why\b/i.test(t)) return true;
+  if (/\bshares the mission profile\b/i.test(t)) return true;
+  return false;
+}
+function isPendingAttempt(text) {
+  const t = String(text || "");
+  if (/\b(aborted|failed|cancelled|called off|was not|were not|did not|diverted|instead of)\b/i.test(t) && /\b(attempt|catch|landing|recover)/i.test(t)) return false;
+  return /\b((?:still\s+)?plans? to|will (?:try to |attempt )?|to attempt|targeting (?:a |the )?(?:double )?catch|ahead of planned|planned catch|attempt(?:ing)? (?:a |the )?(?:soft landing|tower catch|catch|landing|return)|returning to the (?:launch site )?towers?)\b/i.test(t);
+}
+function isStageResult(text) {
+  const t = String(text || "");
+  if (isPendingAttempt(t)) return false;
+  return /\b(splashdown|splashed down|was caught|successfully caught|catch (?:was )?successful|tower catch (?:was )?complete|(?:was |is )lost|lost during|failed to (?:catch|land)|aborted|not recovered|performed landing burn|destroyed|exploded|diverted to|ditched|broke apart)\b/i.test(t);
+}
+function isNonStageResult(text) {
+  const t = String(text || "");
+  if (isPendingAttempt(t) || isStageResult(t) || isDroppedHeroLine(t)) return false;
+  return /\b(deployed|deployment complete|in orbit|completed its \d+|surpassed|sets record|record for|longest .{0,40}flight|payload bay door|satellites)\b/i.test(t);
+}
+function heroLineStage(text) {
+  const t = String(text || "");
+  const boost = /\b(booster(?:\s+\d+)?|super heavy|B\d{2})\b/i.test(t);
+  const shipVeh = /\b(ship\s+\d+|S\d{2})\b/i.test(t) || (/\bstarship\b/i.test(t) && !/\bstarship flight\s+\d+\b/i.test(t) && !/\bstarship flight time\b/i.test(t));
+  if (boost && !shipVeh) return "booster";
+  if (shipVeh && !boost) return "ship";
+  if (boost) return "booster";
+  return null;
+}
+function heroLineKind(text) {
+  if (isDroppedHeroLine(text)) return "drop";
+  if (isPendingAttempt(text)) return "pending";
+  if (isStageResult(text)) return "result";
+  if (isNonStageResult(text)) return "other";
+  return "drop";
+}
+function heroLineOverrides(road, n) {
+  const raw = road && road.hero_lines;
+  return (raw && (raw[n] || raw[String(n)])) || null;
+}
+function heroMissionLines(road, n, f, now) {
+  const ov = heroLineOverrides(road, n);
+  if (Array.isArray(ov)) return ov.map(stripHeroCredit).filter(Boolean);
+  const rawList = (road && road.mission_updates && (road.mission_updates[n] || road.mission_updates[String(n)])) || [];
+  const rej = ((road && road.rejected_lines) || []).filter((r) => r && r.box === "mission");
+  let items = (Array.isArray(rawList) ? rawList : []).filter((u) => u && typeof u.line === "string" && u.line && !rej.some((r) => r.post_id === u.post_id)).map((u) => {
+    const raw = typeof noCreditRepeat === "function" ? noCreditRepeat(u.line) : u.line;
+    return { ...u, line: stripHeroCredit(raw), at: u.at, kind: heroLineKind(raw), stage: heroLineStage(raw) };
+  });
+  const t = Number.isFinite(now) ? now : (typeof nowMs === "function" ? nowMs() : Date.now());
+  // A pre-launch card should not show post-liftoff results sitting in the same data file.
+  let lifted;
+  if (typeof roadLiftedOff === "function") lifted = roadLiftedOff(road, f, t);
+  else {
+    const st = f && ((typeof effectiveStatus === "function") ? effectiveStatus(f, t) : f.status);
+    if (st === "inflight" || st === "done") lifted = true;
+    else if (st === "confirmed" || st === "net" || st === "tbc") lifted = false;
+    else {
+      const a0 = road && road.mission_alerts;
+      const iso0 = a0 && Number(a0.flight) === Number(n) && a0.liftoff_actual;
+      lifted = !!(iso0 && Number.isFinite(Date.parse(iso0)) && t >= Date.parse(iso0));
+    }
+  }
+  if (lifted === false) {
+    const a = road && road.mission_alerts;
+    const iso = a && Number(a.flight) === Number(n) && a.liftoff_actual;
+    const t0 = iso && Number.isFinite(Date.parse(iso)) ? Date.parse(iso) : t;
+    items = items.filter((u) => !(Date.parse(u.at || "") >= t0));
+  }
+  const pickLatest = (arr) => arr.slice().sort((a, b) => (Date.parse(b.at || "") || 0) - (Date.parse(a.at || "") || 0))[0];
+  const out = [];
+  for (const stage of ["booster", "ship"]) {
+    if (ov && ov[stage]) {
+      const line = stripHeroCredit(typeof ov[stage] === "string" ? ov[stage] : ov[stage].line);
+      if (line) out.push(line);
+      continue;
+    }
+    const staged = items.filter((u) => u.stage === stage && (u.kind === "result" || u.kind === "pending"));
+    const chosen = pickLatest(staged.filter((u) => u.kind === "result")) || pickLatest(staged.filter((u) => u.kind === "pending"));
+    if (chosen && chosen.line) out.push(chosen.line);
+  }
+  const extras = (ov && Array.isArray(ov.extra)) ? ov.extra.map(stripHeroCredit).filter(Boolean)
+    : items.filter((u) => u.kind === "other").sort((a, b) => (Date.parse(a.at || "") || 0) - (Date.parse(b.at || "") || 0)).map((u) => u.line);
+  const seen = new Set(out.map((x) => x.toLowerCase()));
+  for (const line of extras) { const k = line.toLowerCase(); if (!seen.has(k)) { seen.add(k); out.push(line); } }
+  return out;
+}
+// --- end hero-lines helpers ---
 const isLaunched = (n) => FLIGHTS.some((x) => x.n === n);
 // "1 day" / "2 days"
 const daysLabel = (n) => `${n} ${Math.abs(n) === 1 ? "day" : "days"}`;
@@ -2441,8 +2620,13 @@ function rtfCards(road) {
   const cols = [ship, boo].filter(isVehId);
   for (const cid of ["cryo", "raptor", "static", "pad"]) for (const v of cid === "pad" ? [...cols, "pad"] : cols) {
     const cat = cats[cid]; const list = (bucket[cid + "|" + v] || []).slice().sort((a, b) => (Date.parse(cardIso(b)) || 0) - (Date.parse(cardIso(a)) || 0));
-    const doneOne = cid === "pad" ? list.find((h) => isDoneCard(h) && /wet dress/i.test(h.text || "")) : list.find((h) => rtfIsDone(h, cid));
-    const main = doneOne || list[0];
+    const wdrOrDone = cid === "pad" ? list.find((h) => isDoneCard(h) && /wet dress/i.test(h.text || "")) : list.find((h) => rtfIsDone(h, cid));
+    const ovBox = typeof boxOverrides === "function" ? boxOverrides(road, road.flight) : null;
+    const forceOff = ovBox && ovBox[cid] && (ovBox[cid].status === "progress" || ovBox[cid].status === "none");
+    const forceOn = ovBox && ovBox[cid] && (ovBox[cid].status === "done" || ovBox[cid].status === "complete");
+    const lifted = !forceOff && (forceOn || (typeof roadLiftedOff === "function" && roadLiftedOff(road)));
+    const doneOne = wdrOrDone || (lifted ? list[0] : null);
+    const main = wdrOrDone || list[0];
     if (!main) { out.push({ empty: true, cat, v, name: vname(v) }); continue; }
     // every post for this vehicle + category except the milestone's own, newest first; text + time + credit only
     const rows = [], seen = new Set([urlOf(main), main.url].filter(Boolean));
@@ -2591,11 +2775,11 @@ function rtfRows(road) {
 }
 
 // Category status for the slim Road pills (same rules as the Flight Log RoadCard: rollup + Flight Log boxes).
-function roadCatItems(road, { heroNet, netPending } = {}) {
+function roadCatItems(road, { heroNet, netPending, heroFlight } = {}) {
   const flogBoxes = road && window.RoadFlightLog ? window.RoadFlightLog.boxes(road, undefined, { net: heroNet || null, pending: !!netPending }) : null;
   const dateNet = authoritativeNetLabel(road, heroNet);
   return road && Array.isArray(road.categories) ? road.categories.filter((m) => !ROAD_HIDDEN.includes(m.id)).map((m) => logView(m, road)).map((m) => ({ ...m, status: rollupStatus(m, road) }))
-    .map((m) => { const f = flogBoxes && flogBoxes[m.id]; const flog = (m.id === "date" && f) ? launchDateDisplay(f, dateNet) : (m.id === "pad" && f) ? flogPadDisplay(f, road) : (m.id === "faa" && f) ? faaLicenceDisplay(f) : f; return flog ? { ...m, status: flog.status, flog } : m; }) : [];
+    .map((m) => decorateFlogItem(m, flogBoxes && flogBoxes[m.id], road, heroNet, heroFlight)) : [];
 }
 // Next-flight dots: this flight's own history only, never the current flight's category.status.
 function peekCatItems(road) {
@@ -3022,7 +3206,7 @@ function StarshipTracker() {
         </header>
 
         <ErrorBoundary where={"hero:" + ((nextFlight && nextFlight.n) || "")}><NextFlightCard f={withRoadFallback(nextFlight, road, now)} checkedAt={checkedAt} road={road}>
-          <ErrorBoundary where="log"><RoadCard road={road} onEntryTap={jumpToPost} openReq={roadOpenReq} heroNet={heroNetFor(liveNext, now)} netPending={!liveNext && !nextSettled} /></ErrorBoundary>
+          <ErrorBoundary where="log"><RoadCard road={road} onEntryTap={jumpToPost} openReq={roadOpenReq} heroNet={heroNetFor(liveNext, now)} netPending={!liveNext && !nextSettled} heroFlight={withRoadFallback(nextFlight, road, now)} /></ErrorBoundary>
         </NextFlightCard></ErrorBoundary>
         <Connector dashed label={heroLogged ? daysLabel(daysBetween(flights[0].date, nextFlight.date)) : `${daysLabel(daysSinceLatest)} since the last flight`} />
 
@@ -3129,7 +3313,6 @@ a.watch-badge-live:active { transform: scale(.96); }
 .facts .pred-basis { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }
 .next-note { font-size: 13.5px; line-height: 1.55; color: #CDD6EE; margin: 0; }
 .next-upd { font-size: 13.5px; line-height: 1.55; color: #CDD6EE; margin: 6px 0 0; } /* mission update line, same look as the note */
-.auto-note { margin: 12px 0 0; font-size: 11.5px; color: var(--muted); opacity: .8; font-variant-numeric: tabular-nums; }
 
 /* connector between cards */
 .gap { position: relative; height: 46px; }

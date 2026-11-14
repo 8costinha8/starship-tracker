@@ -42,7 +42,8 @@ const logHash = crypto.createHash("sha1").update(fn("RoadCard") + cssLog).digest
 // 10 Nov (one-date display): RoadCard folds the Launch date box to a single authoritative NET; checkers unchanged
 // 10 Nov (ui3): display-only vehicle label, pad feed lines on the Flight Log, and FAA "Licence not yet issued"
 // 13 Nov (roadpills 9e37ed8 + datebox, Tusk): slim pills / decks; a Road item with no drawer content renders as a plain div (no tap / focus); pinned Confirmed launch date shows the newest NET
-check(logHash === "1ae5056931f2304ea15f435471140c275a22365b", "Flight Log card code and CSS byte-identical to the approved version (three-state ○◐● status, full-only counter)");
+// 14 Nov (herotrim): after confirmed liftoff, still-open boxes render complete (N of N); pad headline stays factual
+check(logHash === "da15357c9476178fce6fff8c8a83d203dc7dd050", "Flight Log card code and CSS byte-identical to the approved version (three-state ○◐● status, full-only counter)");
 check(/<summary>Earlier updates<\/summary>/.test(fn("BuildUp")) && /\.buildup:not\(\.feed-bu\) summary \{ display: inline-flex; align-items: center; gap: 4px;/.test(app) && !/<a /.test(fn("BuildUp").split(": <li key={i}><div")[0]), "Flight Log build-up has no count, chevron inline at text height; a new X url doesn't turn its line into a link");
 // Flight Log earlier updates: no @handle chips; a post-backed line is an invisible tap area → Road to Flight card; others inert
 { const B = fn("BuildUp"), css = app.split("\n").filter((l) => /li\.bu-tap/.test(l)).join("\n");

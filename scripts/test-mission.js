@@ -58,9 +58,9 @@ const ask = async (prompt) => ({ entries: [...prompt.matchAll(/^(\d+)\. @\S+ \S+
   const app = fs.readFileSync(path.join(ROOT, "app.js"), "utf8");
   const body = (n) => { const a = app.indexOf(`function ${n}(`); return app.slice(a, app.indexOf("\nfunction ", a + 10)); };
   const nf = body("NextFlightCard");
-  check(nf.indexOf('className="next-note"') < nf.indexOf("missionLines(road, f.n)") && nf.indexOf("missionLines(road, f.n)") < nf.indexOf("showWatch &&"), "Next flight card: the line(s) sit right under the mission description");
-  check(!/missionLines/.test(body("FlightCard")) && !/missionLines/.test(body("FeedPost")) && !/<a |<img/.test(nf.slice(nf.indexOf("missionLines"), nf.indexOf("showWatch &&"))), "text only; no other card renders it");
-  check(/Number\(f\.n\) === 15 && missionCardText\(road, 15\)/.test(nf) && nf.indexOf("scrub(f.note)") > nf.indexOf("missionCardText") && nf.indexOf("missionLines(road, f.n)") > nf.indexOf("scrub(f.note)"), "Flight 15 with mission_card uses the hand-written copy; otherwise note + missionLines unchanged");
+  check(nf.indexOf('className="next-note"') < nf.indexOf("heroMissionLines(road, f.n, f, now)") && /cleanHeroNote/.test(nf), "Next flight card: cleaned note, then filtered hero lines");
+  check(!/heroMissionLines/.test(body("FlightCard")) && !/heroMissionLines/.test(body("FeedPost")), "hero lines render only on the Next flight card");
+  check(/showMissionCard\(road, f\.n, f, now\)/.test(nf) && nf.indexOf("missionCardText") >= 0 && nf.indexOf("cleanHeroNote") >= 0 && nf.indexOf("heroMissionLines(road, f.n, f, now)") > nf.indexOf("cleanHeroNote"), "hand-written mission card or cleaned note, then heroMissionLines");
   const repo = JSON.parse(fs.readFileSync(path.join(ROOT, "road.json"), "utf8"));
   check(repo.mission_updates[15].some((u) => u.topic === "catch" && /catch/i.test(u.line) && /^https:\/\/x\.com\//.test(u.url)) && mission.validateMission(repo) === undefined, "repo: Flight 15's catch-plan line");
   console.log(fails ? `\n${fails} FAILED` : "\n✅ All mission-update checks passed."); process.exit(fails ? 1 : 0);

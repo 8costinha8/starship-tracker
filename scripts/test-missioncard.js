@@ -49,9 +49,9 @@ check(helpers.missionCardText({ mission_card: { 16: "later" } }, 16) === "later"
 const body = (n) => { const a = app.indexOf(`function ${n}(`); return app.slice(a, app.indexOf("\nfunction ", a + 10)); };
 const nf = body("NextFlightCard");
 check(/showMissionCard\(road, f\.n, f, now\)/.test(nf), "NextFlightCard: hand-written copy when showMissionCard is true for that flight");
-check(nf.indexOf("scrub(f.note)") > 0 && nf.indexOf("missionLines(road, f.n)") > nf.indexOf("scrub(f.note)"), "otherwise the LL2 note and missionLines still render (Flight 16+ / no copy)");
+check(nf.indexOf("cleanHeroNote(f.note)") > 0 && nf.indexOf("heroMissionLines(road, f.n, f, now)") > nf.indexOf("cleanHeroNote"), "otherwise the cleaned LL2 note and filtered hero lines still render (Flight 16+ / no copy)");
 check(!/missionCardText|fillMissionCard|showMissionCard/.test(body("FlightCard")) && !/missionCardText|fillMissionCard/.test(body("FeedPost")), "Flight Log cards and the feed are unchanged");
-check(nf.indexOf("missionLines(road, f.n)") < nf.indexOf("showWatch &&"), "missionLines stay on the Next flight card path only, still above Where to watch");
+check(/heroMissionLines\(road, f\.n, f, now\)/.test(nf) && !/heroMissionLines/.test(body("FlightCard")), "heroMissionLines stay on the Next flight card path only");
 
 const checkerFiles = ["check-road.js", "x-first.js", "mission.js"];
 const hits = checkerFiles.filter((f) => /mission_card/.test(fs.readFileSync(path.join(__dirname, f), "utf8")));
