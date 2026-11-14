@@ -2092,6 +2092,31 @@ function pastSummary(road, n) {
   const row = [...raw.filter((e) => e.box !== "pad" && e.box !== "faa"), pastPadCard(raw.filter((e) => e.box === "pad"), pastFlightSources(road, n, "pad")), pastLicenceCard(raw.filter((e) => e.box === "faa"), pastFlightSources(road, n, "faa"))].filter(Boolean);
   return row.map((e) => ({ box: e.box, vehicle: e.vehicle, text: e.text, tiers: e.tiers || pastTiers(e.box, e.text, e.vehicle), label: PAST_LABEL[e.box] || e.box, labels: [PAST_LABEL[e.box] || e.box, ...(PAST_LABEL_SHORT[e.box] ? [PAST_LABEL_SHORT[e.box]] : [])], color: color(e.box), photo: e.photo && e.photo.image ? e.photo : null }));
 }
+// --- past-road helpers (tested by tests/test-past-road.js) ---
+// Road to Flight N groups for flights that already flew (Page 2, above the current flight). One system for every
+// past flight: road.archive[n].summary (frozen by check-road.js archiveLaunched, carried by rollover/handover; the
+// checkers never drop it) fed through pastSummary, plus a Launch date card from the flight's own logged liftoff
+// (FLIGHTS). Liftoff closes every box, so every category is done. No date is invented: summary cards carry none.
+const PAST_ROAD_ORDER = ["cryo", "raptor", "static", "pad", "faa", "date"];
+const padFirst = (v) => (/launch pad|full stack/i.test(String(v || "")) ? 0 : 1);
+function pastRoadFlights(road, flights, skip) {
+  if (!road || !road.archive || !Number.isInteger(road.flight)) return [];
+  return Object.keys(road.archive).filter((k) => /^\d+$/.test(k)).map(Number)
+    .filter((n) => n < road.flight && !(skip && skip.includes(n)) && (flights || []).some((f) => f.n === n && f.date) && pastSummary(road, n).length > 0)
+    .sort((a, b) => a - b); // oldest on top, then the current flight's group below
+}
+function pastRoadGroup(road, n, flights, hidden) {
+  const f = (flights || []).find((x) => x.n === n) || {};
+  const cats = ((road && road.categories) || []).filter((m) => !(hidden || []).includes(m.id));
+  const items = cats.map((m) => ({ id: m.id, name: m.name, color: m.color || PAST_COLOR[m.id], status: "done" }));
+  const cat = (id) => cats.find((m) => m.id === id) || { id, name: PAST_LABEL[id] || id, color: PAST_COLOR[id] };
+  const rank = (id) => { const i = PAST_ROAD_ORDER.indexOf(id); return i < 0 ? 99 : i; };
+  const sum = pastSummary(road, n).map((e, i) => ({ ...e, i })).sort((a, b) => rank(a.box) - rank(b.box) || (a.box === "pad" ? padFirst(a.vehicle) - padFirst(b.vehicle) : 0) || a.i - b.i);
+  const cards = sum.filter((e) => cats.some((m) => m.id === e.box)).map((e, i) => ({ id: `past-${n}-${e.box}-${i}`, box: e.box, cat: cat(e.box), vehicle: e.vehicle, text: e.text, iso: null }));
+  if (f.date && cats.some((m) => m.id === "date")) cards.push({ id: `past-${n}-date`, box: "date", cat: cat("date"), vehicle: null, text: `Flight ${n} lifted off${f.pad ? ` from ${f.pad}` : ""}.`, iso: f.date });
+  return { flight: n, items, cards };
+}
+// --- end past-road helpers ---
 // --- mission-card helpers (tested by scripts/test-missioncard.js) ---
 // Hand-written Next-flight card copy (road.json mission_card[n]). Checkers never read or write this field.
 // {NET} is filled from the hero's Launch Library date (day + full month, e.g. "13 November").
@@ -3188,7 +3213,7 @@ function RoadFlightPill({ flight, items, action, open, onClick, shortCount, clas
     <>
       <span className="feed-pill-title">{`Flight ${flight}`}</span>
       <span className="road-dots">{items.map((m) => <i key={m.id} className={"dot dot-" + m.status} style={catVars(m.id, m.color)} title={m.name + ": " + roadDotLabel(m)} aria-label={m.name + ": " + roadDotLabel(m)} role="img" />)}</span>
-      <span className="road-count">{count}</span>
+      <span className="road-count">{shortCount ? count : <><span className="rc-full">{count}</span><span className="rc-short" aria-hidden="true">{`${done} of ${n}`}</span></>}</span>
       {action && <span className="feed-pill-action">{action}{chevron}</span>}
     </>
   );
@@ -3197,22 +3222,71 @@ function RoadFlightPill({ flight, items, action, open, onClick, shortCount, clas
   return <div className={cls}>{inner}</div>;
 }
 
-// Single action label on every Road-tab pill, both states. The chevron rotation shows open/closed.
-// To restore the old open-state wording, return open ? "Hide" : "Open".
-const ROAD_PILL_LABEL = (open) => "Open";
-
-// Shared Flight N / N+1 block: identical wrapper, spacing and 300ms morph (incl. open merge-into-first-card).
-function RoadFlightSection({ flight, items, open, onToggle, shortCount, hasCards, deckReady, deckId, children }) {
-  const merged = !!(open && hasCards);
-  const wrapCls = "feed-pill-wrap" + (merged ? " is-merged" : "") + (reduceMotion() ? " no-motion" : "");
+// Road-tab flight card (Tusk mock: liftoff.html + toggle.html): header row (Flight N, dots, count,
+// Open ⌄ / Close ⌃), an optional live row (the flight's Liftoff push as a glowing pill with Watch now + its UK time),
+// and the flight's updates sliding out inside the same card under a divider. First two updates, then "Show all updates".
+const ROAD_PILL_LABEL = (open) => (open ? "Close" : "Open");
+const RFS_FIRST = 2;
+// "Flight 15 is in the air · Watch now" → "Flight 15 is in the air" (the Watch now button is drawn separately).
+const liveLineOf = (p) => String((p && p.h && (p.h.card_text || p.h.text)) || "").replace(/\s*·\s*Watch (?:now|live)\s*$/i, "").trim();
+// A past flight's Road card: same look as a feed card (category chip, vehicle chip, text); date only when known.
+function PastPost({ c }) {
+  return (
+    <article className="post past-post" id={`post-${c.id}`} data-id={c.id} style={catVars(c.box, c.cat.color)}>
+      <div className="post-top">
+        <span className={"chip chip-" + c.box}><span className="chip-i"><CatIcon c={c.cat} /></span>{c.cat.name}</span>
+        {c.vehicle && <span className={"chip chip-" + c.box + " chip-2"}>{c.vehicle}</span>}
+        {c.iso && <span className="post-date">{`${ukStamp(c.iso, false)} · ${feedTime(c.iso)}`}</span>}
+      </div>
+      <p className="post-text">{String(scrub(c.text)).replace(/\b(\d{1,2}) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b/g, "$1\u00a0$2")}</p>
+    </article>
+  );
+}
+function RoadLiveRow({ p }) {
+  const href = (p.h && p.h.url) || WATCH_LIVE_URL;
+  return (
+    <div className="rfs-row">
+      <a className="rfs-live" data-entry={(p.h && p.h.id) || undefined} href={href} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} aria-label={`${liveLineOf(p)}. Watch now`}>
+        <span className="rfs-live-txt">{scrub(liveLineOf(p))}</span>
+        <span className="rfs-sep" aria-hidden="true" />
+        <span className="rfs-watch">Watch now</span>
+      </a>
+      {(() => { const iso = cardIso(p.h); return iso
+        ? <span className="rfs-date"><span>{ukStamp(iso, false)}</span><span className="rfs-dsep">{" · "}</span><span>{feedTime(iso)}</span></span>
+        : <span className="rfs-date">{cardDate(p.h)}</span>; })()}
+    </div>
+  );
+}
+// Deep links (push ?entry=, Flight Log taps) call rfsReveal(el) first: it opens the card and shows all updates.
+// Top of el inside the scroll pane's content (posts now sit inside the flight card, so offsetTop alone is relative to it).
+const relTop = (el, pane) => el.getBoundingClientRect().top - pane.getBoundingClientRect().top + pane.scrollTop;
+const rfsReveal = (el) => { const sec = el && el.closest && el.closest(".deck-wrap") && el.closest(".rfs"); if (!sec || (sec.classList.contains("is-open") && sec.classList.contains("show-all"))) return false;
+  sec.dispatchEvent(new CustomEvent("rfs-reveal")); return true; };
+function RoadFlightSection({ flight, items, open, onToggle, shortCount, deckReady, deckId, live, sectionId, past, children }) {
+  const kids = React.Children.toArray(children).filter(Boolean);
+  const [all, setAll] = React.useState(false);
+  const ref = React.useRef(null), openRef = React.useRef(open), toggleRef = React.useRef(onToggle);
+  openRef.current = open; toggleRef.current = onToggle;
+  React.useEffect(() => { if (!open) setAll(false); }, [open]);
+  React.useEffect(() => { const el = ref.current; if (!el) return;
+    const on = () => { setAll(true); if (!openRef.current) toggleRef.current(); };
+    el.addEventListener("rfs-reveal", on); return () => el.removeEventListener("rfs-reveal", on); }, []);
+  // every update stays in the DOM (deep links find it); beyond the first two they are hidden until "Show all updates"
+  const shown = kids.map((k, i) => (i < RFS_FIRST ? k : <div key={"x" + i} className="rfs-extra">{k}</div>));
+  const more = kids.length > RFS_FIRST;
   const deckCls = "deck-wrap" + (open ? " open" : "") + (reduceMotion() ? " deck-no-motion" : deckReady ? " deck-animate" : "");
   return (
-    <div className="feed-section">
-      <div className={wrapCls} id={`fsec-${flight}`}>
-        <RoadFlightPill flight={flight} items={items} action={ROAD_PILL_LABEL(open)} open={open} onClick={onToggle} shortCount={shortCount} />
-      </div>
+    <div ref={ref} className={"feed-section rfs" + (open ? " is-open" : "") + (all ? " show-all" : "") + (live ? " has-live" : "") + (past ? " rfs-past" : "")} id={sectionId || `fsec-${flight}`} data-flight={flight}>
+      <RoadFlightPill flight={flight} items={items} action={ROAD_PILL_LABEL(open)} open={open} onClick={onToggle} shortCount={shortCount} />
+      {live && <RoadLiveRow p={live} />}
       <div className={deckCls} id={deckId} aria-hidden={!open}>
-        <div className="deck-inner">{children}</div>
+        <div className="deck-inner"><div className="rfs-feed">
+          {shown}
+          {more && <button type="button" className="rfs-more" tabIndex={open ? 0 : -1} aria-expanded={all} onClick={() => setAll((v) => !v)}>
+            {all ? "Show fewer updates" : "Show all updates"}
+            <svg className={"rtf-chevron" + (all ? " open" : "")} width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.25 4.25 L6 8 L9.75 4.25" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+          </button>}
+        </div></div>
       </div>
     </div>
   );
@@ -3237,9 +3311,6 @@ function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap, peekOpe
   }, [peekRoad]);
   const curItems = React.useMemo(() => roadCatItems(road, { heroNet, netPending }), [road, heroNet, netPending]);
   const peekItems = React.useMemo(() => peekCatItems(peekRoad), [peekRoad]);
-  const [curOpen, setCurOpen] = React.useState(true); // current flight starts open (same as the previous always-visible feed)
-  const [deckReady, setDeckReady] = React.useState(false); // skip the open morph on first paint
-  React.useEffect(() => { const id = requestAnimationFrame(() => setDeckReady(true)); return () => cancelAnimationFrame(id); }, []);
   const curPosts = [], rest = [];
   let mode = "before";
   for (const r of rows) {
@@ -3248,6 +3319,15 @@ function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap, peekOpe
     if (mode === "cur") curPosts.push(r);
     else rest.push(r);
   }
+  const liveIdx = curPosts.findIndex((r) => r && r.post && isMilestoneItem(r.post) && /lift ?off/i.test(r.post.cat.name || ""));
+  const livePost = liveIdx >= 0 ? curPosts[liveIdx].post : null;
+  const [curOpenUser, setCurOpen] = React.useState(null);
+  const curOpen = curOpenUser ?? true; // the current flight stays the active, expanded group (past flights start collapsed)
+  const pastGroups = React.useMemo(() => { const flown = rows.filter((r) => r.section).map((r) => r.section.n); // a flight still listed below keeps that section only
+    return pastRoadFlights(road, FLIGHTS, flown).map((n) => pastRoadGroup(road, n, FLIGHTS, ROAD_HIDDEN)); }, [road, rows]);
+  const [pastOpen, setPastOpen] = React.useState({}); // past flights start collapsed
+  const [deckReady, setDeckReady] = React.useState(false); // skip the open morph on first paint
+  React.useEffect(() => { const id = requestAnimationFrame(() => setDeckReady(true)); return () => cancelAnimationFrame(id); }, []);
   const renderRow = (r) => r.section
     ? <div className="fdiv" id={`fsec-${r.section.n}`} key={"f" + r.section.n}><span><b>{`Flight ${r.section.n}`}</b>{(r.section.flown || r.section.next) && <> <i>·</i> </>}{r.section.flown
         ? <><span className={"fdiv-" + r.section.flown.outcome}>{OUTCOME_LABEL[r.section.flown.outcome] || r.section.flown.outcome}</span> <i>·</i> {ukStamp(new Date(r.section.flown.day).toISOString(), false, true)}</>
@@ -3263,13 +3343,19 @@ function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap, peekOpe
           <span />
         </header>
         <div className="feed-list">
+          {pastGroups.map((g) => (
+            <RoadFlightSection key={"past" + g.flight} past flight={g.flight} items={g.items} open={!!pastOpen[g.flight]} sectionId={`fsec-past-${g.flight}`}
+              onToggle={() => setPastOpen((o) => ({ ...o, [g.flight]: !o[g.flight] }))} deckReady={deckReady} deckId={`rtf-past-${g.flight}`}>
+              {g.cards.map((c) => <PastPost key={c.id} c={c} />)}
+            </RoadFlightSection>
+          ))}
           {Number.isInteger(road && road.flight) && (
-            <RoadFlightSection flight={road.flight} items={curItems} open={curOpen} onToggle={() => setCurOpen((v) => !v)} hasCards={curPosts.some((r) => r && r.post)} deckReady={deckReady}>
-              {curPosts.map(renderRow)}
+            <RoadFlightSection flight={road.flight} items={curItems} open={curOpen} onToggle={() => setCurOpen(!curOpen)} deckReady={deckReady} live={livePost}>
+              {curPosts.filter((r, i) => i !== liveIdx).map(renderRow)}
             </RoadFlightSection>
           )}
           {peekN && (
-            <RoadFlightSection flight={peekN} items={peekItems} open={peekOpen} onToggle={onTogglePeek} shortCount hasCards={peekCards.length > 0} deckReady={deckReady} deckId="rtf-peek">
+            <RoadFlightSection flight={peekN} items={peekItems} open={peekOpen} onToggle={onTogglePeek} shortCount deckReady={deckReady} deckId="rtf-peek">
               {peekCards.length
                 ? peekCards.map((c) => <ErrorBoundary key={c.id} where={"feed:" + c.id}><FeedPost p={c} onPhotoTap={onPhotoTap} idx={idx} st={null} /></ErrorBoundary>)
                 : <p className="rtf-soon">Coming soon</p>}
@@ -3536,10 +3622,13 @@ function StarshipTracker() {
       const el = pane && (pane.querySelector(`[data-entry="${CSS.escape(entryReq)}"]`) || (num && pane.querySelector(`[data-xposts~="${num}"]`)));
       setEntryReq(null);
       if (!el) return;
-      const head = pane.querySelector(".feed-head");
-      pane.scrollTop = Math.max(0, el.offsetTop - (head ? head.offsetHeight : 0) - 14);
-      if (!wide) setFeedOpen(true);
-      setTimeout(() => { el.classList.remove("hl"); void el.offsetWidth; el.classList.add("hl"); setTimeout(() => el.classList.remove("hl"), 2400); }, reduceMotion() ? 0 : FEED_SLIDE_MS);
+      const go = () => {
+        const head = pane.querySelector(".feed-head");
+        pane.scrollTop = Math.max(0, relTop(el, pane) - (head ? head.offsetHeight : 0) - 14);
+        if (!wide) setFeedOpen(true);
+        setTimeout(() => { el.classList.remove("hl"); void el.offsetWidth; el.classList.add("hl"); setTimeout(() => el.classList.remove("hl"), 2400); }, reduceMotion() ? 0 : FEED_SLIDE_MS);
+      };
+      if (rfsReveal(el)) setTimeout(go, reduceMotion() ? 30 : 340); else go();
     }, 300);
     return () => clearTimeout(t);
   }, [entryReq, road]);
@@ -3547,8 +3636,9 @@ function StarshipTracker() {
     const pane = feedScroll.current;
     const el = pane && pane.querySelector(`#post-${CSS.escape(`${catId}-${i}`)}`);
     if (!el) return;
+    if (rfsReveal(el)) { setTimeout(() => jumpToPost(catId, i), reduceMotion() ? 30 : 340); return; }
     const head = pane.querySelector(".feed-head");
-    const y = Math.max(0, el.offsetTop - (head ? head.offsetHeight : 0) - 14);
+    const y = Math.max(0, relTop(el, pane) - (head ? head.offsetHeight : 0) - 14);
     const flash = () => { el.classList.remove("hl"); void el.offsetWidth; el.classList.add("hl"); setTimeout(() => el.classList.remove("hl"), 2400); };
     if (wide) {
       pane.scrollTo({ top: y, behavior: reduceMotion() ? "auto" : "smooth" });
@@ -4002,37 +4092,48 @@ section.road .callout-latest { grid-row: 2; grid-column: 2 / -1; margin-top: 0; 
 .feed-list { padding: 14px 18px calc(72px + env(safe-area-inset-bottom)); max-width: 440px; margin: 0 auto; }
 .feed-list .end { margin-top: 24px; }
 .feed-list > .post:has(+ .end) { margin-bottom: 0; }
-.feed-section { margin: 0 0 10px; } /* closed pills stack with one equal ~10px gap; N and N+1 share this wrapper */
-.feed-pill-wrap { margin: 0; transition: margin-bottom 300ms ease; }
-.feed-pill-wrap.is-merged { margin-bottom: -1px; position: relative; z-index: 1; } /* -1px hides the shared seam; pill sits on the first card */
+/* Road-tab flight card (14 Nov, tusk/mock/liftoff.html + toggle.html): one card holds the header, the live row and,
+   when open, the flight's updates under a divider. Values copied from the mock. */
+.feed-section.rfs { margin: 0 0 14px; background: #28304b; border: 1px solid #3a4363; border-radius: 22px; padding: 16px 12px; overflow: hidden; container-type: inline-size; }
+/* 12px sides: the phone card is 4px narrower than the mock's, so its 328px content row (pill + date) stays the same */
+.feed-section.rfs.has-live:not(.is-open) { padding-bottom: 18px; }
 .feed-pill { all: unset; box-sizing: border-box; width: 100%; display: flex; align-items: center; gap: 8px;
-  padding: 9px 14px 9px 16px; border-radius: 999px; background: rgba(20,28,52,.55); border: 1px solid rgba(170,190,245,.18);
-  color: var(--text); font: inherit; -webkit-tap-highlight-color: transparent;
-  transition: border-radius 300ms ease, background-color 300ms ease, border-color 300ms ease; }
-.feed-pill-wrap.is-merged .feed-pill {
-  border-radius: 18px 18px 0 0; background: #1C2438; border-color: rgba(170,190,245,.14); border-bottom-color: transparent;
-}
+  color: #e8ecf7; font: inherit; -webkit-tap-highlight-color: transparent; }
 button.feed-pill { cursor: pointer; }
-button.feed-pill:focus-visible { outline: 2px solid #A9BDF0; outline-offset: 2px; }
-button.feed-pill:active { border-color: rgba(170,190,245,.3); }
-/* When a flight pill is open, it becomes the first card's header: flush join, squared corners, colour fade. */
-.feed-section > .deck-wrap > .deck-inner > .post:first-child {
-  transition: border-radius 300ms ease, background 300ms ease, border-color 300ms ease, box-shadow 300ms ease;
-}
-.feed-section > .deck-wrap > .deck-inner > .post:first-child::after { transition: border-radius 300ms ease; }
-.feed-pill-wrap.is-merged + .deck-wrap .deck-inner > .post:first-child {
-  border-top-left-radius: 0; border-top-right-radius: 0;
-  border-color: rgba(170,190,245,.14); border-top-color: transparent; box-shadow: none;
-  background: linear-gradient(180deg, #1C2438 0%, var(--card) 72px);
-}
-.feed-pill-wrap.is-merged + .deck-wrap .deck-inner > .post:first-child::after { border-radius: 0 0 18px 18px; }
-.feed-pill-wrap.is-merged + .deck-wrap.deck-animate.open .deck-inner > .post:first-child { animation: none; } /* stay attached to the pill; don't fan in */
-.feed-pill-wrap.no-motion, .feed-pill-wrap.no-motion .feed-pill,
-.feed-pill-wrap.no-motion + .deck-wrap .deck-inner > .post:first-child,
-.feed-pill-wrap.no-motion + .deck-wrap .deck-inner > .post:first-child::after { transition: none; }
-.feed-pill-title { flex: none; font-size: 14px; font-weight: 700; white-space: nowrap; }
-.feed-pill .road-count { flex: 1; font-size: 12px; font-weight: 500; color: var(--muted); white-space: nowrap; }
-.feed-pill-action { flex: none; display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 600; color: var(--text); }
+button.feed-pill:focus-visible { outline: 2px solid #A9BDF0; outline-offset: 4px; border-radius: 8px; }
+.feed-pill-title { flex: none; font-size: 17px; font-weight: 700; white-space: nowrap; }
+.feed-pill .road-dots { margin-left: 4px; }
+.feed-pill .road-count { flex: 1; margin-left: 6px; font-size: 14px; font-weight: 500; color: #9aa3bd; white-space: nowrap; }
+.feed-pill-action { flex: none; display: inline-flex; align-items: center; gap: 5px; font-size: 15px; font-weight: 600; color: #e8ecf7; }
+/* live row: glowing pill (text · dot · Watch now) and the push's UK time on the right */
+.rfs-row { display: flex; align-items: center; gap: 6px; margin-top: 16px; }
+.rfs-live { display: inline-flex; align-items: center; gap: 7px; min-width: 0; padding: 4px 4px 4px 11px; border-radius: 999px;
+  border: 1px solid rgba(255,92,92,.85); box-shadow: 0 0 8px rgba(255,70,70,.45), inset 0 0 6px rgba(255,70,70,.18);
+  background: rgba(255,70,70,.07); color: #e8ecf7; font-size: 13px; font-weight: 600; white-space: nowrap; text-decoration: none; -webkit-tap-highlight-color: transparent; }
+.rfs-live-txt { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.rfs-sep { flex: none; width: 6px; height: 6px; border-radius: 50%; background: #ff8a8a; }
+.rfs-watch { flex: none; background: #ff5a5a; color: #fff; padding: 4px 9px; border-radius: 999px; font-weight: 700; }
+.rfs-live:active .rfs-watch { background: #ff4545; }
+.rfs-live:focus-visible { outline: 2px solid #A9BDF0; outline-offset: 2px; }
+.rfs-date { margin-left: auto; color: #9aa3bd; font-size: 12px; white-space: nowrap; line-height: 1; display: inline-flex; align-items: center; }
+.rfs-dsep { white-space: pre; }
+/* narrow phones (360): the date stacks over the time so the pill text is never cut */
+@container (max-width: 316px) { .rfs-date { flex-direction: column; align-items: flex-end; gap: 3px; } .rfs-dsep { display: none; }
+  .rfs .feed-pill .rc-full { display: none; } .rfs .feed-pill .rc-short { display: inline; } }
+.feed-pill .rc-short { display: none; }
+.feed-pill .road-count { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+/* updates slide out inside the same card, under a divider */
+.rfs-feed { margin-top: 16px; padding-top: 14px; border-top: 1px solid #3a4363; display: flex; flex-direction: column; gap: 10px; }
+.rfs-feed .post { margin: 0; background: #222a43; border: 1px solid #343d5c; border-radius: 16px; padding: 12px; box-shadow: none; }
+.rfs-feed .post::after { border-radius: 16px; }
+.rfs-feed .post-date { font-size: 12px; font-weight: 500; color: #9aa3bd; }
+.rfs-feed .post > .post-text { margin-top: 9px; font-size: 14px; }
+.rfs-feed .rtf-soon { margin: 0; }
+.rfs-extra { display: none; }
+.rfs.show-all .rfs-extra { display: contents; }
+.rfs-more { all: unset; box-sizing: border-box; display: inline-flex; align-self: center; align-items: center; gap: 5px; margin-top: 4px; padding: 2px 8px;
+  color: #9aa3bd; font: inherit; font-size: 13px; font-weight: 500; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.rfs-more:focus-visible { outline: 2px solid #A9BDF0; border-radius: 6px; }
 .deck-wrap { display: grid; grid-template-rows: 0fr; }
 .deck-wrap.open { grid-template-rows: 1fr; }
 .deck-wrap.deck-animate { transition: grid-template-rows 300ms ease, opacity 300ms ease; }
@@ -4040,21 +4141,17 @@ button.feed-pill:active { border-color: rgba(170,190,245,.3); }
 .deck-wrap.deck-no-motion { transition: none; }
 .deck-inner { min-height: 0; overflow: hidden; }
 /* Cards fan in on open (transform/opacity only). Total span stays inside 250–350ms. */
-.deck-wrap.deck-animate.open .deck-inner > .post,
+.deck-wrap.deck-animate.open .rfs-feed > .post,
 .deck-wrap.deck-animate.open .rtf-soon {
   animation: deck-fan 200ms ease both;
 }
-.deck-wrap.deck-animate.open .deck-inner > .post:nth-child(1) { animation-delay: 20ms; }
-.deck-wrap.deck-animate.open .deck-inner > .post:nth-child(2) { animation-delay: 50ms; }
-.deck-wrap.deck-animate.open .deck-inner > .post:nth-child(3) { animation-delay: 80ms; }
-.deck-wrap.deck-animate.open .deck-inner > .post:nth-child(4) { animation-delay: 110ms; }
-.deck-wrap.deck-animate.open .deck-inner > .post:nth-child(5) { animation-delay: 140ms; }
-.deck-wrap.deck-animate.open .deck-inner > .post:nth-child(n+6) { animation-delay: 150ms; }
+.deck-wrap.deck-animate.open .rfs-feed > .post:nth-child(1) { animation-delay: 20ms; }
+.deck-wrap.deck-animate.open .rfs-feed > .post:nth-child(2) { animation-delay: 50ms; }
 @keyframes deck-fan {
   from { opacity: 0; transform: translateY(-8px); }
   to { opacity: 1; transform: none; }
 }
-.deck-wrap.deck-no-motion .deck-inner > .post,
+.deck-wrap.deck-no-motion .rfs-feed > .post,
 .deck-wrap.deck-no-motion .rtf-soon { animation: none; }
 .rtf-teaser {
   display: flex; align-items: center; justify-content: center; gap: 6px;
