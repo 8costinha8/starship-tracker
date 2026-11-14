@@ -8,22 +8,22 @@
       "last_ok": "2026-11-14T20:00:28.822Z"
     },
     "check-road": {
-      "at": "2026-11-14T21:01:32.804Z",
-      "status": "ok",
-      "error": null,
-      "consecutive_failures": 0,
+      "at": "2026-11-14T21:31:42.993Z",
+      "status": "failed",
+      "error": "Value for argument \"data\" is not a valid Firestore document. Cannot use \"undefined\" as a Firestore value (found in field \"pendingPush.url\"). If you want to ignore undefined values, enable `ignoreUndefinedProperties`.",
+      "consecutive_failures": 1,
       "last_ok": "2026-11-14T21:01:32.804Z"
     }
   },
-  "updated": "2026-11-14T21:01:32.804Z",
-  "status": "ok",
-  "consecutive_failures": 0,
+  "updated": "2026-11-14T21:31:42.993Z",
+  "status": "failed",
+  "consecutive_failures": 1,
   "alert": false,
   "last_error": {
-    "at": "2026-11-09T09:45:27.619Z",
-    "error": "watchdog: X read failed: HTTP 402 — the checker is blind to X (check the X API plan / bearer token)"
+    "at": "2026-11-14T21:31:42.993Z",
+    "error": "Value for argument \"data\" is not a valid Firestore document. Cannot use \"undefined\" as a Firestore value (found in field \"pendingPush.url\"). If you want to ignore undefined values, enable `ignoreUndefinedProperties`."
   },
-  "committed_at": "2026-11-14T21:01:32.804Z",
+  "committed_at": "2026-11-14T21:31:42.993Z",
   "render_check": {
     "at": "2026-11-14T06:01:33.350Z",
     "status": "failed",
