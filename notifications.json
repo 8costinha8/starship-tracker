@@ -2878,6 +2878,54 @@
       "verdict": "silent: minor other — a push went out 0.4h ago (quiet window 24h)",
       "gate": "second trusted source agrees",
       "key": "F15|other|14 Nov"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "SpaceX polled go for Starship deorbit and return to Starbase for catch (LabPadre, 14 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/LabPadre/status/2121686890831094075",
+      "at": "2026-11-14T19:29:08.000Z",
+      "sent_at": "2026-11-14T19:31:12.818Z",
+      "where": "mission",
+      "verdict": "silent: duplicate starship|transport|14 Nov",
+      "gate": "second trusted source agrees",
+      "key": "starship|transport|14 Nov"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "Ship 42 cleared for tower catch attempt (RGVaerialphotos, 14 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/RGVaerialphotos/status/2121684810003566742",
+      "at": "2026-11-14T19:20:52.000Z",
+      "sent_at": "2026-11-14T19:31:12.902Z",
+      "where": "mission",
+      "verdict": "silent: duplicate S42|pad_work|14 Nov",
+      "gate": "second trusted source agrees",
+      "key": "S42|pad_work|14 Nov"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "Ship 42 is returning for catch attempt (StarshipGazer, 14 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/StarshipGazer/status/2121685207602409767",
+      "at": "2026-11-14T19:22:27.000Z",
+      "sent_at": "2026-11-14T19:31:12.984Z",
+      "where": "mission",
+      "verdict": "silent: minor other — a push went out 0.9h ago (quiet window 24h)",
+      "gate": "second trusted source agrees",
+      "key": "S42|other|14 Nov"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "Ship 42 cleared for nominal deorbit and catch attempt (TrackingTheSB, 14 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/TrackingTheSB/status/2121684377579012591",
+      "at": "2026-11-14T19:19:09.000Z",
+      "sent_at": "2026-11-14T19:31:13.064Z",
+      "where": "mission",
+      "verdict": "silent: minor other — a push went out 0.9h ago (quiet window 24h)",
+      "gate": "second trusted source agrees",
+      "key": "S42|other|14 Nov"
     }
   ]
 }
