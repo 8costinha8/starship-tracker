@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "14 Nov",
-  "updatedAt": "2026-11-14T02:01:26.734Z",
+  "updatedAt": "2026-11-14T02:15:58.465Z",
   "categories": [
     {
       "id": "cryo",
@@ -4220,14 +4220,6 @@
         "post_id": "2120690698668097998"
       },
       {
-        "topic": "catch",
-        "line": "SpaceX called off booster catch on Flight 15 after launch (SpaceNews_Inc, 14 Nov).",
-        "at": "2026-11-14T01:18:11.000Z",
-        "src": "@SpaceNews_Inc",
-        "url": "https://x.com/SpaceNews_Inc/status/2121412342994858309",
-        "post_id": "2121412342994858309"
-      },
-      {
         "topic": "other",
         "line": "Ship 42 surpasses previous Starship time in space record (Blobifie, 14 Nov).",
         "at": "2026-11-14T01:40:25.000Z",
@@ -4250,6 +4242,14 @@
         "src": "@Blobifie",
         "url": "https://x.com/Blobifie/status/2121422433534222651",
         "post_id": "2121422433534222651"
+      },
+      {
+        "topic": "trajectory",
+        "line": "Flight 15 sets record for longest Starship flight time (NSF reports, 14 Nov).",
+        "at": "2026-11-14T02:01:34.000Z",
+        "src": "@efraser77",
+        "url": "https://x.com/efraser77/status/2121423260902621196",
+        "post_id": "2121423260902621196"
       }
     ]
   },
@@ -4284,7 +4284,8 @@
       "url": "https://x.com/Blobifie/status/2121422433534222651",
       "at": "2026-11-14T01:58:16.000Z",
       "date": "14 Nov",
-      "flight": 15
+      "flight": 15,
+      "box": "static"
     },
     {
       "id": "news-mwfpvcxk-0a40f7",
