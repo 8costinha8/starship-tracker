@@ -168,8 +168,8 @@ async function run(opts) {
 
   // ── 5. result overrides (runFromEnv, the CI entry) ──
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "shipalerts-"));
-  const writeRoot = () => {
-    fs.writeFileSync(path.join(tmp, "road.json"), JSON.stringify(road(), null, 2));
+  const writeRoot = (rd = road()) => {
+    fs.writeFileSync(path.join(tmp, "road.json"), JSON.stringify(rd, null, 2));
     fs.writeFileSync(path.join(tmp, "notifications.json"), JSON.stringify({ pushes: [] }));
   };
   const SRC = "https://x.com/SpaceX/status/2121999999999999999";
@@ -246,10 +246,11 @@ async function run(opts) {
     check(disp.length === 1, "checker 20:15: no second dispatch (dispatched{} bookkeeping)");
     // the dispatched run gets the workflow defaults: mode=auto (+ send_at) ⇒ watch, dry_run=false
     const body = await (async () => { let b; await MA.dispatchMissionAlert(disp[0], { token: "x", fetchFn: async (u, o) => { b = JSON.parse(o.body); return { status: 204 }; } }); return b; })();
-    check(body.ref === "main" && body.inputs.key === "deorbit_soon" && body.inputs.send_at && body.inputs.mode === undefined && body.inputs.dry_run === "false", "dispatch body: ref main, key + send_at, mode left to the workflow default (auto)");
+    check(disp[0].flight === 15, "checker hook passes flight 15 to the dispatch");
+    check(body.ref === "main" && body.inputs.key === "deorbit_soon" && body.inputs.send_at && body.inputs.flight === "15" && body.inputs.mode === undefined && body.inputs.dry_run === "false", "dispatch body: ref main, key + send_at + flight 15, mode left to the workflow default (auto)");
     writeRoot();
     const c = clock(Date.parse("2026-11-14T20:01:10Z")), s = sender(c);
-    const { row } = await MA.runFromEnv({ ALERT_KEY: "deorbit_soon", ALERT_MODE: "auto", SEND_AT: body.inputs.send_at, SOURCE_URL: "", ALERT_OUTCOME: "", DRY_RUN: "false" },
+    const { row } = await MA.runFromEnv({ ALERT_KEY: "deorbit_soon", ALERT_MODE: "auto", SEND_AT: body.inputs.send_at, ALERT_FLIGHT: body.inputs.flight, SOURCE_URL: "", ALERT_OUTCOME: "", DRY_RUN: "false" },
       { root: tmp, send: s.send, claims: claimStore(), log: () => {}, now: c.now, sleep: c.sleep, refreshRoad: async () => road() });
     check(row.verdict === "sent" && s.sent.length === 1 && s.sent[0].at === TARGET, `dispatched run (workflow defaults) sends at ${s.sent[0] && new Date(s.sent[0].at).toISOString()} with zero human steps`);
     const dup = await MA.runFromEnv({ ALERT_KEY: "deorbit_soon", ALERT_MODE: "watch", DRY_RUN: "" }, { root: tmp, send: s.send, claims: claimStore(), log: () => {}, now: () => TARGET + 30000, sleep: async () => {}, refreshRoad: async () => road() });
@@ -257,7 +258,7 @@ async function run(opts) {
     // the tonight-only cron run: ALERT_KEY=deorbit_soon, ALERT_MODE=watch, no other inputs
     writeRoot();
     const c2 = clock(Date.parse("2026-11-14T19:41:00Z")), s2 = sender(c2);
-    const r2 = await MA.runFromEnv({ ALERT_KEY: "deorbit_soon", ALERT_MODE: "watch", SEND_AT: "", SOURCE_URL: "", ALERT_OUTCOME: "", DRY_RUN: "" },
+    const r2 = await MA.runFromEnv({ ALERT_KEY: "deorbit_soon", ALERT_MODE: "watch", ALERT_FLIGHT: "15", SEND_AT: "", SOURCE_URL: "", ALERT_OUTCOME: "", DRY_RUN: "" },
       { root: tmp, send: s2.send, claims: claimStore(), log: () => {}, now: c2.now, sleep: c2.sleep, refreshRoad: async () => road() });
     check(r2.row.verdict === "sent" && s2.sent[0].at === TARGET, "cron watcher run (schedule env) sends at 20:18:33 with zero human steps");
     // LL2 moves on to Flight 16 before the deorbit: rollover held, deorbit still dispatched for Flight 15
@@ -269,6 +270,76 @@ async function run(opts) {
     const fresh16 = { flight: 16, vehicles: [], categories: [], feed_items: [], mission_updates: {} };
     await run({ clock: c4, sender: s4, claims: claimStore(), road: road(), refreshRoad: async () => (c4.t >= Date.parse("2026-11-14T19:50:00Z") ? fresh16 : road()), key: "deorbit_soon", mode: "watch" });
     check(s4.sent.length === 1 && s4.sent[0].at === TARGET && s4.sent[0].body === "Watch live", "road.json rolled over mid-watch: still sends Flight 15 deorbit_soon on time");
+  }
+
+  // ── 8c. no send without a claim ──
+  {
+    const throwing = MA.gitClaims("/nonexistent", () => { throw new Error("network down"); });
+    const c = await throwing.claim(15, "deorbit_soon");
+    check(c.ok === false && c.error === true, `gitClaims: push and ls-remote both throw → ${JSON.stringify(c)}`);
+    const s = sender(null);
+    const r = await run({ clock: clock(TARGET), sender: s, claims: throwing, road: road(), key: "deorbit_soon", mode: "now" });
+    check(s.sent.length === 0 && /claim failed/.test(r.row.verdict), `claim error → 0 sends (${r.row.verdict})`);
+    for (const [label, claim] of [["claim throws", async () => { throw new Error("x"); }], ["claim returns nothing", async () => undefined], ["claim ok:false error:true", async () => ({ ok: false, error: true })], ["claim ok:false (taken)", async () => ({ ok: false })]]) {
+      const s2 = sender(null);
+      await run({ clock: clock(TARGET), sender: s2, claims: { claim, exists: async () => false }, road: road(), key: "deorbit_soon", mode: "now" });
+      check(s2.sent.length === 0, `${label} → 0 sends`);
+    }
+    writeRoot();
+    const s3 = sender(null);
+    const e = await MA.runFromEnv({ ALERT_KEY: "deorbit_soon", ALERT_MODE: "now", ALERT_FLIGHT: "15", DRY_RUN: "false" }, { root: tmp, send: s3.send, claims: throwing, log: () => {}, now: () => TARGET });
+    check(s3.sent.length === 0 && e.exitCode === 1, `CI entry: claim error → 0 sends, run fails red (${e.row.verdict})`);
+    const s4 = sender(null);
+    const f = await MA.runFromEnv({ ALERT_KEY: "deorbit_soon", ALERT_MODE: "now", ALERT_FLIGHT: "15", DRY_RUN: "false" }, { root: tmp, send: s4.send, log: () => {}, now: () => TARGET });
+    check(s4.sent.length === 0 && f.exitCode === 1, `CI entry: no claim mechanism at all → 0 sends (${f.row.verdict})`);
+  }
+
+  // ── 8d. never label or claim the wrong flight ──
+  {
+    const env = (o) => ({ ALERT_MODE: "now", DRY_RUN: "false", ...o });
+    const go = async (rd, o, now = TARGET) => { writeRoot(rd); const s = sender(null), st = claimStore(); const res = await MA.runFromEnv(env(o), { root: tmp, send: s.send, claims: st, log: () => {}, now: () => now }); return { ...res, s, st }; };
+    const noAlerts = { flight: 16, vehicles: [], categories: [], feed_items: [], mission_updates: {} };
+    const empty16 = { ...noAlerts, mission_alerts: MA.emptyAlerts(16) };
+    let r = await go(noAlerts, { ALERT_KEY: "deorbit_soon" });
+    check(r.s.sent.length === 0 && r.st.taken.size === 0 && /mission_alerts missing/.test(r.row.verdict), `road.json rebuilt without mission_alerts, no flight → skip, no claim (${r.row.verdict})`);
+    r = await go(noAlerts, { ALERT_KEY: "ship_result", ALERT_OUTCOME: "caught", SOURCE_URL: SRC });
+    check(r.s.sent.length === 0 && r.st.taken.size === 0, "…same for a result without flight → skip, no claim");
+    r = await go(empty16, { ALERT_KEY: "deorbit_soon" });
+    check(r.s.sent.length === 0 && r.st.taken.size === 0 && /Flight 16 has no liftoff_actual/.test(r.row.verdict), `empty F16 record, no flight → skip (${r.row.verdict})`);
+    r = await go(empty16, { ALERT_KEY: "ship_result", ALERT_OUTCOME: "caught", SOURCE_URL: SRC }, TARGET + 62 * MIN);
+    check(r.s.sent.length === 0 && r.st.taken.size === 0, "empty F16 record, result without flight → skip, no claim");
+    // flight=15 with road.json rolled to F16
+    r = await go(empty16, { ALERT_KEY: "ship_result", ALERT_OUTCOME: "caught", SOURCE_URL: SRC, ALERT_FLIGHT: "15" }, TARGET + 62 * MIN);
+    check(r.s.sent.length === 1 && r.s.sent[0].body === "Flight 15" && r.st.taken.has("alert-claim-15-ship_result") && r.row.alert_key === "15|ship_result", `flight=15 + source, road on F16 → result sent as "${r.s.sent[0] && r.s.sent[0].body}", claim alert-claim-15-ship_result, log key ${r.row.alert_key}`);
+    r = await go(noAlerts, { ALERT_KEY: "ship_result", ALERT_OUTCOME: "splashdown", SOURCE_URL: SRC, ALERT_FLIGHT: "15" }, TARGET + 62 * MIN);
+    check(r.s.sent.length === 1 && r.s.sent[0].body === "Flight 15" && r.st.taken.has("alert-claim-15-ship_result"), "flight=15 + source, no mission_alerts at all → result still sent as Flight 15");
+    r = await go(empty16, { ALERT_KEY: "ship_result", ALERT_OUTCOME: "caught", ALERT_FLIGHT: "15" }, TARGET + 62 * MIN);
+    check(r.s.sent.length === 0 && r.st.taken.size === 0, "flight=15 without source → still blocked, no claim");
+    r = await go(empty16, { ALERT_KEY: "deorbit_soon", ALERT_MODE: "watch", ALERT_FLIGHT: "15" });
+    check(r.s.sent.length === 0 && r.st.taken.size === 0 && /no Flight 15 liftoff_actual/.test(r.row.verdict), `flight=15 watch, road on F16 (no F15 timeline) → skip, no claim (${r.row.verdict})`);
+    r = await go(road(), { ALERT_KEY: "deorbit_soon", ALERT_MODE: "watch", ALERT_FLIGHT: "16" });
+    check(r.s.sent.length === 0 && r.st.taken.size === 0, "flight=16 watch on a F15 record → skip (never times F16 from F15's record)");
+    r = await go(empty16, { ALERT_KEY: "deorbit_soon", ALERT_MODE: "now", ALERT_FLIGHT: "15" });
+    check(r.s.sent.length === 1 && r.st.taken.has("alert-claim-15-deorbit_soon") && r.row.alert_key === "15|deorbit_soon", "manual deorbit_soon now + flight=15, road on F16 → sent, claims 15 (fixed text, no timeline needed)");
+    // watcher with flight=15 keeps F15's timeline when road.json rolls to F16 mid-watch
+    writeRoot();
+    const c = clock(Date.parse("2026-11-14T19:41:00Z")), s = sender(c), st = claimStore();
+    const w = await MA.runFromEnv(env({ ALERT_KEY: "deorbit_soon", ALERT_MODE: "watch", ALERT_FLIGHT: "15" }), { root: tmp, send: s.send, claims: st, log: () => {}, now: c.now, sleep: c.sleep, refreshRoad: async () => (c.t >= Date.parse("2026-11-14T19:50:00Z") ? empty16 : road()) });
+    check(s.sent.length === 1 && s.sent[0].at === TARGET && st.taken.has("alert-claim-15-deorbit_soon") && w.row.alert_key === "15|deorbit_soon", "flight=15 watcher, road.json rolls to F16 mid-watch → sent 20:18:33, claim + log key for 15");
+    const bad = await go(road(), { ALERT_KEY: "deorbit_soon", ALERT_FLIGHT: "15x" });
+    check(bad.s.sent.length === 0 && bad.exitCode === 1, "non-numeric flight input → skip");
+  }
+
+  // ── 8e. claimtest guard (CI claim test path) ──
+  {
+    let sends = 0, counts = 0;
+    const st = claimStore();
+    const deps = { root: tmp, send: async () => { sends++; }, countTokens: async () => { counts++; return 1; }, claims: st, log: () => {} };
+    const a = await MA.runFromEnv({ ALERT_KEY: "claimtest", ALERT_FLIGHT: "0", DRY_RUN: "true" }, deps);
+    check(a.exitCode === 0 && a.row.verdict === "claimtest: pass" && st.taken.has("alert-claim-0-claimtest") && sends === 0 && counts === 0, `claimtest dry_run flight 0: real claim path, first taken / second refused, 0 sends, firebase untouched (${a.row.verdict})`);
+    const b = await MA.runFromEnv({ ALERT_KEY: "claimtest", ALERT_FLIGHT: "0", DRY_RUN: "false" }, { ...deps, claims: claimStore() });
+    const c2 = await MA.runFromEnv({ ALERT_KEY: "claimtest", ALERT_FLIGHT: "15", DRY_RUN: "true" }, { ...deps, claims: claimStore() });
+    check(b.exitCode === 1 && c2.exitCode === 1 && sends === 0, "claimtest refused without dry_run or with a real flight number");
   }
 
   // ── 9. the real claim (gitClaims) against a LOCAL bare repo: two runs on the same commit ──
