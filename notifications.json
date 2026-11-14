@@ -2974,6 +2974,18 @@
       "verdict": "silent: minor other — a push went out 1.4h ago (quiet window 24h)",
       "gate": "second trusted source agrees",
       "key": "S42|other|14 Nov"
+    },
+    {
+      "title": "⏱️ Deorbit in 5 min",
+      "body": "Watch live",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=mission_alert-mwgulw99-9b4d73",
+      "url": "",
+      "at": "2026-11-14T20:18:33.741Z",
+      "sent_at": "2026-11-14T20:18:36.964Z",
+      "where": "feed",
+      "verdict": "sent",
+      "alert_key": "15|deorbit_soon",
+      "key": "15|deorbit_soon"
     }
   ]
 }
