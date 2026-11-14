@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "14 Nov",
-  "updatedAt": "2026-11-14T07:01:33.394Z",
+  "updatedAt": "2026-11-14T09:01:47.785Z",
   "categories": [
     {
       "id": "cryo",
@@ -2316,10 +2316,10 @@
           "frameChecked": true,
           "photo_alternatives": [
             {
-              "image": "https://pbs.twimg.com/media/HXBsCAfaAAEbdXx.jpg",
+              "image": "https://pbs.twimg.com/media/HW9sEvoXMAALgwj.jpg",
               "type": "photo",
-              "post_url": "https://x.com/RGVaerialphotos/status/2121314305836810700",
-              "author": "RGVaerialphotos"
+              "post_url": "https://x.com/CSI_Starbase/status/2121032788560236660",
+              "author": "CSI_Starbase"
             }
           ],
           "edited_from": "Pad 2 chopsticks raised back to catch position after inspection.",
@@ -2705,6 +2705,12 @@
             "at": "2026-11-12T22:21:48.000Z"
           },
           "photo_alternatives": [
+            {
+              "image": "https://pbs.twimg.com/media/HW9sEvoXMAALgwj.jpg",
+              "type": "photo",
+              "post_url": "https://x.com/CSI_Starbase/status/2121032788560236660",
+              "author": "CSI_Starbase"
+            },
             {
               "image": "https://pbs.twimg.com/amplify_video_thumb/2120969801539444737/img/jubsleUINWocErFL.jpg",
               "type": "video",
@@ -4294,14 +4300,6 @@
       },
       {
         "topic": "landing",
-        "line": "Booster 22 automatically aborted return to Pad 2 due to GNC issue (Dan Huot, 14 Nov).",
-        "at": "2026-11-14T05:41:51.000Z",
-        "src": "@NASASpaceflight",
-        "url": "https://x.com/NASASpaceflight/status/2121478699245609370",
-        "post_id": "2121478699245609370"
-      },
-      {
-        "topic": "landing",
         "line": "Booster 22 aborted landing attempt due to GNC issue leading to splashdown (Dan Huot, 14 Nov).",
         "at": "2026-11-14T05:42:58.000Z",
         "src": "@Blobifie",
@@ -4323,6 +4321,14 @@
         "src": "@SpaceflightNow",
         "url": "https://x.com/SpaceflightNow/status/2121493229778420205",
         "post_id": "2121493229778420205"
+      },
+      {
+        "topic": "trajectory",
+        "line": "Ship 42 completed its 7th orbit and surpassed Ship 41 mission duration (Blobifie reports, 14 Nov).",
+        "at": "2026-11-14T08:57:08.000Z",
+        "src": "@Blobifie",
+        "url": "https://x.com/Blobifie/status/2121527843737981009",
+        "post_id": "2121527843737981009"
       }
     ]
   },
