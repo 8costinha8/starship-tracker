@@ -2770,6 +2770,18 @@
       "verdict": "silent: minor transport — a push went out 7.7h ago (quiet window 24h)",
       "gate": "hold passed (1 run)",
       "key": "S42|transport|14 Nov"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "Starship is coasting in orbit and on track for return to launch site today (SpaceX, 14 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/SpaceX/status/2121629656868614213",
+      "at": "2026-11-14T15:41:42.000Z",
+      "sent_at": "2026-11-14T15:45:57.226Z",
+      "where": "mission",
+      "verdict": "sent",
+      "gate": "official source",
+      "key": "starship|transport|14 Nov"
     }
   ]
 }
