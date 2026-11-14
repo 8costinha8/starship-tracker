@@ -2782,6 +2782,18 @@
       "verdict": "sent",
       "gate": "official source",
       "key": "starship|transport|14 Nov"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "Booster 22 had boostback issues triggering abort and sank after landing attempt (Dan Huot, 14 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/Blobifie/status/2121627431102783745",
+      "at": "2026-11-14T15:32:52.000Z",
+      "sent_at": "2026-11-14T16:01:23.058Z",
+      "where": "mission",
+      "verdict": "silent: minor other — a push went out 0.3h ago (quiet window 24h)",
+      "gate": "hold passed (1 run)",
+      "key": "B22|other|14 Nov"
     }
   ]
 }
