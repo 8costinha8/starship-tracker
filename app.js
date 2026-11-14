@@ -95,6 +95,10 @@ const FLIGHTS = [
     headline: "First Starship to reach orbit",
     highlights: "",
     story: "Flight 14 launched from Pad 2, the third outing for Starship V3. The booster lost some engines on the way back but still made a controlled splashdown in the Gulf. Despite one of its six engines shutting down during ascent, Ship 41 became the first Starship to reach orbit and deployed all 26 Starlink V3 satellites. SpaceX then cut the planned six-orbit, ten-hour mission short, and the ship splashed down in the northern Pacific about three hours after liftoff before tipping over and exploding." },
+  { n: 15, date: "2026-11-13T22:47:36Z", pad: "Pad 2", block: "V3", booster: "B22", ship: "S42", outcome: "success",
+    headline: "Flight 15 succeeds from Pad 2",
+    highlights: "",
+    story: "Flight 15 launched from Pad 2 using Starship V3 with Booster B22 and Ship S42. The vehicle deployed all 26 Starlink V3 satellites. Both stages completed their returns to the launch site." },
 ];
 
 // Photos work automatically: any flight without a "photo" field uses
@@ -112,7 +116,7 @@ const NEXT_FLIGHT_FALLBACK = {
   headline: "", note: "Details to be announced.",
 };
 
-const DATA_CHECKED = "7 Oct 2026";
+const DATA_CHECKED = "14 Nov 2026";
 
 // All flights so far launch from Starbase, Texas. If SpaceX ever flies Starship
 // from a different site, add a "site" field to that flight object, e.g.
