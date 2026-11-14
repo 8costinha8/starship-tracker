@@ -23,7 +23,7 @@ function flogPadDisplay(flogPad) { return flogPad; }
 function faaLicenceDisplay(flogFaa) { return flogFaa; }
 function authoritativeNetLabel() { return ""; }
 const ROAD_DONE_LABEL = { cryo: "Complete", raptor: "Installed", static: "Complete", pad: "Complete", faa: "Confirmed", date: "Confirmed" };
-const H = eval(`(() => {\n${app.slice(start, end)}\nreturn { boxOverrides, roadLiftedOff, stackedHeadline, afterLiftoffLatest, afterLiftoffFlog, decorateFlogItem }; })()`);
+const H = eval(`(() => {\n${app.slice(start, end)}\nreturn { boxOverrides, roadLiftedOff, stackedHeadline, afterLiftoffLatest, afterLiftoffFlog, decorateFlogItem, filterRoadFlogEvents, isRoadFlightEvent, roadLiftoffMs, roadEntryMs }; })()`);
 
 const clone = () => JSON.parse(JSON.stringify(live));
 const IDS = ["cryo", "raptor", "static", "pad", "faa", "date"];
@@ -89,6 +89,33 @@ const POST = Date.parse("2026-11-14T09:20:00Z");
 
 check(/setInterval\(load, LD \? 1000 : 15000\)/.test(app), "LL2 polling timer is unchanged");
 check(!/\.auto-note/.test(app) && !/Auto-updating · last checked/.test(app), "auto-updating line and its CSS are gone");
+
+// flight events excluded from Road boxes
+{ const deploy = { text: "Ship 42 deployed twenty six V3 Starlink satellites and closed its payload bay door.", at: "2026-11-14T00:06:57.000Z" };
+  check(H.isRoadFlightEvent(deploy, live), "post-liftoff deploy line is a Road flight event (excluded)");
+  const orbit = { text: "Ship 42 passed the first Hawaii return window and will stay in orbit.", at: "2026-11-14T00:04:43.000Z" };
+  check(H.isRoadFlightEvent(orbit, live), "post-liftoff orbit line is excluded from Road boxes");
+  const stack = { text: "Ship 42 stacked on Booster 22 at Pad 2.", at: "2026-11-12T22:21:48.000Z" };
+  check(!H.isRoadFlightEvent(stack, live), "pre-liftoff stack line stays on the pad card");
+  const sqd = { text: "Ship 42 has the SQD connected at the pad.", at: "2026-11-13T01:32:37.000Z" };
+  check(!H.isRoadFlightEvent(sqd, live), "pre-liftoff pad work stays on the pad card");
+  const afterChop = { text: "Pad 2 chopsticks raised back after inspection.", at: "2026-11-14T06:42:24.000Z" };
+  check(H.isRoadFlightEvent(afterChop, live), "anything dated after liftoff_actual is excluded from Road boxes");
+  const pad = (live.categories || []).find((c) => c.id === "pad") || { history: [] };
+  const kept = (pad.history || []).filter((h) => !H.isRoadFlightEvent(h, live));
+  check(kept.some((h) => /stacked on Booster 22/i.test(h.text || h.card_text || "")), "after filtering, the genuine stacked pad line remains");
+  check(!kept.some((h) => /deployed twenty six/i.test(h.text || h.card_text || "")), "the deploy line is not kept as a pad entry");
+  check(H.stackedHeadline(live) === "Stacked 13 Nov", "Launch pad complete headline is the factual stacked date");
+  const filtered = H.filterRoadFlogEvents(fl.boxes(live).pad, live);
+  const texts = (filtered.cards || []).flatMap((c) => (c.lines || []).map((l) => l.text || ""));
+  check(!texts.some((t) => /chopsticks raised back|deployed twenty six/i.test(t)), "Road pad cards drop post-liftoff and flight-event lines");
+  check(texts.some((t) => /SQD connected|chopsticks opening for launch|stacked/i.test(t)), "Road pad cards keep the last genuine pre-liftoff pad lines");
+  const decorated = H.decorateFlogItem({ id: "pad" }, fl.boxes(live).pad, live, null, { n: 15, status: "inflight" }, POST);
+  const dtexts = ((decorated.flog && decorated.flog.cards) || []).flatMap((c) => (c.lines || []).map((l) => l.text || ""));
+  check(!dtexts.some((t) => /chopsticks raised back|deployed twenty six/i.test(t)), "decorateFlogItem also excludes post-liftoff lines from Road boxes");
+  check(decorated.flog.latest === "Stacked 13 Nov", "decorated pad headline stays the factual stacked date");
+}
+
 
 console.log(fails ? `\n${fails} FAILED` : "\n✅ All road-liftoff checks passed.");
 process.exit(fails ? 1 : 0);

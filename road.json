@@ -5330,5 +5330,29 @@
         "key": "ship_result"
       }
     ]
+  },
+  "hero_lines": {
+    "15": [
+      {
+        "stage": "booster",
+        "kind": "result",
+        "line": "Booster 22 didn't attempt the tower catch and splashed down in the Gulf."
+      },
+      {
+        "stage": "ship",
+        "kind": "other",
+        "line": "Ship 42 reached orbit and deployed 26 Starlink V3 satellites."
+      },
+      {
+        "stage": "ship",
+        "kind": "other",
+        "line": "Ship 42 set a new record for the longest Starship flight."
+      },
+      {
+        "stage": "ship",
+        "kind": "pending",
+        "line": "SpaceX still plans to attempt the Ship 42 tower catch."
+      }
+    ]
   }
 }

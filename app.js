@@ -628,6 +628,7 @@ function feedPadLines(road) {
   for (const f of (road && road.feed_items) || []) {
     if (!f || !f.body || f.card_hide || f.later_flight || f.box !== "pad") continue;
     if ((Number.isInteger(f.flight) ? f.flight : road.flight) !== road.flight) continue;
+    if (typeof isRoadFlightEvent === "function" && isRoadFlightEvent({ text: f.body, at: f.at, publishedAt: f.at }, road)) continue;
     const t = String(f.body || "");
     const named = vs.filter((v) => new RegExp(`\\b(?:${v[0] === "S" || v[0] === "s" ? "ship\\s*|s" : "booster\\s*|b"})${v.slice(1)}\\b`, "i").test(t));
     if (!named.length) continue;
@@ -1629,7 +1630,32 @@ function stackedHeadline(road) {
   }
   return "";
 }
+function roadLiftoffMs(road) {
+  const a = road && road.mission_alerts;
+  const iso = a && Number(a.flight) === Number(road && road.flight) && a.liftoff_actual;
+  const t = iso && Date.parse(iso);
+  return Number.isFinite(t) ? t : null;
+}
+function roadEntryMs(h) {
+  if (!h) return null;
+  const iso = (typeof cardIso === "function" && cardIso(h)) || h.at || h.publishedAt || h.event_at || "";
+  const t = Date.parse(iso);
+  return Number.isFinite(t) ? t : null;
+}
+// Display only: in-flight / post-liftoff flight events stay off every Road box (deploy, orbit,
+// reentry, catch, splashdown, burns, or anything dated at/after liftoff_actual). Pad prep
+// wording (stack, chopsticks, catch height) is kept when it is from before liftoff.
+function isRoadFlightEvent(h, road) {
+  if (!h) return false;
+  const t0 = roadLiftoffMs(road), t = roadEntryMs(h);
+  if (t0 != null && t != null && t >= t0) return true;
+  const text = [h.text, h.card_text, h.body, h.log_text].filter(Boolean).join(" ");
+  if (!/\b(deploy(?:ed|s|ment)?|released \d+|reached orbit|in orbit|orbital insertion|re-?entry|splashdown|splashed down|landing burn|boostback|payload bay|was caught|tower catch)\b/i.test(text)) return false;
+  if (/\b(catch (?:position|height|arms)|opening for launch|stacked|chopsticks|deluge|transport stand|wet dress|QD arm|lifted to)\b/i.test(text)) return false;
+  return true;
+}
 function afterLiftoffLatest(flog, id, road) {
+
   if (id === "pad") return stackedHeadline(road) || "Pad activity complete.";
   return (flog && flog.latest) || "Complete";
 }
@@ -1644,12 +1670,21 @@ function afterLiftoffFlog(flog, id, road, f, now) {
   if (flog.status === "done" || flog.status === "complete") return flog;
   return { ...flog, status: "done", statusText: "Complete", latest: afterLiftoffLatest(flog, id, road) };
 }
+function filterRoadFlogEvents(flog, road) {
+  if (!flog || !road || typeof isRoadFlightEvent !== "function") return flog;
+  const cards = (flog.cards || []).map((c) => ({
+    ...c,
+    lines: (c.lines || []).filter((l) => !isRoadFlightEvent(l, road)),
+  })).filter((c) => (c.lines || []).length);
+  return { ...flog, cards };
+}
 function decorateFlogItem(m, flog, road, heroNet, heroFlight, now) {
   let f = flog;
   if (m.id === "date" && f) f = launchDateDisplay(f, (typeof authoritativeNetLabel === "function" ? authoritativeNetLabel(road, heroNet) : ""), road, heroNet);
   else if (m.id === "pad" && f) f = flogPadDisplay(f, road);
   else if (m.id === "faa" && f) f = faaLicenceDisplay(f);
   f = afterLiftoffFlog(f, m.id, road, heroFlight, now);
+  if (f) f = filterRoadFlogEvents(f, road);
   return f ? { ...m, status: f.status, flog: f } : m;
 }
 // --- end road-liftoff helpers ---
@@ -2108,13 +2143,17 @@ function missionLines(road, n) {
   return Array.isArray(list) ? list.filter((u) => u && typeof u.line === "string" && u.line && !rej.some((r) => r.post_id === u.post_id))
     .map((u) => ({ ...u, line: noCreditRepeat(u.line) })).slice(0, 5) : [];
 }
-// --- hero-lines helpers (tracker-2026-11-14-herotrim) ---
+// --- hero-lines helpers (tracker-2026-11-14-herotrim / herowording) ---
 // Display-only: the hero keeps one clean current-status line per stage (result if
 // it exists, else the latest pending catch/return/landing attempt) plus non-stage
-// results (orbit, deployed, records). Progress, preview, "aims to" and "passed X
-// point" lines are dropped. Credits and dates are stripped. Manual road.hero_lines
-// overrides win. Checkers and road.json are not touched.
+// results (orbit, deployed, records). Lines are normalised into templates. Progress,
+// preview, "aims to" and "passed X point" lines are dropped. Credits and dates are
+// stripped. Manual road.hero_lines overrides win, except a pending override is
+// replaced once an automatic confirmed result exists for that stage. Checkers and
+// road.json write paths are not touched here.
 const HERO_MON = "Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec";
+const HERO_NUM_ONES = ["zero","one","two","three","four","five","six","seven","eight","nine","ten","eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen"];
+const HERO_NUM_TENS = ["","","twenty","thirty","forty","fifty","sixty","seventy","eighty","ninety"];
 function stripHeroCredit(line) {
   let t = String(line || "").trim();
   if (typeof scrub === "function") t = scrub(t);
@@ -2130,6 +2169,30 @@ function cleanHeroNote(note) {
   t = t.replace(/\s{2,}/g, " ").replace(/\s+([.,;:!?])/g, "$1").trim();
   return t;
 }
+function wordsToNumber(s) {
+  const t = String(s || "").toLowerCase().replace(/-/g, " ").trim();
+  if (!t) return null;
+  const parts = t.split(/\s+/);
+  if (parts.length === 1) {
+    const i = HERO_NUM_ONES.indexOf(parts[0]); if (i >= 0) return i;
+    const ten = HERO_NUM_TENS.indexOf(parts[0]); if (ten >= 2) return ten * 10;
+    return null;
+  }
+  if (parts.length === 2) {
+    const ten = HERO_NUM_TENS.indexOf(parts[0]), one = HERO_NUM_ONES.indexOf(parts[1]);
+    if (ten >= 2 && one >= 1 && one <= 9) return ten * 10 + one;
+  }
+  return null;
+}
+function replaceNumberWords(s) {
+  return String(s || "").replace(/\b(?:twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)(?:[-\s](?:one|two|three|four|five|six|seven|eight|nine))?\b|\b(?:zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen)\b/gi, (m) => {
+    const n = wordsToNumber(m);
+    return n == null ? m : String(n);
+  });
+}
+function releasedToDeployed(s) {
+  return String(s || "").replace(/\breleas(e|ed|es|ing)\b/gi, (m, x) => ({ e: "deploy", ed: "deployed", es: "deploys", ing: "deploying" }[x.toLowerCase()] || m));
+}
 function isDroppedHeroLine(text) {
   const t = String(text || "");
   if (/\baims to\b/i.test(t)) return true;
@@ -2140,18 +2203,23 @@ function isDroppedHeroLine(text) {
 }
 function isPendingAttempt(text) {
   const t = String(text || "");
-  if (/\b(aborted|failed|cancelled|called off|was not|were not|did not|diverted|instead of)\b/i.test(t) && /\b(attempt|catch|landing|recover)/i.test(t)) return false;
-  return /\b((?:still\s+)?plans? to|will (?:try to |attempt )?|to attempt|targeting (?:a |the )?(?:double )?catch|ahead of planned|planned catch|attempt(?:ing)? (?:a |the )?(?:soft landing|tower catch|catch|landing|return)|returning to the (?:launch site )?towers?)\b/i.test(t);
+  if (/\b(aborted|failed|cancelled|called off|was not|were not|did not|didn't|diverted|instead of)\b/i.test(t) && /\b(attempt|catch|landing|recover)\b/i.test(t)) return false;
+  return /\b((?:still\s+)?plans? to|will (?:try to |attempt )|to attempt|targeting (?:a |the )?(?:double )?catch|ahead of planned|planned catch|attempt(?:ing)? (?:a |the )?(?:soft landing|tower catch|catch|landing|return)|returning to the (?:launch site )?towers?)\b/i.test(t);
 }
 function isStageResult(text) {
   const t = String(text || "");
   if (isPendingAttempt(t)) return false;
-  return /\b(splashdown|splashed down|was caught|successfully caught|catch (?:was )?successful|tower catch (?:was )?complete|(?:was |is )lost|lost during|failed to (?:catch|land)|aborted|not recovered|performed landing burn|destroyed|exploded|diverted to|ditched|broke apart)\b/i.test(t);
+  return /\b(splashdown|splashed down|was caught|successfully caught|catch (?:was )?successful|tower catch (?:was )?complete|(?:was |is )lost|lost during|failed to (?:catch|land)|aborted|not recovered|performed landing burn|destroyed|exploded|diverted to|ditched|broke apart|didn't attempt|did not attempt)\b/i.test(t);
+}
+function isPayloadDeploy(text) {
+  const t = String(text || "");
+  return /\b(deploy(?:ed|s|ment)?|releas(?:e|ed|es|ing))\b/i.test(t) && /\b(satellite|starlink|simulator|payload)\b/i.test(t);
 }
 function isNonStageResult(text) {
   const t = String(text || "");
   if (isPendingAttempt(t) || isStageResult(t) || isDroppedHeroLine(t)) return false;
-  return /\b(deployed|deployment complete|in orbit|completed its \d+|surpassed|sets record|record for|longest .{0,40}flight|payload bay door|satellites)\b/i.test(t);
+  if (isPayloadDeploy(t)) return true;
+  return /\b(in orbit|reached orbit|orbital insertion|completed its \d+|surpassed|sets record|record for|longest .{0,40}flight|payload bay door)\b/i.test(t);
 }
 function heroLineStage(text) {
   const t = String(text || "");
@@ -2169,21 +2237,135 @@ function heroLineKind(text) {
   if (isNonStageResult(text)) return "other";
   return "drop";
 }
+function heroVehicleName(text, road) {
+  const t = String(text || "");
+  const sm = t.match(/\bShip\s+(\d+)\b/i) || t.match(/\bS(\d{2,3})\b/);
+  if (sm) return "Ship " + sm[1];
+  const bm = t.match(/\bBooster\s+(\d+)\b/i) || t.match(/\bB(\d{2,3})\b/);
+  if (bm) return "Booster " + bm[1];
+  const vs = (road && road.vehicles) || [];
+  if (/\bsuper heavy\b/i.test(t)) {
+    const b = vs.find((v) => /^B/i.test(v));
+    return b ? "Booster " + String(b).slice(1) : "Booster";
+  }
+  if (/\bstarship\b/i.test(t) && !/\bstarship flight\s+\d+\b/i.test(t)) {
+    const s = vs.find((v) => /^S/i.test(v));
+    if (s) return "Ship " + String(s).slice(1);
+  }
+  return "";
+}
+function heroPayloadPhrase(s) {
+  let p = String(s || "").replace(/\s+and\s+(closed|then|afterwards)\b.*$/i, "").replace(/[.\s]+$/, "").trim();
+  p = p.replace(/\bV3 Starlink\b/g, "Starlink V3");
+  return p;
+}
+function normalizeHeroLine(text, road) {
+  const kind = heroLineKind(text);
+  let raw = replaceNumberWords(stripHeroCredit(text));
+  if (isPayloadDeploy(text) || isPayloadDeploy(raw)) raw = releasedToDeployed(raw);
+  raw = raw.replace(/\bV3 Starlink\b/g, "Starlink V3");
+  const veh = heroVehicleName(text, road) || heroVehicleName(raw, road);
+  const flight = road && road.flight ? `Flight ${road.flight}` : "Flight";
+  if (kind === "pending") return veh ? `SpaceX still plans to attempt the ${veh} tower catch.` : "SpaceX still plans to attempt the tower catch.";
+  if (kind === "result") {
+    if (/\b(was caught|successfully caught|catch (?:was )?successful|tower catch (?:was )?complete)\b/i.test(raw)) return `${veh || "The vehicle"} was caught.`;
+    if (/\b(was lost|is lost|lost during|destroyed|exploded)\b/i.test(raw)) return `${veh || "The vehicle"} was lost.`;
+    if (/\b(splashdown|splashed down|diverted to|didn't attempt|did not attempt|aborted|instead of|performed landing burn)\b/i.test(raw)) {
+      if (/\b(diverted|instead of|didn't attempt|did not attempt|aborted|GNC|Gulf|not (?:try|attempt))\b/i.test(raw)) return `${veh || "The booster"} didn't attempt the tower catch and splashed down in the Gulf.`;
+      return `${veh || "The vehicle"} splashed down.`;
+    }
+  }
+  const rec = /\b(sets? record|record for|longest .{0,40}flight|surpassed .{0,60}(duration|record|time|mission))\b/i.test(raw);
+  const dep = raw.match(/\bdeploy(?:ed)?\s+(\d+)\s+(.+)$/i);
+  const orb = /\b(reached orbit|orbital insertion|into (?:stable )?(?:low earth )?orbit|to orbit)\b/i.test(raw) && !rec;
+  if (dep) {
+    const payload = heroPayloadPhrase(dep[2]);
+    if (orb && veh) return `${veh} reached orbit and deployed ${dep[1]} ${payload}.`;
+    if (veh) return `${veh} deployed ${dep[1]} ${payload}.`;
+  }
+  if (rec) return `${veh || flight} set a new record for the longest Starship flight.`;
+  if (orb || (kind === "other" && /\bin orbit\b/i.test(raw) && !isPendingAttempt(text))) return `${veh || "The ship"} reached orbit.`;
+  return raw;
+}
+function mergeOrbitDeploy(lines) {
+  const list = (lines || []).slice();
+  const orbOf = {}, depOf = {};
+  list.forEach((l, i) => {
+    const o = l.match(/^(Ship \d+) reached orbit\.$/);
+    const d = l.match(/^(Ship \d+) deployed (\d+) (.+)\.$/);
+    if (o) orbOf[o[1]] = i;
+    if (d) depOf[d[1]] = { i, n: d[2], payload: d[3] };
+  });
+  const drop = new Set();
+  for (const veh of Object.keys(depOf)) if (orbOf[veh] != null) {
+    const d = depOf[veh];
+    list[orbOf[veh]] = `${veh} reached orbit and deployed ${d.n} ${d.payload}.`;
+    drop.add(d.i);
+  }
+  return list.filter((_, i) => !drop.has(i));
+}
+function heroSourceLines(road, n) {
+  const rej = ((road && road.rejected_lines) || []).filter((r) => r && r.box === "mission");
+  const out = [];
+  const mu = (road && road.mission_updates && (road.mission_updates[n] || road.mission_updates[String(n)])) || [];
+  for (const u of Array.isArray(mu) ? mu : []) {
+    if (!u || typeof u.line !== "string" || !u.line) continue;
+    if (rej.some((r) => r.post_id === u.post_id)) continue;
+    out.push({ line: typeof noCreditRepeat === "function" ? noCreditRepeat(u.line) : u.line, at: u.at, post_id: u.post_id, via: "mission" });
+  }
+  for (const f of (road && road.feed_items) || []) {
+    if (!f || !f.body) continue;
+    if (Number.isInteger(f.flight) && Number(f.flight) !== Number(n)) continue;
+    if (!Number.isInteger(f.flight) && Number(road && road.flight) !== Number(n)) continue;
+    out.push({ line: f.body, at: f.at, post_id: f.id || f.post_id, via: "feed" });
+  }
+  const seen = new Set();
+  return out.filter((u) => {
+    const k = stripHeroCredit(u.line).toLowerCase();
+    if (!k || seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
+}
+function parseHeroOverrideEntry(x, stageHint) {
+  if (typeof x === "string") {
+    const line = x.trim();
+    if (!line) return null;
+    const kind = /still plans to attempt|to attempt the .+ tower catch|ahead of planned catch/i.test(line) || isPendingAttempt(line) ? "pending" : (isStageResult(line) ? "result" : "other");
+    return { line, kind, stage: stageHint || heroLineStage(line) };
+  }
+  if (x && typeof x.line === "string" && x.line.trim()) {
+    const line = x.line.trim();
+    const kind = x.kind || (/still plans to attempt|to attempt the .+ tower catch/i.test(line) || isPendingAttempt(line) ? "pending" : (isStageResult(line) ? "result" : "other"));
+    return { line, kind, stage: x.stage || stageHint || heroLineStage(line) };
+  }
+  return null;
+}
+function parseHeroOverrides(ov) {
+  if (!ov) return null;
+  if (Array.isArray(ov)) return ov.map((x) => parseHeroOverrideEntry(x)).filter(Boolean);
+  const out = [];
+  for (const stage of ["booster", "ship"]) if (ov[stage] != null) {
+    const e = parseHeroOverrideEntry(ov[stage], stage);
+    if (e) out.push(e);
+  }
+  if (Array.isArray(ov.extra)) for (const x of ov.extra) {
+    const e = parseHeroOverrideEntry(x);
+    if (e) out.push(e);
+  }
+  return out.length ? out : null;
+}
 function heroLineOverrides(road, n) {
   const raw = road && road.hero_lines;
   return (raw && (raw[n] || raw[String(n)])) || null;
 }
 function heroMissionLines(road, n, f, now) {
-  const ov = heroLineOverrides(road, n);
-  if (Array.isArray(ov)) return ov.map(stripHeroCredit).filter(Boolean);
-  const rawList = (road && road.mission_updates && (road.mission_updates[n] || road.mission_updates[String(n)])) || [];
-  const rej = ((road && road.rejected_lines) || []).filter((r) => r && r.box === "mission");
-  let items = (Array.isArray(rawList) ? rawList : []).filter((u) => u && typeof u.line === "string" && u.line && !rej.some((r) => r.post_id === u.post_id)).map((u) => {
-    const raw = typeof noCreditRepeat === "function" ? noCreditRepeat(u.line) : u.line;
-    return { ...u, line: stripHeroCredit(raw), at: u.at, kind: heroLineKind(raw), stage: heroLineStage(raw) };
-  });
+  const ovEntries = parseHeroOverrides(heroLineOverrides(road, n));
+  let items = heroSourceLines(road, n).map((u) => {
+    const kind = heroLineKind(u.line);
+    return { ...u, kind, stage: heroLineStage(u.line), line: kind === "drop" ? "" : normalizeHeroLine(u.line, road) };
+  }).filter((u) => u.line && u.kind !== "drop");
   const t = Number.isFinite(now) ? now : (typeof nowMs === "function" ? nowMs() : Date.now());
-  // A pre-launch card should not show post-liftoff results sitting in the same data file.
   let lifted;
   if (typeof roadLiftedOff === "function") lifted = roadLiftedOff(road, f, t);
   else {
@@ -2203,24 +2385,38 @@ function heroMissionLines(road, n, f, now) {
     items = items.filter((u) => !(Date.parse(u.at || "") >= t0));
   }
   const pickLatest = (arr) => arr.slice().sort((a, b) => (Date.parse(b.at || "") || 0) - (Date.parse(a.at || "") || 0))[0];
+  const autoResult = {};
+  for (const stage of ["booster", "ship"]) {
+    const r = pickLatest(items.filter((u) => u.stage === stage && u.kind === "result"));
+    if (r) autoResult[stage] = r;
+  }
+  if (ovEntries && ovEntries.length) {
+    const entries = lifted === false ? ovEntries.filter((e) => e.kind === "pending") : ovEntries;
+    const out = [];
+    const seen = new Set();
+    for (const e of entries) {
+      let line = e.line;
+      if (e.kind === "pending" && e.stage && autoResult[e.stage]) line = autoResult[e.stage].line;
+      const k = line.toLowerCase();
+      if (!k || seen.has(k)) continue;
+      seen.add(k);
+      out.push(line);
+    }
+    return out;
+  }
   const out = [];
   for (const stage of ["booster", "ship"]) {
-    if (ov && ov[stage]) {
-      const line = stripHeroCredit(typeof ov[stage] === "string" ? ov[stage] : ov[stage].line);
-      if (line) out.push(line);
-      continue;
-    }
     const staged = items.filter((u) => u.stage === stage && (u.kind === "result" || u.kind === "pending"));
     const chosen = pickLatest(staged.filter((u) => u.kind === "result")) || pickLatest(staged.filter((u) => u.kind === "pending"));
     if (chosen && chosen.line) out.push(chosen.line);
   }
-  const extras = (ov && Array.isArray(ov.extra)) ? ov.extra.map(stripHeroCredit).filter(Boolean)
-    : items.filter((u) => u.kind === "other").sort((a, b) => (Date.parse(a.at || "") || 0) - (Date.parse(b.at || "") || 0)).map((u) => u.line);
+  const extras = items.filter((u) => u.kind === "other").sort((a, b) => (Date.parse(a.at || "") || 0) - (Date.parse(b.at || "") || 0)).map((u) => u.line);
   const seen = new Set(out.map((x) => x.toLowerCase()));
   for (const line of extras) { const k = line.toLowerCase(); if (!seen.has(k)) { seen.add(k); out.push(line); } }
-  return out;
+  return mergeOrbitDeploy(out);
 }
 // --- end hero-lines helpers ---
+
 const isLaunched = (n) => FLIGHTS.some((x) => x.n === n);
 // "1 day" / "2 days"
 const daysLabel = (n) => `${n} ${Math.abs(n) === 1 ? "day" : "days"}`;
@@ -2591,6 +2787,7 @@ function rtfCards(road) {
   const bucket = {}, loose = []; // "cid|veh" -> entries
   const put = (cid, v, h) => { (bucket[cid + "|" + v] = bucket[cid + "|" + v] || []).push(h); };
   for (const cid of ["cryo", "raptor", "static", "pad"]) for (const h of ((cats[cid] && cats[cid].history) || []).filter(mine)) {
+    if (typeof isRoadFlightEvent === "function" && isRoadFlightEvent(h, road)) continue;
     const padHw = /^\s*pad/i.test(h.hardware || ""), hw = logHw(h), tv = rtfVeh(h.text, road), vv = padHw ? [] : tv.length ? tv : hw && vs.map(String).includes(hw) ? [hw] : [];
     const otherPad = /\bpad[- ]?(\d)\b/i.test(`${h.hardware || ""} ${h.text || ""}`) && !rtfPad(h, road);
     if (vv.length) vv.forEach((v) => put(cid, v, h));
@@ -2602,6 +2799,7 @@ function rtfCards(road) {
   for (const f of Array.isArray(road.feed_items) ? road.feed_items : []) {
     if (!f || !f.body || f.card_hide || (f.later_flight && f.flight !== road.flight) || !["cryo", "raptor", "static", "pad"].includes(f.box) || (Number.isInteger(f.flight) ? f.flight : road.flight) !== road.flight) continue;
     const h = { id: f.id, date: f.date, at: f.at, text: f.body, url: f.url, src: (String(f.url || "").match(/(?:x|twitter)\.com\/(\w+)\//) || [])[1] ? "@" + String(f.url).match(/(?:x|twitter)\.com\/(\w+)\//)[1] : "", kind: "feed" };
+    if (typeof isRoadFlightEvent === "function" && isRoadFlightEvent(h, road)) continue;
     const vv = rtfVeh(h.text, road);
     if (!vv.length && otherVehOnly(h.text, road)) continue; // e.g. "Booster 23 returned to Megabay 1": a Flight 16 item, never under Ship 42's Earlier updates
     if (vv.length) vv.forEach((v) => put(f.box, v, h)); else if (rtfPad(h, road) || f.box === "pad") put("pad", "pad", h); else loose.push([f.box, h]);
@@ -2626,16 +2824,20 @@ function rtfCards(road) {
     const forceOn = ovBox && ovBox[cid] && (ovBox[cid].status === "done" || ovBox[cid].status === "complete");
     const lifted = !forceOff && (forceOn || (typeof roadLiftedOff === "function" && roadLiftedOff(road)));
     const doneOne = wdrOrDone || (lifted ? list[0] : null);
-    const main = wdrOrDone || list[0];
+    let main = wdrOrDone || list[0];
+    if (cid === "pad" && v === "pad" && lifted && typeof stackedHeadline === "function") {
+      const stacked = stackedHeadline(road);
+      if (stacked) main = { ...(main || {}), text: stacked, card_text: stacked, date: stacked.replace(/^Stacked\s+/, "") };
+    }
     if (!main) { out.push({ empty: true, cat, v, name: vname(v) }); continue; }
     // every post for this vehicle + category except the milestone's own, newest first; text + time + credit only
     const rows = [], seen = new Set([urlOf(main), main.url].filter(Boolean));
     const add = (u) => { const k = u.url || u.text; if (!u.text || (seen.has(k) && !u.event_row)) return; seen.add(k); rows.push(u); }; // event_row: the completion row (guards.js) shows even when it is the main post
     for (const h of list) {
       if (h !== main) add({ text: h.text, ...(h.card_text ? { card_text: h.card_text } : {}), at: cardIso(h) || h.at, date: h.date, url: urlOf(h) || h.url, src: h.src, handle: (h.x_post && h.x_post.author && h.x_post.author.username) || (h.media_override && h.media_override.author) || (String(h.src || "").startsWith("@") ? h.src : null) });
-      for (const u of h.updates || []) { const uv = rtfVeh(u.text, road); if (v === "pad" ? !otherVehOnly(u.text, road) : uv.length ? uv.includes(v) : !otherVehOnly(u.text, road)) add({ text: u.text, ...(u.card_text ? { card_text: u.card_text } : {}), at: u.at, date: u.date, url: u.url, src: u.src, event_row: u.event_row, phase: u.phase, handle: u.handle || (String(u.src || "").startsWith("@") ? u.src : null) }); }
+      for (const u of h.updates || []) { if (typeof isRoadFlightEvent === "function" && isRoadFlightEvent(u, road)) continue; const uv = rtfVeh(u.text, road); if (v === "pad" ? !otherVehOnly(u.text, road) : uv.length ? uv.includes(v) : !otherVehOnly(u.text, road)) add({ text: u.text, ...(u.card_text ? { card_text: u.card_text } : {}), at: u.at, date: u.date, url: u.url, src: u.src, event_row: u.event_row, phase: u.phase, handle: u.handle || (String(u.src || "").startsWith("@") ? u.src : null) }); }
     }
-    if (cid === "pad") { for (const u of padPins[v] || []) add(u); rows.sort((a, b) => (Date.parse(b.at || "") || 0) - (Date.parse(a.at || "") || 0)); } // Flight Log pins: drawer rows
+    if (cid === "pad") { for (const u of padPins[v] || []) { if (typeof isRoadFlightEvent === "function" && isRoadFlightEvent(u, road)) continue; add(u); } rows.sort((a, b) => (Date.parse(b.at || "") || 0) - (Date.parse(a.at || "") || 0)); } // Flight Log pins: drawer rows
     const h = { ...main, id: `rtf-${cid}-${v}`, updates: rows, alt_media: null, complete: !!doneOne, milestone: doneOne ? main.milestone : { phase: "progress" } };
     // picture: newest event (incomplete) or the completing event (done); best photo among that event's posts (scripts/road-pick.js)
     const pic = window.RoadPick ? window.RoadPick.cardPicture(list, { cid, done: doneOne || null }) : null;
