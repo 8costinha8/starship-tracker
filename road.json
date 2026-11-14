@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "14 Nov",
-  "updatedAt": "2026-11-14T21:01:23.018Z",
+  "updatedAt": "2026-11-14T21:16:23.221Z",
   "categories": [
     {
       "id": "cryo",
@@ -4334,20 +4334,12 @@
         "post_id": "2120690698668097998"
       },
       {
-        "topic": "catch",
-        "line": "RGV streaming Flight 15 with Ship 42 tower catch attempt (RGVaerialphotos, 14 Nov).",
-        "at": "2026-11-14T20:30:41.000Z",
-        "src": "@RGVaerialphotos",
-        "url": "https://x.com/RGVaerialphotos/status/2121702378454085882",
-        "post_id": "2121702378454085882"
-      },
-      {
-        "topic": "catch",
-        "line": "Camera ready to capture Ship 42 tower catch on Flight 15 (RGVaerialphotos, 14 Nov).",
-        "at": "2026-11-14T20:37:19.000Z",
-        "src": "@RGVaerialphotos",
-        "url": "https://x.com/RGVaerialphotos/status/2121704049406001359",
-        "post_id": "2121704049406001359"
+        "topic": "trajectory",
+        "line": "Starship is reentering Earth’s atmosphere (SpaceX, 14 Nov).",
+        "at": "2026-11-14T20:58:27.000Z",
+        "src": "@SpaceX",
+        "url": "https://x.com/SpaceX/status/2121709368945385477",
+        "post_id": "2121709368945385477"
       },
       {
         "topic": "catch",
@@ -4364,6 +4356,14 @@
         "src": "@SpaceflightNow",
         "url": "https://x.com/SpaceflightNow/status/2121709776241394003",
         "post_id": "2121709776241394003"
+      },
+      {
+        "topic": "trajectory",
+        "line": "Ship 42 is over land during reentry (NASASpaceflight, 14 Nov).",
+        "at": "2026-11-14T21:10:11.000Z",
+        "src": "@NASASpaceflight",
+        "url": "https://x.com/NASASpaceflight/status/2121712319713427869",
+        "post_id": "2121712319713427869"
       }
     ]
   },
