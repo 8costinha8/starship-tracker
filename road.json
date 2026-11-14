@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "14 Nov",
-  "updatedAt": "2026-11-14T03:16:22.672Z",
+  "updatedAt": "2026-11-14T04:01:39.271Z",
   "categories": [
     {
       "id": "cryo",
@@ -4220,14 +4220,6 @@
         "post_id": "2120690698668097998"
       },
       {
-        "topic": "landing",
-        "line": "Booster 22 diverted to Gulf splashdown instead of tower catch on Flight 15 (SpaceflightNow, 14 Nov).",
-        "at": "2026-11-14T01:40:37.000Z",
-        "src": "@SpaceflightNow",
-        "url": "https://x.com/SpaceflightNow/status/2121417991367663707",
-        "post_id": "2121417991367663707"
-      },
-      {
         "topic": "trajectory",
         "line": "Ship 42 passed S41 landing burn point in flight (Blobifie, 14 Nov).",
         "at": "2026-11-14T01:58:16.000Z",
@@ -4250,6 +4242,14 @@
         "src": "@SpaceX",
         "url": "https://x.com/SpaceX/status/2121439746740170859",
         "post_id": "2121439746740170859"
+      },
+      {
+        "topic": "landing",
+        "line": "Booster 22 to attempt soft landing on Flight 15 (LabPadre, 14 Nov).",
+        "at": "2026-11-14T03:51:11.000Z",
+        "src": "@LabPadre",
+        "url": "https://x.com/LabPadre/status/2121450849259884871",
+        "post_id": "2121450849259884871"
       }
     ]
   },
