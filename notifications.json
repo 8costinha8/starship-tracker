@@ -2746,6 +2746,18 @@
       "verdict": "sent",
       "gate": "hold passed (1 run)",
       "key": "starship|pad_work|14 Nov"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "Ship 42 completed its 7th orbit and surpassed Ship 41 mission duration (Blobifie reports, 14 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/Blobifie/status/2121527843737981009",
+      "at": "2026-11-14T08:57:08.000Z",
+      "sent_at": "2026-11-14T09:01:50.904Z",
+      "where": "mission",
+      "verdict": "silent: minor other — a push went out 2.0h ago (quiet window 24h)",
+      "gate": "second trusted source agrees",
+      "key": "S42|other|14 Nov"
     }
   ]
 }
