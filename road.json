@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "14 Nov",
-  "updatedAt": "2026-11-14T05:45:49.630Z",
+  "updatedAt": "2026-11-14T06:01:33.972Z",
   "categories": [
     {
       "id": "cryo",
@@ -2397,7 +2397,7 @@
             }
           ],
           "push_text": "Ship transport stand leaves launch complex.",
-          "card_text": "Ship transport stand leaves the launch complex.",
+          "card_text": "Ship transport stand left the launch complex.",
           "media_override": {
             "post_url": "https://x.com/SpaceX/status/2121044579470233638",
             "post_id": "2121044579470233638",
@@ -3947,7 +3947,7 @@
           "text": "FAA approval has arrived for Starship Flight 15.",
           "x_text": "FAA approval has arrived for Starship Flight 15.",
           "push_text": "FAA approval has arrived for Starship Flight 15.",
-          "card_text": "FAA approval has arrived for Starship Flight 15.",
+          "card_text": "FAA approval arrived for Starship Flight 15.",
           "log_text": "FAA approval has arrived for Starship Flight 15.",
           "status_line": "Flight 15 licence granted.",
           "url": "https://x.com/NASASpaceflight/status/2121317448477728883",
@@ -4285,7 +4285,8 @@
       "at": "2026-11-14T01:58:16.000Z",
       "date": "14 Nov",
       "flight": 15,
-      "box": "static"
+      "box": "static",
+      "src": "@Blobifie"
     },
     {
       "id": "news-mwfpvcxk-0a40f7",
@@ -4295,7 +4296,8 @@
       "url": "https://x.com/SpaceNews_Inc/status/2121412342994858309",
       "at": "2026-11-14T01:18:11.000Z",
       "date": "14 Nov",
-      "flight": 15
+      "flight": 15,
+      "src": "@SpaceNews_Inc"
     },
     {
       "id": "news-mwfndx0w-79c0e0",
@@ -4305,7 +4307,8 @@
       "url": "https://x.com/SpaceX/status/2121394839954874797",
       "at": "2026-11-14T00:08:38.000Z",
       "date": "14 Nov",
-      "flight": 15
+      "flight": 15,
+      "src": "@SpaceX"
     },
     {
       "id": "news-mwfnbr3c-b53f69",
@@ -4316,7 +4319,8 @@
       "at": "2026-11-14T00:06:57.000Z",
       "date": "14 Nov",
       "flight": 15,
-      "box": "pad"
+      "box": "pad",
+      "src": "@LabPadre"
     },
     {
       "id": "news-mwfn8vp4-3123db",
@@ -4327,7 +4331,8 @@
       "at": "2026-11-14T00:04:43.000Z",
       "date": "14 Nov",
       "flight": 15,
-      "box": "pad"
+      "box": "pad",
+      "src": "@LabPadre"
     },
     {
       "id": "news-mwfn24n4-4a303e",
@@ -4337,7 +4342,8 @@
       "url": "https://x.com/TrackingTheSB/status/2121392533418786992",
       "at": "2026-11-13T23:59:28.000Z",
       "date": "13 Nov",
-      "flight": 15
+      "flight": 15,
+      "src": "@TrackingTheSB"
     },
     {
       "id": "flight-mwfkybz8-c6bb88",
@@ -4392,7 +4398,8 @@
       "url": "https://x.com/Blobifie/status/2121193796138676522",
       "at": "2026-11-13T10:49:45.000Z",
       "date": "13 Nov",
-      "flight": 15
+      "flight": 15,
+      "src": "@Blobifie"
     },
     {
       "id": "news-mwehc1so-0b6a15",
@@ -5149,43 +5156,54 @@
     "https://pbs.twimg.com/media/HW98TimawAAHxe_.jpg": "images/cache/media_HW98TimawAAHxe_.jpg",
     "https://pbs.twimg.com/media/HW9sEvoXMAALgwj.jpg": "images/cache/media_HW9sEvoXMAALgwj.jpg",
     "https://pbs.twimg.com/media/HW83-XfXIAEEqIh.jpg": "images/cache/media_HW83-XfXIAEEqIh.jpg",
-    "https://pbs.twimg.com/amplify_video_thumb/2120969801539444737/img/jubsleUINWocErFL.jpg": "images/cache/amplify_video_thumb_2120969801539444737_img_jubsleUINWocErFL.jpg"
+    "https://pbs.twimg.com/amplify_video_thumb/2120969801539444737/img/jubsleUINWocErFL.jpg": "images/cache/amplify_video_thumb_2120969801539444737_img_jubsleUINWocErFL.jpg",
+    "https://pbs.twimg.com/media/HXBsCAfaAAEbdXx.jpg": "images/cache/media_HXBsCAfaAAEbdXx.jpg",
+    "https://pbs.twimg.com/media/HXBuxEUXEAAkDox.jpg": "images/cache/media_HXBuxEUXEAAkDox.jpg"
   },
   "self_check": {
-    "at": "2026-11-13T06:01:06.773Z",
-    "fixes": 14,
-    "flags": 19,
+    "at": "2026-11-14T06:01:33.350Z",
+    "fixes": 11,
+    "flags": 29,
     "counts": {
-      "missing-row": 1,
       "past-tense": 2,
       "source-badge": 7,
-      "image-cache": 4
+      "image-cache": 2
     },
     "judge_calls": 0,
     "flagged": [
       "[missing-row] feed news-mwcygodc-9eb18d \"Ship 42 was moved back inside Megabay 2 to have its Starlink V3s installed.\" (S42) is on no card and no same-vehicle card follows within 12 h",
       "[render-tense] Road card Pad activity · Ship 42 › 12 Nov · 21:52: \"Ship 42 heads to Pad 2.\" has no verb (fragment)",
-      "[render-tense] Road card Pad activity · Launch pad: \"Pad activity: In progress (13 Nov)\" has no verb (fragment)",
+      "[render-tense] Road card Pad activity · Launch pad: \"Pad 2 chopsticks opening for launch and catch.\" has no verb (fragment)",
+      "[render-tense] Road card Pad activity · Launch pad › 13 Nov · 01:21: \"Pad activity: In progress (13 Nov)\" has no verb (fragment)",
       "[render-tense] Road card Pad activity · Launch pad › 10 Nov · 09:03: \"Pad activity: In progress (10 Nov)\" has no verb (fragment)",
+      "[render-tense] Flight Log pad Launch pad 13 Nov: \"Pad 2 chopsticks opening for launch and catch.\" has no verb (fragment)",
+      "[render-tense] Flight Log pad Launch pad 13 Nov: \"Ship transport stand leaves the launch complex.\" has no verb (fragment)",
       "[render-tense] Flight Log pad Launch pad 13 Nov: \"Pad activity: In progress (13 Nov)\" has no verb (fragment)",
       "[render-tense] Flight Log pad Launch pad 10 Nov: \"Pad activity: In progress (10 Nov)\" has no verb (fragment)",
       "[render-tense] Feed news-mwehc1so-0b6a15: \"Countdown started at Starbase for a potentially historic Starship mission.\" is a headline fragment (no subject article / auxiliary)",
+      "[render-tense] Road card Liftoff!: \"Flight 15 is in the air · Watch now\" is present tense on screen",
       "[render-tense] Road card Pad activity · Ship 42 › 12 Nov · 21:52: \"Ship 42 heads to Pad 2.\" is present tense on screen",
+      "[render-tense] Flight Log faa FAA licence 13 Nov: \"FAA approval has arrived for Starship Flight 15.\" is present tense on screen",
       "[render-crossover] Pad activity · Ship 42 shows \"Ship 42 was stacked on Booster 22 ahead of launch.\" (names B22)",
       "[render-crossover] Pad activity · Ship 42 shows \"Ship 42 rolled to Pad 2 ahead of stacking on Booster 22.\" (names B22)",
       "[render-crossover] Pad activity · Booster 22 shows \"Ship 42 was stacked on Booster 22 ahead of launch.\" (names S42)",
+      "[render-punctuation] Road card Liftoff!: \"Flight 15 is in the air · Watch now\" has no full stop",
       "[render-shorthand] Road card Pad activity · Ship 42 › 13 Nov · 01:32: \"Ship 42 has the SQD connected at the pad.\" uses shorthand 'SQD'",
       "[render-shorthand] Road card Pad activity · Ship 42 › 13 Nov · 01:21: \"The SQD was connected to Ship 42.\" uses shorthand 'SQD'",
-      "[render-fragment] Road card Pad activity · Launch pad: \"Pad activity: In progress (13 Nov)\" starts with a colon-led fragment ('Pad activity:')",
+      "[render-fragment] Road card Pad activity · Launch pad › 13 Nov · 01:21: \"Pad activity: In progress (13 Nov)\" starts with a colon-led fragment ('Pad activity:')",
       "[render-fragment] Road card Pad activity · Launch pad › 10 Nov · 09:03: \"Pad activity: In progress (10 Nov)\" starts with a colon-led fragment ('Pad activity:')",
       "[render-shorthand] Feed news-mweajln4-cff1cb: \"The SQD was connected to Ship 42.\" uses shorthand 'SQD'",
       "[render-shorthand] Flight Log pad Ship 42 13 Nov: \"Ship 42 has the SQD connected at the pad.\" uses shorthand 'SQD'",
       "[render-fragment] Flight Log pad Launch pad 13 Nov: \"Pad activity: In progress (13 Nov)\" starts with a colon-led fragment ('Pad activity:')",
-      "[render-fragment] Flight Log pad Launch pad 10 Nov: \"Pad activity: In progress (10 Nov)\" starts with a colon-led fragment ('Pad activity:')"
+      "[render-fragment] Flight Log pad Launch pad 10 Nov: \"Pad activity: In progress (10 Nov)\" starts with a colon-led fragment ('Pad activity:')",
+      "[render-mismatch] Flight Log pad Launch pad 13 Nov: \"Ship transport stand leaves the launch complex.\" ≠ Road card Pad activity · Launch pad › 13 Nov · 07:10: \"Ship transport stand left the launch complex.\" (same post https://x.com/Blobifie/status/2121138587878248780)",
+      "[render-mismatch] Flight Log pad Launch pad 13 Nov: \"Pad activity: In progress (13 Nov)\" ≠ Road card Pad activity · Ship 42 › 13 Nov · 01:21: \"The SQD was connected to Ship 42.\" (same post https://x.com/TrackingTheSB/status/2121050758389154027)",
+      "[render-mismatch] Flight Log faa FAA licence 13 Nov · 19:01: \"FAA licence issued for Flight 15.\" ≠ Road card FAA licence: \"FAA approval arrived for Starship Flight 15.\" (same post https://x.com/NASASpaceflight/status/2121317448477728883)",
+      "[render-mismatch] Flight Log faa FAA licence 13 Nov: \"FAA approval has arrived for Starship Flight 15.\" ≠ Road card FAA licence: \"FAA approval arrived for Starship Flight 15.\" (same post https://x.com/NASASpaceflight/status/2121317448477728883)"
     ],
     "render": {
       "status": "failed",
-      "failures": 18
+      "failures": 28
     }
   },
   "mission_alerts": {

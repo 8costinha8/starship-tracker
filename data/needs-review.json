@@ -1,6 +1,154 @@
 {
   "items": [
     {
+      "date": "2026-11-14T06:01:33.969Z",
+      "type": "render-mismatch",
+      "item": "https://x.com/NASASpaceflight/status/2121317448477728883",
+      "values": [
+        "FAA approval has arrived for Starship Flight 15.",
+        "FAA approval arrived for Starship Flight 15."
+      ],
+      "sources": [],
+      "reason": "one wording per event on card and feed",
+      "kept": null,
+      "msg": "Flight Log faa FAA licence 13 Nov: \"FAA approval has arrived for Starship Flight 15.\" ≠ Road card FAA licence: \"FAA approval arrived for Starship Flight 15.\" (same post https://x.com/NASASpaceflight/status/2121317448477728883)"
+    },
+    {
+      "date": "2026-11-14T06:01:33.969Z",
+      "type": "render-mismatch",
+      "item": "https://x.com/NASASpaceflight/status/2121317448477728883",
+      "values": [
+        "FAA licence issued for Flight 15.",
+        "FAA approval arrived for Starship Flight 15."
+      ],
+      "sources": [],
+      "reason": "one wording per event on card and feed",
+      "kept": null,
+      "msg": "Flight Log faa FAA licence 13 Nov · 19:01: \"FAA licence issued for Flight 15.\" ≠ Road card FAA licence: \"FAA approval arrived for Starship Flight 15.\" (same post https://x.com/NASASpaceflight/status/2121317448477728883)"
+    },
+    {
+      "date": "2026-11-14T06:01:33.969Z",
+      "type": "render-mismatch",
+      "item": "https://x.com/TrackingTheSB/status/2121050758389154027",
+      "values": [
+        "Pad activity: In progress (13 Nov)",
+        "The SQD was connected to Ship 42."
+      ],
+      "sources": [],
+      "reason": "one wording per event on card and feed",
+      "kept": null,
+      "msg": "Flight Log pad Launch pad 13 Nov: \"Pad activity: In progress (13 Nov)\" ≠ Road card Pad activity · Ship 42 › 13 Nov · 01:21: \"The SQD was connected to Ship 42.\" (same post https://x.com/TrackingTheSB/status/2121050758389154027)"
+    },
+    {
+      "date": "2026-11-14T06:01:33.969Z",
+      "type": "render-mismatch",
+      "item": "https://x.com/Blobifie/status/2121138587878248780",
+      "values": [
+        "Ship transport stand leaves the launch complex.",
+        "Ship transport stand left the launch complex."
+      ],
+      "sources": [],
+      "reason": "one wording per event on card and feed",
+      "kept": null,
+      "msg": "Flight Log pad Launch pad 13 Nov: \"Ship transport stand leaves the launch complex.\" ≠ Road card Pad activity · Launch pad › 13 Nov · 07:10: \"Ship transport stand left the launch complex.\" (same post https://x.com/Blobifie/status/2121138587878248780)"
+    },
+    {
+      "date": "2026-11-14T06:01:33.969Z",
+      "type": "render-fragment",
+      "item": "Road card Pad activity · Launch pad › 13 Nov · 01:21",
+      "values": [
+        "Pad activity: In progress (13 Nov)"
+      ],
+      "sources": [],
+      "reason": "write a full sentence",
+      "kept": null,
+      "msg": "Road card Pad activity · Launch pad › 13 Nov · 01:21: \"Pad activity: In progress (13 Nov)\" starts with a colon-led fragment ('Pad activity:')"
+    },
+    {
+      "date": "2026-11-14T06:01:33.969Z",
+      "type": "render-punctuation",
+      "item": "Road card Liftoff!",
+      "values": [
+        "Flight 15 is in the air · Watch now"
+      ],
+      "sources": [],
+      "reason": "card and feed lines are full sentences",
+      "kept": null,
+      "msg": "Road card Liftoff!: \"Flight 15 is in the air · Watch now\" has no full stop"
+    },
+    {
+      "date": "2026-11-14T06:01:33.969Z",
+      "type": "render-tense",
+      "item": "Flight Log faa FAA licence 13 Nov",
+      "values": [
+        "FAA approval has arrived for Starship Flight 15."
+      ],
+      "sources": [],
+      "reason": "cards and feed text are past tense (push wording stays present)",
+      "kept": null,
+      "msg": "Flight Log faa FAA licence 13 Nov: \"FAA approval has arrived for Starship Flight 15.\" is present tense on screen"
+    },
+    {
+      "date": "2026-11-14T06:01:33.969Z",
+      "type": "render-tense",
+      "item": "Road card Liftoff!",
+      "values": [
+        "Flight 15 is in the air · Watch now"
+      ],
+      "sources": [],
+      "reason": "cards and feed text are past tense (push wording stays present)",
+      "kept": null,
+      "msg": "Road card Liftoff!: \"Flight 15 is in the air · Watch now\" is present tense on screen"
+    },
+    {
+      "date": "2026-11-14T06:01:33.969Z",
+      "type": "render-tense",
+      "item": "Flight Log pad Launch pad 13 Nov",
+      "values": [
+        "Ship transport stand leaves the launch complex."
+      ],
+      "sources": [],
+      "reason": "full past-tense sentences on cards and feed",
+      "kept": null,
+      "msg": "Flight Log pad Launch pad 13 Nov: \"Ship transport stand leaves the launch complex.\" has no verb (fragment)"
+    },
+    {
+      "date": "2026-11-14T06:01:33.969Z",
+      "type": "render-tense",
+      "item": "Flight Log pad Launch pad 13 Nov",
+      "values": [
+        "Pad 2 chopsticks opening for launch and catch."
+      ],
+      "sources": [],
+      "reason": "full past-tense sentences on cards and feed",
+      "kept": null,
+      "msg": "Flight Log pad Launch pad 13 Nov: \"Pad 2 chopsticks opening for launch and catch.\" has no verb (fragment)"
+    },
+    {
+      "date": "2026-11-14T06:01:33.969Z",
+      "type": "render-tense",
+      "item": "Road card Pad activity · Launch pad › 13 Nov · 01:21",
+      "values": [
+        "Pad activity: In progress (13 Nov)"
+      ],
+      "sources": [],
+      "reason": "full past-tense sentences on cards and feed",
+      "kept": null,
+      "msg": "Road card Pad activity · Launch pad › 13 Nov · 01:21: \"Pad activity: In progress (13 Nov)\" has no verb (fragment)"
+    },
+    {
+      "date": "2026-11-14T06:01:33.969Z",
+      "type": "render-tense",
+      "item": "Road card Pad activity · Launch pad",
+      "values": [
+        "Pad 2 chopsticks opening for launch and catch."
+      ],
+      "sources": [],
+      "reason": "full past-tense sentences on cards and feed",
+      "kept": null,
+      "msg": "Road card Pad activity · Launch pad: \"Pad 2 chopsticks opening for launch and catch.\" has no verb (fragment)"
+    },
+    {
       "date": "2026-11-13T06:01:07.306Z",
       "type": "render-fragment",
       "item": "Flight Log pad Launch pad 13 Nov",
