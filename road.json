@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "14 Nov",
-  "updatedAt": "2026-11-14T00:31:01.909Z",
+  "updatedAt": "2026-11-14T01:31:27.542Z",
   "categories": [
     {
       "id": "cryo",
@@ -4220,14 +4220,6 @@
         "post_id": "2120690698668097998"
       },
       {
-        "topic": "trajectory",
-        "line": "Early Hawaii return skipped and flight will continue as planned (TrackingTheSB reports, 13 Nov).",
-        "at": "2026-11-13T23:59:28.000Z",
-        "src": "@TrackingTheSB",
-        "url": "https://x.com/TrackingTheSB/status/2121392533418786992",
-        "post_id": "2121392533418786992"
-      },
-      {
         "topic": "landing",
         "line": "Booster 22 debris visible on Boca Chica beach after Flight 15 (RGVaerialphotos, 14 Nov).",
         "at": "2026-11-14T00:01:28.000Z",
@@ -4250,6 +4242,14 @@
         "src": "@SpaceX",
         "url": "https://x.com/SpaceX/status/2121394839954874797",
         "post_id": "2121394839954874797"
+      },
+      {
+        "topic": "catch",
+        "line": "SpaceX called off booster catch on Flight 15 after launch (SpaceNews_Inc, 14 Nov).",
+        "at": "2026-11-14T01:18:11.000Z",
+        "src": "@SpaceNews_Inc",
+        "url": "https://x.com/SpaceNews_Inc/status/2121412342994858309",
+        "post_id": "2121412342994858309"
       }
     ]
   },
@@ -4276,6 +4276,16 @@
     }
   ],
   "feed_items": [
+    {
+      "id": "news-mwfpvcxk-0a40f7",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Starship launched on Flight 15 and booster catch was called off.",
+      "url": "https://x.com/SpaceNews_Inc/status/2121412342994858309",
+      "at": "2026-11-14T01:18:11.000Z",
+      "date": "14 Nov",
+      "flight": 15
+    },
     {
       "id": "news-mwfndx0w-79c0e0",
       "kind": "news",
@@ -4702,16 +4712,6 @@
       "flight": 13,
       "src": "@Blobifie",
       "later_flight": true
-    },
-    {
-      "id": "news-mw6cps00-434c6a",
-      "kind": "news",
-      "title": "🚀 Starship",
-      "body": "Starship targeted its first return to the launch site on Flight 15.",
-      "url": "https://www.spacex.com/updates#starship-catch",
-      "at": "2026-11-07T12:00:00.000Z",
-      "date": "7 Nov",
-      "flight": 15
     }
   ],
   "milestones": {
