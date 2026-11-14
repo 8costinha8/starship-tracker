@@ -98,7 +98,7 @@ const FLIGHTS = [
   { n: 15, date: "2026-11-13T22:47:36Z", pad: "Pad 2", block: "V3", booster: "B22", ship: "S42", outcome: "success",
     headline: "Flight 15 succeeds from Pad 2",
     highlights: "",
-    story: "Booster 22 skipped the tower catch and splashed down in the Gulf, while Ship 42 reached orbit, deployed 26 Starlink V3 satellites and was caught by the tower." },
+    story: "Booster 22 skipped the tower catch and splashed down in the Gulf, while Ship 42 pressed on to orbit, deployed 26 Starlink V3 satellites, flew the longest Starship mission ever and was caught by the tower." },
 ];
 
 // Photos work automatically: any flight without a "photo" field uses
