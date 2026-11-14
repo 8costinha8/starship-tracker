@@ -13,7 +13,7 @@ const SRC_NAMES = /\s*(?:\(|\b)(?:per|via|from|according to)?\s*(?:NASASpaceflig
 const doneToLabel = (t) => String(t || "");
 const scrub = (s) => typeof s !== "string" ? s : doneToLabel(s).replace(/\((?=\s*(?:per|via|from|according to)?\s*(?:NASASpaceflight(?:\.com)?|NSF|Spaceflight Now|SpaceNews|Teslarati|Next ?Spaceflight|LL2|Launch Library 2?|Spaceflight News API|LabPadre|Ars Technica|Space\.com)\b(?:\s+(?:reports?|reported|says|said))?\s*,\s*\d)[^,]*,\s*/gi, "(").replace(SRC_NAMES, "").replace(/\s{2,}/g, " ").replace(/([.!?])\.+$/, "$1").trim();
 function noCreditRepeat(line) { return line; }
-const H = eval(`(() => {\n${app.slice(start, end)}\nreturn { stripHeroCredit, cleanHeroNote, isDroppedHeroLine, isPendingAttempt, isStageResult, isNonStageResult, isPayloadDeploy, heroLineStage, heroLineKind, heroMissionLines, normalizeHeroLine, replaceNumberWords, heroSourceLines, parseHeroOverrides, extractHeroOutcomes, composeHeroParagraph, heroResultClause }; })()`);
+const H = eval(`(() => {\n${app.slice(start, end)}\nreturn { stripHeroCredit, cleanHeroNote, isDroppedHeroLine, isPendingAttempt, isStageResult, isNonStageResult, isPayloadDeploy, heroLineStage, heroLineKind, heroMissionLines, normalizeHeroLine, replaceNumberWords, heroSourceLines, parseHeroOverrides, extractHeroOutcomes, composeHeroParagraph, heroResultClause, pendingSentence }; })()`);
 
 const road = { flight: 15, vehicles: ["S42", "B22"] };
 check(H.replaceNumberWords("twenty six") === "26" && H.replaceNumberWords("twenty-six") === "26", "number words: 'twenty six' / 'twenty-six' → 26");
@@ -27,11 +27,11 @@ check(H.heroResultClause("Ship 42 was lost during reentry.") === "was lost durin
 const at = (line, iso, topic) => ({ topic: topic || "x", line, at: iso, post_id: iso });
 const roadOf = (lines, extra) => ({ flight: 15, vehicles: ["S42", "B22"], mission_updates: { 15: lines }, ...(extra || {}) });
 const POST = Date.parse("2026-11-14T09:30:00Z");
-const F15 = "Booster 22 skipped the tower catch and splashed down in the Gulf, while Ship 42 pressed on to orbit, deployed 26 Starlink V3 satellites and is now flying the longest Starship mission ever, with a tower catch still ahead.";
+const F15 = "Booster 22 skipped the tower catch and splashed down in the Gulf, while Ship 42 pressed on to orbit, deployed 26 Starlink V3 satellites and is now flying the longest Starship mission ever. Tower catch still ahead.";
 const F15_CAUGHT = "Booster 22 skipped the tower catch and splashed down in the Gulf, while Ship 42 pressed on to orbit, deployed 26 Starlink V3 satellites, flew the longest Starship mission ever and was caught by the tower.";
 const F15_OCEAN = "Booster 22 skipped the tower catch and splashed down in the Gulf, while Ship 42 pressed on to orbit, deployed 26 Starlink V3 satellites, flew the longest Starship mission ever and splashed down in the Indian Ocean.";
 const F15_LOST = "Booster 22 skipped the tower catch and splashed down in the Gulf, while Ship 42 pressed on to orbit, deployed 26 Starlink V3 satellites, flew the longest Starship mission ever but was lost during reentry.";
-const SHIP_ONLY = "Ship 42 pressed on to orbit, deployed 26 Starlink V3 satellites and is now flying the longest Starship mission ever, with a tower catch still ahead.";
+const SHIP_ONLY = "Ship 42 pressed on to orbit, deployed 26 Starlink V3 satellites and is now flying the longest Starship mission ever. Tower catch still ahead.";
 const BOOST_ONLY = "Booster 22 skipped the tower catch and splashed down in the Gulf.";
 const F15_OV = [
   { stage: "booster", kind: "result", clause: "skipped the tower catch and splashed down in the Gulf" },
@@ -47,6 +47,23 @@ function para(r, status) {
 }
 
 check(H.composeHeroParagraph(F15_OV, road) === F15, "compose: F15 live paragraph from structured clauses");
+
+check(H.pendingSentence({ clause: "with a tower catch still ahead" }) === "Tower catch still ahead.", "pendingSentence: strips leading 'with a' and capitalises");
+check(H.pendingSentence({ clause: "Tower catch still ahead." }) === "Tower catch still ahead.", "pendingSentence: already-final form stays exact");
+check(!/,\s*with a /i.test(F15) && /\. Tower catch still ahead\.$/.test(F15), "F15 target: pending is its own sentence after a full stop");
+
+// pending only
+{ const r = roadOf([], { hero_lines: { 15: [F15_OV[4]] } });
+  const lines = para(r);
+  check(lines.length === 1 && lines[0] === "Tower catch still ahead.", "only a pending clause: capitalised short sentence, nothing dangling");
+}
+
+// booster result + ship pending only (no orbit/deploy/record)
+{ const r = roadOf([], { hero_lines: { 15: [F15_OV[0], F15_OV[4]] } });
+  const lines = para(r);
+  check(lines.length === 1 && lines[0] === "Booster 22 skipped the tower catch and splashed down in the Gulf. Tower catch still ahead.", "booster result + pending only: two sentences, pending not left dangling");
+}
+
 
 // only booster outcomes
 { const r = roadOf([], { hero_lines: { 15: [F15_OV[0]] } });
@@ -93,7 +110,7 @@ check(H.composeHeroParagraph(F15_OV, road) === F15, "compose: F15 live paragraph
     at("Starship continues in orbit with healthy heatshield ahead of planned catch (SpaceX, 14 Nov).", "2026-11-14T05:44:58.000Z", "catch"),
   ]);
   const lines = para(r);
-  check(lines.length === 1 && lines[0] === "Booster 22 skipped the tower catch and splashed down in the Gulf, while Ship 42 reached orbit, with a tower catch still ahead.", "auto compose: booster result + ship orbit/pending, no sources or dates");
+  check(lines.length === 1 && lines[0] === "Booster 22 skipped the tower catch and splashed down in the Gulf, while Ship 42 reached orbit. Tower catch still ahead.", "auto compose: booster result + ship orbit/pending, no sources or dates");
 }
 
 // aims-to / passed-point / commentary dropped; record kept

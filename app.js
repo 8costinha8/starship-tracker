@@ -2489,6 +2489,14 @@ function joinHeroClauses(parts, conj) {
   if (list.length === 1) return list[0];
   return list.slice(0, -1).join(", ") + " " + (conj || "and") + " " + list[list.length - 1];
 }
+function pendingSentence(o) {
+  if (!o) return "";
+  let p = bareClause(o);
+  p = p.replace(/^,?\s*/, "").replace(/^with\s+/i, "").replace(/^a\s+/i, "");
+  p = p.replace(/[.?!\s]+$/, "").trim();
+  if (!p) return "";
+  return p.charAt(0).toUpperCase() + p.slice(1) + ".";
+}
 function composeShipPhrase(ship, live) {
   if (!ship || !ship.name) return "";
   if (live) {
@@ -2496,12 +2504,7 @@ function composeShipPhrase(ship, live) {
     if (ship.orbit) acts.push(bareClause(ship.orbit));
     if (ship.deploy) acts.push(bareClause(ship.deploy));
     if (ship.record) acts.push(presentRecordClause(ship.record));
-    let body = joinHeroClauses(acts, "and");
-    if (ship.pending) {
-      const p = bareClause(ship.pending).replace(/^,?\s*/, "");
-      if (body) body = body + ", " + p;
-      else return ship.name + ", " + p;
-    }
+    const body = joinHeroClauses(acts, "and");
     return body ? ship.name + " " + body : "";
   }
   const acts = [];
@@ -2527,10 +2530,13 @@ function composeHeroParagraph(outcomes, road) {
   const booName = outcomeName(boosterRes, road);
   const ship = composeShipPhrase({ name: shipName, orbit, deploy, record, pending: shipPend, result: shipRes }, !shipRes);
   const booClause = boosterRes ? (bareClause(boosterRes) || heroResultClause(boosterRes.line || "", "booster")) : "";
-  if (booClause && ship) return booName + " " + booClause + ", while " + ship + ".";
-  if (booClause) return booName + " " + booClause + ".";
-  if (ship) return ship + ".";
-  return "";
+  const pend = !shipRes ? pendingSentence(shipPend) : "";
+  let para = "";
+  if (booClause && ship) para = booName + " " + booClause + ", while " + ship + ".";
+  else if (booClause) para = booName + " " + booClause + ".";
+  else if (ship) para = ship + ".";
+  if (pend) para = para ? para + " " + pend : pend;
+  return para;
 }
 function heroMissionLines(road, n, f, now) {
   const t = Number.isFinite(now) ? now : (typeof nowMs === "function" ? nowMs() : Date.now());
