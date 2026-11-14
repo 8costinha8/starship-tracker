@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "14 Nov",
-  "updatedAt": "2026-11-14T18:34:10.434Z",
+  "updatedAt": "2026-11-14T19:00:59.442Z",
   "categories": [
     {
       "id": "cryo",
@@ -4335,14 +4335,6 @@
       },
       {
         "topic": "catch",
-        "line": "Final on-orbit checkouts completed with ship catch still planned (Dan Huot via Spaceflight Now, 14 Nov).",
-        "at": "2026-11-14T15:52:34.000Z",
-        "src": "@SpaceflightNow",
-        "url": "https://x.com/SpaceflightNow/status/2121632391349383634",
-        "post_id": "2121632391349383634"
-      },
-      {
-        "topic": "catch",
         "line": "Road closed ahead of potential Ship 42 catch on Flight 15 (NSF reports, 14 Nov).",
         "at": "2026-11-14T17:11:01.000Z",
         "src": "@TrackingTheSB",
@@ -4364,6 +4356,14 @@
         "src": "@NASASpaceflight",
         "url": "https://x.com/NASASpaceflight/status/2121663337670852667",
         "post_id": "2121663337670852667"
+      },
+      {
+        "topic": "catch",
+        "line": "SpaceX attempts catch of Starship on Flight 15 (Spaceflight Now, 14 Nov).",
+        "at": "2026-11-14T18:52:56.000Z",
+        "src": "@SpaceflightNow",
+        "url": "https://x.com/SpaceflightNow/status/2121677779301450107",
+        "post_id": "2121677779301450107"
       }
     ]
   },
