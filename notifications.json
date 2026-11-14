@@ -2710,6 +2710,18 @@
       "verdict": "silent: minor other — a push went out 0.0h ago (quiet window 24h)",
       "gate": "second trusted source agrees",
       "key": "F15|other|14 Nov"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "Booster 22 automatically aborted return to Pad 2 due to GNC issue (Dan Huot, 14 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/NASASpaceflight/status/2121478699245609370",
+      "at": "2026-11-14T05:41:51.000Z",
+      "sent_at": "2026-11-14T06:01:35.990Z",
+      "where": "mission",
+      "verdict": "silent: minor transport — a push went out 0.3h ago (quiet window 24h)",
+      "gate": "hold passed (1 run)",
+      "key": "B22|transport|14 Nov"
     }
   ]
 }
