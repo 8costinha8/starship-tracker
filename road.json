@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "14 Nov",
-  "updatedAt": "2026-11-14T17:45:52.474Z",
+  "updatedAt": "2026-11-14T18:01:05.859Z",
   "categories": [
     {
       "id": "cryo",
@@ -1016,6 +1016,64 @@
       "status": "done",
       "latest": "Booster 22 completed its static fire on Pad 2.",
       "history": [
+        {
+          "id": "x-2121660075479843241",
+          "date": "14 Nov",
+          "log_date": "14 Nov",
+          "at": "2026-11-14T17:42:35.000Z",
+          "text": "Ship 42 heads back after pad activity at Pad 2.",
+          "x_text": "Ship 42 heads back after pad activity at Pad 2.",
+          "push_text": "Ship 42 heads back after pad activity at Pad 2.",
+          "card_text": "Ship 42 heads back after pad activity at Pad 2.",
+          "log_text": "Ship 42 heads back after pad activity at Pad 2.",
+          "status_line": "Ship 42 returning from Pad 2.",
+          "url": "https://x.com/Blobifie/status/2121660075479843241",
+          "src": "@Blobifie",
+          "trust": "unconfirmed",
+          "x_first": true,
+          "stage": "static",
+          "hardware": "S42",
+          "flight": 15,
+          "x_post": {
+            "post_id": "2121660075479843241",
+            "url": "https://x.com/Blobifie/status/2121660075479843241",
+            "created_at": "2026-11-14T17:42:35.000Z",
+            "text": "Highway 4 and the beach have both been closed ahead of Ship 42's return!!\n\nIm also like 80% sure i just saw it pass over my house because i saw a small white dot slowly fly over me at the same time it was supposed to overfly my area. \n\n3.5 hours remain untill she returns... https://t.co/jkd9nzmfzk https://t.co/d9UMiAOfrS",
+            "author": {
+              "name": "Blobifi",
+              "username": "Blobifie",
+              "avatar": "https://pbs.twimg.com/profile_images/2091766013562159104/xgHLFjBX_normal.jpg"
+            },
+            "media": [
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HXGl13PboAA7kJU.jpg"
+              },
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HXGmQ6DaAAA3aY7.jpg"
+              },
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HXGmS1XbwAAeBNl.jpg"
+              }
+            ]
+          },
+          "x_posts": [
+            "2121660075479843241"
+          ],
+          "xChecked": true,
+          "imageChecked2": true,
+          "tier": 2,
+          "push": {
+            "title": "🏗️ Pad activity (unconfirmed)",
+            "url": "https://x.com/Blobifie/status/2121660075479843241",
+            "at": "2026-11-14T17:42:35.000Z"
+          },
+          "edited_from": "Highway 4 and beach closed ahead of Ship 42 return.",
+          "edited": true,
+          "refiled_from": "pad"
+        },
         {
           "id": "x-2115701002095755563",
           "date": "29 Oct",
@@ -2250,65 +2308,8 @@
       "name": "Pad activity",
       "color": "#A88BFF",
       "status": "progress",
-      "latest": "Ship 42 heads back after pad activity at Pad 2.",
+      "latest": "Pad 2 chopsticks raised back after inspection.",
       "history": [
-        {
-          "id": "x-2121660075479843241",
-          "date": "14 Nov",
-          "log_date": "14 Nov",
-          "at": "2026-11-14T17:42:35.000Z",
-          "text": "Ship 42 heads back after pad activity at Pad 2.",
-          "x_text": "Ship 42 heads back after pad activity at Pad 2.",
-          "push_text": "Ship 42 heads back after pad activity at Pad 2.",
-          "card_text": "Ship 42 heads back after pad activity at Pad 2.",
-          "log_text": "Ship 42 heads back after pad activity at Pad 2.",
-          "status_line": "Ship 42 returning from Pad 2.",
-          "url": "https://x.com/Blobifie/status/2121660075479843241",
-          "src": "@Blobifie",
-          "trust": "unconfirmed",
-          "x_first": true,
-          "stage": "pad",
-          "hardware": "S42",
-          "flight": 15,
-          "x_post": {
-            "post_id": "2121660075479843241",
-            "url": "https://x.com/Blobifie/status/2121660075479843241",
-            "created_at": "2026-11-14T17:42:35.000Z",
-            "text": "Highway 4 and the beach have both been closed ahead of Ship 42's return!!\n\nIm also like 80% sure i just saw it pass over my house because i saw a small white dot slowly fly over me at the same time it was supposed to overfly my area. \n\n3.5 hours remain untill she returns... https://t.co/jkd9nzmfzk https://t.co/d9UMiAOfrS",
-            "author": {
-              "name": "Blobifi",
-              "username": "Blobifie",
-              "avatar": "https://pbs.twimg.com/profile_images/2091766013562159104/xgHLFjBX_normal.jpg"
-            },
-            "media": [
-              {
-                "type": "photo",
-                "url": "https://pbs.twimg.com/media/HXGl13PboAA7kJU.jpg"
-              },
-              {
-                "type": "photo",
-                "url": "https://pbs.twimg.com/media/HXGmQ6DaAAA3aY7.jpg"
-              },
-              {
-                "type": "photo",
-                "url": "https://pbs.twimg.com/media/HXGmS1XbwAAeBNl.jpg"
-              }
-            ]
-          },
-          "x_posts": [
-            "2121660075479843241"
-          ],
-          "xChecked": true,
-          "imageChecked2": true,
-          "tier": 2,
-          "push": {
-            "title": "🏗️ Pad activity (unconfirmed)",
-            "url": "https://x.com/Blobifie/status/2121660075479843241",
-            "at": "2026-11-14T17:42:35.000Z"
-          },
-          "edited_from": "Highway 4 and beach closed ahead of Ship 42 return.",
-          "edited": true
-        },
         {
           "id": "x-2121493937852473798",
           "date": "14 Nov",
@@ -3985,7 +3986,7 @@
           "journey_context": "engine prep (1 Nov: not a Raptor milestone)"
         }
       ],
-      "log_latest": "Pad 2 chopsticks returned to catch position."
+      "log_latest": "Pad 2 chopsticks in catch position."
     },
     {
       "id": "faa",
@@ -4276,14 +4277,6 @@
         "post_id": "2120690698668097998"
       },
       {
-        "topic": "trajectory",
-        "line": "Starship is coasting in orbit and on track for return to launch site today (SpaceX, 14 Nov).",
-        "at": "2026-11-14T15:41:42.000Z",
-        "src": "@SpaceX",
-        "url": "https://x.com/SpaceX/status/2121629656868614213",
-        "post_id": "2121629656868614213"
-      },
-      {
         "topic": "catch",
         "line": "Final on-orbit checkouts completed with ship catch still planned (Dan Huot via Spaceflight Now, 14 Nov).",
         "at": "2026-11-14T15:52:34.000Z",
@@ -4306,6 +4299,14 @@
         "src": "@LabPadre",
         "url": "https://x.com/LabPadre/status/2121656947216732230",
         "post_id": "2121656947216732230"
+      },
+      {
+        "topic": "catch",
+        "line": "SpaceX attempts to catch a Starship on Flight 15 (NSF reports, 14 Nov).",
+        "at": "2026-11-14T17:55:32.000Z",
+        "src": "@NASASpaceflight",
+        "url": "https://x.com/NASASpaceflight/status/2121663337670852667",
+        "post_id": "2121663337670852667"
       }
     ]
   },
