@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "14 Nov",
-  "updatedAt": "2026-11-14T16:30:29.060Z",
+  "updatedAt": "2026-11-14T17:15:56.454Z",
   "categories": [
     {
       "id": "cryo",
@@ -4299,14 +4299,6 @@
         "post_id": "2120690698668097998"
       },
       {
-        "topic": "catch",
-        "line": "Ship transport stand staged on HWY4 for catch attempt (LabPadre reports, 14 Nov).",
-        "at": "2026-11-14T14:02:28.000Z",
-        "src": "@LabPadre",
-        "url": "https://x.com/LabPadre/status/2121604681222824441",
-        "post_id": "2121604681222824441"
-      },
-      {
         "topic": "landing",
         "line": "Booster 22 had boostback issues triggering abort and sank after landing attempt (Dan Huot, 14 Nov).",
         "at": "2026-11-14T15:32:52.000Z",
@@ -4329,6 +4321,14 @@
         "src": "@SpaceflightNow",
         "url": "https://x.com/SpaceflightNow/status/2121632391349383634",
         "post_id": "2121632391349383634"
+      },
+      {
+        "topic": "catch",
+        "line": "Road closed ahead of potential Ship 42 catch on Flight 15 (NSF reports, 14 Nov).",
+        "at": "2026-11-14T17:11:01.000Z",
+        "src": "@TrackingTheSB",
+        "url": "https://x.com/TrackingTheSB/status/2121652133644874031",
+        "post_id": "2121652133644874031"
       }
     ]
   },
