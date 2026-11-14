@@ -2582,6 +2582,29 @@
       "verdict": "silent: minor other — a push went out 1.0h ago (quiet window 24h)",
       "gate": "second trusted source agrees",
       "key": "S42|other|14 Nov"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Starship launched on Flight 15 and booster catch was called off.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mwfpvcxk-0a40f7",
+      "url": "https://x.com/SpaceNews_Inc/status/2121412342994858309",
+      "at": "2026-11-14T01:18:11.000Z",
+      "sent_at": "2026-11-14T01:31:30.142Z",
+      "where": "feed",
+      "verdict": "silent: stale — stale: already pushed 13 Nov (B22 launch)",
+      "stale": true
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "SpaceX called off booster catch on Flight 15 after launch (SpaceNews_Inc, 14 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/SpaceNews_Inc/status/2121412342994858309",
+      "at": "2026-11-14T01:18:11.000Z",
+      "sent_at": "2026-11-14T01:31:30.316Z",
+      "where": "mission",
+      "verdict": "silent: minor other — a push went out 2.2h ago (quiet window 24h)",
+      "gate": "second trusted source agrees",
+      "key": "B22|other|14 Nov"
     }
   ]
 }
