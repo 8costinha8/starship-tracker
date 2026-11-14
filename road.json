@@ -5394,8 +5394,9 @@
       },
       {
         "stage": "ship",
-        "kind": "pending",
-        "clause": "with a tower catch still ahead"
+        "kind": "result",
+        "clause": "was caught by the tower",
+        "line": "Ship 42 was caught by the tower."
       }
     ]
   }
