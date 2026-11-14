@@ -2866,6 +2866,18 @@
       "verdict": "sent",
       "gate": "hold passed (1 run)",
       "key": "S42|pad_work|14 Nov"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "SpaceX attempts catch of Starship on Flight 15 (Spaceflight Now, 14 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/SpaceflightNow/status/2121677779301450107",
+      "at": "2026-11-14T18:52:56.000Z",
+      "sent_at": "2026-11-14T19:01:02.546Z",
+      "where": "mission",
+      "verdict": "silent: minor other — a push went out 0.4h ago (quiet window 24h)",
+      "gate": "second trusted source agrees",
+      "key": "F15|other|14 Nov"
     }
   ]
 }
