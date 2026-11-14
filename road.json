@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "14 Nov",
-  "updatedAt": "2026-11-14T17:15:56.454Z",
+  "updatedAt": "2026-11-14T17:30:43.651Z",
   "categories": [
     {
       "id": "cryo",
@@ -4299,14 +4299,6 @@
         "post_id": "2120690698668097998"
       },
       {
-        "topic": "landing",
-        "line": "Booster 22 had boostback issues triggering abort and sank after landing attempt (Dan Huot, 14 Nov).",
-        "at": "2026-11-14T15:32:52.000Z",
-        "src": "@Blobifie",
-        "url": "https://x.com/Blobifie/status/2121627431102783745",
-        "post_id": "2121627431102783745"
-      },
-      {
         "topic": "trajectory",
         "line": "Starship is coasting in orbit and on track for return to launch site today (SpaceX, 14 Nov).",
         "at": "2026-11-14T15:41:42.000Z",
@@ -4329,6 +4321,14 @@
         "src": "@TrackingTheSB",
         "url": "https://x.com/TrackingTheSB/status/2121652133644874031",
         "post_id": "2121652133644874031"
+      },
+      {
+        "topic": "catch",
+        "line": "SpaceX attempts to catch Starship on Flight 15 (14 Nov).",
+        "at": "2026-11-14T17:30:09.000Z",
+        "src": "@LabPadre",
+        "url": "https://x.com/LabPadre/status/2121656947216732230",
+        "post_id": "2121656947216732230"
       }
     ]
   },
