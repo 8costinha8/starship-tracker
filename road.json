@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "14 Nov",
-  "updatedAt": "2026-11-14T01:46:02.277Z",
+  "updatedAt": "2026-11-14T02:01:26.734Z",
   "categories": [
     {
       "id": "cryo",
@@ -4220,14 +4220,6 @@
         "post_id": "2120690698668097998"
       },
       {
-        "topic": "trajectory",
-        "line": "Starship is now in a long coast phase around Earth (SpaceX, 14 Nov).",
-        "at": "2026-11-14T00:08:38.000Z",
-        "src": "@SpaceX",
-        "url": "https://x.com/SpaceX/status/2121394839954874797",
-        "post_id": "2121394839954874797"
-      },
-      {
         "topic": "catch",
         "line": "SpaceX called off booster catch on Flight 15 after launch (SpaceNews_Inc, 14 Nov).",
         "at": "2026-11-14T01:18:11.000Z",
@@ -4250,6 +4242,14 @@
         "src": "@SpaceflightNow",
         "url": "https://x.com/SpaceflightNow/status/2121417991367663707",
         "post_id": "2121417991367663707"
+      },
+      {
+        "topic": "trajectory",
+        "line": "Ship 42 passed S41 landing burn point in flight (Blobifie, 14 Nov).",
+        "at": "2026-11-14T01:58:16.000Z",
+        "src": "@Blobifie",
+        "url": "https://x.com/Blobifie/status/2121422433534222651",
+        "post_id": "2121422433534222651"
       }
     ]
   },
@@ -4276,6 +4276,16 @@
     }
   ],
   "feed_items": [
+    {
+      "id": "news-mwfrawn4-bdc159",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Ship 42 passed the point where Ship 41 made its landing burn and splashdown.",
+      "url": "https://x.com/Blobifie/status/2121422433534222651",
+      "at": "2026-11-14T01:58:16.000Z",
+      "date": "14 Nov",
+      "flight": 15
+    },
     {
       "id": "news-mwfpvcxk-0a40f7",
       "kind": "news",
@@ -4696,18 +4706,6 @@
       "body": "Ship 40 appeared in Megabay 2 with raceway covers removed.",
       "url": "https://x.com/Blobifie/status/2119085433498075301",
       "at": "2026-11-07T15:11:52.000Z",
-      "date": "7 Nov",
-      "flight": 13,
-      "src": "@Blobifie",
-      "later_flight": true
-    },
-    {
-      "id": "news-mw6i0uuw-399d48",
-      "kind": "news",
-      "title": "🚀 Starship",
-      "body": "Ship 40 was lifted onto a transport stand inside Megabay 2.",
-      "url": "https://x.com/Blobifie/status/2119074540693385489",
-      "at": "2026-11-07T14:28:35.000Z",
       "date": "7 Nov",
       "flight": 13,
       "src": "@Blobifie",
