@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "14 Nov",
-  "updatedAt": "2026-11-14T19:31:11.593Z",
+  "updatedAt": "2026-11-14T20:01:13.900Z",
   "categories": [
     {
       "id": "cryo",
@@ -4334,36 +4334,36 @@
         "post_id": "2120690698668097998"
       },
       {
-        "topic": "catch",
-        "line": "Ship 42 cleared for nominal deorbit and catch attempt (TrackingTheSB, 14 Nov).",
-        "at": "2026-11-14T19:19:09.000Z",
+        "topic": "trajectory",
+        "line": "Ship 42 is on its final orbit during Flight 15 (TrackingTheSB, 14 Nov).",
+        "at": "2026-11-14T19:38:29.000Z",
         "src": "@TrackingTheSB",
-        "url": "https://x.com/TrackingTheSB/status/2121684377579012591",
-        "post_id": "2121684377579012591"
+        "url": "https://x.com/TrackingTheSB/status/2121689245509169260",
+        "post_id": "2121689245509169260"
       },
       {
         "topic": "catch",
-        "line": "Ship 42 cleared for tower catch attempt (RGVaerialphotos, 14 Nov).",
-        "at": "2026-11-14T19:20:52.000Z",
+        "line": "Ship 42 returns for a catch attempt by Pad 2 on Flight 15 (NASASpaceflight, 14 Nov).",
+        "at": "2026-11-14T19:39:11.000Z",
+        "src": "@NASASpaceflight",
+        "url": "https://x.com/NASASpaceflight/status/2121689419606540539",
+        "post_id": "2121689419606540539"
+      },
+      {
+        "topic": "catch",
+        "line": "Team invited to join Ship 42 catch attempt (14 Nov).",
+        "at": "2026-11-14T19:48:23.000Z",
+        "src": "@TrackingTheSB",
+        "url": "https://x.com/TrackingTheSB/status/2121691734384038122",
+        "post_id": "2121691734384038122"
+      },
+      {
+        "topic": "catch",
+        "line": "Remote cameras prepared for Ship 42 catch attempt (14 Nov).",
+        "at": "2026-11-14T19:57:48.000Z",
         "src": "@RGVaerialphotos",
-        "url": "https://x.com/RGVaerialphotos/status/2121684810003566742",
-        "post_id": "2121684810003566742"
-      },
-      {
-        "topic": "catch",
-        "line": "Ship 42 is returning for catch attempt (StarshipGazer, 14 Nov).",
-        "at": "2026-11-14T19:22:27.000Z",
-        "src": "@StarshipGazer",
-        "url": "https://x.com/StarshipGazer/status/2121685207602409767",
-        "post_id": "2121685207602409767"
-      },
-      {
-        "topic": "catch",
-        "line": "SpaceX polled go for Starship deorbit and return to Starbase for catch (LabPadre, 14 Nov).",
-        "at": "2026-11-14T19:29:08.000Z",
-        "src": "@LabPadre",
-        "url": "https://x.com/LabPadre/status/2121686890831094075",
-        "post_id": "2121686890831094075"
+        "url": "https://x.com/RGVaerialphotos/status/2121694104790638868",
+        "post_id": "2121694104790638868"
       }
     ]
   },
@@ -5346,7 +5346,9 @@
     ],
     "abort": {},
     "overrides": {},
-    "dispatched": {},
+    "dispatched": {
+      "deorbit_soon": "2026-11-14T20:18:33.000Z"
+    },
     "template": [
       {
         "key": "booster_soon",
