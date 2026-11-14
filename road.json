@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "14 Nov",
-  "updatedAt": "2026-11-14T09:01:47.785Z",
+  "updatedAt": "2026-11-14T14:15:45.018Z",
   "categories": [
     {
       "id": "cryo",
@@ -4299,14 +4299,6 @@
         "post_id": "2120690698668097998"
       },
       {
-        "topic": "landing",
-        "line": "Booster 22 aborted landing attempt due to GNC issue leading to splashdown (Dan Huot, 14 Nov).",
-        "at": "2026-11-14T05:42:58.000Z",
-        "src": "@Blobifie",
-        "url": "https://x.com/Blobifie/status/2121478981237268777",
-        "post_id": "2121478981237268777"
-      },
-      {
         "topic": "catch",
         "line": "Starship continues in orbit with healthy heatshield ahead of planned catch (SpaceX, 14 Nov).",
         "at": "2026-11-14T05:44:58.000Z",
@@ -4329,6 +4321,14 @@
         "src": "@Blobifie",
         "url": "https://x.com/Blobifie/status/2121527843737981009",
         "post_id": "2121527843737981009"
+      },
+      {
+        "topic": "catch",
+        "line": "Ship transport stand staged on HWY4 for catch attempt (LabPadre reports, 14 Nov).",
+        "at": "2026-11-14T14:02:28.000Z",
+        "src": "@LabPadre",
+        "url": "https://x.com/LabPadre/status/2121604681222824441",
+        "post_id": "2121604681222824441"
       }
     ]
   },
