@@ -2652,6 +2652,17 @@
       "verdict": "silent: minor other — a push went out 3.0h ago (quiet window 24h)",
       "gate": "second trusted source agrees",
       "key": "F15|other|14 Nov"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "Booster 22 performed landing burn and splashdown (SpaceX, 14 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/SpaceX/status/2121439746740170859",
+      "at": "2026-11-14T03:07:04.000Z",
+      "sent_at": "2026-11-14T03:16:24.137Z",
+      "where": "mission",
+      "verdict": "silent: stale — stale: already pushed 13 Nov (B22 flight_results)",
+      "stale": true
     }
   ]
 }
