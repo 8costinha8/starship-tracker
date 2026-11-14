@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "14 Nov",
-  "updatedAt": "2026-11-14T06:01:33.972Z",
+  "updatedAt": "2026-11-14T06:45:57.714Z",
   "categories": [
     {
       "id": "cryo",
@@ -2250,8 +2250,79 @@
       "name": "Pad activity",
       "color": "#A88BFF",
       "status": "progress",
-      "latest": "Pad 2 chopsticks opening for launch and catch.",
+      "latest": "Pad 2 chopsticks raised back to catch position after inspection.",
       "history": [
+        {
+          "id": "x-2121493937852473798",
+          "date": "14 Nov",
+          "log_date": "14 Nov",
+          "at": "2026-11-14T06:42:24.000Z",
+          "text": "Pad 2 chopsticks raised back to catch position after inspection.",
+          "x_text": "Pad 2 chopsticks raised back to catch position after inspection.",
+          "push_text": "Pad 2 chopsticks back in catch position after inspection.",
+          "card_text": "Pad 2 chopsticks raised back after inspection.",
+          "log_text": "Pad 2 chopsticks raised back after inspection.",
+          "status_line": "Pad 2 chopsticks returned to catch position.",
+          "url": "https://x.com/LabPadre/status/2121493937852473798",
+          "src": "@LabPadre",
+          "trust": "trusted",
+          "x_first": true,
+          "stage": "pad",
+          "hardware": "Pad 2",
+          "flight": 15,
+          "x_post": {
+            "post_id": "2121493937852473798",
+            "url": "https://x.com/LabPadre/status/2121493937852473798",
+            "created_at": "2026-11-14T06:42:24.000Z",
+            "text": "Pad 2's chopsticks have raised back to the catch position after brief inspection by workers. 📸 Nerdle Cam",
+            "author": {
+              "name": "Avid Space",
+              "username": "LabPadre",
+              "avatar": "https://pbs.twimg.com/profile_images/2018042465932988416/LR5UN4G0_normal.png"
+            },
+            "media": [
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HXEPfplWsAA8ApR.jpg"
+              }
+            ]
+          },
+          "x_posts": [
+            "2121493937852473798"
+          ],
+          "xChecked": true,
+          "imageChecked2": true,
+          "media_override": {
+            "post_url": "https://x.com/LabPadre/status/2121493937852473798",
+            "post_id": "2121493937852473798",
+            "author": "LabPadre",
+            "type": "photo",
+            "image": "https://pbs.twimg.com/media/HXEPfplWsAA8ApR.jpg"
+          },
+          "tier": 2,
+          "milestone": {
+            "key": "pad_work|15|PAD2",
+            "type": "pad_work",
+            "flight": 15,
+            "hardware": "PAD2",
+            "phase": "completed"
+          },
+          "complete": true,
+          "push": {
+            "title": "🏗️ Pad activity · Flight 15",
+            "url": "https://x.com/LabPadre/status/2121493937852473798",
+            "at": "2026-11-14T06:42:24.000Z"
+          },
+          "frameChecked": true,
+          "photo_alternatives": [
+            {
+              "image": "https://pbs.twimg.com/media/HXBsCAfaAAEbdXx.jpg",
+              "type": "photo",
+              "post_url": "https://x.com/RGVaerialphotos/status/2121314305836810700",
+              "author": "RGVaerialphotos"
+            }
+          ]
+        },
         {
           "id": "x-2121314305836810700",
           "date": "13 Nov",
@@ -3929,7 +4000,7 @@
           "journey_context": "engine prep (1 Nov: not a Raptor milestone)"
         }
       ],
-      "log_latest": "Pad 2 preparing for Flight 15."
+      "log_latest": "Pad 2 chopsticks returned to catch position."
     },
     {
       "id": "faa",
@@ -4220,14 +4291,6 @@
         "post_id": "2120690698668097998"
       },
       {
-        "topic": "catch",
-        "line": "SpaceX continues Flight 15 mission with good heat shield for potential catch (SpaceX, 14 Nov).",
-        "at": "2026-11-14T05:41:15.000Z",
-        "src": "@SpaceflightNow",
-        "url": "https://x.com/SpaceflightNow/status/2121478547327820002",
-        "post_id": "2121478547327820002"
-      },
-      {
         "topic": "landing",
         "line": "Booster 22 automatically aborted return to Pad 2 due to GNC issue (Dan Huot, 14 Nov).",
         "at": "2026-11-14T05:41:51.000Z",
@@ -4250,6 +4313,14 @@
         "src": "@SpaceX",
         "url": "https://x.com/SpaceX/status/2121479482582441991",
         "post_id": "2121479482582441991"
+      },
+      {
+        "topic": "landing",
+        "line": "SpaceX explained why Super Heavy booster on Flight 15 was not recovered (Dan Huot, 14 Nov).",
+        "at": "2026-11-14T06:39:36.000Z",
+        "src": "@SpaceflightNow",
+        "url": "https://x.com/SpaceflightNow/status/2121493229778420205",
+        "post_id": "2121493229778420205"
       }
     ]
   },
