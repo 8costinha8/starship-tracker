@@ -98,7 +98,7 @@ const FLIGHTS = [
   { n: 15, date: "2026-11-13T22:47:36Z", pad: "Pad 2", block: "V3", booster: "B22", ship: "S42", outcome: "success",
     headline: "Flight 15 succeeds from Pad 2",
     highlights: "",
-    story: "Flight 15 launched from Pad 2 using Starship V3 with Booster B22 and Ship S42. The vehicle deployed all 26 Starlink V3 satellites. Both stages completed their returns to the launch site." },
+    story: "Booster 22 skipped the tower catch and splashed down in the Gulf, while Ship 42 reached orbit, deployed 26 Starlink V3 satellites and was caught by the tower." },
 ];
 
 // Photos work automatically: any flight without a "photo" field uses
