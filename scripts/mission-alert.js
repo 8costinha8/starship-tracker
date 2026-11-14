@@ -143,7 +143,7 @@ function normMode(mode, send_at) {
 // Wait until a scheduled alert is due. Follows the live timeline (re-read every tick), so an
 // earlier (or later) t_plus / liftoff override moves the send; send_at is the fallback when the
 // timeline is unknown. Stops early when another run has already sent it.
-async function waitUntilDue({ key, send_at, road, refresh, now, sleep, sentElsewhere, tickMs = TICK_MS, maxMs = WATCH_MAX_MS, aheadMs = WATCH_AHEAD_MS, log = () => {} }) {
+async function waitUntilDue({ key, flight = null, send_at, road, refresh, now, sleep, sentElsewhere, tickMs = TICK_MS, maxMs = WATCH_MAX_MS, aheadMs = WATCH_AHEAD_MS, log = () => {} }) {
   const fixed = send_at ? Date.parse(send_at) : null;
   if (send_at && !Number.isFinite(fixed)) return { skip: "send_at is not a real time" };
   let t = now();
@@ -155,23 +155,23 @@ async function waitUntilDue({ key, send_at, road, refresh, now, sleep, sentElsew
   let kept = null, keptNote = false; // this flight's alerts, kept if road.json rolls over mid-watch
   for (;;) {
     let alerts = road && road.mission_alerts;
+    if (alerts && flight != null && alerts.flight !== flight) alerts = null; // never time one flight's alert from another's record
     if (alerts && Number.isInteger(alerts.flight) && resolveLiftoff(alerts) && (!kept || alerts.flight === kept.flight)) kept = alerts;
-    else if (kept && road && (!alerts || alerts.flight !== kept.flight)) {
+    else if (kept && (!alerts || alerts.flight !== kept.flight)) {
       if (!keptNote) { log(`mission-alert watch ${key}: road.json rolled over mid-watch — keeping Flight ${kept.flight}'s timeline`); keptNote = true; }
-      road = { ...road, mission_alerts: kept };
       alerts = kept;
     }
-    if (alerts && isAborted(alerts, key)) return { road };
-    if (sentElsewhere && road && await sentElsewhere(road)) return { road, done: true };
+    if (alerts && isAborted(alerts, key)) return { road, alerts };
+    if (sentElsewhere && road && await sentElsewhere(road)) return { road, alerts, done: true };
     const tl = alerts ? timelineAt(alerts, key) : null;
     const target = tl != null ? tl : fixed;
-    if (target == null) return { skip: "not due: no liftoff_actual / t_plus for " + key, notDue: true };
+    if (target == null) return { skip: `not due: no ${flight != null ? `Flight ${flight} ` : ""}liftoff_actual / t_plus for ${key}`, notDue: true };
     if (target !== lastTarget) { log(`mission-alert watch ${key}: target ${new Date(target).toISOString()}${tl != null ? " (timeline)" : " (send_at)"}`); lastTarget = target; }
     if (fixed == null && target - t > aheadMs) return { skip: `not due yet (${new Date(target).toISOString()})`, notDue: true };
     if (key === "deorbit_soon" && t > target + DEORBIT_STALE_MS) return { skip: "deorbit_soon warning stale (>5 min after its time)" };
     if (t >= target) {
       if (!fresh && refresh) { road = await refresh(); fresh = true; continue; } // re-check on fresh data before firing
-      return { road, target };
+      return { road, alerts, target };
     }
     if (t - start > maxMs) return { skip: "watch window ended before the alert was due" };
     const ms = Math.max(1, Math.min(tickMs, target - t));
@@ -273,22 +273,42 @@ async function sendMissionAlert(opts = {}) {
       if (!source.ok) return skip(`result needs a confirming source (${source.reason})`);
     }
 
+    // Which flight this alert is for. An explicit flight (workflow input) always wins. In strict
+    // mode (CI) without one, it must come from a mission_alerts record that has a liftoff_actual:
+    // never fall back to whatever flight road.json happens to be on.
+    let wantFlight = Number.isInteger(opts.flight) ? opts.flight : null;
+    if (wantFlight == null && opts.strictFlight) {
+      if (!road && readRoad) road = readRoad();
+      const al = road && road.mission_alerts;
+      if (!al) return skip("mission_alerts missing in road.json and no flight input — pass -f flight=N");
+      if (!Number.isInteger(al.flight)) return skip("mission_alerts has no flight number and no flight input — pass -f flight=N");
+      if (!resolveLiftoff(al)) return skip(`Flight ${al.flight} has no liftoff_actual and no flight input — pass -f flight=N`);
+      wantFlight = al.flight;
+    }
+    const pick = (rd) => {
+      const al = rd && rd.mission_alerts;
+      if (!al) return null;
+      return wantFlight == null || al.flight === wantFlight ? al : null;
+    };
+
     let watched = false;
+    let alerts = null;
     if (mode === "watch") {
       const refresh = opts.refreshRoad ? () => opts.refreshRoad() : (readRoad ? async () => readRoad() : null);
       const sentElsewhere = async (rd) => {
-        const fl = flightOf(rd.mission_alerts, rd);
+        const fl = wantFlight != null ? wantFlight : flightOf(rd.mission_alerts, rd);
         if (!Number.isInteger(fl)) return false;
-        if (opts.claimExists && await opts.claimExists(fl, key)) return true;
+        try { if (opts.claimExists && await opts.claimExists(fl, key)) return true; } catch (e) { log(`mission-alert watch: claim check failed (${e.message}), still watching`); }
         if (opts.logPath && priorOwn(ps.readLog(opts.logPath).pushes, fl, key)) return true;
         return false;
       };
-      const w = await waitUntilDue({ key, send_at, road, refresh, now, sleep, sentElsewhere, log, tickMs: opts.tick_ms, maxMs: opts.watch_max_ms, aheadMs: opts.watch_ahead_ms });
+      const w = await waitUntilDue({ key, flight: wantFlight, send_at, road, refresh, now, sleep, sentElsewhere, log, tickMs: opts.tick_ms, maxMs: opts.watch_max_ms, aheadMs: opts.watch_ahead_ms });
       if (w.skip) { const r = skip(w.skip); if (w.notDue) r.not_due = true; return r; }
       road = w.road;
+      alerts = w.alerts || null;
       watched = true;
       if (w.done) {
-        const fl = flightOf(road.mission_alerts, road);
+        const fl = wantFlight != null ? wantFlight : flightOf(alerts, road);
         const row = { title: "", body: "", verdict: `silent: duplicate ${ownKey(fl, key)} (sent by another run)`, alert_key: ownKey(fl, key), at: new Date(now()).toISOString() };
         logRows.push(row);
         log(`(silent) mission-alert ${key} — already sent by another run`);
@@ -298,14 +318,15 @@ async function sendMissionAlert(opts = {}) {
     if (!road && readRoad) road = readRoad();
     if (!road) return skip("missing road data");
 
-    const alerts = road.mission_alerts;
-    if (!alerts) return skip("missing mission_alerts");
-    const flight = flightOf(alerts, road);
+    if (!alerts) alerts = pick(road);
+    if (!alerts && wantFlight == null) return skip("missing mission_alerts");
+    const flight = wantFlight != null ? wantFlight : flightOf(alerts, road);
     if (!Number.isInteger(flight)) return skip("missing flight number");
-    if (isAborted(alerts, key)) return skip(`abort flag for ${key}`);
+    if (!alerts) log(`mission-alert ${key}: road.json has no Flight ${flight} record; using flight=${flight} from the input`);
+    if (alerts && isAborted(alerts, key)) return skip(`abort flag for ${key}`);
 
     if (SCHEDULED.has(key)) {
-      const liftoff = resolveLiftoff(alerts);
+      const liftoff = alerts ? resolveLiftoff(alerts) : null;
       // Hand-send (no send_at): send immediately, even without liftoff_actual.
       // The >T+5 skip applies only when liftoff is known.
       if (!watched) {
@@ -315,7 +336,7 @@ async function sendMissionAlert(opts = {}) {
         if (key === "booster_soon" && isTooLateBoosterSoon(liftoff, now())) return skip("booster_soon too late (>T+5)");
       }
     }
-    const copy = copyFor(alerts, key, outcome, flight);
+    const copy = copyFor(alerts || { template: DEFAULT_TEMPLATE }, key, outcome, flight);
     if (!copy) return skip(RESULT_KEYS.has(key) ? "missing or unknown outcome" : "missing alert text");
 
     // Prefer the on-disk push log after any send_at refresh so dedupe sees what is on main.
@@ -355,8 +376,15 @@ async function sendMissionAlert(opts = {}) {
 
     // One send across every run (checker dispatch, watcher, manual override): claim first.
     if (!dry_run && opts.claim) {
-      const c = await opts.claim(flight, key);
-      if (c && c.ok === false) {
+      let c;
+      try { c = await opts.claim(flight, key); } catch (e) { c = { ok: false, error: true, message: e.message }; }
+      if (!c || c.ok !== true || c.error) {
+        if (!c || c.error || c.ok !== false) {
+          const row = { title: copy.title, body: copy.body, verdict: `skipped: claim failed for ${ownKey(flight, key)} — not sent`, alert_key: ownKey(flight, key), at };
+          logRows.push(row);
+          log(`::error::mission-alert ${key}: could not take the one-send claim ${claimTag(flight, key)} — NOT sending (no send without a claim)`);
+          return row;
+        }
         const row = { title: copy.title, body: copy.body, verdict: `silent: duplicate ${ownKey(flight, key)} (claimed by another run)`, key: ownKey(flight, key), alert_key: ownKey(flight, key), at };
         logRows.push(row);
         log(`(silent) mission-alert ${key} — claim ${c.tag || ""} already taken`);
@@ -452,7 +480,7 @@ async function syncFromChecker(opts = {}) {
   const dispatched = [];
   for (const ev of due) {
     if (typeof opts.dispatch === "function") {
-      await opts.dispatch({ key: ev.key, send_at: ev.send_at });
+      await opts.dispatch({ key: ev.key, send_at: ev.send_at, flight: alerts.flight });
     }
     alerts.dispatched = alerts.dispatched || {};
     alerts.dispatched[ev.key] = ev.send_at;
@@ -468,12 +496,12 @@ async function syncFromChecker(opts = {}) {
   return { dispatched, changed, alerts, due };
 }
 
-async function dispatchMissionAlert({ key, send_at, outcome, dry_run }, { repo, token, fetchFn } = {}) {
+async function dispatchMissionAlert({ key, send_at, outcome, dry_run, flight }, { repo, token, fetchFn } = {}) {
   const r = repo || process.env.GITHUB_REPOSITORY || "8costinha8/starship-tracker";
   const tok = token || process.env.GITHUB_TOKEN || process.env.GH_TOKEN || "";
   if (!tok) { console.log("mission-alert dispatch skipped: no GITHUB_TOKEN"); return { ok: false, reason: "no token" }; }
   const f = fetchFn || globalThis.fetch;
-  const body = { ref: "main", inputs: { key: String(key), ...(send_at ? { send_at: String(send_at) } : {}), ...(outcome ? { outcome: String(outcome) } : {}), dry_run: dry_run ? "true" : "false" } };
+  const body = { ref: "main", inputs: { key: String(key), ...(send_at ? { send_at: String(send_at) } : {}), ...(outcome ? { outcome: String(outcome) } : {}), ...(Number.isInteger(flight) ? { flight: String(flight) } : {}), dry_run: dry_run ? "true" : "false" } };
   const res = await f(`https://api.github.com/repos/${r}/actions/workflows/mission-alert.yml/dispatches`, {
     method: "POST",
     headers: { Authorization: `Bearer ${tok}`, Accept: "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28", "Content-Type": "application/json" },
@@ -501,19 +529,21 @@ function gitClaims(root = ROOT, run = (c) => execSync(c, { cwd: root, stdio: "pi
   const claim = async (flight, key) => {
     const tag = claimTag(flight, key);
     const msg = `claim ${flight}|${key} run ${process.env.GITHUB_RUN_ID || "local"} ${new Date().toISOString()} ${Math.random().toString(36).slice(2)}`;
+    const mine = new Set(); // every tag object this run created (a retry after a lost reply must still recognise its own)
     for (let i = 0; i < 3; i++) {
       try {
-        run(`git -c user.name="Starship Tracker Bot" -c user.email="actions@github.com" tag -f -a -m ${JSON.stringify(msg)} ${tag} HEAD`);
-        run(`git push origin refs/tags/${tag}`);
-        const mine = run(`git rev-parse refs/tags/${tag}`).trim();
-        if (remoteSha(tag) === mine) return { ok: true, tag };
-        return { ok: false, tag };
+        run(`git -c user.name="Starship Tracker Bot" -c user.email="actions@github.com" tag -f -a -m ${JSON.stringify(msg + " try " + i)} ${tag} HEAD`);
+        mine.add(run(`git rev-parse refs/tags/${tag}`).trim());
+        try { run(`git push origin refs/tags/${tag}`); } catch {}
+        const remote = remoteSha(tag);
+        if (remote && mine.has(remote)) return { ok: true, tag };
+        if (remote) return { ok: false, tag }; // another run holds it
       } catch (e) {
-        try { if (remoteSha(tag)) return { ok: false, tag }; } catch {}
+        // tag / rev-parse / ls-remote failed: retry
       }
     }
-    console.log(`mission-alert: could not create claim ${tag} (sending anyway; push log dedupe still applies)`);
-    return { ok: true, tag, unclaimed: true };
+    console.log(`::error::mission-alert: could not create or verify claim ${tag} after 3 tries — nothing will be sent`);
+    return { ok: false, error: true, tag };
   };
   return { exists, claim };
 }
@@ -547,25 +577,44 @@ async function runFromEnv(env = process.env, deps = {}) {
   const mode = String(env.ALERT_MODE || "auto").trim();
   const source_url = String(env.SOURCE_URL || "").trim();
   const dry_run = env.DRY_RUN === "true" || env.DRY_RUN === "1";
+  const flightRaw = String(env.ALERT_FLIGHT || "").trim();
+  const flight = /^\d+$/.test(flightRaw) ? Number(flightRaw) : null;
   const root = deps.root || ROOT;
   const log = deps.log || console.log;
   const roadPath = path.join(root, "road.json");
   const logPath = path.join(root, "notifications.json");
   const watching = normMode(mode, send_at) === "watch";
   const claims = deps.claims || (env.CI ? gitClaims(root) : null);
+  if (flightRaw && flight == null) { log(`mission-alert: flight input "${flightRaw}" is not a whole number — skipped`); return { row: { verdict: "skipped: bad flight input" }, exitCode: 1 }; }
+
+  // Test-only: take a REAL claim on the throwaway flight 0 / key claimtest. Needs dry_run, never
+  // loads firebase-admin, never builds or sends a push. Proves the claim tag works in CI.
+  if (key === "claimtest") {
+    if (!dry_run || (flight != null && flight !== 0)) { log("mission-alert claimtest: needs dry_run=true and flight 0 — skipped"); return { row: { verdict: "skipped: claimtest guard" }, exitCode: 1 }; }
+    if (!claims) { log("mission-alert claimtest: no git claims outside CI — skipped"); return { row: { verdict: "skipped: claimtest no claims" }, exitCode: 1 }; }
+    log(`mission-alert claimtest: FCM hard-disabled (firebase not loaded); taking ${claimTag(0, "claimtest")}`);
+    const first = await claims.claim(0, "claimtest");
+    const second = await claims.claim(0, "claimtest");
+    log(`mission-alert claimtest: first claim ${JSON.stringify(first)}; second claim ${JSON.stringify(second)}; tag on origin: ${await claims.exists(0, "claimtest")}`);
+    const ok = first.ok === true && second.ok === false && !second.error;
+    log(`mission-alert claimtest: ${ok ? "PASS (first taken, second refused)" : "FAIL"}`);
+    return { row: { verdict: ok ? "claimtest: pass" : "claimtest: fail" }, exitCode: ok ? 0 : 1 };
+  }
+  if (!dry_run && !claims) { log("::error::mission-alert: no one-send claim available (not in CI) — nothing will be sent"); return { row: { verdict: "skipped: no claim available" }, exitCode: 1 }; }
   let send = deps.send;
   if (!dry_run && !send) send = require("./check-road.js").firebaseDeps().push;
-  log(`mission-alert ${key} mode=${normMode(mode, send_at)}${send_at ? " send_at=" + send_at : ""}${outcome ? " outcome=" + normOutcome(outcome) : ""}${dry_run ? " DRY RUN" : ""}`);
+  log(`mission-alert ${key} mode=${normMode(mode, send_at)}${flight != null ? " flight=" + flight : ""}${send_at ? " send_at=" + send_at : ""}${outcome ? " outcome=" + normOutcome(outcome) : ""}${dry_run ? " DRY RUN" : ""}`);
   if (SCHEDULED.has(key)) { // always log the computed due time (from this checkout's road.json)
     try {
-      const al = JSON.parse(fs.readFileSync(roadPath, "utf8")).mission_alerts;
+      let al = JSON.parse(fs.readFileSync(roadPath, "utf8")).mission_alerts;
+      if (al && flight != null && al.flight !== flight) { log(`mission-alert ${key}: road.json is on Flight ${al.flight}, input flight=${flight}`); al = null; }
       const due = al ? timelineAt(al, key) : null;
       const uk = (ms) => new Date(ms).toLocaleString("en-GB", { timeZone: "Europe/London", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", second: "2-digit" });
-      log(due ? `mission-alert ${key}: Flight ${al.flight} due ${new Date(due).toISOString()} (${uk(due)} UK) = liftoff ${resolveLiftoff(al)} + T+${resolvedEvent(al, key).t_plus}` : `mission-alert ${key}: no timeline in road.json`);
+      log(due ? `mission-alert ${key}: Flight ${al.flight}${flight != null ? " (flight input)" : ""} due ${new Date(due).toISOString()} (${uk(due)} UK) = liftoff ${resolveLiftoff(al)} + T+${resolvedEvent(al, key).t_plus}` : `mission-alert ${key}: no timeline in road.json`);
     } catch (e) { log(`mission-alert ${key}: due time unavailable (${e.message})`); }
   }
   const row = await sendMissionAlert({
-    key, outcome, send_at, mode, source_url, dry_run, requireSource: true,
+    key, outcome, send_at, mode, source_url, dry_run, requireSource: true, flight, strictFlight: true,
     roadPath, logPath, save: !dry_run, saveLog: !dry_run,
     send, log, now: deps.now, sleep: deps.sleep, tick_ms: deps.tick_ms,
     refreshRoad: deps.refreshRoad || (watching && env.CI ? () => refreshRoadFromMain(root) : undefined),

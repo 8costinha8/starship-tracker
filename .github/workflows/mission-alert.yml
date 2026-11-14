@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
     inputs:
       key:
-        description: "Alert key: booster_soon, booster_result, deorbit_soon, ship_result"
+        description: "Alert key: booster_soon, booster_result, deorbit_soon, ship_result (claimtest: CI claim test only, needs dry_run)"
         required: true
         type: string
       outcome:
@@ -39,13 +39,19 @@ on:
         required: false
         type: string
         default: ""
+      flight:
+        description: "Flight number this alert is for (drives 'Flight N', the claim tag and the push-log key). Blank = from road.json only if that record has a liftoff"
+        required: false
+        type: string
+        default: ""
       dry_run:
         description: "Do everything except send a real push"
         type: boolean
         default: false
   schedule:
-    # Flight 15 Ship 42 deorbit watcher, tonight only (14 Nov, UTC = UK). Late cron is fine:
-    # the watcher just has to start before ~20:18. Remove after Flight 15.
+    # Flight 15 Ship 42 deorbit watcher (14 Nov, UTC = UK). Late cron is fine: the watcher just
+    # has to start before ~20:18. They pass flight 15 explicitly.
+    # WARNING: cron has no year field, so these REPEAT EVERY 14 NOVEMBER. Remove them after Flight 15.
     - cron: "35 19 14 11 *"
     - cron: "50 19 14 11 *"
 
@@ -64,9 +70,11 @@ jobs:
       - run: npm install firebase-admin
       - run: node scripts/mission-alert.js
         env:
-          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          # claimtest never gets the Firebase secret (FCM hard-disabled for the CI claim test)
+          FIREBASE_SERVICE_ACCOUNT: ${{ inputs.key != 'claimtest' && secrets.FIREBASE_SERVICE_ACCOUNT || '' }}
           ALERT_KEY: ${{ github.event_name == 'schedule' && 'deorbit_soon' || inputs.key }}
           ALERT_MODE: ${{ github.event_name == 'schedule' && 'watch' || inputs.mode }}
+          ALERT_FLIGHT: ${{ github.event_name == 'schedule' && '15' || inputs.flight }}
           ALERT_OUTCOME: ${{ inputs.outcome }}
           SEND_AT: ${{ inputs.send_at }}
           SOURCE_URL: ${{ inputs.source_url }}
