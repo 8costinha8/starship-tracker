@@ -2986,6 +2986,54 @@
       "verdict": "sent",
       "alert_key": "15|deorbit_soon",
       "key": "15|deorbit_soon"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "Ship 42 completed deorbit burn and heads for catch at Starbase (LabPadre, 14 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/LabPadre/status/2121701318498684943",
+      "at": "2026-11-14T20:26:28.000Z",
+      "sent_at": "2026-11-14T20:31:09.645Z",
+      "where": "mission",
+      "verdict": "silent: duplicate S42|transport|14 Nov",
+      "gate": "second trusted source agrees",
+      "key": "S42|transport|14 Nov"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "Starship completed deorbit burn and on course for reentry and catch (SpaceX, 14 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/SpaceX/status/2121701161040556374",
+      "at": "2026-11-14T20:25:50.000Z",
+      "sent_at": "2026-11-14T20:31:09.648Z",
+      "where": "mission",
+      "verdict": "silent: duplicate starship|other|14 Nov",
+      "gate": "official source",
+      "key": "starship|other|14 Nov"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "Ship 42 completed deorbit burn and returning for first ship catch attempt (SpaceflightNow, 14 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/SpaceflightNow/status/2121700905737236723",
+      "at": "2026-11-14T20:24:49.000Z",
+      "sent_at": "2026-11-14T20:31:09.730Z",
+      "where": "mission",
+      "verdict": "silent: minor other — a push went out 0.2h ago (quiet window 24h)",
+      "gate": "second trusted source agrees",
+      "key": "S42|other|14 Nov"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "Ship 42 completed deorbit burn and returning to launch site for catch (Blobifie, 14 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/Blobifie/status/2121700812569342337",
+      "at": "2026-11-14T20:24:27.000Z",
+      "sent_at": "2026-11-14T20:31:09.820Z",
+      "where": "mission",
+      "verdict": "silent: minor other — a push went out 0.2h ago (quiet window 24h)",
+      "gate": "second trusted source agrees",
+      "key": "S42|other|14 Nov"
     }
   ]
 }
