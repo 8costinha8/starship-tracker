@@ -4,8 +4,8 @@
     "B22",
     "S42"
   ],
-  "updated": "13 Nov",
-  "updatedAt": "2026-11-13T23:46:40.270Z",
+  "updated": "14 Nov",
+  "updatedAt": "2026-11-14T00:01:44.503Z",
   "categories": [
     {
       "id": "cryo",
@@ -4220,14 +4220,6 @@
         "post_id": "2120690698668097998"
       },
       {
-        "topic": "trajectory",
-        "line": "Starship to perform burn for 275 km orbit insertion (SpaceX, 13 Nov).",
-        "at": "2026-11-13T23:11:46.000Z",
-        "src": "@SpaceX",
-        "url": "https://x.com/SpaceX/status/2121380531640369470",
-        "post_id": "2121380531640369470"
-      },
-      {
         "topic": "payload",
         "line": "Ship 42 payload door open for deployment (Blobifie reports, 13 Nov).",
         "at": "2026-11-13T23:22:25.000Z",
@@ -4250,6 +4242,14 @@
         "src": "@Blobifie",
         "url": "https://x.com/Blobifie/status/2121385033495990695",
         "post_id": "2121385033495990695"
+      },
+      {
+        "topic": "trajectory",
+        "line": "Early Hawaii return skipped and flight will continue as planned (TrackingTheSB reports, 13 Nov).",
+        "at": "2026-11-13T23:59:28.000Z",
+        "src": "@TrackingTheSB",
+        "url": "https://x.com/TrackingTheSB/status/2121392533418786992",
+        "post_id": "2121392533418786992"
       }
     ]
   },
@@ -4276,6 +4276,16 @@
     }
   ],
   "feed_items": [
+    {
+      "id": "news-mwfn24n4-4a303e",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Starship continued flight past Hawaii.",
+      "url": "https://x.com/TrackingTheSB/status/2121392533418786992",
+      "at": "2026-11-13T23:59:28.000Z",
+      "date": "13 Nov",
+      "flight": 15
+    },
     {
       "id": "flight-mwfkybz8-c6bb88",
       "kind": "flight",
@@ -4704,15 +4714,6 @@
       "flight": 15,
       "src": "@NASASpaceflight",
       "push_text": "Starship pad 39a undergoes full water deluge test"
-    },
-    {
-      "id": "flight-mw43aanl-eaa14d",
-      "kind": "flight",
-      "title": "📅 New estimated date",
-      "body": "NET 13 Nov",
-      "at": "2026-11-05T22:00:28.785Z",
-      "date": "5 Nov",
-      "flight": 15
     }
   ],
   "milestones": {
@@ -4780,36 +4781,6 @@
       }
     }
   },
-  "predicted_candidates": [
-    {
-      "flight": 15,
-      "source": "X @TrackingTheSB",
-      "url": "https://x.com/TrackingTheSB/status/2119535444278788493",
-      "date": "2026-11-13",
-      "seen_at": "2026-11-08T21:00:03.000Z"
-    },
-    {
-      "flight": 15,
-      "source": "NSF",
-      "url": "https://www.nasaspaceflight.com/2026/11/starship-flight-15-awaits-faa/",
-      "date": "2026-11-13",
-      "seen_at": "2026-11-06T15:31:51Z"
-    },
-    {
-      "flight": 15,
-      "source": "X @LabPadre",
-      "url": "https://x.com/LabPadre/status/2118463243530174498",
-      "date": "2026-11-13",
-      "seen_at": "2026-11-05T21:59:31.000Z"
-    },
-    {
-      "flight": 15,
-      "source": "X @NASASpaceflight",
-      "url": "https://x.com/NASASpaceflight/status/2118405788821827970",
-      "date": "2026-11-13",
-      "seen_at": "2026-11-05T18:11:12.000Z"
-    }
-  ],
   "pad": "Pad 2",
   "official_date": {
     "flight": 15,
