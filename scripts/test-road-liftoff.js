@@ -23,7 +23,7 @@ function flogPadDisplay(flogPad) { return flogPad; }
 function faaLicenceDisplay(flogFaa) { return flogFaa; }
 function authoritativeNetLabel() { return ""; }
 const ROAD_DONE_LABEL = { cryo: "Complete", raptor: "Installed", static: "Complete", pad: "Complete", faa: "Confirmed", date: "Confirmed" };
-const H = eval(`(() => {\n${app.slice(start, end)}\nreturn { boxOverrides, roadLiftedOff, stackedHeadline, afterLiftoffLatest, afterLiftoffFlog, decorateFlogItem, filterRoadFlogEvents, isRoadFlightEvent, roadLiftoffMs, roadEntryMs }; })()`);
+const H = eval(`(() => {\n${app.slice(start, end)}\nreturn { boxOverrides, roadLiftedOff, stackedHeadline, afterLiftoffLatest, afterLiftoffFlog, decorateFlogItem, filterRoadFlogEvents, isRoadFlightEvent, roadLiftoffMs, roadEntryMs, rtfCategoryVehicles, orderPadFlogCards }; })()`);
 
 const clone = () => JSON.parse(JSON.stringify(live));
 const IDS = ["cryo", "raptor", "static", "pad", "faa", "date"];
@@ -114,6 +114,28 @@ check(!/\.auto-note/.test(app) && !/Auto-updating · last checked/.test(app), "a
   const dtexts = ((decorated.flog && decorated.flog.cards) || []).flatMap((c) => (c.lines || []).map((l) => l.text || ""));
   check(!dtexts.some((t) => /chopsticks raised back|deployed twenty six/i.test(t)), "decorateFlogItem also excludes post-liftoff lines from Road boxes");
   check(decorated.flog.latest === "Stacked 13 Nov", "decorated pad headline stays the factual stacked date");
+}
+
+// Pad activity: Launch pad first, then Ship, then Booster — never by date
+check(JSON.stringify(H.rtfCategoryVehicles("pad", ["S42", "B22"])) === JSON.stringify(["pad", "S42", "B22"]), "rtfCategoryVehicles: Launch pad, Ship, Booster");
+check(JSON.stringify(H.rtfCategoryVehicles("cryo", ["S42", "B22"])) === JSON.stringify(["S42", "B22"]), "non-pad categories keep Ship then Booster");
+check(/rtfCategoryVehicles\(cid, cols\)/.test(app), "rtfCards uses the fixed Launch-pad-first vehicle order");
+{
+  const oldestPad = [
+    { vehicle: "S42", name: "Ship 42", lines: [{ at: "2026-11-14T12:00:00Z", text: "ship newest" }] },
+    { vehicle: "B22", name: "Booster 22", lines: [{ at: "2026-11-13T12:00:00Z", text: "boo mid" }] },
+    { vehicle: "pad", name: "Launch pad", lines: [{ at: "2026-11-10T00:00:00Z", text: "pad oldest" }] },
+  ];
+  check(H.orderPadFlogCards(oldestPad).map((c) => c.vehicle).join(",") === "pad,S42,B22", "pad first even when its date is oldest");
+  const newestPad = [
+    { vehicle: "S42", name: "Ship 42", lines: [{ at: "2026-11-10T00:00:00Z", text: "ship oldest" }] },
+    { vehicle: "pad", name: "Launch pad", lines: [{ at: "2026-11-14T18:00:00Z", text: "pad newest" }] },
+    { vehicle: "B22", name: "Booster 22", lines: [{ at: "2026-11-13T12:00:00Z", text: "boo mid" }] },
+  ];
+  check(H.orderPadFlogCards(newestPad).map((c) => c.vehicle).join(",") === "pad,S42,B22", "pad first even when its date is newest");
+  const decorated = H.decorateFlogItem({ id: "pad" }, fl.boxes(live).pad, live, null, { n: 15, status: "inflight" }, POST);
+  const order = ((decorated.flog && decorated.flog.cards) || []).map((c) => c.vehicle);
+  check(order[0] === "pad" && order.indexOf("S42") < order.indexOf("B22"), "decorated live Pad card keeps Launch pad first, then Ship, then Booster");
 }
 
 

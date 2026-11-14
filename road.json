@@ -5336,22 +5336,29 @@
       {
         "stage": "booster",
         "kind": "result",
-        "line": "Booster 22 didn't attempt the tower catch and splashed down in the Gulf."
+        "clause": "skipped the tower catch and splashed down in the Gulf",
+        "line": "Booster 22 skipped the tower catch and splashed down in the Gulf."
       },
       {
         "stage": "ship",
-        "kind": "other",
-        "line": "Ship 42 reached orbit and deployed 26 Starlink V3 satellites."
+        "kind": "orbit",
+        "clause": "pressed on to orbit"
       },
       {
         "stage": "ship",
-        "kind": "other",
-        "line": "Ship 42 set a new record for the longest Starship flight."
+        "kind": "deploy",
+        "clause": "deployed 26 Starlink V3 satellites"
+      },
+      {
+        "stage": "ship",
+        "kind": "record",
+        "clause": "flying the longest Starship mission ever",
+        "clause_past": "flew the longest Starship mission ever"
       },
       {
         "stage": "ship",
         "kind": "pending",
-        "line": "SpaceX still plans to attempt the Ship 42 tower catch."
+        "clause": "with a tower catch still ahead"
       }
     ]
   }

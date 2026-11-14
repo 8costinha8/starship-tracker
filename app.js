@@ -657,7 +657,7 @@ function flogPadDisplay(flogPad, road) {
     if (have.has(v) || !(extra[v] || []).length) continue;
     cards.push({ vehicle: v, name: vName(v), lines: extra[v] });
   }
-  return { ...flogPad, cards };
+  return { ...flogPad, cards: typeof orderPadFlogCards === "function" ? orderPadFlogCards(cards) : cards };
 }
 // Display only: no official licence → "Licence not yet issued" with no date. boxes() output is unchanged.
 function faaLicenceDisplay(flogFaa) {
@@ -1670,12 +1670,29 @@ function afterLiftoffFlog(flog, id, road, f, now) {
   if (flog.status === "done" || flog.status === "complete") return flog;
   return { ...flog, status: "done", statusText: "Complete", latest: afterLiftoffLatest(flog, id, road) };
 }
+function rtfCategoryVehicles(cid, cols) {
+  const vs = (cols || []).filter((v) => v && v !== "pad");
+  // Pad activity: Launch pad first, then Ship, then Booster. Fixed order, never by date.
+  if (cid === "pad") return ["pad", ...vs];
+  return vs;
+}
+function orderPadFlogCards(cards) {
+  const rank = (c) => {
+    const v = String((c && c.vehicle) || "");
+    if (v === "pad" || /launch pad/i.test((c && c.name) || "")) return 0;
+    if (/^S/i.test(v)) return 1;
+    if (/^B/i.test(v)) return 2;
+    return 3;
+  };
+  return (cards || []).slice().sort((a, b) => rank(a) - rank(b));
+}
 function filterRoadFlogEvents(flog, road) {
   if (!flog || !road || typeof isRoadFlightEvent !== "function") return flog;
-  const cards = (flog.cards || []).map((c) => ({
+  let cards = (flog.cards || []).map((c) => ({
     ...c,
     lines: (c.lines || []).filter((l) => !isRoadFlightEvent(l, road)),
   })).filter((c) => (c.lines || []).length);
+  if (flog.id === "pad" || (cards.some && cards.some((c) => c.vehicle === "pad" || /launch pad/i.test(c.name || "")))) cards = orderPadFlogCards(cards);
   return { ...flog, cards };
 }
 function decorateFlogItem(m, flog, road, heroNet, heroFlight, now) {
@@ -2143,14 +2160,14 @@ function missionLines(road, n) {
   return Array.isArray(list) ? list.filter((u) => u && typeof u.line === "string" && u.line && !rej.some((r) => r.post_id === u.post_id))
     .map((u) => ({ ...u, line: noCreditRepeat(u.line) })).slice(0, 5) : [];
 }
-// --- hero-lines helpers (tracker-2026-11-14-herotrim / herowording) ---
-// Display-only: the hero keeps one clean current-status line per stage (result if
-// it exists, else the latest pending catch/return/landing attempt) plus non-stage
-// results (orbit, deployed, records). Lines are normalised into templates. Progress,
-// preview, "aims to" and "passed X point" lines are dropped. Credits and dates are
-// stripped. Manual road.hero_lines overrides win, except a pending override is
-// replaced once an automatic confirmed result exists for that stage. Checkers and
-// road.json write paths are not touched here.
+// --- hero-lines helpers (tracker-2026-11-14-herotrim / herowording / herostyleA) ---
+// Display-only: the hero shows one flowing paragraph built from structured
+// outcome items (stage, kind, clause). Booster and ship templates compose the
+// sentence; a live flight stays in present tense and ends with the ship's
+// pending clause. A confirmed ship result switches to past tense and replaces
+// any pending override for that stage. Pre-launch and empty outcomes render
+// nothing. Manual road.hero_lines overrides win. Checkers and road.json write
+// paths are not touched here.
 const HERO_MON = "Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec";
 const HERO_NUM_ONES = ["zero","one","two","three","four","five","six","seven","eight","nine","ten","eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen"];
 const HERO_NUM_TENS = ["","","twenty","thirty","forty","fifty","sixty","seventy","eighty","ninety"];
@@ -2271,7 +2288,7 @@ function normalizeHeroLine(text, road) {
     if (/\b(was caught|successfully caught|catch (?:was )?successful|tower catch (?:was )?complete)\b/i.test(raw)) return `${veh || "The vehicle"} was caught.`;
     if (/\b(was lost|is lost|lost during|destroyed|exploded)\b/i.test(raw)) return `${veh || "The vehicle"} was lost.`;
     if (/\b(splashdown|splashed down|diverted to|didn't attempt|did not attempt|aborted|instead of|performed landing burn)\b/i.test(raw)) {
-      if (/\b(diverted|instead of|didn't attempt|did not attempt|aborted|GNC|Gulf|not (?:try|attempt))\b/i.test(raw)) return `${veh || "The booster"} didn't attempt the tower catch and splashed down in the Gulf.`;
+      if (/\b(diverted|instead of|didn't attempt|did not attempt|aborted|GNC|Gulf|not (?:try|attempt))\b/i.test(raw)) return `${veh || "The booster"} skipped the tower catch and splashed down in the Gulf.`;
       return `${veh || "The vehicle"} splashed down.`;
     }
   }
@@ -2327,31 +2344,104 @@ function heroSourceLines(road, n) {
     return true;
   });
 }
-function parseHeroOverrideEntry(x, stageHint) {
+function heroWaterBody(raw) {
+  const m = String(raw || "").match(/\b(?:the\s+)?(Gulf(?: of Mexico)?|Indian Ocean|Pacific Ocean|Atlantic Ocean|Atlantic|Pacific)\b/i);
+  if (!m) return "";
+  const key = m[1].toLowerCase();
+  if (key === "gulf" || key === "gulf of mexico") return "the Gulf";
+  if (key === "indian ocean") return "the Indian Ocean";
+  if (key === "pacific ocean") return "the Pacific Ocean";
+  if (key === "atlantic ocean") return "the Atlantic Ocean";
+  if (key === "atlantic") return "the Atlantic";
+  if (key === "pacific") return "the Pacific";
+  return "the " + m[1];
+}
+function heroResultClause(raw, stage) {
+  const t = String(raw || "");
+  if (/\b(was caught|successfully caught|catch (?:was )?successful|tower catch (?:was )?complete|caught by the tower)\b/i.test(t)) return "was caught by the tower";
+  if (/\b(was lost|is lost|lost during|destroyed|exploded)\b/i.test(t)) return /\bre-?entry\b/i.test(t) ? "was lost during reentry" : "was lost";
+  if (/\b(splashdown|splashed down|diverted to|didn't attempt|did not attempt|skipped the tower catch|aborted|instead of|performed landing burn|ditched)\b/i.test(t)) {
+    const where = heroWaterBody(t);
+    const skip = /\b(diverted|instead of|didn't attempt|did not attempt|skipped|aborted|GNC|not (?:try|attempt))\b/i.test(t);
+    if (skip) return "skipped the tower catch and splashed down in " + (where || "the Gulf");
+    return "splashed down" + (where ? " in " + where : "");
+  }
+  return "";
+}
+function extractHeroOutcomes(text, road) {
+  if (!text || isDroppedHeroLine(text)) return [];
+  let raw = replaceNumberWords(stripHeroCredit(text));
+  if (isPayloadDeploy(text) || isPayloadDeploy(raw)) raw = releasedToDeployed(raw);
+  raw = raw.replace(/\bV3 Starlink\b/g, "Starlink V3");
+  const name = heroVehicleName(text, road) || heroVehicleName(raw, road);
+  const stage = heroLineStage(text) || (/^Ship\b/i.test(name) ? "ship" : /^Booster\b/i.test(name) ? "booster" : null);
+  const out = [];
+  const push = (kind, clause, extra, st) => {
+    if (!clause) return;
+    let use = st || stage;
+    if (!use) use = (kind === "orbit" || kind === "deploy" || kind === "record") ? "ship" : "other";
+    out.push({ stage: use, kind, clause: String(clause).replace(/[.\s]+$/, "").trim(), name, ...(extra || {}) });
+  };
+  const isRes = isStageResult(text);
+  const isPend = isPendingAttempt(text);
+  if (isRes) push("result", heroResultClause(raw, stage));
+  if (isPend && !isRes) push("pending", "with a tower catch still ahead");
+  const rec = /\b(sets? record|record for|longest .{0,40}flight|surpassed .{0,60}(duration|record|time|mission)|flying the longest|flew the longest)\b/i.test(raw);
+  if (rec) push("record", "flying the longest Starship mission ever", { clausePast: "flew the longest Starship mission ever" }, stage || "ship");
+  if (isPayloadDeploy(text) || isPayloadDeploy(raw)) {
+    const m = raw.match(/\bdeploy(?:ed)?\s+(\d+)\s+(.+)/i);
+    if (m) push("deploy", "deployed " + m[1] + " " + heroPayloadPhrase(m[2]), null, stage || "ship");
+  }
+  const orb = /\b(reached orbit|pressed on to orbit|orbital insertion|into (?:stable )?(?:low earth )?orbit|to orbit|will stay in orbit|continues in orbit|\bin orbit\b)\b/i.test(raw) && !rec;
+  if (orb && !isRes) push("orbit", "reached orbit", null, stage || "ship");
+  return out;
+}
+function inferOverrideKind(e) {
+  if (e && e.kind && e.kind !== "other") return e.kind;
+  const t = (e && (e.clause || e.line)) || "";
+  if (/\bwith a tower catch still ahead\b/i.test(t) || (typeof isPendingAttempt === "function" && isPendingAttempt(t))) return "pending";
+  if (/\bpressed on to orbit|reached orbit\b/i.test(t)) return "orbit";
+  if (/\bdeployed \d+\b/i.test(t)) return "deploy";
+  if (/\bflying the longest|flew the longest|set a new record|record for\b/i.test(t)) return "record";
+  if (typeof isStageResult === "function" && isStageResult(t)) return "result";
+  return e && e.kind ? e.kind : "other";
+}
+function parseHeroOverrideEntry(x, stageHint, road) {
   if (typeof x === "string") {
     const line = x.trim();
     if (!line) return null;
-    const kind = /still plans to attempt|to attempt the .+ tower catch|ahead of planned catch/i.test(line) || isPendingAttempt(line) ? "pending" : (isStageResult(line) ? "result" : "other");
-    return { line, kind, stage: stageHint || heroLineStage(line) };
+    const extracted = extractHeroOutcomes(line, road);
+    if (extracted.length) return extracted.map((o) => ({ ...o, line, stage: stageHint || o.stage }));
+    const kind = inferOverrideKind({ line });
+    const clause = line.replace(/^(Ship|Booster)\s+\d+\s+/i, "").replace(/[.\s]+$/, "").trim();
+    return [{ line, kind, stage: stageHint || heroLineStage(line), clause }];
   }
-  if (x && typeof x.line === "string" && x.line.trim()) {
-    const line = x.line.trim();
-    const kind = x.kind || (/still plans to attempt|to attempt the .+ tower catch/i.test(line) || isPendingAttempt(line) ? "pending" : (isStageResult(line) ? "result" : "other"));
-    return { line, kind, stage: x.stage || stageHint || heroLineStage(line) };
+  if (x && ((typeof x.line === "string" && x.line.trim()) || (typeof x.clause === "string" && x.clause.trim()))) {
+    const line = (x.line || "").trim();
+    const clausePast = x.clause_past || x.clausePast || "";
+    let clause = (x.clause || "").trim();
+    let kind = inferOverrideKind(x);
+    const extracted = line || !clause ? extractHeroOutcomes(line || clause, road) : [];
+    if (!clause && extracted.length) {
+      return extracted.map((o) => ({ ...o, line, stage: x.stage || stageHint || o.stage, clausePast: o.clausePast || clausePast || undefined }));
+    }
+    if (!clause && line) clause = line.replace(/^(Ship|Booster)\s+\d+\s+/i, "").replace(/[.\s]+$/, "").trim();
+    const name = x.name || heroVehicleName(line, road) || heroVehicleName(clause, road);
+    return [{ line, kind, stage: x.stage || stageHint || heroLineStage(line || clause) || null, clause, clausePast: clausePast || undefined, name }];
   }
   return null;
 }
-function parseHeroOverrides(ov) {
+function parseHeroOverrides(ov, road) {
   if (!ov) return null;
-  if (Array.isArray(ov)) return ov.map((x) => parseHeroOverrideEntry(x)).filter(Boolean);
   const out = [];
-  for (const stage of ["booster", "ship"]) if (ov[stage] != null) {
-    const e = parseHeroOverrideEntry(ov[stage], stage);
-    if (e) out.push(e);
-  }
-  if (Array.isArray(ov.extra)) for (const x of ov.extra) {
-    const e = parseHeroOverrideEntry(x);
-    if (e) out.push(e);
+  const add = (x, stageHint) => {
+    const got = parseHeroOverrideEntry(x, stageHint, road);
+    if (got) out.push(...got);
+  };
+  if (Array.isArray(ov)) ov.forEach((x) => add(x));
+  else {
+    for (const stage of ["booster", "ship"]) if (ov[stage] != null) add(ov[stage], stage);
+    if (Array.isArray(ov.extra)) ov.extra.forEach((x) => add(x));
   }
   return out.length ? out : null;
 }
@@ -2359,12 +2449,90 @@ function heroLineOverrides(road, n) {
   const raw = road && road.hero_lines;
   return (raw && (raw[n] || raw[String(n)])) || null;
 }
+function defaultHeroVehicleNames(road) {
+  const vs = (road && road.vehicles) || (typeof roadVehicles === "function" && road ? roadVehicles(road) : []) || [];
+  const ship = vs.find((v) => /^S/i.test(String(v)));
+  const boo = vs.find((v) => /^B/i.test(String(v)));
+  return {
+    ship: ship ? "Ship " + String(ship).replace(/^[Ss]/, "") : "",
+    booster: boo ? "Booster " + String(boo).replace(/^[Bb]/, "") : "",
+  };
+}
+function outcomeName(o, road) {
+  if (o && o.name) return o.name;
+  const names = defaultHeroVehicleNames(road);
+  if (o && o.stage === "ship") return names.ship || "Ship";
+  if (o && o.stage === "booster") return names.booster || "Booster";
+  return heroVehicleName(o && (o.line || o.clause), road) || "";
+}
+function bareClause(o) {
+  if (!o) return "";
+  return String(o.clause || "").replace(/[.\s]+$/, "").trim();
+}
+function presentRecordClause(o) {
+  const c = bareClause(o);
+  if (/^is now /i.test(c)) return c;
+  if (/^flying /i.test(c)) return "is now " + c;
+  return c;
+}
+function pastRecordClause(o) {
+  const past = o && (o.clausePast || o.clause_past);
+  if (past) return String(past).replace(/[.\s]+$/, "").trim();
+  const c = bareClause(o);
+  if (/^is now flying /i.test(c)) return c.replace(/^is now flying /i, "flew ");
+  if (/^flying /i.test(c)) return c.replace(/^flying /i, "flew ");
+  return c;
+}
+function joinHeroClauses(parts, conj) {
+  const list = (parts || []).filter(Boolean);
+  if (!list.length) return "";
+  if (list.length === 1) return list[0];
+  return list.slice(0, -1).join(", ") + " " + (conj || "and") + " " + list[list.length - 1];
+}
+function composeShipPhrase(ship, live) {
+  if (!ship || !ship.name) return "";
+  if (live) {
+    const acts = [];
+    if (ship.orbit) acts.push(bareClause(ship.orbit));
+    if (ship.deploy) acts.push(bareClause(ship.deploy));
+    if (ship.record) acts.push(presentRecordClause(ship.record));
+    let body = joinHeroClauses(acts, "and");
+    if (ship.pending) {
+      const p = bareClause(ship.pending).replace(/^,?\s*/, "");
+      if (body) body = body + ", " + p;
+      else return ship.name + ", " + p;
+    }
+    return body ? ship.name + " " + body : "";
+  }
+  const acts = [];
+  if (ship.orbit) acts.push(bareClause(ship.orbit));
+  if (ship.deploy) acts.push(bareClause(ship.deploy));
+  if (ship.record) acts.push(pastRecordClause(ship.record));
+  if (ship.result) acts.push(bareClause(ship.result));
+  const lost = !!(ship.result && /was lost/i.test(bareClause(ship.result)));
+  const body = joinHeroClauses(acts, lost ? "but" : "and");
+  return body ? ship.name + " " + body : "";
+}
+function composeHeroParagraph(outcomes, road) {
+  const list = (outcomes || []).filter((o) => o && o.kind && (o.clause || o.line));
+  if (!list.length) return "";
+  const of = (stage, kind) => list.find((o) => o.stage === stage && o.kind === kind) || list.find((o) => o.kind === kind && (o.stage === "other" || !o.stage) && stage === "ship");
+  const boosterRes = of("booster", "result");
+  const shipRes = of("ship", "result");
+  const shipPend = shipRes ? null : of("ship", "pending");
+  const orbit = of("ship", "orbit");
+  const deploy = of("ship", "deploy");
+  const record = of("ship", "record");
+  const shipName = outcomeName(orbit || deploy || record || shipPend || shipRes, road);
+  const booName = outcomeName(boosterRes, road);
+  const ship = composeShipPhrase({ name: shipName, orbit, deploy, record, pending: shipPend, result: shipRes }, !shipRes);
+  const booClause = boosterRes ? (bareClause(boosterRes) || heroResultClause(boosterRes.line || "", "booster")) : "";
+  if (booClause && ship) return booName + " " + booClause + ", while " + ship + ".";
+  if (booClause) return booName + " " + booClause + ".";
+  if (ship) return ship + ".";
+  return "";
+}
 function heroMissionLines(road, n, f, now) {
-  const ovEntries = parseHeroOverrides(heroLineOverrides(road, n));
-  let items = heroSourceLines(road, n).map((u) => {
-    const kind = heroLineKind(u.line);
-    return { ...u, kind, stage: heroLineStage(u.line), line: kind === "drop" ? "" : normalizeHeroLine(u.line, road) };
-  }).filter((u) => u.line && u.kind !== "drop");
   const t = Number.isFinite(now) ? now : (typeof nowMs === "function" ? nowMs() : Date.now());
   let lifted;
   if (typeof roadLiftedOff === "function") lifted = roadLiftedOff(road, f, t);
@@ -2378,42 +2546,39 @@ function heroMissionLines(road, n, f, now) {
       lifted = !!(iso0 && Number.isFinite(Date.parse(iso0)) && t >= Date.parse(iso0));
     }
   }
-  if (lifted === false) {
-    const a = road && road.mission_alerts;
-    const iso = a && Number(a.flight) === Number(n) && a.liftoff_actual;
-    const t0 = iso && Number.isFinite(Date.parse(iso)) ? Date.parse(iso) : t;
-    items = items.filter((u) => !(Date.parse(u.at || "") >= t0));
-  }
+  if (lifted === false) return [];
   const pickLatest = (arr) => arr.slice().sort((a, b) => (Date.parse(b.at || "") || 0) - (Date.parse(a.at || "") || 0))[0];
+  const autoItems = [];
+  for (const u of heroSourceLines(road, n)) {
+    for (const o of extractHeroOutcomes(u.line, road)) autoItems.push({ ...o, at: u.at, name: o.name || defaultHeroVehicleNames(road)[o.stage] });
+  }
   const autoResult = {};
   for (const stage of ["booster", "ship"]) {
-    const r = pickLatest(items.filter((u) => u.stage === stage && u.kind === "result"));
+    const r = pickLatest(autoItems.filter((u) => u.stage === stage && u.kind === "result"));
     if (r) autoResult[stage] = r;
   }
+  const ovEntries = parseHeroOverrides(heroLineOverrides(road, n), road);
+  let outcomes;
   if (ovEntries && ovEntries.length) {
-    const entries = lifted === false ? ovEntries.filter((e) => e.kind === "pending") : ovEntries;
-    const out = [];
-    const seen = new Set();
-    for (const e of entries) {
-      let line = e.line;
-      if (e.kind === "pending" && e.stage && autoResult[e.stage]) line = autoResult[e.stage].line;
-      const k = line.toLowerCase();
-      if (!k || seen.has(k)) continue;
-      seen.add(k);
-      out.push(line);
-    }
-    return out;
+    outcomes = ovEntries.map((e) => ({
+      ...e,
+      name: e.name || outcomeName(e, road),
+      clause: bareClause(e),
+    })).filter((e) => e.kind && e.clause);
+    outcomes = outcomes.map((e) => {
+      if (e.kind === "pending" && e.stage && autoResult[e.stage]) {
+        const r = autoResult[e.stage];
+        return { ...r, stage: e.stage, kind: "result", name: r.name || e.name || defaultHeroVehicleNames(road)[e.stage] };
+      }
+      return e;
+    });
+  } else {
+    const keys = new Map();
+    autoItems.slice().sort((a, b) => (Date.parse(a.at || "") || 0) - (Date.parse(b.at || "") || 0)).forEach((o) => keys.set(o.stage + ":" + o.kind, o));
+    outcomes = [...keys.values()];
   }
-  const out = [];
-  for (const stage of ["booster", "ship"]) {
-    const staged = items.filter((u) => u.stage === stage && (u.kind === "result" || u.kind === "pending"));
-    const chosen = pickLatest(staged.filter((u) => u.kind === "result")) || pickLatest(staged.filter((u) => u.kind === "pending"));
-    if (chosen && chosen.line) out.push(chosen.line);
-  }
-  const extras = items.filter((u) => u.kind === "other").sort((a, b) => (Date.parse(a.at || "") || 0) - (Date.parse(b.at || "") || 0)).map((u) => u.line);
-  const seen = new Set(out.map((x) => x.toLowerCase()));
-  for (const line of extras) { const k = line.toLowerCase(); if (!seen.has(k)) { seen.add(k); out.push(line); } }
-  return mergeOrbitDeploy(out);
+  const para = composeHeroParagraph(outcomes, road);
+  return para ? [para] : [];
 }
 // --- end hero-lines helpers ---
 
@@ -2816,7 +2981,7 @@ function rtfCards(road) {
     if (best) put(cid, best.v, h); }
   const out = [];
   const cols = [ship, boo].filter(isVehId);
-  for (const cid of ["cryo", "raptor", "static", "pad"]) for (const v of cid === "pad" ? [...cols, "pad"] : cols) {
+  for (const cid of ["cryo", "raptor", "static", "pad"]) for (const v of rtfCategoryVehicles(cid, cols)) {
     const cat = cats[cid]; const list = (bucket[cid + "|" + v] || []).slice().sort((a, b) => (Date.parse(cardIso(b)) || 0) - (Date.parse(cardIso(a)) || 0));
     const wdrOrDone = cid === "pad" ? list.find((h) => isDoneCard(h) && /wet dress/i.test(h.text || "")) : list.find((h) => rtfIsDone(h, cid));
     const ovBox = typeof boxOverrides === "function" ? boxOverrides(road, road.flight) : null;
@@ -3514,7 +3679,7 @@ a.watch-badge-live:active { transform: scale(.96); }
 .facts dd { margin: 0; }
 .facts .pred-basis { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }
 .next-note { font-size: 13.5px; line-height: 1.55; color: #CDD6EE; margin: 0; }
-.next-upd { font-size: 13.5px; line-height: 1.55; color: #CDD6EE; margin: 6px 0 0; } /* mission update line, same look as the note */
+.next-upd { font-size: 13.5px; line-height: 1.55; color: #CDD6EE; margin: 6px 0 0; overflow-wrap: break-word; } /* one flowing mission paragraph, same look as the note */
 
 /* connector between cards */
 .gap { position: relative; height: 46px; }
