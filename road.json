@@ -5,7 +5,7 @@
     "S42"
   ],
   "updated": "14 Nov",
-  "updatedAt": "2026-11-14T20:01:13.900Z",
+  "updatedAt": "2026-11-14T20:31:08.485Z",
   "categories": [
     {
       "id": "cryo",
@@ -4334,36 +4334,36 @@
         "post_id": "2120690698668097998"
       },
       {
-        "topic": "trajectory",
-        "line": "Ship 42 is on its final orbit during Flight 15 (TrackingTheSB, 14 Nov).",
-        "at": "2026-11-14T19:38:29.000Z",
-        "src": "@TrackingTheSB",
-        "url": "https://x.com/TrackingTheSB/status/2121689245509169260",
-        "post_id": "2121689245509169260"
+        "topic": "catch",
+        "line": "Ship 42 completed deorbit burn and returning to launch site for catch (Blobifie, 14 Nov).",
+        "at": "2026-11-14T20:24:27.000Z",
+        "src": "@Blobifie",
+        "url": "https://x.com/Blobifie/status/2121700812569342337",
+        "post_id": "2121700812569342337"
       },
       {
         "topic": "catch",
-        "line": "Ship 42 returns for a catch attempt by Pad 2 on Flight 15 (NASASpaceflight, 14 Nov).",
-        "at": "2026-11-14T19:39:11.000Z",
-        "src": "@NASASpaceflight",
-        "url": "https://x.com/NASASpaceflight/status/2121689419606540539",
-        "post_id": "2121689419606540539"
+        "line": "Ship 42 completed deorbit burn and returning for first ship catch attempt (SpaceflightNow, 14 Nov).",
+        "at": "2026-11-14T20:24:49.000Z",
+        "src": "@SpaceflightNow",
+        "url": "https://x.com/SpaceflightNow/status/2121700905737236723",
+        "post_id": "2121700905737236723"
       },
       {
         "topic": "catch",
-        "line": "Team invited to join Ship 42 catch attempt (14 Nov).",
-        "at": "2026-11-14T19:48:23.000Z",
-        "src": "@TrackingTheSB",
-        "url": "https://x.com/TrackingTheSB/status/2121691734384038122",
-        "post_id": "2121691734384038122"
+        "line": "Starship completed deorbit burn and on course for reentry and catch (SpaceX, 14 Nov).",
+        "at": "2026-11-14T20:25:50.000Z",
+        "src": "@SpaceX",
+        "url": "https://x.com/SpaceX/status/2121701161040556374",
+        "post_id": "2121701161040556374"
       },
       {
         "topic": "catch",
-        "line": "Remote cameras prepared for Ship 42 catch attempt (14 Nov).",
-        "at": "2026-11-14T19:57:48.000Z",
-        "src": "@RGVaerialphotos",
-        "url": "https://x.com/RGVaerialphotos/status/2121694104790638868",
-        "post_id": "2121694104790638868"
+        "line": "Ship 42 completed deorbit burn and heads for catch at Starbase (LabPadre, 14 Nov).",
+        "at": "2026-11-14T20:26:28.000Z",
+        "src": "@LabPadre",
+        "url": "https://x.com/LabPadre/status/2121701318498684943",
+        "post_id": "2121701318498684943"
       }
     ]
   },
