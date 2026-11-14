@@ -2794,6 +2794,18 @@
       "verdict": "silent: minor other — a push went out 0.3h ago (quiet window 24h)",
       "gate": "hold passed (1 run)",
       "key": "B22|other|14 Nov"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "Final on-orbit checkouts completed with ship catch still planned (Dan Huot via Spaceflight Now, 14 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/SpaceflightNow/status/2121632391349383634",
+      "at": "2026-11-14T15:52:34.000Z",
+      "sent_at": "2026-11-14T16:30:30.749Z",
+      "where": "mission",
+      "verdict": "silent: minor other — a push went out 0.7h ago (quiet window 24h)",
+      "gate": "hold passed (1 run)",
+      "key": "S42|other|14 Nov"
     }
   ]
 }
