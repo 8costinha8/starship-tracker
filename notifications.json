@@ -2605,6 +2605,29 @@
       "verdict": "silent: minor other — a push went out 2.2h ago (quiet window 24h)",
       "gate": "second trusted source agrees",
       "key": "B22|other|14 Nov"
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "Booster 22 diverted to Gulf splashdown instead of tower catch on Flight 15 (SpaceflightNow, 14 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/SpaceflightNow/status/2121417991367663707",
+      "at": "2026-11-14T01:40:37.000Z",
+      "sent_at": "2026-11-14T01:46:03.957Z",
+      "where": "mission",
+      "verdict": "silent: stale — stale: already pushed 13 Nov (B22 flight_results)",
+      "stale": true
+    },
+    {
+      "title": "Flight 15 update",
+      "body": "Ship 42 surpasses previous Starship time in space record (Blobifie, 14 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+      "url": "https://x.com/Blobifie/status/2121417937773121915",
+      "at": "2026-11-14T01:40:25.000Z",
+      "sent_at": "2026-11-14T01:46:04.076Z",
+      "where": "mission",
+      "verdict": "silent: minor other — a push went out 2.5h ago (quiet window 24h)",
+      "gate": "second trusted source agrees",
+      "key": "S42|other|14 Nov"
     }
   ]
 }
