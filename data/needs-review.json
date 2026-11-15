@@ -1,6 +1,80 @@
 {
   "items": [
     {
+      "date": "2026-11-15T06:00:38.048Z",
+      "type": "render-mismatch",
+      "item": "https://x.com/StarshipGazer/status/2110889490336350574",
+      "values": [
+        "Booster 23 completed a cryo proof test at Massey's.",
+        "Booster 23 completed a cryo proof test."
+      ],
+      "sources": [],
+      "reason": "one wording per event on card and feed",
+      "kept": null,
+      "msg": "Flight Log cryo Booster 23 15 Oct: \"Booster 23 completed a cryo proof test at Massey's.\" ≠ Road card Cryo tests · Booster 23 › 16 Oct · 01:24: \"Booster 23 completed a cryo proof test.\" (same post https://x.com/StarshipGazer/status/2110889490336350574)"
+    },
+    {
+      "date": "2026-11-15T06:00:38.048Z",
+      "type": "render-date",
+      "item": "cryo|B23",
+      "values": [
+        "15 Oct",
+        "18 Oct · 05:51"
+      ],
+      "sources": [],
+      "reason": "one event time on every view",
+      "kept": null,
+      "msg": "cryo B23: Flight Log shows 15 Oct, Road card shows 18 Oct · 05:51"
+    },
+    {
+      "date": "2026-11-15T06:00:38.048Z",
+      "type": "render-tense",
+      "item": "Road card Road to Flight 16",
+      "values": [
+        "Flight 15 is in the log. Now tracking the road to Flight 16."
+      ],
+      "sources": [],
+      "reason": "cards and feed text are past tense (push wording stays present)",
+      "kept": null,
+      "msg": "Road card Road to Flight 16: \"Flight 15 is in the log. Now tracking the road to Flight 16.\" is present tense on screen"
+    },
+    {
+      "date": "2026-11-15T06:00:38.048Z",
+      "type": "render-tense",
+      "item": "Flight Log pad Ship 43 27 Oct",
+      "values": [
+        "Ship 43 airborne on the chopsticks."
+      ],
+      "sources": [],
+      "reason": "full past-tense sentences on cards and feed",
+      "kept": null,
+      "msg": "Flight Log pad Ship 43 27 Oct: \"Ship 43 airborne on the chopsticks.\" has no verb (fragment)"
+    },
+    {
+      "date": "2026-11-15T06:00:38.048Z",
+      "type": "render-tense",
+      "item": "Road card Pad activity · Ship 43 › 27 Oct · 00:22",
+      "values": [
+        "Ship 43 airborne on the chopsticks."
+      ],
+      "sources": [],
+      "reason": "full past-tense sentences on cards and feed",
+      "kept": null,
+      "msg": "Road card Pad activity · Ship 43 › 27 Oct · 00:22: \"Ship 43 airborne on the chopsticks.\" has no verb (fragment)"
+    },
+    {
+      "date": "2026-11-15T06:00:38.048Z",
+      "type": "render-tense",
+      "item": "Road card Cryo tests · Ship 43 › 26 Oct · 04:01",
+      "values": [
+        "Ship 43 returning from Massey's."
+      ],
+      "sources": [],
+      "reason": "full past-tense sentences on cards and feed",
+      "kept": null,
+      "msg": "Road card Cryo tests · Ship 43 › 26 Oct · 04:01: \"Ship 43 returning from Massey's.\" has no verb (fragment)"
+    },
+    {
       "date": "2026-11-14T06:01:33.969Z",
       "type": "render-mismatch",
       "item": "https://x.com/NASASpaceflight/status/2121317448477728883",

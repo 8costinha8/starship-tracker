@@ -5,7 +5,7 @@
     "S43"
   ],
   "updated": "15 Nov",
-  "updatedAt": "2026-11-15T01:45:56.456Z",
+  "updatedAt": "2026-11-15T06:00:38.050Z",
   "categories": [
     {
       "id": "cryo",
@@ -1443,7 +1443,8 @@
       "at": "2026-11-15T01:43:29.000Z",
       "date": "15 Nov",
       "flight": 15,
-      "later_flight": true
+      "later_flight": true,
+      "src": "@TrackingTheSB"
     },
     {
       "id": "flight-mwgx6mtf-7296a4",
@@ -1922,5 +1923,54 @@
         "key": "ship_result"
       }
     ]
+  },
+  "image_cache": {
+    "https://pbs.twimg.com/amplify_video_thumb/2115312114298654720/img/45WwvTRmJ8YoB0Fq.jpg": "images/cache/amplify_video_thumb_2115312114298654720_img_45WwvTRmJ8YoB0Fq.jpg",
+    "https://pbs.twimg.com/amplify_video_thumb/2114755310996901888/img/xXXdVirUtQa3phNk.jpg": "images/cache/amplify_video_thumb_2114755310996901888_img_xXXdVirUtQa3phNk.jpg",
+    "https://pbs.twimg.com/media/HVWEyTyaQAA-KCA.jpg": "images/cache/media_HVWEyTyaQAA-KCA.jpg",
+    "https://pbs.twimg.com/amplify_video_thumb/2113350470194302976/img/ikUTmqE7ByY6tWFo.jpg": "images/cache/amplify_video_thumb_2113350470194302976_img_ikUTmqE7ByY6tWFo.jpg",
+    "https://pbs.twimg.com/media/HU4y2cUbwAE6od-.jpg": "images/cache/media_HU4y2cUbwAE6od-.jpg",
+    "https://pbs.twimg.com/media/HUtiVIybkAAu4_E.jpg": "images/cache/media_HUtiVIybkAAu4_E.jpg",
+    "https://pbs.twimg.com/media/HUf3gx6acAAlglM.jpg": "images/cache/media_HUf3gx6acAAlglM.jpg",
+    "https://pbs.twimg.com/media/HUdSuq2a8AAAfgu.jpg": "images/cache/media_HUdSuq2a8AAAfgu.jpg",
+    "https://pbs.twimg.com/media/HVsYHvSaQAAzZ3c.jpg": "images/cache/media_HVsYHvSaQAAzZ3c.jpg",
+    "https://pbs.twimg.com/amplify_video_thumb/2115205652226445312/img/waES-njaUObm4rp_.jpg": "images/cache/amplify_video_thumb_2115205652226445312_img_waES-njaUObm4rp_.jpg",
+    "https://pbs.twimg.com/media/HVmQW1fbIAA2hgT.jpg": "images/cache/media_HVmQW1fbIAA2hgT.jpg",
+    "https://pbs.twimg.com/amplify_video_thumb/2114798512785215489/img/LstBkhCTiy2Xrbok.jpg": "images/cache/amplify_video_thumb_2114798512785215489_img_LstBkhCTiy2Xrbok.jpg",
+    "https://pbs.twimg.com/amplify_video_thumb/2098045351559131140/img/1-Fe_-VnJa8yKMza.jpg": "images/cache/amplify_video_thumb_2098045351559131140_img_1-Fe_-VnJa8yKMza.jpg",
+    "https://pbs.twimg.com/media/HRzT1OnWYAEDCml.jpg": "images/cache/media_HRzT1OnWYAEDCml.jpg",
+    "https://pbs.twimg.com/media/HRUjjSMWsAMkvu6.jpg": "images/cache/media_HRUjjSMWsAMkvu6.jpg",
+    "https://pbs.twimg.com/ext_tw_video_thumb/2105350874126065664/pu/img/_hEgqyI82ZPVnywD.jpg": "images/cache/ext_tw_video_thumb_2105350874126065664_pu_img__hEgqyI82ZPVnywD.jpg",
+    "https://pbs.twimg.com/amplify_video_thumb/2098104422446649344/img/RNpZZjZzOhOPObst.jpg": "images/cache/amplify_video_thumb_2098104422446649344_img_RNpZZjZzOhOPObst.jpg",
+    "https://pbs.twimg.com/ext_tw_video_thumb/2107896783682625537/pu/img/18FR3ZuZ82Tz2gNw.jpg": "images/cache/ext_tw_video_thumb_2107896783682625537_pu_img_18FR3ZuZ82Tz2gNw.jpg",
+    "https://pbs.twimg.com/media/HTZMWubWIAAnONr.jpg": "images/cache/media_HTZMWubWIAAnONr.jpg",
+    "https://pbs.twimg.com/amplify_video_thumb/2099008701491535872/img/I7qk6Tawvh4EgZDs.jpg": "images/cache/amplify_video_thumb_2099008701491535872_img_I7qk6Tawvh4EgZDs.jpg",
+    "https://pbs.twimg.com/media/HTK-2HuXwAIKtUN.png": "images/cache/media_HTK-2HuXwAIKtUN.jpg",
+    "https://pbs.twimg.com/amplify_video_thumb/2112035083679043584/img/dw7Zle9xo9YHSp0k.jpg": "images/cache/amplify_video_thumb_2112035083679043584_img_dw7Zle9xo9YHSp0k.jpg",
+    "https://pbs.twimg.com/media/HTwdsecaIAAK_9e.jpg": "images/cache/media_HTwdsecaIAAK_9e.jpg",
+    "https://pbs.twimg.com/media/HUhjfCvWoAAeQ3A.jpg": "images/cache/media_HUhjfCvWoAAeQ3A.jpg"
+  },
+  "self_check": {
+    "at": "2026-11-15T06:00:37.887Z",
+    "fixes": 25,
+    "flags": 7,
+    "counts": {
+      "source-badge": 1,
+      "image-cache": 24
+    },
+    "judge_calls": 0,
+    "flagged": [
+      "[render-tense] Road card Cryo tests · Ship 43 › 26 Oct · 04:01: \"Ship 43 returning from Massey's.\" has no verb (fragment)",
+      "[render-tense] Road card Pad activity · Ship 43 › 27 Oct · 00:22: \"Ship 43 airborne on the chopsticks.\" has no verb (fragment)",
+      "[render-tense] Flight Log pad Ship 43 27 Oct: \"Ship 43 airborne on the chopsticks.\" has no verb (fragment)",
+      "[render-tense] Feed news-mwehc1so-0b6a15: \"Countdown started at Starbase for a potentially historic Starship mission.\" is a headline fragment (no subject article / auxiliary)",
+      "[render-tense] Road card Road to Flight 16: \"Flight 15 is in the log. Now tracking the road to Flight 16.\" is present tense on screen",
+      "[render-date] cryo B23: Flight Log shows 15 Oct, Road card shows 18 Oct · 05:51",
+      "[render-mismatch] Flight Log cryo Booster 23 15 Oct: \"Booster 23 completed a cryo proof test at Massey's.\" ≠ Road card Cryo tests · Booster 23 › 16 Oct · 01:24: \"Booster 23 completed a cryo proof test.\" (same post https://x.com/StarshipGazer/status/2110889490336350574)"
+    ],
+    "render": {
+      "status": "failed",
+      "failures": 7
+    }
   }
 }
