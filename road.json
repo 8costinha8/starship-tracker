@@ -5,7 +5,7 @@
     "S43"
   ],
   "updated": "15 Nov",
-  "updatedAt": "2026-11-15T06:00:38.050Z",
+  "updatedAt": "2026-11-15T15:45:40.199Z",
   "categories": [
     {
       "id": "cryo",
@@ -1988,5 +1988,17 @@
       "status": "failed",
       "failures": 7
     }
+  },
+  "mission_updates": {
+    "16": [
+      {
+        "topic": "catch",
+        "line": "Remote camera shows Booster 23 catch after Flight 16 launch (RGVaerialphotos, 15 Nov).",
+        "at": "2026-11-15T15:41:22.000Z",
+        "src": "@RGVaerialphotos",
+        "url": "https://x.com/RGVaerialphotos/status/2121991958977503413",
+        "post_id": "2121991958977503413"
+      }
+    ]
   }
 }
