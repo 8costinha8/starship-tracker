@@ -3203,6 +3203,18 @@
       "verdict": "silent: minor other — a push went out 18.5h ago (quiet window 24h)",
       "gate": "hold passed (1 run)",
       "key": "B23|other|15 Nov"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Ship 42 was lowered from Pad 2 for rollback to the production site.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mwi74kuw-8d54e6",
+      "url": "https://x.com/NASASpaceflight/status/2122041138748231857",
+      "at": "2026-11-15T18:56:47.000Z",
+      "sent_at": "2026-11-15T19:30:44.598Z",
+      "where": "feed",
+      "verdict": "silent: minor pad_work — a push went out 22.0h ago (quiet window 24h)",
+      "gate": "hold passed (1 run)",
+      "key": "S42|pad_work|15 Nov"
     }
   ]
 }
