@@ -1171,6 +1171,8 @@ function FlightCard({ f, open, onTap, onPhotoTap, register, road }) {
   const [pastOpen, setPastOpen] = React.useState(false); // the Road list starts closed
   // Archive flights only (the toggle already hides when there is no summary): all six category dots filled, as on Page 2.
   const pastDots = React.useMemo(() => (group ? group.items : []), [group]);
+  const pastBarRef = React.useRef(null); // 15 Nov: shrink the count / dots before the title, count or chevron can clip
+  useFitTier(pastBarRef, P1_BAR_TIERS, p1BarFits, `past|${f.n}|${pastDots.length}`);
   const onKey = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onTap(f.n); } };
   // While closed, tapping the thumb should expand the card like the rest of the header.
   // Once open, tapping the thumb opens the lightbox instead — so it needs to stop
@@ -1185,7 +1187,7 @@ function FlightCard({ f, open, onTap, onPhotoTap, register, road }) {
         <PhotoSlot size="thumb" src={thumbOf(f, past)} alt={`Starship Flight ${f.n}`} onClick={thumbTap} />
         <div className="info">
           <div className="info-top">
-            <div className="title"><span className="t-word">Starship Flight</span><span className="t-num">{f.n}</span></div>
+            <div className="title"><span className="t-word">Starship Flight</span> <span className="t-num">{f.n}</span></div>
             <Pill outcome={f.outcome} />
           </div>
           <div className="date">{ukStamp(f.date, false, true)}</div>
@@ -1202,11 +1204,11 @@ function FlightCard({ f, open, onTap, onPhotoTap, register, road }) {
             <h3 className="headline">{f.headline}</h3>
             <p className="story">{f.story}</p>
             {past.length > 0 && (<>
-              <button type="button" className={"past-toggle" + (pastOpen ? " open" : "")} aria-expanded={pastOpen} aria-controls={`past-${f.n}`}
+              <button type="button" ref={pastBarRef} className={"past-toggle" + (pastOpen ? " open" : "")} aria-expanded={pastOpen} aria-controls={`past-${f.n}`}
                 tabIndex={open ? 0 : -1} onClick={(e) => { e.stopPropagation(); setPastOpen((v) => !v); }} onKeyDown={(e) => e.stopPropagation()}>
                 <span className="past-toggle-title">{`Road to Flight ${f.n}`}</span>
                 <span className="road-dots">{pastDots.map((m) => <i key={m.id} className="dot dot-done" style={catVars(m.id, m.color)} title={m.name + ": " + (ROAD_DONE_LABEL[m.id] || "Complete")} aria-label={m.name + ": " + (ROAD_DONE_LABEL[m.id] || "Complete")} role="img" />)}</span>
-                <span className="road-count">{pastDots.length} of {pastDots.length} done</span>
+                <span className="road-count"><span className="rc-full">{pastDots.length} of {pastDots.length} done</span><span className="rc-slash">{pastDots.length}/{pastDots.length}</span></span>
                 <svg className="past-chev" width="16" height="16" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5.5l4 4 4-4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
               </button>
               <div className={"past-wrap" + (pastOpen ? " open" : "")} id={`past-${f.n}`} aria-hidden={!pastOpen}><div className="past-wrap-inner">
@@ -1776,9 +1778,11 @@ function RoadCard({ road, onEntryTap, openReq, heroNet, netPending, heroFlight }
     .map((m) => decorateFlogItem(m, flogBoxes && flogBoxes[m.id], road, heroNet, heroFlight)) : [];
   const parity = React.useMemo(() => roadBoxEntries(road, road ? rtfRows(road).rows : []), [road]); // Page 2's own entries
   const listRef = React.useRef(null);
+  const barRef = React.useRef(null);
+  const done = items.filter((m) => m.status === "done" || m.status === "complete").length; // shown boxes only; counts ● full only (◐ half does not count)
+  useFitTier(barRef, P1_BAR_TIERS, p1BarFits, `road|${road && road.flight}|${done}|${items.length}|${xOff ? 1 : 0}`);
   if (!items.length) return null;
   const title = `Road to Flight ${road.flight}`;
-  const done = items.filter((m) => m.status === "done" || m.status === "complete").length; // shown boxes only; counts ● full only (◐ half does not count)
   const label = (m) => (m.flog ? m.flog.statusText : m.status === "done" || m.status === "complete" ? roadDoneLabel(m) : ROAD_STATUS_TEXT[m.status] || m.status);
   // Equal-width status pills, pure CSS: every pill stacks ALL of this card's labels in one grid cell (others
   // invisible), so each pill's width = the widest label + the same padding + the same border. No measuring.
@@ -1792,11 +1796,11 @@ function RoadCard({ road, onEntryTap, openReq, heroNet, netPending, heroFlight }
     const vp = window.RoadCleanup.vehicleProgress(m, road); return vp.total && vp.done ? `${vp.done} of ${vp.total}` : null; };
   return (
     <section className={"road" + (main ? " main-open" : "")} aria-label={title}>
-      <button className="road-head" aria-expanded={main} onClick={() => { setMain(!main); setOpen(null); }}>
+      <button ref={barRef} className="road-head" aria-expanded={main} onClick={() => { setMain(!main); setOpen(null); }}>
         <span className="road-title"><h2>{title}</h2></span>
         <span className="road-sum">
           <span className="road-dots">{items.map((m) => <i key={m.id} className={"dot dot-" + m.status} style={catVars(m.id, m.color)} title={m.name + ": " + label(m)} aria-label={m.name + ": " + label(m)} role="img" />)}</span>
-          <span className="road-count">{done} of {items.length} done</span>
+          <span className="road-count"><span className="rc-full">{done} of {items.length} done</span><span className="rc-slash">{done}/{items.length}</span></span>
           {xOff && <span className="road-xoff" title="The checker cannot read X right now (X API credits). Cards from other sources still update.">X feed offline</span>}
           <svg className="road-chev" width="16" height="16" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5l4 4 4-4" stroke="currentColor" strokeWidth="1.7" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </span>
@@ -3397,6 +3401,23 @@ function useFitTier(ref, tiers, fits, key) {
 // Bar: "6 of 6 done" → "6 of 6" → tighter dots/gaps → smaller title/action. Never an ellipsis.
 const BAR_TIERS = ["full", "short", "st", "st2"];
 const barFits = (el) => el.scrollWidth <= el.clientWidth;
+// Page 1 Road bars (hero road-head + past-toggle, every flight): "N of N done" → "N/N" → tighter dots → wrap. Never clip the title, count or chevron.
+const P1_BAR_TIERS = ["full", "tight", "slash", "st", "st2", "wrap"];
+function p1BarFits(el) {
+  const br = el.getBoundingClientRect();
+  const inside = (r) => r.right <= br.right + 0.5 && r.left >= br.left - 0.5;
+  const title = el.querySelector(".past-toggle-title, .road-title");
+  if (title) { const r = document.createRange(); r.selectNodeContents(title); const tr = r.getBoundingClientRect(); if (tr.width > 0 && !inside(tr)) return false; }
+  const count = el.querySelector(".road-count");
+  if (count) {
+    const r = document.createRange(); r.selectNodeContents(count);
+    const cr = r.getBoundingClientRect();
+    if ((cr.width > 0 && !inside(cr)) || count.scrollWidth > count.clientWidth + 0.5) return false;
+  }
+  const chev = el.querySelector(".past-chev, .road-chev");
+  if (chev) { const vis = chev.querySelector("path") || chev; if (!inside(vis.getBoundingClientRect())) return false; }
+  return true;
+}
 // Live row: (a) one-line time right of the pill, (b) time stacked in two lines right of the pill, (bt) the same with a
 // tighter pill padding, (c) time on its own line under the pill, (ct) the same with the tighter pill, then the pill font
 // steps down (12px, 11px). The pill text itself is never cut.
@@ -3894,8 +3915,8 @@ const css = `
 }
 .st *, .st *::before, .st *::after { box-sizing: border-box; }
 html, body, .st { overflow-anchor: none; } /* we handle scroll position ourselves */
-.title { flex-wrap: wrap; row-gap: 2px; }
-.t-word { white-space: nowrap; }
+.title { min-width: 0; } /* 15 Nov: "Starship Flight 15" wraps as text so the status pill stays whole and top-right */
+.t-word { overflow-wrap: break-word; }
 .st-wrap { max-width: 440px; margin: 0 auto; padding: calc(18px + var(--sat)) 18px 72px; }
 
 /* header */
@@ -4001,13 +4022,13 @@ a.watch-badge-live:active { transform: scale(.96); }
 .lightbox.show { opacity: 1; pointer-events: auto; background: rgba(8,12,24,.9); }
 .lightbox img { max-width: 100%; max-height: 100%; border-radius: 12px; box-shadow: 0 30px 60px -20px rgba(0,0,0,.7); }
 .info { min-width: 0; padding-top: 2px; }
-.info-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
-.title { display: flex; align-items: baseline; gap: 6px; }
+.info-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; min-width: 0; } /* no wrap: the pill stays top-right; the title shrinks and wraps instead */
+.title { display: block; min-width: 0; line-height: 1.15; } /* inline wrap: "Flight 15" can share a line when "Starship Flight" does not fit */
 .title .t-word { font-size: 17px; font-weight: 600; color: var(--text); }
 .title .t-num { font-size: 21px; font-weight: 400; line-height: 1; letter-spacing: -.01em; }
 .date { font-size: 14px; font-weight: 500; margin-top: 8px; }
 .sub { font-size: 12.5px; color: var(--muted); margin-top: 3px; }
-.pill { font-size: 11.5px; font-weight: 600; padding: 4px 9px; border-radius: 999px; white-space: nowrap; }
+.pill { font-size: 11.5px; font-weight: 600; padding: 4px 9px; border-radius: 999px; white-space: nowrap; flex-shrink: 0; } /* Success / Failure / Partial / Upcoming: never shrink or ellipsize */
 .pill-success { background: rgba(124,200,158,.14); color: #9EDBB8; }
 .pill-partial { background: rgba(230,200,115,.15); color: #EBD38C; }
 .pill-failure { background: rgba(238,120,120,.15); color: #F2A2A2; }
@@ -4027,7 +4048,7 @@ a.watch-badge-live:active { transform: scale(.96); }
   border-radius: 999px; font: inherit; font-size: 13px; font-weight: 700; color: var(--text); cursor: pointer; -webkit-tap-highlight-color: transparent;
   background: rgba(12,16,32,.55); border: 1px solid rgba(170,190,245,.16); transition: background-color .15s, border-color .15s; }
 .past-toggle-title { flex: none; white-space: nowrap; }
-.past-toggle .road-count { flex: 1; font-size: 12px; font-weight: 500; color: var(--muted); white-space: nowrap; }
+.past-toggle .road-count { flex: 1 0 auto; font-size: 12px; font-weight: 500; color: var(--muted); white-space: nowrap; }
 .past-toggle:active { border-color: rgba(170,190,245,.3); }
 .past-toggle:focus-visible { outline: 2px solid rgba(170,190,245,.5); outline-offset: 2px; }
 .past-chev { color: var(--text); flex: none; transition: transform .35s; }
@@ -4149,7 +4170,24 @@ textarea.feedback-field { resize: none; min-height: 112px; }
 .dot { width: 9px; height: 9px; border-radius: 50%; display: block; border: 1.5px solid var(--c); background: transparent; } /* ○ empty = not yet */
 .dot-progress { background: linear-gradient(90deg, var(--c) 50%, transparent 50%); } /* ◐ half = one vehicle / one test completed */
 .dot-done, .dot-complete { background: var(--c); } /* ● full = every Flight N vehicle done, or official; ring and fill always the same colour */
-.road-count { flex: 1; white-space: nowrap; }
+.road-count { flex: 1 0 auto; white-space: nowrap; }
+/* Page 1 Road bars (hero + past): full count → N/N → tighter dots → wrap. The title and chevron never clip. */
+.past-toggle .rc-slash, .road-head .rc-slash { display: none; }
+.past-toggle[data-fit="slash"] .rc-full, .past-toggle[data-fit^="st"] .rc-full, .past-toggle[data-fit="wrap"] .rc-full,
+.road-head[data-fit="slash"] .rc-full, .road-head[data-fit^="st"] .rc-full, .road-head[data-fit="wrap"] .rc-full { display: none; }
+.past-toggle[data-fit="slash"] .rc-slash, .past-toggle[data-fit^="st"] .rc-slash, .past-toggle[data-fit="wrap"] .rc-slash,
+.road-head[data-fit="slash"] .rc-slash, .road-head[data-fit^="st"] .rc-slash, .road-head[data-fit="wrap"] .rc-slash { display: inline; }
+/* tight: keep "N of N done", only shave padding/gaps so a 360px bar still fits */
+.past-toggle[data-fit="tight"], .road-head[data-fit="tight"] { padding-right: 8px; gap: 6px; }
+.road-head[data-fit="tight"] .road-sum { gap: 6px; }
+.past-toggle[data-fit^="st"], .road-head[data-fit^="st"] { gap: 6px; }
+.past-toggle[data-fit^="st"] .road-dots, .road-head[data-fit^="st"] .road-dots, .road-head[data-fit^="st"] .road-sum { gap: 4px; }
+.past-toggle[data-fit^="st"] .road-dots .dot, .road-head[data-fit^="st"] .road-dots .dot { width: 8px; height: 8px; }
+.past-toggle[data-fit="st2"], .road-head[data-fit="st2"] { gap: 5px; }
+.past-toggle[data-fit="st2"] .road-dots, .road-head[data-fit="st2"] .road-dots, .road-head[data-fit="st2"] .road-sum { gap: 3px; }
+.past-toggle[data-fit="st2"] .road-dots .dot, .road-head[data-fit="st2"] .road-dots .dot { width: 7px; height: 7px; }
+.past-toggle[data-fit="wrap"], .road-head[data-fit="wrap"] { flex-wrap: wrap; row-gap: 4px; }
+.past-toggle[data-fit="wrap"] .past-toggle-title { flex-basis: 100%; }
 .road-chev { flex: none; transition: transform .35s; }
 .main-open .road-chev { transform: rotate(180deg); }
 .road-list { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .5s cubic-bezier(.2,.8,.2,1); }

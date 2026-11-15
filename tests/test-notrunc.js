@@ -1,5 +1,6 @@
-// No cut-off text (15 Nov, every flight): vehicle names never truncate, summaries wrap instead of an ellipsis, chips and
-// dates never clip — Page 1 current + past Road boxes and Page 2 groups at 320/360/390 and 320 with a desktop scrollbar.
+// No cut-off text (15 Nov, every flight): vehicle names never truncate, summaries wrap instead of an ellipsis, chips,
+// dates, the card-header status pill and Page 1 Road header count/chevron never clip — Page 1 hero, current + past Road
+// bars, opened flight cards, and Page 2 groups at 320/360/390 and 320 with a desktop scrollbar.
 // Same render pass, Bernardo's 15 Nov rules: Page 2 shows only flights N and N+1, every opened group shows all its cards
 // with no "Show all updates" button, and an opened flight card's vehicle photos load uncropped with the vehicle names.
 // Renders the local repo in headless Chrome (tests/notrunc-audit.py); nothing is fetched from the live site or sent.
@@ -12,6 +13,8 @@ check(/flex-wrap: wrap/.test(css(".past-box-top")), ".past-box-top: the pill wra
 check(!/line-clamp/.test(css(".past-box p")) && !/line-clamp/.test(css("section.road .callout-latest")), "past and current box summaries: no line clamp (wrap in full)");
 check(!/text-overflow: ellipsis/.test(css("section.road .callout-name")), "current box names: no ellipsis");
 check(/flex-wrap: wrap/.test(css(".post-top")), "Page 2 card top row wraps (the date never clips)");
+check(/flex-shrink: 0/.test(css(".pill")) && !/text-overflow: ellipsis/.test(css(".pill")), ".pill: never shrinks or ellipsizes (Success / Failure / Partial / Upcoming)");
+check(/P1_BAR_TIERS/.test(app) && /rc-slash/.test(app) && /p1BarFits/.test(app), "Page 1 Road bars (hero + past): measured fit, count can drop to N/N");
 let res = null;
 try { res = JSON.parse(execFileSync("python3", [path.join(__dirname, "notrunc-audit.py")], { encoding: "utf8", timeout: 115000, stdio: ["ignore", "pipe", "pipe"] })); }
 catch (e) { console.log("ℹ️  rendered audit skipped (headless Chrome / playwright not available here): " + String(e.message).split("\n")[0]); }
@@ -19,8 +22,10 @@ if (res) for (const r of res) {
   const label = `${r.w}px${r.desktop ? " + desktop scrollbar" : ""}`;
   const veh = r.bad.filter((x) => x.kind === "vehicle");
   check(veh.length === 0, `${label}: no vehicle name overflows or ellipsizes${veh.length ? " — " + veh.map((x) => `${x.text} (${x.tw}>${x.bw})`).join(", ") : ""}`);
-  const rest = r.bad.filter((x) => x.kind !== "vehicle");
+  const rest = r.bad.filter((x) => x.kind !== "vehicle" && !/^card pill|road count|road chevron|road bar$/.test(x.kind));
   check(rest.length === 0, `${label}: no summary, box name, pill, chip or date cut off${rest.length ? " — " + rest.map((x) => `${x.kind}: ${x.text}`).join(", ") : ""}`);
+  const hdr = r.bad.filter((x) => /^card pill|road count|road chevron|road bar$/.test(x.kind));
+  check(hdr.length === 0, `${label}: card-header pill and Road header count/chevron never clip${hdr.length ? " — " + hdr.map((x) => `${x.kind}: ${x.text}`).join(", ") : ""}`);
   const road = JSON.parse(fs.readFileSync(path.join(ROOT, "road.json"), "utf8")), fl = r.page2.groups.map((g) => g.flight);
   check(JSON.stringify(fl) === JSON.stringify([road.flight, road.flight + 1]), `${label}: Page 2 groups = Flight ${fl.join(", ")} (N and N+1 only)`);
   check(r.page2.showButtons === 0 && r.page2.rfsMore === 0 && r.page2.groups.every((g) => g.open && g.cards === g.shown), `${label}: no 'Show all updates' button; every card in each open group renders (${r.page2.groups.map((g) => `F${g.flight} ${g.shown}/${g.cards}`).join(", ")})`);

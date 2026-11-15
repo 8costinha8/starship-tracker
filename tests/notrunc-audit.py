@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # Rendered-text audit used by tests/test-notrunc.js: at 320/360/390 (phone) and 320 with a desktop scrollbar, no vehicle
-# name, box name, summary, chip or date on Page 1 (current + past Road boxes) or Page 2 (every group open) is cut off,
-# ellipsized or clipped. Prints JSON. Local only: serves the repo on 127.0.0.1, sends nothing.
+# name, box name, summary, chip, date, card-header pill or Road header count/chevron on Page 1 (hero, current + past
+# Road bars, opened flight cards) or Page 2 (every group open) is cut off, ellipsized or clipped. Prints JSON. Local
+# only: serves the repo on 127.0.0.1, sends nothing.
 import json, os, sys, threading
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from playwright.sync_api import sync_playwright
@@ -25,7 +26,33 @@ AUDIT = """(sels) => { const out = [];
     while (p && p !== document.body) { const ps = getComputedStyle(p); if (/hidden|clip/.test(ps.overflowX)) { const pr = p.getBoundingClientRect(); if (pr.width > 0 && (er.right > pr.right + 0.5 || er.left < pr.left - 0.5)) { clip = true; break; } }
       if (/past-box|post|callout|mini|rfs/.test(p.className || '')) break; p = p.parentElement; }
     if (over || ell || clip) out.push({ kind, text: el.textContent.trim().slice(0, 60), tw: Math.round(tw), bw: Math.round(bw), ell, clip }); } return out; }"""
-P1 = [["vehicle", ".past-veh"], ["vehicle", "section.road .flog-name"], ["summary", ".past-text"], ["pill", ".past-pill"], ["date", "section.road .mini-date"], ["summary", "section.road .callout-latest"], ["box name", "section.road .callout-name"]]
+P1 = [["vehicle", ".past-veh"], ["vehicle", "section.road .flog-name"], ["summary", ".past-text"], ["pill", ".past-pill"], ["date", "section.road .mini-date"], ["summary", "section.road .callout-latest"], ["box name", "section.road .callout-name"], ["card pill", "article.card .pill"], ["road count", ".past-toggle .road-count, section.road .road-head .road-count, .next .road-head .road-count"]]
+# Page 1 Road bars (hero + past) and the card-header status pill: count/chevron/pill must sit inside their bar or card.
+BARS = """() => { const out = [];
+  const inside = (r, b) => r.right <= b.right + 0.5 && r.left >= b.left - 0.5;
+  for (const bar of document.querySelectorAll('.past-toggle, section.road .road-head, .next .road-head')) {
+    if (!bar.offsetParent) continue;
+    const br = bar.getBoundingClientRect();
+    const count = bar.querySelector('.road-count');
+    const chev = bar.querySelector('.past-chev, .road-chev');
+    if (count) {
+      const r = document.createRange(); r.selectNodeContents(count);
+      const cr = r.getBoundingClientRect(), cs = getComputedStyle(count);
+      if (cr.width > 0 && (!inside(cr, br) || count.scrollWidth > count.clientWidth + 0.5))
+        out.push({ kind: 'road count', text: count.textContent.trim().slice(0, 60), tw: Math.round(cr.width), bw: Math.round(count.getBoundingClientRect().width), ell: cs.textOverflow === 'ellipsis', clip: !inside(cr, br) });
+    }
+    if (chev) { const vis = chev.querySelector('path') || chev; const vr = vis.getBoundingClientRect();
+      if (!inside(vr, br)) out.push({ kind: 'road chevron', text: 'chevron', tw: Math.round(vr.width), bw: Math.round(br.width), ell: false, clip: true }); }
+  }
+  for (const card of document.querySelectorAll('article.card')) {
+    const pill = card.querySelector('.info-top .pill, .pill'); if (!pill || !pill.offsetParent) continue;
+    const head = card.querySelector('.card-head') || card;
+    const pr = pill.getBoundingClientRect(), hr = head.getBoundingClientRect();
+    const r = document.createRange(); r.selectNodeContents(pill); const tw = r.getBoundingClientRect().width;
+    if (tw > pr.width + 0.5 || pill.scrollWidth > pill.clientWidth + 0.5 || !inside(pr, hr) || pr.right > card.getBoundingClientRect().right + 0.5)
+      out.push({ kind: 'card pill', text: pill.textContent.trim().slice(0, 60), tw: Math.round(tw), bw: Math.round(pr.width), ell: getComputedStyle(pill).textOverflow === 'ellipsis', clip: !inside(pr, hr) });
+  }
+  return out; }"""
 P2 = [["chip", ".post-top .chip"], ["date", ".post-date"], ["summary", ".post-text"], ["date", ".bu-date"]]
 res = []
 with sync_playwright() as p:
@@ -35,11 +62,13 @@ with sync_playwright() as p:
         pg = ctx.new_page(); pg.add_init_script("localStorage.setItem('st_notif_status','off');")
         pg.goto(URL, wait_until="domcontentloaded"); pg.wait_for_selector("section.road", timeout=60000); pg.wait_for_timeout(2500); pg.evaluate(DISMISS)
         bad = []
+        bad += pg.evaluate(BARS)
         pg.locator("section.road .road-head").click(); pg.wait_for_timeout(500)
         for b in pg.evaluate("() => [...document.querySelectorAll('section.road .callout')].map(c => c.dataset.id)"):
             hd = pg.locator(f"section.road .callout[data-id='{b}'] button.callout-head")
             if hd.count() and pg.evaluate("(b) => !document.querySelector(`section.road .callout[data-id='${b}']`).classList.contains('open')", b): hd.click(); pg.wait_for_timeout(350)
             bad += pg.evaluate(AUDIT, P1)
+        bad += pg.evaluate(BARS)
         photos = []
         for n in pg.evaluate("() => [...document.querySelectorAll('article.card')].filter(c => c.querySelector('.past-toggle')).map(c => c.querySelector('.t-num').textContent.trim())"):
             c = pg.locator("article.card").filter(has=pg.locator(".t-num", has_text=n)).first
@@ -48,6 +77,7 @@ with sync_playwright() as p:
             tg = c.locator(".past-toggle")
             if tg.first.get_attribute("aria-expanded") != "true": tg.first.click(); pg.wait_for_timeout(900)
             bad += pg.evaluate(AUDIT, P1)
+            bad += pg.evaluate(BARS)
             pg.wait_for_timeout(600)
             photos += c.evaluate(PHOTOS)
         pg.goto(URL + "?feed=1", wait_until="domcontentloaded"); pg.wait_for_selector(".feed-list", timeout=60000); pg.wait_for_timeout(2500); pg.evaluate(DISMISS)
