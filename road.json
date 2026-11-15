@@ -5,7 +5,7 @@
     "S43"
   ],
   "updated": "15 Nov",
-  "updatedAt": "2026-11-15T16:00:49.465Z",
+  "updatedAt": "2026-11-15T19:00:54.115Z",
   "categories": [
     {
       "id": "cryo",
@@ -1451,6 +1451,17 @@
   },
   "feed_items": [
     {
+      "id": "news-mwi74kuw-8d54e6",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Ship 42 was lowered from Pad 2 for rollback to the production site.",
+      "url": "https://x.com/NASASpaceflight/status/2122041138748231857",
+      "at": "2026-11-15T18:56:47.000Z",
+      "date": "15 Nov",
+      "flight": 15,
+      "later_flight": true
+    },
+    {
       "id": "news-mwh67qw8-b034b5",
       "kind": "news",
       "title": "🚀 Starship",
@@ -1879,17 +1890,6 @@
       "flight": 15,
       "src": "@Blobifie",
       "later_flight": true
-    },
-    {
-      "id": "news-mw6licls-0b2f64",
-      "kind": "news",
-      "title": "🚀 Starship",
-      "body": "Flight controllers gained options to tumble Starship on reentry.",
-      "url": "https://x.com/Blobifie/status/2119099099039571987",
-      "at": "2026-11-07T16:06:10.000Z",
-      "date": "7 Nov",
-      "flight": 15,
-      "src": "@Blobifie"
     }
   ],
   "hardware_flights": {
