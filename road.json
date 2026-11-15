@@ -4,8 +4,8 @@
     "B23",
     "S43"
   ],
-  "updated": "14 Nov",
-  "updatedAt": "2026-11-14T21:31:40.434Z",
+  "updated": "15 Nov",
+  "updatedAt": "2026-11-15T01:45:56.456Z",
   "categories": [
     {
       "id": "cryo",
@@ -1435,6 +1435,17 @@
   },
   "feed_items": [
     {
+      "id": "news-mwh67qw8-b034b5",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Ship 42 rested in the chopsticks after its mission.",
+      "url": "https://x.com/TrackingTheSB/status/2121781097340064178",
+      "at": "2026-11-15T01:43:29.000Z",
+      "date": "15 Nov",
+      "flight": 15,
+      "later_flight": true
+    },
+    {
       "id": "flight-mwgx6mtf-7296a4",
       "kind": "flight",
       "title": "🏁 Flight 15 — Success",
@@ -1862,15 +1873,6 @@
       "date": "7 Nov",
       "flight": 15,
       "src": "@Blobifie"
-    },
-    {
-      "id": "flight-mw6lawnq-3cabdd",
-      "kind": "flight",
-      "title": "📅 New estimated time",
-      "body": "NET 13 Nov · 22:45 UK",
-      "at": "2026-11-07T16:00:22.742Z",
-      "date": "7 Nov",
-      "flight": 15
     }
   ],
   "hardware_flights": {
