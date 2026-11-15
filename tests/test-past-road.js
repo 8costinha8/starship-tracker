@@ -4,7 +4,14 @@
 const fs = require("fs"), path = require("path");
 const ROOT = path.join(__dirname, "..");
 const app = fs.readFileSync(path.join(ROOT, "app.js"), "utf8");
-const live = JSON.parse(fs.readFileSync(path.join(ROOT, "road.json"), "utf8"));
+// Data-independent (15 Nov): road.json moves on every handover, so the checks run on a fixture built from it, pinned to
+// "Road to Flight 15 with Flight 14 archived" (Flight 14's archive is frozen) plus Flight 15's liftoff data.
+const live = (() => { const r = JSON.parse(fs.readFileSync(path.join(ROOT, "road.json"), "utf8"));
+  r.flight = 15; r.archive = { 14: r.archive["14"] };
+  r.mission_alerts = { ...(r.mission_alerts || {}), flight: 15, liftoff_actual: "2026-11-13T22:47:36.000Z" };
+  r.feed_items = (r.feed_items || []).filter((f) => f.id !== "fixture-liftoff-15").concat(
+    (r.feed_items || []).some((f) => /Liftoff/.test(f.title || "") && f.flight === 15) ? [] : [{ id: "fixture-liftoff-15", kind: "flight", title: "🚀 Liftoff!", body: "Flight 15 is in the air · Watch now", at: "2026-11-13T23:00:31.652Z", date: "13 Nov", flight: 15 }]);
+  return r; })();
 let fails = 0; const check = (ok, m) => { console.log((ok ? "✅ " : "❌ ") + m); if (!ok) fails++; };
 
 const start = app.indexOf("// A launched flight's milestone summary");
@@ -15,7 +22,7 @@ const FLIGHTS = [{ n: 13, date: "2026-07-24T22:51:00Z", pad: "Pad 2" }, { n: 14,
 
 // live data: Flight 14 is generated, above the current flight, from the archive only
 const road = JSON.parse(JSON.stringify(live));
-check(road.flight === 15, "live Road is Flight 15");
+check(road.flight === 15, "fixture Road is Flight 15");
 check(JSON.stringify(H.pastRoadFlights(road, FLIGHTS)) === "[14]", "live road.json → one past group: Flight 14");
 const g = H.pastRoadGroup(road, 14, FLIGHTS, []);
 check(g.items.length === 6 && g.items.every((i) => i.status === "done"), "Flight 14 bar: 6 of 6 done (liftoff closes every box)");

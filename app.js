@@ -1145,10 +1145,13 @@ function galleryOf(f, past) {
 // Thumb: the flight's own photo, else (placeholder or none) its first Road milestone photo.
 const thumbOf = (f, past) => { const t = f.photo && f.photo.thumb; return t && t !== RTF_PLACEHOLDER ? t : galleryOf({ photo: {} }, past)[0] || t; };
 function FlightCard({ f, open, onTap, onPhotoTap, register, road }) {
-  const past = React.useMemo(() => (isLaunched(f.n) ? pastSummary(road, f.n) : []), [road, f.n]); // launched flights only, never the next flight
+  // Page 1's Road to Flight N is the condensed copy of Page 2's past group: the same pastRoadGroup entries (ids, text,
+  // photos), minus the Launch date card (the date is already in this card's header). Launched flights only.
+  const group = React.useMemo(() => ((isLaunched(f.n) ? pastSummary(road, f.n) : []).length ? pastRoadGroup(road, f.n, FLIGHTS, ROAD_HIDDEN) : null), [road, f.n]); // launched flights with an archive only, never the next flight
+  const past = React.useMemo(() => (group ? pastCondensed(group) : []), [group]);
   const [pastOpen, setPastOpen] = React.useState(false); // the Road list starts closed
-  // Archive flights only (the toggle already hides when pastSummary is empty): all six category dots filled.
-  const pastDots = React.useMemo(() => ((road && road.categories) || []).filter((m) => !ROAD_HIDDEN.includes(m.id)).map((m) => ({ id: m.id, name: m.name, color: m.color || PAST_COLOR[m.id] })), [road]);
+  // Archive flights only (the toggle already hides when there is no summary): all six category dots filled, as on Page 2.
+  const pastDots = React.useMemo(() => (group ? group.items : []), [group]);
   const onKey = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onTap(f.n); } };
   // While closed, tapping the thumb should expand the card like the rest of the header.
   // Once open, tapping the thumb opens the lightbox instead — so it needs to stop
@@ -1190,7 +1193,7 @@ function FlightCard({ f, open, onTap, onPhotoTap, register, road }) {
               <div className={"past-wrap" + (pastOpen ? " open" : "")} id={`past-${f.n}`} aria-hidden={!pastOpen}><div className="past-wrap-inner">
               <div className="past-sum" aria-label={`Road to Flight ${f.n}`}>
                 {past.map((e, i) => (
-                  <div className="past-box" key={i} data-id={e.box} style={catVars(e.box, e.color)}>
+                  <div className="past-box" key={e.id || i} data-id={e.box} data-entry={e.id} style={catVars(e.box, e.color)}>
                     <PastTop vehicle={e.vehicle} labels={e.labels || [e.label]} />
                     <PastText tiers={(e.tiers && e.tiers.length ? e.tiers : [e.text]).map((t) => scrub(String(t || "")))} />
                   </div>
@@ -2061,26 +2064,36 @@ function pastPadCard(padItems, sources) {
   if (!padItems.length && !stack && !wdr) return null;
   return { box: "pad", vehicle: "Full stack", text, tiers, ...(photo ? { photo } : {}) };
 }
-function pastLicenceIssued(sources) {
+function pastLicenceIssued(sources, n) {
   for (const e of sources) {
     const blob = [e && e.text, e && e.log_text, e && e.card_text].filter(Boolean).join(" ");
     // A licence issued for another flight, or an explicit "not yet / needs a modification", is not a date for this card.
     if (/needs a licence|licence modification|covers Flight|for Flight \d+ only|no .+licence yet|not yet issued|licence pending/i.test(blob)) continue;
     const named = pastDateInText(blob, /Launch licence issued\s+(\d{1,2}\s+[A-Z][a-z]{2})/i);
     if (named) return named;
-    if (/\blicence was issued\b/i.test(blob)) {
+    // "licence was issued", "FAA approval has arrived for Starship Flight 15", "licence issued for Flight 15": the entry's own
+    // date (never invented), and only when it names no other flight.
+    const other = n != null && [...blob.matchAll(/\bFlight\s+(\d{1,3})\b/gi)].some((m) => Number(m[1]) !== Number(n));
+    if (!other && /\b(?:licen[cs]e (?:was |has been )?(?:issued|granted)|approval (?:has )?(?:arrived|been granted)|approval granted)\b/i.test(blob)) {
       const d = pastDay(e.date || e.log_date || "") || pastDateInText(blob, PAST_DAY);
       if (d) return d;
     }
   }
   return "";
 }
-function pastLicenceCard(faaItems, sources) {
+// Past Roads (launched flights only): liftoff closes every box, so the licence is issued even when no issue date is
+// known; then the card says so without a date. Never "Licence pending" on a flight that flew.
+function pastLicenceCard(faaItems, sources, n) {
   const src = (sources && sources.length ? sources : faaItems) || [];
-  const date = pastLicenceIssued(src);
+  const date = pastLicenceIssued(src, n);
   const photo = (faaItems || []).map((e) => e.photo).find((p) => p && p.image) || src.map((e) => e.photo).find((p) => p && p.image) || null;
-  const tiers = date ? ["Launch licence issued " + date, "Licence issued " + date, "Issued " + date] : ["Licence pending"];
+  const tiers = date ? ["Launch licence issued " + date, "Licence issued " + date, "Issued " + date] : ["Launch licence issued", "Licence issued"];
   return { box: "faa", vehicle: "Licence", text: tiers[0], tiers, ...(photo ? { photo } : {}) };
+}
+// Manual override for a past Road box: road.box_overrides[n][box].latest (same field the live Road boxes use) wins.
+function pastOverride(road, n, box) {
+  const raw = road && road.box_overrides, ov = raw && (raw[n] || raw[String(n)]), one = ov && ov[box];
+  return one && typeof one.latest === "string" && one.latest.trim() ? one.latest.trim() : null;
 }
 function pastSummary(road, n) {
   if (!road || !Array.isArray(road.categories)) return [];
@@ -2091,10 +2104,11 @@ function pastSummary(road, n) {
   // one Licence card. Launch date is hidden (already in the card details). The frozen archive
   // is left as it is. Pad text is one line, "Stacked {date} · Wet dress {date}", built from
   // real events; a missing half is dropped. Licence is "Launch licence
-  // issued {date}", or "Licence pending" when there is no issue date for this flight.
+  // issued {date}", or "Launch licence issued" (no date) when none is known: liftoff closes every box.
   const raw = items.filter((e) => e && e.text && e.vehicle && e.box !== "date");
   if (!raw.length) return []; // no invented past section when the archive has nothing for this flight
-  const row = [...raw.filter((e) => e.box !== "pad" && e.box !== "faa"), pastPadCard(raw.filter((e) => e.box === "pad"), pastFlightSources(road, n, "pad")), pastLicenceCard(raw.filter((e) => e.box === "faa"), pastFlightSources(road, n, "faa"))].filter(Boolean);
+  const row = [...raw.filter((e) => e.box !== "pad" && e.box !== "faa"), pastPadCard(raw.filter((e) => e.box === "pad"), pastFlightSources(road, n, "pad")), pastLicenceCard(raw.filter((e) => e.box === "faa"), pastFlightSources(road, n, "faa"), n)].filter(Boolean)
+    .map((e) => { const o = pastOverride(road, n, e.box); return o && (e.box === "faa" || e.box === "pad") ? { ...e, text: o, tiers: [o] } : e; });
   return row.map((e) => ({ box: e.box, vehicle: e.vehicle, text: e.text, tiers: e.tiers || pastTiers(e.box, e.text, e.vehicle), label: PAST_LABEL[e.box] || e.box, labels: [PAST_LABEL[e.box] || e.box, ...(PAST_LABEL_SHORT[e.box] ? [PAST_LABEL_SHORT[e.box]] : [])], color: color(e.box), photo: e.photo && e.photo.image ? e.photo : null }));
 }
 // --- past-road helpers (tested by tests/test-past-road.js) ---
@@ -2126,10 +2140,47 @@ function pastRoadGroup(road, n, flights, hidden) {
   const cat = (id) => cats.find((m) => m.id === id) || { id, name: PAST_LABEL[id] || id, color: PAST_COLOR[id] };
   const rank = (id) => { const i = PAST_ROAD_ORDER.indexOf(id); return i < 0 ? 99 : i; };
   const sum = pastSummary(road, n).map((e, i) => ({ ...e, i })).sort((a, b) => rank(a.box) - rank(b.box) || (a.box === "pad" ? padFirst(a.vehicle) - padFirst(b.vehicle) : 0) || a.i - b.i);
-  const cards = sum.filter((e) => cats.some((m) => m.id === e.box)).map((e, i) => ({ id: `past-${n}-${e.box}-${i}`, box: e.box, cat: cat(e.box), vehicle: e.vehicle, text: e.text, iso: null }));
+  // one list for both views (Page 2 group cards, Page 1 condensed boxes): same entries, ids, wording tiers and photos
+  const cards = sum.filter((e) => cats.some((m) => m.id === e.box)).map((e, i) => ({ id: `past-${n}-${e.box}-${i}`, box: e.box, cat: cat(e.box), vehicle: e.vehicle, text: e.text, iso: null,
+    tiers: e.tiers, label: e.label, labels: e.labels, color: e.color, photo: e.photo || null }));
   const lift = liftoffIsoFor(road, n, flights);
   if (lift && cats.some((m) => m.id === "date")) cards.push({ id: `past-${n}-date`, box: "date", cat: cat("date"), vehicle: null, text: `Flight ${n} lifted off${f.pad ? ` from ${f.pad}` : ""}.`, iso: lift });
   return { flight: n, items, cards };
+}
+// Page 1 condensed view of a past group: every card except the Launch date one.
+const pastCondensed = (g) => ((g && g.cards) || []).filter((c) => c.box !== "date");
+// Page 2 rows after a handover (every flight, 15 Nov): a flight with its own past group (road.archive[n]) is shown only as
+// that closed group, between the older groups and the current flight; its leftover launch-day items (Liftoff, result) are
+// folded into it, never a loose divider below the next flight. A launched flight without a past group keeps its own
+// section, still above the current flight. Later flights stay below. rows = rtfRows(road).rows.
+function roadPageRows(rows, current, pastFlights) {
+  const past = new Set(pastFlights || []), cur = [], early = [], late = [];
+  let mode = "before", n = null;
+  for (const r of rows || []) {
+    if (r.section) { n = r.section.n; if (r.section.next) { mode = "cur"; continue; } mode = "rest"; }
+    if (mode === "cur" && !r.section) { cur.push(r); continue; }
+    if (mode === "before" && !r.section) { late.push(r); continue; }
+    if (past.has(n)) continue; // folded into its past group
+    (Number.isInteger(n) && n < current ? early : late).push(r);
+  }
+  return { cur, early, late };
+}
+// A launch-day push of a flight that is over (logged or both stages confirmed) never renders as live: the Liftoff push
+// becomes "Flight N lifted off" at the real liftoff time (never the push's own post time), and the bare
+// "The story's up in the app." result push carries the logged story (Style A) or is dropped. Same rule for every flight.
+const LIVE_PUSH = /lift ?off/i, STORY_UP = /^the story'?s up in the app\.?$/i;
+function settledFeedPost(p, road, flights, complete) {
+  if (!p || !p.cat || !/^feed-(?:flight|notice)$/.test(p.cat.id) || !Number.isInteger(p.flight)) return p;
+  const f = (flights || []).find((x) => x.n === p.flight);
+  const over = !!(f && f.date) || !!complete;
+  if (!over) return p;
+  const body = String((p.h && p.h.text) || "").trim();
+  if (LIVE_PUSH.test(p.cat.name || "") && /in the air|watch (?:now|live)/i.test(body)) {
+    const iso = liftoffIsoFor(road, p.flight, flights);
+    return { ...p, h: { ...p.h, text: `Flight ${p.flight} lifted off.`, card_text: undefined, url: undefined, ...(iso ? { publishedAt: iso, date: undefined } : {}) }, when: iso ? Date.parse(iso) : p.when, settled: true };
+  }
+  if (STORY_UP.test(body)) return f && f.story ? { ...p, h: { ...p.h, text: f.story, card_text: undefined }, settled: true } : null;
+  return p;
 }
 // --- end past-road helpers ---
 // --- mission-card helpers (tested by scripts/test-missioncard.js) ---
@@ -3388,20 +3439,14 @@ function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap, peekOpe
   }, [peekRoad]);
   const curItems = React.useMemo(() => roadCatItems(road, { heroNet, netPending }), [road, heroNet, netPending]);
   const peekItems = React.useMemo(() => peekCatItems(peekRoad), [peekRoad]);
-  const curPosts = [], rest = [];
-  let mode = "before";
-  for (const r of rows) {
-    if (r.section && r.section.next) { mode = "cur"; continue; } // the next-flight divider is replaced by the slim pill
-    if (r.section) { mode = "rest"; rest.push(r); continue; }
-    if (mode === "cur") curPosts.push(r);
-    else rest.push(r);
-  }
+  // every launched flight with an archive is a closed past group (oldest first) above the current flight; its leftover
+  // launch-day rows are folded into it (roadPageRows), so nothing of it is left below the next flight
+  const pastGroups = React.useMemo(() => pastRoadFlights(road, FLIGHTS).map((n) => pastRoadGroup(road, n, FLIGHTS, ROAD_HIDDEN)), [road]);
+  const { cur: curPosts, early, late: rest } = roadPageRows(rows, road && road.flight, pastGroups.map((g) => g.flight));
   const liveIdx = curPosts.findIndex((r) => r && r.post && isMilestoneItem(r.post) && /lift ?off/i.test(r.post.cat.name || ""));
   const livePost = liveIdx >= 0 ? curPosts[liveIdx].post : null;
   const [curOpenUser, setCurOpen] = React.useState(null);
   const curOpen = curOpenUser ?? true; // the current flight stays the active, expanded group (past flights start collapsed)
-  const pastGroups = React.useMemo(() => { const flown = rows.filter((r) => r.section).map((r) => r.section.n); // a flight still listed below keeps that section only
-    return pastRoadFlights(road, FLIGHTS, flown).map((n) => pastRoadGroup(road, n, FLIGHTS, ROAD_HIDDEN)); }, [road, rows]);
   const [pastOpen, setPastOpen] = React.useState({}); // past flights start collapsed
   const [deckReady, setDeckReady] = React.useState(false); // skip the open morph on first paint
   React.useEffect(() => { const id = requestAnimationFrame(() => setDeckReady(true)); return () => cancelAnimationFrame(id); }, []);
@@ -3409,7 +3454,7 @@ function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap, peekOpe
     ? <div className="fdiv" id={`fsec-${r.section.n}`} key={"f" + r.section.n}><span><b>{`Flight ${r.section.n}`}</b>{(r.section.flown || r.section.next) && <> <i>·</i> </>}{r.section.flown
         ? <><span className={"fdiv-" + r.section.flown.outcome}>{OUTCOME_LABEL[r.section.flown.outcome] || r.section.flown.outcome}</span> <i>·</i> {ukStamp(new Date(r.section.flown.day).toISOString(), false, true)}</>
         : r.section.next ? <span className="fdiv-next">Next flight</span> : null}</span></div>
-    : r.empty ? null : <ErrorBoundary key={r.post.id} where={"feed:" + r.post.id}><FeedPost p={r.post} onPhotoTap={onPhotoTap} idx={idx} st={dateSt && dateSt.id === r.post.id ? dateSt : null} /></ErrorBoundary>;
+    : r.empty ? null : ((q) => q && <ErrorBoundary key={r.post.id} where={"feed:" + r.post.id}><FeedPost p={q} onPhotoTap={onPhotoTap} idx={idx} st={dateSt && dateSt.id === q.id ? dateSt : null} /></ErrorBoundary>)(r.post.flight === road.flight ? r.post : settledFeedPost(r.post, road, FLIGHTS, missionComplete(road, r.post.flight))); // a flight that is over never renders live (B, D)
   if (!posts.length) return null;
   return (
     <aside className="feed-pane" aria-label="Updates feed" aria-hidden={!wide && !shown}>
@@ -3426,6 +3471,7 @@ function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap, peekOpe
               {g.cards.map((c) => <PastPost key={c.id} c={c} />)}
             </RoadFlightSection>
           ))}
+          {early.map(renderRow)}
           {Number.isInteger(road && road.flight) && (
             <RoadFlightSection flight={road.flight} items={curItems} open={curOpen} onToggle={() => setCurOpen(!curOpen)} deckReady={deckReady} live={livePost} liveDone={livePost ? missionComplete(road, road.flight) : false} liftIso={livePost ? liftoffIsoFor(road, road.flight, FLIGHTS, heroLiftIso) : null}>
               {curPosts.filter((r, i) => i !== liveIdx).map(renderRow)}
@@ -3601,8 +3647,11 @@ function StarshipTracker() {
   React.useEffect(() => {
     if (wide || !feedOpen) return;
     const de = document.documentElement, y = window.scrollY;
+    // The hidden Flight Log leaves the page flow while Road is open (pinned where it was), so the document is one
+    // screen tall: no blank Flight Log-sized area under the Road content (15 Nov, scrollHeight 3246 → viewport).
+    de.style.setProperty("--lock-y", `${-y}px`);
     de.classList.add("feed-lock");
-    return () => { de.classList.remove("feed-lock"); if (Math.abs(window.scrollY - y) > 1) window.scrollTo(0, y); };
+    return () => { de.classList.remove("feed-lock"); de.style.removeProperty("--lock-y"); if (Math.abs(window.scrollY - y) > 1) window.scrollTo(0, y); };
   }, [wide, feedOpen]);
 
   // iOS-style swipe: the panel follows your finger, then settles open or shut
@@ -4362,6 +4411,7 @@ button.feed-pill:focus-visible { outline: 2px solid #A9BDF0; outline-offset: 4px
   }
   .feed-pane .feed { height: 100%; scrollbar-width: thin; scrollbar-color: rgba(170,190,245,.35) transparent; }
   html.feed-lock, html.feed-lock body { overflow: hidden; scrollbar-gutter: stable; } /* Road open: the window doesn't scroll (no stale bar), .feed does */
+  html.feed-lock .st-wrap { position: fixed; top: var(--lock-y, 0); left: 0; right: 0; } /* Road open: the Flight Log is out of the flow, so the page is one screen tall (no blank area below Road) */
   .feed-on .feed-pane { visibility: visible; }
   .feed-on .st-wrap {
     -webkit-transform: translate3d(calc(var(--fp) * -100%), 0, 0); transform: translate3d(calc(var(--fp) * -100%), 0, 0);
