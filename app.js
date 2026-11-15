@@ -973,13 +973,13 @@ function RocketMark() {
   );
 }
 
-function PhotoSlot({ size, src, alt, onClick, credit = "SpaceX", contain }) {
+function PhotoSlot({ size, src, alt, onClick, credit = "SpaceX", focus }) {
   const [failed, setFailed] = React.useState(false);
   React.useEffect(() => setFailed(false), [src]);
   if (src && !failed) {
     return (
-      <div className={`photo photo-${size} has-img${contain ? " photo-contain" : ""}${onClick ? " tappable" : ""}`} onClick={onClick}>
-        <img src={src} alt={alt || ""} loading="lazy" onError={() => setFailed(true)} />
+      <div className={`photo photo-${size} has-img${onClick ? " tappable" : ""}`} onClick={onClick}>
+        <img src={src} alt={alt || ""} loading="lazy" onError={() => setFailed(true)} style={focus ? { objectPosition: focus } : undefined} />
         <span className="photo-credit">{credit}</span>
       </div>
     );
@@ -1143,13 +1143,20 @@ function galleryOf(f, past) {
   return pics.length ? pics : [undefined];
 }
 // 15 Nov (Bernardo, every flight): an opened flight card's two pictures are one strong mission photo per vehicle, booster
-// left, ship right, when road.archive[n].vehicle_photos = { booster: { image, label? }, ship: { image, label? } } is set
-// (hand-picked: it wins). A side that isn't set keeps the flight's own gallery picture (the SpaceX recap images).
+// left, ship right, when road.archive[n].vehicle_photos = { booster: { image, label?, focus? }, ship: { image, label?, focus? } }
+// is set (hand-picked: it wins). They render in the same 4:3 .photo frame as every other flight card, object-fit cover,
+// with focus as object-position (default "center"; a hand-set value on the archive is kept). A side that isn't set keeps
+// the flight's own gallery picture (the SpaceX recap images).
 const vehName = (id, kind) => { const m = String(id || "").match(/^[BS]?(\d+)$/i); return m ? `${kind} ${m[1]}` : kind; };
 function vehiclePhotosOf(road, f) {
   const a = road && road.archive && f && (road.archive[f.n] || road.archive[String(f.n)]), vp = a && !Array.isArray(a) && a.vehicle_photos;
   if (!vp) return null;
-  const one = (v, kind, id) => { const img = v && (typeof v === "string" ? v : v.image); return img ? { src: img, label: (v && v.label) || vehName(id, kind) } : null; };
+  const one = (v, kind, id) => {
+    const img = v && (typeof v === "string" ? v : v.image);
+    if (!img) return null;
+    const focus = (v && typeof v === "object" && v.focus) ? v.focus : "center";
+    return { src: img, label: (v && v.label) || vehName(id, kind), focus };
+  };
   const b = one(vp.booster, "Booster", f.booster), sh = one(vp.ship, "Ship", f.ship);
   return b || sh ? [b, sh] : null;
 }
@@ -1226,7 +1233,7 @@ function FlightCard({ f, open, onTap, onPhotoTap, register, road }) {
             <div className="gallery" data-vehicles={cardPhotos.some((p) => p.vehicle) ? "" : undefined}>
               {cardPhotos.map((p, i) => (
                 <PhotoSlot key={i}
-                  size="wide" src={p.src} credit={p.label} contain={p.vehicle} alt={p.vehicle ? `${p.label} \u2014 Flight ${f.n}` : `${f.headline} \u2014 photo ${i + 1}`}
+                  size="wide" src={p.src} credit={p.label} focus={p.focus} alt={p.vehicle ? `${p.label} \u2014 Flight ${f.n}` : `${f.headline} \u2014 photo ${i + 1}`}
                   onClick={p.src ? () => onPhotoTap(p.src, p.vehicle ? `${p.label} \u2014 Flight ${f.n}` : `${f.headline} \u2014 photo ${i + 1}`) : undefined}
                 />
               ))}
@@ -2782,6 +2789,10 @@ const logList = (heroN) => [...FLIGHTS].filter((f) => f.n !== heroN).sort((a, b)
 // moment (scripts/handover.js roll), even before the checker's own rollover lands in road.json.
 const MILESTONE_TITLE = /Liftoff|Success|Failure|Partial|Road to Flight|caught|scrub/i;
 const isMilestoneItem = (p) => !!(p && p.cat && /^feed-(?:flight|notice)$/.test(p.cat.id) && MILESTONE_TITLE.test(p.cat.name || ""));
+// 15 Nov (Bernardo, every flight): the rollover handover update is never shown in a Road group (Page 2 or the
+// Page 1 condensed copy). Identified by kind/id of the item check-road writes (kind "notice", id "notice-…"),
+// never by its wording. The Flight N group card itself, and the handover push, stay as they are.
+const isHandoverEntry = (item) => !!(item && (item.kind === "notice" || (item.cat && item.cat.id === "feed-notice") || /^(notice-)/.test(item.id || (item.h && item.h.id) || "")));
 if (typeof window !== "undefined") window.ST_NOW = () => nowMs();
 if (typeof window !== "undefined") window.ST_LAUNCH = (n) => { const f = FLIGHTS.find((x) => x.n === n); return f && f.date && Date.parse(f.date) <= nowMs() ? f.date : null; }; // Launch date box: past tense once the flight is logged // FL.boxes "today" follows the app clock (sim / launch-day mock)
 function roadForHero(road, heroN) {
@@ -2799,7 +2810,7 @@ function buildFeed(road) {
     when: cardTime(h, road),
   })));
   // pushes with no Road box (Starship news, flight-checker alerts): the push's own title, text, source link and time
-  (Array.isArray(road.feed_items) ? road.feed_items : []).forEach((f, fi) => { if (!f || !f.id || !f.body) return;
+  (Array.isArray(road.feed_items) ? road.feed_items : []).forEach((f, fi) => { if (!f || !f.id || !f.body || isHandoverEntry(f)) return;
     const t = doneToLabel(f.title), m = t.match(/^(\p{Extended_Pictographic}\uFE0F?)\s*(.*)$/u);
     const at = Date.parse(f.event_at || f.at) || 0; // event_at: the event's own time when the post came later (self-check)
     const own = f.box && road.categories.find((c) => c.id === f.box); // filed by purpose (e.g. a Starship news push about B22's static fire → Static fires)
@@ -4006,8 +4017,6 @@ a.watch-badge-live:active { transform: scale(.96); }
     linear-gradient(180deg, rgba(26,34,54,0) 55%, rgba(26,34,54,.85) 100%),
     linear-gradient(200deg, rgba(59,72,120,.35) 0%, rgba(26,34,54,0) 55%);
 }
-.gallery[data-vehicles] .photo-wide { aspect-ratio: 2 / 3; } /* vehicle photos are portrait: the slot follows them so neither vehicle is cut */
-.photo.photo-contain img { object-fit: contain; background: #0E1424; } /* never crop the vehicle */
 .gallery[data-vehicles] .photo-credit { font-size: 11px; font-weight: 700; color: rgba(240,244,252,.92); } /* the vehicle name */
 .photo-credit { position: absolute; right: 8px; bottom: 6px; font-size: 9.5px; letter-spacing: .02em; color: rgba(228,234,246,.65); z-index: 1; }
 .photo-thumb .photo-credit { display: none; } /* keep the small thumbnail clean; credit shows on the bigger gallery images */

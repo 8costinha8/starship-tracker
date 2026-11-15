@@ -1437,12 +1437,14 @@
         "booster": {
           "image": "images/f15-booster.jpg",
           "label": "Booster 22",
-          "note": "Booster 22 in flight at hot staging (supplied by Bernardo, 15 Nov)"
+          "note": "Booster 22 in flight at hot staging (supplied by Bernardo, 15 Nov)",
+          "focus": "50% 20%"
         },
         "ship": {
           "image": "images/f15-ship.jpg",
           "label": "Ship 42",
-          "note": "Ship 42 coming in to the tower for the catch (supplied by Bernardo, 15 Nov)"
+          "note": "Ship 42 coming in to the tower for the catch (supplied by Bernardo, 15 Nov)",
+          "focus": "50% 18%"
         }
       }
     }
