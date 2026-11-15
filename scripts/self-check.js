@@ -139,7 +139,7 @@ async function audit(road, { now = Date.now(), log = console.log, judge = null, 
   // 4. present-tense card wording (card_text; text/x_text untouched, they feed pushes and the push log)
   for (const { c, r, card, up } of rows) {
     if (!r.text || TS.isMissionLine(r.text) || r.text_locked) continue;
-    const cur = r.card_text || r.text; if (!PRESENT.test(cur) && !(r.card_text && TS.toCard(r.card_text) !== tidy(r.card_text).replace(/[^.!?]$/, "$&."))) continue;
+    const cur = r.card_text || r.text; if (!PRESENT.test(cur) && !TS.isFragment(cur) && !(r.card_text && TS.toCard(r.card_text) !== tidy(r.card_text).replace(/[^.!?]$/, "$&."))) continue;
     const confirmed = TS.isConfirmed(r) && (!up || card.trust !== "unconfirmed");
     const next = TS.toCard(cur, { confirmed }); if (!next || next === cur || next === r.card_text) continue;
     const before = cur; r.card_text = next; fix("past-tense", `${c.id} ${card.id || card.date}${up ? ` › ${r.at || r.date}` : ""}`, before, next);

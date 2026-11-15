@@ -5,8 +5,9 @@ const ROOT = path.join(__dirname, "..");
 const src = fs.readFileSync(path.join(ROOT, "app.js"), "utf8");
 let fails = 0; const check = (ok, m) => { console.log((ok ? "✅ " : "❌ ") + m); if (!ok) fails++; };
 // pull app.js top-level declarations by name (+ their dependencies), the same way scripts/render-check.js does
-const WANT = ["roadBoxEntries", "roadBoxLatest", "rtfRows", "cardDate", "roadMediaOf", "parityEarlier", "scrub", "pillParts", "RTF_PLACEHOLDER", "upIso", "ukStamp", "feedTime", "fmtDay", "cardT", "roadUpdates", "entryDate"];
+const WANT = ["rtfCards", "roadForFlight", "pastRoadGroup", "pastCondensed", "FLIGHTS", "cardIso", "roadBoxEntries", "roadBoxLatest", "rtfRows", "cardDate", "roadMediaOf", "parityEarlier", "scrub", "pillParts", "RTF_PLACEHOLDER", "upIso", "ukStamp", "feedTime", "fmtDay", "cardT", "roadUpdates", "entryDate"];
 const EXTRA = new Set();
+const A_window = { RoadPick: require(path.join(ROOT, "scripts/road-pick.js")), addEventListener() {}, dispatchEvent() {} };
 function load() {
   const lines = src.split("\n"), starts = [];
   lines.forEach((l, i) => { const m = l.match(/^(?:async\s+)?(?:const|let|function)\s+([A-Za-z_$][\w$]*)/); if (m) starts.push({ name: m[1], i }); });
@@ -14,7 +15,7 @@ function load() {
     for (let j = starts[k].i + 1; j < lines.length; j++) if (/^\S/.test(lines[j]) && !/^[}\])]/.test(lines[j])) { end = j; break; } return lines.slice(starts[k].i, end).join("\n"); };
   const have = new Set(), parts = []; const add = (n) => { if (have.has(n)) return true; const d = decl(n); if (!d) return false; have.add(n); parts.unshift(d); return true; };
   WANT.forEach(add); [...EXTRA].forEach(add);
-  const window = { RoadPick: require(path.join(ROOT, "scripts/road-pick.js")), addEventListener() {}, dispatchEvent() {} }, React = { createElement() { return null; } }, document = {}, localStorage = { getItem() { return null; }, removeItem() {} };
+  const window = A_window, React = { createElement() { return null; } }, document = {}, localStorage = { getItem() { return null; }, removeItem() {} };
   for (let t = 0; t < 400; t++) {
     try { return new Function("window", "React", "document", "localStorage", `${parts.join("\n")}\nreturn { ${WANT.join(", ")} };`)(window, React, document, localStorage); }
     catch (e) { const m = String(e.message).match(/^(\w+) is not defined/) || String(e.message).match(/Cannot access '(\w+)' before initialization/); if (!m) throw e;
@@ -22,14 +23,15 @@ function load() {
       if (!add(m[1])) throw new Error("no top-level " + m[1]); }
   }
 }
-let A; for (let t = 0; t < 200; t++) { try { A = load(); const r0 = JSON.parse(fs.readFileSync(path.join(ROOT, "road.json"), "utf8")); A.roadBoxEntries(r0, A.rtfRows(r0).rows); break; }
+let A; for (let t = 0; t < 200; t++) { try { A = load(); const r0 = JSON.parse(fs.readFileSync(path.join(ROOT, "road.json"), "utf8")); A.roadBoxEntries(r0, A.rtfRows(r0).rows); for (const n of [14, 15]) { A.rtfCards(A.roadForFlight(r0, n)); A.pastCondensed(A.pastRoadGroup(r0, n, A.FLIGHTS)); } break; }
   catch (e) { const m = String(e.message).match(/^(\w+) is not defined/); if (!m || EXTRA.has(m[1])) throw e; EXTRA.add(m[1]); } }
 // What Page 2 shows for the current flight (UpdatesFeed → FeedPost): card text, cardDate, picture (roadMediaOf)
 function page2(road) {
   const out = []; let cur = false;
   for (const r of A.rtfRows(road).rows) { if (r.section) { cur = r.section.n === road.flight; continue; } if (!cur || !r.post) continue;
     const p = r.post, h = p.h, mo = A.roadMediaOf(h, p.cat);
-    out.push({ id: p.id, box: p.cat.id, text: A.scrub(h.card_text || h.x_text || h.text), date: A.cardDate(h), image: mo && mo.image && mo.image !== A.RTF_PLACEHOLDER ? mo.image : null }); }
+    out.push({ id: p.id, box: p.cat.id, text: A.scrub(h.card_text || h.x_text || h.text), date: A.cardDate(h), image: mo && mo.image && mo.image !== A.RTF_PLACEHOLDER ? mo.image : null,
+      crop: mo && mo.image ? (mo.crop || A_window.RoadPick.cropOf(p.cat.id, `${h.text || ""} ${h.card_text || ""}`)) : null }); }
   return out;
 }
 const base = JSON.parse(fs.readFileSync(path.join(ROOT, "road.json"), "utf8"));
@@ -46,9 +48,48 @@ for (const [label, road] of Object.entries(roads)) {
   check(JSON.stringify(flat.map((e) => e.id)) === JSON.stringify(boxes.flatMap((b) => p2InBoxes.filter((e) => e.box === b).map((e) => e.id))), `${label}: same entries (ids) per box as Page 2: ${flat.map((e) => e.id).join(", ")}`);
   for (const e of flat) { const q = p2.find((x) => x.id === e.id);
     check(q && q.text === e.text && q.date === e.date, `${label}: ${e.id} same text + date (${e.date} · ${e.text.slice(0, 50)})`);
-    check(q && q.image === e.image, `${label}: ${e.id} same picture source (${e.image})`); }
+    check(q && q.image === e.image, `${label}: ${e.id} same picture source (${e.image})`);
+    check(!e.image || (q && q.crop === e.crop), `${label}: ${e.id} same picture crop (${e.crop})`); }
   for (const b of boxes) { const l = A.roadBoxLatest(p1[b]); check(l == null || p1[b].some((e) => e.text === l), `${label}: ${b} box line is one of its Page 2 card texts`); }
 }
+// (a) ordering, every flight (F14, F15, F16) and every box: the newest post leads, Earlier updates strictly older (Page 2's
+// own cards from rtfCards, so Page 1, which copies them, follows)
+const tOf = (u) => Date.parse(A.upIso(u)) || 0;
+for (const n of [14, 15, base.flight]) {
+  const road = n === base.flight ? base : A.roadForFlight(base, n);
+  const cards = A.rtfCards(road).filter((p) => !p.empty);
+  let bad = [];
+  for (const p of cards) { const head = Date.parse(A.cardIso(p.h)) || 0; const ups = p.h.updates || [];
+    for (const u of ups) if (!(tOf(u) < head)) bad.push(`${p.id}: "${(u.card_text || u.text).slice(0, 40)}" ${u.at} ≥ headline ${A.cardIso(p.h)}`); }
+  if (cards.length || n === base.flight) check(cards.length > 0 && bad.length === 0, `Flight ${n}: ${cards.length} Road cards, newest post leads, every Earlier update strictly older${bad.length ? " — " + bad.join("; ") : ""}`);
+  else console.log(`ℹ️  Flight ${n}: no live Road cards left in the data (history window); Page 2 shows its archived group, checked below`);
+  if (n === base.flight) { const p1 = A.roadBoxEntries(road, A.rtfRows(road).rows); const flat = Object.values(p1).flat();
+    check(flat.filter((e) => e.iso).every((e) => { const h = cards.find((c) => c.id === e.id); return !h || (h.h.updates || []).every((u) => tOf(u) < Date.parse(e.iso)); }), `Flight ${n}: Page 1 boxes lead with the same newest post (no Earlier update newer than the box headline)`); }
+  const g = A.pastRoadGroup(base, n, A.FLIGHTS);
+  if (n !== base.flight) check(g.cards.every((c) => !c.updates), `Flight ${n}: past group cards are one entry each (nothing newer hidden under them)`);
+}
+{ const r = roads["shifted to Flight 17"], bad = [];
+  for (const p of A.rtfCards(r).filter((x) => !x.empty)) for (const u of p.h.updates || []) if (!(tOf(u) < (Date.parse(A.cardIso(p.h)) || 0))) bad.push(p.id);
+  check(bad.length === 0, `shifted to Flight 17: newest post leads every card (${bad.join(", ") || "ok"})`); }
+{ const b23 = A.rtfCards(base).find((p) => p.id === "rtf-cryo-B23");
+  check(b23 && /^28 Oct/.test(A.cardDate(b23.h)) && b23.h.complete && (b23.h.updates || []).some((u) => /rolled back to the production site/.test(u.text)), `Booster 23 cryo leads with its newest post (${b23 && A.cardDate(b23.h)}: ${b23 && b23.h.text}); the 18 Oct return is an Earlier update; still complete`); }
+// (b) pictures: Page 1 past boxes show their Page 2 group card's photo (same src), condensed; Page 2 past cards show it too
+for (const n of [14, 15]) {
+  const g = A.pastRoadGroup(base, n, A.FLIGHTS), p1 = A.pastCondensed(g), p2 = g.cards.filter((c) => c.box !== "date");
+  check(JSON.stringify(p1.map((c) => c.photo && c.photo.image)) === JSON.stringify(p2.map((c) => c.photo && c.photo.image)), `Flight ${n}: past box photos = Page 2 group photos (${p1.filter((c) => c.photo).length} of ${p1.length} with a photo)`);
+}
+{ const fc = src.slice(src.indexOf("function FlightCard("), src.indexOf("function FlightCard(") + 9000), pp = src.slice(src.indexOf("function PastPost("), src.indexOf("function RoadLiveRow("));
+  check(/<BoxPhoto src=\{e\.photo\.image\} crop=\{e\.photo\.crop\}/.test(fc) && /<PickMedia mo=\{\{ \.\.\.c\.photo/.test(pp), "Page 1 past box renders the photo Page 2's past card renders (same object, localImg on both)");
+  check(/\{e\.image && <BoxPhoto src=\{e\.image\} crop=\{e\.crop\} \/>\}/.test(src) && /src=\{localImg\(src\)\}/.test(src.slice(src.indexOf("function BoxPhoto("), src.indexOf("function ParityCard("))), "Page 1 current box renders the Page 2 card picture through localImg (same src as OneMedia)"); }
+// (c) full sentences: the rewriter (scripts/text-split.js toCard / lint) and the data
+{ const TS = require(path.join(ROOT, "scripts/text-split.js"));
+  check(TS.toCard("Ship 43 returning from Massey's.") === "Ship 43 was returning from Massey's." && TS.toCard("Ship 43 airborne on the chopsticks.") === "Ship 43 was airborne on the chopsticks.", "rewriter: '-ing' / verbless lines get their 'was' (no other word changed)");
+  check(TS.toCard("Pad 2 chopsticks opening for launch.") === "Pad 2 chopsticks opening for launch." && TS.lint({ card_text: "Pad 2 chopsticks opening for launch." }).some((x) => /fragment/.test(x)), "rewriter: a fragment it can't repair without new words is left alone and flagged by lint");
+  check(TS.toCard("Booster 23 completed a cryo proof test.") === "Booster 23 completed a cryo proof test.", "rewriter: full sentences unchanged");
+  check(TS.pairFrom({ text: "Ship 43 airborne on the chopsticks.", card_text: "Ship 43 airborne on the chopsticks." }).card_text === "Ship 43 was airborne on the chopsticks.", "writer output with a fragment card_text is rewritten to a full sentence");
+  check(/!TS\.isFragment\(cur\)/.test(fs.readFileSync(path.join(ROOT, "scripts/self-check.js"), "utf8")), "self-check repairs fragment card lines on its next run");
+  const frags = []; for (const c of base.categories) for (const h of c.history || []) for (const o of [h, ...(h.updates || [])]) { const t = o.card_text || o.text; if (t && TS.isFragment(t)) frags.push(t); }
+  check(frags.length === 0, `road.json: no fragment card lines (${frags.join(" | ") || "none"})`); }
 // Page 1 RoadCard: no separate Flight Log text source left
 { const rc = src.slice(src.indexOf("function RoadCard("), src.indexOf("// One Page 2 card, condensed"));
   check(/roadBoxEntries\(road, road \? rtfRows\(road\)\.rows : \[\]\)/.test(rc), "RoadCard reads Page 2's entries (roadBoxEntries over rtfRows)");

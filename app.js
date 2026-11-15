@@ -1191,9 +1191,10 @@ function FlightCard({ f, open, onTap, onPhotoTap, register, road }) {
                 <svg className="past-chev" width="16" height="16" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5.5l4 4 4-4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
               </button>
               <div className={"past-wrap" + (pastOpen ? " open" : "")} id={`past-${f.n}`} aria-hidden={!pastOpen}><div className="past-wrap-inner">
-              <div className="past-sum" aria-label={`Road to Flight ${f.n}`}>
+              <div className="past-sum" data-photos={past.some((e) => e.photo) ? "1" : undefined} aria-label={`Road to Flight ${f.n}`}>
                 {past.map((e, i) => (
                   <div className="past-box" key={e.id || i} data-id={e.box} data-entry={e.id} style={catVars(e.box, e.color)}>
+                    {past.some((x) => x.photo) && (e.photo ? <BoxPhoto src={e.photo.image} crop={e.photo.crop} className="past-photo" /> : <div className="past-photo past-photo-none" />)}
                     <PastTop vehicle={e.vehicle} labels={e.labels || [e.label]} />
                     <PastText tiers={(e.tiers && e.tiers.length ? e.tiers : [e.text]).map((t) => scrub(String(t || "")))} />
                   </div>
@@ -1717,7 +1718,8 @@ function decorateFlogItem(m, flog, road, heroNet, heroFlight, now) {
 // Bernardo's rule (15 Nov, every flight): Page 1's current Road boxes are the condensed copy of Page 2. Each box reads
 // Page 2's own entries for the current flight (rtfRows → the current flight's rows, same order): the same cards, the
 // same text (card text), the same date (cardDate) and the same Earlier updates — no separate Flight Log text source.
-// The box shows no picture (same as the past-Road box); image is carried for the parity check only.
+// 15 Nov (Tusk v2): each vehicle card also shows its Page 2 card's picture (same src via localImg, same crop), condensed;
+// Page 2's placeholder picture is not a photo, so it never shows here. Past Road boxes do the same with their summary photo.
 const ROAD_BOX_IDS = ["cryo", "raptor", "static", "pad", "faa", "date"];
 const parityText = (h) => scrub(String((h && (h.card_text || h.x_text || h.text)) || ""));
 function parityEarlier(h) {
@@ -1735,7 +1737,7 @@ function roadBoxEntries(road, rows) {
     const p = r.post; if (!cur || !p || !p.cat || !out[p.cat.id]) continue;
     const h = p.h || {}, mo = roadMediaOf(h, p.cat);
     out[p.cat.id].push({ id: p.id, vehicle: pillParts(p.cat.name)[1] || null, date: cardDate(h), text: parityText(h), iso: cardIso(h) || "",
-      image: mo && mo.image && mo.image !== RTF_PLACEHOLDER ? mo.image : null, earlier: parityEarlier(h), done: !!(p.done || h.complete) }); // done: the Page 2 card is the completed one (glow + filled dot)
+      image: mo && mo.image && mo.image !== RTF_PLACEHOLDER ? mo.image : null, crop: mo && mo.image ? (mo.crop || (window.RoadPick ? window.RoadPick.cropOf(p.cat.id, `${h.text || ""} ${h.card_text || ""}`) : "top")) : null, earlier: parityEarlier(h), done: !!(p.done || h.complete) }); // done: the Page 2 card is the completed one (glow + filled dot)
   }
   return out;
 }
@@ -1808,6 +1810,12 @@ function RoadCard({ road, onEntryTap, openReq, heroNet, netPending, heroFlight }
 }
 
 // One Page 2 card, condensed (Page 1 current Road drawer): vehicle, Page 2 date, Page 2 text, its Earlier updates.
+// Condensed picture on Page 1 (current and past Road boxes): the Page 2 card's own picture, a short strip; broken → hidden.
+function BoxPhoto({ src, crop, className }) {
+  const [bad, setBad] = React.useState(false);
+  if (bad || !src) return null;
+  return <img className={(className || "box-photo") + " " + cropClass({ crop })} src={localImg(src)} alt="" loading="lazy" referrerPolicy="no-referrer" onError={imgFallback(src, () => setBad(true))} />;
+}
 function ParityCard({ e, onTap, open }) {
   return (
     <div className={"mini flog-card" + (onTap ? " tappable" : "") + (e.done ? " glow done" : "")} data-entry={e.id} data-vehicle={e.vehicle || undefined}
@@ -1815,6 +1823,7 @@ function ParityCard({ e, onTap, open }) {
       {e.vehicle && <div className="flog-name">{e.vehicle}</div>}
       <div className="mini-top"><span className="mini-date">{e.date}</span></div>
       <p>{e.text}</p>
+      {e.image && <BoxPhoto src={e.image} crop={e.crop} />}
       {e.earlier.length > 0 && <details className="buildup" onClick={(k) => k.stopPropagation()}>
         <summary>Earlier updates</summary>
         <ul>{e.earlier.map((u, i) => <li key={i} className="bu-plain"><div className="bu-top"><span className="bu-date">{u.date}</span></div><div className="bu-text">{u.text}</div></li>)}</ul>
@@ -3160,9 +3169,25 @@ function rtfCards(road) {
       for (const u of h.updates || []) { if (typeof isRoadFlightEvent === "function" && isRoadFlightEvent(u, road)) continue; const uv = rtfVeh(u.text, road); if (v === "pad" ? !otherVehOnly(u.text, road) : uv.length ? uv.includes(v) : !otherVehOnly(u.text, road)) add({ text: u.text, ...(u.card_text ? { card_text: u.card_text } : {}), at: u.at, date: u.date, url: u.url, src: u.src, event_row: u.event_row, phase: u.phase, handle: u.handle || (String(u.src || "").startsWith("@") ? u.src : null) }); }
     }
     if (cid === "pad") { for (const u of padPins[v] || []) { if (typeof isRoadFlightEvent === "function" && isRoadFlightEvent(u, road)) continue; add(u); } rows.sort((a, b) => (Date.parse(b.at || "") || 0) - (Date.parse(a.at || "") || 0)); } // Flight Log pins: drawer rows
+    // 15 Nov (every flight, every box): the newest post leads the card and Earlier updates are strictly older. A completing
+    // post that newer posts followed (Booster 23's 18 Oct cryo return, then 28 Oct back to Massey's) moves into Earlier updates;
+    // the card stays complete (doneOne). The picture then follows the leading post's event (road-pick, newest event).
+    const rowT = (u) => Date.parse(u.at || "") || 0, byNew = (a, b) => rowT(b) - rowT(a);
+    const mainT = Date.parse(cardIso(main)) || Date.parse(main.at || "") || 0;
+    const newer = main.date && /^Stacked\s/.test(main.text || "") ? null : rows.filter((u) => rowT(u) > mainT).sort(byNew)[0];
+    if (newer) {
+      rows.splice(rows.indexOf(newer), 1);
+      // the demoted post is now a row itself, so its event_row copy (guards.js completion row, same post or same minute) goes
+      const mUrl = urlOf(main) || main.url, mText = String(main.card_text || main.text || "");
+      for (let i = rows.length - 1; i >= 0; i--) { const u = rows[i]; if (u.event_row && ((mUrl && u.url === mUrl) || rowT(u) === mainT || String(u.card_text || u.text || "") === mText)) rows.splice(i, 1); }
+      rows.push({ ...(main === doneOne ? { done_row: true } : {}), text: main.text, ...(main.card_text ? { card_text: main.card_text } : {}), at: cardIso(main) || main.at, date: main.date, url: urlOf(main) || main.url, src: main.src, handle: (main.x_post && main.x_post.author && main.x_post.author.username) || (main.media_override && main.media_override.author) || (String(main.src || "").startsWith("@") ? main.src : null) });
+      const shown = newer.card_text || newer.text;
+      main = { ...main, text: newer.text, card_text: shown, x_text: shown, log_text: undefined, at: newer.at, completed_at: undefined, time_known: undefined, publishedAt: undefined, date: newer.date, url: newer.url, src: newer.src, handle: newer.handle, x_post: undefined, media_override: undefined };
+    }
+    rows.sort(byNew);
     const h = { ...main, id: `rtf-${cid}-${v}`, updates: rows, alt_media: null, complete: !!doneOne, milestone: doneOne ? main.milestone : { phase: "progress" } };
     // picture: newest event (incomplete) or the completing event (done); best photo among that event's posts (scripts/road-pick.js)
-    const pic = window.RoadPick ? window.RoadPick.cardPicture(list, { cid, done: doneOne || null }) : null;
+    const pic = window.RoadPick ? window.RoadPick.cardPicture(list, { cid, done: newer ? null : doneOne || null }) : null;
     if (pic) h.media_override = { image: pic.image, type: pic.type, post_url: pic.post_url, author: String(pic.author || "").replace(/^@/, ""), keep_image: pic.manual, credit_only: pic.from !== main && !!pic.author, crop: pic.crop };
     else if (!doneOne) h.media_override = { image: RTF_PLACEHOLDER, type: "photo", post_url: urlOf(main) };
     h.rtf_pic = pic ? pic.from : null; h.media_context = null;
@@ -3207,7 +3232,9 @@ function relabelPadReturnCards(cards) {
     const main = String((p.h.card_text || p.h.text) || "");
     if (!MEGABAY_RETURN.test(main) || /after cryo/i.test(main)) return p;
     const rows = Array.isArray(p.h.updates) ? p.h.updates : [];
-    const better = rows.find((u) => PAD_EVENT.test(String(u.card_text || u.text || "")));
+    // 15 Nov: never above a newer post (newest leads, Earlier updates strictly older), so only a pad row at least as new
+    const headT = Date.parse(p.h.at || "") || 0;
+    const better = rows.find((u) => PAD_EVENT.test(String(u.card_text || u.text || "")) && (Date.parse(u.at || "") || 0) >= headT);
     if (!better) return p;
     const shown = better.card_text || better.text;
     const returnRow = { text: p.h.text, ...(p.h.card_text ? { card_text: p.h.card_text } : {}), at: p.h.at, date: p.h.date, url: p.h.url, src: p.h.src };
@@ -3401,6 +3428,7 @@ function PastPost({ c }) {
         {c.iso && <span className="post-date">{`${ukStamp(c.iso, false)} · ${feedTime(c.iso)}`}</span>}
       </div>
       <p className="post-text">{String(scrub(c.text)).replace(/\b(\d{1,2}) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b/g, "$1\u00a0$2")}</p>
+      {c.photo && c.photo.image && <PickMedia mo={{ ...c.photo, crop: c.photo.crop || "top" }} />}
     </article>
   );
 }
@@ -4024,6 +4052,10 @@ a.watch-badge-live:active { transform: scale(.96); }
 .past-box p { margin: var(--past-gap) 0 0; font-size: 12px; line-height: var(--past-lh); color: #C9D2E6; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
 .past-pill { font-size: 9.5px; font-weight: 700; letter-spacing: .02em; padding: 2px 7px; border-radius: 999px; white-space: nowrap; flex-shrink: 0;
   color: var(--t, var(--c)); background: var(--bg, color-mix(in srgb, var(--c) 14%, transparent)); border: 1px solid color-mix(in srgb, var(--c) 38%, transparent); }
+.past-sum[data-photos] { --past-ph: 64px; grid-auto-rows: calc(2px + 8px + 9px + var(--past-ph) + 6px + var(--past-top) + var(--past-gap) + 2 * var(--past-lh)); } /* a flight with photos: one photo strip per box, same size every box */
+.past-photo { display: block; width: 100%; height: var(--past-ph, 64px); object-fit: cover; border-radius: 8px; margin: 0 0 6px; background: #121A2B; }
+.past-photo.crop-top, .box-photo.crop-top { object-position: center top; } .past-photo.crop-bottom, .box-photo.crop-bottom { object-position: center bottom; } /* same crop as the Page 2 picture */
+.box-photo { display: block; width: 100%; aspect-ratio: 16 / 9; max-height: 132px; object-fit: cover; border-radius: 8px; margin: 7px 0 0; background: #121A2B; }
 .past-box[data-id="raptor"] .past-pill { color: #F2F4F8; background: rgba(14,15,17,.35); border: 1.5px solid #0E0F11; box-shadow: 0 0 0 1px rgba(255,255,255,.35); } /* same as .chip.chip-raptor: readable label on the near-black fill */
 .highlights-link {
   display: flex; align-items: center; justify-content: center; gap: 7px;

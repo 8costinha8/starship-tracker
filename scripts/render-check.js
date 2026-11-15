@@ -50,7 +50,7 @@ function view1(road, { app }) {
   for (const r of app.rtfRows(road).rows) {
     if (!r.post || r.post.flight !== road.flight) continue;
     const { h, cat } = r.post, rtf = String(h.id || "").startsWith("rtf-");
-    const rows = rtf ? (h.updates || []).slice().sort((a, b) => (Date.parse(app.upIso(b)) || 0) - (Date.parse(app.upIso(a)) || 0)).map((u) => { const iso = app.upIso(u); return { when: iso ? `${app.ukStamp(iso, false)} · ${app.feedTime(iso)}` : app.fmtDay(u.date), iso, text: app.scrub(app.cardT(u)).replace(/^\d{1,2}(?:[–-]\d{1,2})? [A-Z][a-z]{2}:\s*/, ""), url: u.url || "" }; })
+    const rows = rtf ? (h.updates || []).slice().sort((a, b) => (Date.parse(app.upIso(b)) || 0) - (Date.parse(app.upIso(a)) || 0)).map((u) => { const iso = app.upIso(u); return { when: iso ? `${app.ukStamp(iso, false)} · ${app.feedTime(iso)}` : app.fmtDay(u.date), iso, text: app.scrub(app.cardT(u)).replace(/^\d{1,2}(?:[–-]\d{1,2})? [A-Z][a-z]{2}:\s*/, ""), url: u.url || "", done_row: !!u.done_row }; })
       : app.roadUpdates(h).map(({ u, when }) => ({ when: when || app.entryDate(u), iso: app.upIso(u), text: app.scrub(app.cardT(u)), url: u.url || "" }));
     const v = (String(h.id || "").match(/^rtf-\w+-(S\d+|B\d+|pad)$/) || [])[1] || null;
     cards.push({ id: h.id, cat: cat.id, name: cat.name, vehicle: v, when: app.cardDate(h), text: app.scrub(h.card_text || h.x_text || h.text), done: !!r.post.done, rows, media: (() => { const mo = app.roadMediaOf(h, cat); if (!mo || !mo.image) return null; const hd = app.badgeHandleOf(mo.author, mo.post_url);
@@ -91,8 +91,10 @@ function check(road, opts = {}) {
     const top = k.lines[0], c = cards.find((x) => x.cat === id && x.vehicle === k.vehicle);
     if (!top || !c || (id !== "pad" && !c.done)) continue;
     const want = top.time ? `${top.day.split("–").pop()} · ${top.time}` : top.day.split("–").pop();
-    if (id !== "pad") { const got = top.time ? c.when : String(c.when).split(" · ")[0];
-      if (got !== want) fail("date", `${id} ${k.vehicle}: Flight Log shows ${want}, Road card shows ${c.when}`, { item: `${id}|${k.vehicle}`, values: [want, c.when], reason: "one event time on every view" }); continue; }
+    // 15 Nov: the newest post leads the card; when newer posts followed the completion, the completion is the card's done_row
+    const doneRow = c.rows.find((r) => r.done_row);
+    if (id !== "pad") { const at = doneRow ? doneRow.when : c.when, got = top.time ? at : String(at).split(" · ")[0];
+      if (got !== want) fail("date", `${id} ${k.vehicle}: Flight Log shows ${want}, Road card shows ${at}`, { item: `${id}|${k.vehicle}`, values: [want, at], reason: "one event time on every view" }); continue; }
     // pad: the Flight Log's newest line (pad tests, no transport) must appear on the Road card at the same day/time
     const all = [c.when, ...c.rows.map((r) => r.when)].map((w) => top.time ? w : String(w).split(" · ")[0]);
     if (!all.includes(want)) fail("date", `pad ${k.vehicle}: Flight Log shows ${want} ("${top.text}"), no Road card line at that time (card ${c.when})`, { item: `pad|${k.vehicle}`, values: [want, c.when], reason: "one event time on every view" });
@@ -105,7 +107,7 @@ function check(road, opts = {}) {
   }
   // duplicates: same drawer, same minute, same kind of event (or same text)
   for (const c of cards) { const seen = new Map();
-    for (const r of c.rows) { if (r.text === c.text) continue; // the event_record's own completion row (guards.js) is allowed
+    for (const r of c.rows) { if (r.text === c.text || r.done_row) continue; // the event_record's own completion row (guards.js) is allowed; so is the completion post once newer posts lead (done_row, 15 Nov)
       const k1 = `t|${r.text.toLowerCase()}`, k2 = r.iso && EVENT(r.text) ? `e|${String(r.iso).slice(0, 16)}|${EVENT(r.text)}` : null;
       for (const k of [k1, k2]) if (k && seen.has(k)) fail("duplicate", `${c.name}: "${r.text}" and "${seen.get(k)}" (${r.when}) are the same event`, { item: c.id, values: [r.text, seen.get(k)], reason: "dedupe drawer rows" }); else if (k) seen.set(k, r.text); } }
   // crossover: ship ↔ booster

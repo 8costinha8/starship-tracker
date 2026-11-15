@@ -11,6 +11,19 @@ const cardText = (o) => (o && (o.card_text || o.text)) || "";
 const isConfirmed = (o) => !!o && !o.likely && o.trust !== "unconfirmed" && !o.unverified && !o.hedged && !o.journey_likely;
 const fix = (s) => String(s || "").replace(/\breleas(e|es|ed|ing)\b/gi, (m, e) => (/^R/.test(m) ? "Deploy" : "deploy") + ({ e: "", es: "s", ed: "ed", ing: "ing" })[e.toLowerCase()]).replace(/\s+/g, " ").trim();
 const isMissionLine = (s) => /^\s*test flight mission\b/i.test(String(s || ""));
+// 15 Nov: every card line is a full sentence with a finite verb (same verb list as render-check.js / news.js).
+const FINITE = /\b(?:was|were|is|are|had|has|have|did|does|do|could|would|should|will|may|might|can|said|says|made|took|went|came|left|ran|began|rose|got|held|saw|set|put|lit|led|sat|met|told|kept|brought|found|gave|shot|stood|spun|fell|drove|flew|built|sent|won|hit|cut|let|shut|split|struck|wound|swung|tore|wore|threw|grew|knew|drew|broke|chose|rode|spoke|stuck|hung|dug|slid|bent|lost|paid|read|heard|meant|felt|caught|bought|fought|taught|thought|sought|lay|laid|appears?|shows?|remains?)\b|\b\w{3,}ed\b/i;
+const isFragment = (s) => { const t = String(s || "").trim(); return t.split(/\s+/).length >= 3 && !FINITE.test(t); };
+// A verbless line led by its subject ("Ship 43 returning from Massey's.", "Ship 43 airborne on the chopsticks.") gets the
+// missing "was"/"were" after the subject: tense only, every other word is the source's own. Anything else is left as it is
+// (lint flags it, so the writer's card_text is replaced or the line is reported).
+const FRAG_SUBJ = /^((?:Ship|Booster) \d+|[BS]\d+|The (?:chopsticks|tower|booster|ship|vehicle|stack))\s+(?=(?:\w{2,}ing|airborne|aloft|ready|back|at|on|in|inside|outside|under|near|atop|onto|off|still|now|underway|under ?way)\b)/i;
+function wholeSentence(line) {
+  const t = String(line || "").trim();
+  if (!isFragment(t)) return t;
+  const m = t.match(FRAG_SUBJ);
+  return m ? t.replace(FRAG_SUBJ, `${m[1]} ${/^the (?:chopsticks)$/i.test(m[1]) ? "were" : "was"} `) : t;
+}
 // Present-tense / likely wording → past tense card wording.
 function toCard(line, { confirmed = true } = {}) {
   let t = fix(line); if (!t || isMissionLine(t)) return null;
@@ -33,7 +46,7 @@ function toCard(line, { confirmed = true } = {}) {
     .replace(/^((?:Ship|Booster) \d+|[BS]\d+) is (in|at|on|now in|now at) /, "$1 was $2 ")
     .replace(/\bhas begun\b/g, "began");
   if (!confirmed) t = t.replace(/\b(?:has |have )?completed\b/gi, "likely ran").replace(/\blikely (?:likely )+/gi, "likely ");
-  t = t.replace(/^\w/, (c) => c.toUpperCase());
+  t = wholeSentence(t).replace(/^\w/, (c) => c.toUpperCase());
   return /[.!?]$/.test(t) ? t : t + ".";
 }
 // Rule check for a pair (writer output or backfill): returns a list of problems.
@@ -44,6 +57,7 @@ function lint({ push_text, card_text }, { confirmed = true } = {}) {
     if (/\breleas(e|es|ed|ing)\b/i.test(s)) p.push(`${k}: says "released" (use "deployed")`);
     if (isMissionLine(s)) p.push(`${k}: "Test flight mission" line`);
     if (!confirmed && /\bcompleted?\b/i.test(s)) p.push(`${k}: unconfirmed but says "completed"`);
+    if (k === "card_text" && isFragment(s)) p.push(`${k}: no verb (fragment), write a full sentence`);
   }
   if (card_text && !confirmed && !/\blikely (ran|had|prepared)\b/i.test(card_text) && /\blikely\b/i.test(card_text)) p.push(`card_text: unconfirmed card must use "likely ran" / "likely had"`);
   if (card_text && /^frost on\b/i.test(card_text)) p.push("card_text: observation wording belongs to push_text");
@@ -59,6 +73,6 @@ function pairFrom(cls, { confirmed = true } = {}) {
   return { ...(push ? { push_text: push } : {}), ...(card ? { card_text: card } : {}) };
 }
 const PROMPT_RULES = `push_text: the live push notification line, PRESENT tense, as it is happening ("Frost on both tanks: Ship 42 likely in another cryo test.").
-card_text: the card / Earlier updates line, PAST tense. Confirmed: "Ship 42 completed another cryo test." Not confirmed (inferred, hedged, frost only, rumour): "Ship 42 likely ran another cryo test." / "Booster 22 likely had a launch rehearsal.".
+card_text: the card / Earlier updates line, a FULL PAST-tense sentence with a finite verb ("Ship 43 was returning from Massey's.", never "Ship 43 returning from Massey's."). Confirmed: "Ship 42 completed another cryo test." Not confirmed (inferred, hedged, frost only, rumour): "Ship 42 likely ran another cryo test." / "Booster 22 likely had a launch rehearsal.".
 Both: satellites/payloads are "deployed", never "released"; never a "Test flight mission" line; nothing unconfirmed says "completed"; unconfirmed card_text uses "likely ran" or "likely had".`;
-module.exports = { pushText, cardText, isConfirmed, toCard, lint, pairFrom, fix, isMissionLine, PROMPT_RULES };
+module.exports = { pushText, cardText, isConfirmed, toCard, lint, pairFrom, fix, isMissionLine, isFragment, wholeSentence, PROMPT_RULES };
