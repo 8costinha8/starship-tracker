@@ -1252,16 +1252,16 @@ function usePastFit(count, key, overflows) {
   }, []);
   return [ref, i];
 }
-// Text: fits when it needs no more than 2 lines (scrollHeight vs 2 × line-height; the CSS 2-line clamp is the safety net).
+// Text: fits when it needs no more than 2 lines (scrollHeight vs 2 × line-height); the last tier wraps in full.
 const pastTextOverflows = (el) => el.scrollHeight > 2 * (parseFloat(getComputedStyle(el).lineHeight) || 16.56) + 1;
 function PastText({ tiers }) {
   const [ref, i] = usePastFit(tiers.length, tiers.join("\u0001"), pastTextOverflows);
   // A date ("23 Sep") never breaks across the two lines.
   return <p ref={ref} className="past-text" data-tier={i} title={i > 0 ? tiers[0] : undefined}>{String(tiers[i]).replace(/\b(\d{1,2}) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b/g, "$1\u00a0$2")}</p>;
 }
-// Title row: one line. If the vehicle name would be cut off next to the full pill, use the short pill wording (PAST_LABEL_SHORT).
-// Sub-pixel safe: the text's own width (Range) vs the span's box, since scrollWidth / clientWidth round to whole pixels.
-const pastTopOverflows = (el) => { const v = el.querySelector(".past-veh"); if (!v) return false; const r = document.createRange(); r.selectNodeContents(v); return r.getBoundingClientRect().width > v.getBoundingClientRect().width + 0.05; };
+// Title row: the vehicle name is never cut. If name + full pill don't fit on one line, use the short pill wording
+// (PAST_LABEL_SHORT); if that still doesn't fit, the pill wraps under the name.
+const pastTopOverflows = (el) => { const v = el.querySelector(".past-veh"), p = el.querySelector(".past-pill"); if (!v || !p) return false; return p.getBoundingClientRect().top > v.getBoundingClientRect().top + 2; };
 function PastTop({ vehicle, labels }) {
   const [ref, i] = usePastFit(labels.length, labels.join("\u0001"), pastTopOverflows);
   return (
@@ -4045,14 +4045,14 @@ a.watch-badge-live:active { transform: scale(.96); }
 .past-wrap-inner { overflow: hidden; min-height: 0; }
 /* Every past box is ONE fixed size at every width: border + padding + title row + gap + 2 text lines (= 76.1px). Text is summarised to fit (PastText tiers). */
 .past-sum { --past-lh: calc(12px * 1.38); --past-top: 19px; --past-gap: 5px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 0 14px;
-  grid-auto-rows: calc(2px + 8px + 9px + var(--past-top) + var(--past-gap) + 2 * var(--past-lh)); }
+  grid-auto-rows: minmax(calc(2px + 8px + 9px + var(--past-top) + var(--past-gap) + 2 * var(--past-lh)), auto); } /* 15 Nov: a box grows instead of cutting text; boxes in a row share its height */
 .past-box { background: #1A2338; border: 1px solid rgba(170,190,245,.12); border-radius: 12px; padding: 8px 10px 9px; min-width: 0; height: 100%; box-sizing: border-box; overflow: hidden; }
-.past-box-top { display: flex; flex-wrap: nowrap; justify-content: space-between; align-items: center; gap: 6px; height: var(--past-top); min-width: 0; }
-.past-veh { font-size: 11.5px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
-.past-box p { margin: var(--past-gap) 0 0; font-size: 12px; line-height: var(--past-lh); color: #C9D2E6; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
+.past-box-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; column-gap: 6px; row-gap: 3px; min-height: var(--past-top); min-width: 0; } /* the pill drops below the name when both can't fit */
+.past-veh { font-size: 11.5px; font-weight: 700; color: var(--text); white-space: nowrap; flex-shrink: 0; } /* vehicle names are never cut */
+.past-box p { margin: var(--past-gap) 0 0; font-size: 12px; line-height: var(--past-lh); color: #C9D2E6; overflow-wrap: break-word; } /* shorter wording tiers first; the last one wraps in full, never an ellipsis */
 .past-pill { font-size: 9.5px; font-weight: 700; letter-spacing: .02em; padding: 2px 7px; border-radius: 999px; white-space: nowrap; flex-shrink: 0;
   color: var(--t, var(--c)); background: var(--bg, color-mix(in srgb, var(--c) 14%, transparent)); border: 1px solid color-mix(in srgb, var(--c) 38%, transparent); }
-.past-sum[data-photos] { --past-ph: 64px; grid-auto-rows: calc(2px + 8px + 9px + var(--past-ph) + 6px + var(--past-top) + var(--past-gap) + 2 * var(--past-lh)); } /* a flight with photos: one photo strip per box, same size every box */
+.past-sum[data-photos] { --past-ph: 64px; grid-auto-rows: minmax(calc(2px + 8px + 9px + var(--past-ph) + 6px + var(--past-top) + var(--past-gap) + 2 * var(--past-lh)), auto); } /* a flight with photos: one photo strip per box, same size every box */
 .past-photo { display: block; width: 100%; height: var(--past-ph, 64px); object-fit: cover; border-radius: 8px; margin: 0 0 6px; background: #121A2B; }
 .past-photo.crop-top, .box-photo.crop-top { object-position: center top; } .past-photo.crop-bottom, .box-photo.crop-bottom { object-position: center bottom; } /* same crop as the Page 2 picture */
 .box-photo { display: block; width: 100%; aspect-ratio: 16 / 9; max-height: 132px; object-fit: cover; border-radius: 8px; margin: 7px 0 0; background: #121A2B; }
@@ -4186,11 +4186,11 @@ section.road .callout-head { grid-template-columns: auto 1fr auto; column-gap: 8
 section.road .callout-body { display: contents; }
 section.road .callout-icon { grid-row: 1; grid-column: 1; font-size: 18px; line-height: 1; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; }
 section.road .callout-icon .cat-img { height: 25px; } /* 3 Nov: Raptor icon slightly bigger */
-section.road .callout-name { grid-row: 1; grid-column: 2; min-width: 0; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+section.road .callout-name { grid-row: 1; grid-column: 2; min-width: 0; line-height: 1.2; overflow-wrap: normal; } /* 15 Nov: box names wrap, never cut with an ellipsis */
 section.road .callout-head > .badge, section.road .callout-head > .badge-wrap { grid-row: 1; grid-column: 3; justify-self: end; }
 section.road .callout-head .badge { padding: 3px 8px; font-size: 10.5px; }
 section.road .callout-head .badge-wrap { flex-direction: row-reverse; gap: 6px; }
-section.road .callout-latest { grid-row: 2; grid-column: 2 / -1; margin-top: 0; overflow-wrap: anywhere; text-wrap: pretty; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+section.road .callout-latest { grid-row: 2; grid-column: 2 / -1; margin-top: 0; overflow-wrap: anywhere; text-wrap: pretty; } /* summaries wrap in full, no clamp */
 .mini.flog-card { box-sizing: border-box; width: 100%; min-height: 96px; padding: 10px 12px; }
 .callout-name { display: block; font-weight: 700; font-size: 15px; color: var(--t, var(--c)); }
 .callout-latest { display: block; font-size: 13px; color: var(--text); margin-top: 3px; line-height: 1.35; }
@@ -4417,7 +4417,7 @@ button.feed-pill:focus-visible { outline: 2px solid #A9BDF0; outline-offset: 4px
 }
 .post.hl::after { animation: post-hl 2.2s forwards; }
 @keyframes post-hl { 0% { opacity: 0; } 11% { opacity: 1; animation-timing-function: linear; } 45% { opacity: 1; animation-timing-function: cubic-bezier(.45,0,.25,1); } 100% { opacity: 0; } }
-.post-top { display: flex; align-items: center; gap: 8px; min-height: 24px; }
+.post-top { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; row-gap: 4px; min-height: 24px; } /* 15 Nov: a long chip pair pushes the date onto its own line (right), never clips it */
 .chip {
   display: inline-flex; align-items: center; gap: 5px; height: 24px; padding: 0 9px 0 7px;
   border-radius: 999px; font-size: 11.5px; font-weight: 700; letter-spacing: .02em; white-space: nowrap; color: var(--t, var(--c));
