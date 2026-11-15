@@ -38,7 +38,7 @@ if (res) for (const r of res) {
   const f15 = (r.photos || []).find((g) => g.flight === "15");
   check(f15 && f15.vehicles && f15.pics.length === 2 && f15.pics[0].label === "Booster 22" && f15.pics[1].label === "Ship 42" && f15.pics.every((p) => p.ok && p.fit === "cover"),
     `${label}: opened F15 card: Booster 22 left, Ship 42 right, both loaded, object-fit cover (${f15 ? f15.pics.map((p) => `${p.label} ${p.src} box ${p.boxAR} img ${p.imgAR}`).join("; ") : "not found"})`);
-  check(f15 && f15.pics[0].pos === "50% 20%" && f15.pics[1].pos === "50% 18%",
+  check(f15 && f15.pics[0].pos === "50% 20%" && f15.pics[1].pos === "50% 30%",
     `${label}: F15 focus is applied (booster ${f15 && f15.pics[0] && f15.pics[0].pos}, ship ${f15 && f15.pics[1] && f15.pics[1].pos})`);
 }
 console.log(fails ? `\n${fails} FAILED` : "\nall passed");

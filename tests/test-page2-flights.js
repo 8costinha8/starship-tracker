@@ -56,7 +56,7 @@ check(/if \(!f\.photo\) f\.photo = \{ thumb: `images\/f\$\{f\.n\}-thumb\.jpg`, g
 A.FLIGHTS.forEach((f) => { if (!f.photo) f.photo = { thumb: `images/f${f.n}-thumb.jpg`, gallery: [`images/f${f.n}-a.jpg`, `images/f${f.n}-b.jpg`] }; });
 { const f15 = A.FLIGHTS.find((f) => f.n === 15), f14 = A.FLIGHTS.find((f) => f.n === 14);
   const p = A.cardPhotosOf(f15, [], base);
-  check(p.length === 2 && p[0].src === "images/f15-booster.jpg" && p[0].label === "Booster 22" && p[0].focus === "50% 20%" && p[1].src === "images/f15-ship.jpg" && p[1].label === "Ship 42" && p[1].focus === "50% 18%" && p.every((x) => x.vehicle), "F15: booster left (Booster 22), ship right (Ship 42) from road.archive[15].vehicle_photos, with hand-set focus");
+  check(p.length === 2 && p[0].src === "images/f15-booster.jpg" && p[0].label === "Booster 22" && p[0].focus === "50% 20%" && p[1].src === "images/f15-ship-v2.jpg" && p[1].label === "Ship 42" && p[1].focus === "50% 30%" && p.every((x) => x.vehicle), "F15: booster left (Booster 22), ship right (Ship 42) from road.archive[15].vehicle_photos, with hand-set focus");
   const fb = A.cardPhotosOf(f14, [], base), g14 = A.galleryOf(f14, []);
   check(fb.length === 2 && fb.every((x, i) => !x.vehicle && x.label === "SpaceX" && x.src === g14[i]), `F14 (none set): falls back to the flight's own gallery (${g14.join(", ")}), credit SpaceX`);
   const one = JSON.parse(JSON.stringify(base)); one.archive["14"].vehicle_photos = { booster: "images/x-b21.jpg" };
@@ -71,7 +71,7 @@ A.FLIGHTS.forEach((f) => { if (!f.photo) f.photo = { thumb: `images/f${f.n}-thum
   check(/cardPhotosOf\(f, past, road\)/.test(fc) && /focus=\{p\.focus\}/.test(fc) && /credit=\{p\.label\}/.test(fc) && !/contain=\{p\.vehicle\}/.test(fc), "FlightCard: vehicle photos use the per-photo focus and the vehicle name as the label");
   check(/\.photo-wide \{ aspect-ratio: 4 \/ 3; \}/.test(src) && !/aspect-ratio: 2 \/ 3/.test(src) && !/photo-contain/.test(src) && /\.photo\.has-img img \{[\s\S]*?object-fit: cover;/.test(src), "CSS: vehicle photos use the standard 4:3 .photo frame with object-fit cover"); }
 { const sz = (f) => { const b = fs.readFileSync(path.join(ROOT, f)); let i = 2; while (i < b.length) { if (b[i] !== 0xff) { i++; continue; } const m = b[i + 1]; if (m >= 0xc0 && m <= 0xc3) return { h: b.readUInt16BE(i + 5), w: b.readUInt16BE(i + 7), bytes: b.length }; i += 2 + b.readUInt16BE(i + 2); } return null; };
-  for (const f of ["images/f15-booster.jpg", "images/f15-ship.jpg"]) { const d = sz(f); check(d && Math.max(d.w, d.h) <= 1200 && d.bytes < 250000, `${f}: web size (${d && d.w}×${d && d.h}, ${d && Math.round(d.bytes / 1024)} KB)`); } }
+  for (const f of ["images/f15-booster.jpg", "images/f15-ship-v2.jpg"]) { const d = sz(f); check(d && Math.max(d.w, d.h) <= 1200 && d.bytes < 250000, `${f}: web size (${d && d.w}×${d && d.h}, ${d && Math.round(d.bytes / 1024)} KB)`); } }
 { const CR = require(path.join(ROOT, "scripts/check-road.js"));
   const r = { flight: 17, categories: [{ id: "cryo", history: [{ flight: 16, text: "Ship 43 x.", date: "1 Dec", at: "2026-12-01T00:00:00Z" }] }], archive: { 16: { vehicle_photos: { booster: { image: "images/f16-booster.jpg", focus: "50% 20%" } } } } };
   CR.archiveLaunched(r, 16);

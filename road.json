@@ -1441,10 +1441,10 @@
           "focus": "50% 20%"
         },
         "ship": {
-          "image": "images/f15-ship.jpg",
+          "image": "images/f15-ship-v2.jpg",
           "label": "Ship 42",
-          "note": "Ship 42 coming in to the tower for the catch (supplied by Bernardo, 15 Nov)",
-          "focus": "50% 18%"
+          "note": "Gavin Richmond, Caught — Ship 42 in the chopsticks (https://x.com/tweetsiphotos/status/2121736134480859612, supplied by Bernardo, 15 Nov)",
+          "focus": "50% 30%"
         }
       }
     }
