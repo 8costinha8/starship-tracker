@@ -5,7 +5,7 @@
     "S43"
   ],
   "updated": "15 Nov",
-  "updatedAt": "2026-11-15T19:15:26.391Z",
+  "updatedAt": "2026-11-15T19:30:43.364Z",
   "categories": [
     {
       "id": "cryo",
@@ -1451,6 +1451,17 @@
   },
   "feed_items": [
     {
+      "id": "news-mwi85myo-200024",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Ship 42 was lowered onto its ship transport stand ahead of return to Megabay 2.",
+      "url": "https://x.com/Blobifie/status/2122048391396179989",
+      "at": "2026-11-15T19:25:36.000Z",
+      "date": "15 Nov",
+      "flight": 15,
+      "later_flight": true
+    },
+    {
       "id": "news-mwi74kuw-8d54e6",
       "kind": "news",
       "title": "🚀 Starship",
@@ -1878,18 +1889,6 @@
       "at": "2026-11-07T23:55:54.000Z",
       "date": "7 Nov",
       "flight": 15
-    },
-    {
-      "id": "news-mw6lov68-8f7179",
-      "kind": "news",
-      "title": "🚀 Starship",
-      "body": "Ship 42 was confirmed for a catch attempt on Flight 15.",
-      "url": "https://x.com/Blobifie/status/2119100371696263652",
-      "at": "2026-11-07T16:11:14.000Z",
-      "date": "7 Nov",
-      "flight": 15,
-      "src": "@Blobifie",
-      "later_flight": true
     }
   ],
   "hardware_flights": {
