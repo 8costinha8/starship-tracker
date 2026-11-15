@@ -57,7 +57,7 @@ const step = async (label, l, nowIso) => {
   got = await step("result: Success", launch(15, "Success", "2026-10-13T22:03:00Z"), "2026-10-13T23:30:00Z");
   check(got.length === 1 && got[0].title === "🏁 Flight 15 — Success" && commits.length === 1 && /n: 15/.test(appJs), "result → story logged in app.js, committed, one '🏁 Flight 15 — Success' push (unchanged)");
   check(/story: "Booster 22 splashed down in the Gulf, while Ship 42 was caught by the tower\."/.test(appJs) && !/Test story/.test(appJs), "logged story = the hero paragraph from road.json, not the writer's story");
-  check(got[0] && got[0].body === "Booster 22 splashed down in the Gulf, while Ship 42 was caught by the tower.", "result push carries the Style A line, not 'The story's up in the app.': " + (got[0] && got[0].body));
+  check(got[0] && got[0].body === "Ship 42 was caught by the tower." && (got[0].title + " " + got[0].body).length < 80, "no result pushes yet → one short line (shortest confirmed result), not 'The story's up in the app.': " + (got[0] && got[0].body));
 
   got = await step("next run, still Success", launch(15, "Success", "2026-10-13T22:03:00Z"), "2026-10-13T23:45:00Z");
   check(got.length === 0 && commits.length === 1, "no repeat of the result push or the story");

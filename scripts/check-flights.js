@@ -172,6 +172,17 @@ function flightInAppJs(appJsText, n) {
   return a >= 0 && new RegExp(`\\{\\s*n:\\s*${Number(n)}\\s*,`).test(appJsText.slice(a, b));
 }
 function readRoadJson() { try { return JSON.parse(require("fs").readFileSync(require("path").join(__dirname, "..", "road.json"), "utf8")); } catch { return {}; } }
+// This flight's stage-result pushes already sent (mission alerts: alert_key "N|booster_result" / "N|ship_result").
+function resultPushesFor(pushes, n) {
+  return (Array.isArray(pushes) ? pushes : []).filter((p) => p && p.verdict === "sent" && new RegExp(`^${Number(n)}\\|(?:booster|ship)_result$`).test(String(p.alert_key || "")));
+}
+function readPushLog() { try { return JSON.parse(require("fs").readFileSync(require("path").join(__dirname, "..", "notifications.json"), "utf8")).pushes || []; } catch { return []; } }
+// One short push: the title plus the shortest confirmed result sentence (whole sentences only, never cut).
+function logPush(n, label, results) {
+  const title = `🏁 Flight ${n} — ${label}`;
+  const body = (results || []).filter(Boolean).slice().sort((a, b) => a.length - b.length)[0] || "";
+  return body ? { title, body } : { title, body: `Flight ${n} is in the log.` };
+}
 // Missing / not-final hero data: one review item (data/needs-review.json), nothing invented.
 function flagStoryReview(n, reason) {
   try { require("./self-check.js").writeReview([{ type: "flight-story", item: `Flight ${n}`, msg: `Flight ${n} logged with an empty story: ${reason}`, reason: "the story is the final Style A hero paragraph, never a generated summary" }], require("path").join(__dirname, "..", "data", "needs-review.json")); }
@@ -273,6 +284,7 @@ function liveDeps() {
     writeAppJs: (text) => fs.writeFileSync(APP_JS_PATH, text),
     commitAndPush,
     readRoad: readRoadJson,
+    readPushes: readPushLog,
     flagReview: flagStoryReview,
     writeStory,
     // data-only message, so our own service worker decides exactly what to show
@@ -390,9 +402,12 @@ async function run(deps) {
         deps.commitAndPush(current.n, OUTCOME_LABEL[current.outcome]);
 
         current.storyWrittenFor = current.n;
-        // the result push carries the Style A result line; with no final story there is no vague "story's up" push
-        notification = story ? { title: `🏁 Flight ${current.n} — ${OUTCOME_LABEL[current.outcome]}`, body: story } : null;
-        console.log(`Flight ${current.n} logged${story ? " and pushed" : " (no push: story left for review)"}.`);
+        // Log-time push, short and sweet (15 Nov): none when this flight's booster/ship result pushes already went out
+        // (notifications.json pushes[]); otherwise one short line, "🏁 Flight N — Success" + the shortest confirmed result.
+        // Never the whole paragraph, never the vague "story's up"; no final story → no push.
+        const already = resultPushesFor(deps.readPushes ? deps.readPushes() : [], current.n);
+        notification = !story || already.length ? null : logPush(current.n, OUTCOME_LABEL[current.outcome], hero.results);
+        console.log(`Flight ${current.n} logged${notification ? " and pushed" : already.length ? ` (no push: ${already.length} result push(es) already sent)` : " (no push: story left for review)"}.`);
       }
     } catch (err) {
       console.error("Story write/commit failed:", err);
@@ -470,7 +485,7 @@ async function run(deps) {
   return { notification, current };
 }
 
-module.exports = { run, mapLL2Status, fmtDateTime, addFlightToAppJs, flightInAppJs, isPlaceholderTimeUpgrade, fmtNetTime, ukDayKey };
+module.exports = { run, mapLL2Status, fmtDateTime, addFlightToAppJs, flightInAppJs, resultPushesFor, logPush, isPlaceholderTimeUpgrade, fmtNetTime, ukDayKey };
 
 if (require.main === module) { process.on("exit", () => console.log(writer.grokCallsLine())); }
 if (require.main === module) {

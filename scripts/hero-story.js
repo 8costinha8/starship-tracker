@@ -55,8 +55,12 @@ function loggedStory(road, n, { vehicles, appSrc } = {}) {
     catch (e) { const m = String(e.message).match(/^(\w+) is not defined/); if (!m || tries > 100 || EXTRA.has(m[1])) throw e; EXTRA.add(m[1]); }
   }
   const res = (st) => items.some((o) => o && o.stage === st && o.kind === "result" && (o.clause || o.line));
-  if (!res("booster") || !res("ship")) return { story: "", reason: `Flight ${n} hero is not final (${["booster", "ship"].filter((s) => !res(s)).join(" + ")} result missing)` };
-  return story ? { story, reason: "hero paragraph" } : { story: "", reason: `Flight ${n} hero paragraph is empty` };
+  // each confirmed stage result as one short sentence ("Ship 42 was caught by the tower."), for a short push line
+  const name = (o) => o.name || (view.vehicles.find((v) => (o.stage === "ship" ? /^S/i : /^B/i).test(String(v))) || "").replace(/^S/i, "Ship ").replace(/^B/i, "Booster ");
+  const results = items.filter((o) => o && o.kind === "result" && (o.stage === "booster" || o.stage === "ship") && (o.clause || o.line))
+    .map((o) => String(o.line || `${name(o)} ${o.clause}.`).trim()).filter(Boolean);
+  if (!res("booster") || !res("ship")) return { story: "", results, reason: `Flight ${n} hero is not final (${["booster", "ship"].filter((s) => !res(s)).join(" + ")} result missing)` };
+  return story ? { story, results, reason: "hero paragraph" } : { story: "", results, reason: `Flight ${n} hero paragraph is empty` };
 }
 // The hero data the rollover keeps with the archived flight, so the log step (or a later re-log) can still read it.
 function heroArchive(old, n) {

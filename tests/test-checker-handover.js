@@ -30,19 +30,28 @@ const CF = require(path.join(ROOT, "scripts/check-flights.js"));
 const app = fs.readFileSync(path.join(ROOT, "app.js"), "utf8");
 check(CF.flightInAppJs(app, 15) && !CF.flightInAppJs(app, 99), "G: flightInAppJs finds an existing FLIGHTS entry");
 (async () => {
-  const run = async (appJs, road) => {
+  const run = async (appJs, road, pushes = []) => {
     let state = { n: 15, status: "inflight", outcome: null, date: "2026-11-13T22:47:36Z" }; const sent = [], commits = [], reviews = []; let out = appJs;
     const l = { name: "Starship | Flight 15", url: "https://ll2.test/15", net: "2026-11-13T22:47:36Z", net_precision: { abbrev: "SEC" }, status: { abbrev: "Success" } };
     await CF.run({ fetchJson: async (u) => (u.includes("/upcoming/") ? { results: [l] } : { ...l, pad: { name: "Orbital Launch Pad 2" }, rocket: { configuration: { variant: "V3" }, launcher_stage: [{ launcher: { serial_number: "B22" } }], spacecraft_stage: [{ spacecraft: { serial_number: "S42" } }] } }),
       loadState: async () => JSON.parse(JSON.stringify(state)), saveState: async (s) => { state = s; }, push: async (n) => sent.push(n), readAppJs: () => out, writeAppJs: (t) => { out = t; },
       commitAndPush: (n) => commits.push(n), writeStory: async () => ({ headline: "Flight 15 succeeds from Pad 2", story: "Flight 15 launched. Both stages completed their returns to the launch site." }),
-      readRoad: () => road, flagReview: (n, r) => reviews.push(r), now: () => Date.parse("2026-11-14T21:30:00Z") });
+      readRoad: () => road, readPushes: () => pushes, flagReview: (n, r) => reviews.push(r), now: () => Date.parse("2026-11-14T21:30:00Z") });
     return { out, sent, commits, reviews };
   };
   const tiny = 'const FLIGHTS = [\n  { n: 14, date: "2026-09-28T12:48:59Z", outcome: "success",\n    story: "Example." },\n];\nconst DATA_CHECKED = "1 Oct 2026";\n';
   let r = await run(tiny, pre);
   check(r.out.includes(`story: "${APPROVED}"`) && !/Both stages/.test(r.out), "G: log step writes the hero paragraph verbatim (writer's story ignored)");
-  check(r.sent.length === 1 && r.sent[0].body === APPROVED, "D: the result push / feed card carries the Style A line, not 'The story's up in the app.'");
+  const line = r.sent[0] ? `${r.sent[0].title} ${r.sent[0].body}` : "";
+  check(r.sent.length === 1 && r.sent[0].title === "🏁 Flight 15 — Success" && r.sent[0].body === "Ship 42 was caught by the tower." && line.length < 80,
+    "D: no result pushes yet → ONE short line (title + shortest confirmed result, " + line.length + " chars): " + line);
+  check(!r.sent.some((n) => n.body === APPROVED || /story's up/i.test(n.body)), "D: never the whole paragraph, never 'The story's up in the app.'");
+  const sentLog = [{ title: "✅ Ship caught!", body: "Flight 15", verdict: "sent", alert_key: "15|ship_result" }];
+  r = await run(tiny, pre, sentLog);
+  check(r.sent.length === 0 && r.out.includes(`story: "${APPROVED}"`), "D: result pushes already in notifications.json → NO log-time push (story still logged verbatim)");
+  r = await run(tiny, pre, [{ title: "x", verdict: "sent", alert_key: "14|ship_result" }, { title: "y", verdict: "blocked", alert_key: "15|booster_result" }]);
+  check(r.sent.length === 1, "D: another flight's result push, or a blocked one, does not count");
+  check(CF.logPush(16, "Success", ["Booster 23 was caught by the tower.", "Ship 43 splashed down in the Indian Ocean."]).body === "Booster 23 was caught by the tower.", "D: logPush picks the shortest whole result sentence");
   r = await run(tiny, { flight: 16, vehicles: ["B23", "S43"], archive: {} });
   check(/story: ""/.test(r.out) && r.reviews.length === 1 && r.sent.length === 0, "G/D: no hero data → empty story, one review item, no vague push");
   const manual = tiny.replace("\n];", '\n  { n: 15, date: "2026-11-13T22:47:36Z", outcome: "success",\n    story: "Manual story." },\n];');
