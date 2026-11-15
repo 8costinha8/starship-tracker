@@ -5,7 +5,7 @@
     "S43"
   ],
   "updated": "15 Nov",
-  "updatedAt": "2026-11-15T19:45:45.228Z",
+  "updatedAt": "2026-11-15T22:30:54.801Z",
   "categories": [
     {
       "id": "cryo",
@@ -1451,6 +1451,16 @@
   },
   "feed_items": [
     {
+      "id": "news-mwieees8-17ee6f",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Starship heat shield and engines were reviewed and looked great.",
+      "url": "https://x.com/elonmusk/status/2122092374016806969",
+      "at": "2026-11-15T22:20:23.000Z",
+      "date": "15 Nov",
+      "flight": 16
+    },
+    {
       "id": "news-mwi85myo-200024",
       "kind": "news",
       "title": "🚀 Starship",
@@ -1879,16 +1889,6 @@
       "date": "8 Nov",
       "flight": 15,
       "src": "@SpaceflightNow"
-    },
-    {
-      "id": "news-mw72afio-c6e295",
-      "kind": "news",
-      "title": "🚀 Starship",
-      "body": "Starbase was prepared for a Flight 15 double catch.",
-      "url": "https://www.youtube.com/watch?v=gX3xmAalnPk",
-      "at": "2026-11-07T23:55:54.000Z",
-      "date": "7 Nov",
-      "flight": 15
     }
   ],
   "hardware_flights": {
