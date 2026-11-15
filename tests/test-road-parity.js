@@ -73,13 +73,14 @@ for (const n of [14, 15, base.flight]) {
   check(bad.length === 0, `shifted to Flight 17: newest post leads every card (${bad.join(", ") || "ok"})`); }
 { const b23 = A.rtfCards(base).find((p) => p.id === "rtf-cryo-B23");
   check(b23 && /^28 Oct/.test(A.cardDate(b23.h)) && b23.h.complete && (b23.h.updates || []).some((u) => /rolled back to the production site/.test(u.text)), `Booster 23 cryo leads with its newest post (${b23 && A.cardDate(b23.h)}: ${b23 && b23.h.text}); the 18 Oct return is an Earlier update; still complete`); }
-// (b) pictures: Page 1 past boxes show their Page 2 group card's photo (same src), condensed; Page 2 past cards show it too
+// (b) pictures: Page 1 past boxes show their road.archive summary photo (15 Nov: Page 2 has no past groups any more)
 for (const n of [14, 15]) {
-  const g = A.pastRoadGroup(base, n, A.FLIGHTS), p1 = A.pastCondensed(g), p2 = g.cards.filter((c) => c.box !== "date");
-  check(JSON.stringify(p1.map((c) => c.photo && c.photo.image)) === JSON.stringify(p2.map((c) => c.photo && c.photo.image)), `Flight ${n}: past box photos = Page 2 group photos (${p1.filter((c) => c.photo).length} of ${p1.length} with a photo)`);
+  const items = base.archive[n].summary.items.filter((e) => e && e.text && e.vehicle && e.box !== "date"), p1 = A.pastCondensed(A.pastRoadGroup(base, n, A.FLIGHTS));
+  const want = p1.map((b) => { const src = items.filter((e) => e.box === b.box && (b.box === "pad" || b.box === "faa" || e.vehicle === b.vehicle)); return (src.map((e) => e.photo && e.photo.image).filter(Boolean)[0]) || null; });
+  check(JSON.stringify(p1.map((c) => (c.photo && c.photo.image) || null)) === JSON.stringify(want), `Flight ${n}: past box photos = road.archive summary photos (${p1.filter((c) => c.photo).length} of ${p1.length} with a photo)`);
 }
-{ const fc = src.slice(src.indexOf("function FlightCard("), src.indexOf("function FlightCard(") + 9000), pp = src.slice(src.indexOf("function PastPost("), src.indexOf("function RoadLiveRow("));
-  check(/<BoxPhoto src=\{e\.photo\.image\} crop=\{e\.photo\.crop\}/.test(fc) && /<PickMedia mo=\{\{ \.\.\.c\.photo/.test(pp), "Page 1 past box renders the photo Page 2's past card renders (same object, localImg on both)");
+{ const fc = src.slice(src.indexOf("function FlightCard("), src.indexOf("function FlightCard(") + 9000);
+  check(/<BoxPhoto src=\{e\.photo\.image\} crop=\{e\.photo\.crop\}/.test(fc) && !/function PastPost\(/.test(src), "Page 1 past box renders its archive photo (localImg); no Page 2 past card left");
   check(/\{e\.image && <BoxPhoto src=\{e\.image\} crop=\{e\.crop\} \/>\}/.test(src) && /src=\{localImg\(src\)\}/.test(src.slice(src.indexOf("function BoxPhoto("), src.indexOf("function ParityCard("))), "Page 1 current box renders the Page 2 card picture through localImg (same src as OneMedia)"); }
 // (c) full sentences: the rewriter (scripts/text-split.js toCard / lint) and the data
 { const TS = require(path.join(ROOT, "scripts/text-split.js"));

@@ -12,6 +12,10 @@ class H(SimpleHTTPRequestHandler):
 httpd = ThreadingHTTPServer(("127.0.0.1", 0), H); threading.Thread(target=httpd.serve_forever, daemon=True).start()
 URL = f"http://127.0.0.1:{httpd.server_address[1]}/index.html"
 DISMISS = "() => { const q=document.querySelector('.notify-btn-quiet'); if(q) q.click(); document.querySelectorAll('.scrim,.notify-modal').forEach(e=>e.remove()); }"
+# the opened flight card's gallery: which photos, loaded, fit, label, slot vs image aspect ratio
+PHOTOS = """(card) => [...card.querySelectorAll('.gallery')].map(g => ({ flight: card.querySelector('.t-num').textContent.trim(), vehicles: g.hasAttribute('data-vehicles'),
+  pics: [...g.querySelectorAll('.photo')].map(ph => { const i = ph.querySelector('img'), b = ph.getBoundingClientRect(); return { src: i && i.getAttribute('src'), ok: !!(i && i.complete && i.naturalWidth > 0), fit: i && getComputedStyle(i).objectFit,
+    label: (ph.querySelector('.photo-credit') || {}).textContent || null, boxAR: Math.round(b.width / b.height * 1000) / 1000, imgAR: i && i.naturalHeight ? Math.round(i.naturalWidth / i.naturalHeight * 1000) / 1000 : null }; }) }))"""
 AUDIT = """(sels) => { const out = [];
   for (const [kind, sel] of sels) for (const el of document.querySelectorAll(sel)) { if (!el.offsetParent) continue;
     const r = document.createRange(); r.selectNodeContents(el); const tw = r.getBoundingClientRect().width, bw = el.getBoundingClientRect().width, cs = getComputedStyle(el);
@@ -36,6 +40,7 @@ with sync_playwright() as p:
             hd = pg.locator(f"section.road .callout[data-id='{b}'] button.callout-head")
             if hd.count() and pg.evaluate("(b) => !document.querySelector(`section.road .callout[data-id='${b}']`).classList.contains('open')", b): hd.click(); pg.wait_for_timeout(350)
             bad += pg.evaluate(AUDIT, P1)
+        photos = []
         for n in pg.evaluate("() => [...document.querySelectorAll('article.card')].filter(c => c.querySelector('.past-toggle')).map(c => c.querySelector('.t-num').textContent.trim())"):
             c = pg.locator("article.card").filter(has=pg.locator(".t-num", has_text=n)).first
             c.scroll_into_view_if_needed()
@@ -43,6 +48,8 @@ with sync_playwright() as p:
             tg = c.locator(".past-toggle")
             if tg.first.get_attribute("aria-expanded") != "true": tg.first.click(); pg.wait_for_timeout(900)
             bad += pg.evaluate(AUDIT, P1)
+            pg.wait_for_timeout(600)
+            photos += c.evaluate(PHOTOS)
         pg.goto(URL + "?feed=1", wait_until="domcontentloaded"); pg.wait_for_selector(".feed-list", timeout=60000); pg.wait_for_timeout(2500); pg.evaluate(DISMISS)
         for gid in pg.evaluate("() => [...document.querySelectorAll('.feed-list .rfs')].map(s => s.id)"):
             if not pg.evaluate("(id) => document.getElementById(id).classList.contains('is-open')", gid): pg.locator(f"#{gid} .feed-pill").first.click(); pg.wait_for_timeout(500)
@@ -50,10 +57,13 @@ with sync_playwright() as p:
             if m.count() and m.first.get_attribute("aria-expanded") != "true": m.first.click(); pg.wait_for_timeout(300)
         pg.evaluate("() => document.querySelectorAll('.feed-list details').forEach(d => d.open = true)"); pg.wait_for_timeout(400)
         bad += pg.evaluate(AUDIT, P2)
+        page2 = pg.evaluate("""() => ({ groups: [...document.querySelectorAll('.feed-list .rfs')].map(s => ({ flight: Number(s.dataset.flight), open: s.classList.contains('is-open'), cards: s.querySelectorAll('.rfs-feed > article.post, .rfs-feed > * article.post').length,
+            shown: [...s.querySelectorAll('article.post')].filter(a => a.offsetParent && a.getBoundingClientRect().height > 0).length })), showButtons: [...document.querySelectorAll('button')].filter(b => /show (all|fewer|more) updates/i.test(b.textContent)).length,
+            rfsMore: document.querySelectorAll('.rfs-more, .rfs-extra').length })""")
         seen, uniq = set(), []
         for x in bad:
             k = (x["kind"], x["text"])
             if k not in seen: seen.add(k); uniq.append(x)
-        res.append({"w": W, "desktop": not mobile, "bad": uniq})
+        res.append({"w": W, "desktop": not mobile, "bad": uniq, "photos": photos, "page2": page2})
         br.close()
 print(json.dumps(res))

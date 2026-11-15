@@ -1,10 +1,10 @@
 // Post-handover Road rules (15 Nov, every flight, not an F15 patch). No network, no pushes: node tests/test-handover-page.js
-// A  a flight with road.archive[n] is one closed past group above the current flight; nothing of it is left below
+// A  a flight with road.archive[n] keeps its past Road on Page 1 (15 Nov: Page 2 shows only flights N and N+1); nothing of it is left on Page 2
 // B  a launched / complete flight's Liftoff push never renders live (no "in the air · Watch now", real liftoff time)
 // D  "The story's up in the app." becomes the logged Style A story, or is dropped
 // E  the hidden Flight Log leaves the page flow while Road is open (no blank screen-heights under Road)
 // H  past Roads: liftoff closes every box, never "Licence pending"; manual override wins
-// I  Page 1's past Road is the condensed copy of Page 2's group (same entries, ids, text, photos)
+// I  Page 1's past Road reads road.archive[n] (same entries, text, photos as the archive summary)
 const fs = require("fs"), path = require("path");
 const ROOT = path.join(__dirname, "..");
 const app = fs.readFileSync(path.join(ROOT, "app.js"), "utf8");
@@ -39,11 +39,10 @@ check(JSON.stringify(H.pastRoadFlights(road, FLIGHTS)) === "[14,15]", "A: after 
   check(g.items.length === 6 && g.items.every((i) => i.status === "done"), "A: Flight 15 group bar is 6 of 6 done");
   const dc = g.cards.find((c) => c.box === "date");
   check(dc && dc.iso === "2026-11-13T22:47:36Z" && dc.text === "Flight 15 lifted off from Pad 2.", "A/B: Flight 15 group's Launch date card is the real liftoff (22:47:36Z), not the 23:00 push"); }
-// UpdatesFeed wiring: groups from every archived flight, no skip list, early rows above the current flight
+// UpdatesFeed wiring (15 Nov, Bernardo): Page 2 shows only flights N and N+1 — no past groups, no other flights' rows
 { const uf = app.slice(app.indexOf("function UpdatesFeed("), app.indexOf("function StarshipTracker("));
-  check(/pastRoadFlights\(road, FLIGHTS\)\.map/.test(uf) && !/pastRoadFlights\(road, FLIGHTS, flown\)/.test(uf), "A: UpdatesFeed builds a group for every archived flight (no 'listed below' skip)");
-  check(/roadPageRows\(rows,/.test(uf), "A: UpdatesFeed splits rows with roadPageRows");
-  check(uf.indexOf("{early.map(renderRow)}") > 0 && uf.indexOf("{early.map(renderRow)}") < uf.indexOf("<RoadFlightSection flight={road.flight}"), "A: launched flights without a group render above the current flight"); }
+  check(!/pastRoadGroup|PastPost|fsec-past|early\.map|rest\.map/.test(uf) && !/function PastPost\(/.test(app), "A: UpdatesFeed renders no past Road groups and no other flights' rows");
+  check(/roadPageRows\(rows,/.test(uf) && (uf.match(/<RoadFlightSection /g) || []).length === 2 && /page2Flights\(road\)\[1\]/.test(uf), "A: exactly two groups: the current flight (its rows from roadPageRows) and page2Flights(road)[1]"); }
 
 // B — Liftoff push of a flight that is over
 { const p = { id: "flight-x", flight: 15, when: 0, cat: { id: "feed-flight", name: "Liftoff!" }, h: { id: "flight-x", text: "Flight 15 is in the air · Watch now", publishedAt: "2026-11-13T23:00:31.652Z" } };
@@ -85,15 +84,22 @@ check(JSON.stringify(H.pastRoadFlights(road, FLIGHTS)) === "[14,15]", "A: after 
   r.archive["23"] = { entries: [{ box: "faa", date: "6 Apr", text: "FAA approval has arrived for Starship Flight 24." }], summary: { items: [{ box: "cryo", vehicle: "Ship 52", text: "Cryo tested" }] } };
   check(H.pastSummary(r, 23).find((e) => e.box === "faa").text === "Launch licence issued", "H: another flight's approval date is never used"); }
 
-// I — Page 1 condensed copy == Page 2 group (entries, ids, text, photos)
+// I — Page 1 past boxes == road.archive[n].summary (entries, text, photos); 15 Nov: no Page 2 group any more
 for (const n of [14, 15]) {
-  const g = H.pastRoadGroup(road, n, FLIGHTS, []), p1 = H.pastCondensed(g), p2 = g.cards.filter((c) => c.box !== "date");
-  const key = (c) => [c.id, c.box, c.vehicle, c.text, (c.photo && c.photo.image) || ""].join("|");
-  check(p1.length > 0 && JSON.stringify(p1.map(key)) === JSON.stringify(p2.map(key)), `I: Flight ${n}: Page 1 boxes = Page 2 cards (${p1.length} entries, ids/titles/photos)`);
-  check(g.cards.length === p1.length + 1 && g.cards[g.cards.length - 1].box === "date", `I: Flight ${n}: the only difference is Page 2's Launch date card (the date is in Page 1's card header)`);
+  const items = road.archive[n].summary.items.filter((e) => e && e.text && e.vehicle && e.box !== "date"), p1 = H.pastCondensed(H.pastRoadGroup(road, n, FLIGHTS, []));
+  const bad = [];
+  for (const b of p1) {
+    const src = items.filter((e) => e.box === b.box && (b.box === "pad" || b.box === "faa" || e.vehicle === b.vehicle));
+    const photos = src.map((e) => e.photo && e.photo.image).filter(Boolean);
+    if (!src.length) bad.push(`${b.box}/${b.vehicle}: not in the archive`);
+    else if (b.box !== "pad" && b.box !== "faa" && b.text !== src[0].text) bad.push(`${b.box}/${b.vehicle}: text "${b.text}" ≠ archive "${src[0].text}"`);
+    if (((b.photo && b.photo.image) || null) !== (photos[0] || null)) bad.push(`${b.box}/${b.vehicle}: photo ${b.photo && b.photo.image} ≠ archive ${photos[0]}`);
+  }
+  const want = new Set(items.map((e) => (e.box === "pad" || e.box === "faa" ? e.box : `${e.box}|${e.vehicle}`)));
+  check(p1.length > 0 && p1.length === want.size && bad.length === 0, `I: Flight ${n}: Page 1's ${p1.length} past boxes = road.archive summary (vehicles, text, photos)${bad.length ? " — " + bad.join("; ") : ""}`);
 }
 { const fc = app.slice(app.indexOf("function FlightCard("), app.indexOf("function usePastFit("));
-  check(/pastRoadGroup\(road, f\.n, FLIGHTS, ROAD_HIDDEN\)/.test(fc) && /pastCondensed\(group\)/.test(fc) && /past\.map\(\(e, i\) =>/.test(fc) && !/= React\.useMemo\(\(\) => \(isLaunched\(f\.n\) \? pastSummary\(road, f\.n\) : \[\]\), \[road, f\.n\]\)/.test(fc), "I: FlightCard reads the same pastRoadGroup as Page 2 (no separate list)");
-  check(/galleryOf\(f, past\)/.test(fc), "I: Page 1 fallback photos come from the same group entries"); }
+  check(/pastRoadGroup\(road, f\.n, FLIGHTS, ROAD_HIDDEN\)/.test(fc) && /pastCondensed\(group\)/.test(fc) && /past\.map\(\(e, i\) =>/.test(fc) && !/= React\.useMemo\(\(\) => \(isLaunched\(f\.n\) \? pastSummary\(road, f\.n\) : \[\]\), \[road, f\.n\]\)/.test(fc), "I: FlightCard reads pastRoadGroup over road.archive (one list)");
+  check(/cardPhotosOf\(f, past, road\)/.test(fc), "I: Page 1 card photos: vehicle photos, else the same archive entries' photos (galleryOf)"); }
 console.log(fails ? `\n${fails} FAILED` : "\nall passed");
 process.exit(fails ? 1 : 0);

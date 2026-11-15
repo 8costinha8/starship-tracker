@@ -58,8 +58,8 @@ check(H.missionComplete(withLines([orbit, ship("result")]), 15) === false, "ship
   check(H.missionComplete(r, 15) === true, "an unrelated box override (liftedOff) does not change the rule"); }
 // 5. past flight: unchanged
 check(H.missionComplete(base, 14) === false && H.missionComplete(null, 15) === false, "no hero_lines for another flight / no road → no change (false)");
-{ const sec = app.slice(app.indexOf("{pastGroups.map((g) => ("), app.indexOf("{Number.isInteger(road && road.flight) && ("));
-  check(sec.length > 0 && !/live=|liveDone=/.test(sec), "past flight groups (F14) never get a live row, done or not — unchanged"); }
+{ const uf = app.slice(app.indexOf("function UpdatesFeed("), app.indexOf("function StarshipTracker(")), secs = uf.match(/<RoadFlightSection [^>]*>/g) || [];
+  check(!/pastGroups/.test(uf) && secs.length === 2 && !/live=|liveDone=/.test(secs[1]), "past flights have no Page 2 group (15 Nov) and the N+1 group never gets a live row — unchanged"); }
 check(/Booster 22 skipped the tower catch and splashed down in the Gulf, while Ship 42 .*was caught by the tower\./.test(H.heroMissionLines(base, 15, null, Date.parse("2026-11-14T21:30:00Z"))[0] || ""),
   "hero paragraph unchanged by the refactor: " + (H.heroMissionLines(base, 15, null, Date.parse("2026-11-14T21:30:00Z"))[0] || ""));
 

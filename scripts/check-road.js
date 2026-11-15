@@ -921,7 +921,8 @@ function archiveLaunched(road, lastN) {
   const arch = road.archive || {};
   // every completed milestone, full sentences + photos (scripts/handover.js), read before the entries move out
   const preSummary = road.flight <= lastN && !(arch[road.flight] && arch[road.flight].summary) ? require("./handover.js").summarize(road) : null;
-  const slot = (f) => (arch[f] = arch[f] && !Array.isArray(arch[f]) ? arch[f] : { entries: Array.isArray(arch[f]) ? arch[f] : [] });
+  // an archive slot set up by hand ahead of time (e.g. only vehicle_photos) gets its entries list; nothing in it is replaced
+  const slot = (f) => (arch[f] = arch[f] && !Array.isArray(arch[f]) ? (Array.isArray(arch[f].entries) ? arch[f] : { ...arch[f], entries: [] }) : { entries: Array.isArray(arch[f]) ? arch[f] : [] });
   const ms = (h) => { const id = h.media_override && h.media_override.post_id; return (id && snowflakeMs(id)) || Date.parse((h.x_post && h.x_post.created_at) || "") || Date.parse(h.at || "") || entryDayMs(h) || 0; };
   for (const c of road.categories) {
     const keep = [];

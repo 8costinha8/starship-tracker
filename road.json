@@ -1432,6 +1432,18 @@
           }
         ],
         "auto": true
+      },
+      "vehicle_photos": {
+        "booster": {
+          "image": "images/f15-booster.jpg",
+          "label": "Booster 22",
+          "note": "Booster 22 in flight at hot staging (supplied by Bernardo, 15 Nov)"
+        },
+        "ship": {
+          "image": "images/f15-ship.jpg",
+          "label": "Ship 42",
+          "note": "Ship 42 coming in to the tower for the catch (supplied by Bernardo, 15 Nov)"
+        }
       }
     }
   },

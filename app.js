@@ -973,14 +973,14 @@ function RocketMark() {
   );
 }
 
-function PhotoSlot({ size, src, alt, onClick }) {
+function PhotoSlot({ size, src, alt, onClick, credit = "SpaceX", contain }) {
   const [failed, setFailed] = React.useState(false);
   React.useEffect(() => setFailed(false), [src]);
   if (src && !failed) {
     return (
-      <div className={`photo photo-${size} has-img${onClick ? " tappable" : ""}`} onClick={onClick}>
+      <div className={`photo photo-${size} has-img${contain ? " photo-contain" : ""}${onClick ? " tappable" : ""}`} onClick={onClick}>
         <img src={src} alt={alt || ""} loading="lazy" onError={() => setFailed(true)} />
-        <span className="photo-credit">SpaceX</span>
+        <span className="photo-credit">{credit}</span>
       </div>
     );
   }
@@ -1142,13 +1142,32 @@ function galleryOf(f, past) {
   const pics = [...new Set(road)].slice(0, 2);
   return pics.length ? pics : [undefined];
 }
+// 15 Nov (Bernardo, every flight): an opened flight card's two pictures are one strong mission photo per vehicle, booster
+// left, ship right, when road.archive[n].vehicle_photos = { booster: { image, label? }, ship: { image, label? } } is set
+// (hand-picked: it wins). A side that isn't set keeps the flight's own gallery picture (the SpaceX recap images).
+const vehName = (id, kind) => { const m = String(id || "").match(/^[BS]?(\d+)$/i); return m ? `${kind} ${m[1]}` : kind; };
+function vehiclePhotosOf(road, f) {
+  const a = road && road.archive && f && (road.archive[f.n] || road.archive[String(f.n)]), vp = a && !Array.isArray(a) && a.vehicle_photos;
+  if (!vp) return null;
+  const one = (v, kind, id) => { const img = v && (typeof v === "string" ? v : v.image); return img ? { src: img, label: (v && v.label) || vehName(id, kind) } : null; };
+  const b = one(vp.booster, "Booster", f.booster), sh = one(vp.ship, "Ship", f.ship);
+  return b || sh ? [b, sh] : null;
+}
+// The opened card's two pictures: [{ src, label, vehicle }] — vehicle photos first, else the gallery (credit "SpaceX").
+function cardPhotosOf(f, past, road) {
+  const base = galleryOf(f, past).map((src) => ({ src, label: "SpaceX", vehicle: false }));
+  const vp = vehiclePhotosOf(road, f);
+  if (!vp) return base;
+  return [0, 1].map((i) => (vp[i] ? { ...vp[i], vehicle: true } : base[i] || { src: undefined, label: "SpaceX", vehicle: false }));
+}
 // Thumb: the flight's own photo, else (placeholder or none) its first Road milestone photo.
 const thumbOf = (f, past) => { const t = f.photo && f.photo.thumb; return t && t !== RTF_PLACEHOLDER ? t : galleryOf({ photo: {} }, past)[0] || t; };
 function FlightCard({ f, open, onTap, onPhotoTap, register, road }) {
-  // Page 1's Road to Flight N is the condensed copy of Page 2's past group: the same pastRoadGroup entries (ids, text,
+  // Page 1's Road to Flight N: the flight's road.archive summary through pastRoadGroup (ids, text,
   // photos), minus the Launch date card (the date is already in this card's header). Launched flights only.
   const group = React.useMemo(() => ((isLaunched(f.n) ? pastSummary(road, f.n) : []).length ? pastRoadGroup(road, f.n, FLIGHTS, ROAD_HIDDEN) : null), [road, f.n]); // launched flights with an archive only, never the next flight
   const past = React.useMemo(() => (group ? pastCondensed(group) : []), [group]);
+  const cardPhotos = React.useMemo(() => cardPhotosOf(f, past, road), [f, past, road]);
   const [pastOpen, setPastOpen] = React.useState(false); // the Road list starts closed
   // Archive flights only (the toggle already hides when there is no summary): all six category dots filled, as on Page 2.
   const pastDots = React.useMemo(() => (group ? group.items : []), [group]);
@@ -1202,11 +1221,11 @@ function FlightCard({ f, open, onTap, onPhotoTap, register, road }) {
               </div>
               </div></div>
             </>)}
-            <div className="gallery">
-              {galleryOf(f, past).map((src, i) => (
+            <div className="gallery" data-vehicles={cardPhotos.some((p) => p.vehicle) ? "" : undefined}>
+              {cardPhotos.map((p, i) => (
                 <PhotoSlot key={i}
-                  size="wide" src={src} alt={`${f.headline} \u2014 photo ${i + 1}`}
-                  onClick={src ? () => onPhotoTap(src, `${f.headline} \u2014 photo ${i + 1}`) : undefined}
+                  size="wide" src={p.src} credit={p.label} contain={p.vehicle} alt={p.vehicle ? `${p.label} \u2014 Flight ${f.n}` : `${f.headline} \u2014 photo ${i + 1}`}
+                  onClick={p.src ? () => onPhotoTap(p.src, p.vehicle ? `${p.label} \u2014 Flight ${f.n}` : `${f.headline} \u2014 photo ${i + 1}`) : undefined}
                 />
               ))}
             </div>
@@ -2197,6 +2216,8 @@ const pastCondensed = (g) => ((g && g.cards) || []).filter((c) => c.box !== "dat
 // that closed group, between the older groups and the current flight; its leftover launch-day items (Liftoff, result) are
 // folded into it, never a loose divider below the next flight. A launched flight without a past group keeps its own
 // section, still above the current flight. Later flights stay below. rows = rtfRows(road).rows.
+// Page 2's flights (15 Nov, every flight): the upcoming flight and the one after, from road.flight. Nothing else.
+const page2Flights = (road) => (road && Number.isInteger(road.flight) ? [road.flight, road.flight + 1] : []);
 function roadPageRows(rows, current, pastFlights) {
   const past = new Set(pastFlights || []), cur = [], early = [], late = [];
   let mode = "before", n = null;
@@ -3413,25 +3434,11 @@ function RoadFlightPill({ flight, items, action, open, onClick, shortCount, clas
 
 // Road-tab flight card (Tusk mock: liftoff.html + toggle.html): header row (Flight N, dots, count,
 // Open ⌄ / Close ⌃), an optional live row (the flight's Liftoff push as a glowing pill with Watch now + its UK time),
-// and the flight's updates sliding out inside the same card under a divider. First two updates, then "Show all updates".
+// and the flight's updates sliding out inside the same card under a divider. 15 Nov (Bernardo): an opened group shows ALL its
+// updates at once; there is no button to reveal more.
 const ROAD_PILL_LABEL = (open) => (open ? "Close" : "Open");
-const RFS_FIRST = 2;
 // "Flight 15 is in the air · Watch now" → "Flight 15 is in the air" (the Watch now button is drawn separately).
 const liveLineOf = (p) => String((p && p.h && (p.h.card_text || p.h.text)) || "").replace(/\s*·\s*Watch (?:now|live)\s*$/i, "").trim();
-// A past flight's Road card: same look as a feed card (category chip, vehicle chip, text); date only when known.
-function PastPost({ c }) {
-  return (
-    <article className="post past-post" id={`post-${c.id}`} data-id={c.id} style={catVars(c.box, c.cat.color)}>
-      <div className="post-top">
-        <span className={"chip chip-" + c.box}><span className="chip-i"><CatIcon c={c.cat} /></span>{c.cat.name}</span>
-        {c.vehicle && <span className={"chip chip-" + c.box + " chip-2"}>{c.vehicle}</span>}
-        {c.iso && <span className="post-date">{`${ukStamp(c.iso, false)} · ${feedTime(c.iso)}`}</span>}
-      </div>
-      <p className="post-text">{String(scrub(c.text)).replace(/\b(\d{1,2}) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b/g, "$1\u00a0$2")}</p>
-      {c.photo && c.photo.image && <PickMedia mo={{ ...c.photo, crop: c.photo.crop || "top" }} />}
-    </article>
-  );
-}
 function RoadLiveRow({ p, liftIso, done, flight }) {
   const href = (p.h && p.h.url) || WATCH_LIVE_URL;
   const rowRef = React.useRef(null);
@@ -3451,32 +3458,23 @@ function RoadLiveRow({ p, liftIso, done, flight }) {
 // Deep links (push ?entry=, Flight Log taps) call rfsReveal(el) first: it opens the card and shows all updates.
 // Top of el inside the scroll pane's content (posts now sit inside the flight card, so offsetTop alone is relative to it).
 const relTop = (el, pane) => el.getBoundingClientRect().top - pane.getBoundingClientRect().top + pane.scrollTop;
-const rfsReveal = (el) => { const sec = el && el.closest && el.closest(".deck-wrap") && el.closest(".rfs"); if (!sec || (sec.classList.contains("is-open") && sec.classList.contains("show-all"))) return false;
+const rfsReveal = (el) => { const sec = el && el.closest && el.closest(".deck-wrap") && el.closest(".rfs"); if (!sec || sec.classList.contains("is-open")) return false;
   sec.dispatchEvent(new CustomEvent("rfs-reveal")); return true; };
 function RoadFlightSection({ flight, items, open, onToggle, shortCount, deckReady, deckId, live, liveDone, liftIso, sectionId, past, children }) {
   const kids = React.Children.toArray(children).filter(Boolean);
-  const [all, setAll] = React.useState(false);
   const ref = React.useRef(null), openRef = React.useRef(open), toggleRef = React.useRef(onToggle);
   openRef.current = open; toggleRef.current = onToggle;
-  React.useEffect(() => { if (!open) setAll(false); }, [open]);
   React.useEffect(() => { const el = ref.current; if (!el) return;
-    const on = () => { setAll(true); if (!openRef.current) toggleRef.current(); };
+    const on = () => { if (!openRef.current) toggleRef.current(); };
     el.addEventListener("rfs-reveal", on); return () => el.removeEventListener("rfs-reveal", on); }, []);
-  // every update stays in the DOM (deep links find it); beyond the first two they are hidden until "Show all updates"
-  const shown = kids.map((k, i) => (i < RFS_FIRST ? k : <div key={"x" + i} className="rfs-extra">{k}</div>));
-  const more = kids.length > RFS_FIRST;
   const deckCls = "deck-wrap" + (open ? " open" : "") + (reduceMotion() ? " deck-no-motion" : deckReady ? " deck-animate" : "");
   return (
-    <div ref={ref} className={"feed-section rfs" + (open ? " is-open" : "") + (all ? " show-all" : "") + (live ? " has-live" : "") + (past ? " rfs-past" : "")} id={sectionId || `fsec-${flight}`} data-flight={flight}>
+    <div ref={ref} className={"feed-section rfs" + (open ? " is-open" : "") + (live ? " has-live" : "") + (past ? " rfs-past" : "")} id={sectionId || `fsec-${flight}`} data-flight={flight}>
       <RoadFlightPill flight={flight} items={items} action={ROAD_PILL_LABEL(open)} open={open} onClick={onToggle} shortCount={shortCount} />
       {live && <RoadLiveRow p={live} liftIso={liftIso} done={!!liveDone} flight={flight} />}
       <div className={deckCls} id={deckId} aria-hidden={!open}>
         <div className="deck-inner"><div className="rfs-feed">
-          {shown}
-          {more && <button type="button" className="rfs-more" tabIndex={open ? 0 : -1} aria-expanded={all} onClick={() => setAll((v) => !v)}>
-            {all ? "Show fewer updates" : "Show all updates"}
-            <svg className={"rtf-chevron" + (all ? " open" : "")} width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.25 4.25 L6 8 L9.75 4.25" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
-          </button>}
+          {kids}
         </div></div>
       </div>
     </div>
@@ -3493,7 +3491,7 @@ function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap, peekOpe
     const keepId = road && currentLaunchDateId(posts, road.flight);
     const top = d && keepId && posts.find((q) => q.id === keepId);
     return top ? launchDateCardBadge(road, top, f) : null; }, [road, posts]);
-  const peekN = road && Number.isInteger(road.flight) ? road.flight + 1 : null;
+  const peekN = page2Flights(road)[1] || null;
   const peekRoad = React.useMemo(() => (peekN && road ? roadForFlight(road, peekN) : null), [road, peekN]);
   const peekCards = React.useMemo(() => {
     if (!peekRoad) return [];
@@ -3502,15 +3500,14 @@ function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap, peekOpe
   }, [peekRoad]);
   const curItems = React.useMemo(() => roadCatItems(road, { heroNet, netPending }), [road, heroNet, netPending]);
   const peekItems = React.useMemo(() => peekCatItems(peekRoad), [peekRoad]);
-  // every launched flight with an archive is a closed past group (oldest first) above the current flight; its leftover
-  // launch-day rows are folded into it (roadPageRows), so nothing of it is left below the next flight
-  const pastGroups = React.useMemo(() => pastRoadFlights(road, FLIGHTS).map((n) => pastRoadGroup(road, n, FLIGHTS, ROAD_HIDDEN)), [road]);
-  const { cur: curPosts, early, late: rest } = roadPageRows(rows, road && road.flight, pastGroups.map((g) => g.flight));
+  // 15 Nov (Bernardo, every flight): Page 2 shows ONLY the upcoming flight and the one after (page2Flights: road.flight and
+  // road.flight + 1, so it moves at each handover). Past Roads live on Page 1 only (their flight cards, from road.archive);
+  // launched flights' leftover rows are not shown here (roadPageRows keeps only the current flight's rows for this page).
+  const { cur: curPosts } = roadPageRows(rows, road && road.flight, pastRoadFlights(road, FLIGHTS));
   const liveIdx = curPosts.findIndex((r) => r && r.post && isMilestoneItem(r.post) && /lift ?off/i.test(r.post.cat.name || ""));
   const livePost = liveIdx >= 0 ? curPosts[liveIdx].post : null;
   const [curOpenUser, setCurOpen] = React.useState(null);
   const curOpen = curOpenUser ?? true; // the current flight stays the active, expanded group (past flights start collapsed)
-  const [pastOpen, setPastOpen] = React.useState({}); // past flights start collapsed
   const [deckReady, setDeckReady] = React.useState(false); // skip the open morph on first paint
   React.useEffect(() => { const id = requestAnimationFrame(() => setDeckReady(true)); return () => cancelAnimationFrame(id); }, []);
   const renderRow = (r) => r.section
@@ -3528,13 +3525,6 @@ function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap, peekOpe
           <span />
         </header>
         <div className="feed-list">
-          {pastGroups.map((g) => (
-            <RoadFlightSection key={"past" + g.flight} past flight={g.flight} items={g.items} open={!!pastOpen[g.flight]} sectionId={`fsec-past-${g.flight}`}
-              onToggle={() => setPastOpen((o) => ({ ...o, [g.flight]: !o[g.flight] }))} deckReady={deckReady} deckId={`rtf-past-${g.flight}`}>
-              {g.cards.map((c) => <PastPost key={c.id} c={c} />)}
-            </RoadFlightSection>
-          ))}
-          {early.map(renderRow)}
           {Number.isInteger(road && road.flight) && (
             <RoadFlightSection flight={road.flight} items={curItems} open={curOpen} onToggle={() => setCurOpen(!curOpen)} deckReady={deckReady} live={livePost} liveDone={livePost ? missionComplete(road, road.flight) : false} liftIso={livePost ? liftoffIsoFor(road, road.flight, FLIGHTS, heroLiftIso) : null}>
               {curPosts.filter((r, i) => i !== liveIdx).map(renderRow)}
@@ -3547,7 +3537,6 @@ function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap, peekOpe
                 : <p className="rtf-soon">Coming soon</p>}
             </RoadFlightSection>
           )}
-          {rest.map(renderRow)}
         </div>
       </div>
     </aside>
@@ -3996,6 +3985,9 @@ a.watch-badge-live:active { transform: scale(.96); }
     linear-gradient(180deg, rgba(26,34,54,0) 55%, rgba(26,34,54,.85) 100%),
     linear-gradient(200deg, rgba(59,72,120,.35) 0%, rgba(26,34,54,0) 55%);
 }
+.gallery[data-vehicles] .photo-wide { aspect-ratio: 2 / 3; } /* vehicle photos are portrait: the slot follows them so neither vehicle is cut */
+.photo.photo-contain img { object-fit: contain; background: #0E1424; } /* never crop the vehicle */
+.gallery[data-vehicles] .photo-credit { font-size: 11px; font-weight: 700; color: rgba(240,244,252,.92); } /* the vehicle name */
 .photo-credit { position: absolute; right: 8px; bottom: 6px; font-size: 9.5px; letter-spacing: .02em; color: rgba(228,234,246,.65); z-index: 1; }
 .photo-thumb .photo-credit { display: none; } /* keep the small thumbnail clean; credit shows on the bigger gallery images */
 .photo.tappable { cursor: pointer; }
@@ -4344,11 +4336,6 @@ button.feed-pill:focus-visible { outline: 2px solid #A9BDF0; outline-offset: 4px
 .rfs-feed .post-date { font-size: 12px; font-weight: 500; color: #9aa3bd; }
 .rfs-feed .post > .post-text { margin-top: 9px; font-size: 14px; }
 .rfs-feed .rtf-soon { margin: 0; }
-.rfs-extra { display: none; }
-.rfs.show-all .rfs-extra { display: contents; }
-.rfs-more { all: unset; box-sizing: border-box; display: inline-flex; align-self: center; align-items: center; gap: 5px; margin-top: 4px; padding: 2px 8px;
-  color: #9aa3bd; font: inherit; font-size: 13px; font-weight: 500; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-.rfs-more:focus-visible { outline: 2px solid #A9BDF0; border-radius: 6px; }
 .deck-wrap { display: grid; grid-template-rows: 0fr; }
 .deck-wrap.open { grid-template-rows: 1fr; }
 .deck-wrap.deck-animate { transition: grid-template-rows 300ms ease, opacity 300ms ease; }
