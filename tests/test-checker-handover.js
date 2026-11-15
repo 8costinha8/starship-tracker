@@ -1,6 +1,6 @@
 // Held checker rules (branch checker-handover-rules). No network, no pushes, nothing written: node tests/test-checker-handover.js
 // G  a logged flight's story = the final Style A hero paragraph, verbatim; missing / not final → empty + review; manual entry kept
-// C  the rollover's "Road to Flight N+1" feed card is stamped with the real handover time; only the push waits for 09:00
+// C  the rollover does not write a Road feed card; the handover push is still stamped with the real handover time and waits for 09:00
 const fs = require("fs"), path = require("path");
 const ROOT = path.join(__dirname, "..");
 let fails = 0; const check = (ok, m) => { console.log((ok ? "✅ " : "❌ ") + m); if (!ok) fails++; };
@@ -65,8 +65,9 @@ check(CF.flightInAppJs(app, 15) && !CF.flightInAppJs(app, 99), "G: flightInAppJs
   old.archive = { 14: base.archive["14"] }; old.hardware_flights = { B23: 16, S43: 16 };
   const now = Date.parse("2026-11-14T21:31:40Z");
   const ro = CR.rolloverRoad(old, 15, "2026-11-13T22:47:36Z", () => {}, now);
-  const fi = (ro.road.feed_items || []).find((f) => /Road to Flight 16/.test(f.title));
-  check(fi && fi.at === "2026-11-14T21:31:40.000Z", "C: 'Road to Flight 16' feed card at the real handover time: " + (fi && fi.at));
+  const card = (ro.road.feed_items || []).find((f) => f.kind === "notice" || String(f.id || "").startsWith("notice-"));
+  check(!card, "C: no handover entry is written into the Road feed (kind/id notice)");
+  check(ro.fi && ro.fi.kind === "notice" && ro.fi.at === "2026-11-14T21:31:40.000Z" && ro.fi.visible && ro.fi.visible.where === "handover", "C: the handover push is still stamped with the real handover time: " + (ro.fi && ro.fi.at));
   check(ro.sendAfter && new Date(ro.sendAfter).toISOString() === "2026-11-14T09:00:00.000Z", "C: the push still waits for 09:00 London the morning after the launch day: " + ro.sendAfter);
   check(ro.road.archive["15"] && ro.road.archive["15"].hero && ro.road.archive["15"].hero.hero_lines.length === 5, "G: the rollover keeps Flight 15's hero data in road.archive[15].hero");
   check(HS.loggedStory(ro.road, 15, V).story === APPROVED, "G: the rolled-over Road still yields the approved paragraph");

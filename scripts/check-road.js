@@ -971,10 +971,13 @@ function rolloverRoad(old0, lastN, launchedAt, log = () => {}, nowMs = Date.now(
     if (Object.keys(mu).length) road.mission_updates = { ...(road.mission_updates || {}), ...mu };
     log(`rollover carried: vehicles ${road.vehicles.join(", ") || "none"}${road.predicted ? `, NET ${road.predicted.net} (${road.predicted.mode})` : ""}${Object.keys(mu).length ? `, mission updates for Flight ${Object.keys(mu).join("/")}` : ""}`);
     log(`Flight ${lastN}: ${moved} Road entr${moved === 1 ? "y" : "ies"} archived to its Flight Log card`);
-    // The feed card is stamped with the real handover time; only the push waits for 09:00 London the morning after the launch day.
-    if (old.feed_items) road.feed_items = old.feed_items;
+    // The handover push is stamped with the real handover time; only the push waits for 09:00 London the morning after
+    // the launch day. The update is not written to the Road feed (Bernardo, 15 Nov: no rollover handover entry in any
+    // Road group). sendPush allows visible.where === "handover" so this notice can still be sent without a feed card.
+    if (old.feed_items) road.feed_items = old.feed_items.filter((f) => f && f.kind !== "notice" && !String(f.id || "").startsWith("notice-"));
     const sendAfter = nineAmLondonDayAfter(launchedAt);
-    const fi = pushSync.addFeedItem(road, { kind: "notice", title: `🚀 Road to Flight ${road.flight}`, body: `Flight ${lastN} is in the log. Now tracking the road to Flight ${road.flight}.`, at: new Date(nowMs).toISOString(), flight: road.flight });
+    const at = new Date(nowMs).toISOString();
+    const fi = { title: `🚀 Road to Flight ${road.flight}`, body: `Flight ${lastN} is in the log. Now tracking the road to Flight ${road.flight}.`, at, kind: "notice", flight: road.flight, link: `${pushSync.SITE}?feed=1`, visible: { where: "handover" } };
   require("./handover.js").syncStatuses(road); // pills, headlines and road.json from one source (Flight Log boxes)
   return { road, fi, sendAfter };
 }
@@ -1369,7 +1372,7 @@ async function run(opts = {}) {
     const ro = rolloverRoad(road, lastN, loggedFlightDate(appJsText, lastN) || new Date(clock()).toISOString(), log, clock());
     road = ro.road; const fi = ro.fi, sendAfter = ro.sendAfter;
     changed = rolledOver = true;
-    state.pendingPush = JSON.parse(JSON.stringify({ sendAfter, flight: road.flight, ...fi })); // already in the Updates feed (committed with this run); JSON round-trip drops undefined fields (e.g. url), which Firestore rejects
+    state.pendingPush = JSON.parse(JSON.stringify({ sendAfter, flight: road.flight, ...fi })); // push-only (no Road feed card); JSON round-trip drops undefined fields (e.g. url), which Firestore rejects
     log(`"${state.pendingPush.title}" push scheduled for ${state.pendingPush.sendAfter} (09:00 London, morning after the launch day)`);
   }
 

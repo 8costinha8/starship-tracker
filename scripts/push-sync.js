@@ -39,6 +39,8 @@ function visibleFor(road, n) {
 function checkVisible(road, n) {
   for (const k of ["title", "body", "at"]) if (!n[k]) return `push has no ${k}`;
   if (!Number.isFinite(Date.parse(n.at))) return "push timestamp is not a real time";
+  // Rollover handover push (Bernardo, 15 Nov): sent without a Road feed card.
+  if ((n.visible || {}).where === "handover" && n.kind === "notice") return "";
   const vis = visibleFor(road, n);
   if (!vis) return `no visible entry (${JSON.stringify(n.visible || null)})`;
   for (const k of ["title", "body", "url", "at"]) if ((vis[k] || "") !== (n[k] || "")) return `visible ${k} differs: "${vis[k] || ""}" vs push "${n[k] || ""}"`;
