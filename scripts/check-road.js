@@ -954,6 +954,9 @@ function rolloverRoad(old0, lastN, launchedAt, log = () => {}, nowMs = Date.now(
     // step can carry the Style A paragraph over verbatim even after this rollover (scripts/hero-story.js)
     const kept = require("./hero-story.js").heroArchive(old, lastN);
     if (kept) { road.archive = road.archive || {}; road.archive[lastN] = { ...(road.archive[lastN] || { entries: [] }), hero: kept }; }
+    // mission alerts move to the new flight (template kept, liftoff / dispatched cleared) instead of being dropped:
+    // a dropped record was rebuilt by the next flight-checker run for LL2's still-listed old flight (8f5f62d: flight 15, no liftoff)
+    road.mission_alerts = require("./mission-alert.js").rollover(old.mission_alerts || {}, lastN + 1);
     const oldV = new Set((old.vehicles || []).map(milestones.hwKey));
     const carry = Object.fromEntries(Object.entries(old.milestones || {}).filter(([k]) => k !== "flight" && !oldV.has(k)));
     if (Object.keys(carry).length) road.milestones = carry; // later flights' hardware keeps its running counts

@@ -450,8 +450,11 @@ async function syncFromChecker(opts = {}) {
   let changed = false;
   let alerts = road.mission_alerts;
   if (!alerts && Number.isInteger(current.n)) {
-    // no data yet: start a blank (manual-only) record for the current flight — no guessed timeline
-    road.mission_alerts = alerts = emptyAlerts(current.n);
+    // no data yet: start a blank (manual-only) record for the current flight — no guessed timeline.
+    // After a Road handover the Road is already on the next flight while LL2 can still list the one that flew:
+    // the record is for the Road's flight then, never a blank record for the flight that already flew (15 Nov, 8f5f62d).
+    const n = Number.isInteger(road.flight) && road.flight > current.n ? road.flight : current.n;
+    road.mission_alerts = alerts = emptyAlerts(n);
     changed = true;
   }
   if (alerts && Number.isInteger(current.n) && Number.isInteger(alerts.flight) && current.n > alerts.flight) {

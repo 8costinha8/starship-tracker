@@ -20,7 +20,7 @@ for (const site of ["catVars(e.box, e.color)", "catVars(m.id, m.color)} title", 
 check(!/"--c": (e|m|cat)\.color/.test(app), "no category style bypasses catVars");
 check(/\.dot-done, \.dot-complete \{ background: var\(--c\); \}/.test(app) && /\.badge-done, \.badge-complete \{ background: var\(--c\);/.test(app), "done dots/badges fill with --c (same as ring)");
 check(/\.mini::before \{[^}]*background: transparent; border: 1\.5px solid var\(--c\); \}/.test(app) && /\.mini\.done::before \{ background: var\(--c\); \}/.test(app), "Flight Log dot: hollow ring in the category colour until the vehicle completes it, then filled (Raptor: black fill, graphite ring)");
-check(/logGlows\(m, h, road\) \? " glow done" : ""/.test(app), "Flight Log dot fills on the same rule as the glow (that vehicle completed the category)");
+check(/\(e\.done \? " glow done" : ""\)/.test(app) && /done: !!\(p\.done \|\| h\.complete\)/.test(app), "Flight Log dot fills on the same rule as the glow (15 Nov: the Page 2 card for that vehicle is the completed one)");
 check((app.match(/background: var\(--bg, color-mix\(in srgb, var\(--c\)/g) || []).length === 3, "pills / glow card / chips take the matte fill");
 check(/\.mini\.glow \{ border-color: color-mix\(in srgb, var\(--c\) 45%[^}]*box-shadow: 0 0 12px -2px color-mix\(in srgb, var\(--c\)/.test(app), "glow stays driven by --c (graphite glow for Raptor)");
 check(/\.callout\[data-id="raptor"\] \.callout-hist-inner::before \{ background: #0E0F11; \}/.test(app), "Raptor connector line is solid black #0E0F11");

@@ -35,7 +35,7 @@ check(ups(s).filter((t) => C.isPrediction({ log_text: t })).length === 1 && ups(
 check(v.latest === s.log_text && v.log_latest === s.log_text, "section summary = the completed card's line");
 check(C.vehicleProgress(v, r).done === 0 && C.vehicleProgress(v, r).total === 2, "section shows 0 of 2 (nothing implied yet)");
 const A = (() => { const app = fs.readFileSync(path.join(ROOT, "app.js"), "utf8"); return app; })();
-check(/const ROLLUP_IDS = \["cryo", "raptor", "static"\]/.test(A) && /logGlows\(m, h, road\) \? " glow done" : ""/.test(A), "completed card glows and its dot fills (Raptor matte-black style)");
+check(/const ROLLUP_IDS = \["cryo", "raptor", "static"\]/.test(A) && /\(e\.done \? " glow done" : ""\)/.test(A), "completed card glows and its dot fills (Raptor matte-black style)");
 
 // both done → section dot fills (rollupStatus over the view)
 const LT = require("./log-text.js");

@@ -1713,6 +1713,36 @@ function decorateFlogItem(m, flog, road, heroNet, heroFlight, now) {
   return f ? { ...m, status: f.status, flog: f } : m;
 }
 // --- end road-liftoff helpers ---
+// --- road-parity helpers (tested by tests/test-road-parity.js) ---
+// Bernardo's rule (15 Nov, every flight): Page 1's current Road boxes are the condensed copy of Page 2. Each box reads
+// Page 2's own entries for the current flight (rtfRows → the current flight's rows, same order): the same cards, the
+// same text (card text), the same date (cardDate) and the same Earlier updates — no separate Flight Log text source.
+// The box shows no picture (same as the past-Road box); image is carried for the parity check only.
+const ROAD_BOX_IDS = ["cryo", "raptor", "static", "pad", "faa", "date"];
+const parityText = (h) => scrub(String((h && (h.card_text || h.x_text || h.text)) || ""));
+function parityEarlier(h) {
+  if (String(h.id || "").startsWith("rtf-")) // RtfBuildUp
+    return (h.updates || []).slice().sort((a, b) => (Date.parse(upIso(b)) || 0) - (Date.parse(upIso(a)) || 0))
+      .map((u) => { const iso = upIso(u); return { date: iso ? `${ukStamp(iso, false)} · ${feedTime(iso)}` : fmtDay(u.date), text: scrub(cardT(u)).replace(/^\d{1,2}(?:[–-]\d{1,2})? [A-Z][a-z]{2}:\s*/, "") }; });
+  return roadUpdates(h).map(({ u, when }) => ({ date: when || entryDate(u), text: scrub(cardT(u)) })); // FeedBuildUp
+}
+function roadBoxEntries(road, rows) {
+  const out = Object.fromEntries(ROAD_BOX_IDS.map((id) => [id, []]));
+  if (!road || !Number.isInteger(road.flight)) return out;
+  let cur = false;
+  for (const r of rows || []) {
+    if (r.section) { cur = r.section.n === road.flight; continue; }
+    const p = r.post; if (!cur || !p || !p.cat || !out[p.cat.id]) continue;
+    const h = p.h || {}, mo = roadMediaOf(h, p.cat);
+    out[p.cat.id].push({ id: p.id, vehicle: pillParts(p.cat.name)[1] || null, date: cardDate(h), text: parityText(h), iso: cardIso(h) || "",
+      image: mo && mo.image && mo.image !== RTF_PLACEHOLDER ? mo.image : null, earlier: parityEarlier(h), done: !!(p.done || h.complete) }); // done: the Page 2 card is the completed one (glow + filled dot)
+  }
+  return out;
+}
+// Box summary: the newest entry's text (the same words as its Page 2 card); no entry → null (the status / NET line shows)
+const roadBoxLatest = (list) => { const e = (list || []).slice().sort((a, b) => (Date.parse(b.iso) || 0) - (Date.parse(a.iso) || 0))[0]; return e ? e.text : null; };
+// --- end road-parity helpers ---
+
 function RoadCard({ road, onEntryTap, openReq, heroNet, netPending, heroFlight }) {
   const [main, setMain] = React.useState(false);
   const xOff = useXFeedOffline(); // 9 Nov: "X feed offline" chip while the checker's X read gets HTTP 402
@@ -1723,6 +1753,7 @@ function RoadCard({ road, onEntryTap, openReq, heroNet, netPending, heroFlight }
   const dateNet = authoritativeNetLabel(road, heroNet);
   const items = road && Array.isArray(road.categories) ? road.categories.filter((m) => !ROAD_HIDDEN.includes(m.id)).map((m) => logView(m, road)).map((m) => ({ ...m, status: rollupStatus(m, road) }))
     .map((m) => decorateFlogItem(m, flogBoxes && flogBoxes[m.id], road, heroNet, heroFlight)) : [];
+  const parity = React.useMemo(() => roadBoxEntries(road, road ? rtfRows(road).rows : []), [road]); // Page 2's own entries
   const listRef = React.useRef(null);
   if (!items.length) return null;
   const title = `Road to Flight ${road.flight}`;
@@ -1734,8 +1765,8 @@ function RoadCard({ road, onEntryTap, openReq, heroNet, netPending, heroFlight }
   const pill = (m) => <span className={"badge badge-" + m.status}><span className="badge-stack">{pillLabels.map((l) => <span key={l} className="badge-ghost" aria-hidden="true">{l}</span>)}<span className="badge-txt">{label(m)}</span></span></span>;
   // 13 Nov: an item opens only if its drawer would show something (Flight Log cards with a line, or a history entry this card lists).
   // Decided from the data, never from the item id or flight number. Others render as a plain div: no tap, hover, focus or aria-expanded.
-  const hasDrawer = (m) => (m.flog ? (m.flog.cards || []).some((c) => c && Array.isArray(c.lines) && c.lines.length > 0)
-    : (m.history || []).some((h) => isRealEntry(h) && !(h.flight > road.flight) && !isLaunched(h.flight)));
+  const hasDrawer = (m) => (parity[m.id] || []).length > 0;
+  const boxLine = (m) => roadBoxLatest(parity[m.id]) || (m.id === "date" && dateNet ? `NET ${dateNet}` : "Nothing reported yet"); // no Page 2 entry yet: the same wording later flights use (Launch date: the hero's NET)
   const count = (m) => { if (m.flog || !ONE_CARD.includes(m.id) || m.status === "done" || !window.RoadCleanup) return null;
     const vp = window.RoadCleanup.vehicleProgress(m, road); return vp.total && vp.done ? `${vp.done} of ${vp.total}` : null; };
   return (
@@ -1760,24 +1791,13 @@ function RoadCard({ road, onEntryTap, openReq, heroNet, netPending, heroFlight }
               <span className="callout-icon">{m.icon}</span>
               <span className="callout-body">
                 <span className="callout-name">{m.name}</span>
-                <span className="callout-latest">{m.flog ? scrub(m.flog.latest) : m.status === "complete" ? roadDoneLabel(m) : scrub(window.RoadCleanup ? window.RoadCleanup.shortLine(boxLatest(m, road)) : boxLatest(m, road))}</span>
+                <span className="callout-latest">{boxLine(m)}</span>
               </span>
               {count(m) ? <span className="badge-wrap">{pill(m)}<span className="badge-count">{count(m)}</span></span>
                 : pill(m)}
             </Head>
             {canOpen && <div className="callout-hist"><div className="callout-hist-inner">
-              {m.flog ? m.flog.cards.map((c) => <FlogCard key={c.vehicle} c={c} />) : (m.history || []).map((h, i) => isRealEntry(h) && !(h.flight > road.flight) && !isLaunched(h.flight) && ( /* later flights' cards: Road page only */
-                <div className={"mini" + (onEntryTap ? " tappable" : "") + (logGlows(m, h, road) ? " glow done" : "")} key={i}
-                  {...(onEntryTap ? { role: "button", tabIndex: isOpen ? 0 : -1, "aria-label": `${logDay(h)}: ${logLine(h)}. Show in the updates feed`,
-                    onClick: () => onEntryTap(m.id, h._hi ?? i), onKeyDown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onEntryTap(m.id, h._hi ?? i); } } } : {})}>
-                  <div className="mini-top">
-                    <span className="mini-date">{logDay(h)}</span>
-                    {(srcOf(h) || !ONE_CARD.includes(m.id)) && <span className="mini-src">{srcOf(h)}</span>}
-                  </div>
-                  <p>{scrub(logLine(h))}</p>
-                  <BuildUp h={h} log onTap={onEntryTap ? (u) => onEntryTap(m.id, u && u._hi != null ? u._hi : (h._hi ?? i)) : null} />
-                </div>
-              ))}
+              {parity[m.id].map((e) => <ParityCard key={e.id} e={e} onTap={onEntryTap ? () => onEntryTap(m.id, null, e.id) : null} open={isOpen} />)}
             </div></div>}
           </div>
         );
@@ -1787,6 +1807,21 @@ function RoadCard({ road, onEntryTap, openReq, heroNet, netPending, heroFlight }
   );
 }
 
+// One Page 2 card, condensed (Page 1 current Road drawer): vehicle, Page 2 date, Page 2 text, its Earlier updates.
+function ParityCard({ e, onTap, open }) {
+  return (
+    <div className={"mini flog-card" + (onTap ? " tappable" : "") + (e.done ? " glow done" : "")} data-entry={e.id} data-vehicle={e.vehicle || undefined}
+      {...(onTap ? { role: "button", tabIndex: open ? 0 : -1, "aria-label": `${e.date}: ${e.text}. Show in the updates feed`, onClick: onTap, onKeyDown: (k) => { if (k.key === "Enter" || k.key === " ") { k.preventDefault(); onTap(); } } } : {})}>
+      {e.vehicle && <div className="flog-name">{e.vehicle}</div>}
+      <div className="mini-top"><span className="mini-date">{e.date}</span></div>
+      <p>{e.text}</p>
+      {e.earlier.length > 0 && <details className="buildup" onClick={(k) => k.stopPropagation()}>
+        <summary>Earlier updates</summary>
+        <ul>{e.earlier.map((u, i) => <li key={i} className="bu-plain"><div className="bu-top"><span className="bu-date">{u.date}</span></div><div className="bu-text">{u.text}</div></li>)}</ul>
+      </details>}
+    </div>
+  );
+}
 // One vehicle's sub-card in a Flight Log box: name, then the latest line (date · time, text on the next line);
 // older lines behind "Earlier updates", newest first.
 const flogWhen = (l) => (l.time ? `${l.day} · ${l.time}` : l.day);
@@ -3758,11 +3793,11 @@ function StarshipTracker() {
     }, 300);
     return () => clearTimeout(t);
   }, [entryReq, road]);
-  const jumpToPost = (catId, i) => {
+  const jumpToPost = (catId, i, postId) => { // postId: a Page 2 card id (Page 1 current Road drawer, same entries)
     const pane = feedScroll.current;
-    const el = pane && pane.querySelector(`#post-${CSS.escape(`${catId}-${i}`)}`);
+    const el = pane && pane.querySelector(`#post-${CSS.escape(postId || `${catId}-${i}`)}`);
     if (!el) return;
-    if (rfsReveal(el)) { setTimeout(() => jumpToPost(catId, i), reduceMotion() ? 30 : 340); return; }
+    if (rfsReveal(el)) { setTimeout(() => jumpToPost(catId, i, postId), reduceMotion() ? 30 : 340); return; }
     const head = pane.querySelector(".feed-head");
     const y = Math.max(0, relTop(el, pane) - (head ? head.offsetHeight : 0) - 14);
     const flash = () => { el.classList.remove("hl"); void el.offsetWidth; el.classList.add("hl"); setTimeout(() => el.classList.remove("hl"), 2400); };
