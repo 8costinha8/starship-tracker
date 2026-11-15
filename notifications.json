@@ -3227,6 +3227,18 @@
       "verdict": "silent: minor transport — a push went out 22.2h ago (quiet window 24h)",
       "gate": "second trusted source agrees",
       "key": "S42|transport|15 Nov"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Starship heat shield and engines were reviewed and looked great.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mwieees8-17ee6f",
+      "url": "https://x.com/elonmusk/status/2122092374016806969",
+      "at": "2026-11-15T22:20:23.000Z",
+      "sent_at": "2026-11-15T22:30:55.788Z",
+      "where": "feed",
+      "verdict": "sent",
+      "gate": "official source",
+      "key": "starship|other|15 Nov"
     }
   ]
 }
