@@ -166,6 +166,18 @@ Reply with ONLY valid JSON, nothing else, in this exact shape:
   return { headline: story.headline, story: story.story };
 }
 
+// Is flight n already an entry in app.js FLIGHTS? (manual entries are never overwritten or doubled)
+function flightInAppJs(appJsText, n) {
+  const a = appJsText.indexOf("const FLIGHTS = ["), b = appJsText.indexOf("\n];", a);
+  return a >= 0 && new RegExp(`\\{\\s*n:\\s*${Number(n)}\\s*,`).test(appJsText.slice(a, b));
+}
+function readRoadJson() { try { return JSON.parse(require("fs").readFileSync(require("path").join(__dirname, "..", "road.json"), "utf8")); } catch { return {}; } }
+// Missing / not-final hero data: one review item (data/needs-review.json), nothing invented.
+function flagStoryReview(n, reason) {
+  try { require("./self-check.js").writeReview([{ type: "flight-story", item: `Flight ${n}`, msg: `Flight ${n} logged with an empty story: ${reason}`, reason: "the story is the final Style A hero paragraph, never a generated summary" }], require("path").join(__dirname, "..", "data", "needs-review.json")); }
+  catch (e) { console.warn("could not write the review item:", e.message); }
+}
+
 // Inserts the new flight object right before FLIGHTS's closing "];",
 // and bumps the "last checked" date at the top of the file.
 function addFlightToAppJs(appJsText, flight) {
@@ -189,6 +201,7 @@ function commitAndPush(flightN, label) {
   execSync(`git config user.name "Starship Tracker Bot"`);
   execSync(`git config user.email "actions@github.com"`);
   execSync(`git add app.js`);
+  try { execSync(`git add data/needs-review.json`, { stdio: "pipe" }); } catch {} // a story left for review (flagStoryReview)
   execSync(`git commit -m "Auto: log Flight ${flightN} (${label})"`);
   // a queued run can start behind main; catch up and retry once (same as the Road checker)
   try { execSync(`git push`, { stdio: "pipe" }); } catch { execSync(`git pull --rebase`); execSync(`git push`); }
@@ -259,6 +272,8 @@ function liveDeps() {
     readAppJs: () => fs.readFileSync(APP_JS_PATH, "utf8"),
     writeAppJs: (text) => fs.writeFileSync(APP_JS_PATH, text),
     commitAndPush,
+    readRoad: readRoadJson,
+    flagReview: flagStoryReview,
     writeStory,
     // data-only message, so our own service worker decides exactly what to show
     // (one banner, our exact wording, tap opens the app)
@@ -355,16 +370,30 @@ async function run(deps) {
       };
 
       const appJsText = deps.readAppJs();
-      const styleExamples = recentStories(appJsText, 2);
-      const { headline, story } = await deps.writeStory({ ...flightData, styleExamples });
+      // 15 Nov rule (every flight): the story is the final Style A hero paragraph, carried over verbatim from road.json
+      // (scripts/hero-story.js composes it with app.js's own hero code). Never a written / generic summary; a flight that
+      // is already in FLIGHTS (a manual entry) is never overwritten; no final hero data → empty story, left for review.
+      if (flightInAppJs(appJsText, current.n)) {
+        console.log(`Flight ${current.n} is already in FLIGHTS — its story is kept as it is.`);
+        current.storyWrittenFor = current.n;
+      } else {
+        let hero;
+        try { hero = require("./hero-story.js").loggedStory(deps.readRoad ? deps.readRoad() : {}, current.n, { vehicles: [flightData.booster, flightData.ship].filter(Boolean) }); }
+        catch (e) { hero = { story: "", reason: `hero composer failed: ${e.message}` }; }
+        const styleExamples = recentStories(appJsText, 2);
+        const { headline } = await deps.writeStory({ ...flightData, styleExamples }); // headline only; its story text is never used
+        const story = hero.story;
+        if (!story) { console.log(`Flight ${current.n}: ${hero.reason} — story left empty for review.`); if (deps.flagReview) deps.flagReview(current.n, hero.reason); }
 
-      const updatedAppJs = addFlightToAppJs(appJsText, { ...flightData, headline, story });
-      deps.writeAppJs(updatedAppJs);
-      deps.commitAndPush(current.n, OUTCOME_LABEL[current.outcome]);
+        const updatedAppJs = addFlightToAppJs(appJsText, { ...flightData, headline, story });
+        deps.writeAppJs(updatedAppJs);
+        deps.commitAndPush(current.n, OUTCOME_LABEL[current.outcome]);
 
-      current.storyWrittenFor = current.n;
-      notification = { title: `🏁 Flight ${current.n} — ${OUTCOME_LABEL[current.outcome]}`, body: "The story's up in the app." };
-      console.log(`Flight ${current.n} logged and pushed.`);
+        current.storyWrittenFor = current.n;
+        // the result push carries the Style A result line; with no final story there is no vague "story's up" push
+        notification = story ? { title: `🏁 Flight ${current.n} — ${OUTCOME_LABEL[current.outcome]}`, body: story } : null;
+        console.log(`Flight ${current.n} logged${story ? " and pushed" : " (no push: story left for review)"}.`);
+      }
     } catch (err) {
       console.error("Story write/commit failed:", err);
       // fall through — still send the normal notifications below,
@@ -441,7 +470,7 @@ async function run(deps) {
   return { notification, current };
 }
 
-module.exports = { run, mapLL2Status, fmtDateTime, addFlightToAppJs, isPlaceholderTimeUpgrade, fmtNetTime, ukDayKey };
+module.exports = { run, mapLL2Status, fmtDateTime, addFlightToAppJs, flightInAppJs, isPlaceholderTimeUpgrade, fmtNetTime, ukDayKey };
 
 if (require.main === module) { process.on("exit", () => console.log(writer.grokCallsLine())); }
 if (require.main === module) {

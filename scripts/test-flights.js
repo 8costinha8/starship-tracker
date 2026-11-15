@@ -23,6 +23,9 @@ const deps = {
   writeAppJs: (t) => { appJs = t; },
   commitAndPush: (n, label) => commits.push(`log Flight ${n} (${label})`),
   writeStory: async () => ({ headline: "Test headline", story: "Test story." }),
+  // the logged story is the final hero paragraph from road.json (scripts/hero-story.js), never the writer's story
+  readRoad: () => ({ flight: 15, vehicles: ["B22", "S42"], hero_lines: { 15: [{ stage: "booster", kind: "result", clause: "splashed down in the Gulf", line: "Booster 22 splashed down in the Gulf." }, { stage: "ship", kind: "result", clause: "was caught by the tower", line: "Ship 42 was caught by the tower." }] } }),
+  flagReview: () => { throw new Error("no review expected"); },
   now: () => Date.parse("2026-10-12T12:00:00Z"),
 };
 const launch = (n, abbrev, net = T0, precision = "SEC") => ({ name: `Starship | Flight ${n}`, url: `https://ll2.test/${n}`, net, net_precision: { abbrev: precision }, status: { abbrev } });
@@ -53,6 +56,8 @@ const step = async (label, l, nowIso) => {
 
   got = await step("result: Success", launch(15, "Success", "2026-10-13T22:03:00Z"), "2026-10-13T23:30:00Z");
   check(got.length === 1 && got[0].title === "🏁 Flight 15 — Success" && commits.length === 1 && /n: 15/.test(appJs), "result → story logged in app.js, committed, one '🏁 Flight 15 — Success' push (unchanged)");
+  check(/story: "Booster 22 splashed down in the Gulf, while Ship 42 was caught by the tower\."/.test(appJs) && !/Test story/.test(appJs), "logged story = the hero paragraph from road.json, not the writer's story");
+  check(got[0] && got[0].body === "Booster 22 splashed down in the Gulf, while Ship 42 was caught by the tower.", "result push carries the Style A line, not 'The story's up in the app.': " + (got[0] && got[0].body));
 
   got = await step("next run, still Success", launch(15, "Success", "2026-10-13T22:03:00Z"), "2026-10-13T23:45:00Z");
   check(got.length === 0 && commits.length === 1, "no repeat of the result push or the story");

@@ -944,12 +944,16 @@ function archiveLaunched(road, lastN) {
   return moved;
 }
 // Step 1 of run(): the logged flight's Road becomes the next flight's fresh Road (also used by the handover sim).
-function rolloverRoad(old0, lastN, launchedAt, log = () => {}) {
+function rolloverRoad(old0, lastN, launchedAt, log = () => {}, nowMs = Date.now()) {
   let road = old0;
     const old = road;
     const moved = archiveLaunched(old, lastN);
     road = freshRoad(lastN + 1);
     if (old.archive) road.archive = old.archive;
+    // the flight's final hero data stays with its archive (hero_lines / mission_updates / mission_alerts), so the log
+    // step can carry the Style A paragraph over verbatim even after this rollover (scripts/hero-story.js)
+    const kept = require("./hero-story.js").heroArchive(old, lastN);
+    if (kept) { road.archive = road.archive || {}; road.archive[lastN] = { ...(road.archive[lastN] || { entries: [] }), hero: kept }; }
     const oldV = new Set((old.vehicles || []).map(milestones.hwKey));
     const carry = Object.fromEntries(Object.entries(old.milestones || {}).filter(([k]) => k !== "flight" && !oldV.has(k)));
     if (Object.keys(carry).length) road.milestones = carry; // later flights' hardware keeps its running counts
@@ -963,10 +967,10 @@ function rolloverRoad(old0, lastN, launchedAt, log = () => {}) {
     if (Object.keys(mu).length) road.mission_updates = { ...(road.mission_updates || {}), ...mu };
     log(`rollover carried: vehicles ${road.vehicles.join(", ") || "none"}${road.predicted ? `, NET ${road.predicted.net} (${road.predicted.mode})` : ""}${Object.keys(mu).length ? `, mission updates for Flight ${Object.keys(mu).join("/")}` : ""}`);
     log(`Flight ${lastN}: ${moved} Road entr${moved === 1 ? "y" : "ies"} archived to its Flight Log card`);
-    // The push waits for 09:00 London the morning after the launch day.
+    // The feed card is stamped with the real handover time; only the push waits for 09:00 London the morning after the launch day.
     if (old.feed_items) road.feed_items = old.feed_items;
     const sendAfter = nineAmLondonDayAfter(launchedAt);
-    const fi = pushSync.addFeedItem(road, { kind: "notice", title: `🚀 Road to Flight ${road.flight}`, body: `Flight ${lastN} is in the log. Now tracking the road to Flight ${road.flight}.`, at: sendAfter, flight: road.flight });
+    const fi = pushSync.addFeedItem(road, { kind: "notice", title: `🚀 Road to Flight ${road.flight}`, body: `Flight ${lastN} is in the log. Now tracking the road to Flight ${road.flight}.`, at: new Date(nowMs).toISOString(), flight: road.flight });
   require("./handover.js").syncStatuses(road); // pills, headlines and road.json from one source (Flight Log boxes)
   return { road, fi, sendAfter };
 }
@@ -1358,7 +1362,7 @@ async function run(opts = {}) {
   if (lastN && road.flight === lastN) { const at = loggedFlightDate(appJsText, lastN); if (at && !(road.launched && road.launched.flight === lastN && road.launched.at === at)) { road.launched = { flight: lastN, at }; changed = true; } } // Launch date box: "Flight N launched on …"
   if (lastN && road.flight <= lastN && !graceLeft) {
     log(`Flight ${road.flight} is now in the flight log — starting Road to Flight ${lastN + 1}`);
-    const ro = rolloverRoad(road, lastN, loggedFlightDate(appJsText, lastN) || new Date(clock()).toISOString(), log);
+    const ro = rolloverRoad(road, lastN, loggedFlightDate(appJsText, lastN) || new Date(clock()).toISOString(), log, clock());
     road = ro.road; const fi = ro.fi, sendAfter = ro.sendAfter;
     changed = rolledOver = true;
     state.pendingPush = JSON.parse(JSON.stringify({ sendAfter, flight: road.flight, ...fi })); // already in the Updates feed (committed with this run); JSON round-trip drops undefined fields (e.g. url), which Firestore rejects
