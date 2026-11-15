@@ -3191,6 +3191,18 @@
       "verdict": "silent: minor other — a push went out 4.2h ago (quiet window 24h)",
       "gate": "second trusted source agrees",
       "key": "S42|other|15 Nov"
+    },
+    {
+      "title": "Flight 16 update",
+      "body": "Remote camera shows Booster 23 catch after Flight 16 launch (RGVaerialphotos, 15 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=16",
+      "url": "https://x.com/RGVaerialphotos/status/2121991958977503413",
+      "at": "2026-11-15T15:41:22.000Z",
+      "sent_at": "2026-11-15T16:00:52.689Z",
+      "where": "mission",
+      "verdict": "silent: minor other — a push went out 18.5h ago (quiet window 24h)",
+      "gate": "hold passed (1 run)",
+      "key": "B23|other|15 Nov"
     }
   ]
 }
