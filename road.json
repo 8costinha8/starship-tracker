@@ -5,7 +5,7 @@
     "S43"
   ],
   "updated": "16 Nov",
-  "updatedAt": "2026-11-16T01:01:07.511Z",
+  "updatedAt": "2026-11-16T06:01:31.551Z",
   "categories": [
     {
       "id": "cryo",
@@ -1459,7 +1459,8 @@
       "at": "2026-11-16T00:50:49.000Z",
       "date": "16 Nov",
       "flight": 15,
-      "later_flight": true
+      "later_flight": true,
+      "src": "@SpaceflightNow"
     },
     {
       "id": "news-mwieees8-17ee6f",
@@ -1469,7 +1470,8 @@
       "url": "https://x.com/elonmusk/status/2122092374016806969",
       "at": "2026-11-15T22:20:23.000Z",
       "date": "15 Nov",
-      "flight": 16
+      "flight": 16,
+      "src": "@elonmusk"
     },
     {
       "id": "news-mwi85myo-200024",
@@ -1480,7 +1482,8 @@
       "at": "2026-11-15T19:25:36.000Z",
       "date": "15 Nov",
       "flight": 15,
-      "later_flight": true
+      "later_flight": true,
+      "src": "@Blobifie"
     },
     {
       "id": "news-mwi74kuw-8d54e6",
@@ -1491,7 +1494,8 @@
       "at": "2026-11-15T18:56:47.000Z",
       "date": "15 Nov",
       "flight": 15,
-      "later_flight": true
+      "later_flight": true,
+      "src": "@NASASpaceflight"
     },
     {
       "id": "news-mwh67qw8-b034b5",
@@ -1966,26 +1970,21 @@
     "https://pbs.twimg.com/media/HUhjfCvWoAAeQ3A.jpg": "images/cache/media_HUhjfCvWoAAeQ3A.jpg"
   },
   "self_check": {
-    "at": "2026-11-15T06:00:37.887Z",
-    "fixes": 25,
-    "flags": 7,
+    "at": "2026-11-16T06:01:31.355Z",
+    "fixes": 4,
+    "flags": 3,
     "counts": {
-      "source-badge": 1,
-      "image-cache": 24
+      "source-badge": 4
     },
     "judge_calls": 0,
     "flagged": [
-      "[render-tense] Road card Cryo tests · Ship 43 › 26 Oct · 04:01: \"Ship 43 returning from Massey's.\" has no verb (fragment)",
-      "[render-tense] Road card Pad activity · Ship 43 › 27 Oct · 00:22: \"Ship 43 airborne on the chopsticks.\" has no verb (fragment)",
-      "[render-tense] Flight Log pad Ship 43 27 Oct: \"Ship 43 airborne on the chopsticks.\" has no verb (fragment)",
       "[render-tense] Feed news-mwehc1so-0b6a15: \"Countdown started at Starbase for a potentially historic Starship mission.\" is a headline fragment (no subject article / auxiliary)",
-      "[render-tense] Road card Road to Flight 16: \"Flight 15 is in the log. Now tracking the road to Flight 16.\" is present tense on screen",
       "[render-date] cryo B23: Flight Log shows 15 Oct, Road card shows 18 Oct · 05:51",
       "[render-mismatch] Flight Log cryo Booster 23 15 Oct: \"Booster 23 completed a cryo proof test at Massey's.\" ≠ Road card Cryo tests · Booster 23 › 16 Oct · 01:24: \"Booster 23 completed a cryo proof test.\" (same post https://x.com/StarshipGazer/status/2110889490336350574)"
     ],
     "render": {
       "status": "failed",
-      "failures": 7
+      "failures": 3
     }
   },
   "mission_updates": {

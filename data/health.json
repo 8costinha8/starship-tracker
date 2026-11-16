@@ -25,15 +25,11 @@
   },
   "committed_at": "2026-11-16T05:45:34.388Z",
   "render_check": {
-    "at": "2026-11-15T06:00:37.887Z",
+    "at": "2026-11-16T06:01:31.355Z",
     "status": "failed",
-    "failures": 7,
+    "failures": 3,
     "items": [
-      "[render-tense] Road card Cryo tests · Ship 43 › 26 Oct · 04:01: \"Ship 43 returning from Massey's.\" has no verb (fragment)",
-      "[render-tense] Road card Pad activity · Ship 43 › 27 Oct · 00:22: \"Ship 43 airborne on the chopsticks.\" has no verb (fragment)",
-      "[render-tense] Flight Log pad Ship 43 27 Oct: \"Ship 43 airborne on the chopsticks.\" has no verb (fragment)",
       "[render-tense] Feed news-mwehc1so-0b6a15: \"Countdown started at Starbase for a potentially historic Starship mission.\" is a headline fragment (no subject article / auxiliary)",
-      "[render-tense] Road card Road to Flight 16: \"Flight 15 is in the log. Now tracking the road to Flight 16.\" is present tense on screen",
       "[render-date] cryo B23: Flight Log shows 15 Oct, Road card shows 18 Oct · 05:51",
       "[render-mismatch] Flight Log cryo Booster 23 15 Oct: \"Booster 23 completed a cryo proof test at Massey's.\" ≠ Road card Cryo tests · Booster 23 › 16 Oct · 01:24: \"Booster 23 completed a cryo proof test.\" (same post https://x.com/StarshipGazer/status/2110889490336350574)"
     ]
