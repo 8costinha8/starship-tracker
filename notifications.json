@@ -3251,6 +3251,18 @@
       "verdict": "silent: minor other — a push went out 2.5h ago (quiet window 24h)",
       "gate": "second trusted source agrees",
       "key": "S42|other|16 Nov"
+    },
+    {
+      "title": "Flight 16 update",
+      "body": "SpaceX plans to catch a Starship from space (Elon Musk, 16 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=16",
+      "url": "https://x.com/elonmusk/status/2122408454325416322",
+      "at": "2026-11-16T19:16:22.000Z",
+      "sent_at": "2026-11-16T19:30:59.751Z",
+      "where": "mission",
+      "verdict": "sent",
+      "gate": "official source",
+      "key": "starship|other|16 Nov"
     }
   ]
 }
