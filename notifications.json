@@ -3239,6 +3239,18 @@
       "verdict": "sent",
       "gate": "official source",
       "key": "starship|other|15 Nov"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Ship 42 returned to the Megabay at Starbase Production Site.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mwijrvag-873941",
+      "url": "https://x.com/SpaceflightNow/status/2122130231473451148",
+      "at": "2026-11-16T00:50:49.000Z",
+      "sent_at": "2026-11-16T01:01:09.807Z",
+      "where": "feed",
+      "verdict": "silent: minor other — a push went out 2.5h ago (quiet window 24h)",
+      "gate": "second trusted source agrees",
+      "key": "S42|other|16 Nov"
     }
   ]
 }
