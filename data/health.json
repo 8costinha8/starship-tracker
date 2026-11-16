@@ -1,11 +1,11 @@
 {
   "scripts": {
     "check-flights": {
-      "at": "2026-11-16T10:00:43.345Z",
+      "at": "2026-11-16T11:15:18.707Z",
       "status": "ok",
       "error": null,
       "consecutive_failures": 0,
-      "last_ok": "2026-11-16T10:00:43.345Z"
+      "last_ok": "2026-11-16T11:15:18.707Z"
     },
     "check-road": {
       "at": "2026-11-16T06:45:40.767Z",
@@ -15,7 +15,7 @@
       "last_ok": "2026-11-16T06:45:40.767Z"
     }
   },
-  "updated": "2026-11-16T10:00:43.345Z",
+  "updated": "2026-11-16T11:15:18.707Z",
   "status": "ok",
   "consecutive_failures": 0,
   "alert": false,
@@ -23,7 +23,7 @@
     "at": "2026-11-14T21:31:42.993Z",
     "error": "Value for argument \"data\" is not a valid Firestore document. Cannot use \"undefined\" as a Firestore value (found in field \"pendingPush.url\"). If you want to ignore undefined values, enable `ignoreUndefinedProperties`."
   },
-  "committed_at": "2026-11-16T10:00:43.345Z",
+  "committed_at": "2026-11-16T11:15:18.707Z",
   "render_check": {
     "at": "2026-11-16T06:01:31.355Z",
     "status": "failed",
