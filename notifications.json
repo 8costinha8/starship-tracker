@@ -3263,6 +3263,18 @@
       "verdict": "sent",
       "gate": "official source",
       "key": "starship|other|16 Nov"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Booster 25's transfer tube was lifted in Mega Bay 1.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mwk4o8sw-9a293e",
+      "url": "https://x.com/efraser77/status/2122531077734764947",
+      "at": "2026-11-17T03:23:38.000Z",
+      "sent_at": "2026-11-17T04:00:42.906Z",
+      "where": "feed",
+      "verdict": "silent: minor lift — a push went out 8.5h ago (quiet window 24h)",
+      "gate": "hold passed (1 run)",
+      "key": "B25|lift|17 Nov"
     }
   ]
 }
