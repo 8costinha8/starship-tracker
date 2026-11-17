@@ -5,7 +5,7 @@
     "S43"
   ],
   "updated": "17 Nov",
-  "updatedAt": "2026-11-17T06:01:08.129Z",
+  "updatedAt": "2026-11-17T22:15:38.517Z",
   "categories": [
     {
       "id": "cryo",
@@ -1451,6 +1451,16 @@
   },
   "feed_items": [
     {
+      "id": "news-mwl8vr54-0b81de",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Starbase tower chopsticks caught their first Starship.",
+      "url": "https://x.com/SpaceX/status/2122814338893332591",
+      "at": "2026-11-17T22:09:13.000Z",
+      "date": "17 Nov",
+      "flight": 16
+    },
+    {
       "id": "news-mwk4o8sw-9a293e",
       "kind": "news",
       "title": "🚀 Starship",
@@ -1880,17 +1890,6 @@
       "date": "9 Nov",
       "flight": 15,
       "src": "@LabPadre"
-    },
-    {
-      "id": "news-mw8o32ao-ae633c",
-      "kind": "news",
-      "title": "🚀 Starship",
-      "body": "SpaceX rolled Booster 22 to Starbase Pad 2.",
-      "url": "https://www.youtube.com/watch?v=gK4lb6ifxkY",
-      "at": "2026-11-09T02:53:48.000Z",
-      "date": "9 Nov",
-      "flight": 15,
-      "later_flight": true
     }
   ],
   "hardware_flights": {
