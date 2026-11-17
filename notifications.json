@@ -3275,6 +3275,18 @@
       "verdict": "silent: minor lift — a push went out 8.5h ago (quiet window 24h)",
       "gate": "hold passed (1 run)",
       "key": "B25|lift|17 Nov"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Starbase tower chopsticks caught their first Starship.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mwl8vr54-0b81de",
+      "url": "https://x.com/SpaceX/status/2122814338893332591",
+      "at": "2026-11-17T22:09:13.000Z",
+      "sent_at": "2026-11-17T22:15:39.650Z",
+      "where": "feed",
+      "verdict": "sent",
+      "gate": "official source",
+      "key": "starship|catch|17 Nov"
     }
   ]
 }
