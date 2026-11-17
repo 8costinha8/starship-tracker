@@ -4,8 +4,8 @@
     "B23",
     "S43"
   ],
-  "updated": "16 Nov",
-  "updatedAt": "2026-11-16T19:30:58.377Z",
+  "updated": "17 Nov",
+  "updatedAt": "2026-11-17T03:30:50.255Z",
   "categories": [
     {
       "id": "cryo",
@@ -1451,6 +1451,15 @@
   },
   "feed_items": [
     {
+      "id": "news-mwk4o8sw-9a293e",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Booster 25's transfer tube was lifted in Mega Bay 1.",
+      "url": "https://x.com/efraser77/status/2122531077734764947",
+      "at": "2026-11-17T03:23:38.000Z",
+      "date": "17 Nov"
+    },
+    {
       "id": "news-mwijrvag-873941",
       "kind": "news",
       "title": "🚀 Starship",
@@ -1880,18 +1889,6 @@
       "at": "2026-11-09T02:53:48.000Z",
       "date": "9 Nov",
       "flight": 15,
-      "later_flight": true
-    },
-    {
-      "id": "news-mw7f2b2o-0823fc",
-      "kind": "news",
-      "title": "🚀 Starship",
-      "body": "Ship 40 was moved into the Gigabay starfactory bay.",
-      "url": "https://x.com/Blobifie/status/2119307301056344128",
-      "at": "2026-11-08T05:53:30.000Z",
-      "date": "8 Nov",
-      "flight": 13,
-      "src": "@Blobifie",
       "later_flight": true
     }
   ],
