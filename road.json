@@ -5,7 +5,7 @@
     "S43"
   ],
   "updated": "17 Nov",
-  "updatedAt": "2026-11-17T04:00:41.481Z",
+  "updatedAt": "2026-11-17T06:01:08.129Z",
   "categories": [
     {
       "id": "cryo",
@@ -1457,7 +1457,8 @@
       "body": "Booster 25's transfer tube was lifted in Mega Bay 1.",
       "url": "https://x.com/efraser77/status/2122531077734764947",
       "at": "2026-11-17T03:23:38.000Z",
-      "date": "17 Nov"
+      "date": "17 Nov",
+      "src": "@efraser77"
     },
     {
       "id": "news-mwijrvag-873941",
@@ -1967,11 +1968,11 @@
     "https://pbs.twimg.com/media/HUhjfCvWoAAeQ3A.jpg": "images/cache/media_HUhjfCvWoAAeQ3A.jpg"
   },
   "self_check": {
-    "at": "2026-11-16T06:01:31.355Z",
-    "fixes": 4,
+    "at": "2026-11-17T06:01:07.895Z",
+    "fixes": 1,
     "flags": 3,
     "counts": {
-      "source-badge": 4
+      "source-badge": 1
     },
     "judge_calls": 0,
     "flagged": [
