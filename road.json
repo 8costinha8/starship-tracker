@@ -4,8 +4,8 @@
     "B23",
     "S43"
   ],
-  "updated": "17 Nov",
-  "updatedAt": "2026-11-17T22:15:38.517Z",
+  "updated": "18 Nov",
+  "updatedAt": "2026-11-18T06:00:54.408Z",
   "categories": [
     {
       "id": "cryo",
@@ -1458,7 +1458,8 @@
       "url": "https://x.com/SpaceX/status/2122814338893332591",
       "at": "2026-11-17T22:09:13.000Z",
       "date": "17 Nov",
-      "flight": 16
+      "flight": 16,
+      "src": "@SpaceX"
     },
     {
       "id": "news-mwk4o8sw-9a293e",
@@ -1967,7 +1968,7 @@
     "https://pbs.twimg.com/media/HUhjfCvWoAAeQ3A.jpg": "images/cache/media_HUhjfCvWoAAeQ3A.jpg"
   },
   "self_check": {
-    "at": "2026-11-17T06:01:07.895Z",
+    "at": "2026-11-18T06:00:54.221Z",
     "fixes": 1,
     "flags": 3,
     "counts": {
