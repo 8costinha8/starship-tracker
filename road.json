@@ -5,7 +5,7 @@
     "S43"
   ],
   "updated": "19 Nov",
-  "updatedAt": "2026-11-19T18:30:51.255Z",
+  "updatedAt": "2026-11-19T20:45:59.027Z",
   "categories": [
     {
       "id": "cryo",
@@ -1520,6 +1520,16 @@
   },
   "feed_items": [
     {
+      "id": "news-mwo0j8u0-65a6e9",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Super Heavy booster performed safe abort and splashed down off Starbase.",
+      "url": "https://x.com/SpaceX/status/2123516375805379040",
+      "at": "2026-11-19T20:38:51.000Z",
+      "date": "19 Nov",
+      "flight": 16
+    },
+    {
       "id": "news-mwnvdvzs-cfb68e",
       "kind": "news",
       "title": "🚀 Starship",
@@ -1945,17 +1955,6 @@
       "flight": 15,
       "src": "@LabPadre",
       "later_flight": true
-    },
-    {
-      "id": "news-mw9izwso-d561fb",
-      "kind": "news",
-      "title": "🚀 Starship",
-      "body": "A new marine hazard area was issued for Flight 15.",
-      "url": "https://x.com/LabPadre/status/2119842240050676139",
-      "at": "2026-11-09T17:19:09.000Z",
-      "date": "9 Nov",
-      "flight": 15,
-      "src": "@LabPadre"
     }
   ],
   "hardware_flights": {
