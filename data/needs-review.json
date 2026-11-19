@@ -1,6 +1,18 @@
 {
   "items": [
     {
+      "date": "2026-11-19T06:01:06.518Z",
+      "type": "render-tense",
+      "item": "Flight Log pad Launch pad 19 Nov",
+      "values": [
+        "Pad 2 work resumes after Flight 15."
+      ],
+      "sources": [],
+      "reason": "full past-tense sentences on cards and feed",
+      "kept": null,
+      "msg": "Flight Log pad Launch pad 19 Nov: \"Pad 2 work resumes after Flight 15.\" has no verb (fragment)"
+    },
+    {
       "date": "2026-11-15T06:00:38.048Z",
       "type": "render-mismatch",
       "item": "https://x.com/StarshipGazer/status/2110889490336350574",
