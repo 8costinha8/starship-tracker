@@ -581,19 +581,19 @@
       "name": "Pad activity",
       "color": "#A88BFF",
       "status": "progress",
-      "latest": "Crews resume work on Pad 2 after Flight 15.",
+      "latest": "Pad 2 work resumes after Flight 15.",
       "history": [
         {
           "id": "x-2123269690457780726",
           "date": "19 Nov",
           "log_date": "19 Nov",
           "at": "2026-11-19T04:18:37.000Z",
-          "text": "Crews resume work on Pad 2 after Flight 15.",
-          "x_text": "Crews resume work on Pad 2 after Flight 15.",
-          "push_text": "Crews back at work on Pad 2 after Flight 15.",
-          "card_text": "Pad 2 crews resumed work after Flight 15.",
-          "log_text": "Pad 2 crews resumed work after Flight 15.",
-          "status_line": "Pad 2 work resumes after Flight 15.",
+          "text": "Pad 2 work resumes after Flight 15.",
+          "x_text": "Pad 2 work resumes after Flight 15.",
+          "push_text": "Pad 2 work resumes after Flight 15.",
+          "card_text": "Pad 2 work resumes after Flight 15.",
+          "log_text": "Pad 2 work resumes after Flight 15.",
+          "status_line": "Pad 2 repairs underway.",
           "url": "https://x.com/TrackingTheSB/status/2123269690457780726",
           "src": "@TrackingTheSB",
           "trust": "trusted",
@@ -604,7 +604,7 @@
             "post_id": "2123269690457780726",
             "url": "https://x.com/TrackingTheSB/status/2123269690457780726",
             "created_at": "2026-11-19T04:18:37.000Z",
-            "text": "Crews are quickly back at work on Pad 2 following Starship Flight 15. Follow Our Journey: https://t.co/b1ZNQAwhGM 📸Casper Harris | Starship Tracking #Tracking ⁠#Starship #Starbase #SpaceX",
+            "text": "Crews are quickly back at work on Pad 2 following Starship Flight 15.\n\nFollow Our Journey: https://t.co/b1ZNQAwhGM \n\n📸Casper Harris | Starship Tracking  \n\n#Tracking ⁠#Starship #Starbase #SpaceX https://t.co/jLoTTI2H4v",
             "author": {
               "name": "StarshipTracking",
               "username": "TrackingTheSB",
@@ -648,7 +648,9 @@
             "url": "https://x.com/TrackingTheSB/status/2123269690457780726",
             "at": "2026-11-19T04:18:37.000Z"
           },
-          "frameChecked": true
+          "frameChecked": true,
+          "edited_from": "Crews resume work on Pad 2 after Flight 15.",
+          "edited": true
         },
         {
           "id": "f16-s43-2115315741709001123",
