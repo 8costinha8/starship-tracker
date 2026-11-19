@@ -3323,6 +3323,18 @@
       "verdict": "silent: minor other — a push went out 0.0h ago (quiet window 24h)",
       "gate": "hold passed (1 run)",
       "key": "S44|other|19 Nov"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Super Heavy booster performed safe abort and splashed down off Starbase.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mwo0j8u0-65a6e9",
+      "url": "https://x.com/SpaceX/status/2123516375805379040",
+      "at": "2026-11-19T20:38:51.000Z",
+      "sent_at": "2026-11-19T20:46:00.217Z",
+      "where": "feed",
+      "verdict": "sent",
+      "gate": "official source",
+      "key": "B23|flight_results|19 Nov"
     }
   ]
 }
