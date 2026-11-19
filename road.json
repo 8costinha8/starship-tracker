@@ -5,7 +5,7 @@
     "S43"
   ],
   "updated": "19 Nov",
-  "updatedAt": "2026-11-19T06:01:06.520Z",
+  "updatedAt": "2026-11-19T18:01:19.657Z",
   "categories": [
     {
       "id": "cryo",
@@ -1520,6 +1520,15 @@
   },
   "feed_items": [
     {
+      "id": "news-mwnuq2qo-6ef1e6",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Ship 44 stood at the edge of Hwy4 before Massey testing.",
+      "url": "https://x.com/LabPadre/status/2123475444376773003",
+      "at": "2026-11-19T17:56:12.000Z",
+      "date": "19 Nov"
+    },
+    {
       "id": "news-mwl8vr54-0b81de",
       "kind": "news",
       "title": "🚀 Starship",
@@ -1946,17 +1955,6 @@
       "body": "A launch advisory was issued for Starship Flight 15 reentry.",
       "url": "https://x.com/LabPadre/status/2119807846019706982",
       "at": "2026-11-09T15:02:29.000Z",
-      "date": "9 Nov",
-      "flight": 15,
-      "src": "@LabPadre"
-    },
-    {
-      "id": "news-mw9e42js-6ba6fe",
-      "kind": "news",
-      "title": "🚀 Starship",
-      "body": "A launch advisory was issued for Starship Flight 15 at Starbase.",
-      "url": "https://x.com/LabPadre/status/2119807831092195435",
-      "at": "2026-11-09T15:02:25.000Z",
       "date": "9 Nov",
       "flight": 15,
       "src": "@LabPadre"
