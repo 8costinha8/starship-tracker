@@ -581,18 +581,18 @@
       "name": "Pad activity",
       "color": "#A88BFF",
       "status": "progress",
-      "latest": "Pad 2 work resumes after Flight 15.",
+      "latest": "Pad 2 work has resumed now that Flight 15 has flown.",
       "history": [
         {
           "id": "x-2123269690457780726",
           "date": "19 Nov",
           "log_date": "19 Nov",
           "at": "2026-11-19T04:18:37.000Z",
-          "text": "Pad 2 work resumes after Flight 15.",
-          "x_text": "Pad 2 work resumes after Flight 15.",
-          "push_text": "Pad 2 work resumes after Flight 15.",
-          "card_text": "Pad 2 work resumes after Flight 15.",
-          "log_text": "Pad 2 work resumes after Flight 15.",
+          "text": "Pad 2 work has resumed now that Flight 15 has flown.",
+          "x_text": "Pad 2 work has resumed now that Flight 15 has flown.",
+          "push_text": "Pad 2 work has resumed now that Flight 15 has flown.",
+          "card_text": "Pad 2 work has resumed now that Flight 15 has flown.",
+          "log_text": "Pad 2 work has resumed now that Flight 15 has flown.",
           "status_line": "Pad 2 repairs underway.",
           "url": "https://x.com/TrackingTheSB/status/2123269690457780726",
           "src": "@TrackingTheSB",
@@ -936,7 +936,7 @@
           }
         }
       ],
-      "log_latest": "Pad 2 work resumes after Flight 15."
+      "log_latest": "Pad 2 work has resumed now that Flight 15 has flown."
     },
     {
       "id": "faa",
