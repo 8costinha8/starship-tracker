@@ -3287,6 +3287,18 @@
       "verdict": "sent",
       "gate": "official source",
       "key": "starship|catch|17 Nov"
+    },
+    {
+      "title": "🏗️ Pad activity: In progress",
+      "body": "Pad 2 work resumes after Flight 15.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2123269690457780726",
+      "url": "https://x.com/TrackingTheSB/status/2123269690457780726",
+      "at": "2026-11-19T04:18:37.000Z",
+      "sent_at": "2026-11-19T04:46:26.215Z",
+      "where": "road",
+      "verdict": "sent",
+      "gate": "hold passed (1 run)",
+      "key": "F15|pad_work|19 Nov"
     }
   ]
 }
