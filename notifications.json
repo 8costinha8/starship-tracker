@@ -3299,6 +3299,30 @@
       "verdict": "sent",
       "gate": "hold passed (1 run)",
       "key": "F15|pad_work|19 Nov"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Ship 44 rolled out for its cryogenic proof campaign.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mwnvdvzs-cfb68e",
+      "url": "https://x.com/TrackingTheSB/status/2123480103191736583",
+      "at": "2026-11-19T18:14:43.000Z",
+      "sent_at": "2026-11-19T18:30:52.738Z",
+      "where": "feed",
+      "verdict": "sent",
+      "gate": "hold passed (1 run)",
+      "key": "S44|rollout|19 Nov"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Ship 44 stood at the edge of Hwy4 before Massey testing.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mwnuq2qo-6ef1e6",
+      "url": "https://x.com/LabPadre/status/2123475444376773003",
+      "at": "2026-11-19T17:56:12.000Z",
+      "sent_at": "2026-11-19T18:30:53.860Z",
+      "where": "feed",
+      "verdict": "silent: minor other — a push went out 0.0h ago (quiet window 24h)",
+      "gate": "hold passed (1 run)",
+      "key": "S44|other|19 Nov"
     }
   ]
 }
