@@ -5,7 +5,7 @@
     "S43"
   ],
   "updated": "19 Nov",
-  "updatedAt": "2026-11-19T18:01:19.657Z",
+  "updatedAt": "2026-11-19T18:15:49.803Z",
   "categories": [
     {
       "id": "cryo",
@@ -1520,6 +1520,15 @@
   },
   "feed_items": [
     {
+      "id": "news-mwnvdvzs-cfb68e",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Ship 44 rolled out for its cryogenic proof campaign.",
+      "url": "https://x.com/TrackingTheSB/status/2123480103191736583",
+      "at": "2026-11-19T18:14:43.000Z",
+      "date": "19 Nov"
+    },
+    {
       "id": "news-mwnuq2qo-6ef1e6",
       "kind": "news",
       "title": "🚀 Starship",
@@ -1944,17 +1953,6 @@
       "body": "A new marine hazard area was issued for Flight 15.",
       "url": "https://x.com/LabPadre/status/2119842240050676139",
       "at": "2026-11-09T17:19:09.000Z",
-      "date": "9 Nov",
-      "flight": 15,
-      "src": "@LabPadre"
-    },
-    {
-      "id": "news-mw9e45mw-826155",
-      "kind": "news",
-      "title": "🚀 Starship",
-      "body": "A launch advisory was issued for Starship Flight 15 reentry.",
-      "url": "https://x.com/LabPadre/status/2119807846019706982",
-      "at": "2026-11-09T15:02:29.000Z",
       "date": "9 Nov",
       "flight": 15,
       "src": "@LabPadre"
