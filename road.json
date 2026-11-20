@@ -5,7 +5,7 @@
     "S43"
   ],
   "updated": "20 Nov",
-  "updatedAt": "2026-11-20T06:30:54.628Z",
+  "updatedAt": "2026-11-20T13:45:47.594Z",
   "categories": [
     {
       "id": "cryo",
@@ -1520,6 +1520,15 @@
   },
   "feed_items": [
     {
+      "id": "news-mwp16sow-322d70",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Ship 44 and Booster 24 were together at Massey's for testing.",
+      "url": "https://x.com/NASASpaceflight/status/2123774597967540724",
+      "at": "2026-11-20T13:44:56.000Z",
+      "date": "20 Nov"
+    },
+    {
       "id": "news-mwokrjyw-87ace3",
       "kind": "news",
       "title": "🚀 Starship",
@@ -1942,18 +1951,6 @@
       "date": "10 Nov",
       "flight": 15,
       "src": "@RGVaerialphotos",
-      "later_flight": true
-    },
-    {
-      "id": "news-mwa4zkso-902bd2",
-      "kind": "news",
-      "title": "🚀 Starship",
-      "body": "Booster 22 was lifted for installation on Pad 2.",
-      "url": "https://x.com/NASASpaceflight/status/2119997160473141572",
-      "at": "2026-11-10T03:34:45.000Z",
-      "date": "10 Nov",
-      "flight": 15,
-      "src": "@NASASpaceflight",
       "later_flight": true
     }
   ],
