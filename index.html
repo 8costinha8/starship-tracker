@@ -37,24 +37,6 @@
 <body>
 <div id="root"></div>
 
-<!-- ref=x visit counter: when the link came from X (?ref=x), bump two public
-     Abacus counters (total + today in UTC). No cookies, no ids, no personal
-     data, no UI; fails silently. Read them at
-     https://abacus.jasoncameron.dev/get/starship-tracker-8c/refx-total and
-     .../refx-YYYYMMDD (UTC date). -->
-<script>
-(function () {
-  try {
-    if ((new URLSearchParams(location.search).get("ref") || "").toLowerCase() !== "x") return;
-    var b = "https://abacus.jasoncameron.dev/hit/starship-tracker-8c/";
-    var day = new Date().toISOString().slice(0, 10).replace(/-/g, "");
-    ["refx-total", "refx-" + day].forEach(function (k) {
-      fetch(b + k, { credentials: "omit", keepalive: true, referrerPolicy: "no-referrer" }).catch(function () {});
-    });
-  } catch (e) {}
-})();
-</script>
-
 <!-- React itself, loaded from a CDN so there's no install/build step -->
 <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
