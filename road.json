@@ -4,8 +4,8 @@
     "B23",
     "S43"
   ],
-  "updated": "19 Nov",
-  "updatedAt": "2026-11-19T20:45:59.027Z",
+  "updated": "20 Nov",
+  "updatedAt": "2026-11-20T06:00:38.526Z",
   "categories": [
     {
       "id": "cryo",
@@ -1527,7 +1527,8 @@
       "url": "https://x.com/SpaceX/status/2123516375805379040",
       "at": "2026-11-19T20:38:51.000Z",
       "date": "19 Nov",
-      "flight": 16
+      "flight": 16,
+      "src": "@SpaceX"
     },
     {
       "id": "news-mwnvdvzs-cfb68e",
@@ -1536,7 +1537,8 @@
       "body": "Ship 44 rolled out for its cryogenic proof campaign.",
       "url": "https://x.com/TrackingTheSB/status/2123480103191736583",
       "at": "2026-11-19T18:14:43.000Z",
-      "date": "19 Nov"
+      "date": "19 Nov",
+      "src": "@TrackingTheSB"
     },
     {
       "id": "news-mwnuq2qo-6ef1e6",
@@ -1545,7 +1547,8 @@
       "body": "Ship 44 stood at the edge of Hwy4 before Massey testing.",
       "url": "https://x.com/LabPadre/status/2123475444376773003",
       "at": "2026-11-19T17:56:12.000Z",
-      "date": "19 Nov"
+      "date": "19 Nov",
+      "src": "@LabPadre"
     },
     {
       "id": "news-mwl8vr54-0b81de",
@@ -2033,22 +2036,21 @@
     "https://pbs.twimg.com/media/HXdeREuXIAAswmd.jpg": "images/cache/media_HXdeREuXIAAswmd.jpg"
   },
   "self_check": {
-    "at": "2026-11-19T06:01:06.228Z",
-    "fixes": 1,
-    "flags": 4,
+    "at": "2026-11-20T06:00:38.345Z",
+    "fixes": 3,
+    "flags": 3,
     "counts": {
-      "image-cache": 1
+      "source-badge": 3
     },
     "judge_calls": 0,
     "flagged": [
-      "[render-tense] Flight Log pad Launch pad 19 Nov: \"Pad 2 work resumes after Flight 15.\" has no verb (fragment)",
       "[render-tense] Feed news-mwehc1so-0b6a15: \"Countdown started at Starbase for a potentially historic Starship mission.\" is a headline fragment (no subject article / auxiliary)",
       "[render-date] cryo B23: Flight Log shows 15 Oct, Road card shows 18 Oct · 05:51",
       "[render-mismatch] Flight Log cryo Booster 23 15 Oct: \"Booster 23 completed a cryo proof test at Massey's.\" ≠ Road card Cryo tests · Booster 23 › 16 Oct · 01:24: \"Booster 23 completed a cryo proof test.\" (same post https://x.com/StarshipGazer/status/2110889490336350574)"
     ],
     "render": {
       "status": "failed",
-      "failures": 4
+      "failures": 3
     }
   },
   "mission_updates": {

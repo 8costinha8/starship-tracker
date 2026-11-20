@@ -25,11 +25,10 @@
   },
   "committed_at": "2026-11-20T05:30:23.503Z",
   "render_check": {
-    "at": "2026-11-19T06:01:06.228Z",
+    "at": "2026-11-20T06:00:38.345Z",
     "status": "failed",
-    "failures": 4,
+    "failures": 3,
     "items": [
-      "[render-tense] Flight Log pad Launch pad 19 Nov: \"Pad 2 work resumes after Flight 15.\" has no verb (fragment)",
       "[render-tense] Feed news-mwehc1so-0b6a15: \"Countdown started at Starbase for a potentially historic Starship mission.\" is a headline fragment (no subject article / auxiliary)",
       "[render-date] cryo B23: Flight Log shows 15 Oct, Road card shows 18 Oct · 05:51",
       "[render-mismatch] Flight Log cryo Booster 23 15 Oct: \"Booster 23 completed a cryo proof test at Massey's.\" ≠ Road card Cryo tests · Booster 23 › 16 Oct · 01:24: \"Booster 23 completed a cryo proof test.\" (same post https://x.com/StarshipGazer/status/2110889490336350574)"
