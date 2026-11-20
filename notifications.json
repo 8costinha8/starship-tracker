@@ -3347,6 +3347,18 @@
       "verdict": "silent: minor other — a push went out 9.7h ago (quiet window 24h)",
       "gate": "hold passed (1 run)",
       "key": "B24|other|20 Nov"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Ship 44 and Booster 24 were together at Massey's for testing.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mwp16sow-322d70",
+      "url": "https://x.com/NASASpaceflight/status/2123774597967540724",
+      "at": "2026-11-20T13:44:56.000Z",
+      "sent_at": "2026-11-20T14:01:02.356Z",
+      "where": "feed",
+      "verdict": "silent: minor other — a push went out 17.3h ago (quiet window 24h)",
+      "gate": "hold passed (1 run)",
+      "key": "S44|other|20 Nov"
     }
   ]
 }
