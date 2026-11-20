@@ -5,7 +5,7 @@
     "S43"
   ],
   "updated": "20 Nov",
-  "updatedAt": "2026-11-20T20:15:47.643Z",
+  "updatedAt": "2026-11-20T21:45:44.171Z",
   "categories": [
     {
       "id": "cryo",
@@ -1520,6 +1520,15 @@
   },
   "feed_items": [
     {
+      "id": "news-mwpi6yi0-998e69",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Frost was visible on Ship 44's methane tank at Massey's.",
+      "url": "https://x.com/efraser77/status/2123894391177949549",
+      "at": "2026-11-20T21:40:57.000Z",
+      "date": "20 Nov"
+    },
+    {
       "id": "news-mwpe749c-226041",
       "kind": "news",
       "title": "🚀 Starship",
@@ -1940,17 +1949,6 @@
       "flight": 15,
       "src": "@NASASpaceflight",
       "later_flight": true
-    },
-    {
-      "id": "news-mwbqjkm8-692ead",
-      "kind": "news",
-      "title": "🚀 Starship",
-      "body": "The transport stand returned to production.",
-      "url": "https://x.com/efraser77/status/2120402630681960485",
-      "at": "2026-11-11T06:25:56.000Z",
-      "date": "11 Nov",
-      "flight": 15,
-      "src": "@efraser77"
     }
   ],
   "hardware_flights": {
