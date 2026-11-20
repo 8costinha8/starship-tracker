@@ -5,7 +5,7 @@
     "S43"
   ],
   "updated": "20 Nov",
-  "updatedAt": "2026-11-20T20:00:53.625Z",
+  "updatedAt": "2026-11-20T20:15:47.643Z",
   "categories": [
     {
       "id": "cryo",
@@ -1527,7 +1527,8 @@
       "url": "https://www.nasaspaceflight.com/2026/11/ship-42-catch-future/",
       "at": "2026-11-20T19:49:06.000Z",
       "date": "20 Nov",
-      "flight": 16
+      "flight": 16,
+      "box": "static"
     },
     {
       "id": "news-mwp16sow-322d70",
