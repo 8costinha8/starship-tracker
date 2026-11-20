@@ -5,7 +5,7 @@
     "S43"
   ],
   "updated": "20 Nov",
-  "updatedAt": "2026-11-20T06:00:38.526Z",
+  "updatedAt": "2026-11-20T06:15:38.133Z",
   "categories": [
     {
       "id": "cryo",
@@ -1520,6 +1520,15 @@
   },
   "feed_items": [
     {
+      "id": "news-mwokrjyw-87ace3",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Booster 24 entered Highway 4 and headed to Massey's.",
+      "url": "https://x.com/TrackingTheSB/status/2123658897949159619",
+      "at": "2026-11-20T06:05:11.000Z",
+      "date": "20 Nov"
+    },
+    {
       "id": "news-mwo0j8u0-65a6e9",
       "kind": "news",
       "title": "🚀 Starship",
@@ -1945,18 +1954,6 @@
       "date": "10 Nov",
       "flight": 15,
       "src": "@NASASpaceflight",
-      "later_flight": true
-    },
-    {
-      "id": "news-mw9rrxc8-6ac1cd",
-      "kind": "news",
-      "title": "🚀 Starship",
-      "body": "Booster 22 was brought out of Megabay 1.",
-      "url": "https://x.com/LabPadre/status/2119904079321412037",
-      "at": "2026-11-09T21:24:53.000Z",
-      "date": "9 Nov",
-      "flight": 15,
-      "src": "@LabPadre",
       "later_flight": true
     }
   ],
