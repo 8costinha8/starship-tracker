@@ -3383,6 +3383,30 @@
       "verdict": "silent: minor other — a push went out 23.2h ago (quiet window 24h)",
       "gate": "not an X tracker post",
       "key": "B23|other|20 Nov"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Raptor engines powered Super Heavy and Starship on Flight 15.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mwpis5m8-5f4faa",
+      "url": "https://x.com/SpaceX/status/2123898539352756617",
+      "at": "2026-11-20T21:57:26.000Z",
+      "sent_at": "2026-11-20T22:00:58.549Z",
+      "where": "feed",
+      "verdict": "sent",
+      "gate": "official source",
+      "key": "B23|other|20 Nov"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Frost was visible on Ship 44's methane tank at Massey's.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mwpi6yi0-998e69",
+      "url": "https://x.com/efraser77/status/2123894391177949549",
+      "at": "2026-11-20T21:40:57.000Z",
+      "sent_at": "2026-11-20T22:00:59.429Z",
+      "where": "feed",
+      "verdict": "silent: minor other — a push went out 0.0h ago (quiet window 24h)",
+      "gate": "hold passed (1 run)",
+      "key": "S44|other|20 Nov"
     }
   ]
 }
