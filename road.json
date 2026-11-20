@@ -5,7 +5,7 @@
     "S43"
   ],
   "updated": "20 Nov",
-  "updatedAt": "2026-11-20T14:01:00.503Z",
+  "updatedAt": "2026-11-20T20:00:53.625Z",
   "categories": [
     {
       "id": "cryo",
@@ -1520,6 +1520,16 @@
   },
   "feed_items": [
     {
+      "id": "news-mwpe749c-226041",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "SpaceX may fly Flight 16 with Booster 23 and Ship 43.",
+      "url": "https://www.nasaspaceflight.com/2026/11/ship-42-catch-future/",
+      "at": "2026-11-20T19:49:06.000Z",
+      "date": "20 Nov",
+      "flight": 16
+    },
+    {
       "id": "news-mwp16sow-322d70",
       "kind": "news",
       "title": "🚀 Starship",
@@ -1940,18 +1950,6 @@
       "date": "11 Nov",
       "flight": 15,
       "src": "@efraser77"
-    },
-    {
-      "id": "news-mwa6mpnk-feff22",
-      "kind": "news",
-      "title": "🚀 Starship",
-      "body": "Booster 22 was lifted to the top of the tower.",
-      "url": "https://x.com/RGVaerialphotos/status/2120008731362754606",
-      "at": "2026-11-10T04:20:44.000Z",
-      "date": "10 Nov",
-      "flight": 15,
-      "src": "@RGVaerialphotos",
-      "later_flight": true
     }
   ],
   "hardware_flights": {
@@ -2064,6 +2062,14 @@
         "src": "@elonmusk",
         "url": "https://x.com/elonmusk/status/2122408454325416322",
         "post_id": "2122408454325416322"
+      },
+      {
+        "topic": "catch",
+        "line": "SpaceX plans double catch attempt on next Starship flight (NASASpaceflight article, 20 Nov).",
+        "at": "2026-11-20T19:53:51.000Z",
+        "src": "@NASASpaceflight",
+        "url": "https://x.com/NASASpaceflight/status/2123867439083728964",
+        "post_id": "2123867439083728964"
       }
     ]
   }
