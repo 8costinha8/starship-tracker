@@ -3335,6 +3335,18 @@
       "verdict": "sent",
       "gate": "official source",
       "key": "B23|flight_results|19 Nov"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Booster 24 entered Highway 4 and headed to Massey's.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mwokrjyw-87ace3",
+      "url": "https://x.com/TrackingTheSB/status/2123658897949159619",
+      "at": "2026-11-20T06:05:11.000Z",
+      "sent_at": "2026-11-20T06:30:55.840Z",
+      "where": "feed",
+      "verdict": "silent: minor other — a push went out 9.7h ago (quiet window 24h)",
+      "gate": "hold passed (1 run)",
+      "key": "B24|other|20 Nov"
     }
   ]
 }
