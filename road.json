@@ -5,7 +5,7 @@
     "S43"
   ],
   "updated": "20 Nov",
-  "updatedAt": "2026-11-20T21:45:44.171Z",
+  "updatedAt": "2026-11-20T22:00:56.830Z",
   "categories": [
     {
       "id": "cryo",
@@ -1520,6 +1520,16 @@
   },
   "feed_items": [
     {
+      "id": "news-mwpis5m8-5f4faa",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Raptor engines powered Super Heavy and Starship on Flight 15.",
+      "url": "https://x.com/SpaceX/status/2123898539352756617",
+      "at": "2026-11-20T21:57:26.000Z",
+      "date": "20 Nov",
+      "flight": 16
+    },
+    {
       "id": "news-mwpi6yi0-998e69",
       "kind": "news",
       "title": "🚀 Starship",
@@ -1936,18 +1946,6 @@
       "date": "11 Nov",
       "flight": 15,
       "src": "@Blobifie",
-      "later_flight": true
-    },
-    {
-      "id": "news-mwcofsuw-afd53b",
-      "kind": "news",
-      "title": "🚀 Starship",
-      "body": "Starlink speed loader left Starfactory to load Ship 42.",
-      "url": "https://x.com/NASASpaceflight/status/2120641416384922015",
-      "at": "2026-11-11T22:14:47.000Z",
-      "date": "11 Nov",
-      "flight": 15,
-      "src": "@NASASpaceflight",
       "later_flight": true
     }
   ],
