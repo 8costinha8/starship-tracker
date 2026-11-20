@@ -3359,6 +3359,30 @@
       "verdict": "silent: minor other — a push went out 17.3h ago (quiet window 24h)",
       "gate": "hold passed (1 run)",
       "key": "S44|other|20 Nov"
+    },
+    {
+      "title": "Flight 16 update",
+      "body": "SpaceX plans double catch attempt on next Starship flight (NASASpaceflight article, 20 Nov).",
+      "link": "https://8costinha8.github.io/starship-tracker/?flight=16",
+      "url": "https://x.com/NASASpaceflight/status/2123867439083728964",
+      "at": "2026-11-20T19:53:51.000Z",
+      "sent_at": "2026-11-20T20:00:55.251Z",
+      "where": "mission",
+      "verdict": "silent: minor other — a push went out 23.2h ago (quiet window 24h)",
+      "gate": "second trusted source agrees",
+      "key": "starship|other|20 Nov"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "SpaceX may fly Flight 16 with Booster 23 and Ship 43.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mwpe749c-226041",
+      "url": "https://www.nasaspaceflight.com/2026/11/ship-42-catch-future/",
+      "at": "2026-11-20T19:49:06.000Z",
+      "sent_at": "2026-11-20T20:00:55.256Z",
+      "where": "feed",
+      "verdict": "silent: minor other — a push went out 23.2h ago (quiet window 24h)",
+      "gate": "not an X tracker post",
+      "key": "B23|other|20 Nov"
     }
   ]
 }
