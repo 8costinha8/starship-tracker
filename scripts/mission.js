@@ -48,7 +48,12 @@ function applyMissionUpdate(road, flight, { topic, text, attribution, post, supe
   const norm = (x) => String(x || "").toLowerCase().replace(/\s*\([^)]*\)\.?\s*$/, "").replace(/[^a-z0-9]+/g, " ").trim();
   if (list.some((u) => u.post_id === post.post_id || u.line === line || norm(u.line) === norm(line))) return { changed: false, line, duplicate: true };
   const sup = supersede || SUPERSEDE.test(String(text || ""));
-  const superseded = sup ? list.filter((u) => u.topic === topic && Date.parse(u.at) < Date.parse(at)) : [];
+  // Rehearsal fix (F16): booster and ship results share topic "catch". "Ship 43 splashed down ... instead of being caught" used to
+  // supersede (delete) "Booster 23 was caught by the tower" too, so a Partial flight lost the booster's result. A line only
+  // supersedes lines about the same stage (booster / ship); a line that names neither stage still supersedes the whole topic.
+  const stageOf = (t) => { const s = String(t || ""); const b = /\b(?:booster|super heavy|B\d{2})\b/i.test(s), sh = /\b(?:ship|starship|S\d{2})\b/i.test(s.replace(/super heavy and starship/ig, "")); return b && !sh ? "booster" : sh && !b ? "ship" : ""; };
+  const sameStage = (o) => { const a = stageOf(text), b = stageOf(o.line); return !a || !b || a === b; };
+  const superseded = sup ? list.filter((u) => u.topic === topic && Date.parse(u.at) < Date.parse(at) && sameStage(u)) : [];
   if (sup && !superseded.length && list.some((u) => u.topic === topic && Date.parse(u.at) >= Date.parse(at))) return { changed: false, line, older: true }; // an older contradiction
   const u = { topic, line, at, src: `@${post.author.username}`, url: post.url, post_id: post.post_id };
   for (const o of superseded) list.splice(list.indexOf(o), 1);
