@@ -5,7 +5,7 @@
     "S43"
   ],
   "updated": "21 Nov",
-  "updatedAt": "2026-11-21T06:00:27.499Z",
+  "updatedAt": "2026-11-21T22:15:49.337Z",
   "categories": [
     {
       "id": "cryo",
@@ -1520,6 +1520,15 @@
   },
   "feed_items": [
     {
+      "id": "news-mwqygy1k-5cfda7",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Booster 25's LOX landing tank was moved to Megabay 1.",
+      "url": "https://x.com/RGVaerialphotos/status/2124262674834071685",
+      "at": "2026-11-21T22:04:23.000Z",
+      "date": "21 Nov"
+    },
+    {
       "id": "news-mwpis5m8-5f4faa",
       "kind": "news",
       "title": "🚀 Starship",
@@ -1938,18 +1947,6 @@
       "at": "2026-11-12T00:38:31.000Z",
       "date": "12 Nov",
       "flight": 15,
-      "later_flight": true
-    },
-    {
-      "id": "news-mwcrunp4-73e961",
-      "kind": "news",
-      "title": "🚀 Starship",
-      "body": "Ship 42 left megabay 2 and was inspected while the starlink box prepared for MB2 lift.",
-      "url": "https://x.com/Blobifie/status/2120665456411578615",
-      "at": "2026-11-11T23:50:19.000Z",
-      "date": "11 Nov",
-      "flight": 15,
-      "src": "@Blobifie",
       "later_flight": true
     }
   ],
