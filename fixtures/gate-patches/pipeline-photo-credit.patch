@@ -1,0 +1,61 @@
+diff -ru base-21nov/app.js app/app.js
+--- base-21nov/app.js	2026-11-21 17:35:58.695603321 +0000
++++ app/app.js	2026-11-21 17:35:58.771614465 +0000
+@@ -973,14 +973,15 @@
+   );
+ }
+ 
+-function PhotoSlot({ size, src, alt, onClick, credit = "SpaceX", focus }) {
++function PhotoSlot({ size, src, alt, onClick, credit = "SpaceX", label = null, focus }) {
+   const [failed, setFailed] = React.useState(false);
+   React.useEffect(() => setFailed(false), [src]);
+   if (src && !failed) {
+     return (
+       <div className={`photo photo-${size} has-img${onClick ? " tappable" : ""}`} onClick={onClick}>
+         <img src={src} alt={alt || ""} loading="lazy" onError={() => setFailed(true)} style={focus ? { objectPosition: focus } : undefined} />
+-        <span className="photo-credit">{credit}</span>
++        {label && <span className="photo-label">{label}</span>}
++        {credit && <span className="photo-credit">{credit}</span>}
+       </div>
+     );
+   }
+@@ -1155,7 +1156,7 @@
+     const img = v && (typeof v === "string" ? v : v.image);
+     if (!img) return null;
+     const focus = (v && typeof v === "object" && v.focus) ? v.focus : "center";
+-    return { src: img, label: (v && v.label) || vehName(id, kind), focus };
++    return { src: img, label: (v && v.label) || vehName(id, kind), credit: (v && typeof v === "object" && v.credit) || null, focus }; // pipeline-photo-credit: credit = publisher, never the vehicle
+   };
+   const b = one(vp.booster, "Booster", f.booster), sh = one(vp.ship, "Ship", f.ship);
+   return b || sh ? [b, sh] : null;
+@@ -1233,7 +1234,7 @@
+             <div className="gallery" data-vehicles={cardPhotos.some((p) => p.vehicle) ? "" : undefined}>
+               {cardPhotos.map((p, i) => (
+                 <PhotoSlot key={i}
+-                  size="wide" src={p.src} credit={p.label} focus={p.focus} alt={p.vehicle ? `${p.label} \u2014 Flight ${f.n}` : `${f.headline} \u2014 photo ${i + 1}`}
++                  size="wide" src={p.src} credit={p.vehicle ? p.credit : p.label} label={p.vehicle ? p.label : null} focus={p.focus} alt={p.vehicle ? `${p.label} \u2014 Flight ${f.n}` : `${f.headline} \u2014 photo ${i + 1}`}
+                   onClick={p.src ? () => onPhotoTap(p.src, p.vehicle ? `${p.label} \u2014 Flight ${f.n}` : `${f.headline} \u2014 photo ${i + 1}`) : undefined}
+                 />
+               ))}
+@@ -4017,7 +4018,7 @@
+     linear-gradient(180deg, rgba(26,34,54,0) 55%, rgba(26,34,54,.85) 100%),
+     linear-gradient(200deg, rgba(59,72,120,.35) 0%, rgba(26,34,54,0) 55%);
+ }
+-.gallery[data-vehicles] .photo-credit { font-size: 11px; font-weight: 700; color: rgba(240,244,252,.92); } /* the vehicle name */
++.photo-label { position: absolute; left: 8px; bottom: 6px; font-size: 11px; font-weight: 700; color: rgba(240,244,252,.92); z-index: 1; } /* the vehicle name (pipeline-photo-credit) */
+ .photo-credit { position: absolute; right: 8px; bottom: 6px; font-size: 9.5px; letter-spacing: .02em; color: rgba(228,234,246,.65); z-index: 1; }
+ .photo-thumb .photo-credit { display: none; } /* keep the small thumbnail clean; credit shows on the bigger gallery images */
+ .photo.tappable { cursor: pointer; }
+diff -ru base-21nov/road.json app/road.json
+--- base-21nov/road.json	2026-11-21 17:35:58.723607427 +0000
++++ app/road.json	2026-11-21 17:35:58.775615052 +0000
+@@ -1513,7 +1513,8 @@
+           "image": "images/f15-ship-v2.jpg",
+           "label": "Ship 42",
+           "note": "Gavin Richmond, Caught — Ship 42 in the chopsticks (https://x.com/tweetsiphotos/status/2121736134480859612, supplied by Bernardo, 15 Nov)",
+-          "focus": "50% 30%"
++          "focus": "50% 30%",
++          "credit": "Gavin Richmond"
+         }
+       }
+     }

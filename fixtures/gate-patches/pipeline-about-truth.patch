@@ -1,0 +1,27 @@
+diff -ru base-21nov/app.js app/app.js
+--- base-21nov/app.js	2026-11-21 17:35:58.695603321 +0000
++++ app/app.js	2026-11-21 17:36:06.324721795 +0000
+@@ -1300,6 +1300,12 @@
+   );
+ }
+ 
++// pipeline-data-checked: "Last checked" follows the checker (road.json updatedAt, cached by useRoad), never a hand-edited constant.
++function dataCheckedLabel() {
++  let at = null; try { const d = JSON.parse(localStorage.getItem(ROAD_CACHE_KEY)); at = d && d.updatedAt; } catch {}
++  if (at && !Number.isNaN(Date.parse(at))) return `${ukStamp(at, false)} · ${feedTime(at)}`;
++  return fmtDay(String(DATA_CHECKED).replace(new RegExp(" " + new Date().getFullYear() + "$"), ""));
++}
+ function AboutPanel({ open, onClose, onManageNotifications }) {
+   React.useEffect(() => {
+     if (!open) return;
+@@ -1315,8 +1321,8 @@
+         <h2>About</h2>
+         <p>A personal log of every Starship flight. No ads, no tracking.</p>
+         <dl>
+-          <dt>Photos</dt><dd>All photos by SpaceX, credited on each image.</dd>
+-          <dt>Flight data</dt><dd>Last checked {fmtDay(String(DATA_CHECKED).replace(new RegExp(" " + new Date().getFullYear() + "$"), ""))}.</dd>
++          <dt>Photos</dt><dd>Each photo is credited to whoever published it.</dd>
++          <dt>Flight data</dt><dd>Last checked {dataCheckedLabel()}.</dd>
+           <dt>Next flight</dt><dd>Launch dates move often. The countdown runs off the best known date and is tagged NET (estimated) until SpaceX confirms the exact time.</dd>
+         </dl>
+         {FEEDBACK_ENABLED && <FeedbackForm />}

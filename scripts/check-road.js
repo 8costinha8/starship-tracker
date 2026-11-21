@@ -1252,6 +1252,7 @@ function addToReview(file, items, now = Date.now(), write = true) {
 
 function commitAndPush(file, message) {
   const run = (cmd) => execSync(cmd, { cwd: ROOT, stdio: "pipe" });
+  require("./gate.js").assertClean({ root: ROOT, files: String(file).split(/\s+/).filter(Boolean) }); // deploy gate: a bad data write stops here
   run(`git config user.name "Starship Tracker Bot"`);
   run(`git config user.email "actions@github.com"`);
   run(`git add ${file}`);

@@ -1,0 +1,83 @@
+name: Mission alert
+
+# Timed catch / deorbit / result pushes for the current flight.
+# Dispatched by the flight checker (or by hand) with workflow_dispatch.
+# Does not change the flight-checker or keeper cadence.
+# Ship alerts (14 Nov): mode=watch re-reads road.json every 30 s and fires at the timeline time;
+# every real send first takes a one-send claim tag (alert-claim-<flight>-<key>), so the checker
+# dispatch, the watcher and a manual override can never send the same alert twice.
+# Result keys need a Tier 1 source_url. dry_run makes no FCM sends.
+
+on:
+  workflow_dispatch:
+    inputs:
+      key:
+        description: "Alert key: booster_soon, booster_result, deorbit_soon, ship_result (claimtest: CI claim test only, needs dry_run)"
+        required: true
+        type: string
+      outcome:
+        description: "Result outcome (caught, splashdown, lost) — result keys only"
+        required: false
+        type: string
+        default: ""
+      send_at:
+        description: "ISO time to send (sleep until then, max 6 hours)"
+        required: false
+        type: string
+        default: ""
+      mode:
+        description: "auto (send_at ⇒ wait, else now) · watch (follow the live timeline) · now (send at once)"
+        required: false
+        type: choice
+        options:
+          - auto
+          - watch
+          - now
+        default: auto
+      source_url:
+        description: "Result keys only: Tier 1 source confirming the outcome (SpaceX/NSF/Spaceflight Now/SpaceNews/FAA post or site)"
+        required: false
+        type: string
+        default: ""
+      flight:
+        description: "Flight number this alert is for (drives 'Flight N', the claim tag and the push-log key). Blank = from road.json only if that record has a liftoff"
+        required: false
+        type: string
+        default: ""
+      dry_run:
+        description: "Do everything except send a real push"
+        type: boolean
+        default: false
+  schedule:
+    # Flight 15 Ship 42 deorbit watcher (14 Nov, UTC = UK). Late cron is fine: the watcher just
+    # has to start before ~20:18. They pass flight 15 explicitly.
+    # WARNING: cron has no year field, so these REPEAT EVERY 14 NOVEMBER. Remove them after Flight 15.
+    - cron: "35 19 14 11 *"
+    - cron: "50 19 14 11 *"
+
+permissions:
+  contents: write
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install firebase-admin
+      - run: node scripts/mission-alert.js
+        env:
+          # claimtest never gets the Firebase secret (FCM hard-disabled for the CI claim test)
+          FIREBASE_SERVICE_ACCOUNT: ${{ inputs.key != 'claimtest' && secrets.FIREBASE_SERVICE_ACCOUNT || '' }}
+          ALERT_KEY: ${{ github.event_name == 'schedule' && 'deorbit_soon' || inputs.key }}
+          ALERT_MODE: ${{ github.event_name == 'schedule' && 'watch' || inputs.mode }}
+          ALERT_FLIGHT: ${{ github.event_name == 'schedule' && '15' || inputs.flight }}
+          ALERT_OUTCOME: ${{ inputs.outcome }}
+          SEND_AT: ${{ inputs.send_at }}
+          SOURCE_URL: ${{ inputs.source_url }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          # GITHUB_TOKEN is provided by Actions itself; used only to re-read road.json and take the claim tag
+          CI: true

@@ -210,6 +210,7 @@ function addFlightToAppJs(appJsText, flight) {
 }
 
 function commitAndPush(flightN, label) {
+  require("./gate.js").assertClean({ root: process.cwd(), files: ["app.js"] }); // deploy gate: a bad app.js write stops here
   execSync(`git config user.name "Starship Tracker Bot"`);
   execSync(`git config user.email "actions@github.com"`);
   execSync(`git add app.js`);
