@@ -8,14 +8,14 @@
       "last_ok": "2026-11-21T19:00:34.421Z"
     },
     "check-road": {
-      "at": "2026-11-21T18:00:29.355Z",
+      "at": "2026-11-21T20:00:48.222Z",
       "status": "ok",
       "error": null,
       "consecutive_failures": 0,
-      "last_ok": "2026-11-21T18:00:29.355Z"
+      "last_ok": "2026-11-21T20:00:48.222Z"
     }
   },
-  "updated": "2026-11-21T19:00:34.421Z",
+  "updated": "2026-11-21T20:00:48.222Z",
   "status": "ok",
   "consecutive_failures": 0,
   "alert": false,
@@ -23,7 +23,7 @@
     "at": "2026-11-14T21:31:42.993Z",
     "error": "Value for argument \"data\" is not a valid Firestore document. Cannot use \"undefined\" as a Firestore value (found in field \"pendingPush.url\"). If you want to ignore undefined values, enable `ignoreUndefinedProperties`."
   },
-  "committed_at": "2026-11-21T19:00:34.421Z",
+  "committed_at": "2026-11-21T20:00:48.222Z",
   "render_check": {
     "at": "2026-11-21T06:00:27.320Z",
     "status": "failed",
