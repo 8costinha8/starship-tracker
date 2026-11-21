@@ -936,9 +936,9 @@ function archiveLaunched(road, lastN) {
     }
     c.history = keep;
   }
-  if (road.flight <= lastN && road.milestones) { // the Road's own flight launched: freeze its vehicles' summary
+  if (road.flight <= lastN && (road.milestones || (preSummary && preSummary.items && preSummary.items.length))) { // the Road's own flight launched: freeze its vehicles' summary (rehearsal fix: a Road with no running `milestones` still freezes the box-based summary; before, the logged card got NO Road section)
     const a = slot(road.flight);
-    if (!a.summary) { const ms = milestones.buildSummary(road.milestones, road.vehicles), sm = preSummary && preSummary.items && preSummary.items.length && (!ms || preSummary.items.length >= ms.items.length) ? { ...preSummary, auto: true } : ms; if (sm) a.summary = sm; } // the fuller of the box-based and milestone-based summaries
+    if (!a.summary) { const ms = road.milestones ? milestones.buildSummary(road.milestones, road.vehicles) : null, sm = preSummary && preSummary.items && preSummary.items.length && (!ms || preSummary.items.length >= ms.items.length) ? { ...preSummary, auto: true } : ms; if (sm) a.summary = sm; } // the fuller of the box-based and milestone-based summaries
   }
   for (const k of Object.keys(arch)) if (arch[k].entries) arch[k].entries.sort((a, b) => b.when - a.when);
   if (Object.keys(arch).length) road.archive = arch;
