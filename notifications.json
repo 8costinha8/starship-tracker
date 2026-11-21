@@ -3407,6 +3407,18 @@
       "verdict": "silent: minor other — a push went out 0.0h ago (quiet window 24h)",
       "gate": "hold passed (1 run)",
       "key": "S44|other|20 Nov"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Booster 25's LOX landing tank was moved to Megabay 1.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mwqygy1k-5cfda7",
+      "url": "https://x.com/RGVaerialphotos/status/2124262674834071685",
+      "at": "2026-11-21T22:04:23.000Z",
+      "sent_at": "2026-11-21T22:45:26.421Z",
+      "where": "feed",
+      "verdict": "sent",
+      "gate": "hold passed (1 run)",
+      "key": "B25|transport|21 Nov"
     }
   ]
 }
