@@ -139,6 +139,10 @@ const dedupeRows = (h) => (h || []).filter((r) => r && !r.retracted && (r.verdic
 // big: SpaceX / Elon Flight N milestone or a correction (push-gate.js) → skips the quiet window (dedupe still applies)
 function decide(n, history, { now = Date.now(), vehicles = [], big = false } = {}) {
   const cls = classify(n, { vehicles, liftoffAt: liftoffFrom(history, now), now });
+  // Three-tier relevance model (push-tiers.js): when on, it alone decides what reaches a phone; the quiet-window promotion
+  // and the "big" bypass below are never used. Off by default (PUSH_TIERS=1 or push-tiers.json {"on":true} to switch on).
+  const tiers = require("./push-tiers.js");
+  if (tiers.enabled()) { const t = tiers.decide({ ...n, at: n.at || n.sent_at }, history, { now, vehicles, flight: arguments[2] && arguments[2].flight }); return { push: t.push, reason: t.reason, cls: { ...cls, tier: t.tier, event: t.event, tierKey: t.key } }; }
   const sent = sentRows(history);
   const dup = dedupeRows(history).find((r) => (r.key || classify(r, { vehicles }).key) === cls.key);
   if (dup && !big) return { push: false, reason: dup.dedupe_only ? `already on the card (silent backfill ${cls.key}) — not a new event` : `duplicate ${cls.key}`, cls };
