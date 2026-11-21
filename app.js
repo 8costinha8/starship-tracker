@@ -874,6 +874,24 @@ function withRoadFallback(f, road, now = nowMs()) {
     pad: typeof road.pad === "string" ? road.pad : f.pad };
 }
 
+// 21 Nov (B3, outage fallback): the checker writes data/next-launch.json each time Launch Library's next numbered flight changes
+// (and at least every 3 h): { n, net, precision, status, window_start, window_end, pad, vehicles, updatedAt }. When Launch Library
+// fails (429 / error / blocked) and the visitor has no usable cache, the hero uses it instead of "Date to be confirmed", labelled
+// "as of HH:MM UK". Never invented: no file, a file older than 6 h, a logged / finished flight, or a bad time → the honest TBC.
+const NEXT_LAUNCH_URL = "data/next-launch.json";
+const NEXT_LAUNCH_MAX_MS = 6 * 60 * 60 * 1000;
+function flightFromCheckerFile(j, now = nowMs()) {
+  if (!j || !Number.isInteger(j.n) || !j.net || !Number.isFinite(Date.parse(j.net)) || !j.updatedAt) return null;
+  const at = Date.parse(j.updatedAt);
+  if (!Number.isFinite(at) || now - at > NEXT_LAUNCH_MAX_MS || at > now + 60000) return null;
+  if (j.n <= LAST_LOGGED_N) return null; // already logged: not the next flight
+  const veh = Array.isArray(j.vehicles) ? j.vehicles.map(String) : [];
+  const d = { n: j.n, status: mapLL2Status(j.status), ll2Status: j.status, outcome: mapLL2Outcome(j.status), date: j.net, netPrecision: j.precision || "",
+    windowStart: j.window_start || null, windowEnd: j.window_end || null, pad: shortPad(j.pad), block: "", booster: veh.find((v) => /^B/i.test(v)) || "", ship: veh.find((v) => /^S/i.test(v)) || "",
+    headline: "", note: "Details to be announced.", fromChecker: true, asOf: at };
+  return isFinishedLaunch(d.n, d.status, d.date, now) ? null : d;
+}
+
 // Keeps the next-flight data fresh while the app is open: every hour normally,
 // every 5 minutes on launch day (isHot), paused while the tab is hidden, and
 // re-checked on return if stale. Every LL2 call goes through ll2Spend's
@@ -912,6 +930,20 @@ function useNextFlight() {
       setLive(g.data); setCheckedAt(g.at); setSettled(true);
       return true;
     };
+    // B3: nothing from Launch Library and nothing cached → the checker's snapshot (data/next-launch.json); live data always replaces it
+    let checkerAt = 0;
+    const applyChecker = () => {
+      if (getMock() || nowMs() - checkerAt < 5 * 60 * 1000) return;
+      checkerAt = nowMs();
+      fetch(NEXT_LAUNCH_URL, { cache: "no-store" }).then((r) => (r.ok ? r.json() : null)).then((j) => {
+        if (meta.data) return; // LL2 or a cache arrived meanwhile: they win
+        const d = flightFromCheckerFile(j);
+        if (!d) return;
+        meta = { ...meta, data: d, fetchedAt: d.asOf, ttl: RETRY_AFTER_FAIL_MS, url: null, listAt: 0 };
+        setLive(d); setCheckedAt(d.asOf); setSettled(true);
+      }).catch(() => {});
+    };
+    const ensureFallback = () => { if (!meta.data && !applyLastGood()) applyChecker(); };
     const finished = (d) => d && d.n != null && !d.placeholder && isFinishedLaunch(d.n, d.status, d.date);
     let busy = false;
     const load = () => {
@@ -921,9 +953,9 @@ function useNextFlight() {
       const d = meta.data;
       if (d && !finished(d) && now - meta.fetchedAt < meta.ttl) return; // still fresh
       if (now - meta.failedAt < RETRY_AFTER_FAIL_MS) return;
-      if (now < ll2BackoffUntil()) { setSettled(true); return; } // LL2 throttled us: wait until it said it frees up
+      if (now < ll2BackoffUntil()) { ensureFallback(); setSettled(true); return; } // LL2 throttled us: wait until it said it frees up
       const detailOnly = !!(d && meta.url && !finished(d) && isHot(d, now) && now - meta.listAt < LIST_EVERY_MS);
-      if (!ll2Spend(detailOnly ? 1 : 2)) { setSettled(true); return; } // over the hourly LL2 budget: a later tick tries again
+      if (!ll2Spend(detailOnly ? 1 : 2)) { ensureFallback(); setSettled(true); return; } // over the hourly LL2 budget: a later tick tries again
       busy = true;
       let seenMax = LAST_LOGGED_N;
       let listAt = meta.listAt;
@@ -940,7 +972,7 @@ function useNextFlight() {
         .then((url) => (!url ? null : url === "none" ? { url: null, full: "none" } : ll2Json(url).then((full) => ({ url, full }))))
         .then((res) => {
           // 13 Nov: a failed detail call is a failure, not "no next flight" (it used to cache a Flight N+2 placeholder for an hour)
-          if (!res || (res.full !== "none" && !res.full?.name)) { meta.failedAt = nowMs(); if (!meta.data) applyLastGood(); return; }
+          if (!res || (res.full !== "none" && !res.full?.name)) { meta.failedAt = nowMs(); ensureFallback(); return; }
           const data = res.full === "none" ? placeholderFlight(seenMax + 1) : flightFromLL2(res.full);
           const at = nowMs();
           meta = { data, fetchedAt: at, ttl: isHot(data, at) ? HOT_TTL_MS : CACHE_MS, url: res.url, listAt, failedAt: 0 };
@@ -948,7 +980,7 @@ function useNextFlight() {
           if (persist) { try { localStorage.setItem(CACHE_KEY, JSON.stringify(meta)); } catch {} }
           saveLastGood(data, res.url, at);
         })
-        .catch((err) => { meta.failedAt = nowMs(); noteLL2Failure(err); if (!meta.data) applyLastGood(); })
+        .catch((err) => { meta.failedAt = nowMs(); noteLL2Failure(err); ensureFallback(); })
         .finally(() => { busy = false; setSettled(true); });
     };
     load();
@@ -1128,6 +1160,7 @@ function NextFlightCard({ f, checkedAt, road, children }) {
         <p className="next-note">{cleanHeroNote(f.note)}</p>
       )}
       {heroMissionLines(road, f.n, f, now).map((line, i) => <p className="next-upd" key={i}>{line}</p>)}
+      {f.fromChecker && Number.isFinite(f.asOf) && <p className="next-upd next-asof">as of {fmtTimeLondon(new Date(f.asOf).toISOString())} UK</p>}
       {children}
     </section>
   );
