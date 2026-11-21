@@ -9,7 +9,7 @@ const app = fs.readFileSync(path.join(ROOT, "app.js"), "utf8");
 const line = (re) => { const m = app.match(re); if (!m) throw new Error("missing " + re); return m[0]; };
 const fnBody = (name) => app.slice(app.indexOf(`function ${name}(`), app.indexOf("\n}\n", app.indexOf(`function ${name}(`)) + 2);
 const block = (start, end) => app.slice(app.indexOf(start), app.indexOf(end, app.indexOf(start)));
-const src = [line(/const MON3 = [^\n]+/), line(/function ukParts[^\n]+/), fnBody("ukStamp"), line(/const sfIso = [^\n]+/), fnBody("feedTime"),
+const src = [fnBody("rtfCategoryVehicles"), fnBody("isVehId"), fnBody("roadVehicles"), line(/const MON3 = [^\n]+/), line(/function ukParts[^\n]+/), fnBody("ukStamp"), line(/const sfIso = [^\n]+/), fnBody("feedTime"),
   line(/const isRealEntry = [^\n]+/), fnBody("flightOf"), line(/const isDoneCard = [^\n]+/), line(/const cardIso = [^\n]+\n[^\n]+/), line(/const cardDate = [^\n]+/),
   line(/const logHw = [^\n]+/), line(/const urlOf = [^\n]+/), block("const RTF_PLACEHOLDER", "function rtfRows(")].join("\n");
 const { rtfCards, cardDate } = eval(`(() => { const window = {}; const entryDate = (h) => h.date || ""; const isYouTube = (u) => /youtu\\.?be/i.test(String(u || "")); ${src}\n return { rtfCards, cardDate }; })()`);

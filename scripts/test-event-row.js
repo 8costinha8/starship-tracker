@@ -7,7 +7,7 @@ let fails = 0; const check = (ok, m) => { console.log((ok ? "✅ " : "❌ ") + m
 const app = fs.readFileSync(path.join(ROOT, "app.js"), "utf8");
 const line = (re) => app.match(re)[0], block = (a, b) => app.slice(app.indexOf(a), app.indexOf(b, app.indexOf(a)));
 const fnBody = (n) => app.slice(app.indexOf(`function ${n}(`), app.indexOf("\n}\n", app.indexOf(`function ${n}(`)) + 2);
-const src = [line(/const isRealEntry = [^\n]+/), fnBody("flightOf"), line(/const sfIso = [^\n]+/), line(/const isDoneCard = [^\n]+/), line(/const cardIso = [^\n]+\n[^\n]+/), line(/const logHw = [^\n]+/), line(/const urlOf = [^\n]+/), block("const RTF_PLACEHOLDER", "function rtfRows(")].join("\n");
+const src = [fnBody("rtfCategoryVehicles"), fnBody("isVehId"), fnBody("roadVehicles"), line(/const isRealEntry = [^\n]+/), fnBody("flightOf"), line(/const sfIso = [^\n]+/), line(/const isDoneCard = [^\n]+/), line(/const cardIso = [^\n]+\n[^\n]+/), line(/const logHw = [^\n]+/), line(/const urlOf = [^\n]+/), block("const RTF_PLACEHOLDER", "function rtfRows(")].join("\n");
 const rtfCards = eval(`(() => { const window = {}; const entryDate = (h) => h.date || ""; const isYouTube = (u) => /youtu\\.?be/i.test(String(u || "")); ${src}\n return rtfCards; })()`);
 const roadUpdates = eval(`(() => { const MON3 = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]; const sfIso = () => ""; const ukStamp = (iso) => iso.slice(0, 10); const feedTime = () => ""; const fmtDay = (d) => d;
   ${line(/const upIso = [^\n]+/)}\n${fnBody("roadUpdates")}\n return roadUpdates; })()`);

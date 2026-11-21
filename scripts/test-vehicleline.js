@@ -13,7 +13,7 @@ function extract(name) {
   }
   return APP.slice(start, i);
 }
-const fns = new Function(`${extract("vehicleLabel")}\n${extract("vehicleLine")}\nreturn { vehicleLabel, vehicleLine };`)();
+const fns = new Function(`${extract("isVehId")}\n${extract("vehicleLabel")}\n${extract("vehicleLine")}\nreturn { vehicleLabel, vehicleLine };`)();
 const f15 = { block: "V3", booster: "B22", ship: "S42" };
 check(fns.vehicleLabel(f15) === "Vehicle V3", `F15 label: "${fns.vehicleLabel(f15)}"`);
 check(fns.vehicleLine(f15) === "Booster 22, Ship 42", `F15 value: "${fns.vehicleLine(f15)}"`);

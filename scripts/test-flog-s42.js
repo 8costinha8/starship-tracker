@@ -17,7 +17,7 @@ function extract(name) {
   return APP.slice(start, i);
 }
 const MON3 = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-const fns = new Function("MON3", `${extract("ukParts")}\n${extract("feedPadLines")}\n${extract("flogPadDisplay")}\nreturn { feedPadLines, flogPadDisplay };`)(MON3);
+const fns = new Function("MON3", `${extract("isVehId")}\n${extract("roadVehicles")}\n${extract("ukParts")}\n${extract("feedPadLines")}\n${extract("flogPadDisplay")}\nreturn { feedPadLines, flogPadDisplay };`)(MON3);
 const raw = F.boxes(live).pad;
 const s42raw = (raw.cards || []).find((c) => c.vehicle === "S42");
 check(s42raw && s42raw.lines[0] && /12 Sep/.test(s42raw.lines[0].day) && /lifted to catch height/.test(s42raw.lines[0].text), "boxes() S42 top line is still the 12 Sep pin (checkers unchanged)");

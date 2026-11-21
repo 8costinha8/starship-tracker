@@ -23,7 +23,7 @@ const ukPartsSrc = extract("ukParts");
 const lastSrc = extract("lastKnownNetLabel");
 const authSrc = extract("authoritativeNetLabel");
 const dispSrc = extract("launchDateDisplay");
-const fns = new Function("MON3", `${ukPartsSrc}\n${lastSrc}\n${authSrc}\n${dispSrc}\nreturn { lastKnownNetLabel, authoritativeNetLabel, launchDateDisplay };`)(MON3);
+const fns = new Function("MON3", `${extract("pinnedOfficialDate")}\n${ukPartsSrc}\n${lastSrc}\n${authSrc}\n${dispSrc}\nreturn { lastKnownNetLabel, authoritativeNetLabel, launchDateDisplay };`)(MON3);
 
 const fx = clone(live); delete fx.predicted; delete fx.official_date; delete fx.launched;
 const dc = fx.categories.find((c) => c.id === "date");

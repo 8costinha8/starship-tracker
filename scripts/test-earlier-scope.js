@@ -8,7 +8,7 @@ const app = fs.readFileSync(path.join(ROOT, "app.js"), "utf8");
 const line = (re) => { const m = app.match(re); if (!m) throw new Error("missing " + re); return m[0]; };
 const block = (start, end) => app.slice(app.indexOf(start), app.indexOf(end, app.indexOf(start)));
 const fnBody = (name) => app.slice(app.indexOf(`function ${name}(`), app.indexOf("\n}\n", app.indexOf(`function ${name}(`)) + 2);
-const src = [line(/const isRealEntry = [^\n]+/), fnBody("flightOf"), line(/const sfIso = [^\n]+/), line(/const isDoneCard = [^\n]+/), line(/const cardIso = [^\n]+\n[^\n]+/),
+const src = [fnBody("rtfCategoryVehicles"), fnBody("isVehId"), fnBody("roadVehicles"), line(/const isRealEntry = [^\n]+/), fnBody("flightOf"), line(/const sfIso = [^\n]+/), line(/const isDoneCard = [^\n]+/), line(/const cardIso = [^\n]+\n[^\n]+/),
   line(/const logHw = [^\n]+/), line(/const urlOf = [^\n]+/), block("const RTF_PLACEHOLDER", "function rtfRows(")].join("\n");
 const rtfCards = eval(`(() => { const window = {}; const entryDate = (h) => h.date || ""; const isYouTube = (u) => /youtu\.?be/i.test(String(u || "")); ${src}\n return rtfCards; })()`);
 const leak = "Booster 23 has returned to Megabay 1 from the Massey outpost";
