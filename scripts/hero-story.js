@@ -8,7 +8,7 @@ const fs = require("fs"), path = require("path");
 const ROOT = path.join(__dirname, "..");
 const WANT = ["heroOutcomeItems", "composeHeroParagraph"];
 const EXTRA = new Set(); // names only referenced lazily (found missing at call time), loaded on the next build
-function heroFns(src = fs.readFileSync(path.join(ROOT, "app.js"), "utf8")) {
+function heroFns(src = fs.readFileSync(path.join(ROOT, "app.js"), "utf8"), want = WANT) {
   const lines = src.split("\n"), starts = [];
   lines.forEach((l, i) => { const m = l.match(/^(?:async\s+)?(?:const|let|function)\s+([A-Za-z_$][\w$]*)/); if (m) starts.push({ name: m[1], i }); });
   const decl = (name) => { const k = starts.findIndex((s) => s.name === name); if (k < 0) return null;
@@ -16,11 +16,11 @@ function heroFns(src = fs.readFileSync(path.join(ROOT, "app.js"), "utf8")) {
     return lines.slice(starts[k].i, end).join("\n"); };
   const have = new Set(), parts = [];
   const add = (n) => { if (have.has(n)) return true; const d = decl(n); if (!d) return false; have.add(n); parts.unshift(d); return true; };
-  WANT.forEach(add); [...EXTRA].forEach(add);
+  want.forEach(add); [...EXTRA].forEach(add);
   const window = {}, React = { createElement() { return null; } }, document = {}, localStorage = { getItem() { return null; } };
   for (let tries = 0; tries < 300; tries++) {
     try {
-      const F = new Function("window", "React", "document", "localStorage", `${parts.join("\n")}\nreturn { ${WANT.join(", ")} };`)(window, React, document, localStorage);
+      const F = new Function("window", "React", "document", "localStorage", `${parts.join("\n")}\nreturn { ${want.join(", ")} };`)(window, React, document, localStorage);
       return F;
     } catch (e) {
       const m = String(e.message).match(/^(\w+) is not defined/) || String(e.message).match(/Cannot access '(\w+)' before initialization/);

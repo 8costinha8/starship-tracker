@@ -281,6 +281,8 @@ function liveDeps() {
     fetchJson,
     async loadState() { const snap = await stateRef.get(); return snap.exists ? snap.data() : null; },
     async saveState(st) { await stateRef.set(st); },
+    writeNextLaunch: (snap, needsWrite) => { const f = path.join(__dirname, "..", "data", "next-launch.json"); let prev = null; try { prev = JSON.parse(fs.readFileSync(f, "utf8")); } catch {}
+      if (needsWrite(prev, snap, Date.parse(snap.updatedAt))) { fs.mkdirSync(path.dirname(f), { recursive: true }); fs.writeFileSync(f, JSON.stringify(snap, null, 2) + "\n"); } },
     writeHandoff: (h) => fs.writeFileSync(path.join(process.env.RUNNER_TEMP || require("os").tmpdir(), "starship-next-flight.json"), JSON.stringify(h)),
     readAppJs: () => fs.readFileSync(APP_JS_PATH, "utf8"),
     writeAppJs: (text) => fs.writeFileSync(APP_JS_PATH, text),
@@ -356,6 +358,11 @@ async function run(deps) {
   // Hand the next flight to check-road.js (same job) for its predicted date. No git, no push.
   if (deps.writeHandoff) {
     try { deps.writeHandoff({ n: current.n, status: launch.status?.abbrev || "", date: launch.net, precision: current.precision, at: new Date(now()).toISOString() }); } catch {}
+  }
+
+  // B3: snapshot for the app's Launch-Library-outage fallback (data/next-launch.json; committed by check-road.js, same job)
+  if (deps.writeNextLaunch) {
+    try { const snap = require("./next-launch-snapshot.js").snapshotOf(pick, deps.readRoad ? deps.readRoad() : null, now()); if (snap) deps.writeNextLaunch(snap, require("./next-launch-snapshot.js").needsWrite); } catch (e) { console.log(`next-launch snapshot skipped: ${e.message}`); }
   }
 
   // 2. Load what we saw last time we ran

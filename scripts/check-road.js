@@ -1763,6 +1763,11 @@ async function run(opts = {}) {
     try { commit("notifications.json", `Auto: push log — ${pushLog.length} push(es)`); } catch (e) { log(`push log commit failed: ${e.message}`); }
   }
 
+  // 5b-2. B3: data/next-launch.json (written by check-flights.js earlier in this job) → committed when it changed
+  if (save && mode === "live") {
+    try { if (String(execSync("git status --porcelain data/next-launch.json", { cwd: ROOT, stdio: "pipe" })).trim()) commit("data/next-launch.json", "Auto: next launch snapshot (outage fallback)"); } catch (e) { log(`next-launch commit skipped: ${String(e.message).split("\n")[0]}`); }
+  }
+
   // 5c. Road posts with no vehicle/flight tag → review-queue.json (no card, no push; for a human to file)
   if (xf && (xf.review || []).length) {
     const reviewPath = opts.reviewPath || path.join(path.dirname(roadPath), "review-queue.json");
