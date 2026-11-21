@@ -32,9 +32,10 @@ const fs = require("fs");
 const path = require("path");
 const { execSync } = require("child_process");
 
-const LL2_ENDPOINT = "https://ll.thespacedevs.com/2.3.0/launches/upcoming/?search=Starship&limit=1&mode=list";
+const LL2_ENDPOINT = "https://ll.thespacedevs.com/2.3.0/launches/upcoming/?search=Starship&limit=10&mode=list"; // limit 10: the next NUMBERED flight is picked by scripts/next-flight.js, not "whatever LL2 lists first"
 const APP_JS_PATH = path.join(__dirname, "..", "app.js");
 const writer = require("./writer.js"); // xAI Grok only
+const nextFlight = require("./next-flight.js");
 
 function mapLL2Status(abbrev) {
   if (abbrev === "Go") return "confirmed";
@@ -334,12 +335,17 @@ async function run(deps) {
     console.log(`::warning::Watchdog: Launch Library unavailable (${String(err && err.message || "").slice(0, 80)}) — flight checker skipped this run`); // visible on the run page, not silent
     return { notification: null };
   }
-  const launch = json.results?.[0];
-  if (!launch) { console.log("No upcoming launch found — nothing to check."); return { notification: null }; }
+  const pick = nextFlight.pickNext(json.results);
+  const launch = pick.launch;
+  if (!launch) {
+    // Pipeline fix 1: never track an unnumbered mission (HLS demo, Superbird…) as "the next flight". No push, saved state untouched.
+    console.log(`No numbered next flight (${pick.reason}) — no date or status push this run.`);
+    console.log(`::warning::Watchdog: LL2 has no numbered Starship flight (${pick.reason}) — flight checker made no date push`);
+    return { notification: null, unresolved: true, reason: pick.reason };
+  }
 
-  const match = launch.name.match(/Flight (\d+)/);
   const current = {
-    n: match ? Number(match[1]) : null,
+    n: pick.n,
     status: mapLL2Status(launch.status?.abbrev),
     date: launch.net,
     precision: launch.net_precision?.abbrev || "",
@@ -427,6 +433,8 @@ async function run(deps) {
       // A different flight is now first in LL2's list: switch silently.
       // (check-road.js sends "🚀 Road to Flight N" at 09:00 the next morning.)
       console.log(`Now tracking Flight ${current.n} (was ${prev.n}) — no push for the switch.`);
+      // Pipeline fix 1: …unless the new flight arrives already with a real, confirmed time (Go + second/minute/hour precision).
+      if (current.status === "confirmed" && isExactTime(current.precision) && new Date(current.date) > now()) notification = { title: "✅ Launch time confirmed", body: `Flight ${current.n} · ${fmtDateTime(current.date)}` };
     } else if (current.status === "inflight") {
       // Liftoff: one push per flight. No date/status pushes while in the air
       // (LL2 usually moves "net" to the real liftoff time at this point).
@@ -436,6 +444,9 @@ async function run(deps) {
       }
     } else if (current.status === "done") {
       // the result push is the 🏁 one above
+    } else if (prev.date !== current.date && nextFlight.isCoarsePrecision(current.precision)) {
+      // Pipeline fix 1: a month / quarter / year placeholder is not a date worth a push ("Now 30 Sept 01:00" for a 2027 estimate)
+      console.log(`Flight ${current.n}: date moved to a ${current.precision}-precision placeholder (${current.date}) — no push.`);
     } else if (prev.date !== current.date) {
       const delayed = new Date(current.date) > new Date(prev.date);
       const timeUpgrade = isPlaceholderTimeUpgrade(prev, current);
