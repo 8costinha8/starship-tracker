@@ -210,7 +210,11 @@ function placePost(road, post, cls, now = Date.now(), picks = []) {
       h.tier = tier; if (hedge) h.hedged = true; else delete h.hedged; if (tier === 3 && claimed !== "expected") h.reported = claimed; else delete h.reported;
       if (cls.inferred) h.trust = "unconfirmed"; // the writer inferred the step from indirect evidence: shown, never moves a phase
       // a confirmed milestone card (media-cascade text_locked): wording, time, link and source post stay; only the phase moves
-      if (h.text_locked) { h.updates.shift(); } else {
+      // F5 (newest date wins): for the Launch date box the wording IS the fact, so a locked card still takes a NEWER date post
+      // (a scrub / new NET); every other box keeps its locked wording. An older or same-time post never rewrites it.
+      const dateTakesNewer = type === "launch_date" && at > Date.parse(h.at || 0) && h.text !== cls.text;
+      const dateOlder = type === "launch_date" && at < Date.parse(h.at || 0); // a late, older date post never rolls the box back
+      if ((h.text_locked && !dateTakesNewer) || dateOlder) { h.updates.shift(); } else { if (h.text_locked) { delete h.text_locked; delete h.media_locked; }
       if (logText) h.log_text = logText; else delete h.log_text;
       if (statusLine) h.status_line = statusLine; else delete h.status_line;
       delete h.push_text; delete h.card_text; Object.assign(h, { date: dayLabel(post.created_at), log_date: logDate, at: new Date(at).toISOString(), text: cls.text, x_text: cls.text, ...pair, url: post.url, src: `@${post.author.username}`, x_post: post });
@@ -230,6 +234,17 @@ function placePost(road, post, cls, now = Date.now(), picks = []) {
   if (prev) {
     const h = prev.h;
     h.x_posts = [...new Set([...(h.x_posts || []), post.post_id])];
+    // F5 (newest date wins), non-milestone path: a Launch date post with a NEWER, different date replaces the box wording (a scrub / new NET);
+    // the older line goes under it. An older or same-time post never rolls the box back. Other boxes are untouched.
+    if (cls.stage === "date" && at > Date.parse(h.at || 0) && cls.text && h.text !== cls.text) {
+      h.updates = [{ date: h.date, ...(h.log_date ? { log_date: h.log_date } : {}), at: h.at, text: h.x_text || h.text, url: h.url, src: h.src }, ...(h.updates || [])].slice(0, 6);
+      if (h.text_locked) { delete h.text_locked; delete h.media_locked; }
+      delete h.push_text; delete h.card_text; delete h.log_text; delete h.status_line;
+      Object.assign(h, { date: dayLabel(post.created_at), log_date: logDate, at: new Date(at).toISOString(), text: cls.text, x_text: cls.text, ...pair, url: post.url, src: `@${post.author.username}`, x_post: post });
+      if (logText) { h.log_text = logText; h.card_text = logText; }
+      if (statusLine) h.status_line = statusLine;
+      if (require("./summary-scope.js").inScope(road, h) && h.trust !== "unconfirmed") { prev.c.latest = cls.text.slice(0, 160); if (statusLine || logText) prev.c.log_latest = statusLine || require("./cleanup.js").shortLine(logText); }
+    }
     const cur = h.media_override ? { type: h.media_override.type } : null;
     if (m && mediaRank(m) > mediaRank(cur) && !lockedMedia(h)) { h.media_override = overrideFor(post, m); delete h.frameChecked; if (h.alt_media) h.alt_media.show = false; h.x_post = post; h.url = post.url; }
     return { box: prev.c, entry: h, merged: true, accurate, tier };
