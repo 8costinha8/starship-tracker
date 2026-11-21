@@ -1,6 +1,30 @@
 {
   "items": [
     {
+      "date": "2026-11-21T06:00:27.496Z",
+      "type": "render-crossover",
+      "item": "rtf-static-B23",
+      "values": [
+        "SpaceX may fly Flight 16 with Booster 23 and Ship 43."
+      ],
+      "sources": [],
+      "reason": "ship and booster lines never cross over",
+      "kept": null,
+      "msg": "Static fires · Booster 23 shows \"SpaceX may fly Flight 16 with Booster 23 and Ship 43.\" (names S43)"
+    },
+    {
+      "date": "2026-11-21T06:00:27.496Z",
+      "type": "render-crossover",
+      "item": "rtf-static-S43",
+      "values": [
+        "SpaceX may fly Flight 16 with Booster 23 and Ship 43."
+      ],
+      "sources": [],
+      "reason": "ship and booster lines never cross over",
+      "kept": null,
+      "msg": "Static fires · Ship 43 shows \"SpaceX may fly Flight 16 with Booster 23 and Ship 43.\" (names B23)"
+    },
+    {
       "date": "2026-11-19T06:01:06.518Z",
       "type": "render-tense",
       "item": "Flight Log pad Launch pad 19 Nov",

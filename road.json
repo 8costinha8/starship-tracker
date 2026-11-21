@@ -4,8 +4,8 @@
     "B23",
     "S43"
   ],
-  "updated": "20 Nov",
-  "updatedAt": "2026-11-20T22:00:56.830Z",
+  "updated": "21 Nov",
+  "updatedAt": "2026-11-21T06:00:27.499Z",
   "categories": [
     {
       "id": "cryo",
@@ -1527,7 +1527,8 @@
       "url": "https://x.com/SpaceX/status/2123898539352756617",
       "at": "2026-11-20T21:57:26.000Z",
       "date": "20 Nov",
-      "flight": 16
+      "flight": 16,
+      "src": "@SpaceX"
     },
     {
       "id": "news-mwpi6yi0-998e69",
@@ -1536,7 +1537,8 @@
       "body": "Frost was visible on Ship 44's methane tank at Massey's.",
       "url": "https://x.com/efraser77/status/2123894391177949549",
       "at": "2026-11-20T21:40:57.000Z",
-      "date": "20 Nov"
+      "date": "20 Nov",
+      "src": "@efraser77"
     },
     {
       "id": "news-mwpe749c-226041",
@@ -1556,7 +1558,8 @@
       "body": "Ship 44 and Booster 24 were together at Massey's for testing.",
       "url": "https://x.com/NASASpaceflight/status/2123774597967540724",
       "at": "2026-11-20T13:44:56.000Z",
-      "date": "20 Nov"
+      "date": "20 Nov",
+      "src": "@NASASpaceflight"
     },
     {
       "id": "news-mwokrjyw-87ace3",
@@ -1565,7 +1568,8 @@
       "body": "Booster 24 entered Highway 4 and headed to Massey's.",
       "url": "https://x.com/TrackingTheSB/status/2123658897949159619",
       "at": "2026-11-20T06:05:11.000Z",
-      "date": "20 Nov"
+      "date": "20 Nov",
+      "src": "@TrackingTheSB"
     },
     {
       "id": "news-mwo0j8u0-65a6e9",
@@ -2025,21 +2029,23 @@
     "https://pbs.twimg.com/media/HXdeREuXIAAswmd.jpg": "images/cache/media_HXdeREuXIAAswmd.jpg"
   },
   "self_check": {
-    "at": "2026-11-20T06:00:38.345Z",
-    "fixes": 3,
-    "flags": 3,
+    "at": "2026-11-21T06:00:27.320Z",
+    "fixes": 4,
+    "flags": 5,
     "counts": {
-      "source-badge": 3
+      "source-badge": 4
     },
     "judge_calls": 0,
     "flagged": [
       "[render-tense] Feed news-mwehc1so-0b6a15: \"Countdown started at Starbase for a potentially historic Starship mission.\" is a headline fragment (no subject article / auxiliary)",
       "[render-date] cryo B23: Flight Log shows 15 Oct, Road card shows 18 Oct · 05:51",
+      "[render-crossover] Static fires · Ship 43 shows \"SpaceX may fly Flight 16 with Booster 23 and Ship 43.\" (names B23)",
+      "[render-crossover] Static fires · Booster 23 shows \"SpaceX may fly Flight 16 with Booster 23 and Ship 43.\" (names S43)",
       "[render-mismatch] Flight Log cryo Booster 23 15 Oct: \"Booster 23 completed a cryo proof test at Massey's.\" ≠ Road card Cryo tests · Booster 23 › 16 Oct · 01:24: \"Booster 23 completed a cryo proof test.\" (same post https://x.com/StarshipGazer/status/2110889490336350574)"
     ],
     "render": {
       "status": "failed",
-      "failures": 3
+      "failures": 5
     }
   },
   "mission_updates": {
