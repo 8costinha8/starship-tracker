@@ -1,0 +1,568 @@
+{
+ "flight": 15,
+ "vehicles": [
+  "B22",
+  "S42"
+ ],
+ "hero_lines": {
+  "15": [
+   {
+    "stage": "booster",
+    "kind": "result",
+    "clause": "skipped the tower catch and splashed down in the Gulf",
+    "line": "Booster 22 skipped the tower catch and splashed down in the Gulf."
+   },
+   {
+    "stage": "ship",
+    "kind": "orbit",
+    "clause": "pressed on to orbit"
+   },
+   {
+    "stage": "ship",
+    "kind": "deploy",
+    "clause": "deployed 26 Starlink V3 satellites"
+   },
+   {
+    "stage": "ship",
+    "kind": "record",
+    "clause": "flying the longest Starship mission ever",
+    "clause_past": "flew the longest Starship mission ever"
+   },
+   {
+    "stage": "ship",
+    "kind": "result",
+    "clause": "was caught by the tower",
+    "line": "Ship 42 was caught by the tower."
+   }
+  ]
+ },
+ "mission_updates": {
+  "15": [
+   {
+    "topic": "objectives",
+    "line": "Starship Flight 15 aims to complete the first full mission profile (NSF reports, 12 Nov).",
+    "at": "2026-11-12T01:30:37.000Z",
+    "src": "@NASASpaceflight",
+    "url": "https://x.com/NASASpaceflight/status/2120690698668097998",
+    "post_id": "2120690698668097998"
+   },
+   {
+    "topic": "landing",
+    "line": "SpaceX attempts to catch Ship 42 on Flight 15 at Pad 2 (NASASpaceflight, 14 Nov).",
+    "at": "2026-11-14T21:02:40.000Z",
+    "src": "@NASASpaceflight",
+    "url": "https://x.com/NASASpaceflight/status/2121710428619145690",
+    "post_id": "2121710428619145690"
+   },
+   {
+    "topic": "landing",
+    "line": "Ship catch anticipated in about 15 minutes on Flight 15 (SpaceflightNow, 14 Nov).",
+    "at": "2026-11-14T21:05:49.000Z",
+    "src": "@SpaceflightNow",
+    "url": "https://x.com/SpaceflightNow/status/2121711220961038492",
+    "post_id": "2121711220961038492"
+   },
+   {
+    "topic": "trajectory",
+    "line": "Ship 42 is over land during reentry (NASASpaceflight, 14 Nov).",
+    "at": "2026-11-14T21:10:11.000Z",
+    "src": "@NASASpaceflight",
+    "url": "https://x.com/NASASpaceflight/status/2121712319713427869",
+    "post_id": "2121712319713427869"
+   },
+   {
+    "topic": "catch",
+    "line": "SpaceX attempts to catch Ship 42 on Flight 15 (NASASpaceflight, 14 Nov).",
+    "at": "2026-11-14T21:15:34.000Z",
+    "src": "@NASASpaceflight",
+    "url": "https://x.com/NASASpaceflight/status/2121713674326880348",
+    "post_id": "2121713674326880348"
+   }
+  ]
+ },
+ "mission_alerts": {
+  "flight": 15,
+  "liftoff_actual": "2026-11-13T22:47:36.000Z",
+  "liftoff_source": "ll2",
+  "events": [
+   {
+    "key": "booster_soon",
+    "t_plus": "00:01:35",
+    "title": "\ud83c\udfaf Booster catch in 5 min",
+    "body": "Watch live"
+   },
+   {
+    "key": "booster_result"
+   },
+   {
+    "key": "deorbit_soon",
+    "t_plus": "21:30:57",
+    "title": "\u23f1\ufe0f Deorbit in 5 min",
+    "body": "Watch live"
+   },
+   {
+    "key": "ship_result"
+   }
+  ],
+  "abort": {},
+  "overrides": {},
+  "dispatched": {
+   "deorbit_soon": "2026-11-14T20:18:33.000Z"
+  },
+  "template": [
+   {
+    "key": "booster_soon",
+    "title": "\ud83c\udfaf Booster catch in 5 min",
+    "body": "Watch live"
+   },
+   {
+    "key": "booster_result"
+   },
+   {
+    "key": "deorbit_soon",
+    "title": "\u23f1\ufe0f Deorbit in 5 min",
+    "body": "Watch live"
+   },
+   {
+    "key": "ship_result"
+   }
+  ]
+ },
+ "rejected_lines": [
+  {
+   "box": "cryo",
+   "hardware": "S42",
+   "date": "9 Sep",
+   "text": "Ship 42 heads back to Massey's for further cryo testing.",
+   "why": "Seed line from 7 Oct (no link, 'NSF (secondary)'): the 9 Oct NSF story mis-dated 9 Sep. S42 had no cryo test on 9 Sep."
+  },
+  {
+   "box": "mission",
+   "post_id": "2112543527481876848",
+   "text": "Payload deployment sequence is complete",
+   "why": "Falcon 9 / Starlink post, not Starship (removed 28 Oct)"
+  }
+ ],
+ "feed_items": [
+  {
+   "id": "news-mwfrawn4-bdc159",
+   "kind": "news",
+   "title": "\ud83d\ude80 Starship",
+   "body": "Ship 42 passed the point where Ship 41 made its landing burn and splashdown.",
+   "url": "https://x.com/Blobifie/status/2121422433534222651",
+   "at": "2026-11-14T01:58:16.000Z",
+   "date": "14 Nov",
+   "flight": 15,
+   "box": "static",
+   "src": "@Blobifie"
+  },
+  {
+   "id": "news-mwfpvcxk-0a40f7",
+   "kind": "news",
+   "title": "\ud83d\ude80 Starship",
+   "body": "Starship launched on Flight 15 and booster catch was called off.",
+   "url": "https://x.com/SpaceNews_Inc/status/2121412342994858309",
+   "at": "2026-11-14T01:18:11.000Z",
+   "date": "14 Nov",
+   "flight": 15,
+   "src": "@SpaceNews_Inc"
+  },
+  {
+   "id": "news-mwfndx0w-79c0e0",
+   "kind": "news",
+   "title": "\ud83d\ude80 Starship",
+   "body": "Starship entered a long coast phase around Earth.",
+   "url": "https://x.com/SpaceX/status/2121394839954874797",
+   "at": "2026-11-14T00:08:38.000Z",
+   "date": "14 Nov",
+   "flight": 15,
+   "src": "@SpaceX"
+  },
+  {
+   "id": "news-mwfnbr3c-b53f69",
+   "kind": "news",
+   "title": "\ud83d\ude80 Starship",
+   "body": "Ship 42 deployed twenty six V3 Starlink satellites and closed its payload bay door.",
+   "url": "https://x.com/LabPadre/status/2121394419421077960",
+   "at": "2026-11-14T00:06:57.000Z",
+   "date": "14 Nov",
+   "flight": 15,
+   "box": "pad",
+   "src": "@LabPadre"
+  },
+  {
+   "id": "news-mwfn8vp4-3123db",
+   "kind": "news",
+   "title": "\ud83d\ude80 Starship",
+   "body": "Ship 42 passed the first Hawaii return window and will stay in orbit.",
+   "url": "https://x.com/LabPadre/status/2121393857573138712",
+   "at": "2026-11-14T00:04:43.000Z",
+   "date": "14 Nov",
+   "flight": 15,
+   "box": "pad",
+   "src": "@LabPadre"
+  },
+  {
+   "id": "news-mwfn24n4-4a303e",
+   "kind": "news",
+   "title": "\ud83d\ude80 Starship",
+   "body": "Starship continued flight past Hawaii.",
+   "url": "https://x.com/TrackingTheSB/status/2121392533418786992",
+   "at": "2026-11-13T23:59:28.000Z",
+   "date": "13 Nov",
+   "flight": 15,
+   "src": "@TrackingTheSB"
+  },
+  {
+   "id": "flight-mwfkybz8-c6bb88",
+   "kind": "flight",
+   "title": "\ud83d\ude80 Liftoff!",
+   "body": "Flight 15 is in the air \u00b7 Watch now",
+   "at": "2026-11-13T23:00:31.652Z",
+   "date": "13 Nov",
+   "flight": 15
+  },
+  {
+   "id": "flight-mwfivx1x-95ee39",
+   "kind": "flight",
+   "title": "\ud83d\udce1 Livestream ready",
+   "body": "Liftoff in 60 min - tap to watch",
+   "at": "2026-11-13T22:02:39.765Z",
+   "date": "13 Nov",
+   "flight": 15
+  },
+  {
+   "id": "flight-mwfit5i8-ba5006",
+   "kind": "flight",
+   "title": "\ud83d\udea7 Launch delayed",
+   "body": "Now 13 Nov 22:47",
+   "at": "2026-11-13T22:00:30.752Z",
+   "date": "13 Nov",
+   "flight": 15
+  },
+  {
+   "id": "flight-mwfi9kn7-95ee39",
+   "kind": "flight",
+   "title": "\ud83d\udce1 Livestream ready",
+   "body": "Liftoff in 60 min - tap to watch",
+   "at": "2026-11-13T21:45:17.251Z",
+   "date": "13 Nov",
+   "flight": 15
+  },
+  {
+   "id": "flight-mwfdg7kn-8cd844",
+   "kind": "flight",
+   "title": "\u2705 Launch time confirmed",
+   "body": "13 Nov 22:45",
+   "at": "2026-11-13T19:30:28.823Z",
+   "date": "13 Nov",
+   "flight": 15
+  },
+  {
+   "id": "news-mweuujoo-85363c",
+   "kind": "news",
+   "title": "\ud83d\ude80 Starship",
+   "body": "Starship Flight 15 was twelve hours from launch as the FAA had not issued a licence.",
+   "url": "https://x.com/Blobifie/status/2121193796138676522",
+   "at": "2026-11-13T10:49:45.000Z",
+   "date": "13 Nov",
+   "flight": 15,
+   "src": "@Blobifie"
+  },
+  {
+   "id": "news-mwehc1so-0b6a15",
+   "kind": "news",
+   "title": "\ud83d\ude80 Starship",
+   "body": "Countdown started at Starbase for a potentially historic Starship mission.",
+   "url": "https://x.com/NASASpaceflight/status/2121098593297699100",
+   "at": "2026-11-13T04:31:27.000Z",
+   "date": "13 Nov",
+   "flight": 15,
+   "src": "@NASASpaceflight"
+  },
+  {
+   "id": "news-mwedf26g-01f0ab",
+   "kind": "news",
+   "title": "\ud83d\ude80 Starship",
+   "body": "Alignment markers were added to Ship 42.",
+   "url": "https://x.com/TrackingTheSB/status/2121071003577315825",
+   "at": "2026-11-13T02:41:49.000Z",
+   "date": "13 Nov",
+   "flight": 15,
+   "box": "pad",
+   "src": "@TrackingTheSB"
+  },
+  {
+   "id": "news-mwecycbs-a8f35c",
+   "kind": "news",
+   "title": "\ud83d\ude80 Starship",
+   "body": "Ship 42 arrived at the launch site and was stacked onto Booster 21.",
+   "url": "https://x.com/RGVaerialphotos/status/2121067732984885419",
+   "at": "2026-11-13T02:28:49.000Z",
+   "date": "13 Nov",
+   "flight": 15,
+   "box": "pad",
+   "src": "@RGVaerialphotos"
+  },
+  {
+   "id": "news-mweajln4-cff1cb",
+   "kind": "news",
+   "title": "\ud83d\ude80 Starship",
+   "body": "The SQD was connected to Ship 42.",
+   "url": "https://x.com/TrackingTheSB/status/2121050758389154027",
+   "at": "2026-11-13T01:21:22.000Z",
+   "date": "13 Nov",
+   "flight": 15,
+   "box": "pad",
+   "src": "@TrackingTheSB"
+  },
+  {
+   "id": "news-mwe9iewo-e9b8c0",
+   "kind": "news",
+   "title": "\ud83d\ude80 Starship",
+   "body": "Ship 42 was stacked on Booster 22 ahead of launch.",
+   "url": "https://x.com/LabPadre/status/2121043480411525168",
+   "at": "2026-11-13T00:52:27.000Z",
+   "date": "13 Nov",
+   "flight": 15,
+   "box": "pad",
+   "src": "@LabPadre"
+  },
+  {
+   "id": "news-mwdv1ilc-0c30dd",
+   "kind": "news",
+   "title": "\ud83d\ude80 Starship",
+   "body": "A batch of NOTAMs was released ahead of Flight 15.",
+   "url": "https://x.com/LabPadre/status/2120941544416944336",
+   "at": "2026-11-12T18:07:24.000Z",
+   "date": "12 Nov",
+   "flight": 15,
+   "src": "@LabPadre"
+  },
+  {
+   "id": "news-mwdtbrlk-dc662f",
+   "kind": "news",
+   "title": "\ud83d\ude80 Starship",
+   "body": "Ship 42 left Megabay 2 after its starlinks were installed.",
+   "url": "https://x.com/Blobifie/status/2120929463701787055",
+   "at": "2026-11-12T17:19:23.000Z",
+   "date": "12 Nov",
+   "flight": 15,
+   "box": "pad",
+   "src": "@Blobifie"
+  },
+  {
+   "id": "news-mwcygodc-9eb18d",
+   "kind": "news",
+   "title": "\ud83d\ude80 Starship",
+   "body": "Ship 42 was moved back inside Megabay 2 to have its Starlink V3s installed.",
+   "url": "https://x.com/Blobifie/status/2120712033742291274",
+   "at": "2026-11-12T02:55:24.000Z",
+   "date": "12 Nov",
+   "flight": 15,
+   "box": "static",
+   "src": "@Blobifie"
+  },
+  {
+   "id": "news-mwctll4o-24a390",
+   "kind": "news",
+   "title": "\ud83d\ude80 Starship",
+   "body": "Starship Flight 15 aims were detailed.",
+   "url": "https://www.youtube.com/watch?v=sUT812Icv7Y",
+   "at": "2026-11-12T00:39:15.000Z",
+   "date": "12 Nov",
+   "flight": 15
+  },
+  {
+   "id": "news-mwctkn6g-276b89",
+   "kind": "news",
+   "title": "\ud83d\ude80 Starship",
+   "body": "Ship 42 was rolled to Pad 2 for Flight 15.",
+   "url": "https://www.youtube.com/watch?v=nTP0658r-Ak",
+   "at": "2026-11-12T00:38:31.000Z",
+   "date": "12 Nov",
+   "flight": 15,
+   "box": "pad"
+  },
+  {
+   "id": "news-mwcrunp4-73e961",
+   "kind": "news",
+   "title": "\ud83d\ude80 Starship",
+   "body": "Ship 42 left megabay 2 and was inspected while the starlink box prepared for MB2 lift.",
+   "url": "https://x.com/Blobifie/status/2120665456411578615",
+   "at": "2026-11-11T23:50:19.000Z",
+   "date": "11 Nov",
+   "flight": 15,
+   "box": "pad",
+   "src": "@Blobifie"
+  },
+  {
+   "id": "news-mwcofsuw-afd53b",
+   "kind": "news",
+   "title": "\ud83d\ude80 Starship",
+   "body": "Starlink speed loader left Starfactory to load Ship 42.",
+   "url": "https://x.com/NASASpaceflight/status/2120641416384922015",
+   "at": "2026-11-11T22:14:47.000Z",
+   "date": "11 Nov",
+   "flight": 15,
+   "box": "pad",
+   "src": "@NASASpaceflight"
+  },
+  {
+   "id": "news-mwbqjkm8-692ead",
+   "kind": "news",
+   "title": "\ud83d\ude80 Starship",
+   "body": "The transport stand returned to production.",
+   "url": "https://x.com/efraser77/status/2120402630681960485",
+   "at": "2026-11-11T06:25:56.000Z",
+   "date": "11 Nov",
+   "flight": 15,
+   "src": "@efraser77"
+  },
+  {
+   "id": "news-mwa6mpnk-feff22",
+   "kind": "news",
+   "title": "\ud83d\ude80 Starship",
+   "body": "Booster 22 was lifted to the top of the tower.",
+   "url": "https://x.com/RGVaerialphotos/status/2120008731362754606",
+   "at": "2026-11-10T04:20:44.000Z",
+   "date": "10 Nov",
+   "flight": 15,
+   "box": "pad",
+   "src": "@RGVaerialphotos"
+  },
+  {
+   "id": "news-mwa4zkso-902bd2",
+   "kind": "news",
+   "title": "\ud83d\ude80 Starship",
+   "body": "Booster 22 was lifted for installation on Pad 2.",
+   "url": "https://x.com/NASASpaceflight/status/2119997160473141572",
+   "at": "2026-11-10T03:34:45.000Z",
+   "date": "10 Nov",
+   "flight": 15,
+   "box": "pad",
+   "src": "@NASASpaceflight"
+  },
+  {
+   "id": "news-mw9rrxc8-6ac1cd",
+   "kind": "news",
+   "title": "\ud83d\ude80 Starship",
+   "body": "Booster 22 was brought out of Megabay 1.",
+   "url": "https://x.com/LabPadre/status/2119904079321412037",
+   "at": "2026-11-09T21:24:53.000Z",
+   "date": "9 Nov",
+   "flight": 15,
+   "box": "pad",
+   "src": "@LabPadre"
+  },
+  {
+   "id": "news-mw9izwso-d561fb",
+   "kind": "news",
+   "title": "\ud83d\ude80 Starship",
+   "body": "A new marine hazard area was issued for Flight 15.",
+   "url": "https://x.com/LabPadre/status/2119842240050676139",
+   "at": "2026-11-09T17:19:09.000Z",
+   "date": "9 Nov",
+   "flight": 15,
+   "src": "@LabPadre"
+  },
+  {
+   "id": "news-mw9e45mw-826155",
+   "kind": "news",
+   "title": "\ud83d\ude80 Starship",
+   "body": "A launch advisory was issued for Starship Flight 15 reentry.",
+   "url": "https://x.com/LabPadre/status/2119807846019706982",
+   "at": "2026-11-09T15:02:29.000Z",
+   "date": "9 Nov",
+   "flight": 15,
+   "src": "@LabPadre"
+  },
+  {
+   "id": "news-mw9e42js-6ba6fe",
+   "kind": "news",
+   "title": "\ud83d\ude80 Starship",
+   "body": "A launch advisory was issued for Starship Flight 15 at Starbase.",
+   "url": "https://x.com/LabPadre/status/2119807831092195435",
+   "at": "2026-11-09T15:02:25.000Z",
+   "date": "9 Nov",
+   "flight": 15,
+   "src": "@LabPadre"
+  },
+  {
+   "id": "news-mw8o32ao-ae633c",
+   "kind": "news",
+   "title": "\ud83d\ude80 Starship",
+   "body": "SpaceX rolled Booster 22 to Starbase Pad 2.",
+   "url": "https://www.youtube.com/watch?v=gK4lb6ifxkY",
+   "at": "2026-11-09T02:53:48.000Z",
+   "date": "9 Nov",
+   "flight": 15,
+   "box": "pad"
+  },
+  {
+   "id": "news-mw75hriw-5e45dd",
+   "kind": "news",
+   "title": "\ud83d\ude80 Starship",
+   "body": "SpaceX stated readiness for a Starship tower catch attempt.",
+   "url": "https://x.com/SpaceflightNow/status/2119239880920510952",
+   "at": "2026-11-08T01:25:35.000Z",
+   "date": "8 Nov",
+   "flight": 15,
+   "src": "@SpaceflightNow"
+  },
+  {
+   "id": "news-mw72afio-c6e295",
+   "kind": "news",
+   "title": "\ud83d\ude80 Starship",
+   "body": "Starbase was prepared for a Flight 15 double catch.",
+   "url": "https://www.youtube.com/watch?v=gX3xmAalnPk",
+   "at": "2026-11-07T23:55:54.000Z",
+   "date": "7 Nov",
+   "flight": 15
+  },
+  {
+   "id": "news-mw6lov68-8f7179",
+   "kind": "news",
+   "title": "\ud83d\ude80 Starship",
+   "body": "Ship 42 was confirmed for a catch attempt on Flight 15.",
+   "url": "https://x.com/Blobifie/status/2119100371696263652",
+   "at": "2026-11-07T16:11:14.000Z",
+   "date": "7 Nov",
+   "flight": 15,
+   "box": "pad",
+   "src": "@Blobifie"
+  },
+  {
+   "id": "news-mw6licls-0b2f64",
+   "kind": "news",
+   "title": "\ud83d\ude80 Starship",
+   "body": "Flight controllers gained options to tumble Starship on reentry.",
+   "url": "https://x.com/Blobifie/status/2119099099039571987",
+   "at": "2026-11-07T16:06:10.000Z",
+   "date": "7 Nov",
+   "flight": 15,
+   "src": "@Blobifie"
+  },
+  {
+   "id": "flight-mw6lawnq-3cabdd",
+   "kind": "flight",
+   "title": "\ud83d\udcc5 New estimated time",
+   "body": "NET 13 Nov \u00b7 22:45 UK",
+   "at": "2026-11-07T16:00:22.742Z",
+   "date": "7 Nov",
+   "flight": 15
+  },
+  {
+   "id": "launch_date-mw6kyrcw-475819",
+   "kind": "launch_date",
+   "title": "\ud83d\udcc5 Flight 15",
+   "body": "SpaceX set the launch window for 13 Nov at 22:45 UK.",
+   "url": "https://www.spacex.com/launches/starship-flight-15",
+   "at": "2026-11-07T15:50:56.000Z",
+   "date": "7 Nov",
+   "flight": 15,
+   "box": "date"
+  }
+ ],
+ "_note": "Subset of road.json at dac2d2b^ (14 Nov 2026 21:30 UK, parent of the commit that logged Flight 15 with the false story). Only the hero data."
+}
