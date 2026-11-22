@@ -4,8 +4,8 @@
     "B23",
     "S43"
   ],
-  "updated": "21 Nov",
-  "updatedAt": "2026-11-21T22:45:24.603Z",
+  "updated": "22 Nov",
+  "updatedAt": "2026-11-22T06:00:30.737Z",
   "categories": [
     {
       "id": "cryo",
@@ -1526,7 +1526,8 @@
       "body": "Booster 25's LOX landing tank was moved to Megabay 1.",
       "url": "https://x.com/RGVaerialphotos/status/2124262674834071685",
       "at": "2026-11-21T22:04:23.000Z",
-      "date": "21 Nov"
+      "date": "21 Nov",
+      "src": "@RGVaerialphotos"
     },
     {
       "id": "news-mwpis5m8-5f4faa",
@@ -2026,11 +2027,11 @@
     "https://pbs.twimg.com/media/HXdeREuXIAAswmd.jpg": "images/cache/media_HXdeREuXIAAswmd.jpg"
   },
   "self_check": {
-    "at": "2026-11-21T06:00:27.320Z",
-    "fixes": 4,
+    "at": "2026-11-22T06:00:30.484Z",
+    "fixes": 1,
     "flags": 5,
     "counts": {
-      "source-badge": 4
+      "source-badge": 1
     },
     "judge_calls": 0,
     "flagged": [
