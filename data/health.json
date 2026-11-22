@@ -1,11 +1,11 @@
 {
   "scripts": {
     "check-flights": {
-      "at": "2026-11-22T21:15:21.285Z",
+      "at": "2026-11-22T23:15:30.588Z",
       "status": "ok",
       "error": null,
       "consecutive_failures": 0,
-      "last_ok": "2026-11-22T21:15:21.285Z"
+      "last_ok": "2026-11-22T23:15:30.588Z"
     },
     "check-road": {
       "at": "2026-11-22T22:15:26.069Z",
@@ -15,7 +15,7 @@
       "last_ok": "2026-11-22T22:15:26.069Z"
     }
   },
-  "updated": "2026-11-22T22:15:26.069Z",
+  "updated": "2026-11-22T23:15:30.588Z",
   "status": "ok",
   "consecutive_failures": 0,
   "alert": false,
@@ -23,7 +23,7 @@
     "at": "2026-11-14T21:31:42.993Z",
     "error": "Value for argument \"data\" is not a valid Firestore document. Cannot use \"undefined\" as a Firestore value (found in field \"pendingPush.url\"). If you want to ignore undefined values, enable `ignoreUndefinedProperties`."
   },
-  "committed_at": "2026-11-22T22:15:26.069Z",
+  "committed_at": "2026-11-22T23:15:30.588Z",
   "render_check": {
     "at": "2026-11-22T06:00:30.484Z",
     "status": "failed",
@@ -38,11 +38,11 @@
   },
   "sources": {
     "ll2": {
-      "at": "2026-11-22T21:15:21.285Z",
+      "at": "2026-11-22T23:15:30.588Z",
       "status": "ok",
       "error": null,
       "consecutive_failures": 0,
-      "last_ok": "2026-11-22T21:15:21.285Z"
+      "last_ok": "2026-11-22T23:15:30.588Z"
     }
   },
   "missed_runs_24h": 0,
