@@ -327,23 +327,15 @@
             "image": "https://pbs.twimg.com/media/HU4y2cUbwAE6od-.jpg"
           },
           "tier": 2,
-          "milestone": {
-            "key": "cryo_test|16|B23",
-            "type": "cryo_test",
-            "flight": 16,
-            "hardware": "B23",
-            "phase": "completed",
-            "migrated": true
-          },
-          "complete": true,
-          "log_text": "Booster 23 rolled back to the production site after cryo testing."
+          "log_text": "Booster 23 rolled back to the production site after cryo testing.",
+          "data_fix": "22 Nov reliability-b1 data fix: was a second 'completed' record for cryo_test|16|B23 (milestone {\"key\": \"cryo_test|16|B23\", \"type\": \"cryo_test\", \"flight\": 16, \"hardware\": \"B23\", \"phase\": \"completed\", \"migrated\": true}); the completion is the 16 Oct StarshipGazer cryo proof test, this is the rollback after it"
         },
         {
           "id": "x-2110889490336350574",
-          "date": "15 Oct",
+          "date": "16 Oct",
           "at": "2026-10-16T00:24:07.000Z",
-          "text": "Booster 23 completed a cryo proof test.",
-          "x_text": "Booster 23 completed a cryo proof test.",
+          "text": "Booster 23 completed a cryo proof test at Massey's.",
+          "x_text": "Booster 23 completed a cryo proof test at Massey's.",
           "src": "@StarshipGazer",
           "source": "StarshipGazer",
           "trust": "trusted",
@@ -400,7 +392,7 @@
           },
           "hardware": "B23",
           "stage": "cryo",
-          "data_fix": "30 Oct audit: hardware/stage were empty (B23 cryo proof test, 15 Oct BST)"
+          "data_fix": "30 Oct audit: hardware/stage were empty (B23 cryo proof test, 15 Oct BST); 22 Nov reliability-b1 data fix: one wording on Flight Log + Road, date = UK day of the StarshipGazer post (16 Oct 01:24 UK; 15 Oct in Texas)"
         },
         {
           "id": "f16-b23-2109929503925625050",
@@ -1526,7 +1518,7 @@
       "body": "Booster 25's LOX landing tank was moved to Megabay 1.",
       "url": "https://x.com/RGVaerialphotos/status/2124262674834071685",
       "at": "2026-11-21T22:04:23.000Z",
-      "date": "21 Nov",
+      "date": "20 Nov",
       "src": "@RGVaerialphotos"
     },
     {
@@ -1537,8 +1529,9 @@
       "url": "https://x.com/SpaceX/status/2123898539352756617",
       "at": "2026-11-20T21:57:26.000Z",
       "date": "20 Nov",
-      "flight": 16,
-      "src": "@SpaceX"
+      "flight": 15,
+      "src": "@SpaceX",
+      "later_flight": true
     },
     {
       "id": "news-mwpi6yi0-998e69",
@@ -1559,7 +1552,7 @@
       "at": "2026-11-20T19:49:06.000Z",
       "date": "20 Nov",
       "flight": 16,
-      "box": "static"
+      "data_fix": "22 Nov reliability-b1 data fix: was filed in Static fires, so both the Ship 43 and Booster 23 static-fire cards showed this shared line; it is a crew/vehicle plan, not a static fire"
     },
     {
       "id": "news-mwp16sow-322d70",
@@ -1589,8 +1582,9 @@
       "url": "https://x.com/SpaceX/status/2123516375805379040",
       "at": "2026-11-19T20:38:51.000Z",
       "date": "19 Nov",
-      "flight": 16,
-      "src": "@SpaceX"
+      "flight": 15,
+      "src": "@SpaceX",
+      "later_flight": true
     },
     {
       "id": "news-mwnvdvzs-cfb68e",
@@ -1620,8 +1614,9 @@
       "url": "https://x.com/SpaceX/status/2122814338893332591",
       "at": "2026-11-17T22:09:13.000Z",
       "date": "17 Nov",
-      "flight": 16,
-      "src": "@SpaceX"
+      "flight": 15,
+      "src": "@SpaceX",
+      "later_flight": true
     },
     {
       "id": "news-mwk4o8sw-9a293e",
@@ -1653,8 +1648,9 @@
       "url": "https://x.com/elonmusk/status/2122092374016806969",
       "at": "2026-11-15T22:20:23.000Z",
       "date": "15 Nov",
-      "flight": 16,
-      "src": "@elonmusk"
+      "flight": 15,
+      "src": "@elonmusk",
+      "later_flight": true
     },
     {
       "id": "news-mwi85myo-200024",
@@ -1834,17 +1830,6 @@
       "date": "13 Nov",
       "flight": 15,
       "src": "@Blobifie"
-    },
-    {
-      "id": "news-mwehc1so-0b6a15",
-      "kind": "news",
-      "title": "🚀 Starship",
-      "body": "Countdown started at Starbase for a potentially historic Starship mission.",
-      "url": "https://x.com/NASASpaceflight/status/2121098593297699100",
-      "at": "2026-11-13T04:31:27.000Z",
-      "date": "13 Nov",
-      "flight": 15,
-      "src": "@NASASpaceflight"
     },
     {
       "id": "news-mwedf26g-01f0ab",
@@ -2050,22 +2035,6 @@
     "16": [
       {
         "topic": "catch",
-        "line": "Remote camera shows Booster 23 catch after Flight 16 launch (RGVaerialphotos, 15 Nov).",
-        "at": "2026-11-15T15:41:22.000Z",
-        "src": "@RGVaerialphotos",
-        "url": "https://x.com/RGVaerialphotos/status/2121991958977503413",
-        "post_id": "2121991958977503413"
-      },
-      {
-        "topic": "catch",
-        "line": "SpaceX plans to catch a Starship from space (Elon Musk, 16 Nov).",
-        "at": "2026-11-16T19:16:22.000Z",
-        "src": "@elonmusk",
-        "url": "https://x.com/elonmusk/status/2122408454325416322",
-        "post_id": "2122408454325416322"
-      },
-      {
-        "topic": "catch",
         "line": "SpaceX plans double catch attempt on next Starship flight (NASASpaceflight article, 20 Nov).",
         "at": "2026-11-20T19:53:51.000Z",
         "src": "@NASASpaceflight",
@@ -2073,5 +2042,44 @@
         "post_id": "2123867439083728964"
       }
     ]
-  }
+  },
+  "removed_lines": [
+    {
+      "topic": "catch",
+      "line": "Remote camera shows Booster 23 catch after Flight 16 launch (RGVaerialphotos, 15 Nov).",
+      "at": "2026-11-15T15:41:22.000Z",
+      "src": "@RGVaerialphotos",
+      "url": "https://x.com/RGVaerialphotos/status/2121991958977503413",
+      "post_id": "2121991958977503413",
+      "flight": 16,
+      "removed_at": "2026-11-22",
+      "reason": "Flight 15 booster/camera line filed under Flight 16 (\"Booster 23 catch after Flight 16 launch\" never happened)"
+    },
+    {
+      "topic": "catch",
+      "line": "SpaceX plans to catch a Starship from space (Elon Musk, 16 Nov).",
+      "at": "2026-11-16T19:16:22.000Z",
+      "src": "@elonmusk",
+      "url": "https://x.com/elonmusk/status/2122408454325416322",
+      "post_id": "2122408454325416322",
+      "flight": 16,
+      "removed_at": "2026-11-22",
+      "reason": "caption \"Catching a Starship from space\" written as a plan; about the Flight 15 catch, not a Flight 16 plan"
+    }
+  ],
+  "feed_archive": [
+    {
+      "id": "news-mwehc1so-0b6a15",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Countdown started at Starbase for a potentially historic Starship mission.",
+      "url": "https://x.com/NASASpaceflight/status/2121098593297699100",
+      "at": "2026-11-13T04:31:27.000Z",
+      "date": "13 Nov",
+      "flight": 15,
+      "src": "@NASASpaceflight",
+      "hidden": true,
+      "why": "22 Nov reliability-b1 data fix: old Flight 15 countdown headline fragment (13 Nov), shown in the feed as current news"
+    }
+  ]
 }
