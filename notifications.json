@@ -3419,6 +3419,19 @@
       "verdict": "sent",
       "gate": "hold passed (1 run)",
       "key": "B25|transport|21 Nov"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Booster 24 entered full cryo testing for Flight 17.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mwsfo068-909740",
+      "url": "https://x.com/NASASpaceflight/status/2124637434797346916",
+      "at": "2026-11-22T22:53:32.000Z",
+      "sent_at": "2026-11-22T23:30:35.994Z",
+      "where": "feed",
+      "verdict": "sent",
+      "gate": "hold passed (1 run)",
+      "key": "B24|cryo_progress|22 Nov",
+      "guard": "G4 (warn): B24 is not Flight 16 hardware (B23, S43)"
     }
   ]
 }
