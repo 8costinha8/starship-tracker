@@ -1333,6 +1333,11 @@ function PastTop({ vehicle, labels }) {
   );
 }
 
+// "Last checked" follows the checker (data/health.json updated), never the hand-edited DATA_CHECKED constant (stuck at 14 Nov while the checker ran every 15 min).
+function lastCheckedLabel(h) {
+  if (h && h.updated && Number.isFinite(Date.parse(h.updated))) return `${ukStamp(h.updated, false)} · ${feedTime(h.updated)} UK`;
+  return fmtDay(String(DATA_CHECKED).replace(new RegExp(" " + new Date().getFullYear() + "$"), "")); // offline / file missing: the old constant
+}
 function AboutPanel({ open, onClose, onManageNotifications }) {
   React.useEffect(() => {
     if (!open) return;
@@ -1348,8 +1353,8 @@ function AboutPanel({ open, onClose, onManageNotifications }) {
         <h2>About</h2>
         <p>A personal log of every Starship flight. No ads, no tracking.</p>
         <dl>
-          <dt>Photos</dt><dd>All photos by SpaceX, credited on each image.</dd>
-          <dt>Flight data</dt><dd>Last checked {fmtDay(String(DATA_CHECKED).replace(new RegExp(" " + new Date().getFullYear() + "$"), ""))}.</dd>
+          <dt>Photos</dt><dd>Each photo is credited to whoever published it.</dd>
+          <dt>Flight data</dt><dd>Last checked {lastCheckedLabel(useHealthJson())}.</dd>
           <dt>Next flight</dt><dd>Launch dates move often. The countdown runs off the best known date and is tagged NET (estimated) until SpaceX confirms the exact time.</dd>
         </dl>
         {FEEDBACK_ENABLED && <FeedbackForm />}
@@ -1609,6 +1614,40 @@ function useXFeedOffline() {
   return off;
 }
 
+// <stale-fn> P2 (pipeline batch 1): the app says so when its data stops updating. Same rules as scripts/freshness.js (test-freshness.js keeps them equal).
+function dataStaleness(h, now) {
+  if (!h || !h.updated || !Number.isFinite(Date.parse(h.updated))) return { level: "unknown", stale: false, ageMin: null, why: "" };
+  const ageMin = Math.max(0, Math.round((now - Date.parse(h.updated)) / 60000));
+  const ll2 = h.sources && h.sources.ll2;
+  const ll2Down = !!(ll2 && ll2.status === "failed" && ll2.last_ok && now - Date.parse(ll2.last_ok) > 180 * 60000);
+  if (ageMin > 180) return { level: "stale", stale: true, ageMin, why: "no checker run has been recorded" };
+  if (ll2Down) return { level: "stale", stale: true, ageMin, why: "launch times could not be refreshed" };
+  if (ageMin > 100) return { level: "late", stale: false, ageMin, why: "checker is late" };
+  return { level: "ok", stale: false, ageMin, why: "" };
+}
+// </stale-fn>
+let HEALTH_MEMO = { at: 0, p: null };
+function loadHealthJson() { // one shared fetch per minute (the chip, the About line and the stale notice all read it)
+  if (Date.now() - HEALTH_MEMO.at < 60000 && HEALTH_MEMO.p) return HEALTH_MEMO.p;
+  HEALTH_MEMO = { at: Date.now(), p: fetch(`${HEALTH_URL}?t=${Date.now()}`, { cache: "no-store" }).then((r) => (r.ok ? r.json() : null)).catch(() => null) };
+  return HEALTH_MEMO.p;
+}
+function useHealthJson() {
+  const [h, setH] = React.useState(null);
+  React.useEffect(() => {
+    if (SIM) return undefined;
+    let alive = true;
+    const load = () => loadHealthJson().then((j) => { if (alive && j) setH(j); });
+    load();
+    const t = setInterval(load, 10 * 60 * 1000);
+    const vis = () => { if (document.visibilityState === "visible") load(); };
+    document.addEventListener("visibilitychange", vis);
+    return () => { alive = false; clearInterval(t); document.removeEventListener("visibilitychange", vis); };
+  }, []);
+  return h;
+}
+function ageWords(min) { return min < 90 ? `${min} min` : min < 36 * 60 ? `${Math.round(min / 60)} h` : `${Math.round(min / 1440)} days`; }
+
 // Lifecycle/tier tags: data only, never shown in the app (Bernardo, 23 Oct). Kept for previews/tests.
 function Tags({ h }) {
   const phase = h.milestone && !h.hedged, tier = h.milestone && h.tier, unc = h.trust === "unconfirmed";
@@ -1808,6 +1847,7 @@ const roadBoxLatest = (list) => { const e = (list || []).slice().sort((a, b) => 
 
 function RoadCard({ road, onEntryTap, openReq, heroNet, netPending, heroFlight }) {
   const [main, setMain] = React.useState(false);
+  const stale = dataStaleness(useHealthJson(), Date.now()); // P2: 'Not updated for N h' chip once the checker has been silent for 3 h
   const xOff = useXFeedOffline(); // 9 Nov: "X feed offline" chip while the checker's X read gets HTTP 402
   React.useEffect(() => { if (openReq) setMain(true); }, [openReq]); // header chip asks it to open
   const [open, setOpen] = React.useState(null);
@@ -1841,6 +1881,7 @@ function RoadCard({ road, onEntryTap, openReq, heroNet, netPending, heroFlight }
         <span className="road-sum">
           <span className="road-dots">{items.map((m) => <i key={m.id} className={"dot dot-" + m.status} style={catVars(m.id, m.color)} title={m.name + ": " + label(m)} aria-label={m.name + ": " + label(m)} role="img" />)}</span>
           <span className="road-count"><span className="rc-full">{done} of {items.length} done</span><span className="rc-slash">{done}/{items.length}</span></span>
+          {stale.stale && <span className="road-xoff road-stale" title={`Data may be out of date: ${stale.why}. Last check ${ageWords(stale.ageMin)} ago.`}>Not updated for {ageWords(stale.ageMin)}</span>}
           {xOff && <span className="road-xoff" title="The checker cannot read X right now (X API credits). Cards from other sources still update.">X feed offline</span>}
           <svg className="road-chev" width="16" height="16" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5l4 4 4-4" stroke="currentColor" strokeWidth="1.7" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg>
         </span>
