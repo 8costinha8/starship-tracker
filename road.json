@@ -5,7 +5,7 @@
     "S43"
   ],
   "updated": "22 Nov",
-  "updatedAt": "2026-11-22T06:00:30.737Z",
+  "updatedAt": "2026-11-22T10:30:39.800Z",
   "categories": [
     {
       "id": "cryo",
@@ -1552,7 +1552,8 @@
       "at": "2026-11-20T19:49:06.000Z",
       "date": "20 Nov",
       "flight": 16,
-      "data_fix": "22 Nov reliability-b1 data fix: was filed in Static fires, so both the Ship 43 and Booster 23 static-fire cards showed this shared line; it is a crew/vehicle plan, not a static fire"
+      "data_fix": "22 Nov reliability-b1 data fix: was filed in Static fires, so both the Ship 43 and Booster 23 static-fire cards showed this shared line; it is a crew/vehicle plan, not a static fire",
+      "box": "static"
     },
     {
       "id": "news-mwp16sow-322d70",
