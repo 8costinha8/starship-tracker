@@ -1,3 +1,4 @@
+process.env.PUSH_GUARDS = process.env.PUSH_GUARDS || "off"; // this file tests the older send path / policy on fixed fixtures; the guards have their own test (test-push-guards.js)
 
 process.env.PUSH_SHADOW = process.env.PUSH_SHADOW || "0"; // live push-shadow.json must not turn this suite into shadow mode
 // Legacy send-path checks predate the milestone-only push policy (tested in test-push-policy.js): policy off here.

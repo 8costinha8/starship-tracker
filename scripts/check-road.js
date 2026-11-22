@@ -1211,7 +1211,7 @@ function fcmMessage(tokens, n) {
   const webpush = {};
   if (n.link) webpush.fcmOptions = { link: n.link };
   if (n.image) webpush.notification = { image: n.image };
-  return { tokens, notification: { title: n.title, body: n.body, ...(n.image ? { imageUrl: n.image } : {}) }, ...(Object.keys(webpush).length ? { webpush } : {}) };
+  return require("./fcm-collapse.js").decorate({ tokens, notification: { title: n.title, body: n.body, ...(n.image ? { imageUrl: n.image } : {}) }, ...(Object.keys(webpush).length ? { webpush } : {}) }, n); // collapse key only for date / status pushes
 }
 
 function firebaseDeps() {
@@ -1354,7 +1354,7 @@ async function run(opts = {}) {
       await deps.saveState(state);
       const onDisk = JSON.parse(fs.readFileSync(roadPath, "utf8")); // the committed road.json: its Updates feed already holds this item
       const pn = pp.visible ? pp : { ...pp, at: pp.at || pp.sendAfter };
-      await pushSync.sendPush(pn, { road: onDisk, send: deps.push, save, logRows: pushLog, log, now: clock, history: pushSync.readLog(notifLogPath).pushes, policy: opts.pushPolicy !== false });
+      await pushSync.sendPush(pn, { road: onDisk, send: deps.push, save, logRows: pushLog, log, now: clock, history: pushSync.readLog(notifLogPath).pushes, policy: opts.pushPolicy !== false, onRow: save ? (r) => pushSync.appendLogRow(notifLogPath, r) : null });
       scheduledSent = pp;
       log(`sent scheduled push "${pp.title}" (due ${pp.sendAfter})`);
     } else log(`scheduled push "${pp.title}" waits until ${pp.sendAfter}`);
@@ -1433,12 +1433,23 @@ async function run(opts = {}) {
   // NET/launch-date one feeds the predicted-date code instead (that code owns the date display)
   const missionPushes = [];
   if (xf) for (const m of xf.missions || []) {
-    const r = mission.applyMissionUpdate(road, road.flight, m);
     const p = m.post;
+    // Batch 1 (22 Nov audit): a mission line belongs to the flight the post is about, not unconditionally to road.flight.
+    //  - past-tense / recap / "Flight 15" posts become news items (feedFlight tags them), never a line on the NEXT flight's card;
+    //  - a plan claim ("plans to", "will") the post itself does not make is dropped (caption "Catching a Starship from space" ≠ a plan).
+    const srcText = `${p.text || ""} ${p.link ? [p.link.title, p.link.lead || p.link.description].filter(Boolean).join(" ") : ""}`;
+    const tgt = require("./scope.js").missionTarget(road, srcText, m.flight);
+    if (tgt.flight !== road.flight) {
+      log(`mission-update re-routed to news: about Flight ${tgt.flight}, not ${road.flight} (${tgt.why}) — ${String(m.text || p.text).slice(0, 80)}`);
+      items.push({ key: `x:${p.post_id}`, title: p.text.slice(0, 200), text: p.text, url: p.url, publishedAt: p.created_at, src: `X @${p.author.username}`, source: `@${p.author.username}`, tier: xFirstMod.isOfficial(p) ? "official" : "trusted" });
+      continue;
+    }
+    if (require("./push-guards.js").planUnsupported(m.text, srcText)) { log(`mission-update dropped: plan claim not in the post (${String(m.text).slice(0, 80)})`); continue; }
+    const r = mission.applyMissionUpdate(road, road.flight, m);
     if (r.net) { items.push({ key: `x:${p.post_id}`, title: p.text.slice(0, 200), text: p.text, url: p.url, publishedAt: p.created_at, src: `X @${p.author.username}`, source: `@${p.author.username}`, tier: xFirstMod.isOfficial(p) ? "official" : "trusted", predictOnly: true }); log(`mission-update (NET) → predicted-date check: @${p.author.username} ${p.post_id}`); continue; }
     if (!r.changed) { log(`mission-update: no change (${m.topic}, same or older)`); continue; }
     if (r.superseded && r.superseded.length) log(`MISSION SUPERSEDED [${road.flight}/${m.topic}] ${r.superseded.join(" | ")} → ${r.line}`);
-    changed = true; missionPushes.push(mission.missionPush(road.flight, r.line, r.entry));
+    changed = true; missionPushes.push({ ...mission.missionPush(road.flight, r.line, r.entry), source_text: srcText.slice(0, 700) });
     log(`MISSION [${road.flight}/${m.topic}] ${r.line}`);
   }
 
@@ -1657,11 +1668,11 @@ async function run(opts = {}) {
     const askNews = opts.askNews || (opts.askClaude || opts.sources ? null : askNewsWriter); // fake test runs: only when a test passes askNews
     if (nb.length && !askNews) nb.forEach((it) => state.news.seen.push(it.key));
     else if (nb.length) {
-      const recent = state.news.sent.filter((x) => clock() - new Date(x.at).getTime() < 48 * 3600000);
+      const recent = state.news.sent.filter((x) => clock() - new Date(x.at).getTime() < news.NEWS_MEMORY_H * 3600000).slice(-40); // 14 days (was 48 h), newest 40 for the prompt; the full memory still drives the deterministic flight+event check
       try {
         const reply = await askNews(news.buildNewsPrompt(nb, recent), log);
         nb.forEach((it) => state.news.seen.push(it.key));
-        for (const np of news.decideNews(nb, reply, state.news, clock(), log)) newsPushes.push(pushSync.addFeedItem(road, np)); // Updates feed entry, same text
+        for (const np of news.decideNews(nb, reply, state.news, clock(), log, { road })) newsPushes.push(pushSync.addFeedItem(road, np)); // Updates feed entry, same text
         log(`news: ${nb.length} new item(s) checked → ${newsPushes.length} push(es) (${state.news.count}/${news.NEWS_DAILY_CAP} today)`);
       } catch (err) {
         writerFailedRun = true; log(`news: writer failed (${err.message}) — ${nb.length} item(s) retried next run`);
@@ -1729,6 +1740,7 @@ async function run(opts = {}) {
     validateRoad(road);
     mission.validateMission(road);
     predict.validatePredicted(road);
+    if (process.env.COMPACT_FEED !== "off") { try { const ch = require("./compact.js").compactFeed(road); if (ch.length) log(`compact: ${ch.length} older feed item(s) flagged hidden (superseded / capped); data kept`); } catch (e) { log(`compact skipped: ${e.message}`); } } // flags only; the app ignores them until its filter ships
     const json = JSON.stringify(road, null, 2) + "\n";
     if (save) {
       fs.writeFileSync(roadPath, json);
@@ -1742,7 +1754,7 @@ async function run(opts = {}) {
     const shown = save ? JSON.parse(fs.readFileSync(roadPath, "utf8")) : JSON.parse(json);
     const hist = pushSync.readLog(notifLogPath).pushes; notifications.splice(0, notifications.length, ...require("./push-policy.js").orderBatch(notifications, { vehicles: shown.vehicles })); // milestones first, then the most significant minor
     const gate = !gateOn(opts) ? null : pushGateFor(state, shown, xf, { token: opts.xToken !== undefined ? opts.xToken : process.env.X_BEARER_TOKEN, fetchFn: opts.xFetch, ask: opts.askXFirst, log, now: clock(), roadPath, save });
-    for (const n of notifications) await pushSync.sendPush(n, { road: shown, send: deps.push, save, logRows: pushLog, log, now: clock, history: hist, policy: opts.pushPolicy !== false, gate });
+    for (const n of notifications) await pushSync.sendPush(n, { road: shown, send: deps.push, save, logRows: pushLog, log, now: clock, history: hist, policy: opts.pushPolicy !== false, gate, onRow: save ? (r) => pushSync.appendLogRow(notifLogPath, r) : null });
     if (gate && save && gate.dirty) { fs.writeFileSync(roadPath, JSON.stringify(shown, null, 2) + "\n"); commit("road.json", `Auto: Road to Flight ${shown.flight} — source post edited before send, card updated`); }
     if (!save) console.log("\nroad.json would become:\n" + json);
   } else {
@@ -1760,7 +1772,11 @@ async function run(opts = {}) {
   // 5b. Push log (title, body, link, source, time, verdict) → notifications.json
   if (save && pushLog.length) {
     pushSync.writeLog(notifLogPath, pushLog);
-    try { commit("notifications.json", `Auto: push log — ${pushLog.length} push(es)`); } catch (e) { log(`push log commit failed: ${e.message}`); }
+    // the log is the idempotency memory for the next run: retry the commit (catch up with main in between) instead of giving up after one failure
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try { commit("notifications.json", `Auto: push log — ${pushLog.length} push(es)`); break; }
+      catch (e) { log(`push log commit failed (try ${attempt}/3): ${e.message}`); if (attempt < 3) { try { syncToMain(log); } catch {} } else console.log("::error::push log not committed — the next run may not know these pushes were sent"); }
+    }
   }
 
   // 5b-2. B3: data/next-launch.json (written by check-flights.js earlier in this job) → committed when it changed
@@ -1790,7 +1806,7 @@ async function run(opts = {}) {
   return { road, changes, notifications, refreshed, state, scheduledSent, newsPushes, xFirst: xf, pushLog };
 }
 
-module.exports = { rolloverRoad, X_SEARCH_HANDLES, firebaseDeps, pushGateFor, addToReview, dataVehicles, rolloverVehicles, setLastTerms, applyPrereqs, searchVehicleWords, archiveLaunched, milestones, statusRule, xStatus, applyMediaPicks, loadMediaPicks, pickImage, applyImageCheck, verifyImages, fcmMessage, notificationFor, judgeFeed, verifyFeed, entryDayMs, backfillX, xPostCard, xIdOf, readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, titleMatches, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
+module.exports = { fcmMessage, rolloverRoad, X_SEARCH_HANDLES, firebaseDeps, pushGateFor, addToReview, dataVehicles, rolloverVehicles, setLastTerms, applyPrereqs, searchVehicleWords, archiveLaunched, milestones, statusRule, xStatus, applyMediaPicks, loadMediaPicks, pickImage, applyImageCheck, verifyImages, fcmMessage, notificationFor, judgeFeed, verifyFeed, entryDayMs, backfillX, xPostCard, xIdOf, readNextFlight, PREDICT_X_ACCOUNTS, run, parseFeed, applyUpdates, buildPrompt, trustForUrl, cleanLine, lastLoggedFlight, validateRoad, freshRoad, looksRelevant, stripBoilerplate, sortHistory, refreshCheckDates, notificationFor, nineAmLondonDayAfter, titleMatches, vehiclesIn, loggedFlightDate, fmtDay, CHECK_TEXT, LIMITS, SOURCES, X_ACCOUNTS };
 
 if (require.main === module) {
   process.on("exit", () => { console.log(writer.grokCallsLine()); for (const l of writer.grokPurposeLines()) console.log(l); });

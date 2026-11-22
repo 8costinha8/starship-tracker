@@ -32,13 +32,29 @@ function minorType(t) {
   if (/\b(pad|trench|tower|mount|olm|bqd|deluge)\b/i.test(t)) return "pad_work";
   return "other";
 }
-function vehicleOf(text, vehicles = []) {
+// Batch 1 (22 Nov audit): a bare "Super Heavy" / "booster" / "ship" is the CURRENT flight's vehicle only when the text does not point elsewhere.
+// ctx = { flight, live }: flight = the tracked flight (road.flight), live = it has lifted off. Without ctx the old behaviour is kept.
+// Pointing elsewhere = names another flight, recap wording ("last week", "their first Starship"), or (before liftoff) a past-tense outcome:
+// "Super Heavy performed a safe abort and splashed down" three days after Flight 15 is Flight 15's booster, not B23 (Flight 16).
+const FLIGHT_NUMS = (t) => [...String(t || "").matchAll(/\b(?:flight\s*(\d{1,3})|(\d{1,3})(?:st|nd|rd|th)\s+(?:starship\s+)?flight)\b/gi)].map((m) => +(m[1] || m[2]));
+const RECAP_LEX = /\b(last week|earlier this week|(?:a|one) week ago|a few days ago|(?:their|its|the) first (?:ever )?starship|first (?:ever )?(?:tower |chopstick )?catch|recap|re-?play|highlights?|relive|looking back|throwback|in review)\b/i;
+const PAST_OUTCOME = /\b(splashed ?down|caught|was caught|landed|performed (?:a )?(?:safe )?(?:abort|landing|burn)|safe abort|ended its mission|reentered|re-entered|returned to (?:the )?launch site)\b/i;
+const FUTURE = /\b(will|plans?|planned|aims? to|going to|could|may|might|expected|ahead of|next)\b/i;
+function pointsElsewhere(text, ctx = {}) {
+  if (!Number.isInteger(ctx.flight)) return false;
+  const nums = FLIGHT_NUMS(text);
+  if (nums.length && !nums.includes(ctx.flight)) return true;
+  if (RECAP_LEX.test(text)) return true;
+  return !ctx.live && PAST_OUTCOME.test(text) && !FUTURE.test(text);
+}
+function vehicleOf(text, vehicles = [], ctx = {}) {
   const m = String(text).match(/\b(?:(?:Booster|B)\s*(\d{2,3})|(?:Ship|S)\s*(\d{2,3}))\b/i);
   if (m) return m[1] ? `B${m[1]}` : `S${m[2]}`;
-  const cur = (vehicles || []).map(String);
-  if (/\bbooster\b|super heavy/i.test(text)) return cur.find((v) => /^B/i.test(v)) || "booster";
-  if (/\bship\b/i.test(text)) return cur.find((v) => /^S/i.test(v)) || "ship";
-  const f = String(text).match(/\bflight (\d+)\b/i); if (f) return `F${f[1]}`;
+  const cur = pointsElsewhere(text, ctx) ? [] : (vehicles || []).map(String);
+  const f0 = String(text).match(/\bflight (\d+)\b/i);
+  if (/\bbooster\b|super heavy/i.test(text)) return cur.find((v) => /^B/i.test(v)) || (f0 ? `F${f0[1]}-booster` : "booster");
+  if (/\bship\b/i.test(text)) return cur.find((v) => /^S/i.test(v)) || (f0 ? `F${f0[1]}-ship` : "ship");
+  const f = f0; if (f) return `F${f[1]}`;
   return "starship";
 }
 // Launch-day milestones, read on title + body (11 Nov rehearsal D1/D2/D3/D5: flight-checker pushes carry the event in the TITLE,
@@ -104,7 +120,8 @@ function launchTarget(text) {
 const isConfirmed = (t) => !/\b(unconfirmed|unofficial)\b/i.test(t) && /\b(confirm\w*|official)\b|\bset the (?:flight \d+ )?launch window\b|\blaunch window opens\b/i.test(t);
 // n: { title, body, at }. Returns { vehicle, type, milestone, rank, date, key } (+ target / confirmed for launch_date)
 // liftoffAt (optional): ISO time of this flight's liftoff (decide() reads it from the history); a loss outside liftoff .. +3h is not vehicle_lost
-function classify(n, { vehicles = [], liftoffAt = null, now = null } = {}) {
+function classify(n, ctx0 = {}) {
+  const { vehicles = [], liftoffAt = null, now = null } = ctx0;
   const t = `${n.body || ""}`; const title = n.title || "";
   const unconfirmed = /unconfirmed/i.test(title) || n.unconfirmed;
   let type = null;
@@ -123,7 +140,7 @@ function classify(n, { vehicles = [], liftoffAt = null, now = null } = {}) {
   }
   const milestone = !!type;
   if (!type) type = minorType(t);
-  let vehicle = vehicleOf(t, vehicles);
+  let vehicle = vehicleOf(t, vehicles, ctx0);
   const date = ukDay(n.at || n.sent_at);
   const out = { vehicle, type, milestone, rank: milestone ? 100 : MINOR_RANK[type] || 1, date, key: `${vehicle}|${type}|${date}` };
   if (type === "launch_date") { // one push per new launch date / time, whichever feed (flight checker, Road card, news) says it first
@@ -137,14 +154,14 @@ const sentRows = (h) => (h || []).filter((r) => r && r.verdict === "sent");
 const dedupeRows = (h) => (h || []).filter((r) => r && !r.retracted && (r.verdict === "sent" || r.dedupe_only === true)); // retracted: a stale / wrong push fixed by hand, not an event
 // history: earlier log rows (notifications.json + this run). now: ms. Returns { push, reason, cls }
 // big: SpaceX / Elon Flight N milestone or a correction (push-gate.js) → skips the quiet window (dedupe still applies)
-function decide(n, history, { now = Date.now(), vehicles = [], big = false } = {}) {
-  const cls = classify(n, { vehicles, liftoffAt: liftoffFrom(history, now), now });
+function decide(n, history, { now = Date.now(), vehicles = [], big = false, flight = undefined, live = false } = {}) {
+  const cls = classify(n, { vehicles, flight, live, liftoffAt: liftoffFrom(history, now), now });
   // Three-tier relevance model (push-tiers.js): when on, it alone decides what reaches a phone; the quiet-window promotion
   // and the "big" bypass below are never used. Off by default (PUSH_TIERS=1 or push-tiers.json {"on":true} to switch on).
   const tiers = require("./push-tiers.js");
   if (tiers.enabled()) { const t = tiers.decide({ ...n, at: n.at || n.sent_at }, history, { now, vehicles, flight: arguments[2] && arguments[2].flight }); return { push: t.push, reason: t.reason, cls: { ...cls, tier: t.tier, event: t.event, tierKey: t.key } }; }
   const sent = sentRows(history);
-  const dup = dedupeRows(history).find((r) => (r.key || classify(r, { vehicles }).key) === cls.key);
+  const dup = dedupeRows(history).find((r) => (r.key || classify(r, { vehicles, flight, live }).key) === cls.key);
   if (dup && !big) return { push: false, reason: dup.dedupe_only ? `already on the card (silent backfill ${cls.key}) — not a new event` : `duplicate ${cls.key}`, cls };
   if (dup && big && dup.verdict === "sent" && !/^Correction/.test(n.title || "")) return { push: false, reason: `duplicate ${cls.key}`, cls };
   // a launch_date push that only repeats the last date / time already pushed (no confirmation upgrade) is not a new event
@@ -165,4 +182,4 @@ function orderBatch(list, { vehicles = [] } = {}) {
   const generic = (n) => (/^\s*(?:Flight \d+ update|🚀 Starship)\s*$/i.test(n.title || "") ? 1 : 0);
   return [...list].map((n, i) => ({ n, i, r: classify(n, { vehicles }).rank, g: generic(n) })).sort((a, b) => b.r - a.r || a.g - b.g || a.i - b.i).map((x) => x.n);
 }
-module.exports = { QUIET_WINDOW_HOURS, LOSS_WINDOW_HOURS, classify, decide, orderBatch, vehicleOf, launchTarget, liftoffFrom };
+module.exports = { pointsElsewhere, FLIGHT_NUMS, RECAP_LEX, PAST_OUTCOME, QUIET_WINDOW_HOURS, LOSS_WINDOW_HOURS, classify, decide, orderBatch, vehicleOf, launchTarget, liftoffFrom };

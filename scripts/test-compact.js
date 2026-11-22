@@ -1,0 +1,22 @@
+// Supersession / compaction rules on the real Flight 15 feed history (fixtures/feed-f15-slice.json) and the live feed. Offline.
+const fs = require("fs"), path = require("path");
+const C = require("./compact.js"), ps = require("./push-sync.js");
+let pass = 0, fail = 0; const ok = (c, m) => { if (c) { pass++; console.log("  ✅ " + m); } else { fail++; console.log("  ❌ " + m); } };
+const road = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "fixtures", "feed-f15-slice.json"), "utf8"));
+const before = JSON.stringify(road.feed_items.map((f) => f.body));
+const ch = C.compactFeed(road);
+const vis = (k) => road.feed_items.filter((f) => C.kindOf(f) === k && !f.hidden);
+ok(vis("date").length === 1 && /22:47/.test(vis("date")[0].body), `Flight 15: ${road.feed_items.filter((f) => C.kindOf(f) === "date").length} date pushes → 1 visible ("${vis("date")[0].title} / ${vis("date")[0].body}")`);
+ok(vis("stream").length === 1, "two 'Livestream ready' reminders → 1 visible (the newest)");
+ok(road.feed_items.filter((f) => C.kindOf(f) === "news" && !f.hidden).length <= C.MAX_NEWS_VISIBLE, `news visible ≤ ${C.MAX_NEWS_VISIBLE} per flight (${road.feed_items.filter((f) => C.kindOf(f) === "news" && !f.hidden).length} of ${road.feed_items.filter((f) => C.kindOf(f) === "news").length})`);
+ok(JSON.stringify(road.feed_items.map((f) => f.body)) === before && road.feed_items.every((f) => f.body), "nothing deleted or rewritten: only flags (hidden, superseded_by, why)");
+ok(C.compactFeed(road).length === 0, "idempotent: a second pass changes nothing");
+const liftoff = road.feed_items.find((f) => /Liftoff/.test(f.title)), result = road.feed_items.find((f) => /Success/.test(f.title));
+ok(liftoff && !liftoff.hidden && result && !result.hidden, "Liftoff and the flight result are never compacted");
+const f16 = JSON.parse(JSON.stringify(road)); f16.feed_items.forEach((f) => (f.flight = 16)); f16.feed_items.push({ id: "n", kind: "flight", flight: 16, title: "🚧 Launch delayed", body: "Now 14 Dec 01:00", at: "2026-12-12T10:00:00Z" });
+C.compactFeed(f16); ok(f16.feed_items.filter((f) => C.kindOf(f) === "date" && !f.hidden).length === 1 && f16.feed_items.find((f) => f.id === "n" && !f.hidden), "a newer slip hides the older date push and itself stays visible");
+ok(C.capText("Booster 23 and Ship 43 were stacked at the launch site ahead of a potential static fire test this week.", 60).length <= 60 && /…$/.test(C.capText("Booster 23 and Ship 43 were stacked at the launch site ahead of a potential static fire test this week.", 60)) && C.capText("short.", 60) === "short.", "capText cuts at a word with an ellipsis; short text untouched");
+const ov = { feed_items: [], feed_archive: [] };
+for (let i = 0; i < 45; i++) ps.addFeedItem(ov, { title: "🚀 Starship", body: `Booster 23 item number ${i}.`, at: new Date(Date.UTC(2026, 10, 1, 0, i)).toISOString(), kind: "news", flight: 16 });
+ok(ov.feed_items.length === 40 && ov.feed_archive.length === 5 && ov.feed_archive.every((x) => x.body), `feed list capped at 40, the 5 oldest moved to feed_archive (not deleted)`);
+console.log(`\n${fail ? "❌" : "✅"} ${pass} passed, ${fail} failed`); process.exit(fail ? 1 : 0);

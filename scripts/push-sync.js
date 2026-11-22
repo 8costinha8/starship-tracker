@@ -51,20 +51,20 @@ function checkVisible(road, n) {
 // App text never names public data sources (credit stays in the @handle label). Idempotent.
 const SOURCE_NAMES = /\s*(?:[·•|—–-]\s*|,?\s*(?:per|via|according to)\s+)?\b(?:NSF|NASA ?Spaceflight(?:\.com)?|Spaceflight Now|SpaceNews|Teslarati|Launch Library(?: 2)?|LL2|Spaceflight News API)\b(?:\s*(?:reports?|says|said)\b)?/gi;
 const cleanText = (s) => typeof s === "string" ? s.replace(/\((?:per |via )?(?:NSF|NASA ?Spaceflight)(?:, )?/gi, "(").replace(/\(\s*\)/g, "").replace(SOURCE_NAMES, "").replace(/\(\s*,\s*/g, "(").replace(/\s{2,}/g, " ").replace(/\s+([.,;:)])/g, "$1").trim() : s;
-function addFeedItem(road, { title, body, url, at, kind, flight }) {
+function addFeedItem(road, { title, body, url, at, kind, flight, source_text, event_at }) {
   title = cleanText(title); body = cleanText(body);
   const id = `${kind || "news"}-${Date.parse(at).toString(36)}-${require("crypto").createHash("sha1").update(title + body).digest("hex").slice(0, 6)}`;
   const list = (road.feed_items = road.feed_items || []);
   if (!list.some((x) => x.id === id)) {
-    const item = { id, kind: kind || "news", title, body, ...(url ? { url } : {}), at, date: ukDay(at) };
+    const item = { id, kind: kind || "news", title, body, ...(url ? { url } : {}), at, date: ukDay(event_at && Number.isFinite(Date.parse(event_at)) ? event_at : at) }; // date = the day the source points to when it says "yesterday" (at stays the post time)
     if (Number.isInteger(flight)) item.flight = flight;
     else if ((kind || "news") === "news") {
-      const tag = require("./scope.js").feedFlight(road, body);
+      const tag = require("./scope.js").feedFlight(road, body, source_text || "");
       if (Number.isInteger(tag.flight)) { item.flight = tag.flight; if (tag.other) item.later_flight = true; }
     } else item.flight = road.flight;
     list.unshift(item);
   }
-  list.sort((a, b) => Date.parse(b.at) - Date.parse(a.at)); list.splice(FEED_KEEP);
+  list.sort((a, b) => Date.parse(b.at) - Date.parse(a.at)); require("./compact.js").archiveOverflow(road, FEED_KEEP); // overflow is archived in road.feed_archive, not deleted
   return { title, body, url, at, link: `${SITE}?feed=1&item=${encodeURIComponent(id)}`, kind: kind || "news", visible: { where: "feed", id } };
 }
 // Stamps a Road entry with its push (title/link/source/time), so the entry and push are one item.
@@ -75,6 +75,8 @@ function stampRoadEntry(box, entry, n) {
 
 function readLog(p) { try { const j = JSON.parse(fs.readFileSync(p, "utf8")); return Array.isArray(j.pushes) ? j : { pushes: [] }; } catch { return { pushes: [] }; } }
 function writeLog(p, rows) {
+  rows = rows.filter((r) => !r._written);
+  if (!rows.length) return;
   const j = readLog(p); j.pushes.push(...rows); j.pushes = j.pushes.slice(-LOG_KEEP);
   fs.writeFileSync(p, JSON.stringify(j, null, 2) + "\n");
 }
@@ -83,11 +85,11 @@ function writeLog(p, rows) {
    road = the road.json that is ALREADY saved/committed (read it back from disk in live runs). */
 /* gate (optional, push-gate.js): { state, seenPosts, refetch(url), rewrite(n, editedText) → n with the card updated,
    mediaOnly(n) } — hold / staleness / corrections / big news / re-read before send. shadow: log "would push", send nothing. */
-async function sendPush(n, { road, send, save = true, logRows, log = console.log, now = Date.now, history = [], policy = true, gate = null, shadow = null }) {
+async function sendPush(n, { road, send, save = true, logRows, log = console.log, now = Date.now, history = [], policy = true, gate = null, shadow = null, guards = true, onRow = null }) {
   const allHist = [...(history || []), ...(logRows || [])];
   let g = null;
   if (gate && policy) {
-    g = await require("./push-gate.js").evaluate(n, { history: allHist, state: gate.state || {}, now: now(), seenPosts: gate.seenPosts || [], vehicles: (road && road.vehicles) || [], refetch: gate.refetch || null });
+    g = await require("./push-gate.js").evaluate(n, { history: allHist, state: gate.state || {}, now: now(), seenPosts: gate.seenPosts || [], vehicles: (road && road.vehicles) || [], flight: road && road.flight, refetch: gate.refetch || null });
     if (g.action === "hold") { log(`(held) "${n.title}" — ${g.reason}`); return { title: n.title, body: n.body, verdict: `held: ${g.reason}`, held: true }; } // not logged: decided on a later run
     if (g.action === "drop" || g.action === "media_only") {
       if (g.action === "media_only" && gate.mediaOnly) { try { await gate.mediaOnly(n); } catch {} }
@@ -101,10 +103,14 @@ async function sendPush(n, { road, send, save = true, logRows, log = console.log
   const why = checkVisible(road, n);
   const row = { title: n.title, body: n.body, link: n.link || "", url: n.url || "", at: n.at || "", sent_at: new Date(now()).toISOString(), where: (n.visible || {}).where || "", verdict: "" };
   // shared policy for every feed: dedupe (vehicle + event type + UK day), milestones push, minor updates silent unless 24h quiet
-  const pol = policy && !why ? require("./push-policy.js").decide(n, allHist, { now: now(), vehicles: (road && road.vehicles) || [], big: !!(g && g.big) }) : null;
+  const pol = policy && !why ? require("./push-policy.js").decide(n, allHist, { now: now(), vehicles: (road && road.vehicles) || [], big: !!(g && g.big), flight: road && road.flight, live: !!(road && road.mission_alerts && road.mission_alerts.liftoff_actual) }) : null;
   if (g) row.gate = g.reason;
   if (pol) row.key = pol.cls.key;
-  if (pol && !pol.push) { row.verdict = `silent: ${pol.reason}`; log(`(silent, in-app only) "${n.title}" — ${pol.reason}`); }
+  // push-guards.js (batch 1 / P1): idempotency, recap, cross-flight, plan claim, night. Only ever turns a push into in-app-only.
+  const guard = guards && policy && !why ? require("./push-guards.js").evaluate(n, { history: allHist, now: now(), road, sourceText: n.source_text || (g && g.n && g.n.source_text) || "" }) : null;
+  if (guard && guard.would) row.guard = `${guard.rule}${guard.action === "silent" ? "" : " (warn)"}: ${guard.reason}`;
+  if (guard && guard.action === "silent") { row.verdict = `silent: guard ${guard.rule} — ${guard.reason}`; log(`(silent, guard ${guard.rule}) "${n.title}" — ${guard.reason}`); }
+  else if (pol && !pol.push) { row.verdict = `silent: ${pol.reason}`; log(`(silent, in-app only) "${n.title}" — ${pol.reason}`); }
   else if (why) { row.verdict = `blocked: ${why}`; log(`PUSH BLOCKED "${n.title}" — ${why}`); }
   else if (shadow) { row.verdict = "shadow: would push"; log(`(shadow mode, not sent) push: ${n.title} — ${n.body}`); }
   else if (!save) { row.verdict = "not sent (test mode)"; log(`(not sent) push: ${n.title} — ${n.body}`); }
@@ -112,12 +118,16 @@ async function sendPush(n, { road, send, save = true, logRows, log = console.log
     try { await send(n); row.verdict = "sent"; } catch (e) { row.verdict = `failed: ${e.message}`; log(`push failed "${n.title}": ${e.message}`); }
   }
   if (logRows) logRows.push(row);
+  // write-through: the row is on disk right after its send (a crash before the end-of-run log write can no longer lose it)
+  if (onRow) { try { onRow(row); } catch (e) { log(`push log write-through failed: ${e.message}`); } }
   return row;
 }
+// Append ONE row to the push log now. Marks it so the end-of-run writeLog does not add it twice.
+function appendLogRow(p, row) { if (row._written) return; const { _written, ...clean } = row; writeLog(p, [clean]); row._written = true; }
 
 // Pushes handed over by check-flights.js (same job): runner temp file, read once by check-road.js.
 const QUEUE = () => path.join(process.env.RUNNER_TEMP || require("os").tmpdir(), "starship-push-queue.json");
 function queuePush(n, file = QUEUE()) { let q = []; try { q = JSON.parse(fs.readFileSync(file, "utf8")); } catch {} q.push(n); fs.writeFileSync(file, JSON.stringify(q)); }
 function takeQueue(file = QUEUE()) { try { const q = JSON.parse(fs.readFileSync(file, "utf8")); fs.unlinkSync(file); return Array.isArray(q) ? q : []; } catch { return []; } }
 
-module.exports = { cleanText, queuePush, takeQueue, sendPush, checkVisible, visibleFor, addFeedItem, stampRoadEntry, writeLog, readLog, ukDay, SITE, FEED_KEEP };
+module.exports = { appendLogRow, cleanText, queuePush, takeQueue, sendPush, checkVisible, visibleFor, addFeedItem, stampRoadEntry, writeLog, readLog, ukDay, SITE, FEED_KEEP };

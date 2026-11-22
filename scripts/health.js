@@ -5,7 +5,13 @@
    old, so the file is fresh without a commit every 15 minutes (an ok run inside that hour leaves the file untouched). */
 const fs = require("fs"), path = require("path"), { execSync } = require("child_process");
 const ROOT = path.join(__dirname, "..");
-function update(prev, name, { ok, error = null, now = Date.now() }) {
+// Batch 1 / P2: gaps (missed runs seen by the next run) and per-source freshness (LL2, X) live in the same file.
+// alert = 2+ failed runs in a row, OR a source down >= SOURCE_ALERT_RUNS runs in a row, OR >= 4 missed runs in 24 h.
+const SOURCE_ALERT_RUNS = 8;
+let pending = { gap: null, sources: {} };
+function noteGap(gap) { if (gap && gap.missed > 0) pending.gap = gap; }
+function noteSource(key, ok, error = null) { pending.sources[key] = { ok: !!ok, error: ok ? null : String(error && error.message || error).slice(0, 300) }; }
+function update(prev, name, { ok, error = null, now = Date.now(), gap = null, sources = {} }) {
   const h = prev && typeof prev === "object" ? JSON.parse(JSON.stringify(prev)) : {};
   h.scripts = h.scripts || {};
   const p = h.scripts[name] || {}, at = new Date(now).toISOString();
@@ -14,7 +20,18 @@ function update(prev, name, { ok, error = null, now = Date.now() }) {
   h.updated = at;
   h.status = all.some((s) => s.status === "failed") ? "failed" : "ok";
   h.consecutive_failures = Math.max(0, ...all.map((s) => s.consecutive_failures || 0));
-  h.alert = h.consecutive_failures >= 2;
+  const at2 = at;
+  for (const [k, v] of Object.entries(sources || {})) {
+    h.sources = h.sources || {}; const q = h.sources[k] || {};
+    h.sources[k] = { at: at2, status: v.ok ? "ok" : "failed", error: v.ok ? null : v.error, consecutive_failures: v.ok ? 0 : (q.consecutive_failures || 0) + 1, last_ok: v.ok ? at2 : (q.last_ok || null) };
+  }
+  if (gap && gap.missed > 0) { h.gaps = [...(h.gaps || []), { at, gap_min: gap.gapMin, missed: gap.missed }].slice(-10); }
+  h.missed_runs_24h = (h.gaps || []).filter((g) => now - Date.parse(g.at) < 24 * 3600e3).reduce((a, g) => a + g.missed, 0);
+  const reasons = [];
+  if (h.consecutive_failures >= 2) reasons.push(`${h.consecutive_failures} failed runs in a row`);
+  for (const [k, v] of Object.entries(h.sources || {})) if ((v.consecutive_failures || 0) >= SOURCE_ALERT_RUNS) reasons.push(`${k} unreachable for ${v.consecutive_failures} runs`);
+  if (h.missed_runs_24h >= 4) reasons.push(`${h.missed_runs_24h} checker runs missed in 24 h`);
+  h.alert = reasons.length > 0; h.alert_reasons = reasons;
   const lastErr = all.filter((s) => s.error).sort((a, b) => b.at.localeCompare(a.at))[0];
   h.last_error = lastErr ? { at: lastErr.at, error: lastErr.error } : (prev && prev.last_error) || null;
   return h;
@@ -22,13 +39,15 @@ function update(prev, name, { ok, error = null, now = Date.now() }) {
 function shouldCommit(prev, next, now = Date.now()) {
   if (!prev) return true;
   if (next.status !== "ok" || prev.status !== next.status || !!prev.alert !== !!next.alert) return true;
+  if (Object.entries(next.sources || {}).some(([k, v]) => v.status !== "ok" || ((prev.sources || {})[k] || {}).status !== v.status)) return true; // a source going down / recovering is committed at once
+  if ((next.gaps || []).length !== (prev.gaps || []).length || ((next.gaps || []).slice(-1)[0] || {}).at !== ((prev.gaps || []).slice(-1)[0] || {}).at) return true; // a newly seen gap
   return !prev.committed_at || now - Date.parse(prev.committed_at) >= 60 * 60e3;
 }
 function record(name, res, { root = ROOT, commit = null, now = Date.now(), log = console.log } = {}) {
   const file = path.join(root, "data", "health.json");
   try {
     let prev = null; try { prev = JSON.parse(fs.readFileSync(file, "utf8")); } catch {}
-    const next = update(prev, name, { ...res, now });
+    const next = update(prev, name, { gap: pending.gap, sources: pending.sources, ...res, now }); pending = { gap: null, sources: {} };
     const live = process.env.GITHUB_ACTIONS === "true" && process.env.TEST_MODE !== "true" && root === ROOT;
     const doCommit = (commit || live) && shouldCommit(prev, next, now);
     next.committed_at = doCommit ? new Date(now).toISOString() : (prev && prev.committed_at) || null;
@@ -57,4 +76,4 @@ function note(key, value, { root = ROOT } = {}) {
   let h = {}; try { h = JSON.parse(fs.readFileSync(file, "utf8")) || {}; } catch {}
   h[key] = value; fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, JSON.stringify(h, null, 2) + "\n"); return h;
 }
-module.exports = { update, shouldCommit, record, note };
+module.exports = { update, shouldCommit, record, note, noteGap, noteSource, SOURCE_ALERT_RUNS };

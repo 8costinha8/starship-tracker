@@ -18,7 +18,7 @@ const ask = async (prompt) => ({ entries: [...prompt.matchAll(/^(\d+)\. @\S+ \S+
 (async () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "mis-"));
   const roadPath = path.join(tmp, "road.json"), appJsPath = path.join(tmp, "app.js");
-  const live = JSON.parse(fs.readFileSync(path.join(ROOT, "road.json"), "utf8")); delete live.mission_updates;
+  const live = JSON.parse(fs.readFileSync(path.join(ROOT, "road.json"), "utf8")); delete live.mission_updates; live.flight = 15; live.vehicles = ["B22", "S42"]; // the fixture posts are about Flight 15: pin the tracked flight (the live road.json moved on to 16)
   fs.writeFileSync(roadPath, JSON.stringify(live)); fs.copyFileSync(path.join(ROOT, "app.js"), appJsPath);
   let stored = { seen: [], news: { seen: [], pending: [], sent: [], count: 0, day: "2026-10-19" }, xFirst: { sinceId: "100", seen: [] }, lastRun: ago(0.25) };
   const sent = [], datesAsked = [];

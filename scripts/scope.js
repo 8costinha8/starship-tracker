@@ -43,9 +43,31 @@ function flownMap() {
   } catch {}
   return _flown;
 }
-// Which flight a news line belongs to. Vehicles that are not this Road's hardware never default to it.
-function feedFlight(road, text) {
-  const vs = vehOf(text);
+// Batch 1 (22 Nov audit): a line's own words beat the "current flight" default.
+//  - an explicit "Flight N" / "Nth flight" decides (the current flight wins if the line names it too);
+//  - recap wording ("last week", "their first Starship", "highlights") or a past-tense OUTCOME with no number, while the current flight has not
+//    lifted off, belongs to the flight that just flew (road.flight - 1), never to the one being built.
+const FLIGHT_NUMS = (t) => [...String(t || "").matchAll(/\b(?:flight\s*(\d{1,3})|(\d{1,3})(?:st|nd|rd|th)\s+(?:starship\s+)?flight)\b/gi)].map((m) => +(m[1] || m[2]));
+const RECAP_LEX = /\b(last week|earlier this week|(?:a|one) week ago|a few days ago|(?:their|its|the) first (?:ever )?starship|first (?:ever )?(?:tower |chopstick )?catch|recap|re-?play|highlights?|relive|looking back|throwback|in review)\b/i;
+const PAST_OUTCOME = /\b(splashed ?down|caught|was caught|landed|performed (?:a )?(?:safe )?(?:abort|landing|burn)|safe abort|ended its mission|reentered|re-entered|returned to (?:the )?launch site|deployed (?:\w+ )?(?:starlink|satellites))\b/i;
+const HEDGE_FUT = /\b(will|plans?|planned|plans to|aims? to|going to|could|may|might|expected|ahead of|next)\b/i;
+const liftedOff = (road) => !!(road && road.mission_alerts && road.mission_alerts.flight === road.flight && road.mission_alerts.liftoff_actual);
+function feedFlight(road, text, src = "") {
+  const both = `${text || ""} ${src || ""}`;
+  const nums = FLIGHT_NUMS(both);
+  if (nums.length && Number.isInteger(road.flight)) {
+    if (nums.includes(road.flight)) return { flight: road.flight };
+    const f = Math.max(...nums);
+    return { flight: f, other: true, why: `names Flight ${f}` };
+  }
+  if (Number.isInteger(road.flight) && road.flight > 1 && !liftedOff(road)) {
+    const past = (RECAP_LEX.test(both) || (PAST_OUTCOME.test(text || "") && !HEDGE_FUT.test(text || "")));
+    if (past && !vehOf(both).some((v) => (road.vehicles || []).map(hwKey).includes(v))) return { flight: road.flight - 1, other: true, why: RECAP_LEX.test(both) ? "recap wording" : "past-tense outcome before liftoff" };
+  }
+  return feedFlightByHardware(road, text, src);
+}
+function feedFlightByHardware(road, text, src = "") {
+  const vs = vehOf(`${text || ""} ${src || ""}`);
   if (!vs.length) return { flight: road.flight };
   if (vs.some((v) => (road.vehicles || []).map(hwKey).includes(v))) return { flight: road.flight };
   const known = vs.map((v) => flightOfVehicle(road, v)).find((f) => Number.isInteger(f));
@@ -55,6 +77,22 @@ function feedFlight(road, text) {
   const flown = vs.map((v) => flownMap()[v]).find((f) => Number.isInteger(f));
   if (flown != null) return { flight: flown, other: flown !== road.flight };
   return { flight: null, other: true };
+}
+// Which flight an X post classified as a "mission-update" is really about. check-road.js used to apply every one to road.flight.
+function missionTarget(road, text, aiFlight) {
+  const nums = FLIGHT_NUMS(text);
+  if (nums.length) return nums.includes(road.flight) ? { flight: road.flight } : { flight: Math.max(...nums), why: `names Flight ${Math.max(...nums)}` };
+  if (Number.isInteger(aiFlight) && aiFlight !== road.flight) return { flight: aiFlight, why: `classifier says Flight ${aiFlight}` };
+  if (road.flight > 1 && !liftedOff(road) && (RECAP_LEX.test(text) || (PAST_OUTCOME.test(text) && !HEDGE_FUT.test(text)))) return { flight: road.flight - 1, why: "recap / past-tense outcome" };
+  return { flight: road.flight };
+}
+// "yesterday" / "last night" / "N days ago" in the SOURCE: keep it, and date the item by the day it points to.
+const REL_RE = /\b(yesterday|last night|earlier this week|last week|(\d+) days? ago)\b/i; // same-day words ("this morning") are not kept: they would be wrong tomorrow
+function relativeMarker(src) { const m = String(src || "").match(REL_RE); return m ? m[1].toLowerCase() : null; }
+function resolveRelativeDay(marker, atIso) {
+  const t = Date.parse(atIso); if (!marker || !Number.isFinite(t)) return null;
+  const back = /yesterday|last night/.test(marker) ? 1 : /(\d+) day/.test(marker) ? +marker.match(/(\d+)/)[1] : null; // "last week" / "earlier this week" are not a single day
+  return back == null ? null : new Date(t - back * 86400000).toISOString();
 }
 // The vehicles a card is about: its hardware, else the vehicles its own text names.
 const cardVehicles = (h) => { const k = hwKey(h.hardware); return /^[BS]\d+$/.test(k) ? [k] : vehOf(h.x_text || h.text); };
@@ -105,4 +143,4 @@ function headlines(road) {
   }
   return out;
 }
-module.exports = { inferFlight, headlines, vehOf, flightOfVehicle, cardVehicles, belongs, enforce, feedFlight, flownMap };
+module.exports = { missionTarget, relativeMarker, resolveRelativeDay, FLIGHT_NUMS, RECAP_LEX, PAST_OUTCOME, inferFlight, headlines, vehOf, flightOfVehicle, cardVehicles, belongs, enforce, feedFlight, flownMap };

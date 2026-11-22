@@ -1,3 +1,4 @@
+process.env.DATE_DEBOUNCE = process.env.DATE_DEBOUNCE || "off"; // this file tests the date-push TEXT rules; the two-poll debounce has its own tests (test-checker-hardening.js)
 /* 8 Nov quality review: a same-UK-date placeholder time upgrade is not
    "Launch delayed"; Ship 40 news is not Flight 15; feed headlines and card
    wording are full past-tense sentences; S42 pad history matches the Flight

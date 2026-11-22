@@ -26,7 +26,7 @@ check(/catching both the booster and the Ship/.test(lead) && /all of its engines
   check(n === 3 && fetched.length === 3 && fetched.every((u) => /nasaspaceflight\.com/.test(u)) && !other.link.lead, "links read only for trusted outlets, at most 3 per run");
   const prompt = xf.classifyPrompt(r, [post], stages);
   check(/\[link: SpaceX working through Starship Flight 15 and 16 milestones[^\]]*catching both the booster and the Ship/.test(prompt), "the classifier sees the linked article's title and lead");
-  check(/"mission-update": anything about Flight 15's MISSION/.test(prompt) && /catch plans/.test(prompt) && /"road": ONLY hardware and test progress/.test(prompt) && /all engines installed/.test(prompt) && /"starship-news"/.test(prompt), "prompt: road (hardware/tests) | mission-update (mission) | starship-news | skip");
+  check(/"mission-update": anything about the UPCOMING Flight 15's MISSION/.test(prompt) && /catch plans/.test(prompt) && /"road": ONLY hardware and test progress/.test(prompt) && /all engines installed/.test(prompt) && /"starship-news"/.test(prompt), "prompt: road (hardware/tests) | mission-update (mission) | starship-news | skip");
   check(!/Flight 16|\${road\.flight \+ 1}/.test(prompt.split("Posts:")[0]), "no Flight 16 automation: the prompt only asks about the Road's own flight");
   const m = xf.postMedia(post);
   check(m && m.type === "photo" && /news_img/.test(m.url), "a link-only post's picture is its link card image (as X shows it); no play badge");

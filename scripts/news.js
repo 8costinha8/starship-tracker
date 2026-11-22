@@ -13,10 +13,12 @@
      must appear in it; most words too). Ungrounded → skipped, not rewritten.
    ───────────────────────────────────────────────────────────── */
 
+const pp = require("./push-policy.js");
+const OUTCOME_EVENTS = new Set(["flight_results", "catch", "launch"]);
 const NEWS_DAILY_CAP = 6;
 const NEWS_MAX_ITEMS = 10;     // items per Grok call
 const NEWS_FRESH_H = 12;       // older items are never "new"
-const NEWS_MEMORY_H = 48;      // pushed stories compared against
+const NEWS_MEMORY_H = 14 * 24; // pushed stories compared against (was 48 h: a recap three days after Flight 15 was "new" again)
 const NEWS_SEEN_KEEP = 1500;
 const H = 3600000;
 
@@ -43,11 +45,12 @@ function newsCandidates(items, news, { isTrusted, looksStarship, now }) {
 }
 
 function buildNewsPrompt(items, recent) {
-  const rec = recent.length ? recent.map((s, i) => `R${i + 1}. [${s.src}] ${s.headline}`).join("\n") : "(none)";
+  const dayOf = (iso) => new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", timeZone: "Europe/London" }).format(new Date(iso));
+  const rec = recent.length ? recent.map((s, i) => `R${i + 1}. ${s.at ? `(${dayOf(s.at)}) ` : ""}[${s.src}] ${s.headline}`).join("\n") : "(none)";
   const list = items.map((it, i) => `${i + 1}. [${it.src}] ${it.title} — ${String(it.text || "").slice(0, 700)}`).join("\n");
   return `You pick push-notification-worthy SpaceX Starship news for a tracker app.
 
-Already pushed in the last 48 hours:
+Already pushed in the last 14 days:
 ${rec}
 
 New items:
@@ -55,6 +58,8 @@ ${list}
 
 For EACH item decide:
 - "push": true only for a genuinely new, concrete Starship development (tests, vehicle moves, launch dates, licences, results, official announcements). false for trivia, jokes/memes, opinions, replies, livestream/ads, non-Starship topics, vague teasers, or anything already covered by a recent push (R…).
+- Never "push" a recap, highlight reel, look-back or replay of something that already happened (\"last week\", \"their first Starship\", a clip of an earlier flight): push false, reason "recap".
+- If the item says when ("yesterday", "last night", "last week"), keep that word in the headline.
 - "dup": "R<n>" if it is the same story as a recent push, else null.
 - "story": a short id; items that report the SAME story get the SAME id (e.g. NSF and SpaceX on one static fire).
 - "headline": one FULL past-tense sentence under 85 characters that ONLY restates what the item says (no new facts, numbers or names; keep hedges like "may"/"reportedly"). Must contain a finite verb and END with a full stop. Proper caps ("Pad 39A", "Flight 15", "Ship 42", "Booster 22"). British English. No source name, no emoji. Never a verbless headline fragment ("Pad 39a undergoes full water deluge test" → "Pad 39A completed a full water deluge test.").
@@ -98,7 +103,7 @@ function grounded(headline, text) {
 }
 
 // Grok's reply → pushes to send (respecting dedup + the daily cap). Mutates news.
-function decideNews(items, reply, news, now, log = () => {}) {
+function decideNews(items, reply, news, now, log = () => {}, { road = null } = {}) {
   if (news.day !== londonDay(now)) { news.day = londonDay(now); news.count = 0; }
   const byItem = new Map((Array.isArray(reply) ? reply : []).filter((r) => r && Number.isInteger(r.item)).map((r) => [r.item, r]));
   const stories = new Set(), pushes = [];
@@ -116,10 +121,20 @@ function decideNews(items, reply, news, now, log = () => {}) {
     if (!done.ok) { log(`news: skip "${it.title}" — headline ${done.reason}: "${raw}"`); continue; }
     const headline = done.text;
     if (!grounded(headline.replace(/[.!?]$/, ""), `${it.title} ${it.text}`)) { log(`news: skip "${it.title}" — headline not grounded in the item: "${headline}"`); continue; }
-    if (news.count >= NEWS_DAILY_CAP) { log(`news: daily cap (${NEWS_DAILY_CAP}) reached — not sent: "${headline}"`); continue; }
+    // Batch 1 (22 Nov audit): deterministic checks the model cannot talk its way around.
+    if (pp.RECAP_LEX.test(`${it.title || ""} ${it.text || ""}`)) { log(`news: skip "${it.title}" (${it.src}) — recap wording`); continue; }
+    const rel = require("./scope.js").relativeMarker(`${it.title || ""} ${it.text || ""}`);
+    let headline2 = headline;
+    if (rel && !new RegExp(`\\b${rel}\\b`, "i").test(headline) && headline.length + rel.length + 1 <= 100) headline2 = headline.replace(/\.$/, ` ${rel}.`); // keep the source's own relative date
+    let flight = null, event = null;
+    try { const cls = pp.classify({ title: "🚀 Starship", body: headline2, at: it.publishedAt }, { vehicles: (road && road.vehicles) || [], flight: road && road.flight, live: !!(road && road.mission_alerts && road.mission_alerts.liftoff_actual) }); event = cls.type; if (road) flight = require("./scope.js").feedFlight(road, headline2, it.text || "").flight; } catch {}
+    const fkey = flight != null && OUTCOME_EVENTS.has(event) ? `F${flight}|${event}` : null; // outcomes are one event per flight, whichever vehicle or account reports it
+    if (fkey && news.sent.some((x) => x.fkey === fkey && now - new Date(x.at).getTime() < NEWS_MEMORY_H * H)) { log(`news: skip "${it.title}" — ${fkey} already pushed in the last 14 days`); continue; }
+    if (news.count >= NEWS_DAILY_CAP) { log(`news: daily cap (${NEWS_DAILY_CAP}) reached — not sent: "${headline2}"`); continue; }
     news.count++;
-    news.sent.push({ key: it.key, url: it.url || undefined, story: sid, headline, src: it.src, at: new Date(now).toISOString() });
-    pushes.push({ title: "🚀 Starship", body: headline, link: NEWS_LINK, kind: "news", url: it.url || "", at: it.publishedAt && Number.isFinite(Date.parse(it.publishedAt)) ? new Date(it.publishedAt).toISOString() : new Date(now).toISOString() }); // at: the source post's own time; body = the feed line (one source)
+    news.sent.push({ key: it.key, url: it.url || undefined, story: sid, headline: headline2, src: it.src, at: new Date(now).toISOString(), ...(fkey ? { fkey } : {}), ...(flight != null ? { flight } : {}), ...(event ? { event } : {}) });
+    const eventAt = require("./scope.js").resolveRelativeDay(rel, it.publishedAt);
+    pushes.push({ title: "🚀 Starship", body: headline2, source_text: String(it.text || "").slice(0, 700), ...(eventAt ? { event_at: eventAt } : {}), link: NEWS_LINK, kind: "news", url: it.url || "", at: it.publishedAt && Number.isFinite(Date.parse(it.publishedAt)) ? new Date(it.publishedAt).toISOString() : new Date(now).toISOString() }); // at: the source post's own time; body = the feed line (one source)
   }
   return pushes;
 }
@@ -133,4 +148,4 @@ function trimNews(news, now) {
   return news;
 }
 
-module.exports = { NEWS_DAILY_CAP, NEWS_LINK, londonDay, freshNewsState, newsCandidates, buildNewsPrompt, finishHeadline, grounded, decideNews, trimNews };
+module.exports = { NEWS_MEMORY_H, NEWS_DAILY_CAP, NEWS_LINK, londonDay, freshNewsState, newsCandidates, buildNewsPrompt, finishHeadline, grounded, decideNews, trimNews };

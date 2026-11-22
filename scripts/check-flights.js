@@ -40,13 +40,13 @@ const nextFlight = require("./next-flight.js");
 function mapLL2Status(abbrev) {
   if (abbrev === "Go") return "confirmed";
   if (abbrev === "TBC") return "net";
-  if (abbrev === "Hold") return "confirmed"; // a hold keeps the countdown's date (same as app.js)
+  if (abbrev === "Hold") return "hold"; // batch 1: its own state. It used to map to "confirmed", so Go → Hold (same net) changed nothing and sent no push
   if (abbrev === "In Flight" || abbrev === "Deployed") return "inflight"; // liftoff happened, mission under way
   if (abbrev === "Success" || abbrev === "Failure" || abbrev === "Partial Failure") return "done";
   return "tbc";
 }
 // Words for the generic "Flight update" push: never a raw code.
-const STATUS_WORDS = { confirmed: "Go for launch", net: "Estimated date only", tbc: "Date to be confirmed" };
+const STATUS_WORDS = { confirmed: "Go for launch", hold: "On hold", net: "Estimated date only", tbc: "Date to be confirmed" };
 
 // Only true once LL2 has an official final result — usually a few hours
 // after liftoff, not instantly.
@@ -221,23 +221,31 @@ function commitAndPush(flightN, label) {
 }
 
 
-// Fetch with a 20s timeout and up to 3 tries, so one slow or
-// rate-limited reply from the free launch API doesn't fail the run.
-async function fetchJson(url) {
-  let lastErr;
-  for (let i = 1; i <= 3; i++) {
-    try {
-      const r = await fetch(url, { signal: AbortSignal.timeout(20000) });
-      if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      return await r.json();
-    } catch (err) {
-      lastErr = err;
-      console.log(`Try ${i} failed for ${url}: ${err.message}`);
-      if (i < 3) await new Promise((ok) => setTimeout(ok, 5000 * i));
+// Fetch with a 20s timeout. ONE retry layer (this one; the global retry wrapper is bypassed, it used to stack: 3 x 3 = 9 calls on a 429):
+// network error / HTTP 5xx → up to 3 tries (5s, 10s); HTTP 429 → no retry in this run (free LL2 limit is 15 calls/hour; the next run is 15 min away).
+// Always sends an identifiable User-Agent (LL2 asks for one).
+const UA = "StarshipTracker/1.0 (+https://8costinha8.github.io/starship-tracker/)";
+function makeFetchJson({ fetchFn, sleep = (ms) => new Promise((ok) => setTimeout(ok, ms)), log = console.log } = {}) {
+  return async function fetchJson(url) {
+    const f = fetchFn || (globalThis.fetch && (globalThis.fetch.__raw || globalThis.fetch));
+    let lastErr;
+    for (let i = 1; i <= 3; i++) {
+      try {
+        const r = await f(url, { headers: { "user-agent": UA, accept: "application/json" }, signal: AbortSignal.timeout(20000) });
+        if (!r.ok) { const e = new Error(`HTTP ${r.status}`); e.status = r.status; throw e; }
+        return await r.json();
+      } catch (err) {
+        lastErr = err;
+        log(`Try ${i} failed for ${url}: ${err.message}`);
+        if (err.status === 429) { log("::warning::Launch Library rate limit (HTTP 429) — not retrying in this run"); break; }
+        if (err.status && err.status < 500) break; // other 4xx: retrying cannot help
+        if (i < 3) await sleep(5000 * i);
+      }
     }
-  }
-  throw lastErr;
+    throw lastErr;
+  };
 }
+const fetchJson = makeFetchJson();
 
 async function main() {
   // Dry run: proves the API key works and shows what the story would look
@@ -278,9 +286,11 @@ function liveDeps() {
   const db = admin.firestore();
   const stateRef = db.collection("app-state").doc("next-flight");
   return {
+    health: require("./health.js"),
     fetchJson,
     async loadState() { const snap = await stateRef.get(); return snap.exists ? snap.data() : null; },
     async saveState(st) { await stateRef.set(st); },
+    async stampRun(iso) { await stateRef.set({ checkedAt: iso }, { merge: true }); }, // a run that skipped (LL2 down / no numbered flight) still counts as a run for the dead-man's switch
     writeNextLaunch: (snap, needsWrite) => { const f = path.join(__dirname, "..", "data", "next-launch.json"); let prev = null; try { prev = JSON.parse(fs.readFileSync(f, "utf8")); } catch {}
       if (needsWrite(prev, snap, Date.parse(snap.updatedAt))) { fs.mkdirSync(path.dirname(f), { recursive: true }); fs.writeFileSync(f, JSON.stringify(snap, null, 2) + "\n"); } },
     writeHandoff: (h) => fs.writeFileSync(path.join(process.env.RUNNER_TEMP || require("os").tmpdir(), "starship-next-flight.json"), JSON.stringify(h)),
@@ -317,7 +327,7 @@ function liveDeps() {
       const subs = await db.collection("subscribers").get();
       const tokens = subs.docs.map((d) => d.id);
       if (!tokens.length) { console.log(`Would have sent "${notification.title}" — but there are no subscribers yet.`); return; }
-      const resp = await admin.messaging().sendEachForMulticast({ tokens, notification: { title: notification.title, body: notification.body } });
+      const resp = await admin.messaging().sendEachForMulticast(require("./fcm-collapse.js").decorate({ tokens, notification: { title: notification.title, body: notification.body } }, notification));
       console.log(`Sent "${notification.title}" to ${resp.successCount}/${tokens.length} device(s).`);
       // quietly remove any tokens that failed (phone uninstalled the app, etc.)
       resp.responses.forEach((r, i) => { if (!r.success) db.collection("subscribers").doc(tokens[i]).delete().catch(() => {}); });
@@ -334,13 +344,18 @@ async function run(deps) {
   try {
     json = await deps.fetchJson(LL2_ENDPOINT);
   } catch (err) {
+    if (deps.health) { try { deps.health.noteSource("ll2", false, err); } catch {} }
+    // the run DID happen: stamp it so the next run does not count an LL2 outage as missed runs
+    if (deps.stampRun) { try { await deps.stampRun(new Date(now()).toISOString()); } catch {} }
     console.log("Launch data unavailable right now — skipping this run, will retry in 15 min.");
     console.log(`::warning::Watchdog: Launch Library unavailable (${String(err && err.message || "").slice(0, 80)}) — flight checker skipped this run`); // visible on the run page, not silent
     return { notification: null };
   }
+  if (deps.health) { try { deps.health.noteSource("ll2", true); } catch {} }
   const pick = nextFlight.pickNext(json.results);
   const launch = pick.launch;
   if (!launch) {
+    if (deps.stampRun) { try { await deps.stampRun(new Date(now()).toISOString()); } catch {} }
     // Pipeline fix 1: never track an unnumbered mission (HLS demo, Superbird…) as "the next flight". No push, saved state untouched.
     console.log(`No numbered next flight (${pick.reason}) — no date or status push this run.`);
     console.log(`::warning::Watchdog: LL2 has no numbered Starship flight (${pick.reason}) — flight checker made no date push`);
@@ -353,6 +368,7 @@ async function run(deps) {
     date: launch.net,
     precision: launch.net_precision?.abbrev || "",
     outcome: mapOutcome(launch.status?.abbrev),
+    raw: launch.status?.abbrev || "",
   };
 
   // Hand the next flight to check-road.js (same job) for its predicted date. No git, no push.
@@ -367,6 +383,13 @@ async function run(deps) {
 
   // 2. Load what we saw last time we ran
   const prev = await deps.loadState();
+  // Batch 1 / P2: dead-man's switch (retrospective). Stamp this run in the checker's own state; if the previous run was long ago, record the missed runs.
+  const gap = require("./deadman.js").gapInfo(prev && prev.checkedAt, now());
+  current.checkedAt = new Date(now()).toISOString();
+  if (gap.missed > 0) {
+    console.log(`::warning::Dead-man: ${gap.missed} scheduled checker run(s) missed (last run ${gap.gapMin} min ago, expected every 15)`);
+    if (deps.health) { try { deps.health.noteGap(gap); } catch {} }
+  }
 
   if (!prev) {
     console.log("First run — no previous data to compare against. Saving today's data as the baseline.");
@@ -376,6 +399,22 @@ async function run(deps) {
 
   let notification = null;
   const sameFlight = prev.n === current.n;
+
+  // Batch 1 (Rami-reported, verified): date pushes gated on status + precision, and debounced.
+  //  - LL2 "TBD" = a placeholder date from unreliable sources: it never produces a "delayed" / "confirmed" / "new estimate" push.
+  //  - A NET move while the status is not Go must be seen on two consecutive polls (15 min apart) before it pushes, unless T-0 is within 24 h
+  //    (a real late scrub must not wait). Go changes, and everything near T-0, are immediate. While waiting, the old date stays the baseline.
+  const dateMoved = sameFlight && prev.date !== current.date && current.status !== "inflight" && current.status !== "done";
+  const tbdPlaceholder = dateMoved && current.raw === "TBD";
+  let debounced = false;
+  if (dateMoved && !tbdPlaceholder && current.status !== "confirmed" && process.env.DATE_DEBOUNCE !== "off") {
+    const soon = Math.abs(new Date(prev.date).getTime() - now()) < 24 * 3600000 || Math.abs(new Date(current.date).getTime() - now()) < 24 * 3600000;
+    if (!soon && prev.pendingDate !== current.date) { debounced = true; }
+  }
+  if (debounced) {
+    console.log(`Flight ${current.n}: date moved ${prev.date} → ${current.date} (status ${current.raw || current.status}) — waiting for a second poll before any push.`);
+    current.pendingDate = current.date; current.date = prev.date; current.precision = prev.precision || current.precision;
+  } else if (prev.pendingDate && prev.pendingDate !== current.date) { /* flipped back: forget it */ }
 
   // 3. Has this flight's final result just come in, and have we not
   //    already handled it? If so, write the story and commit it —
@@ -452,6 +491,8 @@ async function run(deps) {
       }
     } else if (current.status === "done") {
       // the result push is the 🏁 one above
+    } else if (tbdPlaceholder) {
+      console.log(`Flight ${current.n}: date moved to ${current.date} but LL2 says TBD (placeholder) — no push, in-app only.`);
     } else if (prev.date !== current.date && nextFlight.isCoarsePrecision(current.precision)) {
       // Pipeline fix 1: a month / quarter / year placeholder is not a date worth a push ("Now 30 Sept 01:00" for a 2027 estimate)
       console.log(`Flight ${current.n}: date moved to a ${current.precision}-precision placeholder (${current.date}) — no push.`);
@@ -504,12 +545,12 @@ async function run(deps) {
   return { notification, current };
 }
 
-module.exports = { run, mapLL2Status, fmtDateTime, addFlightToAppJs, flightInAppJs, resultPushesFor, logPush, isPlaceholderTimeUpgrade, fmtNetTime, ukDayKey };
+module.exports = { run, makeFetchJson, UA, mapLL2Status, fmtDateTime, addFlightToAppJs, flightInAppJs, resultPushesFor, logPush, isPlaceholderTimeUpgrade, fmtNetTime, ukDayKey };
 
 if (require.main === module) { process.on("exit", () => console.log(writer.grokCallsLine())); }
 if (require.main === module) {
   globalThis.fetch = require("./retry.js").withRetry(globalThis.fetch, { log: (m) => console.log(m) }); // 2 retries, short backoff
   let failure = null;
   main().catch((err) => { failure = err; console.error("Checker failed:", err); })
-    .finally(() => { require("./health.js").record("check-flights", { ok: !failure, error: failure }); if (failure) process.exit(1); });
+    .finally(async () => { require("./health.js").record("check-flights", { ok: !failure, error: failure }); if (!failure) await require("./deadman.js").ping(process.env.HEALTHCHECK_URL); /* inert unless the secret is wired (proposal) */ if (failure) process.exit(1); });
 }

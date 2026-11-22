@@ -1,3 +1,4 @@
+process.env.PUSH_GUARDS = process.env.PUSH_GUARDS || "off"; // this file tests the older send path / policy on fixed fixtures; the guards have their own test (test-push-guards.js)
 /* Offline test of the push ⇄ app invariant (scripts/push-sync.js):
    every push is sent only after the identical item (title, body, source link, time) is in road.json
    where the app shows it, and every attempt is logged to notifications.json.

@@ -31,7 +31,7 @@ const R = require("child_process").spawnSync(process.execPath, [path.join(__dirn
 ok(R.status === 0, `replay ran: ${R.stdout.trim()}`);
 const rep = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "data", "tier-replay.json"), "utf8"));
 const kept = rep.rows.filter((x) => x.new === "PUSH"), old = rep.rows.filter((x) => x.old === "sent");
-ok(rep.totals.before === 75 && rep.totals.after < 30, `75 pushes → ${rep.totals.after} (A ${rep.totals.A}, B ${rep.totals.B})`);
+ok(rep.totals.before >= 75 && rep.totals.after < 30, `${rep.totals.before} pushes → ${rep.totals.after} (A ${rep.totals.A}, B ${rep.totals.B})`);
 ok(kept.every((x) => x.tier === "A" || x.tier === "B") && rep.totals.A + rep.totals.B === rep.totals.after, "every kept push is A or B; no C reaches a phone");
 // launch-critical: independent of the classifier (regexes on the OLD sent rows) → each distinct critical event must still have ≥1 push
 const crit = [

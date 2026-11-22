@@ -65,13 +65,15 @@ const step = async (label, l, nowIso) => {
   got = await step("LL2's first result is now Flight 16 (later placeholder date)", launch(16, "TBD", "2026-12-31T00:00:00Z", "Q4"), "2026-10-14T03:00:00Z");
   check(got.length === 0 && state.n === 16, "flight switch → tracked silently, no 'Launch delayed' / 'Flight update' push");
 
-  got = await step("Flight 16 really slips (same flight)", launch(16, "TBC", "2027-01-20T00:00:00Z", "DAY"), "2026-10-20T03:00:00Z");
-  check(got.length === 1 && got[0].title === "🚧 Launch delayed", `a delay of the SAME flight still pushes '🚧 Launch delayed' ("${got[0] && got[0].body}")`);
+  got = await step("Flight 16 slips (same flight), first poll", launch(16, "TBC", "2027-01-20T00:00:00Z", "DAY"), "2026-10-20T03:00:00Z");
+  check(!got.some((n) => /delayed|estimated date|time confirmed/i.test(n.title)), "batch 1: a non-Go date move sends no date push on the first poll (debounce; the status line may still go)");
+  got = await step("Flight 16 slip seen again 15 min later", launch(16, "TBC", "2027-01-20T00:00:00Z", "DAY"), "2026-10-20T03:15:00Z");
+  check(got.length === 1 && got[0].title === "🚧 Launch delayed", `a delay of the SAME flight still pushes '🚧 Launch delayed' once it holds ("${got[0] && got[0].body}")`);
 
   got = await step("Flight 16 goes TBC → TBD", launch(16, "TBD", "2027-01-20T00:00:00Z", "DAY"), "2026-10-21T03:00:00Z");
   check(got.length === 1 && got[0].body === "Now: Date to be confirmed", `generic status push uses words, not codes ("${got[0] && got[0].title} / ${got[0] && got[0].body}")`);
 
-  check(flights.mapLL2Status("In Flight") === "inflight" && flights.mapLL2Status("Deployed") === "inflight" && flights.mapLL2Status("Success") === "done" && flights.mapLL2Status("Hold") === "confirmed", "status mapping: In Flight/Deployed → inflight, results → done, Hold → confirmed");
+  check(flights.mapLL2Status("In Flight") === "inflight" && flights.mapLL2Status("Deployed") === "inflight" && flights.mapLL2Status("Success") === "done" && flights.mapLL2Status("Hold") === "hold", "status mapping: In Flight/Deployed → inflight, results → done, Hold → hold (its own state, batch 1)");
 
   console.log(failed ? `\n❌ ${failed} check(s) failed` : "\n✅ All checks passed. (Offline — nothing real was fetched, saved, committed or sent.)");
   process.exit(failed ? 1 : 0);

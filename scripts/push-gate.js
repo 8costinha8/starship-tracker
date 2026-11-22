@@ -34,11 +34,17 @@ function shadowOn({ root = path.join(__dirname, ".."), env = process.env, now = 
   try { const j = JSON.parse(fs.readFileSync(path.join(root, "push-shadow.json"), "utf8")); return !!j && ms(j.until) > now; } catch { return false; }
 }
 // a recap / source text that only summarises earlier events
-const isRecap = (n) => RECAP.test(`${n.source_text || ""} ${n.title_src || ""}`) || /youtube\.com|youtu\.be/.test(n.url || "") && RECAP.test(n.source_text || "");
+// Batch 1 (22 Nov audit): also recap WORDING in the push body or the source ("last week", "their first Starship", "highlights", "relive" …), for official accounts too.
+const isRecap = (n) => RECAP.test(`${n.source_text || ""} ${n.title_src || ""}`) || pp.RECAP_LEX.test(`${n.body || ""} ${n.source_text || ""} ${n.title_src || ""}`) || /youtube\.com|youtu\.be/.test(n.url || "") && RECAP.test(n.source_text || "");
+const OUTCOME_EVENTS = new Set(["flight_results", "catch", "launch"]);
+// an outcome claim ("splashed down", "caught", "launched") that names only an OLDER flight is a recap of it, whoever posts it
+const olderFlightOutcome = (cls, n, flight) => { if (!Number.isInteger(flight) || !OUTCOME_EVENTS.has(cls.type)) return null; const nums = pp.FLIGHT_NUMS(textOf(n)); return nums.length && !nums.includes(flight) && Math.max(...nums) < flight ? Math.max(...nums) : null; };
 // B. stale: milestone already pushed on an earlier UK day (sent rows only; a silent backfill only blocks its own day)
-function staleCheck(n, history, { vehicles = [] } = {}) {
-  const cls = pp.classify(n, { vehicles });
+function staleCheck(n, history, { vehicles = [], flight = undefined } = {}) {
+  const cls = pp.classify(n, { vehicles, flight });
   const recap = isRecap(n);
+  const older = olderFlightOutcome(cls, n, flight);
+  if (older) return { stale: true, reason: `recap of Flight ${older} (a finished flight; current is ${flight})`, cls };
   if (!cls.milestone) return recap ? { stale: true, reason: "recap (summary of earlier news)", cls } : { stale: false, cls };
   const earlier = (history || []).filter((r) => r && r.verdict === "sent" && !r.retracted).reverse().map((r) => ({ r, c: r.key ? { key: r.key } : pp.classify(r, { vehicles }) }))
     .find(({ r, c }) => { const [v, t, d] = String(c.key).split("|"); return v === cls.vehicle && t === cls.type && d !== cls.date && ms(r.sent_at) < ms(n.at || n.sent_at) + 3600000; });
@@ -60,14 +66,14 @@ function correctionOf(n, history, { vehicles = [] } = {}) {
 }
 /* evaluate one push. ctx: { history, state (state.pushGate), now, seenPosts, vehicles, refetch(url) → text|null }.
    Returns { action: send|hold|drop|media_only, n (possibly edited), reason, big, correction } */
-async function evaluate(n, { history = [], state = {}, now = Date.now(), seenPosts = [], vehicles = [], refetch = null } = {}) {
+async function evaluate(n, { history = [], state = {}, now = Date.now(), seenPosts = [], vehicles = [], refetch = null, flight = undefined } = {}) {
   const pend = (state.pending = state.pending || []);
   const key = n.url || n.body;
   const corr = correctionOf(n, history, { vehicles });
   // decided this run (correction / stale): leave the held list, or it is re-queued and re-logged every run (10 Nov loop)
-  if (corr || staleCheck(n, history, { vehicles }).stale) state.pending = pend.filter((x) => x.key !== key);
+  if (corr || staleCheck(n, history, { vehicles, flight }).stale) state.pending = pend.filter((x) => x.key !== key);
   if (corr) return { action: "send", n: { ...n, title: `Correction · ${n.title.replace(/^Correction · /, "")}` }, reason: `corrects "${corr.body}" (${corr.sent_at})`, correction: true, big: true };
-  const st = staleCheck(n, history, { vehicles });
+  const st = staleCheck(n, history, { vehicles, flight });
   if (st.stale) return { action: st.media_only ? "media_only" : "drop", n, reason: `stale: ${st.reason}` };
   const big = isOfficial(n) && (st.cls.milestone || BIG.test(`${n.body || ""} ${n.source_text || ""}`));
   if (n.kind === "notice" || n.where === "mission-scheduled" || isOfficial(n) || !/x\.com\//.test(n.url || "")) return { action: "send", n, reason: isOfficial(n) ? "official source" : "not an X tracker post", big };

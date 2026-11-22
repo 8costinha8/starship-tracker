@@ -1,0 +1,859 @@
+{
+ "note": "Last 10 pushes with verdict=sent in notifications.json at fc9618f (22 Nov 2026). source_text = public X post text read 22 Nov (ellipsis = shortened). history = all log rows (sent / shadow) before them. Context at the time: flight 16, vehicles B23+S43.",
+ "road": {
+  "flight": 16,
+  "vehicles": [
+   "B23",
+   "S43"
+  ]
+ },
+ "history": [
+  {
+   "title": "🏗️ Pad activity: Completed",
+   "body": "Booster 22 rolls to Launch Pad 2.",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2113907865060819060",
+   "url": "https://x.com/NASASpaceflight/status/2113954013615952349",
+   "at": "2026-10-24T11:21:26.000Z",
+   "sent_at": "2026-10-24T11:30:41.672Z",
+   "where": "road",
+   "verdict": "sent"
+  },
+  {
+   "title": "🚀 Starship",
+   "body": "Booster 22 is being lifted onto launch pad 2",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mvmgoq8g-00233b",
+   "url": "https://x.com/NASASpaceflight/status/2113992853093601306",
+   "at": "2026-10-24T13:55:46.000Z",
+   "sent_at": "2026-10-24T14:01:17.447Z",
+   "where": "feed",
+   "verdict": "sent"
+  },
+  {
+   "title": "🏗️ Pad activity: Done",
+   "body": "Booster 22 stacked on the OLM at Pad 2.",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2114016319679201462",
+   "url": "https://x.com/Blobifie/status/2114016319679201462",
+   "at": "2026-10-24T15:29:01.000Z",
+   "sent_at": "2026-10-24T15:30:38.670Z",
+   "where": "road",
+   "verdict": "sent",
+   "data_fix": "29 Oct: sent as Pad 1 (wrong) — B22 is at Pad 2"
+  },
+  {
+   "title": "💥 Static fires · Flight 15",
+   "body": "Road closed ahead of static fire test.",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2114317866409595106",
+   "url": "https://x.com/Blobifie/status/2114317866409595106",
+   "at": "2026-10-25T11:27:16.000Z",
+   "sent_at": "2026-10-25T11:30:37.763Z",
+   "where": "road",
+   "verdict": "sent"
+  },
+  {
+   "title": "💥 Static fires: Completed",
+   "body": "Booster 22 completed its static fire at the launch site.",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2111327584122437857",
+   "url": "https://x.com/NASASpaceflight/status/2114320643470549259",
+   "at": "2026-10-25T11:38:18.000Z",
+   "sent_at": "2026-10-25T11:45:42.010Z",
+   "where": "road",
+   "verdict": "sent"
+  },
+  {
+   "title": "💥 Static fires · Flight 15",
+   "body": "Booster 22 transport ring relocated at launch site ahead of static fire.",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2114335419785679308",
+   "url": "https://x.com/LabPadre/status/2114335419785679308",
+   "at": "2026-10-25T12:37:01.000Z",
+   "sent_at": "2026-10-25T12:45:36.937Z",
+   "where": "road",
+   "verdict": "sent"
+  },
+  {
+   "title": "❄️ Cryo tests: In progress",
+   "body": "Booster 22 undergoing cryo tests at the launch site.",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2114339995121332263",
+   "url": "https://x.com/Blobifie/status/2114339995121332263",
+   "at": "2026-10-25T12:55:12.000Z",
+   "sent_at": "2026-10-25T13:01:16.904Z",
+   "where": "road",
+   "verdict": "sent"
+  },
+  {
+   "title": "🚀 Starship",
+   "body": "Booster 22 propellant loading has begun for static fire test",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mvntvaz4-93c869",
+   "url": "https://x.com/NASASpaceflight/status/2114339334753284398",
+   "at": "2026-10-25T12:52:34.000Z",
+   "sent_at": "2026-10-25T13:01:17.465Z",
+   "where": "feed",
+   "verdict": "sent"
+  },
+  {
+   "title": "🚀 Starship",
+   "body": "Full duration static fire completed for booster preparing for flight 15",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mvo8qv2g-e23cc6",
+   "url": "https://x.com/SpaceX/status/2114444137067844004",
+   "at": "2026-10-25T19:49:01.000Z",
+   "sent_at": "2026-10-25T20:11:25.016Z",
+   "where": "feed",
+   "verdict": "sent"
+  },
+  {
+   "title": "💥 Static fires (unconfirmed)",
+   "body": "Starship Flight 15 static fire activity noted.",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2114513919566033266",
+   "url": "https://x.com/elonmusk/status/2114513919566033266",
+   "at": "2026-10-26T00:26:18.000Z",
+   "sent_at": "2026-10-26T00:30:55.582Z",
+   "where": "road",
+   "verdict": "sent"
+  },
+  {
+   "title": "❄️ Cryo tests: In progress",
+   "body": "Ship 42 heads to Massey's for cryo tests.",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2114535368758542634",
+   "url": "https://x.com/Blobifie/status/2114535368758542634",
+   "at": "2026-10-26T01:51:32.000Z",
+   "sent_at": "2026-10-26T02:01:07.330Z",
+   "where": "road",
+   "verdict": "sent"
+  },
+  {
+   "title": "❄️ Cryo tests · Flight 15",
+   "body": "Ship 42 arrives at Massey's test site as Ship 43 departs.",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2114568166651428965",
+   "url": "https://x.com/NASASpaceflight/status/2114568166651428965",
+   "at": "2026-10-26T04:01:52.000Z",
+   "sent_at": "2026-10-26T04:21:12.493Z",
+   "where": "road",
+   "verdict": "sent"
+  },
+  {
+   "title": "🚀 Starship",
+   "body": "Ship 43 is being transported by road to the production site",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mvopynkg-826d56",
+   "url": "https://x.com/TrackingTheSB/status/2114565423912108360",
+   "at": "2026-10-26T03:50:58.000Z",
+   "sent_at": "2026-10-26T04:21:13.768Z",
+   "where": "feed",
+   "verdict": "sent"
+  },
+  {
+   "title": "🚀 Starship",
+   "body": "Booster 22 has been lifted to catch height at the launch site",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mvortxmw-db27d7",
+   "url": "https://x.com/RGVaerialphotos/status/2114578590792859900",
+   "at": "2026-10-26T04:43:17.000Z",
+   "sent_at": "2026-10-26T04:45:51.376Z",
+   "where": "feed",
+   "verdict": "sent"
+  },
+  {
+   "title": "🏗️ Pad activity: In progress",
+   "body": "Booster 22 lifts to catch height at the launch mount.",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2114578590792859900",
+   "url": "https://x.com/RGVaerialphotos/status/2114578590792859900",
+   "at": "2026-10-26T04:43:17.000Z",
+   "sent_at": "2026-10-26T05:01:06.032Z",
+   "where": "road",
+   "verdict": "sent"
+  },
+  {
+   "title": "🚀 Starship",
+   "body": "Booster 22 has been moved onto its transporter ahead of returning to Megabay 1",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mvown148-6ecbdb",
+   "url": "https://x.com/RGVaerialphotos/status/2114612462184178003",
+   "at": "2026-10-26T06:57:53.000Z",
+   "sent_at": "2026-10-26T07:02:19.219Z",
+   "where": "feed",
+   "verdict": "sent"
+  },
+  {
+   "title": "🚀 Starship",
+   "body": "Ship 42 is being transported to the Massey's test site, with an engine section in tow",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mvozi9xs-e0267f",
+   "url": "https://x.com/RGVaerialphotos/status/2114632668461900071",
+   "at": "2026-10-26T08:18:10.000Z",
+   "sent_at": "2026-10-26T08:30:51.372Z",
+   "where": "feed",
+   "verdict": "sent"
+  },
+  {
+   "title": "🏗️ Pad activity · Flight 15",
+   "body": "Booster 22 returns to Megabay 2 for final preflight work.",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2114686191627030843",
+   "url": "https://x.com/Blobifie/status/2114686191627030843",
+   "at": "2026-10-26T11:50:51.000Z",
+   "sent_at": "2026-10-26T12:20:03.172Z",
+   "where": "road",
+   "verdict": "sent"
+  },
+  {
+   "title": "🚀 Starship",
+   "body": "Ship 43 has returned to the production site from chopstick tests",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mvrm1w14-668ed2",
+   "url": "https://x.com/NASASpaceflight/status/2115298718035370428",
+   "at": "2026-10-28T04:24:49.000Z",
+   "sent_at": "2026-10-28T13:36:21.174Z",
+   "where": "feed",
+   "verdict": "sent",
+   "key": "S43|other|28 Oct"
+  },
+  {
+   "title": "🚀 Starship",
+   "body": "Ship 42 completes full duration six-engine static fire and deorbit burn simulation",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mvsb9c8o-97f884",
+   "url": "https://x.com/SpaceX/status/2115476295169814978",
+   "at": "2026-10-28T16:10:27.000Z",
+   "sent_at": "2026-10-28T16:17:51.715Z",
+   "where": "feed",
+   "verdict": "sent",
+   "key": "S42|static_fire|28 Oct"
+  },
+  {
+   "title": "💥 Static fires · Flight 15",
+   "body": "Booster 22 completes its static fire at Pad 2.",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2115627415947059537",
+   "url": "https://x.com/NASASpaceflight/status/2115627415947059537",
+   "at": "2026-10-29T02:10:57.000Z",
+   "sent_at": "2026-10-29T02:32:08.230Z",
+   "where": "road",
+   "verdict": "sent",
+   "key": "B22|static_fire|29 Oct",
+   "retracted": true,
+   "data_fix": "29 Oct: stale — NSF Starship Update recap of the 25 Oct B22 static fire; card removed"
+  },
+  {
+   "title": "🏗️ Pad activity · Flight 15",
+   "body": "Ship 42 heads to launch site after tests.",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2115701002095755563",
+   "url": "https://x.com/RGVaerialphotos/status/2115701002095755563",
+   "at": "2026-10-29T07:03:21.000Z",
+   "sent_at": "2026-10-29T07:19:02.903Z",
+   "where": "road",
+   "verdict": "sent",
+   "key": "S42|rollout|29 Oct",
+   "retracted": true,
+   "data_fix": "29 Oct: wrong — the post was edited a minute later: Ship 42 went back to the production site / Megabay 2; card corrected"
+  },
+  {
+   "title": "🚀 Starship",
+   "body": "Booster 23 has returned to Megabay 1 from the Massey outpost",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mvuqvczs-7b7a15",
+   "url": "https://x.com/LabPadre/status/2116093506200453375",
+   "at": "2026-10-30T09:03:01.000Z",
+   "sent_at": "2026-10-30T09:45:27.723Z",
+   "where": "feed",
+   "verdict": "shadow: would push",
+   "gate": "hold passed (1 run)",
+   "key": "B23|other|30 Oct"
+  },
+  {
+   "title": "📅 Flight 15",
+   "body": "Flight 15 now NET 12 Nov (was 8 Nov) · unofficial",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=launch_date-mvv5rls0-69f74f",
+   "url": "",
+   "at": "2026-10-30T16:00:00.000Z",
+   "sent_at": "2026-10-30T16:20:05.416Z",
+   "where": "feed",
+   "verdict": "sent",
+   "key": "F15|launch_date|30 Oct"
+  },
+  {
+   "title": "🚀 Starship",
+   "body": "SpaceX completes three static fires in three days for flight 15",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mvviedow-8ae8e8",
+   "url": "https://www.nasaspaceflight.com/2026/10/spacex-static-fires-flight-15/",
+   "at": "2026-10-30T21:53:38.000Z",
+   "sent_at": "2026-10-30T22:17:00.040Z",
+   "where": "feed",
+   "verdict": "sent",
+   "gate": "not an X tracker post",
+   "key": "F15|static_fire|30 Oct"
+  },
+  {
+   "title": "🚀 Starship",
+   "body": "Flight 15 vehicles tested ahead of November launch",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mvycu1v4-3745f1",
+   "url": "https://www.youtube.com/watch?v=9i5-UQGTMHQ",
+   "at": "2026-11-01T21:41:10.000Z",
+   "sent_at": "2026-11-01T22:01:03.774Z",
+   "where": "feed",
+   "verdict": "sent",
+   "gate": "not an X tracker post",
+   "key": "F15|other|1 Nov"
+  },
+  {
+   "title": "🏗️ Pad activity (unconfirmed)",
+   "body": "Booster 22 heads to preparation in Mega Bay 1.",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2117466177400434911",
+   "url": "https://x.com/efraser77/status/2117466177400434911",
+   "at": "2026-11-03T03:57:31.000Z",
+   "sent_at": "2026-11-03T04:31:18.507Z",
+   "where": "road",
+   "verdict": "sent",
+   "gate": "hold passed (1 run)",
+   "key": "B22|transport|3 Nov"
+  },
+  {
+   "title": "🚀 Starship",
+   "body": "Flight 15 may see both booster and ship caught at base",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mw2npcig-f44b5b",
+   "url": "https://www.youtube.com/watch?v=8Dsld-4HrXY",
+   "at": "2026-11-04T21:56:31.000Z",
+   "sent_at": "2026-11-04T22:16:05.511Z",
+   "where": "feed",
+   "verdict": "sent",
+   "gate": "not an X tracker post",
+   "key": "B22|other|4 Nov"
+  },
+  {
+   "title": "📅 New estimated date",
+   "body": "NET 13 Nov",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=flight-mw43aanl-eaa14d",
+   "url": "",
+   "at": "2026-11-05T22:00:28.785Z",
+   "sent_at": "2026-11-05T22:01:31.275Z",
+   "where": "feed",
+   "verdict": "sent",
+   "gate": "not an X tracker post",
+   "key": "starship|launch_date|5 Nov"
+  },
+  {
+   "title": "🏗️ Pad activity · Flight 15",
+   "body": "Pad 2 chopstick and deluge testing completed.",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2118557148183683543",
+   "url": "https://x.com/RGVaerialphotos/status/2118557148183683543",
+   "at": "2026-11-06T04:12:39.000Z",
+   "sent_at": "2026-11-06T04:15:58.298Z",
+   "where": "road",
+   "verdict": "sent",
+   "gate": "second trusted source agrees",
+   "key": "starship|pad_work|6 Nov"
+  },
+  {
+   "title": "📅 Flight 15",
+   "body": "Flight 15 now NET 13 Nov (was 12 Nov) · unofficial",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=launch_date-mw53vcbn-c8c2a8",
+   "url": "",
+   "at": "2026-11-06T15:04:36.899Z",
+   "sent_at": "2026-11-06T15:05:32.132Z",
+   "where": "feed",
+   "verdict": "sent",
+   "key": "F15|launch_date|6 Nov"
+  },
+  {
+   "title": "Flight 15 update",
+   "body": "SpaceX plans to try catching both Booster 22 and Ship 42 (Elon Musk, 6 Nov).",
+   "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+   "url": "https://x.com/elonmusk/status/2118732082843435305",
+   "at": "2026-11-06T15:47:47.000Z",
+   "sent_at": "2026-11-06T16:01:19.282Z",
+   "where": "mission",
+   "verdict": "sent",
+   "gate": "official source",
+   "key": "B22|other|6 Nov"
+  },
+  {
+   "title": "🚧 Launch delayed",
+   "body": "Now 13 Nov 22:45",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=flight-mw6lawnq-3cabdd",
+   "url": "",
+   "at": "2026-11-07T16:00:22.742Z",
+   "sent_at": "2026-11-07T16:01:26.961Z",
+   "where": "feed",
+   "verdict": "sent",
+   "gate": "not an X tracker post",
+   "key": "starship|other|7 Nov"
+  },
+  {
+   "title": "🏗️ Pad activity: Complete",
+   "body": "Pad 2 completed another deluge test.",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2119447093546991754",
+   "url": "https://x.com/RGVaerialphotos/status/2119447093546991754",
+   "at": "2026-11-08T15:08:59.000Z",
+   "sent_at": "2026-11-08T15:46:07.987Z",
+   "where": "road",
+   "verdict": "sent",
+   "gate": "hold passed (1 run)",
+   "key": "starship|pad_work|8 Nov"
+  },
+  {
+   "title": "Flight 15 update",
+   "body": "FAA issues new launch advisory for Starship Flight 15 reentry window (FAA, 9 Nov).",
+   "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+   "url": "https://x.com/LabPadre/status/2119807846019706982",
+   "at": "2026-11-09T15:02:29.000Z",
+   "sent_at": "2026-11-09T15:45:33.294Z",
+   "where": "mission",
+   "verdict": "sent",
+   "gate": "hold passed (1 run)",
+   "key": "F15|faa_licence|9 Nov"
+  },
+  {
+   "title": "🏗️ Pad activity: In progress",
+   "body": "Booster 22 heads to Pad 2 for potential launch prep.",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2119899586005536831",
+   "url": "https://x.com/NASASpaceflight/status/2119899586005536831",
+   "at": "2026-11-09T21:07:01.000Z",
+   "sent_at": "2026-11-09T21:46:06.337Z",
+   "where": "road",
+   "verdict": "sent",
+   "gate": "hold passed (1 run)",
+   "key": "B22|rollout|9 Nov"
+  },
+  {
+   "title": "🏗️ Pad activity: Complete",
+   "body": "Booster 22 lifted to the top of the tower.",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2120046271859921250",
+   "url": "https://x.com/CSI_Starbase/status/2120046271859921250",
+   "at": "2026-11-10T06:49:54.000Z",
+   "sent_at": "2026-11-10T07:01:02.656Z",
+   "where": "road",
+   "verdict": "sent",
+   "gate": "second trusted source agrees",
+   "key": "B22|lift|10 Nov"
+  },
+  {
+   "title": "🏗️ Pad activity · Flight 15",
+   "body": "Pad 1 flame trench construction continues.",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2120268988621971885",
+   "url": "https://x.com/NASASpaceflight/status/2120268988621971885",
+   "at": "2026-11-10T21:34:54.000Z",
+   "sent_at": "2026-11-10T21:45:43.480Z",
+   "where": "road",
+   "verdict": "sent",
+   "gate": "second trusted source agrees",
+   "key": "starship|pad_work|10 Nov"
+  },
+  {
+   "title": "🚀 Starship",
+   "body": "Starlink speed loader left Starfactory to load Ship 42.",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mwcofsuw-afd53b",
+   "url": "https://x.com/NASASpaceflight/status/2120641416384922015",
+   "at": "2026-11-11T22:14:47.000Z",
+   "sent_at": "2026-11-11T22:45:39.223Z",
+   "where": "feed",
+   "verdict": "sent",
+   "gate": "hold passed (1 run)",
+   "key": "S42|other|11 Nov"
+  },
+  {
+   "title": "💥 Static fires · Flight 15",
+   "body": "Ship 42 lifted onto transport stand.",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2120647062765355431",
+   "url": "https://x.com/Blobifie/status/2120647062765355431",
+   "at": "2026-11-11T22:37:14.000Z",
+   "sent_at": "2026-11-11T23:01:05.073Z",
+   "where": "road",
+   "verdict": "sent",
+   "gate": "hold passed (1 run)",
+   "key": "S42|transport|11 Nov"
+  },
+  {
+   "title": "🚀 Starship",
+   "body": "Ship 42 was rolled to Pad 2 for Flight 15.",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mwctkn6g-276b89",
+   "url": "https://www.youtube.com/watch?v=nTP0658r-Ak",
+   "at": "2026-11-12T00:38:31.000Z",
+   "sent_at": "2026-11-12T01:30:53.236Z",
+   "where": "feed",
+   "verdict": "sent",
+   "gate": "not an X tracker post",
+   "key": "S42|rollout|12 Nov"
+  },
+  {
+   "title": "🏗️ Pad activity · Flight 15",
+   "body": "Ship 42 rolls toward the launch site for Flight 15.",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2120958355892035972",
+   "url": "https://x.com/NASASpaceflight/status/2120955546807214226",
+   "at": "2026-11-12T19:03:02.000Z",
+   "sent_at": "2026-11-12T19:46:10.779Z",
+   "where": "road",
+   "verdict": "sent",
+   "gate": "hold passed (1 run)",
+   "key": "S42|transport|12 Nov"
+  },
+  {
+   "title": "🏗️ Pad activity (unconfirmed)",
+   "body": "Ship 42 stacked on Booster 22 at Pad 2.",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2121006374041899190",
+   "url": "https://x.com/efraser77/status/2121005568722964862",
+   "at": "2026-11-12T22:21:48.000Z",
+   "sent_at": "2026-11-12T22:31:14.269Z",
+   "where": "road",
+   "verdict": "sent",
+   "gate": "second trusted source agrees",
+   "key": "S42|pad_work|12 Nov"
+  },
+  {
+   "title": "🏗️ Pad activity: Completed",
+   "body": "Ship 42 stacked on Booster 22 at Pad 2.",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2121006374041899190",
+   "url": "https://x.com/efraser77/status/2121005568722964862",
+   "at": "2026-11-12T22:21:48.000Z",
+   "sent_at": "2026-11-13T00:15:51.815Z",
+   "where": "road",
+   "verdict": "sent",
+   "gate": "second trusted source agrees",
+   "key": "S42|stacking|12 Nov"
+  },
+  {
+   "title": "🏗️ Pad activity · Flight 15",
+   "body": "Ship 42 has the SQD connected at the pad.",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2121053588348866651",
+   "url": "https://x.com/TrackingTheSB/status/2121053588348866651",
+   "at": "2026-11-13T01:32:37.000Z",
+   "sent_at": "2026-11-13T01:48:06.781Z",
+   "where": "road",
+   "verdict": "sent",
+   "gate": "second trusted source agrees",
+   "key": "S42|pad_work|13 Nov"
+  },
+  {
+   "title": "Flight 15 update",
+   "body": "Ship 42 is preparing for launch (Elon Musk, 13 Nov).",
+   "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+   "url": "https://x.com/elonmusk/status/2121250205806772283",
+   "at": "2026-11-13T14:33:54.000Z",
+   "sent_at": "2026-11-13T14:45:55.553Z",
+   "where": "mission",
+   "verdict": "sent",
+   "gate": "official source",
+   "key": "S42|other|13 Nov"
+  },
+  {
+   "title": "Flight 15 update",
+   "body": "SpaceX launches Starship Flight 15 with booster catch (NASASpaceflight, 13 Nov).",
+   "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+   "url": "https://x.com/NASASpaceflight/status/2121287277666029828",
+   "at": "2026-11-13T17:01:13.000Z",
+   "sent_at": "2026-11-13T17:46:33.954Z",
+   "where": "mission",
+   "verdict": "sent",
+   "gate": "hold passed (1 run)",
+   "key": "B22|launch|13 Nov"
+  },
+  {
+   "title": "📜 FAA licence: Confirmed",
+   "body": "FAA approval has arrived for Starship Flight 15.",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2121317448477728883",
+   "url": "https://x.com/NASASpaceflight/status/2121317448477728883",
+   "at": "2026-11-13T19:01:06.000Z",
+   "sent_at": "2026-11-13T19:16:03.652Z",
+   "where": "road",
+   "verdict": "sent",
+   "gate": "second trusted source agrees",
+   "key": "F15|other|13 Nov"
+  },
+  {
+   "title": "✅ Launch time confirmed",
+   "body": "13 Nov 22:45",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=flight-mwfdg7kn-8cd844",
+   "url": "",
+   "at": "2026-11-13T19:30:28.823Z",
+   "sent_at": "2026-11-13T19:31:55.221Z",
+   "where": "feed",
+   "verdict": "sent",
+   "gate": "not an X tracker post",
+   "key": "flight|launch_date@13 Nov 22:45|13 Nov"
+  },
+  {
+   "title": "🏗️ Pad activity · Flight 15",
+   "body": "Pad 2 chopsticks opening for launch and catch.",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2121314305836810700",
+   "url": "https://x.com/RGVaerialphotos/status/2121314305836810700",
+   "at": "2026-11-13T18:48:37.000Z",
+   "sent_at": "2026-11-13T19:32:23.120Z",
+   "where": "road",
+   "verdict": "sent",
+   "gate": "hold passed (1 run)",
+   "key": "starship|pad_work|13 Nov"
+  },
+  {
+   "title": "📡 Livestream ready",
+   "body": "Liftoff in 60 min - tap to watch",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=flight-mwfi9kn7-95ee39",
+   "url": "",
+   "at": "2026-11-13T21:45:17.251Z",
+   "sent_at": "2026-11-13T21:45:48.529Z",
+   "where": "feed",
+   "verdict": "sent",
+   "gate": "not an X tracker post",
+   "key": "starship|livestream|13 Nov"
+  },
+  {
+   "title": "🚧 Launch delayed",
+   "body": "Now 13 Nov 22:47",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=flight-mwfit5i8-ba5006",
+   "url": "",
+   "at": "2026-11-13T22:00:30.752Z",
+   "sent_at": "2026-11-13T22:01:28.142Z",
+   "where": "feed",
+   "verdict": "sent",
+   "gate": "not an X tracker post",
+   "key": "flight|launch_date@13 Nov 22:47|13 Nov"
+  },
+  {
+   "title": "🚀 Liftoff!",
+   "body": "Flight 15 is in the air · Watch now",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=flight-mwfkybz8-c6bb88",
+   "url": "",
+   "at": "2026-11-13T23:00:31.652Z",
+   "sent_at": "2026-11-13T23:02:15.106Z",
+   "where": "feed",
+   "verdict": "sent",
+   "gate": "not an X tracker post",
+   "key": "F15|launch|13 Nov"
+  },
+  {
+   "title": "Flight 15 update",
+   "body": "Super Heavy diverted to offshore splashdown in Gulf (SpaceX, 13 Nov).",
+   "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+   "url": "https://x.com/SpaceX/status/2121376372576915909",
+   "at": "2026-11-13T22:55:15.000Z",
+   "sent_at": "2026-11-13T23:16:48.100Z",
+   "where": "mission",
+   "verdict": "sent",
+   "gate": "official source",
+   "key": "B22|flight_results|13 Nov"
+  },
+  {
+   "title": "Flight 15 update",
+   "body": "Starship continues in orbit with healthy heatshield ahead of planned catch (SpaceX, 14 Nov).",
+   "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+   "url": "https://x.com/SpaceX/status/2121479482582441991",
+   "at": "2026-11-14T05:44:58.000Z",
+   "sent_at": "2026-11-14T05:45:50.852Z",
+   "where": "mission",
+   "verdict": "sent",
+   "gate": "official source",
+   "key": "starship|other|14 Nov"
+  },
+  {
+   "title": "🏗️ Pad activity · Flight 15",
+   "body": "Pad 2 chopsticks raised back after inspection.",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2121493937852473798",
+   "url": "https://x.com/LabPadre/status/2121493937852473798",
+   "at": "2026-11-14T06:42:24.000Z",
+   "sent_at": "2026-11-14T07:02:03.298Z",
+   "where": "road",
+   "verdict": "sent",
+   "gate": "hold passed (1 run)",
+   "key": "starship|pad_work|14 Nov"
+  },
+  {
+   "title": "Flight 15 update",
+   "body": "Starship is coasting in orbit and on track for return to launch site today (SpaceX, 14 Nov).",
+   "link": "https://8costinha8.github.io/starship-tracker/?flight=15",
+   "url": "https://x.com/SpaceX/status/2121629656868614213",
+   "at": "2026-11-14T15:41:42.000Z",
+   "sent_at": "2026-11-14T15:45:57.226Z",
+   "where": "mission",
+   "verdict": "sent",
+   "gate": "official source",
+   "key": "starship|transport|14 Nov"
+  },
+  {
+   "title": "🏗️ Pad activity (unconfirmed)",
+   "body": "Ship 42 heads back after pad activity at Pad 2.",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2121660075479843241",
+   "url": "https://x.com/Blobifie/status/2121660075479843241",
+   "at": "2026-11-14T17:42:35.000Z",
+   "sent_at": "2026-11-14T17:46:14.660Z",
+   "where": "road",
+   "verdict": "sent",
+   "gate": "second trusted source agrees",
+   "key": "S42|transport|14 Nov"
+  },
+  {
+   "title": "🏗️ Pad activity · Flight 15",
+   "body": "SpaceX cleared the launch pad for a Ship 42 catch attempt.",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2121668189490757812",
+   "url": "https://x.com/LabPadre/status/2121668189490757812",
+   "at": "2026-11-14T18:14:49.000Z",
+   "sent_at": "2026-11-14T18:34:22.016Z",
+   "where": "road",
+   "verdict": "sent",
+   "gate": "hold passed (1 run)",
+   "key": "S42|pad_work|14 Nov"
+  },
+  {
+   "title": "⏱️ Deorbit in 5 min",
+   "body": "Watch live",
+   "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=mission_alert-mwgulw99-9b4d73",
+   "url": "",
+   "at": "2026-11-14T20:18:33.741Z",
+   "sent_at": "2026-11-14T20:18:36.964Z",
+   "where": "feed",
+   "verdict": "sent",
+   "alert_key": "15|deorbit_soon",
+   "key": "15|deorbit_soon"
+  }
+ ],
+ "cases": [
+  {
+   "n": 1,
+   "push": {
+    "title": "✅ Ship caught!",
+    "body": "Flight 15",
+    "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=mission_alert-mwgwydcg-f81d3a",
+    "url": "",
+    "at": "2026-11-14T21:24:14.992Z",
+    "sent_at": "2026-11-14T21:24:18.735Z",
+    "where": "feed",
+    "verdict": "sent",
+    "alert_key": "15|ship_result",
+    "key": "S42|catch|14 Nov",
+    "source_url": "https://x.com/NASASpaceflight/status/2121715006299639855",
+    "source": "@NASASpaceflight"
+   },
+   "source_text": ""
+  },
+  {
+   "n": 2,
+   "push": {
+    "title": "🏁 Flight 15 — Success",
+    "body": "The story's up in the app.",
+    "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=flight-mwgx6mtf-7296a4",
+    "url": "",
+    "at": "2026-11-14T21:30:40.515Z",
+    "sent_at": "2026-11-14T21:31:41.452Z",
+    "where": "feed",
+    "verdict": "sent",
+    "gate": "not an X tracker post",
+    "key": "starship|flight_results|14 Nov"
+   },
+   "source_text": ""
+  },
+  {
+   "n": 3,
+   "push": {
+    "title": "🚀 Starship",
+    "body": "Starship heat shield and engines were reviewed and looked great.",
+    "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mwieees8-17ee6f",
+    "url": "https://x.com/elonmusk/status/2122092374016806969",
+    "at": "2026-11-15T22:20:23.000Z",
+    "sent_at": "2026-11-15T22:30:55.788Z",
+    "where": "feed",
+    "verdict": "sent",
+    "gate": "official source",
+    "key": "starship|other|15 Nov"
+   },
+   "source_text": "Yeah, I was going over the whole Starship heat shield earlier today. Overall, it looks great. The engines look great too. Ship 42 could probably be reflown with a few weeks of refurbishment. However, many small fixes are needed to achieve immediate reusability (like an airplane), which requires zero expected refurbishment, apart from scheduled maintenance."
+  },
+  {
+   "n": 4,
+   "push": {
+    "title": "Flight 16 update",
+    "body": "SpaceX plans to catch a Starship from space (Elon Musk, 16 Nov).",
+    "link": "https://8costinha8.github.io/starship-tracker/?flight=16",
+    "url": "https://x.com/elonmusk/status/2122408454325416322",
+    "at": "2026-11-16T19:16:22.000Z",
+    "sent_at": "2026-11-16T19:30:59.751Z",
+    "where": "mission",
+    "verdict": "sent",
+    "gate": "official source",
+    "key": "starship|other|16 Nov"
+   },
+   "source_text": "Catching a Starship from space"
+  },
+  {
+   "n": 5,
+   "push": {
+    "title": "🚀 Starship",
+    "body": "Starbase tower chopsticks caught their first Starship.",
+    "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mwl8vr54-0b81de",
+    "url": "https://x.com/SpaceX/status/2122814338893332591",
+    "at": "2026-11-17T22:09:13.000Z",
+    "sent_at": "2026-11-17T22:15:39.650Z",
+    "where": "feed",
+    "verdict": "sent",
+    "gate": "official source",
+    "key": "starship|catch|17 Nov"
+   },
+   "source_text": "The Starbase tower chopsticks catching their first Starship. This unique architecture was designed for full and rapid reusability, enabling repeat launches and landings from the same pad"
+  },
+  {
+   "n": 6,
+   "push": {
+    "title": "🏗️ Pad activity: In progress",
+    "body": "Pad 2 work resumes after Flight 15.",
+    "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2123269690457780726",
+    "url": "https://x.com/TrackingTheSB/status/2123269690457780726",
+    "at": "2026-11-19T04:18:37.000Z",
+    "sent_at": "2026-11-19T04:46:26.215Z",
+    "where": "road",
+    "verdict": "sent",
+    "gate": "hold passed (1 run)",
+    "key": "F15|pad_work|19 Nov"
+   },
+   "source_text": "Crews are quickly back at work on Pad 2 following Starship Flight 15."
+  },
+  {
+   "n": 7,
+   "push": {
+    "title": "🚀 Starship",
+    "body": "Ship 44 rolled out for its cryogenic proof campaign.",
+    "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mwnvdvzs-cfb68e",
+    "url": "https://x.com/TrackingTheSB/status/2123480103191736583",
+    "at": "2026-11-19T18:14:43.000Z",
+    "sent_at": "2026-11-19T18:30:52.738Z",
+    "where": "feed",
+    "verdict": "sent",
+    "gate": "hold passed (1 run)",
+    "key": "S44|rollout|19 Nov"
+   },
+   "source_text": "Ship 44 is rolling out for its cryogenic proof campaign."
+  },
+  {
+   "n": 8,
+   "push": {
+    "title": "🚀 Starship",
+    "body": "Super Heavy booster performed safe abort and splashed down off Starbase.",
+    "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mwo0j8u0-65a6e9",
+    "url": "https://x.com/SpaceX/status/2123516375805379040",
+    "at": "2026-11-19T20:38:51.000Z",
+    "sent_at": "2026-11-19T20:46:00.217Z",
+    "where": "feed",
+    "verdict": "sent",
+    "gate": "official source",
+    "key": "B23|flight_results|19 Nov"
+   },
+   "source_text": "On Starship's 15th flight last week, the Super Heavy booster correctly performed a safe abort when returning for a catch and ended its mission with a splashdown in the water off the coast of Starbase. Following splashdown, SpaceX recovery teams were immediately onsite to safe the area ... When we received reports of potential debris in Mexican territory, we immediately mobilized to send specialists ..."
+  },
+  {
+   "n": 9,
+   "push": {
+    "title": "🚀 Starship",
+    "body": "Raptor engines powered Super Heavy and Starship on Flight 15.",
+    "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mwpis5m8-5f4faa",
+    "url": "https://x.com/SpaceX/status/2123898539352756617",
+    "at": "2026-11-20T21:57:26.000Z",
+    "sent_at": "2026-11-20T22:00:58.549Z",
+    "where": "feed",
+    "verdict": "sent",
+    "gate": "official source",
+    "key": "B23|other|20 Nov"
+   },
+   "source_text": "Raptor engines powering Super Heavy and Starship on Flight 15"
+  },
+  {
+   "n": 10,
+   "push": {
+    "title": "🚀 Starship",
+    "body": "Booster 25's LOX landing tank was moved to Megabay 1.",
+    "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mwqygy1k-5cfda7",
+    "url": "https://x.com/RGVaerialphotos/status/2124262674834071685",
+    "at": "2026-11-21T22:04:23.000Z",
+    "sent_at": "2026-11-21T22:45:26.421Z",
+    "where": "feed",
+    "verdict": "sent",
+    "gate": "hold passed (1 run)",
+    "key": "B25|transport|21 Nov"
+   },
+   "source_text": "Booster 25's LOX landing tank was moved to Megabay 1 yesterday"
+  }
+ ]
+}

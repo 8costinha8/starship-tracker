@@ -12,6 +12,6 @@ function withRetry(fetchFn, { retries = 2, backoff = [500, 1500], log = () => {}
     }
     throw last;
   };
-  f.__retry = true; return f;
+  f.__retry = true; f.__raw = fetchFn; return f;
 }
 module.exports = { withRetry };

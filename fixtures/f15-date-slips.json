@@ -1,0 +1,26 @@
+{
+  "note": "Real Flight 15 date history, rebuilt from notifications.json (fc9618f): 8 Nov → NET 12 Nov (30 Oct) → NET 13 Nov (5 Nov) → 13 Nov 22:45 exact time (7 Nov) → Go, confirmed (13 Nov 19:30) → 22:47 slip on the day → liftoff 23:00. LL2 poll values are reconstructed from those pushes (precision DAY for estimates, MIN once a time exists); every poll is 15 minutes apart, each value is polled 3 times unless noted.",
+  "polls": [
+    { "at": "2026-10-14T18:30:00Z", "status": "TBC", "net": "2026-11-08T00:00:00Z", "prec": "DAY", "expect": [] },
+    { "at": "2026-10-30T16:15:00Z", "status": "TBC", "net": "2026-11-12T00:00:00Z", "prec": "DAY", "expect": [], "note": "first poll of the slip: debounced" },
+    { "at": "2026-10-30T16:30:00Z", "status": "TBC", "net": "2026-11-12T00:00:00Z", "prec": "DAY", "expect": ["🚧 Launch delayed"] },
+    { "at": "2026-11-02T10:00:00Z", "status": "TBC", "net": "2026-11-14T00:00:00Z", "prec": "DAY", "expect": [], "note": "one-poll wiggle ..." },
+    { "at": "2026-11-02T10:15:00Z", "status": "TBC", "net": "2026-11-12T00:00:00Z", "prec": "DAY", "expect": [], "note": "... that flips back: never a push" },
+    { "at": "2026-11-05T22:00:00Z", "status": "TBC", "net": "2026-11-13T00:00:00Z", "prec": "DAY", "expect": [] },
+    { "at": "2026-11-05T22:15:00Z", "status": "TBC", "net": "2026-11-13T00:00:00Z", "prec": "DAY", "expect": ["🚧 Launch delayed"] },
+    { "at": "2026-11-07T16:00:00Z", "status": "TBC", "net": "2026-11-13T22:45:00Z", "prec": "MIN", "expect": [], "note": "same UK day, now with a time: debounced like any non-Go move" },
+    { "at": "2026-11-07T16:15:00Z", "status": "TBC", "net": "2026-11-13T22:45:00Z", "prec": "MIN", "expect": ["📅 New estimated time"] },
+    { "at": "2026-11-13T19:30:00Z", "status": "Go", "net": "2026-11-13T22:45:00Z", "prec": "MIN", "expect": ["✅ Launch time confirmed"] },
+    { "at": "2026-11-13T21:45:00Z", "status": "Go", "net": "2026-11-13T22:45:00Z", "prec": "MIN", "expect": ["📡 Livestream ready"] },
+    { "at": "2026-11-13T22:01:00Z", "status": "Go", "net": "2026-11-13T22:47:00Z", "prec": "MIN", "expect": ["🚧 Launch delayed"], "note": "slip on launch day: immediate" },
+    { "at": "2026-11-13T22:16:00Z", "status": "Go", "net": "2026-11-13T22:47:00Z", "prec": "MIN", "expect": ["📡 Livestream ready"], "note": "second T-60 reminder for the NEW time: the checker emits it, push-policy silences it as a duplicate (the live log shows exactly that at 22:02)" }
+  ],
+  "posts": [
+    { "id": "f15-1", "user": "SpaceX", "at": "2026-10-30T16:20:00Z", "text": "Flight 15 now targeting NET 12 November", "line": "SpaceX now targets 12 November.", "phase": "expected" },
+    { "id": "f15-2", "user": "SpaceX", "at": "2026-11-05T22:01:00Z", "text": "Flight 15 now targeting NET 13 November", "line": "SpaceX now targets 13 November.", "phase": "expected" },
+    { "id": "f15-3", "user": "SpaceX", "at": "2026-11-07T16:01:00Z", "text": "Flight 15 targeting 13 November at 22:45 UK", "line": "SpaceX now targets 13 November at 22:45 UK.", "phase": "expected" },
+    { "id": "f15-4", "user": "SpaceX", "at": "2026-11-13T19:31:00Z", "text": "Launch time confirmed: 13 November 22:45 UK", "line": "SpaceX confirmed 13 November at 22:45 UK.", "phase": "completed", "lock": true },
+    { "id": "f15-5", "user": "SpaceX", "at": "2026-11-13T22:01:00Z", "text": "Liftoff moved to 22:47 UK", "line": "SpaceX moved liftoff to 22:47 UK on 13 November.", "phase": "completed" }
+  ],
+  "late_older_post": { "id": "f15-0", "user": "NASASpaceflight", "at": "2026-10-30T09:00:00Z", "text": "Flight 15 could fly 12 November", "line": "Flight 15 may fly 12 November.", "phase": "expected" }
+}

@@ -115,7 +115,7 @@ async function main() {
     }
   }
   const dc = (appjs.match(/const DATA_CHECKED = "([^"]+)"/) || [])[1];
-  if (dc && !/function dataCheckedLabel\(/.test(appjs)) { const age = (NOW - Date.parse(dc + " 12:00 UTC")) / D; if (age > 2) ERR("C4-data-checked", `About › "Flight data last checked ${dc}" is ${age.toFixed(0)} days old while the checker runs every 15 min`, `app.js DATA_CHECKED`); }
+  if (dc && !/function (?:dataCheckedLabel|lastCheckedLabel)\(/.test(appjs)) { const age = (NOW - Date.parse(dc + " 12:00 UTC")) / D; if (age > 2) ERR("C4-data-checked", `About › "Flight data last checked ${dc}" is ${age.toFixed(0)} days old while the checker runs every 15 min`, `app.js DATA_CHECKED`); }
   const upd = Date.parse(road.updatedAt || 0); if (NOW - upd > 36 * H) WARN("C5-road-stale", `road.json updatedAt is ${((NOW - upd) / H).toFixed(0)} h old`);
 
   /* ── D. Flight scope / leaks ── */

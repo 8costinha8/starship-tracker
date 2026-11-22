@@ -1,15 +1,18 @@
 {
  "_note": "ALLOWLIST: run-tests.js starts ONLY the files listed here. A test-*.js file that is not listed is never run. logic = deterministic, must pass (default suite). frozen = reads live data files; green when run with the data it was written against (git history needed: runs in a temp copy with road.json / notifications.json / data/*.json from that commit). broken = fails even with its own era's data (test rot / drift): triage list, never part of the default run. HARD BLOCK: scripts/test-push.js, scripts/send-oneoff.js and any path matching /push-send/ or the exact name test-push.js are never spawned, even if listed. test-push-tiers / test-push-policy / test-push-gate / test-push-sync are different files and are allowed.",
  "logic": [
+  "scripts/test-audit-regression.js",
   "scripts/test-cascade.js",
   "scripts/test-catch-alerts.js",
+  "scripts/test-checker-hardening.js",
   "scripts/test-chips.js",
   "scripts/test-colors.js",
+  "scripts/test-compact.js",
   "scripts/test-date-newest.js",
   "scripts/test-date-slip.js",
   "scripts/test-flights.js",
   "scripts/test-footage.js",
-  "scripts/test-gate.js",
+  "scripts/test-freshness.js",
   "scripts/test-grok-savers.js",
   "scripts/test-hedged.js",
   "scripts/test-images.js",
@@ -23,7 +26,9 @@
   "scripts/test-pills.js",
   "scripts/test-provider-faults.js",
   "scripts/test-push-gate.js",
+  "scripts/test-push-guards.js",
   "scripts/test-push-policy.js",
+  "scripts/test-push-sync-guards.js",
   "scripts/test-push-sync.js",
   "scripts/test-push-tiers.js",
   "scripts/test-pushpolicy-launchday.js",
@@ -32,6 +37,7 @@
   "scripts/test-runner-safety.js",
   "scripts/test-same-event-cache.js",
   "scripts/test-scrub.js",
+  "scripts/test-slip-replay.js",
   "scripts/test-sources.js",
   "scripts/test-story-gate.js",
   "scripts/test-summary.js",
@@ -106,7 +112,8 @@
   "scripts/test-selfcheck.js",
   "scripts/test-textsplit.js",
   "scripts/test-vehicleline.js",
-  "tests/test-page2-flights.js"
+  "tests/test-page2-flights.js",
+  "scripts/test-gate.js"
  ],
  "manual": []
 }
