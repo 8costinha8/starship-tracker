@@ -1553,7 +1553,7 @@
       "date": "20 Nov",
       "flight": 16,
       "data_fix": "22 Nov reliability-b1 data fix: was filed in Static fires, so both the Ship 43 and Booster 23 static-fire cards showed this shared line; it is a crew/vehicle plan, not a static fire",
-      "box": "static"
+      "refiled_pin": "22 Nov reliability-b1: Starship news (Flight 16 vehicle plan), not a static fire; keeps purpose.js from re-filing it into Static fires"
     },
     {
       "id": "news-mwp16sow-322d70",
