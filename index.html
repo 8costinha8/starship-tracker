@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<meta name="theme-color" content="#2E3D63" />
+<meta name="theme-color" content="#0F1424" />
 <title>Starship Tracker</title>
 <meta name="description" content="Countdown to the next Starship flight, plus the story of every flight so far. Free, no ads.">
 
@@ -32,28 +32,65 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Starship">
 
-<style>html, body { margin:0; background: radial-gradient(130% 55% at 50% -8%, #2E3D63 0%, #1A2236 62%) #1A2236; }</style>
+<!-- Energy design: tell the CSS whether this is the Home Screen app (standalone) or the Safari browser -->
+<script>
+(function(){var de=document.documentElement,mq=window.matchMedia&&matchMedia("(display-mode: standalone)");
+function f(){var st=!!(navigator.standalone||(mq&&mq.matches));de.classList.toggle("v-standalone",st);de.classList.toggle("v-browser",!st);}
+f();if(mq&&mq.addEventListener)mq.addEventListener("change",f);window.__vStandaloneSync=f;})();
+</script>
+<!-- Energy design: overscroll colours (top half matches the header, the rest the page) -->
+<style>html { margin:0; background-color:#0D111D; background-image:linear-gradient(#0F1424,#0F1424); background-repeat:no-repeat; background-size:100% 50vh; } body { margin:0; background-color:#0D111D; }</style>
+
+<!-- Start the big downloads early -->
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://unpkg.com" crossorigin>
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" as="style">
+<link rel="preload" href="https://unpkg.com/react@18/umd/react.production.min.js" as="script">
+<link rel="preload" href="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" as="script">
+<link rel="preload" href="https://unpkg.com/@babel/standalone/babel.min.js" as="script">
+<link rel="preload" href="images/f15-story/01-hero-ship-caught.jpg" as="image">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap">
 </head>
 <body>
 <div id="root"></div>
 
+<!-- Scripts are deferred: they download in parallel and run in this order once the page is parsed, so first paint isn't blocked. -->
 <!-- React itself, loaded from a CDN so there's no install/build step -->
-<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<!-- Babel lets the browser understand JSX directly, so you can edit app.js as plain JSX -->
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script defer src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script defer src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<!-- Babel lets the browser understand JSX directly, so you can edit app.js as plain JSX.
+     It stays in the browser on purpose: the checker edits app.js itself (it logs new flights), so a pre-built
+     app.compiled.js would go stale without a CI build step. -->
+<script defer src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
 <!-- Firebase + notification logic: must load BEFORE app.js, since app.js
      checks window.STNotify as soon as it starts up -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="notifications.js"></script>
-<script src="scripts/cleanup.js"></script>
-<script src="scripts/flightlog.js"></script>
-<script src="scripts/handover.js"></script>
-<script src="scripts/road-pick.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
+<script defer src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script defer src="notifications.js"></script>
+<script defer src="scripts/cleanup.js"></script>
+<script defer src="scripts/flightlog.js"></script>
+<script defer src="scripts/handover.js"></script>
+<script defer src="scripts/road-pick.js"></script>
 
+<!-- No pinch-zoom-out bounce: the iOS elastic pinch shrinks the whole page (header included) and springs back.
+     touch-action stops the pinch on modern iOS; the gesture* listeners cover Safari/home-screen mode.
+     Zoom for accessibility stays available through iOS Accessibility Zoom. -->
+<style>html.fx-nopinch { touch-action: pan-x pan-y; }</style>
+<script>
+(function () {
+  function on() { try { return window.SBX && typeof window.SBX.flag === "function" ? !!window.SBX.flag("noPinch") : true; } catch (e) { return true; } }
+  function sync() { document.documentElement.classList.toggle("fx-nopinch", on()); }
+  sync(); window.addEventListener("load", sync);
+  ["gesturestart", "gesturechange", "gesturend"].forEach(function (t) {
+    document.addEventListener(t, function (e) { if (on()) e.preventDefault(); }, { passive: false });
+  });
+})();
+</script>
+
+<!-- Babel compiles this once the deferred scripts above have run (on DOMContentLoaded) -->
 <script type="text/babel" src="app.js"></script>
 </body>
 </html>

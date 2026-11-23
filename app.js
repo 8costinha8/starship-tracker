@@ -5,14 +5,15 @@
    outcome: "success" | "partial" | "failure"
    status (next flight): "confirmed" | "net" | "tbc" | "inflight" | "done"
 
-   PHOTOS — optional. Add real SpaceX photos to any flight by adding
-   a "photo" field to that flight's object, e.g. for flight 10:
+   PHOTOS — optional. Add real photos to any flight by adding a "photo"
+   field to that flight's object, e.g. for flight 10:
      photo: {
-       thumb: "images/f10-thumb.jpg",       // small card image
-       gallery: ["images/f10-a.jpg", "images/f10-b.jpg"],  // expanded view, up to 2
+       thumb: "images/f10-thumb.jpg",
+       gallery: ["images/f10-a.jpg", "images/f10-b.jpg"],  // opened-card carousel; append new ones at the end
      }
-   Drop the actual image files into an "images" folder in this repo
-   (same one this file lives in). Flights with no "photo" field use
+   The opened card also picks up road.archive[n].vehicle_photos and Road
+   milestone stills. There is no cap: the carousel grows as photos are added.
+   Drop image files into the "images" folder. Flights with no "photo" field use
    images/f<N>-thumb.jpg, -a.jpg, -b.jpg automatically; missing files
    just show the placeholder — nothing breaks either way.
 
@@ -24,6 +25,321 @@
    their channel), not a livestream replay. While the field is empty ("")
    or missing, the box shows "Highlights coming soon" and can't be tapped.
    ───────────────────────────────────────────────────────────── */
+
+/* ── Energy v10 design overlay (from the preview repo, 96850ff variants/energy/variant.js; shipped 23 Nov).
+   window.VARIANT must be set before the constants below read it (EXPAND_MS, HDR_K). The DOM part only runs in a browser. ── */
+if (typeof window !== "undefined") window.VARIANT = { name: "energy", hdrK: 0.9, expandMs: 300, collapseTbc: true, carousel: true, sheet: false };
+if (typeof window !== "undefined" && typeof document !== "undefined" && typeof MutationObserver !== "undefined" && document.getElementById && document.getElementById("root")) (function energyOverlay() {
+/* ── Variant core (shared by all three variants): page-level classes, entrance reveal, reduced motion ── */
+(function () {
+  var V = window.VARIANT || {};
+  var de = document.documentElement;
+  var rm = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)");
+  function syncRM() { de.classList.toggle("v-rm", !!(rm && rm.matches)); }
+  syncRM(); if (rm && rm.addEventListener) rm.addEventListener("change", syncRM);
+  de.classList.add("v-" + V.name);
+  // Entrance reveal: data attribute (React never rewrites it), so re-renders can't hide a card again.
+  var SEL = V.revealSel || ".st-wrap > div > .card, .feed-list .post, .feed-section.rfs";
+  function reveal(el) { el.setAttribute("data-v-in", ""); }
+  var io = "IntersectionObserver" in window ? new IntersectionObserver(function (es) {
+    var k = 0; /* v2: elements that arrive in the same batch fan in 55 ms apart (max 5 steps); the delay is cleared afterwards so taps stay instant */
+    es.forEach(function (e) { if (e.isIntersecting) { var t = e.target; t.style.setProperty("--d", Math.min(k++, 5) * 55 + "ms"); reveal(t); io.unobserve(t); setTimeout(function () { t.style.removeProperty("--d"); }, 800); } });
+  }, { rootMargin: "0px 0px -6% 0px" }) : null;
+  function scan() {
+    document.querySelectorAll(SEL).forEach(function (el) {
+      if (el.__vSeen) return; el.__vSeen = 1;
+      if (!io || de.classList.contains("v-rm")) return reveal(el);
+      el.setAttribute("data-v-pending", ""); io.observe(el);
+    });
+  }
+  function start() {
+    de.classList.add("v-ready");
+    scan(); new MutationObserver(scan).observe(document.getElementById("root"), { childList: true, subtree: true });
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
+  window.__vReveal = scan;
+})();
+/* Haptic-like taps: a 6–10ms tick where the platform allows it (Android; iOS Safari ignores vibrate, the press-in scale carries it). */
+(function () {
+  var TAP = ".card-head, .road-head, .past-toggle, .hdr-p, .round-btn, .highlights-link, .gallery > .photo-wide, button.feed-pill";
+  document.addEventListener("pointerdown", function (e) {
+    if (!e.target.closest || !e.target.closest(TAP)) return;
+    if (document.documentElement.classList.contains("v-rm")) return;
+    try { if (navigator.vibrate) navigator.vibrate(8); } catch (x) {}
+  }, { passive: true });
+  /* swipe dots under each photo carousel */
+  function dots() {
+    document.querySelectorAll(".card.is-open .gallery").forEach(function (g) {
+      var slides = g.querySelectorAll(".photo-wide"), n = slides.length;
+      var d = g.nextElementSibling && g.nextElementSibling.classList.contains("v-dots") ? g.nextElementSibling : null;
+      if (n < 2) { if (d) d.remove(); return; }
+      if (!d) {
+        d = document.createElement("div"); d.className = "v-dots"; d.setAttribute("aria-hidden", "true"); g.after(d);
+        g.addEventListener("scroll", function () { syncDots(g, d); }, { passive: true });
+      }
+      syncDots(g, d);
+    });
+  }
+  function syncDots(g, d) {
+    var slides = g.querySelectorAll(".photo-wide"), n = slides.length; if (!n) return;
+    var gap = parseFloat(getComputedStyle(g).columnGap || getComputedStyle(g).gap) || 10;
+    var w = slides[0].offsetWidth + gap;
+    var i = Math.max(0, Math.min(n - 1, Math.round(g.scrollLeft / w)));
+    if (n > 8) {
+      d.setAttribute("data-many", "");
+      d.innerHTML = '<span class="v-count">' + (i + 1) + " / " + n + "</span>";
+    } else {
+      d.removeAttribute("data-many");
+      if (d.querySelector(".v-count") || d.children.length !== n) {
+        d.innerHTML = "";
+        for (var k = 0; k < n; k++) { var s = document.createElement("i"); if (k === i) s.className = "on"; d.appendChild(s); }
+      } else {
+        [].forEach.call(d.children, function (c, k) { c.classList.toggle("on", k === i); });
+      }
+    }
+  }
+  /* v5: dots are rendered by the React PhotoCarousel (live while dragging); this old scroll-based indicator is off */
+})();
+
+/* ═════════ v2 additions: countdown tick, Road progress, launch-day state, less clutter, menu close ═════════ */
+(function () {
+  var $ = function (s, r) { return (r || document).querySelector(s); }, $$ = function (s, r) { return [].slice.call((r || document).querySelectorAll(s)); };
+  var rmq = window.matchMedia("(prefers-reduced-motion: reduce)");
+  function rm() { return rmq.matches || document.documentElement.classList.contains("v-rm"); }
+
+  /* countdown tick: an overlay of per-character cells; only changed characters roll. The real text stays in place for layout and screen readers. */
+  function rollSync(val) {
+    var cd = val.parentNode, text = val.textContent || "";
+    if (!/\d/.test(text) || val.classList.contains("cd-tbc")) { if (val.classList.contains("v-rolling")) val.classList.remove("v-rolling"); var o = $(".v-roll", cd); if (o) o.remove(); return; }
+    var ov = $(".v-roll", cd);
+    if (!ov) { ov = document.createElement("span"); ov.className = "v-roll"; ov.setAttribute("aria-hidden", "true"); cd.appendChild(ov); }
+    var cs = getComputedStyle(val);
+    ov.style.left = val.offsetLeft + "px"; ov.style.paddingLeft = cs.paddingLeft; ov.style.fontSize = cs.fontSize; ov.style.fontFamily = cs.fontFamily; ov.style.fontWeight = cs.fontWeight; ov.style.letterSpacing = cs.letterSpacing;
+    var chars = [].slice.call(text), cur = ov.__txt || null;
+    if (!val.classList.contains("v-rolling")) val.classList.add("v-rolling");
+    if (cur === text) return;
+    if (!cur || cur.length !== chars.length) {
+      ov.innerHTML = ""; chars.forEach(function (c) { var s = document.createElement("span"); s.className = "v-ch"; s.innerHTML = "<i></i>"; s.firstChild.textContent = c; ov.appendChild(s); });
+    } else {
+      chars.forEach(function (c, i) {
+        if (c === cur[i]) return;
+        var span = ov.children[i], now = span.firstChild; now.textContent = c;
+        if (rm() || !now.animate) return;
+        var prev = document.createElement("i"); prev.className = "v-prev"; prev.textContent = cur[i]; span.appendChild(prev);
+        var opt = { duration: 220, easing: "cubic-bezier(.2,.8,.2,1)", fill: "both" };
+        now.animate([{ transform: "translateY(60%)", opacity: 0 }, { transform: "none", opacity: 1 }], opt);
+        var an = prev.animate([{ transform: "none", opacity: 1 }, { transform: "translateY(-60%)", opacity: 0 }], opt);
+        an.onfinish = an.oncancel = function () { prev.remove(); };
+      });
+    }
+    ov.__txt = text;
+  }
+  /* launch-day state: within a day of launch, or in flight → data-v-live on the hero (drives the pulses) */
+  function liveSync() {
+    var next = $(".st-wrap .next"); if (!next) return;
+    var cd = $(".cd", next), val = cd && $(".cd-val", cd);
+    if (val) rollSync(val);
+    var live = !!cd && (cd.classList.contains("cd-inflight") || (/^\d{1,2}:\d{2}:\d{2}$/.test((val && val.textContent || "").trim()) && !!$(".cd-tag", cd)));
+    if (live && !next.hasAttribute("data-v-live")) next.setAttribute("data-v-live", "");
+    if (!live && next.hasAttribute("data-v-live")) next.removeAttribute("data-v-live");
+  }
+  /* Road dots fill when a milestone completes */
+  var booted = false;
+  new MutationObserver(function (ms) {
+    if (!booted) return;
+    ms.forEach(function (m) {
+      var d = m.target; if (!d.classList || !d.classList.contains("dot")) return;
+      var was = /dot-(done|complete)/.test(m.oldValue || ""), is = /dot-(done|complete)/.test(d.className);
+      if (!was && is && !rm()) { d.classList.remove("v-filled"); void d.offsetWidth; d.classList.add("v-filled"); setTimeout(function () { d.classList.remove("v-filled"); }, 450); }
+    });
+  }).observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ["class"], attributeOldValue: true });
+  setTimeout(function () { booted = true; }, 2500);
+
+  /* Page 2 progress line under each flight bar: fills each time the page slides into view */
+  var pio = "IntersectionObserver" in window ? new IntersectionObserver(function (es) {
+    es.forEach(function (e) { e.target.classList.toggle("v-on", e.isIntersecting); });
+  }, { threshold: 0.6 }) : null;
+  function progress() {
+    $$(".feed-pill").forEach(function (b) {
+      var rc = $(".road-count", b); var t = ((rc && rc.textContent) || "").match(/(\d+)\s+of\s+(\d+)/); if (!t) return;
+      var bar = $(".v-prog", b);
+      if (!bar) { bar = document.createElement("i"); bar.className = "v-prog"; bar.setAttribute("aria-hidden", "true"); b.appendChild(bar); if (pio) pio.observe(bar); else bar.classList.add("v-on"); }
+      var p = +t[2] ? +t[1] / +t[2] : 0; bar.style.setProperty("--p", p.toFixed(3));
+    });
+  }
+  /* less on screen */
+  function trim() {
+    $$(".next .facts dt").forEach(function (dt) { if (/^window$/i.test(dt.textContent.trim())) { var dd = dt.nextElementSibling; if (dd && /only/i.test(dd.textContent) && !dt.classList.contains("v-fold")) { dt.classList.add("v-fold"); dd.classList.add("v-fold"); } } });
+    $$(".about dt").forEach(function (dt) { if (/^next flight$/i.test(dt.textContent.trim()) && !dt.classList.contains("v-fold")) { dt.classList.add("v-fold"); if (dt.nextElementSibling) dt.nextElementSibling.classList.add("v-fold"); } });
+  }
+  /* menu: a real Close button */
+  function menuClose() {
+    var a = $(".about"); if (!a || $(".v-close", a)) return;
+    var b = document.createElement("button"); b.type = "button"; b.className = "v-close"; b.setAttribute("aria-label", "Close menu"); b.textContent = "✕";
+    b.addEventListener("click", function () { var s = $(".scrim.show"); if (s) s.click(); }); a.appendChild(b);
+  }
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") { var s = $(".scrim.show"); if (s) s.click(); } });
+  /* name image-only links (the little thumbnails inside updates) */
+  function nameLinks() {
+    $$("a[href]:not([aria-label])").forEach(function (a) {
+      if ((a.textContent || "").trim() || a.title) return;
+      var host = ""; try { host = new URL(a.href).hostname.replace(/^www\./, ""); } catch (x) {}
+      a.setAttribute("aria-label", "Open photo or video source" + (host ? " on " + host : "") + " (new tab)");
+    });
+  }
+  var raf = 0;
+  function tick() { raf = 0; liveSync(); progress(); trim(); menuClose(); nameLinks(); }
+  function sched() { if (!raf) raf = requestAnimationFrame(tick); }
+  function start() { new MutationObserver(sched).observe(document.getElementById("root"), { childList: true, subtree: true, characterData: true }); tick(); }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
+})();
+
+/* v9 · Road dots pop on close as a clean uniform-scale mirror of mo-pop.
+   The v7/v8 close used a fixed flex-row clone of .road-dots on document.body.
+   Reparenting those <i class="dot"> flex items out of .road-head { all: unset }
+   let the body's font line-height strut set min-height:auto (~12px) while width
+   stayed 10px, so every close frame was a vertical oval (measured 10×12 at rest).
+   Animate one independently positioned square per dot instead: equal width/height,
+   min/max locked, line-height 0, scale() only, transform-origin 50% 50%. */
+(function () {
+  var prev = new WeakMap();
+  var playing = new WeakSet();
+  function reduced() {
+    try { return matchMedia("(prefers-reduced-motion: reduce)").matches || document.documentElement.classList.contains("v-rm"); }
+    catch (e) { return false; }
+  }
+  function playClose(el) {
+    if (!el || reduced() || playing.has(el)) return;
+    var wrap = el.querySelector(".road-dots");
+    if (!wrap || !wrap.children.length) return;
+    var orig = wrap.querySelectorAll(".dot");
+    if (!orig.length) return;
+    playing.add(el);
+    var host = document.createElement("div");
+    host.setAttribute("data-v-dots-clone", "");
+    host.style.cssText = "position:fixed;inset:0;pointer-events:none;z-index:9999;";
+    var clones = [];
+    var last = null;
+    for (var i = 0; i < orig.length; i++) {
+      var r = orig[i].getBoundingClientRect();
+      var size = Math.min(r.width, r.height);
+      if (!size) size = 10;
+      var cs = getComputedStyle(orig[i]);
+      var d = document.createElement("i");
+      d.className = "dot";
+      d.setAttribute("aria-hidden", "true");
+      d.style.cssText = [
+        "position:fixed",
+        "left:" + (r.left + r.width / 2 - size / 2) + "px",
+        "top:" + (r.top + r.height / 2 - size / 2) + "px",
+        "width:" + size + "px",
+        "height:" + size + "px",
+        "min-width:" + size + "px",
+        "min-height:" + size + "px",
+        "max-width:" + size + "px",
+        "max-height:" + size + "px",
+        "margin:0",
+        "padding:0",
+        "box-sizing:border-box",
+        "display:block",
+        "border-radius:50%",
+        "line-height:0",
+        "font-size:0",
+        "flex:none",
+        "aspect-ratio:1/1",
+        "transform-origin:50% 50%",
+        "background:" + cs.background,
+        "border:" + cs.border,
+        "box-shadow:" + cs.boxShadow,
+        "opacity:" + cs.opacity,
+        "pointer-events:none"
+      ].join(";");
+      var cvar = cs.getPropertyValue("--c");
+      if (cvar) d.style.setProperty("--c", cvar);
+      host.appendChild(d);
+      clones.push({ el: d, orig: orig[i], size: size });
+      var delay = (orig.length - 1 - i) * 30;
+      if (d.animate) {
+        last = d.animate(
+          [{ transform: "scale(1)" }, { transform: "scale(.4)", offset: 0.4 }, { transform: "scale(1)" }],
+          { duration: 420, delay: delay, easing: "cubic-bezier(.34, 1.36, .64, 1)" }
+        );
+      }
+    }
+    document.documentElement.appendChild(host);
+    el.setAttribute("data-v-hiding-dots", "");
+    var moved = true;
+    var tick = function () {
+      if (!moved || !host.parentNode) return;
+      for (var i = 0; i < clones.length; i++) {
+        var o = clones[i].orig;
+        if (!o || !o.isConnected) continue;
+        var r = o.getBoundingClientRect();
+        var size = clones[i].size;
+        clones[i].el.style.left = (r.left + r.width / 2 - size / 2) + "px";
+        clones[i].el.style.top = (r.top + r.height / 2 - size / 2) + "px";
+      }
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+    var done = function () {
+      moved = false;
+      if (host.parentNode) host.parentNode.removeChild(host);
+      el.removeAttribute("data-v-hiding-dots");
+      playing.delete(el);
+    };
+    var t0 = Date.now();
+    var finish = function () {
+      if (Date.now() - t0 < 520) return;
+      done();
+    };
+    if (last && last.finished) last.finished.then(finish);
+    setTimeout(done, 700);
+  }
+  function check(el) {
+    if (!el || !el.matches || !el.matches(".road-head, .past-toggle")) return;
+    var open = el.getAttribute("aria-expanded") === "true" || el.classList.contains("open");
+    var was = prev.get(el);
+    prev.set(el, open);
+    if (was !== true || open) return;
+    playClose(el);
+  }
+  document.addEventListener("click", function (e) {
+    var el = e.target && e.target.closest && e.target.closest(".road-head, .past-toggle");
+    if (!el) return;
+    var open = el.getAttribute("aria-expanded") === "true" || el.classList.contains("open");
+    if (open) playClose(el);
+  }, true);
+  new MutationObserver(function (muts) {
+    muts.forEach(function (m) { check(m.target); });
+  }).observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ["aria-expanded", "class"] });
+})();
+
+
+/* v10 · instant press feedback (pointerdown, not delayed :active) */
+(function () {
+  var SEL = "a, button, [role='button'], .card-head, .road-head, .past-toggle, .hdr-p, .round-btn, .highlights-link, .feed-pill, .callout-head, .v-close, .post";
+  var cur = null;
+  function press(e) {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    var t = e.target && e.target.closest && e.target.closest(SEL);
+    if (!t || t.classList.contains("highlights-soon")) return;
+    if (cur && cur !== t) cur.classList.remove("is-pressed");
+    t.classList.add("is-pressed");
+    cur = t;
+  }
+  function release() {
+    if (cur) { cur.classList.remove("is-pressed"); cur = null; }
+  }
+  document.addEventListener("pointerdown", press, { passive: true });
+  document.addEventListener("pointerup", release, { passive: true });
+  document.addEventListener("pointercancel", release, { passive: true });
+  document.addEventListener("pointerout", function (e) {
+    if (cur && e.target === cur) release();
+  }, { passive: true });
+})();
+})();
+
 
 const FLIGHTS = [
   { n: 1, date: "2023-04-20T13:33:09Z", pad: "Pad 1", block: "V1", booster: "B7", ship: "S24", outcome: "failure",
@@ -98,7 +414,19 @@ const FLIGHTS = [
   { n: 15, date: "2026-11-13T22:47:36Z", pad: "Pad 2", block: "V3", booster: "B22", ship: "S42", outcome: "success",
     headline: "Flight 15 succeeds from Pad 2",
     highlights: "",
-    story: "Booster 22 skipped the tower catch and splashed down in the Gulf, while Ship 42 pressed on to orbit, deployed 26 Starlink V3 satellites, flew the longest Starship mission ever and was caught by the tower." },
+    story: "Booster 22 skipped the tower catch and splashed down in the Gulf, while Ship 42 pressed on to orbit, deployed 26 Starlink V3 satellites, flew the longest Starship mission ever and was caught by the tower.",
+    photo: { thumb: "images/f15-story/01-hero-ship-caught.jpg", narrative: true, gallery: [
+      "images/f15-story/01-hero-ship-caught.jpg",
+      "images/f15-story/02-rollout-ship42-to-pad.jpg",
+      "images/f15-story/03-liftoff.jpg",
+      "images/f15-story/04-ascent-stack-climbing.jpg",
+      "images/f15-story/05-hot-staging.jpg",
+      "images/f15-story/06-booster-landing-burn-gulf.jpg",
+      "images/f15-story/07-orbit-over-nile.jpg",
+      "images/f15-story/08-reentry-plasma.jpg",
+      "images/f15-story/09-ship-landing-burn-at-tower.jpg",
+      "images/f15-story/10-aftermath-tower-team.jpg"
+    ] } },
 ];
 
 // Photos work automatically: any flight without a "photo" field uses
@@ -174,7 +502,7 @@ const fmtLaunchedLondon = (iso) => {
 const pad2 = (x) => String(x).padStart(2, "0");
 const hms = (ms) => { const t = Math.floor(Math.max(0, ms) / 1000); return `${pad2(Math.floor(t / 3600))}:${pad2(Math.floor(t / 60) % 60)}:${pad2(t % 60)}`; };
 const fmtTimeLondon = (iso) => new Date(iso).toLocaleTimeString("en-GB", { timeZone: "Europe/London", hour: "2-digit", minute: "2-digit" });
-const EXPAND_MS = 450; // how long a card takes to open or close
+const EXPAND_MS = (window.VARIANT||{}).expandMs != null ? (window.VARIANT||{}).expandMs : 450; // how long a card takes to open or close
 const OUTCOME_LABEL = { success: "Success", partial: "Partial", failure: "Failure" };
 const siteLabel = (f) => f.site || DEFAULT_SITE;
 
@@ -1005,14 +1333,182 @@ function RocketMark() {
   );
 }
 
-function PhotoSlot({ size, src, alt, onClick, credit = "SpaceX", focus }) {
+// ---- v5: free-drag photo carousel (transform track, drag gain, momentum, critically damped snap, live dots) ----
+// v8: two 4:3 tiles fully visible; slow autoplay glide (ping-pong) that yields to touch and resumes after AUTOPLAY_RESUME_MS.
+const AUTOPLAY_RESUME_MS = 3000, AUTOPLAY_PX = 30, AUTOPLAY_RAMP_MS = 600;
+// v10: hide dots under past-flight photo carousels. Set true to restore.
+const SHOW_PAST_CAROUSEL_DOTS = false;
+function PhotoCarousel({ vehicles, children, showDots = true }) {
+  const vp = React.useRef(null), track = React.useRef(null), ind = React.useRef(null);
+  const n = React.Children.count(children);
+  React.useEffect(() => {
+    const el = vp.current, tr = track.current, dd = ind.current;
+    if (!el || !tr || n < 2) return;
+    const GAP = 8, TAU = 240, OMEGA = 13;
+    const dots = dd ? Array.from(dd.children) : [];
+    const win = n > 5, PITCH = 13, HALF = 3.5;
+    let P = 180, maxOff = 0, snaps = [0], off = 0, gain = 1, raf = 0, drag = null, suppress = false, eager = false;
+    let lastDir = 1, visible = true, pageVisible = !document.hidden, resumeTimer = 0, glide = null, lastTick = 0;
+    const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+    const lerpK = (d, xs, ys) => { if (d >= xs[xs.length - 1]) return ys[ys.length - 1]; for (let i = 1; i < xs.length; i++) if (d <= xs[i]) { const t = (d - xs[i - 1]) / (xs[i] - xs[i - 1]); return ys[i - 1] + (ys[i] - ys[i - 1]) * t; } return ys[0]; };
+    const SIZE_X = [0, 1, 2, 3, 3.5], SIZE_Y = [1, 0.7, 0.58, 0.4, 0.2], OP_Y = [1, 0.6, 0.42, 0.24, 0];
+    const idxAt = (x) => { if (x <= snaps[0]) return 0; for (let i = 1; i < snaps.length; i++) if (x <= snaps[i]) { const a = snaps[i - 1], b = snaps[i]; return i - 1 + (b === a ? 1 : (x - a) / (b - a)); } return snaps.length - 1; };
+    const paintDots = (c) => {
+      for (let k = 0; k < dots.length; k++) {
+        const d = Math.abs(k - c), s = dots[k].style;
+        if (win) {
+          if (d > HALF) { s.opacity = "0"; continue; }
+          s.opacity = String(lerpK(d, SIZE_X, OP_Y));
+          s.transform = `translate3d(${((k - c) * PITCH).toFixed(2)}px,0,0) scale(${lerpK(d, SIZE_X, SIZE_Y).toFixed(3)})`;
+        } else {
+          s.opacity = String(lerpK(Math.min(d, 1.5), [0, 1, 1.5], [1, 0.45, 0.45]));
+          s.transform = `translate3d(${((k - (n - 1) / 2) * PITCH).toFixed(2)}px,0,0) scale(${lerpK(Math.min(d, 1), [0, 1], [1, 0.6]).toFixed(3)})`;
+        }
+      }
+    };
+    const render = (x) => { off = x; tr.style.transform = `translate3d(${(-x).toFixed(2)}px,0,0)`; paintDots(idxAt(clamp(x, 0, maxOff))); };
+    const measure = () => {
+      const w = el.clientWidth; if (!w) return;
+      const sw = Math.max(1, Math.round((w - 32 - GAP) / 2)); tr.style.setProperty("--sw", sw + "px");
+      P = sw + GAP; const total = 32 + n * sw + (n - 1) * GAP;
+      maxOff = Math.max(0, total - w);
+      snaps = Array.from({ length: n }, (_, i) => Math.min(i * P, maxOff));
+      gain = clamp(maxOff / (1.3 * Math.min(window.innerWidth, 430)) * 0.75, 1, 4.5); // v10: ~25% calmer than v9 (cap 4.5, was 6)
+      render(clamp(off, 0, maxOff));
+    };
+    const nearest = (x) => { let b = 0, bd = 1e9; for (let i = 0; i < snaps.length; i++) { const d = Math.abs(snaps[i] - x); if (d < bd) { bd = d; b = i; } } return snaps[b]; };
+    const band = (raw) => { // iOS-style rubber band past either end
+      if (raw >= 0 && raw <= maxOff) return raw;
+      const over = raw < 0 ? -raw : raw - maxOff, d = el.clientWidth, r = (1 - 1 / (over * 0.55 / d + 1)) * d;
+      return raw < 0 ? -r : maxOff + r;
+    };
+    const stop = () => { if (raf) cancelAnimationFrame(raf); raf = 0; el.classList.remove("v-animating"); };
+    const canAutoplay = () => visible && pageVisible && !reduceMotion() && n >= 2 && maxOff > 0 && !drag;
+    const clearResume = () => { if (resumeTimer) { clearTimeout(resumeTimer); resumeTimer = 0; } };
+    const stopAutoplay = () => { clearResume(); glide = null; };
+    const startGlide = (ramp) => {
+      clearResume();
+      if (!canAutoplay()) { glide = null; return; }
+      if (off >= maxOff - 0.5) lastDir = -1;
+      else if (off <= 0.5) lastDir = 1;
+      const now = performance.now();
+      glide = { dir: lastDir, ramp0: ramp ? now : now - AUTOPLAY_RAMP_MS };
+      lastTick = now;
+      el.classList.add("v-animating");
+      if (!raf) raf = requestAnimationFrame(tickGlide);
+    };
+    const scheduleResume = () => {
+      clearResume();
+      glide = null;
+      if (!canAutoplay()) return;
+      resumeTimer = setTimeout(() => { resumeTimer = 0; startGlide(true); }, AUTOPLAY_RESUME_MS);
+    };
+    const tickGlide = (now) => {
+      if (!glide || !canAutoplay()) { raf = 0; return; }
+      const dt = Math.min(34, now - lastTick) / 1000; lastTick = now;
+      const t = Math.max(0, Math.min(1, (now - glide.ramp0) / AUTOPLAY_RAMP_MS));
+      const ramp = t * t * (3 - 2 * t);
+      let x = off + glide.dir * AUTOPLAY_PX * ramp * dt;
+      if (x >= maxOff) { x = maxOff; glide.dir = lastDir = -1; }
+      else if (x <= 0) { x = 0; glide.dir = lastDir = 1; }
+      else lastDir = glide.dir;
+      render(x);
+      raf = requestAnimationFrame(tickGlide);
+    };
+    const spring = (x0, v0) => { // critically damped, never overshoots the target
+      const target = nearest(x0 + v0 * 100);
+      const d0 = x0 - target; let v = v0 * 1000;
+      if (d0 * (v + OMEGA * d0) < 0) v = -OMEGA * d0;
+      const t0 = performance.now();
+      const tick = (now) => {
+        const t = (now - t0) / 1000, e = Math.exp(-OMEGA * t), x = target + (d0 + (v + OMEGA * d0) * t) * e;
+        if (t > 0.9 || Math.abs(x - target) < 0.15) { render(target); raf = 0; el.classList.remove("v-animating"); scheduleResume(); return; }
+        render(x); raf = requestAnimationFrame(tick);
+      };
+      el.classList.add("v-animating");
+      raf = requestAnimationFrame(tick);
+    };
+    const coast = (v0) => {
+      let v = clamp(v0 * 0.35, -4, 4), x = off, last = performance.now(); // v10: fling 0.35 / ±4 (was 0.45 / ±5)
+      const tick = (now) => {
+        const dt = Math.min(34, now - last); last = now;
+        x += v * dt; v *= Math.exp(-dt / TAU);
+        if (x < 0 || x > maxOff) { x = clamp(x, -40, maxOff + 40); render(x); spring(x, v * 0.3); return; }
+        if (Math.abs(v) < 0.4) { render(x); spring(x, v); return; }
+        render(x); raf = requestAnimationFrame(tick);
+      };
+      el.classList.add("v-animating");
+      raf = requestAnimationFrame(tick);
+    };
+    const onDown = (e) => {
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      stop(); stopAutoplay(); suppress = false;
+      if (!eager) { eager = true; tr.querySelectorAll("img").forEach((im) => { im.loading = "eager"; }); }
+      drag = { id: e.pointerId, x0: e.clientX, y0: e.clientY, off0: off, st: "p", s: [[e.timeStamp, off]] };
+    };
+    const onMove = (e) => {
+      if (!drag || e.pointerId !== drag.id) return;
+      const dx = e.clientX - drag.x0, dy = e.clientY - drag.y0;
+      if (drag.st === "p") {
+        if (Math.abs(dx) > 6 && Math.abs(dx) > Math.abs(dy)) { drag.st = "h"; drag.x0 = e.clientX; drag.off0 = off; suppress = true; try { el.setPointerCapture(e.pointerId); } catch (x) {} el.classList.add("v-dragging"); }
+        else if (Math.abs(dy) > 6) { drag = null; scheduleResume(); return; }
+        else return;
+      }
+      const raw = drag.off0 - gain * (e.clientX - drag.x0);
+      render(band(raw));
+      drag.s.push([e.timeStamp, raw]); while (drag.s.length > 2 && e.timeStamp - drag.s[0][0] > 90) drag.s.shift();
+    };
+    const onUp = (e) => {
+      if (!drag || e.pointerId !== drag.id) return;
+      const d = drag; drag = null; el.classList.remove("v-dragging");
+      if (d.st !== "h") { scheduleResume(); return; }
+      const s = d.s, a = s[0], b = s[s.length - 1];
+      let v = b[0] > a[0] ? (b[1] - a[1]) / (b[0] - a[0]) : 0;
+      if (e.timeStamp - b[0] > 70) v = 0;
+      if (reduceMotion()) { render(nearest(clamp(off + v * 150, 0, maxOff))); scheduleResume(); return; }
+      if (off < 0 || off > maxOff) { spring(off, 0); return; }
+      if (Math.abs(v) < 0.4) spring(off, v); else coast(v);
+    };
+    const onClick = (e) => { if (suppress) { e.preventDefault(); e.stopPropagation(); suppress = false; } };
+    el.addEventListener("pointerdown", onDown, { passive: true }); el.addEventListener("pointermove", onMove, { passive: true });
+    el.addEventListener("pointerup", onUp, { passive: true }); el.addEventListener("pointercancel", onUp, { passive: true });
+    el.addEventListener("click", onClick, true);
+    const onVis = () => { pageVisible = !document.hidden; if (!pageVisible) { stop(); stopAutoplay(); } else if (visible) startGlide(true); };
+    document.addEventListener("visibilitychange", onVis);
+    const io = typeof IntersectionObserver !== "undefined" ? new IntersectionObserver((ents) => {
+      const e = ents[ents.length - 1];
+      const next = !!(e && e.isIntersecting && e.intersectionRatio > 0.12);
+      if (next === visible) return;
+      visible = next;
+      if (!visible) { stop(); stopAutoplay(); }
+      else startGlide(true);
+    }, { threshold: [0, 0.12, 0.5] }) : null;
+    if (io) io.observe(el);
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(measure) : null; if (ro) ro.observe(el);
+    measure();
+    startGlide(true);
+    return () => { stop(); stopAutoplay(); if (ro) ro.disconnect(); if (io) io.disconnect(); document.removeEventListener("visibilitychange", onVis); el.removeEventListener("pointerdown", onDown); el.removeEventListener("pointermove", onMove); el.removeEventListener("pointerup", onUp); el.removeEventListener("pointercancel", onUp); el.removeEventListener("click", onClick, true); };
+  }, [n]);
+  return (
+    <>
+      <div className="gallery v-car" ref={vp} data-vehicles={vehicles ? "" : undefined}>
+        <div className="v-track" ref={track}>{children}</div>
+      </div>
+      {showDots && n > 1 ? <div className={"v-ind" + (n > 5 ? " v-ind-win" : "")} ref={ind} aria-hidden="true">{Array.from({ length: n }, (_, k) => <i key={k} />)}</div> : null}
+    </>
+  );
+}
+
+function PhotoSlot({ size, src, alt, onClick, credit = "SpaceX", label = null, focus, eager = false }) {
   const [failed, setFailed] = React.useState(false);
   React.useEffect(() => setFailed(false), [src]);
   if (src && !failed) {
+    const sizes = size === "thumb" ? "72px" : "(max-width: 899px) 48vw, 220px";
     return (
       <div className={`photo photo-${size} has-img${onClick ? " tappable" : ""}`} onClick={onClick}>
-        <img src={src} alt={alt || ""} loading="lazy" onError={() => setFailed(true)} style={focus ? { objectPosition: focus } : undefined} />
-        <span className="photo-credit">{credit}</span>
+        <img src={src} alt={alt || ""} loading={eager ? "eager" : "lazy"} decoding="async" fetchPriority={eager ? "high" : "low"} sizes={sizes} onError={() => setFailed(true)} style={focus ? { objectPosition: focus } : undefined} />
+        {label && <span className="photo-label">{label}</span>}
+        {credit && <span className="photo-credit">{credit}</span>}
       </div>
     );
   }
@@ -1149,15 +1645,16 @@ function NextFlightCard({ f, checkedAt, road, children }) {
       </div>
       <div className="next-title"><span className="t-word">Starship Flight</span><span className="t-num">{f.n || "—"}</span></div>
       <dl className="facts">
+        {(window.VARIANT||{}).collapseTbc && dateText === "To be confirmed" && /to be (announced|confirmed)/i.test(String(siteLine(f))) ? <><dt>Date &amp; site</dt><dd className="v-tbc">To be confirmed</dd></> : <>
         <dt>{dateLabel}</dt><dd>{dateText}</dd>
         {win && <><dt>Window</dt><dd>{win}</dd></>}
-        <dt>Site</dt><dd>{siteLine(f)}</dd>
+        <dt>Site</dt><dd>{siteLine(f)}</dd></>}
         <dt>{vehicleLabel(heroVehicles(f, road))}</dt><dd>{vehicleLine(heroVehicles(f, road))}</dd>
       </dl>
       {showMissionCard(road, f.n, f, now) ? (
         <p className="next-note">{cleanHeroNote(fillMissionCard(missionCardText(road, f.n), f, road))}</p>
       ) : (
-        <p className="next-note">{cleanHeroNote(f.note)}</p>
+        ((window.VARIANT||{}).collapseTbc && /^details (are )?to be announced\.?$/i.test(String(cleanHeroNote(f.note) || "").trim())) ? null : <p className="next-note">{cleanHeroNote(f.note)}</p>
       )}
       {heroMissionLines(road, f.n, f, now).map((line, i) => <p className="next-upd" key={i}>{line}</p>)}
       {f.fromChecker && Number.isFinite(f.asOf) && <p className="next-upd next-asof">as of {fmtTimeLondon(new Date(f.asOf).toISOString())} UK</p>}
@@ -1166,13 +1663,13 @@ function NextFlightCard({ f, checkedAt, road, children }) {
   );
 }
 
-// The two gallery photos: the flight's own, else its Road milestones' real photos (newest milestones first), else one "Photo to come".
+// Gallery sources for a flight: own gallery (any length), else Road milestone stills, else a placeholder.
 function galleryOf(f, past) {
-  const own = ((f.photo && f.photo.gallery) || []).filter(Boolean);
-  if (own.length) return own.slice(0, 2).concat(own.length < 2 ? [undefined] : []).slice(0, 2);
-  const order = ["static", "pad", "raptor", "cryo"], road = (past || []).filter((e) => e.photo && e.photo.image && !/^https?:\/\/video\./.test(e.photo.image))
-    .sort((a, b) => order.indexOf(a.box) - order.indexOf(b.box)).map((e) => e.photo.image);
-  const pics = [...new Set(road)].slice(0, 2);
+  const own = ((f.photo && f.photo.gallery) || []).filter(Boolean).map((item) => typeof item === "string" ? item : (item && (item.src || item.image))).filter(Boolean);
+  if (own.length) return own;
+  const road = (past || []).filter((e) => e.photo && e.photo.image && !/^https?:\/\/video\./.test(e.photo.image) && !/amplify_video_thumb/.test(e.photo.image))
+    .map((e) => e.photo.image);
+  const pics = [...new Set(road)];
   return pics.length ? pics : [undefined];
 }
 // 15 Nov (Bernardo, every flight): an opened flight card's two pictures are one strong mission photo per vehicle, booster
@@ -1188,21 +1685,45 @@ function vehiclePhotosOf(road, f) {
     const img = v && (typeof v === "string" ? v : v.image);
     if (!img) return null;
     const focus = (v && typeof v === "object" && v.focus) ? v.focus : "center";
-    return { src: img, label: (v && v.label) || vehName(id, kind), focus };
+    return { src: img, label: (v && v.label) || vehName(id, kind), credit: (v && typeof v === "object" && v.credit) || null, focus }; // pipeline-photo-credit: credit = publisher, never the vehicle
   };
   const b = one(vp.booster, "Booster", f.booster), sh = one(vp.ship, "Ship", f.ship);
   return b || sh ? [b, sh] : null;
 }
-// The opened card's two pictures: [{ src, label, vehicle }] — vehicle photos first, else the gallery (credit "SpaceX").
+// Opened-card carousel: every still for this flight, no cap. Newest gallery items first
+// after the hand-picked vehicle shots, so the latest photo is what you see when the
+// card opens. Pipeline should append new photos to photo.gallery (and/or add Road
+// milestone stills / vehicle_photos); this list grows on its own.
+// A photo.narrative gallery is the whole carousel, in listed order (hero first); vehicle
+// shots and Road stills stay out of it.
 function cardPhotosOf(f, past, road) {
-  const base = galleryOf(f, past).map((src) => ({ src, label: "SpaceX", vehicle: false }));
+  const seen = new Set(), out = [];
+  const add = (p) => {
+    if (!p || !p.src || seen.has(p.src) || /^https?:\/\/video\./.test(p.src) || /amplify_video_thumb/.test(p.src)) return;
+    seen.add(p.src);
+    out.push(p);
+  };
+  const own = ((f.photo && f.photo.gallery) || []).filter(Boolean);
+  const asItem = (item) => (typeof item === "string"
+    ? { src: item, credit: "SpaceX", label: null, vehicle: false }
+    : { src: item.src || item.image, credit: item.credit || item.author || "SpaceX", label: item.label || null, focus: item.focus, vehicle: false });
+  if (f.photo && f.photo.narrative && own.length) {
+    own.forEach((item) => add(asItem(item)));
+    return out.length ? out : [{ src: undefined, label: "SpaceX", vehicle: false }];
+  }
   const vp = vehiclePhotosOf(road, f);
-  if (!vp) return base;
-  return [0, 1].map((i) => (vp[i] ? { ...vp[i], vehicle: true } : base[i] || { src: undefined, label: "SpaceX", vehicle: false }));
+  if (vp) vp.forEach((p) => p && add({ ...p, vehicle: true }));
+  [...own].reverse().forEach((item) => add(asItem(item)));
+  (past || []).forEach((e) => {
+    const ph = e.photo, img = ph && (ph.image || ph.src);
+    if (!img) return;
+    add({ src: img, credit: (ph && (ph.author || ph.credit)) || e.src || null, label: e.vehicle || e.label || null, focus: ph && ph.crop, vehicle: false });
+  });
+  return out.length ? out : [{ src: undefined, label: "SpaceX", vehicle: false }];
 }
 // Thumb: the flight's own photo, else (placeholder or none) its first Road milestone photo.
 const thumbOf = (f, past) => { const t = f.photo && f.photo.thumb; return t && t !== RTF_PLACEHOLDER ? t : galleryOf({ photo: {} }, past)[0] || t; };
-function FlightCard({ f, open, onTap, onPhotoTap, register, road }) {
+function FlightCard({ f, open, onTap, onPhotoTap, register, road, listIndex = 0 }) {
   // Page 1's Road to Flight N: the flight's road.archive summary through pastRoadGroup (ids, text,
   // photos), minus the Launch date card (the date is already in this card's header). Launched flights only.
   const group = React.useMemo(() => ((isLaunched(f.n) ? pastSummary(road, f.n) : []).length ? pastRoadGroup(road, f.n, FLIGHTS, ROAD_HIDDEN) : null), [road, f.n]); // launched flights with an archive only, never the next flight
@@ -1224,7 +1745,7 @@ function FlightCard({ f, open, onTap, onPhotoTap, register, road }) {
   return (
     <article ref={(el) => register(f.n, el)} className={`card${open ? " is-open" : ""}`}>
       <div className="card-head" role="button" tabIndex={0} aria-expanded={open} onClick={() => onTap(f.n)} onKeyDown={onKey}>
-        <PhotoSlot size="thumb" src={thumbOf(f, past)} alt={`Starship Flight ${f.n}`} onClick={thumbTap} />
+        <PhotoSlot size="thumb" src={thumbOf(f, past)} alt={`Starship Flight ${f.n}`} onClick={thumbTap} eager={listIndex < 2} />
         <div className="info">
           <div className="info-top">
             <div className="title"><span className="t-word">Starship Flight</span> <span className="t-num">{f.n}</span></div>
@@ -1263,14 +1784,16 @@ function FlightCard({ f, open, onTap, onPhotoTap, register, road }) {
               </div>
               </div></div>
             </>)}
-            <div className="gallery" data-vehicles={cardPhotos.some((p) => p.vehicle) ? "" : undefined}>
+            {open ? (
+            <PhotoCarousel vehicles={cardPhotos.some((p) => p.vehicle)} showDots={SHOW_PAST_CAROUSEL_DOTS}>
               {cardPhotos.map((p, i) => (
                 <PhotoSlot key={i}
-                  size="wide" src={p.src} credit={p.label} focus={p.focus} alt={p.vehicle ? `${p.label} \u2014 Flight ${f.n}` : `${f.headline} \u2014 photo ${i + 1}`}
+                  size="wide" src={p.src} credit={p.credit || null} label={p.label || null} focus={p.focus} eager={i < 2} alt={p.vehicle ? `${p.label} \u2014 Flight ${f.n}` : `${f.headline} \u2014 photo ${i + 1}`}
                   onClick={p.src ? () => onPhotoTap(p.src, p.vehicle ? `${p.label} \u2014 Flight ${f.n}` : `${f.headline} \u2014 photo ${i + 1}`) : undefined}
                 />
               ))}
-            </div>
+            </PhotoCarousel>
+            ) : null}
             {f.highlights ? (
               <a className="highlights-link" href={f.highlights} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
                 <svg width="13" height="13" viewBox="0 0 13 13" aria-hidden="true"><path d="M4 2.5l7 4-7 4z" fill="currentColor" /></svg>
@@ -1536,7 +2059,7 @@ function Lightbox({ src, alt, onClose }) {
 
   return (
     <div className={`lightbox${src ? " show" : ""}`} onClick={onClose} role={src ? "dialog" : undefined} aria-modal={src ? "true" : undefined} aria-label={shown?.alt}>
-      {shown && <img src={shown.src} alt={shown.alt || ""} />}
+      {shown && <img src={shown.src} alt={shown.alt || ""} decoding="async" fetchPriority="high" />}
     </div>
   );
 }
@@ -1918,7 +2441,7 @@ function RoadCard({ road, onEntryTap, openReq, heroNet, netPending, heroFlight }
 function BoxPhoto({ src, crop, className }) {
   const [bad, setBad] = React.useState(false);
   if (bad || !src) return null;
-  return <img className={(className || "box-photo") + " " + cropClass({ crop })} src={localImg(src)} alt="" loading="lazy" referrerPolicy="no-referrer" onError={imgFallback(src, () => setBad(true))} />;
+  return <img decoding="async" className={(className || "box-photo") + " " + cropClass({ crop })} src={localImg(src)} alt="" loading="lazy" referrerPolicy="no-referrer" onError={imgFallback(src, () => setBad(true))} />;
 }
 function ParityCard({ e, onTap, open }) {
   return (
@@ -1941,7 +2464,7 @@ const flogWhen = (l) => (l.time ? `${l.day} · ${l.time}` : l.day);
 // Category icon: Raptor engines uses a custom engine image instead of its data emoji (push text keeps the emoji).
 const isRaptorCat = (c) => !!c && (c.id === "raptor" || c.name === "Raptor engines");
 function CatIcon({ c }) {
-  return isRaptorCat(c) ? <img className="cat-img" src="icons/raptor-icon.png" alt="" aria-hidden="true" /> : (c && c.icon) || null;
+  return isRaptorCat(c) ? <img decoding="async" className="cat-img" src="icons/raptor-icon.png" alt="" aria-hidden="true" /> : (c && c.icon) || null;
 }
 function FlogCard({ c }) {
   const [top, ...rest] = c.lines;
@@ -2009,7 +2532,7 @@ function SrcBadge({ author, url, image, keep }) {
   const rec = av && av[h.toLowerCase()];
   return (
     <a className="src-badge" href={url || `https://x.com/${h}`} target="_blank" rel="noopener noreferrer" title={`@${h} on X`} aria-label={`Photo by @${h}: open the post on X`} onClick={(e) => e.stopPropagation()}>
-      {rec && !bad ? <img src={rec.file} alt="" loading="lazy" onError={() => setBad(true)} /> : <span aria-hidden="true">{h[0].toUpperCase()}</span>}
+      {rec && !bad ? <img decoding="async" src={rec.file} alt="" loading="lazy" onError={() => setBad(true)} /> : <span aria-hidden="true">{h[0].toUpperCase()}</span>}
     </a>
   );
 }
@@ -2020,7 +2543,7 @@ function ContextMedia({ mc }) {
   return (
     <div className="xm xm-context">
       <div className="xm-grid n1"><a href={mc.post_url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
-        <img src={localImg(mc.image)} alt="" loading="lazy" referrerPolicy="no-referrer" onError={imgFallback(mc.image, () => setBad(true))} /></a>
+        <img decoding="async" src={localImg(mc.image)} alt="" loading="lazy" referrerPolicy="no-referrer" onError={imgFallback(mc.image, () => setBad(true))} /></a>
         <SrcBadge author={mc.author} url={mc.post_url} image={mc.image} keep={!!mc.keep_image} /></div>
       <div className="xm-foot">
         <a href={mc.post_url} target="_blank" rel="noopener noreferrer" aria-label="View on X" onClick={(e) => e.stopPropagation()}>View on X {LINK_ICON}</a></div>
@@ -2949,7 +3472,7 @@ function XVideo({ m, url }) {
     v.controls = true; setState("on");
     const pr = v.play(); if (pr && pr.catch) pr.catch(() => {});
   };
-  if (state === "failed") return <a href={url} target="_blank" rel="noopener noreferrer" onClick={stop}><img src={m.poster} alt="" loading="lazy" referrerPolicy="no-referrer" />{PLAY_ICON}</a>;
+  if (state === "failed") return <a href={url} target="_blank" rel="noopener noreferrer" onClick={stop}><img decoding="async" src={m.poster} alt="" loading="lazy" referrerPolicy="no-referrer" />{PLAY_ICON}</a>;
   return (
     <div className="xm-video" onClick={stop} onTouchEnd={stop}>
       <video ref={ref} poster={m.poster} playsInline webkit-playsinline="true" preload="none" muted={false}
@@ -2975,7 +3498,7 @@ function SplitMedia({ pair, onPhotoTap, alt }) {
         {pair.map((m, i) => (
           <a key={i} href={m.image} target="_blank" rel="noopener noreferrer" aria-label={`${alt} \u2014 photo ${i + 1}`}
             onClick={(e) => { e.stopPropagation(); if (onPhotoTap) { e.preventDefault(); onPhotoTap(m.image, `${alt} \u2014 photo ${i + 1}`); } }}>
-            <img className={cropClass(m)} src={localImg(m.image)} alt="" loading="lazy" referrerPolicy="no-referrer" onError={imgFallback(m.image, () => setBad((b) => ({ ...b, [i]: true })))} /></a>))}
+            <img decoding="async" className={cropClass(m)} src={localImg(m.image)} alt="" loading="lazy" referrerPolicy="no-referrer" onError={imgFallback(m.image, () => setBad((b) => ({ ...b, [i]: true })))} /></a>))}
         <SrcBadge author={pair[1].author} url={pair[1].post_url} image={pair[1].image} />
       </div>
     </div>
@@ -2993,7 +3516,7 @@ function OneMedia({ mo }) {
   return (
     <div className="xm">
       <div className="xm-grid n1"><a href={mo.post_url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
-        <img className={cropClass(mo)} src={localImg(mo.image)} alt="" loading="lazy" referrerPolicy="no-referrer" onError={imgFallback(mo.image, () => setBad(true))} />{mo.type === "video" && PLAY_ICON}</a>
+        <img decoding="async" className={cropClass(mo)} src={localImg(mo.image)} alt="" loading="lazy" referrerPolicy="no-referrer" onError={imgFallback(mo.image, () => setBad(true))} />{mo.type === "video" && PLAY_ICON}</a>
         <SrcBadge author={mo.author} url={mo.post_url} image={mo.image} keep={!!mo.keep_image} /></div>
       {/* credit-only photo: the photo and its badge already open the photo's post; the card keeps one View on X (its own post) */}
       {mo.credit_only && <div className="xm-foot"><span className="xm-ctx">{`Photo · @${mo.author}`}</span></div>}
@@ -3009,10 +3532,10 @@ function XMedia({ x }) {
     <div className="xm">
       <div className={"xm-grid n" + Math.min(media.length, 4)}>
         {media.slice(0, 4).map((m) => m.type === "photo"
-          ? <a key={m.i} href={x.url} target="_blank" rel="noopener noreferrer"><img src={m.url} alt="" loading="lazy" referrerPolicy="no-referrer" onError={off(m.i)} /></a>
+          ? <a key={m.i} href={x.url} target="_blank" rel="noopener noreferrer"><img decoding="async" src={m.url} alt="" loading="lazy" referrerPolicy="no-referrer" onError={off(m.i)} /></a>
           : m.video_url
           ? <XVideo key={m.i} m={m} url={x.url} />
-          : <a key={m.i} href={x.url} target="_blank" rel="noopener noreferrer"><img src={m.poster} alt="" loading="lazy" referrerPolicy="no-referrer" onError={off(m.i)} />{PLAY_ICON}</a>)}
+          : <a key={m.i} href={x.url} target="_blank" rel="noopener noreferrer"><img decoding="async" src={m.poster} alt="" loading="lazy" referrerPolicy="no-referrer" onError={off(m.i)} />{PLAY_ICON}</a>)}
         <SrcBadge author={(x.x_post && x.x_post.author && x.x_post.author.username) || x.author} url={x.url} />
       </div>
     </div>
@@ -3152,7 +3675,9 @@ function RtfBuildUp({ h }) {
 // finger, then springs on release. Sizes are re-measured whenever they change
 // (ResizeObserver), so late fonts or late styles can't leave it mis-placed.
 const ABOUT_ICON = <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 6h10M3 10h7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>;
-const HDR_K = 0.72, HDR_PGAP = 10; // inactive pill scale, gap between pills
+// Cleanup flags (sandbox panel: SBX.flag("name")). Without the panel every fix is ON.
+const FX = (name) => { try { return window.SBX && typeof window.SBX.flag === "function" ? !!window.SBX.flag(name) : true; } catch { return true; } };
+const HDR_K = (window.VARIANT||{}).hdrK || 0.72, HDR_PGAP = 10; // inactive pill scale, gap between pills
 // Settle after a horizontal drag: true = Road page open. Commits to the other page once
 // the drag passes SWIPE_DIST of the width, or on a quick flick (|v| > SWIPE_FLICK px/ms)
 // in that direction even if short. A flick back the other way cancels.
@@ -3187,7 +3712,8 @@ function PhoneHeader({ road, feedOpen, onAbout, onFeed, onBack, onHint }) {
   // smaller and dimmer. Everything is a function of --fp (0 = tracker, 1 = Road), so
   // it follows the finger and eases on release. Tap the small pill to switch pages.
   return (
-    <>
+    <div className="hdr-wrap">
+      <div className="hdr-cap" aria-hidden="true" />
       <div className="hdr-bar" aria-hidden="true" />
       <div className={"hdr" + (ready ? " hdr-ready" : "") + (feedOpen ? " hdr-feed" : "")} ref={ref}>
         <button className="round-btn hdr-left" onClick={feedOpen ? onBack : onAbout} aria-label={feedOpen ? "Back to the flight log" : "Open about"}>
@@ -3200,9 +3726,8 @@ function PhoneHeader({ road, feedOpen, onAbout, onFeed, onBack, onHint }) {
         <button className="hdr-p hdr-b" onClick={feedOpen ? undefined : onFeed} aria-current={feedOpen ? "page" : undefined} aria-label={`Road to Flight ${road.flight}`}>
           <b>Road to</b><span>{`Flight ${road.flight}`}</span>
         </button>
-        <button className="round-btn hdr-right" onClick={onFeed} aria-label="Open updates feed" tabIndex={feedOpen ? -1 : 0}>{FEED_ICON}</button>
       </div>
-    </>
+    </div>
   );
 }
 
@@ -3703,6 +4228,7 @@ function StarshipTracker() {
       setOpenId(null);
       return;
     }
+    if ((window.VARIANT||{}).sheet) { pending.current = { open: n, close: openId }; setOpenId(n); return; } // variant: card opens as a sheet, the list stays put
     const r = cardEls.current[n].getBoundingClientRect();
     const prev = openId != null ? cardEls.current[openId] : null;
     const pr = prev && prev.getBoundingClientRect();
@@ -3734,9 +4260,12 @@ function StarshipTracker() {
     const ms = reduceMotion() ? 0 : EXPAND_MS;
     const ease = (t) => 1 - Math.pow(1 - t, 3);
 
+    // v5: animate real pixel heights (fr tracks below 1fr don't shrink an auto-height grid on iOS: the body stayed full height and spilled over the next card)
+    const hOf = (m) => m ? m.querySelector(".more-inner").scrollHeight : 0;
+    const openH = hOf(openMore), closeH = hOf(closeMore);
     const setHeights = (e) => {
-      if (openMore) openMore.style.gridTemplateRows = `${e}fr`;
-      if (closeMore) closeMore.style.gridTemplateRows = `${1 - e}fr`;
+      if (openMore) { openMore.style.display = "block"; openMore.style.overflow = "hidden"; openMore.style.height = `${openH * e}px`; openMore.style.opacity = String(Math.min(1, e * 1.6)); }
+      if (closeMore) { closeMore.style.display = "block"; closeMore.style.overflow = "hidden"; closeMore.style.height = `${closeH * (1 - e)}px`; closeMore.style.opacity = String(Math.max(0, 1 - e * 1.8)); }
     };
     setHeights(0); // starting state, applied before the screen paints
 
@@ -3764,8 +4293,7 @@ function StarshipTracker() {
       if (targetY != null && !userTookOver) window.scrollTo(0, p.startY + (targetY - p.startY) * e);
     };
     const finish = () => {
-      if (openMore) openMore.style.gridTemplateRows = "";
-      if (closeMore) closeMore.style.gridTemplateRows = "";
+      for (const m of [openMore, closeMore]) if (m) { m.style.display = ""; m.style.overflow = ""; m.style.height = ""; m.style.opacity = ""; }
     };
 
     if (ms === 0) { frame(1); finish(); }
@@ -3826,19 +4354,35 @@ function StarshipTracker() {
       const s = swipe.current;
       g = null;
       if (s.wide || s.blocked || e.touches.length !== 1) return;
-      if (e.target.closest && e.target.closest(".lightbox, .about, .notify-modal, input, textarea")) return;
+      if (e.target.closest && e.target.closest(".lightbox, .about, .notify-modal, input, textarea, [data-noswipe], html.v-sheet .card.is-open, .v-sheet-scrim" + ((window.VARIANT||{}).carousel ? ", .gallery" : ""))) return; // variant: carousels and sheets own their gestures
       const t = e.touches[0];
       g = { x: t.clientX, y: t.clientY, t: performance.now(), from: s.feedOpen ? 1 : 0, mode: null, p: s.feedOpen ? 1 : 0, vx: 0, lx: t.clientX, lt: performance.now() };
     };
     const move = (e) => {
-      if (!g || g.mode === "no") return;
+      if (!g || g.mode === "no" || g.mode === "cancel") return;
       const t = e.touches[0], dx = t.clientX - g.x, dy = t.clientY - g.y;
+      const lock = FX("swipeLock");
       if (!g.mode) {
-        if (Math.abs(dy) > 10 && Math.abs(dy) >= Math.abs(dx)) { g.mode = "no"; return; }
-        if (Math.abs(dx) < 10 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+        if (lock) {
+          // AXIS LOCK (Bug B fix): decide on the finger's real direction, not the first few pixels.
+          // Vertical intent wins early (|dy| >= 8 and steeper than ~24deg from horizontal); a drag needs
+          // a clearly horizontal start (|dx| >= 16 and |dx| >= 2.2 x |dy|). If the browser already
+          // started scrolling (touchmove not cancelable) we never start a page drag.
+          if (!e.cancelable) { g.mode = "no"; return; }
+          if (Math.abs(dy) >= 8 && Math.abs(dy) * 2.2 > Math.abs(dx)) { g.mode = "no"; return; }
+          if (Math.abs(dx) < 16 || Math.abs(dx) < Math.abs(dy) * 2.2) return;
+        } else {
+          if (Math.abs(dy) > 10 && Math.abs(dy) >= Math.abs(dx)) { g.mode = "no"; return; }
+          if (Math.abs(dx) < 10 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+        }
         if ((g.from === 0 && dx > 0) || (g.from === 1 && dx < 0)) { g.mode = "no"; return; }
-        g.mode = "drag"; g.x = t.clientX; // start following from here: no jump
+        g.mode = "drag"; g.x = t.clientX; g.y0 = t.clientY; // start following from here: no jump
         setFeedOn(true); setDragging(true);
+      }
+      // BAIL-OUT (Bug B fix): a locked drag that turns mostly vertical is a scroll, not a swipe: hand back.
+      if (lock && g.mode === "drag") {
+        const ddx = Math.abs(t.clientX - g.x), ddy = Math.abs(t.clientY - g.y0);
+        if (ddy > 24 && ddy > ddx * 1.2) { g.mode = "cancel"; return cancelDrag(); }
       }
       if (e.cancelable) e.preventDefault();
       const now = performance.now();
@@ -3847,7 +4391,14 @@ function StarshipTracker() {
       g.p = Math.min(1, Math.max(0, g.from - (t.clientX - g.x) / window.innerWidth));
       setP(g.p);
     };
-    const end = () => {
+    // settle back to the page the drag started from (vertical bail-out, touchcancel)
+    const cancelDrag = () => {
+      const from = g.from; g = null;
+      setNow(from); setDragging(false); setFeedOpen(from === 1);
+      if (from === 0) setTimeout(() => setFeedOn(false), FEED_SLIDE_MS + 30); // variant fix: feedOpen was already false, so its effect never cleared feed-on (st-wrap kept a transform layer)
+    };
+    const end = (e) => {
+      if (FX("swipeLock") && g && g.mode === "drag" && e && e.type === "touchcancel") return cancelDrag(); // system took the touch: never commit a page switch
       if (!g || g.mode !== "drag") { g = null; return; }
       const open = swipeCommit(g.from, g.p, g.vx), gp = g.p, gv = g.vx;
       g = null;
@@ -3936,8 +4487,10 @@ function StarshipTracker() {
   };
 
   return (
-    <div className={"st" + (feedOn ? " feed-on" : "") + (dragging ? " feed-drag" : "") + (feedOpen && !dragging ? " feed-open" : "")} ref={rootRef} style={{ "--fp": feedOpen ? 1 : 0 }}>
+    <div className={"st" + (feedOn ? " feed-on" : "") + (dragging ? " feed-drag" : "") + (feedOpen && !dragging ? " feed-open" : "") + (FX("xfade") ? " fx-xfade" : "")} ref={rootRef} style={{ "--fp": feedOpen ? 1 : 0 }}>
       <style>{css}</style>
+      <style>{VARIANT_CSS}</style>
+      {phoneHeader}
       <div className="st-layout">
       <div className="st-wrap" aria-hidden={!wide && feedOpen ? true : undefined}>
         <header className="top">
@@ -3960,7 +4513,7 @@ function StarshipTracker() {
 
         {flights.map((f, i) => (
           <div key={f.n}>
-            <ErrorBoundary where={"past:" + f.n}><FlightCard f={f} open={openId === f.n} onTap={handleTap} onPhotoTap={(src, alt) => setLightbox({ src, alt })} register={register} road={road} /></ErrorBoundary>
+            <ErrorBoundary where={"past:" + f.n}><FlightCard f={f} open={openId === f.n} onTap={handleTap} onPhotoTap={(src, alt) => setLightbox({ src, alt })} register={register} road={road} listIndex={i} /></ErrorBoundary>
             {i < flights.length - 1 && <Connector label={daysLabel(daysBetween(flights[i + 1].date, f.date))} />}
           </div>
         ))}
@@ -3970,7 +4523,6 @@ function StarshipTracker() {
       <UpdatesFeed road={road} wide={wide} shown={feedOn} onBack={() => setFeedOpen(false)} scrollRef={feedScroll} onPhotoTap={(src, alt) => setLightbox({ src, alt })} peekOpen={peekOpen} onTogglePeek={togglePeek} heroNet={heroNetFor(liveNext, now)} netPending={!liveNext && !nextSettled}
         heroLiftIso={liveNext && ["inflight", "done"].includes(effectiveStatus(liveNext, now)) ? liveNext.date : null} />
       </div>
-      {phoneHeader}
       <AboutPanel
         open={aboutOpen}
         onClose={() => setAboutOpen(false)}
@@ -4092,7 +4644,7 @@ a.watch-badge-live:active { transform: scale(.96); }
     linear-gradient(180deg, rgba(26,34,54,0) 55%, rgba(26,34,54,.85) 100%),
     linear-gradient(200deg, rgba(59,72,120,.35) 0%, rgba(26,34,54,0) 55%);
 }
-.gallery[data-vehicles] .photo-credit { font-size: 11px; font-weight: 700; color: rgba(240,244,252,.92); } /* the vehicle name */
+.photo-label { position: absolute; left: 8px; bottom: 6px; font-size: 11px; font-weight: 700; color: rgba(240,244,252,.92); z-index: 1; } /* the vehicle name (pipeline-photo-credit) */
 .photo-credit { position: absolute; right: 8px; bottom: 6px; font-size: 9.5px; letter-spacing: .02em; color: rgba(228,234,246,.65); z-index: 1; }
 .photo-thumb .photo-credit { display: none; } /* keep the small thumbnail clean; credit shows on the bigger gallery images */
 .photo.tappable { cursor: pointer; }
@@ -4595,6 +5147,13 @@ button.feed-pill:focus-visible { outline: 2px solid #A9BDF0; outline-offset: 4px
   }
   .feed-open .st-wrap { visibility: hidden; transition-property: transform, opacity, visibility; transition-delay: 0s, 0s, .5s; }
   .feed-drag .feed-pane, .feed-drag .st-wrap { transition: none; }
+  /* Bug B (flag "xfade"): sequenced crossfade. The Flight Log is fully gone by fp .45, Road starts at .55,
+     so the two pages are never visible on top of each other (before: both ~60% at the midpoint = ghosting). */
+  .st.fx-xfade .feed-pane { opacity: calc((var(--fp) - .55) * 2.2); transition: transform var(--slide), opacity .12s ease-out; }
+  .st.fx-xfade.feed-on .st-wrap { opacity: calc(1 - var(--fp) * 2.2); transition: transform var(--slide), opacity .2s ease-out .14s; }
+  .st.fx-xfade.feed-open .st-wrap { transition: transform var(--slide), opacity .12s ease-out, visibility 0s linear .5s; }
+  .st.fx-xfade.feed-open .feed-pane { transition: transform var(--slide), opacity .2s ease-out .14s; }
+  .st.fx-xfade.feed-drag .feed-pane, .st.fx-xfade.feed-drag .st-wrap { transition: none; }
   .st.feed-on { overflow-x: hidden; }
   html, body { overflow-x: hidden; }
   /* the fixed header stands in for both pages' own header rows, which stay as spacers */
@@ -4703,6 +5262,451 @@ button.feed-pill:focus-visible { outline: 2px solid #A9BDF0; outline-offset: 4px
 .post-media-play svg { margin-left: 2px; }
   background: rgba(10,16,32,.62); padding: 3px 8px; border-radius: 999px; -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
 `;
+// Energy v10 design overlay styles (from the preview repo, 96850ff variants/energy/variant.css). Rendered after css, so it wins ties.
+const VARIANT_CSS = `
+/* v2: Space Grotesk is now loaded by <link> in index.html (an @import here blocked the whole stylesheet) */
+/* ───────── Variant B · Live Launch Energy ─────────
+   Deep space black, one hot accent (ignition orange), bold display numbers, snappy springs,
+   swipeable landscape photo cards, press-in states that feel like a tap engine. */
+.st {
+  --bg: #0D111D; --card: #161C2C; --card-open: #1A2134; --line: #2A3350;
+  --text: #F3F5FA; --muted: #A7B0C8; --faint: #8A93AE; --hot: #FF6A3D; --hot2: #FFB02E; --red: #FF4D4F;
+  --slide: .38s cubic-bezier(.2,1,.3,1); --hdr-ease: .38s cubic-bezier(.2,1,.3,1);
+  --press: transform .38s cubic-bezier(.3,1.65,.5,1);
+  background: #0D111D;
+}
+@media (max-width: 899px) {
+  .st { background: #0D111D; }
+  .st::before { background: radial-gradient(90% 40% at 50% -6%, rgba(255,106,61,.22) 0%, rgba(255,106,61,0) 70%), radial-gradient(130% 60% at 50% -10%, #1B2238 0%, #0D111D 65%), #0D111D; }
+  .hdr-pill { background: linear-gradient(135deg, #FF6A3D 0%, #F04E6A 100%); border: 0; box-shadow: 0 8px 22px -8px rgba(255,106,61,.7); border-radius: 16px; }
+  .hdr-p b { font-size: 15px; font-weight: 800; letter-spacing: -.01em; }
+  .hdr-p span { font-size: 11px; font-weight: 700; color: #fff; opacity: calc(.55 + .45 * var(--act)); }
+  .hdr-p:active, .round-btn:active { transform: scale(.9) !important; transition: transform .08s !important; }
+}
+.round-btn { background: rgba(255,255,255,.05); border-color: rgba(255,255,255,.1); color: #D5DBEA; transition: var(--press); }
+
+/* hero: bold, live, glowing */
+.next { position: relative; overflow: hidden; border-radius: 26px; padding: 18px 18px 18px; border: 1px solid rgba(255,140,90,.35);
+  background: linear-gradient(165deg, #2A1F2E 0%, #1B1E33 45%, #141A2B 100%); box-shadow: 0 30px 60px -30px rgba(255,90,50,.55), inset 0 1px 0 rgba(255,255,255,.06); }
+.next::before { content: ""; position: absolute; left: 50%; top: 64px; width: 760px; height: 760px; margin: -380px 0 0 -380px; pointer-events: none; z-index: 0;
+  /* v5 radar: one soft wedge of light. Tail fades in over ~100deg, brightest just behind a feathered leading edge; a radial mask fades it to nothing
+     before the box edge, so there is no hard line anywhere. The box is fixed px and top-anchored (centre 64px below the card top): opening the card cannot move it. */
+  background: conic-gradient(from 0deg, rgba(255,150,100,0) 0deg, rgba(255,150,100,.03) 26deg, rgba(255,150,100,.08) 52deg, rgba(255,154,106,.15) 74deg, rgba(255,160,112,.23) 90deg, rgba(255,166,118,.28) 98deg, rgba(255,164,116,.22) 106deg, rgba(255,160,112,.14) 115deg, rgba(255,158,110,.07) 126deg, rgba(255,158,110,.025) 138deg, rgba(255,158,110,0) 150deg, rgba(255,158,110,0) 360deg);
+  -webkit-mask-image: radial-gradient(circle closest-side, rgba(0,0,0,0) 0%, rgba(0,0,0,.5) 6%, #000 15%, rgba(0,0,0,.84) 26%, rgba(0,0,0,.6) 42%, rgba(0,0,0,.36) 58%, rgba(0,0,0,.16) 78%, rgba(0,0,0,.04) 92%, transparent 100%);
+  mask-image: radial-gradient(circle closest-side, rgba(0,0,0,0) 0%, rgba(0,0,0,.5) 6%, #000 15%, rgba(0,0,0,.84) 26%, rgba(0,0,0,.6) 42%, rgba(0,0,0,.36) 58%, rgba(0,0,0,.16) 78%, rgba(0,0,0,.04) 92%, transparent 100%);
+  animation: v-sweep 7s linear infinite; will-change: transform; transform: rotate(0deg); }
+@keyframes v-sweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .next::before { display: none; } }
+.next-title { flex-direction: column; align-items: flex-start; gap: 0; margin: 18px 0 14px; }
+.next-title .t-word { font-size: 13px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--hot2); }
+.next-title .t-num { font-size: 76px; line-height: .95; font-weight: 800; letter-spacing: -.05em; color: #fff; font-variant-numeric: tabular-nums;
+  background: linear-gradient(180deg, #FFFFFF 30%, #FFC9B4 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+
+/* countdown emphasis */
+.cd { border-radius: 12px; font-size: 15px; font-weight: 800; box-shadow: 0 10px 24px -12px rgba(255,77,79,.7); }
+.cd-tag { background: linear-gradient(135deg, #FF4D4F, #FF6A3D); padding: 8px 11px; letter-spacing: .04em; }
+.cd-val { padding: 8px 12px; font-size: 16px; font-feature-settings: "tnum"; background: #fff; color: #0D111D; }
+.cd-tbc { background: rgba(255,176,46,.14); color: #FFD08A; border: 1px solid rgba(255,176,46,.35); border-radius: 12px; }
+.watch-badge { border-radius: 12px; font-weight: 800; }
+a.watch-badge-live { background: linear-gradient(135deg, #FF4D4F, #FF6A3D); box-shadow: 0 0 0 0 rgba(255,77,79,.6); animation: v-live 1.6s ease-out infinite; }
+@keyframes v-live { 0% { box-shadow: 0 0 0 0 rgba(255,77,79,.6); } 100% { box-shadow: 0 0 0 14px rgba(255,77,79,0); } }
+.facts { font-size: 14px; gap: 6px 16px; }
+.facts dt { color: var(--faint); font-weight: 600; text-transform: uppercase; font-size: 11px; letter-spacing: .08em; padding-top: 2px; }
+.facts dd { font-weight: 600; }
+.next-note, .next-upd { color: #D8DDEA; font-size: 14.5px; }
+.v-tbc { color: #FFD08A !important; }
+
+/* connectors: glowing timeline */
+.gap-line { background: linear-gradient(180deg, rgba(255,106,61,.5), rgba(42,51,80,1)); left: 64px; width: 2px; }
+.gap-line.dashed { border-left: 2px dashed rgba(255,106,61,.55); }
+.gap-label { left: 78px; font-weight: 700; color: var(--muted); font-size: 12px; }
+
+/* cards: punchy, press-in */
+.card { border-radius: 22px; background: var(--card); border: 1px solid rgba(255,255,255,.06); box-shadow: 0 16px 34px -24px rgba(0,0,0,.9); transition: var(--press), background-color .2s, border-color .2s; }
+.card.is-open { border-color: rgba(255,106,61,.35); background: var(--card-open); }
+.card-head { grid-template-columns: 120px 1fr; gap: 14px; padding: 12px; border-radius: 22px; transition: var(--press); }
+.card-head:active { transform: scale(.965); transition: transform .08s ease-out; }
+.photo { border-radius: 14px; }
+.photo-thumb { width: 120px; height: 90px; }
+.photo.has-img img { filter: saturate(112%) contrast(108%); }
+.photo.has-img::after { background: linear-gradient(180deg, rgba(13,17,29,0) 55%, rgba(13,17,29,.8) 100%); }
+.title .t-word { white-space: nowrap; font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); display: block; }
+.title .t-num { font-size: 34px; font-weight: 800; letter-spacing: -.03em; line-height: 1.05; }
+
+.date { font-size: 13px; font-weight: 700; margin-top: 4px; }
+.sub { font-size: 12px; color: var(--muted); margin-top: 1px; }
+.pill { font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; padding: 4px 8px; border-radius: 8px; }
+.pill-success { background: rgba(62,207,142,.16); color: #5FE0A6; }
+.chev { right: 14px; bottom: 14px; width: 18px; height: 18px; color: var(--hot); }
+.headline { font-size: 19px; font-weight: 800; letter-spacing: -.01em; }
+.story { font-size: 14.5px; color: #D3D9E8; }
+/* swipeable photo cards: one landscape frame per vehicle, snap from one to the next */
+.gallery.v-car { display: block; overflow: hidden; margin: 0 -16px; padding: 2px 0 8px; touch-action: pan-y; -webkit-user-select: none; user-select: none; cursor: grab; }
+.v-track { display: flex; gap: 8px; padding: 0 16px; width: max-content; will-change: transform; transform: translate3d(0,0,0); }
+.v-track > .photo-wide { flex: 0 0 auto; width: var(--sw, calc((100% - 8px) / 2)); aspect-ratio: 4 / 3; border-radius: 12px; box-shadow: 0 14px 30px -18px rgba(0,0,0,.9); transition: var(--press); -webkit-user-drag: none; }
+.v-track img { -webkit-user-drag: none; pointer-events: none; }
+.v-car.v-dragging { cursor: grabbing; }
+.v-car.v-dragging .photo-wide { transition: none; }
+.v-track > .photo-wide:active { transform: scale(.985); transition: transform .08s; }
+/* iOS-style scrolling dots: ~7 visible, centre larger/brighter, edges smaller and fading; positions are written live while dragging */
+.v-ind { position: relative; height: 20px; margin: 0 auto 2px; width: 100%; }
+.v-ind > i { position: absolute; left: 50%; top: 50%; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; background: #fff; opacity: 0; will-change: transform, opacity; }
+.photo-label { left: 12px; bottom: 10px; font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; }
+.photo-credit { right: 12px; bottom: 10px; font-size: 11px; font-weight: 700; color: rgba(255,255,255,.85); }
+.highlights-link { border-radius: 14px; background: linear-gradient(135deg, rgba(255,77,79,.18), rgba(255,106,61,.12)); border-color: rgba(255,106,61,.45); color: #FFD9CB; font-weight: 800; transition: var(--press); }
+.highlights-link:active { transform: scale(.96); transition: transform .08s; }
+.highlights-soon { display: flex; background: transparent; border: 1px dashed rgba(232, 210, 200, .32); color: rgba(232, 220, 214, .58); font-weight: 500; box-shadow: none; }
+.highlights-soon:active { transform: none; background: transparent; border-color: rgba(232, 210, 200, .32); }
+
+.road-head, .past-toggle { background: rgba(255,255,255,.04); border-color: rgba(255,106,61,.3); transition: var(--press); }
+.road-head:active, .past-toggle:active { transform: scale(.97); transition: transform .08s; }
+.dot { width: 10px; height: 10px; }
+.dot-done, .dot-complete { box-shadow: 0 0 8px var(--c); }
+.past-box { background: #10151F; border-color: rgba(255,255,255,.07); }
+
+/* Page 2 */
+.feed-section.rfs { background: #161C2C; border-color: rgba(255,106,61,.25); border-radius: 24px; }
+.post, .rfs-feed .post { background: #10151F; border-color: rgba(255,255,255,.07); border-radius: 18px; transition: var(--press); }
+.post:active { transform: scale(.985); transition: transform .08s; }
+.chip { font-weight: 800; }
+.post-date, .post-credit, .xm-ctx { color: var(--muted) !important; }
+
+/* menu */
+.about { background: #121726; border-right: 1px solid rgba(255,106,61,.25); transition: transform .42s cubic-bezier(.2,1.15,.32,1), visibility 0s .42s; }
+.about.show { transition: transform .42s cubic-bezier(.2,1.15,.32,1); }
+.about h2 { font-size: 26px; font-weight: 800; letter-spacing: -.02em; }
+.about dt { text-transform: uppercase; letter-spacing: .1em; font-size: 11px; font-weight: 800; color: var(--hot2); }
+.notify-manage-btn { background: linear-gradient(135deg, #FF4D4F, #FF6A3D) !important; color: #fff !important; border: 0 !important; font-weight: 800; }
+
+/* entrance: quick spring pop-up with a light stagger */
+html.v-ready [data-v-pending]:not([data-v-in]) { opacity: 0; transform: translateY(22px) scale(.97); }
+html.v-ready [data-v-in] { transition: opacity .3s ease-out, transform .55s cubic-bezier(.2,1.35,.35,1), background-color .2s, border-color .2s; }
+
+/* video bug A (whole page shrinks on a pull/pinch) is fixed by the noPinch patch in index.html; overscroll-behavior on html+body was tried and dropped: it blocked page scrolling in Chromium */
+
+@media (prefers-reduced-motion: reduce) {
+  html.v-ready [data-v-pending]:not([data-v-in]) { opacity: 1; transform: none; }
+  .next::before, a.watch-badge-live { animation: none !important; }
+  .st *, .st *::before, .st *::after { transition-duration: 0s !important; animation-duration: 0s !important; }
+  .card-head:active, .post:active, .gallery > .photo-wide:active { transform: none; }
+}
+.next-title .t-num, .title .t-num, .cd-val, .gap-label { font-family: "Space Grotesk", Manrope, system-ui, sans-serif; }
+.feed-section.rfs { box-shadow: inset 0 2px 0 rgba(255,106,61,.55), 0 20px 40px -28px rgba(255,90,50,.45); }
+.feed-pill-title { font-weight: 800; }
+.rfs-live { box-shadow: 0 0 0 0 rgba(255,77,79,.5); }
+/* DaVinci #3: when date and site are both TBC, say it once (the facts row); the pill returns as soon as there is a NET or countdown */
+.next:has(.v-tbc) .cd:has(.cd-tbc) { display: none; }
+.next:has(.v-tbc) .next-top:not(:has(.watch-badge)):not(:has(.cd:not(:has(.cd-tbc)))) { display: none; }
+.next:has(.v-tbc) .next-title { margin-top: 4px; }
+
+/* title row fix (same approach as sandbox/app html.sb-title): the number matches the words in size and weight, never wraps onto its own line; the status pill drops below when the row is too narrow */
+.info-top { flex-wrap: wrap; column-gap: 8px; row-gap: 2px; }
+.info-top .title { flex: 1 0 auto; white-space: nowrap; min-width: min-content; }
+.info-top .pill { flex: 0 0 auto; margin-left: auto; }
+
+/* ═════════ v2 · fixes ═════════ */
+:root { --tap: 44px; }
+/* contrast: white text on the orange/red gradients was 2.8–3.5:1; the gradients are deeper now (white on them is 4.6:1 or better) */
+.hdr-pill, .cd-tag, a.watch-badge-live, .notify-manage-btn { background-image: linear-gradient(135deg, #D93A12 0%, #CC2F45 100%) !important; }
+.hdr-pill { background: linear-gradient(135deg, #D93A12 0%, #CC2F45 100%); }
+.cd-tag { background: linear-gradient(135deg, #CC2F45, #D93A12); }
+.notify-manage-btn { background: linear-gradient(135deg, #D93A12, #CC2F45) !important; }
+/* 44 pt hit targets (visual size of the little X source badge is unchanged) */
+.round-btn, .hdr-left, .hdr-right { width: var(--tap); height: var(--tap); }
+.road-head, .past-toggle, .highlights-link, .notify-manage-btn, .feed-pill, button.feed-pill, a.watch-badge, .watch-badge, .hdr-p { min-height: var(--tap); }
+.highlights-link { padding-top: 0; padding-bottom: 0; }
+.st .buildup summary, .st .post > .buildup.feed-bu > summary, .st .buildup:not(.feed-bu) summary { min-height: var(--tap); display: flex; align-items: center; }
+/* 44px tap targets for small links (not the old pill min-width hack test-pills guards against) */
+.post-link, .xm-foot a, .post-src a, a.post-link { display: inline-flex; align-items: center; min-height: var(--tap); min-width:var(--tap); font-size: 12px; }
+.xm-grid > a.src-badge, .xm-split > a.src-badge { width: 44px; height: 44px; right: 0; bottom: 0; background: none; box-shadow: none; overflow: visible; }
+.xm-grid > a.src-badge img, .xm-split > a.src-badge img { width: 22px; height: 22px; border-radius: 50%; box-shadow: 0 0 0 1.5px rgba(255,255,255,.85), 0 2px 6px rgba(0,0,0,.45); }
+.notify-manage-btn { padding: 0 16px; }
+}
+/* nothing under 11 px */
+.pill, .badge-txt, .st .pill { font-size: 11px; }
+.road-head, .past-toggle { flex-wrap: wrap; height: auto; row-gap: 4px; }
+.road-head .road-chev, .past-chev { margin-left: auto; }
+/* menu: explicit close button (the drawer only closed by tapping the dimmed page) */
+.v-close { position: absolute; top: calc(env(safe-area-inset-top, 0px) + 10px); right: 8px; width: var(--tap); height: var(--tap); border: 0; border-radius: 50%; background: rgba(255,255,255,.07); color: #E8ECF8; font-size: 20px; line-height: 1; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.v-close:active { transform: scale(.9); background: rgba(255,255,255,.14); }
+
+/* ═════════ v2 · less on screen ═════════ */
+/* cards say "Flight 15", not "Starship Flight 15" 15 times */
+.card .title .t-word { font-size: 0; line-height: 0; }
+.card .title .t-word::before { content: "Flight"; font-size: 11px; line-height: 1.3; }
+/* a closed card shows the date and the vehicle; the pad line appears once it is opened */
+.card:not(.is-open) .card-head .sub:has(+ .sub) { display: none; }
+/* launch-day facts: the Window row repeats the date, so it is folded away (JS adds .v-fold) */
+.v-fold { display: none !important; }
+/* hero notes stay short; the full text is one tap away in the Road bar */
+.next-note, .next-upd { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* ═════════ v2 · motion layer (energy, ≤400 ms each, all off under Reduce Motion) ═════════ */
+/* 1 · staggered entrance: each batch of cards that scrolls in fans up 55 ms apart */
+html.v-ready [data-v-in] { transition: opacity .3s ease-out var(--d, 0ms), transform .38s cubic-bezier(.2,1.2,.35,1) var(--d, 0ms), background-color .2s, border-color .2s; }
+/* 2 · countdown tick: only the digit that changed rolls up (220 ms) */
+.cd { position: relative; }
+.cd-val { font-variant-numeric: tabular-nums; }
+.cd-val.v-rolling { color: transparent; }
+.v-roll { position: absolute; top: 0; bottom: 0; display: flex; align-items: center; color: #0D111D; white-space: pre; pointer-events: none; font-variant-numeric: tabular-nums; }
+.v-ch { position: relative; display: inline-block; overflow: hidden; line-height: 1.5; height: 1.5em; vertical-align: middle; }
+.v-ch > i { display: block; font-style: normal; }
+.v-ch > i.v-prev { position: absolute; left: 0; top: 0; }
+/* 3 · Road progress: a thin line under the flight bar fills to done/total (400 ms) each time Page 2 comes into view */
+.feed-pill { position: relative; }
+.v-prog { position: absolute; left: 14px; right: 14px; bottom: 0; height: 3px; border-radius: 2px; background: rgba(255,255,255,.08); overflow: hidden; pointer-events: none; }
+.v-prog::after { content: ""; position: absolute; inset: 0; border-radius: 2px; background: linear-gradient(90deg, #FF6A3D, #FFB02E); transform-origin: 0 50%; transform: scaleX(0); }
+.v-prog.v-on::after { transform: scaleX(var(--p, 0)); transition: transform .4s cubic-bezier(.2,.9,.3,1) .08s; }
+@keyframes v-dot { 0% { transform: scale(.7); box-shadow: 0 0 0 0 color-mix(in srgb, var(--c) 70%, transparent); } 55% { transform: scale(1.35); } 100% { transform: scale(1); box-shadow: 0 0 0 8px transparent; } }
+.dot.v-filled { animation: v-dot .4s ease-out; }
+/* 4 · press: a warm tint joins the springy scale */
+.card-head:active { background: rgba(255,106,61,.07); }
+.post:active, .road-head:active, .past-toggle:active, .feed-pill:active { background-color: rgba(255,106,61,.07); }
+:where(a, button, [role="button"], summary):active { filter: brightness(1.25); }
+/* 5 · launch day: a soft pulse on the hero edge (only when the launch is within a day or in flight) */
+@keyframes v-edge { 0%, 100% { box-shadow: 0 30px 60px -30px rgba(255,90,50,.55), 0 0 0 0 rgba(255,106,61,0), inset 0 1px 0 rgba(255,255,255,.06); } 50% { box-shadow: 0 30px 60px -30px rgba(255,90,50,.55), 0 0 0 5px rgba(255,106,61,.16), inset 0 1px 0 rgba(255,255,255,.06); } }
+.next[data-v-live] { animation: v-edge 2.4s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .next::before, .next[data-v-live], .next[data-v-live]::before, .dot.v-filled, .road-head .dot, .past-toggle .dot { animation: none !important; }
+  .v-roll { display: none !important; } .cd-val.v-rolling { color: #0D111D; }
+  .v-prog.v-on::after, .v-prog::after { transition: none; } .v-prog::after { transform: scaleX(var(--p, 0)); }
+  :where(a, button, [role="button"], summary):active { filter: none; }
+}
+html.v-rm .next::before, html.v-rm .next[data-v-live], html.v-rm .next[data-v-live]::before, html.v-rm .dot.v-filled, html.v-rm .road-head .dot, html.v-rm .past-toggle .dot { animation: none !important; }
+html.v-rm .v-roll { display: none !important; } html.v-rm .cd-val.v-rolling { color: #0D111D; }
+html.v-rm .v-prog::after { transition: none; transform: scaleX(var(--p, 0)); }
+/* header labels: unscaled height 50 px so the smaller (inactive) one is still ≥ 44 px after the 0.9 scale */
+@media (max-width: 899px) { .hdr-p { min-height: 50px; display: flex; flex-direction: column; justify-content: center; } }
+.v-roll { user-select: none; -webkit-user-select: none; }
+
+/* v3 · originals restored
+   Radar: Energy v1 '.next::before' conic sweep, 7s linear infinite (variants/energy/variant.css). Always on the hero card again (v2 had limited it to launch day).
+   Dots: prototype motion.css mo-pop, 0.42s spring, 30ms stagger, plays when Road to Flight in the card is pressed open. */
+.road-head[aria-expanded="true"] .dot,
+.past-toggle.open .dot,
+.past-toggle[aria-expanded="true"] .dot { animation: mo-pop .42s cubic-bezier(.34,1.36,.64,1) both; }
+.road-head[aria-expanded="true"] .road-dots .dot:nth-child(2),
+.past-toggle[aria-expanded="true"] .road-dots .dot:nth-child(2),
+.past-toggle.open .road-dots .dot:nth-child(2){ animation-delay: .03s }
+.road-head[aria-expanded="true"] .road-dots .dot:nth-child(3),
+.past-toggle[aria-expanded="true"] .road-dots .dot:nth-child(3),
+.past-toggle.open .road-dots .dot:nth-child(3){ animation-delay: .06s }
+.road-head[aria-expanded="true"] .road-dots .dot:nth-child(4),
+.past-toggle[aria-expanded="true"] .road-dots .dot:nth-child(4),
+.past-toggle.open .road-dots .dot:nth-child(4){ animation-delay: .09s }
+.road-head[aria-expanded="true"] .road-dots .dot:nth-child(5),
+.past-toggle[aria-expanded="true"] .road-dots .dot:nth-child(5),
+.past-toggle.open .road-dots .dot:nth-child(5){ animation-delay: .12s }
+.road-head[aria-expanded="true"] .road-dots .dot:nth-child(6),
+.past-toggle[aria-expanded="true"] .road-dots .dot:nth-child(6),
+.past-toggle.open .road-dots .dot:nth-child(6){ animation-delay: .15s }
+@keyframes mo-pop{ 0%{ transform: scale(.4) } 60%{ transform: scale(1.25) } 100%{ transform: scale(1) } }
+/* v7 · close: a smooth reverse pop (scale 1 → .4 → 1) with reversed stagger, only when the panel actually closes */
+.road-head.v-dots-close .dot,
+.past-toggle.v-dots-close .dot,
+.road-head[data-v-dots-close] .dot,
+.past-toggle[data-v-dots-close] .dot { animation: mo-unpop .42s cubic-bezier(.34,1.36,.64,1) both; }
+.v-dots-close .road-dots .dot:nth-last-child(1),
+[data-v-dots-close] .road-dots .dot:nth-last-child(1){ animation-delay: 0s }
+.v-dots-close .road-dots .dot:nth-last-child(2),
+[data-v-dots-close] .road-dots .dot:nth-last-child(2){ animation-delay: .03s }
+.v-dots-close .road-dots .dot:nth-last-child(3),
+[data-v-dots-close] .road-dots .dot:nth-last-child(3){ animation-delay: .06s }
+.v-dots-close .road-dots .dot:nth-last-child(4),
+[data-v-dots-close] .road-dots .dot:nth-last-child(4){ animation-delay: .09s }
+.v-dots-close .road-dots .dot:nth-last-child(5),
+[data-v-dots-close] .road-dots .dot:nth-last-child(5){ animation-delay: .12s }
+.v-dots-close .road-dots .dot:nth-last-child(6),
+[data-v-dots-close] .road-dots .dot:nth-last-child(6){ animation-delay: .15s }
+@keyframes mo-unpop{ 0%{ transform: scale(1) } 40%{ transform: scale(.4) } 100%{ transform: scale(1) } }
+.road-head[data-v-hiding-dots] .road-dots,
+.past-toggle[data-v-hiding-dots] .road-dots { visibility: hidden !important; }
+
+
+/* v3 · past flight cards at 390px: shrink the big number and keep the text block aligned with the thumbnail, clear of the chevron */
+.card-head { align-items: center; }
+.title .t-num { font-size: 24px; line-height: 1.15; }
+.info { min-width: 0; padding-right: 22px; display: flex; flex-direction: column; justify-content: center; }
+/* v3 · compact carousel dots: a short row of pills, or a 3/12 counter when there are many */
+
+
+
+/* ═════════ v5 ═════════ */
+/* 1 · header. Safari tab (html.v-browser): a sticky wrapper at the top of the document + opaque cap that reaches far above the screen (rubber-band safe).
+   Home Screen app (standalone): the proven fixed header, now with the same opaque cap and an opaque band down to the pills' bottom edge. */
+@media (max-width: 899px) {
+  .hdr-wrap { --capH: calc(var(--sat) + 76px); }
+  .hdr-cap, .hdr-bar { pointer-events: none; }
+  html.v-browser .hdr-wrap { position: sticky; top: 0; height: 0; z-index: 18; }
+  html.v-browser .hdr-cap { position: absolute; left: 0; right: 0; top: -800px; height: calc(800px + var(--capH)); background: #0F1424; }
+  html.v-browser .hdr-bar { position: absolute; left: 0; right: 0; top: var(--capH); height: 24px; background: linear-gradient(180deg, #0F1424 0%, rgba(15,20,36,0) 100%); }
+  html.v-browser .hdr { position: absolute; top: calc(var(--sat) + 4px); height: 64px; z-index: 2; }
+  html:not(.v-browser) .hdr-wrap { display: contents; }
+  html:not(.v-browser) .hdr-cap { position: fixed; left: 0; right: 0; top: 0; height: var(--capH); z-index: 16; background: #0F1424; }
+  html:not(.v-browser) .hdr-bar { position: fixed; left: 0; right: 0; top: var(--capH); height: 24px; z-index: 16; background: linear-gradient(180deg, #0F1424 0%, rgba(15,20,36,0) 100%); }
+  html:not(.v-browser) .hdr { top: calc(var(--sat) + 4px); height: 64px; }
+  .hdr-left, .hdr-right { top: 10px; }
+  /* Safari: a div with overflow-x:hidden on html AND body makes body a scroll container and misplaces fixed/sticky chrome; clip does not. */
+  html.v-browser, html.v-browser body, html.v-browser .st.feed-on { overflow-x: clip; }
+  html.v-browser { background-color: #0F1424; }
+}
+/* 2 · no text-selection handles, callouts or tap flashes on the app chrome (inputs stay selectable) */
+.st, .st * { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+.st input, .st textarea { -webkit-user-select: text; user-select: text; }
+/* 3 · a card clips whatever its body is doing while it opens or closes */
+.card { overflow: hidden; }
+html.v-rm .next::before { display: none !important; }
+
+
+/* ═════════ v6 ═════════ */
+/* Radar stays a top-anchored background layer. Content (including the Road to Flight pill) stacks above it.
+   The pill is an opaque slice of the hero so the beam cannot show through. */
+.next { isolation: isolate; }
+.next::before { z-index: 0; }
+.next > * { position: relative; z-index: 1; }
+.next .road-head {
+  background: #1A1E30;
+  border-color: rgba(255,106,61,.35);
+}
+.next .road-head:active { background: #241E32; background-color: #241E32; }
+
+/* Captions off the flight-log carousel; source only, tiny and faint, bottom-right. Dots unchanged. */
+.photo-wide .photo-label { display: none !important; }
+.photo-wide .photo-credit {
+  left: auto; right: 10px; bottom: 8px; z-index: 2;
+  font-size: 9px; font-weight: 500; letter-spacing: .03em; text-transform: none;
+  color: rgba(255,255,255,.42);
+  text-shadow: 0 1px 2px rgba(0,0,0,.75);
+}
+
+/* Road milestone glow: ~45% of the previous intensity, inset + a soft radial so nothing is clipped
+   into a hard line by .next or .road-list-inner overflow. Multi-stop, faded to transparent well inside the card. */
+.next .callout {
+  box-shadow:
+    inset 4px 0 0 var(--c),
+    inset 0 0 36px -8px color-mix(in srgb, var(--c) 22%, transparent),
+    inset 0 0 72px 0 color-mix(in srgb, var(--c) 8%, transparent);
+}
+.next .callout.open {
+  box-shadow:
+    inset 4px 0 0 var(--c),
+    inset 0 0 40px -6px color-mix(in srgb, var(--c) 26%, transparent),
+    inset 0 0 80px 0 color-mix(in srgb, var(--c) 10%, transparent);
+}
+.next .callout::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(90% 80% at 8% 45%,
+    color-mix(in srgb, var(--c) 14%, transparent) 0%,
+    color-mix(in srgb, var(--c) 8%, transparent) 26%,
+    color-mix(in srgb, var(--c) 3.5%, transparent) 48%,
+    color-mix(in srgb, var(--c) 1.2%, transparent) 68%,
+    transparent 86%);
+}
+.next .callout > * { position: relative; z-index: 1; }
+
+.next .callout[data-id="raptor"] {
+  box-shadow:
+    inset 4px 0 0 #0E0F11,
+    inset 5px 0 0 rgba(255,255,255,.28),
+    inset 0 0 36px -8px rgba(200,210,230,.14),
+    inset 0 0 72px 0 rgba(200,210,230,.06) !important;
+}
+.next .callout[data-id="raptor"]::after {
+  background: radial-gradient(90% 80% at 8% 45%,
+    rgba(200,210,230,.11) 0%,
+    rgba(200,210,230,.06) 26%,
+    rgba(200,210,230,.025) 48%,
+    rgba(200,210,230,.008) 68%,
+    transparent 86%);
+}
+
+/* Same softer treatment for finished vehicle sub-cards (inset, so overflow cannot cut a ring). */
+.road .mini.glow {
+  box-shadow:
+    inset 0 0 22px -4px color-mix(in srgb, var(--c) 20%, transparent),
+    0 0 14px -8px color-mix(in srgb, var(--c) 18%, transparent);
+}
+.callout[data-id="raptor"] .mini.glow {
+  box-shadow:
+    inset 0 0 22px -4px rgba(200,210,230,.12),
+    0 0 14px -8px rgba(200,210,230,.1);
+}
+
+
+/* ═════════ v7 ═════════ */
+/* Past flight Road sections are text only — no photos, no reserved photo row. */
+.past-sum[data-photos] { --past-ph: 0px; grid-auto-rows: auto; }
+.past-sum .past-photo, .card .past-photo { display: none !important; }
+
+/* Header: the Page 2 shortcut is gone; keep the left menu and a centred pill, no empty right hit target. */
+.hdr-right { display: none !important; pointer-events: none !important; }
+
+/* Overscroll / rubber-band: html canvas is header navy at the top and page navy at the bottom.
+   Do not set overscroll-behavior on html/body (it previously blocked scrolling). */
+html {
+  background-color: #0D111D;
+  background-image: linear-gradient(#0F1424, #0F1424);
+  background-repeat: no-repeat;
+  background-size: 100% 50vh;
+}
+body, #root { background-color: #0D111D; background-image: none; }
+html.v-browser, html.v-standalone, html.v-browser body, html.v-standalone body {
+  background-color: #0D111D;
+}
+
+
+/* ═════════ v10 ═════════ */
+/* Instant press (is-pressed is set on pointerdown so iOS doesn't wait on :active). */
+.card-head.is-pressed { transform: scale(.965); }
+.road-head.is-pressed, .past-toggle.is-pressed { transform: scale(.97); }
+.round-btn.is-pressed, .hdr-p.is-pressed { transform: scale(.9); }
+.highlights-link.is-pressed { transform: scale(.96); }
+.post.is-pressed { transform: scale(.985); }
+.callout-head.is-pressed { transform: scale(.99); }
+
+/* Remove 300ms-style tap delay on tappable chrome. Carousel keeps pan-y. */
+.card-head, .road-head, .past-toggle, .round-btn, .hdr-p, .hdr-left, .highlights-link,
+.feed-pill, .callout-head, .v-close, button, a, [role="button"] { touch-action: manipulation; }
+.gallery.v-car { touch-action: pan-y; }
+
+/* will-change only while a carousel is actually moving */
+.v-track { will-change: auto; }
+.v-car.v-dragging .v-track, .v-car.v-animating .v-track { will-change: transform; }
+
+/* Road close: transition padding (it used to snap 10px→0 and glue Cryo to the pill)
+   and fade/slide the stack down as a unit so overflow-clip no longer pins the first card. */
+.next .road-list {
+  transition: grid-template-rows .5s cubic-bezier(.2,.8,.2,1);
+}
+.next .road-list-inner {
+  padding-top: 0;
+  opacity: 0;
+  transform: translate3d(0, 12px, 0);
+  transition:
+    padding-top .5s cubic-bezier(.2,.8,.2,1),
+    opacity .36s cubic-bezier(.2,.8,.2,1),
+    transform .5s cubic-bezier(.2,.8,.2,1);
+}
+.next.main-open .road-list-inner,
+section.road.main-open .road-list-inner,
+.main-open .road-list-inner {
+  padding-top: 10px;
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .next .road-list, .next .road-list-inner, .road-list, .road-list-inner { transition: none !important; }
+  .road-list-inner { transform: none !important; opacity: 1; }
+}
+html.v-rm .road-list-inner, html.v-rm .next .road-list-inner { transform: none !important; transition: none !important; opacity: 1; }
+
+`;
+
 
 class ErrorBoundary extends React.Component {
   constructor(props) { super(props); this.state = { error: null }; }
