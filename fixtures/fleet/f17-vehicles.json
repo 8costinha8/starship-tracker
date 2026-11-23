@@ -1,0 +1,554 @@
+{
+ "_about": "F17 fleet fixture for scripts/test-flight-template.js: S44, B24 (move, move, cryo_start, cryo_done each) and B25 (no flight yet) as in data/vehicles.json on 23 Nov 2026 (c12d9e4), candidates trimmed.",
+ "version": 1,
+ "vehicles": {
+  "S44": {
+   "id": "S44",
+   "type": "ship",
+   "name": "Ship 44",
+   "state": "cryo",
+   "flight": 17,
+   "flight_history": [
+    {
+     "flight": 17,
+     "at": "2026-11-19T19:52:50.000Z",
+     "src": "https://x.com/NASASpaceflight/status/2123504795092975747"
+    }
+   ],
+   "first_seen": "2026-11-18T02:00:00.000Z",
+   "first_src": "https://x.com/RGVaerialphotos/status/2122872418037600574",
+   "events": [
+    {
+     "id": "fv-28207b57d7",
+     "key": "S44|move|Massey's|19 Nov",
+     "vehicle": "S44",
+     "type": "move",
+     "milestone": false,
+     "at": "2026-11-19T18:19:07.000Z",
+     "date": "19 Nov",
+     "text": "Ship 44 headed to Massey's.",
+     "place": "Massey's",
+     "url": "https://x.com/RGVaerialphotos/status/2123481210752315451",
+     "src": "@RGVaerialphotos",
+     "tier": 2,
+     "post_id": "2123481210752315451",
+     "flight": null,
+     "image": {
+      "type": "photo",
+      "url": "https://pbs.twimg.com/media/HXge4cxXMAAUSbz.jpg?name=orig",
+      "score": 3
+     },
+     "x_post": {
+      "url": "https://x.com/RGVaerialphotos/status/2123481210752315451",
+      "author": {
+       "username": "RGVaerialphotos"
+      },
+      "media": [
+       {
+        "type": "photo",
+        "url": "https://pbs.twimg.com/media/HXge4cxXMAAUSbz.jpg?name=orig"
+       }
+      ]
+     },
+     "image_src": "https://x.com/RGVaerialphotos/status/2123481210752315451",
+     "sources": [
+      {
+       "post_id": "2123481210752315451",
+       "url": "https://x.com/RGVaerialphotos/status/2123481210752315451",
+       "src": "@RGVaerialphotos",
+       "at": "2026-11-19T18:19:07.000Z"
+      },
+      {
+       "post_id": "2123504795092975747",
+       "url": "https://x.com/NASASpaceflight/status/2123504795092975747",
+       "src": "@NASASpaceflight",
+       "at": "2026-11-19T19:52:50.000Z"
+      },
+      {
+       "post_id": "2123522565675335767",
+       "url": "https://x.com/Blobifie/status/2123522565675335767",
+       "src": "@Blobifie",
+       "at": "2026-11-19T21:03:27.000Z"
+      },
+      {
+       "post_id": "2123527777483894958",
+       "url": "https://x.com/LabPadre/status/2123527777483894958",
+       "src": "@LabPadre",
+       "at": "2026-11-19T21:24:10.000Z"
+      }
+     ],
+     "backfill": true,
+     "image_checked": true
+    },
+    {
+     "id": "fv-d82c1de2a5",
+     "key": "S44|move|Massey's|20 Nov",
+     "vehicle": "S44",
+     "type": "move",
+     "milestone": false,
+     "at": "2026-11-20T13:44:56.000Z",
+     "date": "20 Nov",
+     "text": "Ship 44 is at Massey's.",
+     "place": "Massey's",
+     "url": "https://x.com/NASASpaceflight/status/2123774597967540724",
+     "src": "@NASASpaceflight",
+     "tier": 1,
+     "post_id": "2123774597967540724",
+     "flight": 17,
+     "image": {
+      "type": "video",
+      "url": "https://pbs.twimg.com/amplify_video_thumb/2123894070829559808/img/fBDA16Mj6GuEouvs.jpg",
+      "score": 2
+     },
+     "x_post": {
+      "url": "https://x.com/efraser77/status/2123894391177949549",
+      "author": {
+       "username": "efraser77"
+      },
+      "media": [
+       {
+        "type": "video",
+        "poster": "https://pbs.twimg.com/amplify_video_thumb/2123894070829559808/img/fBDA16Mj6GuEouvs.jpg"
+       }
+      ]
+     },
+     "image_src": "https://x.com/efraser77/status/2123894391177949549",
+     "sources": [
+      {
+       "post_id": "2123774597967540724",
+       "url": "https://x.com/NASASpaceflight/status/2123774597967540724",
+       "src": "@NASASpaceflight",
+       "at": "2026-11-20T13:44:56.000Z"
+      },
+      {
+       "post_id": "2123871167119569323",
+       "url": "https://x.com/Blobifie/status/2123871167119569323",
+       "src": "@Blobifie",
+       "at": "2026-11-20T20:08:40.000Z"
+      },
+      {
+       "post_id": "2123894391177949549",
+       "url": "https://x.com/efraser77/status/2123894391177949549",
+       "src": "@efraser77",
+       "at": "2026-11-20T21:40:57.000Z"
+      }
+     ],
+     "backfill": true,
+     "image_checked": true
+    },
+    {
+     "id": "fv-0ce4b1fb08",
+     "key": "S44|cryo_start",
+     "vehicle": "S44",
+     "type": "cryo_start",
+     "milestone": true,
+     "at": "2026-11-20T21:40:57.000Z",
+     "date": "20 Nov",
+     "text": "Ship 44 began cryo testing at Massey's.",
+     "place": "Massey's",
+     "url": "https://x.com/efraser77/status/2123894391177949549",
+     "src": "@efraser77",
+     "tier": 2,
+     "post_id": "2123894391177949549",
+     "flight": 17,
+     "image": {
+      "type": "photo",
+      "url": "https://pbs.twimg.com/media/HXmhnKqWQAAQlyd.jpg?name=orig",
+      "score": 3
+     },
+     "x_post": {
+      "url": "https://x.com/TrackingTheSB/status/2123906558115418275",
+      "author": {
+       "username": "TrackingTheSB"
+      },
+      "media": [
+       {
+        "type": "photo",
+        "url": "https://pbs.twimg.com/media/HXmhnKqWQAAQlyd.jpg?name=orig"
+       }
+      ]
+     },
+     "image_src": "https://x.com/TrackingTheSB/status/2123906558115418275",
+     "sources": [
+      {
+       "post_id": "2123894391177949549",
+       "url": "https://x.com/efraser77/status/2123894391177949549",
+       "src": "@efraser77",
+       "at": "2026-11-20T21:40:57.000Z"
+      },
+      {
+       "post_id": "2123898258842157512",
+       "url": "https://x.com/RGVaerialphotos/status/2123898258842157512",
+       "src": "@RGVaerialphotos",
+       "at": "2026-11-20T21:56:19.000Z"
+      },
+      {
+       "post_id": "2123906558115418275",
+       "url": "https://x.com/TrackingTheSB/status/2123906558115418275",
+       "src": "@TrackingTheSB",
+       "at": "2026-11-20T22:29:18.000Z"
+      },
+      {
+       "post_id": "2124022121466876147",
+       "url": "https://x.com/Blobifie/status/2124022121466876147",
+       "src": "@Blobifie",
+       "at": "2026-11-21T06:08:30.000Z"
+      }
+     ],
+     "backfill": true,
+     "image_checked": true
+    },
+    {
+     "id": "fv-d82809339b",
+     "key": "S44|cryo_done",
+     "vehicle": "S44",
+     "type": "cryo_done",
+     "milestone": true,
+     "at": "2026-11-21T10:00:44.000Z",
+     "date": "21 Nov",
+     "text": "Ship 44 completed cryo testing.",
+     "url": "https://x.com/Blobifie/status/2124080565272117476",
+     "src": "@Blobifie",
+     "tier": 2,
+     "post_id": "2124080565272117476",
+     "flight": 17,
+     "image": {
+      "type": "video",
+      "url": "https://pbs.twimg.com/amplify_video_thumb/2124265195992440832/img/iKqB-vmKXQVQk3TQ.jpg",
+      "score": 2
+     },
+     "x_post": {
+      "url": "https://x.com/RGVaerialphotos/status/2124265745681117187",
+      "author": {
+       "username": "RGVaerialphotos"
+      },
+      "media": [
+       {
+        "type": "video",
+        "poster": "https://pbs.twimg.com/amplify_video_thumb/2124265195992440832/img/iKqB-vmKXQVQk3TQ.jpg"
+       }
+      ]
+     },
+     "image_src": "https://x.com/RGVaerialphotos/status/2124265745681117187",
+     "sources": [
+      {
+       "post_id": "2124080565272117476",
+       "url": "https://x.com/Blobifie/status/2124080565272117476",
+       "src": "@Blobifie",
+       "at": "2026-11-21T10:00:44.000Z"
+      },
+      {
+       "post_id": "2124265745681117187",
+       "url": "https://x.com/RGVaerialphotos/status/2124265745681117187",
+       "src": "@RGVaerialphotos",
+       "at": "2026-11-21T22:16:35.000Z"
+      },
+      {
+       "post_id": "2124613486315790767",
+       "url": "https://x.com/efraser77/status/2124613486315790767",
+       "src": "@efraser77",
+       "at": "2026-11-22T21:18:23.000Z"
+      }
+     ],
+     "backfill": true,
+     "image_checked": true
+    }
+   ],
+   "state_at": "2026-11-20T21:40:57.000Z"
+  },
+  "B24": {
+   "id": "B24",
+   "type": "booster",
+   "name": "Booster 24",
+   "state": "cryo",
+   "flight": 17,
+   "flight_history": [
+    {
+     "flight": 17,
+     "at": "2026-11-20T13:44:56.000Z",
+     "src": "https://x.com/NASASpaceflight/status/2123774597967540724"
+    }
+   ],
+   "first_seen": "2026-11-20T06:05:11.000Z",
+   "first_src": "https://x.com/TrackingTheSB/status/2123658897949159619",
+   "events": [
+    {
+     "id": "fv-edb506bfcb",
+     "key": "B24|move|Massey's|20 Nov",
+     "vehicle": "B24",
+     "type": "move",
+     "milestone": false,
+     "at": "2026-11-20T06:05:11.000Z",
+     "date": "20 Nov",
+     "text": "Booster 24 headed to Massey's.",
+     "place": "Massey's",
+     "url": "https://x.com/TrackingTheSB/status/2123658897949159619",
+     "src": "@TrackingTheSB",
+     "tier": 2,
+     "post_id": "2123658897949159619",
+     "flight": null,
+     "image": {
+      "type": "video",
+      "url": "https://pbs.twimg.com/amplify_video_thumb/2123662812962750464/img/ovA0QnDhaVHHIPLv.jpg",
+      "score": 2
+     },
+     "x_post": {
+      "url": "https://x.com/RGVaerialphotos/status/2123663091074584938",
+      "author": {
+       "username": "RGVaerialphotos"
+      },
+      "media": [
+       {
+        "type": "video",
+        "poster": "https://pbs.twimg.com/amplify_video_thumb/2123662812962750464/img/ovA0QnDhaVHHIPLv.jpg"
+       }
+      ]
+     },
+     "sources": [
+      {
+       "post_id": "2123658897949159619",
+       "url": "https://x.com/TrackingTheSB/status/2123658897949159619",
+       "src": "@TrackingTheSB",
+       "at": "2026-11-20T06:05:11.000Z"
+      },
+      {
+       "post_id": "2123663091074584938",
+       "url": "https://x.com/RGVaerialphotos/status/2123663091074584938",
+       "src": "@RGVaerialphotos",
+       "at": "2026-11-20T06:21:51.000Z"
+      },
+      {
+       "post_id": "2123774597967540724",
+       "url": "https://x.com/NASASpaceflight/status/2123774597967540724",
+       "src": "@NASASpaceflight",
+       "at": "2026-11-20T13:44:56.000Z"
+      },
+      {
+       "post_id": "2123894391177949549",
+       "url": "https://x.com/efraser77/status/2123894391177949549",
+       "src": "@efraser77",
+       "at": "2026-11-20T21:40:57.000Z"
+      }
+     ],
+     "backfill": true,
+     "image_src": "https://x.com/RGVaerialphotos/status/2123663091074584938",
+     "image_checked": true
+    },
+    {
+     "id": "fv-58425c64c0",
+     "key": "B24|move|from Mega Bay 1|20 Nov",
+     "vehicle": "B24",
+     "type": "move",
+     "milestone": false,
+     "at": "2026-11-20T20:08:40.000Z",
+     "date": "20 Nov",
+     "text": "Booster 24 left Mega Bay 1.",
+     "url": "https://x.com/Blobifie/status/2123871167119569323",
+     "src": "@Blobifie",
+     "tier": 2,
+     "post_id": "2123871167119569323",
+     "flight": 17,
+     "image": null,
+     "x_post": null,
+     "sources": [
+      {
+       "post_id": "2123871167119569323",
+       "url": "https://x.com/Blobifie/status/2123871167119569323",
+       "src": "@Blobifie",
+       "at": "2026-11-20T20:08:40.000Z"
+      }
+     ],
+     "backfill": true,
+     "image_checked": true
+    },
+    {
+     "id": "fv-9a5287fc82",
+     "key": "B24|cryo_start",
+     "vehicle": "B24",
+     "type": "cryo_start",
+     "milestone": true,
+     "at": "2026-11-22T21:16:40.000Z",
+     "date": "22 Nov",
+     "text": "Booster 24 began cryo testing at Massey's.",
+     "place": "Massey's",
+     "url": "https://x.com/RGVaerialphotos/status/2124613056231817244",
+     "src": "@RGVaerialphotos",
+     "tier": 2,
+     "post_id": "2124613056231817244",
+     "flight": 17,
+     "image": null,
+     "x_post": null,
+     "sources": [
+      {
+       "post_id": "2124613056231817244",
+       "url": "https://x.com/RGVaerialphotos/status/2124613056231817244",
+       "src": "@RGVaerialphotos",
+       "at": "2026-11-22T21:16:40.000Z"
+      },
+      {
+       "post_id": "2124613515197731225",
+       "url": "https://x.com/TrackingTheSB/status/2124613515197731225",
+       "src": "@TrackingTheSB",
+       "at": "2026-11-22T21:18:30.000Z"
+      },
+      {
+       "post_id": "2124616503740010820",
+       "url": "https://x.com/Blobifie/status/2124616503740010820",
+       "src": "@Blobifie",
+       "at": "2026-11-22T21:30:22.000Z"
+      },
+      {
+       "post_id": "2124625181880770645",
+       "url": "https://x.com/RGVaerialphotos/status/2124625181880770645",
+       "src": "@RGVaerialphotos",
+       "at": "2026-11-22T22:04:51.000Z"
+      },
+      {
+       "post_id": "2124637434797346916",
+       "url": "https://x.com/NASASpaceflight/status/2124637434797346916",
+       "src": "@NASASpaceflight",
+       "at": "2026-11-22T22:53:32.000Z"
+      }
+     ],
+     "backfill": true,
+     "image_checked": true
+    },
+    {
+     "id": "fv-3fd642c695",
+     "key": "B24|cryo_done",
+     "vehicle": "B24",
+     "type": "cryo_done",
+     "milestone": true,
+     "at": "2026-11-23T07:22:05.000Z",
+     "date": "23 Nov",
+     "text": "Booster 24 completed its first round of cryo testing at Massey's.",
+     "place": "Massey's",
+     "url": "https://x.com/RGVaerialphotos/status/2124765411627643131",
+     "src": "@RGVaerialphotos",
+     "tier": 2,
+     "post_id": "2124765411627643131",
+     "flight": 17,
+     "image": {
+      "type": "video",
+      "url": "https://pbs.twimg.com/amplify_video_thumb/2124764895292133376/img/OZnACetsr9Q5nFho.jpg",
+      "score": 2
+     },
+     "x_post": {
+      "url": "https://x.com/RGVaerialphotos/status/2124765411627643131",
+      "author": {
+       "username": "RGVaerialphotos"
+      },
+      "media": [
+       {
+        "type": "video",
+        "poster": "https://pbs.twimg.com/amplify_video_thumb/2124764895292133376/img/OZnACetsr9Q5nFho.jpg"
+       }
+      ]
+     },
+     "image_src": "https://x.com/RGVaerialphotos/status/2124765411627643131",
+     "sources": [
+      {
+       "post_id": "2124765411627643131",
+       "url": "https://x.com/RGVaerialphotos/status/2124765411627643131",
+       "src": "@RGVaerialphotos",
+       "at": "2026-11-23T07:22:05.000Z"
+      },
+      {
+       "post_id": "2124844557808644231",
+       "url": "https://x.com/Blobifie/status/2124844557808644231",
+       "src": "@Blobifie",
+       "at": "2026-11-23T12:36:34.000Z"
+      }
+     ],
+     "backfill": true,
+     "image_checked": true
+    }
+   ],
+   "state_at": "2026-11-22T21:16:40.000Z"
+  },
+  "B25": {
+   "id": "B25",
+   "type": "booster",
+   "name": "Booster 25",
+   "state": "build",
+   "flight": null,
+   "flight_history": [],
+   "first_seen": "2026-11-17T03:23:38.000Z",
+   "first_src": "https://x.com/efraser77/status/2122531077734764947",
+   "events": [
+    {
+     "id": "fv-f3b356aa6a",
+     "key": "B25|build|Mega Bay 1|17 Nov",
+     "vehicle": "B25",
+     "type": "build",
+     "milestone": false,
+     "at": "2026-11-17T03:23:38.000Z",
+     "date": "17 Nov",
+     "text": "Booster 25's transfer tube was lifted in Mega Bay 1.",
+     "place": "Mega Bay 1",
+     "url": "https://x.com/efraser77/status/2122531077734764947",
+     "src": "@efraser77",
+     "tier": 2,
+     "post_id": "2122531077734764947",
+     "flight": null,
+     "image": null,
+     "x_post": null,
+     "sources": [
+      {
+       "post_id": "2122531077734764947",
+       "url": "https://x.com/efraser77/status/2122531077734764947",
+       "src": "@efraser77",
+       "at": "2026-11-17T03:23:38.000Z"
+      }
+     ],
+     "backfill": true
+    },
+    {
+     "id": "fv-eaaad20a32",
+     "key": "B25|build|Mega Bay 1|21 Nov",
+     "vehicle": "B25",
+     "type": "build",
+     "milestone": false,
+     "at": "2026-11-21T22:04:23.000Z",
+     "date": "21 Nov",
+     "text": "Booster 25's LOX landing tank was moved to Megabay 1.",
+     "place": "Mega Bay 1",
+     "url": "https://x.com/RGVaerialphotos/status/2124262674834071685",
+     "src": "@RGVaerialphotos",
+     "tier": 2,
+     "post_id": "2124262674834071685",
+     "flight": null,
+     "image": {
+      "type": "video",
+      "url": "https://pbs.twimg.com/amplify_video_thumb/2124262488258805760/img/5lOEfOOxQggVRbIU.jpg",
+      "score": 2
+     },
+     "x_post": {
+      "url": "https://x.com/RGVaerialphotos/status/2124262674834071685",
+      "author": {
+       "username": "RGVaerialphotos"
+      },
+      "media": [
+       {
+        "type": "video",
+        "poster": "https://pbs.twimg.com/amplify_video_thumb/2124262488258805760/img/5lOEfOOxQggVRbIU.jpg"
+       }
+      ]
+     },
+     "image_src": "https://x.com/RGVaerialphotos/status/2124262674834071685",
+     "sources": [
+      {
+       "post_id": "2124262674834071685",
+       "url": "https://x.com/RGVaerialphotos/status/2124262674834071685",
+       "src": "@RGVaerialphotos",
+       "at": "2026-11-21T22:04:23.000Z"
+      }
+     ],
+     "backfill": true,
+     "image_checked": true
+    }
+   ]
+  }
+ },
+ "pads": {}
+}

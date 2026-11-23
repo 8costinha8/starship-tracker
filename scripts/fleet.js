@@ -428,4 +428,16 @@ function intoRoad(reg, road, { log = () => {} } = {}) {
   if (res.moved || res.vehicles.length) log(`fleet → Road ${n}: ${res.moved} registry event(s) moved in (no push)${res.vehicles.length ? `, vehicles ${res.vehicles.join(", ")}` : ""}`);
   return res;
 }
-module.exports = { ROAD_BOX, roadEntry, intoRoad, origUrl, upgradeOrig, screenImages, probeBanner, bannerOf, FILE, STATES, TERMINAL, STATE_LABEL, MILESTONES, PUSH_LABEL, BOX_OF, PADS, load, save, empty, seed, ingest, idsIn, assignmentsIn, eventsIn, sentences, clauses, nameOf, groups, findEvent, visibleFor, flownFlights, newestFlown, coverageDue, coverageQuery, coverageGaps, runCoverage, COVERAGE_H, bestImage };
+/* Event types the page knows: ROAD_BOX ones render in their Road box; the lifecycle / production ones never render as cards.
+   Anything else is "unmapped": kept out of the UI and listed in data/needs-review.json + data/health.json for a human to
+   propose structure (the app never invents a category for it). */
+const LIFECYCLE_TYPES = new Set(["build", "scrapped", "retired", "caught", "expended"]);
+function unmappedEvents(reg) {
+  const out = [];
+  for (const v of Object.values((reg && reg.vehicles) || {})) for (const e of v.events || []) {
+    if (!e || !e.type || ROAD_BOX[e.type] || LIFECYCLE_TYPES.has(e.type)) continue;
+    out.push({ vehicle: v.id, id: e.id || null, type: e.type, text: String(e.text || "").slice(0, 160), url: e.url || null });
+  }
+  return out;
+}
+module.exports = { unmappedEvents, LIFECYCLE_TYPES, ROAD_BOX, roadEntry, intoRoad, origUrl, upgradeOrig, screenImages, probeBanner, bannerOf, FILE, STATES, TERMINAL, STATE_LABEL, MILESTONES, PUSH_LABEL, BOX_OF, PADS, load, save, empty, seed, ingest, idsIn, assignmentsIn, eventsIn, sentences, clauses, nameOf, groups, findEvent, visibleFor, flownFlights, newestFlown, coverageDue, coverageQuery, coverageGaps, runCoverage, COVERAGE_H, bestImage };

@@ -1837,6 +1837,19 @@ async function run(opts = {}) {
       fleetMod.save(fleetReg, fleetPath);
       if (mode === "live" && !opts.roadPath) { try { commit("data/vehicles.json" + (fleetReg.coverage && fleetBefore.indexOf(fleetReg.coverage.at) < 0 ? " data/health.json" : ""), `Auto: fleet registry — ${fleetPushes.length} milestone push(es)`); } catch (e) { log(`fleet registry commit failed: ${e.message}`); fleetPushes = []; } }
     } else if (fleetChanged) console.log("(not committed) data/vehicles.json would change");
+    // Event types the Road template has no box for ("unmapped"): never shown on the page; listed once each in needs-review + health.json
+    try {
+      const un = fleetMod.unmappedEvents(fleetReg);
+      if (un.length && fleetWritable) {
+        const SC = require("./self-check.js"), root = opts.roadPath ? path.dirname(roadPath) : ROOT;
+        const added = SC.writeReview(un.map((u) => ({ type: "unmapped", item: u.id, values: [u.text], sources: u.url ? [u.url] : [], reason: "fleet event type has no Road box (not shown on the page)", msg: `Fleet event type "${u.type}" for ${u.vehicle} is unmapped: ${u.text}` })), path.join(root, "data", "needs-review.json"), clock());
+        if (added) {
+          require("./health.js").note("fleet_unmapped", { at: new Date(clock()).toISOString(), count: un.length, types: [...new Set(un.map((u) => u.type))], items: un.slice(0, 10) }, { root });
+          log(`fleet: ${added} unmapped event type(s) listed in needs-review (not shown on the page)`);
+          if (mode === "live" && !opts.roadPath) { try { commit("data/needs-review.json data/health.json", "Auto: fleet unmapped event types listed"); } catch (e) { log(`unmapped commit failed: ${e.message}`); } }
+        }
+      }
+    } catch (e) { log(`fleet unmapped check skipped: ${e.message}`); }
     if (fleetPushes.length) {
       const shownRoad = save && fs.existsSync(roadPath) ? JSON.parse(fs.readFileSync(roadPath, "utf8")) : road;
       const shownFleet = fleetWritable ? fleetMod.load(fleetPath) : fleetReg;
