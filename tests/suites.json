@@ -1,6 +1,7 @@
 {
  "_note": "ALLOWLIST: run-tests.js starts ONLY the files listed here. A test-*.js file that is not listed is never run. logic = deterministic, must pass (default suite). frozen = reads live data files; green when run with the data it was written against (git history needed: runs in a temp copy with road.json / notifications.json / data/*.json from that commit). broken = fails even with its own era's data (test rot / drift): triage list, never part of the default run. HARD BLOCK: scripts/test-push.js, scripts/send-oneoff.js and any path matching /push-send/ or the exact name test-push.js are never spawned, even if listed. test-push-tiers / test-push-policy / test-push-gate / test-push-sync are different files and are allowed.",
  "logic": [
+  "scripts/test-flight-story.js",
   "scripts/test-fleet-b24-replay.js",
   "scripts/test-fleet-new-vehicle.js",
   "scripts/test-fleet-reassign-scrap.js",

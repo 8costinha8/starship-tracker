@@ -1507,7 +1507,130 @@
           "note": "Gavin Richmond, Caught — Ship 42 in the chopsticks (https://x.com/tweetsiphotos/status/2121736134480859612, supplied by Bernardo, 15 Nov)",
           "focus": "50% 30%"
         }
-      }
+      },
+      "story_photos": [
+        {
+          "slot": "hero",
+          "src": "images/f15-story/01-hero-ship-caught.jpg",
+          "credit": "SpaceX",
+          "author": "SpaceX",
+          "source_post": "https://x.com/SpaceX/status/2123097995679867195",
+          "source_url": "https://pbs.twimg.com/media/HXbCSrEWMAAQ_Cm.jpg?name=orig",
+          "kind": "photo",
+          "w": 1600,
+          "h": 900,
+          "posted": "2026-11-18T16:56:22.000Z"
+        },
+        {
+          "slot": "rollout",
+          "src": "images/f15-story/02-rollout-ship42-to-pad.jpg",
+          "credit": "SpaceX",
+          "author": "SpaceX",
+          "source_post": "https://x.com/SpaceX/status/2121044579470233638",
+          "source_url": "https://pbs.twimg.com/media/HW92tsGW4AA1FRd.jpg?name=orig",
+          "kind": "photo",
+          "w": 1600,
+          "h": 1067,
+          "posted": "2026-11-13T00:56:49.000Z"
+        },
+        {
+          "slot": "liftoff",
+          "src": "images/f15-story/03-liftoff.jpg",
+          "credit": "SpaceX",
+          "author": "SpaceX",
+          "source_post": "https://x.com/SpaceX/status/2121437515819159871",
+          "source_url": "https://pbs.twimg.com/media/HXDb_kPXQAATb2F.jpg?name=orig",
+          "kind": "photo",
+          "w": 1600,
+          "h": 900,
+          "posted": "2026-11-14T02:58:12.000Z"
+        },
+        {
+          "slot": "ascent",
+          "src": "images/f15-story/04-ascent-stack-climbing.jpg",
+          "credit": "SpaceX",
+          "author": "SpaceX",
+          "source_post": "https://x.com/SpaceX/status/2121437515819159871",
+          "source_url": "https://pbs.twimg.com/media/HXDcIk7WwAANmRV.jpg?name=orig",
+          "kind": "photo",
+          "w": 1600,
+          "h": 1066,
+          "posted": "2026-11-14T02:58:12.000Z"
+        },
+        {
+          "slot": "hot_staging",
+          "src": "images/f15-story/05-hot-staging.jpg",
+          "credit": "SpaceX",
+          "author": "SpaceX",
+          "source_post": "https://x.com/SpaceX/status/2121375384793231499",
+          "source_video": null,
+          "kind": "frame",
+          "w": 1600,
+          "h": 733,
+          "posted": "2026-11-13T22:51:19.000Z"
+        },
+        {
+          "slot": "booster",
+          "src": "images/f15-story/06-booster-landing-burn-gulf.jpg",
+          "credit": "SpaceX",
+          "author": "SpaceX",
+          "source_post": "https://x.com/SpaceX/status/2121439746740170859",
+          "source_url": "https://pbs.twimg.com/media/HXDdifZXEAA2KCh.jpg?name=orig",
+          "kind": "photo",
+          "w": 1600,
+          "h": 900,
+          "posted": "2026-11-14T03:07:04.000Z"
+        },
+        {
+          "slot": "orbit",
+          "src": "images/f15-story/07-orbit-over-nile.jpg",
+          "credit": "SpaceX",
+          "author": "SpaceX",
+          "source_post": "https://x.com/SpaceX/status/2121602376532742611",
+          "source_video": null,
+          "kind": "frame",
+          "w": 1600,
+          "h": 667,
+          "posted": "2026-11-14T13:53:18.000Z"
+        },
+        {
+          "slot": "reentry",
+          "src": "images/f15-story/08-reentry-plasma.jpg",
+          "credit": "SpaceX",
+          "author": "SpaceX",
+          "source_post": "https://x.com/SpaceX/status/2121709368945385477",
+          "source_video": null,
+          "kind": "frame",
+          "w": 900,
+          "h": 504,
+          "small": true,
+          "posted": "2026-11-14T20:58:27.000Z"
+        },
+        {
+          "slot": "ship_return",
+          "src": "images/f15-story/09-ship-landing-burn-at-tower.jpg",
+          "credit": "SpaceX",
+          "author": "SpaceX",
+          "source_post": "https://x.com/SpaceX/status/2122352509721190612",
+          "source_url": "https://pbs.twimg.com/media/HXQbZmVXQAEY8lM.jpg?name=orig",
+          "kind": "photo",
+          "w": 1600,
+          "h": 900,
+          "posted": "2026-11-16T15:34:04.000Z"
+        },
+        {
+          "slot": "aftermath",
+          "src": "images/f15-story/10-aftermath-tower-team.jpg",
+          "credit": "SpaceX",
+          "author": "SpaceX",
+          "source_post": "https://x.com/SpaceX/status/2123097995679867195",
+          "source_url": "https://pbs.twimg.com/media/HXbCVKuXYAAzCGY.jpg?name=orig",
+          "kind": "photo",
+          "w": 1600,
+          "h": 899,
+          "posted": "2026-11-18T16:56:22.000Z"
+        }
+      ]
     }
   },
   "feed_items": [

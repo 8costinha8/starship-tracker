@@ -1,0 +1,96 @@
+{
+ "_note": "Tusk's curated Flight 15 story (images/f15-story/, /workspace/tusk/photo-pipeline/f15-story/manifest.json): the set the pipeline must reproduce. 'vision' = which photo a Grok vision pick chooses inside a multi-photo post; offline tests use these curated answers as the stand-in for Grok.",
+ "flight": 15,
+ "slots": [
+  {
+   "slot": "hero",
+   "file": "images/f15-story/01-hero-ship-caught.jpg",
+   "source_post": "https://x.com/SpaceX/status/2123097995679867195",
+   "image_url": "https://pbs.twimg.com/media/HXbCSrEWMAAQ_Cm.jpg",
+   "kind": "photo",
+   "w": 1600,
+   "h": 900
+  },
+  {
+   "slot": "rollout",
+   "file": "images/f15-story/02-rollout-ship42-to-pad.jpg",
+   "source_post": "https://x.com/SpaceX/status/2121044579470233638",
+   "image_url": "https://pbs.twimg.com/media/HW92tsGW4AA1FRd.jpg",
+   "kind": "photo",
+   "w": 1600,
+   "h": 1067
+  },
+  {
+   "slot": "liftoff",
+   "file": "images/f15-story/03-liftoff.jpg",
+   "source_post": "https://x.com/SpaceX/status/2121437515819159871",
+   "image_url": "https://pbs.twimg.com/media/HXDb_kPXQAATb2F.jpg",
+   "kind": "photo",
+   "w": 1600,
+   "h": 900
+  },
+  {
+   "slot": "ascent",
+   "file": "images/f15-story/04-ascent-stack-climbing.jpg",
+   "source_post": "https://x.com/SpaceX/status/2121437515819159871",
+   "image_url": "https://pbs.twimg.com/media/HXDcIk7WwAANmRV.jpg",
+   "kind": "photo",
+   "w": 1600,
+   "h": 1066
+  },
+  {
+   "slot": "hot_staging",
+   "file": "images/f15-story/05-hot-staging.jpg",
+   "source_post": "https://x.com/SpaceX/status/2121375384793231499",
+   "image_url": null,
+   "kind": "frame",
+   "w": 1600,
+   "h": 733
+  },
+  {
+   "slot": "booster",
+   "file": "images/f15-story/06-booster-landing-burn-gulf.jpg",
+   "source_post": "https://x.com/SpaceX/status/2121439746740170859",
+   "image_url": "https://pbs.twimg.com/media/HXDdifZXEAA2KCh.jpg",
+   "kind": "photo",
+   "w": 1600,
+   "h": 900
+  },
+  {
+   "slot": "orbit",
+   "file": "images/f15-story/07-orbit-over-nile.jpg",
+   "source_post": "https://x.com/SpaceX/status/2121602376532742611",
+   "image_url": null,
+   "kind": "frame",
+   "w": 1600,
+   "h": 667
+  },
+  {
+   "slot": "reentry",
+   "file": "images/f15-story/08-reentry-plasma.jpg",
+   "source_post": "https://x.com/SpaceX/status/2121709368945385477",
+   "image_url": null,
+   "kind": "frame",
+   "w": 900,
+   "h": 504
+  },
+  {
+   "slot": "ship_return",
+   "file": "images/f15-story/09-ship-landing-burn-at-tower.jpg",
+   "source_post": "https://x.com/SpaceX/status/2122352509721190612",
+   "image_url": "https://pbs.twimg.com/media/HXQbZmVXQAEY8lM.jpg",
+   "kind": "photo",
+   "w": 1600,
+   "h": 900
+  },
+  {
+   "slot": "aftermath",
+   "file": "images/f15-story/10-aftermath-tower-team.jpg",
+   "source_post": "https://x.com/SpaceX/status/2123097995679867195",
+   "image_url": "https://pbs.twimg.com/media/HXbCVKuXYAAzCGY.jpg",
+   "kind": "photo",
+   "w": 1600,
+   "h": 899
+  }
+ ]
+}

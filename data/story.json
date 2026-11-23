@@ -1,0 +1,564 @@
+{
+ "version": 1,
+ "flights": {
+  "15": {
+   "posts": {
+    "2121044579470233638": {
+     "id": "2121044579470233638",
+     "url": "https://x.com/SpaceX/status/2121044579470233638",
+     "author": "SpaceX",
+     "at": "2026-11-13T00:56:49.000Z",
+     "text": "Ship 42 moves to the Starbase pad ahead of launch https://t.co/pMUFTHneJQ",
+     "media": [
+      {
+       "type": "photo",
+       "url": "https://pbs.twimg.com/media/HW92p7AWgAA-N1n.jpg",
+       "w": 4096,
+       "h": 2304
+      },
+      {
+       "type": "photo",
+       "url": "https://pbs.twimg.com/media/HW92saPXUAAenRM.jpg",
+       "w": 4096,
+       "h": 2304
+      },
+      {
+       "type": "photo",
+       "url": "https://pbs.twimg.com/media/HW92tsGW4AA1FRd.jpg",
+       "w": 4096,
+       "h": 2731
+      },
+      {
+       "type": "photo",
+       "url": "https://pbs.twimg.com/media/HW92vD_WIAAmDOP.jpg",
+       "w": 4096,
+       "h": 2304
+      }
+     ],
+     "beats": [
+      "rollout"
+     ]
+    },
+    "2121374779680964991": {
+     "id": "2121374779680964991",
+     "url": "https://x.com/SpaceX/status/2121374779680964991",
+     "author": "SpaceX",
+     "at": "2026-11-13T22:48:55.000Z",
+     "text": "Liftoff of Starship! https://t.co/lc7UtE6H7z",
+     "media": [
+      {
+       "type": "video",
+       "poster": "https://pbs.twimg.com/amplify_video_thumb/2121374662450159616/img/ageOrY8-i3IftQfP.jpg",
+       "w": 3840,
+       "h": 2160
+      }
+     ],
+     "beats": [
+      "liftoff"
+     ]
+    },
+    "2121375384793231499": {
+     "id": "2121375384793231499",
+     "url": "https://x.com/SpaceX/status/2121375384793231499",
+     "author": "SpaceX",
+     "at": "2026-11-13T22:51:19.000Z",
+     "text": "Hot-staging separation! Starship’s Raptor engines have ignited, and the Super Heavy is boosting back towards Starbase for a catch https://t.co/GySjTZg7HO",
+     "media": [
+      {
+       "type": "video",
+       "poster": "https://pbs.twimg.com/amplify_video_thumb/2121375313750024192/img/asg265WJo1WZDChP.jpg",
+       "w": 3840,
+       "h": 2160
+      }
+     ],
+     "beats": [
+      "hot_staging"
+     ]
+    },
+    "2121376821635936710": {
+     "id": "2121376821635936710",
+     "url": "https://x.com/SpaceX/status/2121376821635936710",
+     "author": "SpaceX",
+     "at": "2026-11-13T22:57:02.000Z",
+     "text": "Starship’s ascent burn is complete. Starship is now on a planned suborbital trajectory as teams check systems to confirm we are good to proceed to orbit today https://t.co/N38rluDxtc",
+     "media": [
+      {
+       "type": "video",
+       "poster": "https://pbs.twimg.com/amplify_video_thumb/2121376687963439104/img/sYynSYnGEZ_Rs6GH.jpg",
+       "w": 3840,
+       "h": 2160
+      }
+     ],
+     "beats": [
+      "ascent",
+      "aftermath"
+     ]
+    },
+    "2121387537235406928": {
+     "id": "2121387537235406928",
+     "url": "https://x.com/SpaceX/status/2121387537235406928",
+     "author": "SpaceX",
+     "at": "2026-11-13T23:39:37.000Z",
+     "text": "Views of Starship in space as @Starlink deploy continues https://t.co/pd6FYvDo0D",
+     "media": [
+      {
+       "type": "video",
+       "poster": "https://pbs.twimg.com/amplify_video_thumb/2121387246066569217/img/nmK86HcluJQTcgB_.jpg",
+       "w": 3840,
+       "h": 2160
+      }
+     ],
+     "beats": [
+      "orbit"
+     ]
+    },
+    "2121437515819159871": {
+     "id": "2121437515819159871",
+     "url": "https://x.com/SpaceX/status/2121437515819159871",
+     "author": "SpaceX",
+     "at": "2026-11-14T02:58:12.000Z",
+     "text": "Liftoff of Starship Flight 15 https://t.co/OWqYkqfUG8",
+     "media": [
+      {
+       "type": "photo",
+       "url": "https://pbs.twimg.com/media/HXDb_kPXQAATb2F.jpg",
+       "w": 4096,
+       "h": 2304
+      },
+      {
+       "type": "photo",
+       "url": "https://pbs.twimg.com/media/HXDcBzPWUAA0Qem.jpg",
+       "w": 2048,
+       "h": 1365
+      },
+      {
+       "type": "photo",
+       "url": "https://pbs.twimg.com/media/HXDcEwRWwAEIyMi.jpg",
+       "w": 4096,
+       "h": 2304
+      },
+      {
+       "type": "photo",
+       "url": "https://pbs.twimg.com/media/HXDcIk7WwAANmRV.jpg",
+       "w": 2048,
+       "h": 1365
+      }
+     ],
+     "beats": [
+      "liftoff"
+     ]
+    },
+    "2121439746740170859": {
+     "id": "2121439746740170859",
+     "url": "https://x.com/SpaceX/status/2121439746740170859",
+     "author": "SpaceX",
+     "at": "2026-11-14T03:07:04.000Z",
+     "text": "Landing burn and splashdown for Super Heavy Booster 22 https://t.co/zJXpCJHuXa",
+     "media": [
+      {
+       "type": "photo",
+       "url": "https://pbs.twimg.com/media/HXDdg72XwAEBfhQ.jpg",
+       "w": 3240,
+       "h": 2160
+      },
+      {
+       "type": "photo",
+       "url": "https://pbs.twimg.com/media/HXDdifZXEAA2KCh.jpg",
+       "w": 3455,
+       "h": 1943
+      },
+      {
+       "type": "photo",
+       "url": "https://pbs.twimg.com/media/HXDdj_zXMAA0N9I.jpg",
+       "w": 4032,
+       "h": 3024
+      },
+      {
+       "type": "photo",
+       "url": "https://pbs.twimg.com/media/HXDdleKWgAAMtUT.jpg",
+       "w": 3024,
+       "h": 4032
+      }
+     ],
+     "beats": [
+      "splashdown",
+      "booster"
+     ]
+    },
+    "2121479482582441991": {
+     "id": "2121479482582441991",
+     "url": "https://x.com/SpaceX/status/2121479482582441991",
+     "author": "SpaceX",
+     "at": "2026-11-14T05:44:58.000Z",
+     "text": "Starship and its heatshield are healthy as the vehicle continues to orbit Earth after a spectacular start to its mission nearly 7 hours ago. Teams are continuing to monitor systems ahead of a planned return to launch site catch at Starbase ~22.5 hours after launch https://t.co/NeT8wosF4l",
+     "media": [
+      {
+       "type": "video",
+       "poster": "https://pbs.twimg.com/amplify_video_thumb/2121478495096524801/img/MaqFlCXvo1tTRZcG.jpg",
+       "w": 3840,
+       "h": 2160
+      }
+     ],
+     "beats": [
+      "aftermath"
+     ]
+    },
+    "2121602376532742611": {
+     "id": "2121602376532742611",
+     "url": "https://x.com/SpaceX/status/2121602376532742611",
+     "author": "SpaceX",
+     "at": "2026-11-14T13:53:18.000Z",
+     "text": "Starship in orbit over Africa https://t.co/vwkuBpdrLI",
+     "media": [
+      {
+       "type": "video",
+       "poster": "https://pbs.twimg.com/amplify_video_thumb/2121601548824510464/img/0aJ8a6jPC3uGzRTu.jpg",
+       "w": 3840,
+       "h": 2160
+      }
+     ],
+     "beats": [
+      "orbit"
+     ]
+    },
+    "2121629656868614213": {
+     "id": "2121629656868614213",
+     "url": "https://x.com/SpaceX/status/2121629656868614213",
+     "author": "SpaceX",
+     "at": "2026-11-14T15:41:42.000Z",
+     "text": "Flight 15 Update: Starship coasting in orbit, still looking good for return to launch site today. Pad and tower systems are go for catch. https://t.co/vMkjoZdxa6",
+     "media": [
+      {
+       "type": "video",
+       "poster": "https://pbs.twimg.com/amplify_video_thumb/2121628737649217536/img/ll4OqU_rOwXJkCFB.jpg",
+       "w": 3840,
+       "h": 2160
+      }
+     ],
+     "beats": [
+      "orbit"
+     ]
+    },
+    "2121684113526858011": {
+     "id": "2121684113526858011",
+     "url": "https://x.com/SpaceX/status/2121684113526858011",
+     "author": "SpaceX",
+     "at": "2026-11-14T19:18:06.000Z",
+     "text": "Teams have polled go to return Starship to the launch site at Starbase https://t.co/BsrI3nLXFe",
+     "media": [
+      {
+       "type": "video",
+       "poster": "https://pbs.twimg.com/amplify_video_thumb/2121683901575999488/img/gqe4meIrgBJPUNAp.jpg",
+       "w": 3840,
+       "h": 2160
+      }
+     ],
+     "beats": [
+      "aftermath"
+     ]
+    },
+    "2121709368945385477": {
+     "id": "2121709368945385477",
+     "url": "https://x.com/SpaceX/status/2121709368945385477",
+     "author": "SpaceX",
+     "at": "2026-11-14T20:58:27.000Z",
+     "text": "Starship is reentering Earth’s atmosphere https://t.co/b0M87R1SHn",
+     "media": [
+      {
+       "type": "video",
+       "poster": "https://pbs.twimg.com/amplify_video_thumb/2121709285495459841/img/vB7aw5ZA88jBsswt.jpg",
+       "w": 3840,
+       "h": 2160
+      }
+     ],
+     "beats": [
+      "reentry"
+     ]
+    },
+    "2121714305968304321": {
+     "id": "2121714305968304321",
+     "url": "https://x.com/SpaceX/status/2121714305968304321",
+     "author": "SpaceX",
+     "at": "2026-11-14T21:18:04.000Z",
+     "text": "Starship is executing a banking maneuver and final approach as it returns to Starbase for a catch https://t.co/E1WpGrlfaz",
+     "media": [
+      {
+       "type": "video",
+       "poster": "https://pbs.twimg.com/amplify_video_thumb/2121714248523153408/img/2rVKnCZLQz-RgNmQ.jpg",
+       "w": 3840,
+       "h": 2160
+      }
+     ],
+     "beats": [
+      "ship_return"
+     ]
+    },
+    "2121715216597827756": {
+     "id": "2121715216597827756",
+     "url": "https://x.com/SpaceX/status/2121715216597827756",
+     "author": "SpaceX",
+     "at": "2026-11-14T21:21:41.000Z",
+     "text": "Mechazilla catches Starship! Congratulations to the entire SpaceX team on this incredible achievement! https://t.co/YJzmGUZb2B",
+     "media": [
+      {
+       "type": "video",
+       "poster": "https://pbs.twimg.com/amplify_video_thumb/2121715092903596032/img/RamESGt4tVwjBYVb.jpg",
+       "w": 3840,
+       "h": 2160
+      }
+     ],
+     "beats": [
+      "ship_catch",
+      "aftermath"
+     ]
+    },
+    "2122352509721190612": {
+     "id": "2122352509721190612",
+     "url": "https://x.com/SpaceX/status/2122352509721190612",
+     "author": "SpaceX",
+     "at": "2026-11-16T15:34:04.000Z",
+     "text": "Starship landing burn on final approach for catch https://t.co/rdPsC4IIuX",
+     "media": [
+      {
+       "type": "photo",
+       "url": "https://pbs.twimg.com/media/HXQbL9EXQAErWao.jpg",
+       "w": 4096,
+       "h": 2304
+      },
+      {
+       "type": "photo",
+       "url": "https://pbs.twimg.com/media/HXQbOjyXkAAEhiI.jpg",
+       "w": 1751,
+       "h": 2627
+      },
+      {
+       "type": "photo",
+       "url": "https://pbs.twimg.com/media/HXQbSJMXoAEv6Fv.jpg",
+       "w": 4096,
+       "h": 2304
+      },
+      {
+       "type": "photo",
+       "url": "https://pbs.twimg.com/media/HXQbSJMX0AAbNE8.jpg",
+       "w": 4096,
+       "h": 2304
+      },
+      {
+       "type": "photo",
+       "url": "https://pbs.twimg.com/media/HXQbSJMWkAAGcsz.jpg",
+       "w": 3634,
+       "h": 2160
+      },
+      {
+       "type": "photo",
+       "url": "https://pbs.twimg.com/media/HXQbSJNWQAAy8rb.jpg",
+       "w": 4096,
+       "h": 2304
+      },
+      {
+       "type": "photo",
+       "url": "https://pbs.twimg.com/media/HXQbZmvXgAEXefx.jpg",
+       "w": 4096,
+       "h": 2304
+      },
+      {
+       "type": "photo",
+       "url": "https://pbs.twimg.com/media/HXQbZmVXQAEY8lM.jpg",
+       "w": 4096,
+       "h": 2304
+      },
+      {
+       "type": "photo",
+       "url": "https://pbs.twimg.com/media/HXQbZmaXYAA5jnL.jpg",
+       "w": 3456,
+       "h": 2160
+      }
+     ],
+     "beats": [
+      "ship_return"
+     ]
+    },
+    "2122446937286971592": {
+     "id": "2122446937286971592",
+     "url": "https://x.com/SpaceX/status/2122446937286971592",
+     "author": "SpaceX",
+     "at": "2026-11-16T21:49:17.000Z",
+     "text": "Starship 42 back on Earth https://t.co/OEkFHSM5GJ",
+     "media": [
+      {
+       "type": "photo",
+       "url": "https://pbs.twimg.com/media/HXRyDsiWAAAhXUJ.jpg",
+       "w": 3277,
+       "h": 4096
+      },
+      {
+       "type": "photo",
+       "url": "https://pbs.twimg.com/media/HXRyFe5WgAAgOVw.jpg",
+       "w": 2159,
+       "h": 2880
+      },
+      {
+       "type": "photo",
+       "url": "https://pbs.twimg.com/media/HXRyILiXwAAAiUS.jpg",
+       "w": 2730,
+       "h": 4096
+      },
+      {
+       "type": "photo",
+       "url": "https://pbs.twimg.com/media/HXRyKFiWAAA9RJb.jpg",
+       "w": 3072,
+       "h": 4096
+      },
+      {
+       "type": "photo",
+       "url": "https://pbs.twimg.com/media/HXRyL5DXQAEohyJ.jpg",
+       "w": 3072,
+       "h": 4096
+      },
+      {
+       "type": "photo",
+       "url": "https://pbs.twimg.com/media/HXRyNOsXcAAbNvf.jpg",
+       "w": 4096,
+       "h": 3072
+      }
+     ],
+     "beats": [
+      "aftermath"
+     ]
+    },
+    "2123097995679867195": {
+     "id": "2123097995679867195",
+     "url": "https://x.com/SpaceX/status/2123097995679867195",
+     "author": "SpaceX",
+     "at": "2026-11-18T16:56:22.000Z",
+     "text": "The Starbase tower team on location with the first caught Starship🍌 https://t.co/ar7y6ccgZr",
+     "media": [
+      {
+       "type": "photo",
+       "url": "https://pbs.twimg.com/media/HXbCSrEWMAAQ_Cm.jpg",
+       "w": 4096,
+       "h": 2304
+      },
+      {
+       "type": "photo",
+       "url": "https://pbs.twimg.com/media/HXbCT8NWYAA3Jpr.jpg",
+       "w": 4096,
+       "h": 2304
+      },
+      {
+       "type": "photo",
+       "url": "https://pbs.twimg.com/media/HXbCVKuXYAAzCGY.jpg",
+       "w": 4096,
+       "h": 2302
+      }
+     ],
+     "beats": [
+      "ship_catch",
+      "aftermath"
+     ]
+    },
+    "2123809508187078839": {
+     "id": "2123809508187078839",
+     "url": "https://x.com/SpaceX/status/2123809508187078839",
+     "author": "SpaceX",
+     "at": "2026-11-20T16:03:39.000Z",
+     "text": "Members of the Starship production team with Starship 42 before its launch https://t.co/1yPiV8h5Zu",
+     "media": [
+      {
+       "type": "photo",
+       "url": "https://pbs.twimg.com/media/HXlJcyAXcAABal7.jpg",
+       "w": 2731,
+       "h": 4096
+      },
+      {
+       "type": "photo",
+       "url": "https://pbs.twimg.com/media/HXlJeEtWQAAyCHO.jpg",
+       "w": 4096,
+       "h": 2731
+      }
+     ],
+     "beats": [
+      "aftermath"
+     ]
+    }
+   },
+   "choices": {
+    "hero|2123097995679867195|https://pbs.twimg.com/media/HXbCSrEWMAAQ_Cm.jpg?name=orig,https://pbs.twimg.com/media/HXbCT8NWYAA3Jpr.jpg?name=orig,https://pbs.twimg.com/media/HXbCVKuXYAAzCGY.jpg?name=orig": "https://pbs.twimg.com/media/HXbCSrEWMAAQ_Cm.jpg?name=orig",
+    "rollout|2121044579470233638|https://pbs.twimg.com/media/HW92p7AWgAA-N1n.jpg?name=orig,https://pbs.twimg.com/media/HW92saPXUAAenRM.jpg?name=orig,https://pbs.twimg.com/media/HW92tsGW4AA1FRd.jpg?name=orig,https://pbs.twimg.com/media/HW92vD_WIAAmDOP.jpg?name=orig": "https://pbs.twimg.com/media/HW92tsGW4AA1FRd.jpg?name=orig",
+    "liftoff|2121437515819159871|https://pbs.twimg.com/media/HXDb_kPXQAATb2F.jpg?name=orig,https://pbs.twimg.com/media/HXDcBzPWUAA0Qem.jpg?name=orig,https://pbs.twimg.com/media/HXDcEwRWwAEIyMi.jpg?name=orig,https://pbs.twimg.com/media/HXDcIk7WwAANmRV.jpg?name=orig": "https://pbs.twimg.com/media/HXDb_kPXQAATb2F.jpg?name=orig",
+    "ascent|2121437515819159871|https://pbs.twimg.com/media/HXDcBzPWUAA0Qem.jpg?name=orig,https://pbs.twimg.com/media/HXDcEwRWwAEIyMi.jpg?name=orig,https://pbs.twimg.com/media/HXDcIk7WwAANmRV.jpg?name=orig": "https://pbs.twimg.com/media/HXDcIk7WwAANmRV.jpg?name=orig",
+    "booster|2121439746740170859|https://pbs.twimg.com/media/HXDdg72XwAEBfhQ.jpg?name=orig,https://pbs.twimg.com/media/HXDdifZXEAA2KCh.jpg?name=orig,https://pbs.twimg.com/media/HXDdj_zXMAA0N9I.jpg?name=orig": "https://pbs.twimg.com/media/HXDdifZXEAA2KCh.jpg?name=orig",
+    "ship_return|2122352509721190612|https://pbs.twimg.com/media/HXQbL9EXQAErWao.jpg?name=orig,https://pbs.twimg.com/media/HXQbSJMXoAEv6Fv.jpg?name=orig,https://pbs.twimg.com/media/HXQbSJMX0AAbNE8.jpg?name=orig,https://pbs.twimg.com/media/HXQbSJMWkAAGcsz.jpg?name=orig,https://pbs.twimg.com/media/HXQbSJNWQAAy8rb.jpg?name=orig,https://pbs.twimg.com/media/HXQbZmvXgAEXefx.jpg?name=orig,https://pbs.twimg.com/media/HXQbZmVXQAEY8lM.jpg?name=orig,https://pbs.twimg.com/media/HXQbZmaXYAA5jnL.jpg?name=orig": "https://pbs.twimg.com/media/HXQbZmVXQAEY8lM.jpg?name=orig",
+    "aftermath|2123097995679867195|https://pbs.twimg.com/media/HXbCT8NWYAA3Jpr.jpg?name=orig,https://pbs.twimg.com/media/HXbCVKuXYAAzCGY.jpg?name=orig": "https://pbs.twimg.com/media/HXbCVKuXYAAzCGY.jpg?name=orig"
+   },
+   "window": {
+    "from": "2026-11-13T00:56:49.000Z",
+    "last": "2026-11-16T15:34:04.000Z",
+    "to": "2026-11-23T15:34:04.000Z"
+   },
+   "frozen": true
+  }
+ },
+ "cache": {
+  "photo:https://pbs.twimg.com/media/HXbCSrEWMAAQ_Cm.jpg?name=orig": {
+   "file": "images/f15-story/01-hero-ship-caught.jpg",
+   "w": 1600,
+   "h": 900,
+   "curated": true
+  },
+  "photo:https://pbs.twimg.com/media/HW92tsGW4AA1FRd.jpg?name=orig": {
+   "file": "images/f15-story/02-rollout-ship42-to-pad.jpg",
+   "w": 1600,
+   "h": 1067,
+   "curated": true
+  },
+  "photo:https://pbs.twimg.com/media/HXDb_kPXQAATb2F.jpg?name=orig": {
+   "file": "images/f15-story/03-liftoff.jpg",
+   "w": 1600,
+   "h": 900,
+   "curated": true
+  },
+  "photo:https://pbs.twimg.com/media/HXDcIk7WwAANmRV.jpg?name=orig": {
+   "file": "images/f15-story/04-ascent-stack-climbing.jpg",
+   "w": 1600,
+   "h": 1066,
+   "curated": true
+  },
+  "frame:2121375384793231499": {
+   "file": "images/f15-story/05-hot-staging.jpg",
+   "w": 1600,
+   "h": 733,
+   "curated": true
+  },
+  "photo:https://pbs.twimg.com/media/HXDdifZXEAA2KCh.jpg?name=orig": {
+   "file": "images/f15-story/06-booster-landing-burn-gulf.jpg",
+   "w": 1600,
+   "h": 900,
+   "curated": true
+  },
+  "frame:2121602376532742611": {
+   "file": "images/f15-story/07-orbit-over-nile.jpg",
+   "w": 1600,
+   "h": 667,
+   "curated": true
+  },
+  "frame:2121709368945385477": {
+   "file": "images/f15-story/08-reentry-plasma.jpg",
+   "w": 900,
+   "h": 504,
+   "curated": true
+  },
+  "photo:https://pbs.twimg.com/media/HXQbZmVXQAEY8lM.jpg?name=orig": {
+   "file": "images/f15-story/09-ship-landing-burn-at-tower.jpg",
+   "w": 1600,
+   "h": 900,
+   "curated": true
+  },
+  "photo:https://pbs.twimg.com/media/HXbCVKuXYAAzCGY.jpg?name=orig": {
+   "file": "images/f15-story/10-aftermath-tower-team.jpg",
+   "w": 1600,
+   "h": 899,
+   "curated": true
+  }
+ }
+}

@@ -1441,6 +1441,26 @@ async function run(opts = {}) {
     } catch (e) { log(`fleet step failed (carrying on): ${e.message}`); fleetReg = null; }
   }
 
+  // 1e. Flight story photos (scripts/flight-story.js): the X-first posts already read (no extra X call) feed each
+  //     flight's candidate pool; launched flights with an open window (rollout → last event + 7 days) get their
+  //     road.archive[n].story_photos rebuilt; pictures cached under images/story/. At most 3 Grok vision picks per run.
+  if (opts.story !== false) {
+    try {
+      const storyMod = require("./flight-story.js");
+      const storyPath = opts.storyPath || (opts.roadPath ? path.join(path.dirname(roadPath), "data", "story.json") : storyMod.FILE);
+      const storyWritable = save && (!opts.deps || !!opts.roadPath || !!opts.storyPath);
+      const st = storyMod.load(storyPath), before = JSON.stringify(st);
+      storyMod.ingest(st, (xf && xf.posts) || [], storyMod.ctxFrom({ road, appJsText, fleet: fleetReg }), { log });
+      const visionAsk = opts.storyAsk !== undefined ? opts.storyAsk : process.env.XAI_API_KEY ? (prompt, images) => writer.askJson(prompt, { images, schema: { type: "object", additionalProperties: false, required: ["best", "confidence", "seen"], properties: { best: { type: "integer" }, confidence: { type: "number" }, seen: { type: "string" } } }, schemaName: "story_pick", maxTokens: 3000, claudeMaxTokens: 300, attempts: 1, log: () => {} }) : null;
+      const sr = storyWritable ? await storyMod.build(st, road, { appJsText, ask: visionAsk, now: clock(), root: opts.roadPath ? path.dirname(roadPath) : ROOT, log }) : { changed: false, files: [] };
+      if (sr.changed) changed = true;
+      if (storyWritable && JSON.stringify(st) !== before) {
+        storyMod.save(st, storyPath);
+        if (mode === "live" && !opts.roadPath) { try { commit(["data/story.json", ...sr.files.filter((f) => /^images\/story\//.test(f))].join(" "), "Auto: flight story photos"); } catch (e) { log(`flight story commit failed: ${e.message}`); } }
+      }
+    } catch (e) { log(`flight story step failed (carrying on): ${e.message}`); }
+  }
+
   // 2. Collect posts from every source (one failing source never stops the run)
   let items = [];
   for (const s of sources) {

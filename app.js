@@ -1696,6 +1696,7 @@ function vehiclePhotosOf(road, f) {
 // milestone stills / vehicle_photos); this list grows on its own.
 // A photo.narrative gallery is the whole carousel, in listed order (hero first); vehicle
 // shots and Road stills stay out of it.
+const storyOf = (road, f) => { const a = road && road.archive && f && road.archive[f.n]; return (a && Array.isArray(a.story_photos) ? a.story_photos : []).filter((p) => p && p.src); };
 function cardPhotosOf(f, past, road) {
   const seen = new Set(), out = [];
   const add = (p) => {
@@ -1703,6 +1704,12 @@ function cardPhotosOf(f, past, road) {
     seen.add(p.src);
     out.push(p);
   };
+  // automatic flight story (scripts/flight-story.js → road.archive[n].story_photos): the whole carousel, hero first
+  const story = storyOf(road, f);
+  if (story.length) {
+    story.forEach((p) => add({ src: p.src, credit: p.credit || "SpaceX", label: null, focus: p.focus, vehicle: false }));
+    if (out.length) return out;
+  }
   const own = ((f.photo && f.photo.gallery) || []).filter(Boolean);
   const asItem = (item) => (typeof item === "string"
     ? { src: item, credit: "SpaceX", label: null, vehicle: false }
@@ -1722,7 +1729,7 @@ function cardPhotosOf(f, past, road) {
   return out.length ? out : [{ src: undefined, label: "SpaceX", vehicle: false }];
 }
 // Thumb: the flight's own photo, else (placeholder or none) its first Road milestone photo.
-const thumbOf = (f, past) => { const t = f.photo && f.photo.thumb; return t && t !== RTF_PLACEHOLDER ? t : galleryOf({ photo: {} }, past)[0] || t; };
+const thumbOf = (f, past, road) => { const sh = storyOf(road, f)[0]; if (sh) return sh.src; const t = f.photo && f.photo.thumb; return t && t !== RTF_PLACEHOLDER ? t : galleryOf({ photo: {} }, past)[0] || t; };
 function FlightCard({ f, open, onTap, onPhotoTap, register, road, listIndex = 0 }) {
   // Page 1's Road to Flight N: the flight's road.archive summary through pastRoadGroup (ids, text,
   // photos), minus the Launch date card (the date is already in this card's header). Launched flights only.
@@ -1738,14 +1745,14 @@ function FlightCard({ f, open, onTap, onPhotoTap, register, road, listIndex = 0 
   // While closed, tapping the thumb should expand the card like the rest of the header.
   // Once open, tapping the thumb opens the lightbox instead — so it needs to stop
   // the click from also bubbling up to the header's collapse handler.
-  const thumbTap = open && thumbOf(f, past)
-    ? (e) => { e.stopPropagation(); onPhotoTap(thumbOf(f, past), `Starship Flight ${f.n}`); }
+  const thumbTap = open && thumbOf(f, past, road)
+    ? (e) => { e.stopPropagation(); onPhotoTap(thumbOf(f, past, road), `Starship Flight ${f.n}`); }
     : undefined;
 
   return (
     <article ref={(el) => register(f.n, el)} className={`card${open ? " is-open" : ""}`}>
       <div className="card-head" role="button" tabIndex={0} aria-expanded={open} onClick={() => onTap(f.n)} onKeyDown={onKey}>
-        <PhotoSlot size="thumb" src={thumbOf(f, past)} alt={`Starship Flight ${f.n}`} onClick={thumbTap} eager={listIndex < 2} />
+        <PhotoSlot size="thumb" src={thumbOf(f, past, road)} alt={`Starship Flight ${f.n}`} onClick={thumbTap} eager={listIndex < 2} />
         <div className="info">
           <div className="info-top">
             <div className="title"><span className="t-word">Starship Flight</span> <span className="t-num">{f.n}</span></div>
