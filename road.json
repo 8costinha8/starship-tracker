@@ -5,7 +5,7 @@
     "S43"
   ],
   "updated": "23 Nov",
-  "updatedAt": "2026-11-23T08:01:19.910Z",
+  "updatedAt": "2026-11-23T16:45:27.380Z",
   "categories": [
     {
       "id": "cryo",
@@ -2250,5 +2250,6 @@
       "hidden": true,
       "why": "22 Nov reliability-b1 data fix: old Flight 15 countdown headline fragment (13 Nov), shown in the feed as current news"
     }
-  ]
+  ],
+  "fleet_synced": 16
 }
