@@ -324,13 +324,8 @@ function liveDeps() {
       }),
     },
     async sendNow(notification) {
-      const subs = await db.collection("subscribers").get();
-      const tokens = subs.docs.map((d) => d.id);
-      if (!tokens.length) { console.log(`Would have sent "${notification.title}" — but there are no subscribers yet.`); return; }
-      const resp = await admin.messaging().sendEachForMulticast(require("./fcm-collapse.js").decorate({ tokens, notification: { title: notification.title, body: notification.body } }, notification));
-      console.log(`Sent "${notification.title}" to ${resp.successCount}/${tokens.length} device(s).`);
-      // quietly remove any tokens that failed (phone uninstalled the app, etc.)
-      resp.responses.forEach((r, i) => { if (!r.success) db.collection("subscribers").doc(tokens[i]).delete().catch(() => {}); });
+      // delivery counts returned; a token is removed only on a definitive "not registered" error or 3 failures in a row (fcm-send.js)
+      return require("./fcm-send.js").sendToSubscribers({ admin, db, message: (tokens) => require("./fcm-collapse.js").decorate({ tokens, notification: { title: notification.title, body: notification.body } }, notification), title: notification.title });
     },
   };
 }

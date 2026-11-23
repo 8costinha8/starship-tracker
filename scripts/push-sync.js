@@ -18,8 +18,9 @@ const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct
 const ukDay = (iso) => { const p = Object.fromEntries(new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "numeric", timeZone: "Europe/London" }).formatToParts(new Date(iso)).map((x) => [x.type, x.value])); return `${Number(p.day)} ${MON[p.month - 1]}`; };
 
 // The visible copy of a push: what the app renders for it.
-function visibleFor(road, n) {
+function visibleFor(road, n, fleet = null) {
   const v = n.visible || {};
+  if (v.where === "fleet") return fleet ? require("./fleet.js").visibleFor(fleet, n) : null; // data/vehicles.json event (Page 2 Future vehicles)
   if (v.where === "road") {
     const c = (road.categories || []).find((x) => x.id === v.box);
     const h = c && (c.history || []).find((e) => e.id === v.id);
@@ -36,12 +37,12 @@ function visibleFor(road, n) {
   return null;
 }
 // Why a push may not be sent ("" = it may).
-function checkVisible(road, n) {
+function checkVisible(road, n, fleet = null) {
   for (const k of ["title", "body", "at"]) if (!n[k]) return `push has no ${k}`;
   if (!Number.isFinite(Date.parse(n.at))) return "push timestamp is not a real time";
   // Rollover handover push (Bernardo, 15 Nov): sent without a Road feed card.
   if ((n.visible || {}).where === "handover" && n.kind === "notice") return "";
-  const vis = visibleFor(road, n);
+  const vis = visibleFor(road, n, fleet);
   if (!vis) return `no visible entry (${JSON.stringify(n.visible || null)})`;
   for (const k of ["title", "body", "url", "at"]) if ((vis[k] || "") !== (n[k] || "")) return `visible ${k} differs: "${vis[k] || ""}" vs push "${n[k] || ""}"`;
   return "";
@@ -85,7 +86,7 @@ function writeLog(p, rows) {
    road = the road.json that is ALREADY saved/committed (read it back from disk in live runs). */
 /* gate (optional, push-gate.js): { state, seenPosts, refetch(url), rewrite(n, editedText) → n with the card updated,
    mediaOnly(n) } — hold / staleness / corrections / big news / re-read before send. shadow: log "would push", send nothing. */
-async function sendPush(n, { road, send, save = true, logRows, log = console.log, now = Date.now, history = [], policy = true, gate = null, shadow = null, guards = true, onRow = null }) {
+async function sendPush(n, { road, send, save = true, logRows, log = console.log, now = Date.now, history = [], policy = true, gate = null, shadow = null, guards = true, onRow = null, fleet = null }) {
   const allHist = [...(history || []), ...(logRows || [])];
   let g = null;
   if (gate && policy) {
@@ -100,12 +101,13 @@ async function sendPush(n, { road, send, save = true, logRows, log = console.log
     else n = g.n;
   }
   if (shadow === null) shadow = require("./push-gate.js").shadowOn({ now: now() });
-  const why = checkVisible(road, n);
+  const why = checkVisible(road, n, fleet);
   const row = { title: n.title, body: n.body, link: n.link || "", url: n.url || "", at: n.at || "", sent_at: new Date(now()).toISOString(), where: (n.visible || {}).where || "", verdict: "" };
   // shared policy for every feed: dedupe (vehicle + event type + UK day), milestones push, minor updates silent unless 24h quiet
   const pol = policy && !why ? require("./push-policy.js").decide(n, allHist, { now: now(), vehicles: (road && road.vehicles) || [], big: !!(g && g.big), flight: road && road.flight, live: !!(road && road.mission_alerts && road.mission_alerts.liftoff_actual) }) : null;
   if (g) row.gate = g.reason;
   if (pol) row.key = pol.cls.key;
+  if (n.fleet_key) row.fleet_key = n.fleet_key; // one push per vehicle + milestone (fleet.js), any flight
   // push-guards.js (batch 1 / P1): idempotency, recap, cross-flight, plan claim, night. Only ever turns a push into in-app-only.
   const guard = guards && policy && !why ? require("./push-guards.js").evaluate(n, { history: allHist, now: now(), road, sourceText: n.source_text || (g && g.n && g.n.source_text) || "" }) : null;
   if (guard && guard.would) row.guard = `${guard.rule}${guard.action === "silent" ? "" : " (warn)"}: ${guard.reason}`;
@@ -115,7 +117,7 @@ async function sendPush(n, { road, send, save = true, logRows, log = console.log
   else if (shadow) { row.verdict = "shadow: would push"; log(`(shadow mode, not sent) push: ${n.title} — ${n.body}`); }
   else if (!save) { row.verdict = "not sent (test mode)"; log(`(not sent) push: ${n.title} — ${n.body}`); }
   else {
-    try { await send(n); row.verdict = "sent"; } catch (e) { row.verdict = `failed: ${e.message}`; log(`push failed "${n.title}": ${e.message}`); }
+    try { const d = await send(n); row.verdict = "sent"; if (d && typeof d === "object" && Number.isFinite(d.success)) row.delivery = { tokens: d.tokens, success: d.success, failure: d.failure, removed: d.removed || 0, ...(d.failed_codes ? { failed_codes: d.failed_codes } : {}) }; } catch (e) { row.verdict = `failed: ${e.message}`; log(`push failed "${n.title}": ${e.message}`); }
   }
   if (logRows) logRows.push(row);
   // write-through: the row is on disk right after its send (a crash before the end-of-run log write can no longer lose it)

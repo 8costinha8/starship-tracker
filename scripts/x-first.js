@@ -57,9 +57,18 @@ const CLASSIFY_SCHEMA = { type: "object", additionalProperties: false, required:
   properties: { item: { type: "integer" }, kind: { type: "string", enum: ["road", "mission-update", "starship-news", "skip"] }, stage: { type: ["string", "null"] }, confidence: { type: ["number", "null"] },
     hardware: { type: ["string", "null"] }, text: { type: ["string", "null"] }, push_text: { type: ["string", "null"] }, card_text: { type: ["string", "null"] }, log_text: { type: ["string", "null"] }, status_line: { type: ["string", "null"] }, status: { type: ["string", "null"], enum: ["progress", "done", "confirmed", null] }, event: { type: ["string", "null"], enum: [...MILESTONE_TYPES, null] }, phase: { type: ["string", "null"], enum: ["expected", "progress", "completed", null] }, flight: { type: ["integer", "null"] }, media_fit: { type: ["string", "null"], enum: ["shows-event", "unrelated", "none", null] }, speculative: { type: ["boolean", "null"] }, inferred: { type: ["boolean", "null"] }, topic: { type: ["string", "null"], enum: [...MISSION_TOPICS, null] }, attribution: { type: ["string", "null"] }, reason: { type: "string" } } } } } };
 
+// The whole vehicle registry (data/vehicles.json, scripts/fleet.js) so a post about later-flight hardware is classified, not skipped.
+function fleetLine(road) {
+  let reg = null; try { reg = require("./fleet.js").load(); } catch { return ""; }
+  const cur = new Set((road.vehicles || []).map(String));
+  const vs = Object.values((reg && reg.vehicles) || {}).filter((v) => v.type !== "pad" && !cur.has(v.id) && !["flight", "caught", "expended", "retired", "scrapped"].includes(v.state));
+  if (!vs.length) return "Other tracked hardware: any booster or ship numbered after this flight's (later flights). A post about OTHER hardware is never \"skip\" just for being another flight: classify it \"starship-news\" with hardware and flight set (the tracker's vehicle registry files it).";
+  return `Other tracked hardware (vehicle registry, later flights): ${vs.map((v) => v.id).join(", ")}, and any newer booster/ship number. A post about this OTHER hardware is never "skip" just for being another flight: classify it "starship-news" with hardware and flight set (the tracker's vehicle registry files it).`;
+}
 function classifyPrompt(road, posts, stages) {
   return `You sort new X posts for a Starship tracker's "Road to Flight ${road.flight}" page.
 Vehicles for this flight: ${(road.vehicles || []).join(", ") || "unknown"}.
+${fleetLine(road)}
 For EVERY post return one entry: {item, kind, stage, hardware, text, push_text, card_text, log_text, status, event, phase, flight, media_fit, speculative, inferred, topic, attribution, reason}.
 kind:
 - "road": ONLY hardware and test progress toward Flight ${road.flight}: rollouts, cryo tests, static fires, engine installs/removals, stacking, pad work. It must be real (photo/video/report of actual events, incl. a trusted report such as "all engines installed" or a rollout due).
@@ -483,4 +492,4 @@ async function runXFirst(road, state, { token, fetchFn, ask, postCard, log = con
 }
 
 const isOfficial = (p) => OFFICIAL.has(String(p.author && p.author.username).toLowerCase());
-module.exports = { prefilter, postHash, classifyWithSavers, HEDGED_DONE, hedgeGuard, rollbackStage, masseyStage, cryoDone, guardPost, MILESTONE_TYPES, PHASES, factsMatch, contextImage, milestoneKey, phaseOf, isOfficial, MISSION_TOPICS, runXFirst, fetchNewPosts, classifyPosts, classifyPrompt, placePost, bestMedia, postMedia, articleLead, readLinks, hwKey, xfQuery, XF_ACCOUNTS, CLASSIFY_SCHEMA, MERGE_MS };
+module.exports = { fleetLine, prefilter, postHash, classifyWithSavers, HEDGED_DONE, hedgeGuard, rollbackStage, masseyStage, cryoDone, guardPost, MILESTONE_TYPES, PHASES, factsMatch, contextImage, milestoneKey, phaseOf, isOfficial, MISSION_TOPICS, runXFirst, fetchNewPosts, classifyPosts, classifyPrompt, placePost, bestMedia, postMedia, articleLead, readLinks, hwKey, xfQuery, XF_ACCOUNTS, CLASSIFY_SCHEMA, MERGE_MS };

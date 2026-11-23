@@ -1224,12 +1224,9 @@ function firebaseDeps() {
     async saveState(state) { await ref.set(state); },
     // same sending code as check-flights.js
     async push(notification) {
-      const subs = await db.collection("subscribers").get();
-      const tokens = subs.docs.map((d) => d.id);
-      if (!tokens.length) { console.log(`Would have sent "${notification.title}" — but there are no subscribers yet.`); return; }
-      const resp = await admin.messaging().sendEachForMulticast(fcmMessage(tokens, notification)); // opens the Road page; picture when verified
-      console.log(`Sent "${notification.title}" to ${resp.successCount}/${tokens.length} device(s).`);
-      resp.responses.forEach((r, i) => { if (!r.success) db.collection("subscribers").doc(tokens[i]).delete().catch(() => {}); });
+      // delivery counts are returned (sendPush stores them on the push log row); a token is removed only when FCM says it is
+      // gone for good, or after 3 failed sends in a row (scripts/fcm-send.js), never after one failed send
+      return require("./fcm-send.js").sendToSubscribers({ admin, db, message: (tokens) => fcmMessage(tokens, notification), title: notification.title });
     },
   };
 }
@@ -1414,6 +1411,36 @@ async function run(opts = {}) {
     } catch (e) { xFirstError = e.message; log(`X-first failed (${e.message}) — tried again next run`); }
   }
 
+  // 1d. Fleet registry (scripts/fleet.js → data/vehicles.json): every vehicle and pad, any flight. Deterministic (no writer
+  //     call). Later-flight posts become registry events (Page 2 "Future vehicles"); one push per vehicle + milestone,
+  //     sent after the registry is committed (5d). Their news items are not pushed a second time.
+  const fleetMod = require("./fleet.js");
+  const fleetPath = opts.fleetPath || (opts.roadPath ? path.join(path.dirname(roadPath), "data", "vehicles.json") : fleetMod.FILE);
+  let fleetReg = null, fleetBefore = "", fleetPushes = [];
+  if (opts.fleet !== false) {
+    try {
+      fleetReg = fleetMod.load(fleetPath); fleetBefore = JSON.stringify(fleetReg);
+      for (const c of fleetMod.seed(fleetReg, { road, appJsText, now: clock() })) log(`fleet seed: ${c}`);
+      if (xf && (xf.posts || []).length) {
+        const fr = fleetMod.ingest(fleetReg, xf.posts, { road, now: clock(), log });
+        fleetPushes = fr.pushes.filter((d) => d.push).map((d) => d.n);
+        for (const d of fr.pushes.filter((x) => !x.push)) log(`fleet: no push ${d.key} — ${d.reason}`);
+        if (opts.fleetProbe !== false) { try { await fleetMod.screenImages(fleetReg, { log, ...(opts.fleetProbe ? { probe: opts.fleetProbe } : {}) }); } catch (e) { log(`fleet image check skipped: ${e.message}`); } }
+        const cur = new Set((road.vehicles || []).map(String)), owned = new Set();
+        for (const e of [...fr.events, ...fr.updated]) if (e && e.vehicle && !cur.has(e.vehicle)) for (const s0 of e.sources || []) owned.add(`x:${s0.post_id}`);
+        if (owned.size) { const n0 = xf.news.length; xf.news = xf.news.filter((it) => !owned.has(it.key)); if (n0 !== xf.news.length) log(`fleet: ${n0 - xf.news.length} later-flight news item(s) handled by the registry (no second push)`); }
+      }
+      // 6-hourly coverage check: time-gated here (no workflow change), ONE X search call, gaps → data/health.json
+      const xTok = opts.xToken !== undefined ? opts.xToken : process.env.X_BEARER_TOKEN;
+      if (opts.coverage !== false && fleetMod.coverageDue(fleetReg, clock()) && xTok) {
+        try { const cv = await fleetMod.runCoverage(fleetReg, { token: xTok, fetchFn: opts.xFetch || fetch, road, postCard: xPostCard, now: clock(), log });
+          for (const d of ((cv.healed || {}).pushes || []).filter((x) => x.push)) fleetPushes.push(d.n);
+          if (save) require("./health.js").note("coverage", { at: fleetReg.coverage.at, ok: fleetReg.coverage.ok !== false, error: fleetReg.coverage.error || null, gaps: (fleetReg.coverage.gaps || []).length, items: (fleetReg.coverage.gaps || []).slice(0, 10) }, { root: opts.roadPath ? path.dirname(roadPath) : ROOT });
+        } catch (e) { log(`fleet coverage failed (carrying on): ${e.message}`); }
+      }
+    } catch (e) { log(`fleet step failed (carrying on): ${e.message}`); fleetReg = null; }
+  }
+
   // 2. Collect posts from every source (one failing source never stops the run)
   let items = [];
   for (const s of sources) {
@@ -1423,6 +1450,12 @@ async function run(opts = {}) {
       items.push(...got);
     } catch (err) {
       log(`${s.name}: unavailable (${err.message}) — skipped this run`);
+      // NSF's site answers 403 to the runner now and then: fall back to NSF's own X posts read this run (no extra call)
+      if (/^NSF$/i.test(s.name) && /HTTP 403/.test(err.message) && xf) {
+        const nsf = (xf.posts || []).filter((p) => /^nasaspaceflight$/i.test((p.author || {}).username || "") && !(xf.news || []).some((it) => it.key === `x:${p.post_id}`) && !items.some((it) => it.key === `x:${p.post_id}`) && p.link && /nasaspaceflight\.com/i.test(p.link.url || ""));
+        for (const p of nsf) items.push({ key: `x:${p.post_id}`, title: (p.link.title || p.text).slice(0, 200), text: `${p.text} ${p.link.description || ""}`.trim(), url: p.url, publishedAt: p.created_at, src: "X @NASASpaceflight", source: "@NASASpaceflight", tier: "trusted" });
+        log(`NSF: site HTTP 403 → ${nsf.length} NSF article post(s) from X used instead`);
+      }
     }
   }
 
@@ -1766,6 +1799,23 @@ async function run(opts = {}) {
         const dirty = execSync("git status --porcelain -- road.json", { cwd: ROOT, stdio: "pipe" }).toString().trim();
         if (dirty) commit("road.json", `Auto: Road to Flight ${road.flight} — mission alerts`);
       } catch (e) { log(`mission alerts commit skipped: ${e.message}`); }
+    }
+  }
+
+  // 5d. Fleet registry: write + commit (so the app shows the event), THEN send its pushes (one per vehicle + milestone)
+  if (fleetReg) {
+    const fleetChanged = JSON.stringify(fleetReg) !== fleetBefore;
+    const fleetWritable = save && (!opts.deps || !!opts.roadPath || !!opts.fleetPath); // an injected-deps test run never writes the repo's own registry
+    if (fleetChanged && fleetWritable) {
+      fleetMod.save(fleetReg, fleetPath);
+      if (mode === "live" && !opts.roadPath) { try { commit("data/vehicles.json" + (fleetReg.coverage && fleetBefore.indexOf(fleetReg.coverage.at) < 0 ? " data/health.json" : ""), `Auto: fleet registry — ${fleetPushes.length} milestone push(es)`); } catch (e) { log(`fleet registry commit failed: ${e.message}`); fleetPushes = []; } }
+    } else if (fleetChanged) console.log("(not committed) data/vehicles.json would change");
+    if (fleetPushes.length) {
+      const shownRoad = save && fs.existsSync(roadPath) ? JSON.parse(fs.readFileSync(roadPath, "utf8")) : road;
+      const shownFleet = fleetWritable ? fleetMod.load(fleetPath) : fleetReg;
+      const hist = pushSync.readLog(notifLogPath).pushes;
+      const gate = !gateOn(opts) ? null : pushGateFor(state, shownRoad, xf, { token: opts.xToken !== undefined ? opts.xToken : process.env.X_BEARER_TOKEN, fetchFn: opts.xFetch, ask: opts.askXFirst, log, now: clock(), roadPath, save });
+      for (const n of fleetPushes) { const row = await pushSync.sendPush({ ...n, link: `${pushSync.SITE}?feed=1&item=${encodeURIComponent(n.visible.id)}` }, { road: shownRoad, fleet: shownFleet, send: deps.push, save, logRows: pushLog, log, now: clock, history: hist, policy: opts.pushPolicy !== false, gate, onRow: save ? (r) => pushSync.appendLogRow(notifLogPath, r) : null }); notifications.push({ ...n, verdict: row && row.verdict }); }
     }
   }
 

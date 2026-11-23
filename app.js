@@ -3536,7 +3536,7 @@ function XMedia({ x }) {
           : m.video_url
           ? <XVideo key={m.i} m={m} url={x.url} />
           : <a key={m.i} href={x.url} target="_blank" rel="noopener noreferrer"><img decoding="async" src={m.poster} alt="" loading="lazy" referrerPolicy="no-referrer" onError={off(m.i)} />{PLAY_ICON}</a>)}
-        <SrcBadge author={(x.x_post && x.x_post.author && x.x_post.author.username) || x.author} url={x.url} />
+        <SrcBadge author={(x.x_post && x.x_post.author && x.x_post.author.username) || (x.author && x.author.username) || x.author} url={x.url} />
       </div>
     </div>
   );
@@ -4113,7 +4113,75 @@ function RoadFlightSection({ flight, items, open, onToggle, shortCount, deckRead
   );
 }
 
+// Fleet registry (data/vehicles.json, written by scripts/fleet.js in the checker): every booster / ship, any flight.
+// Page 2 only: the next flight's Road shows its own vehicles' events, and "Future vehicles" lists later flights and
+// vehicles with no flight yet. Page 1 is unchanged. Retired / scrapped vehicles fold away (kept in the data).
+const FLEET_URL = SIM ? `sim/${SIM}/vehicles.json` : "data/vehicles.json";
+const FLEET_TERMINAL = ["caught", "expended", "retired", "scrapped"];
+const FLEET_STATE = { build: "In build", cryo: "Cryo testing", engines: "Engines installed", static_fire: "Static fire", stacked: "Stacked", rollout: "Rolled out", flight: "Flown", caught: "Caught", expended: "Expended", retired: "Retired", scrapped: "Scrapped" };
+const FLEET_BOX = { cryo_start: "cryo", cryo_done: "cryo", static_fire: "static", engines_installed: "raptor", stacked: "pad", rollout: "pad" };
+function useFleet() {
+  const [fleet, setFleet] = React.useState(null);
+  React.useEffect(() => { let alive = true;
+    fetch(`${FLEET_URL}?t=${Date.now()}`, { cache: "no-store" }).then((r) => (r.ok ? r.json() : null)).then((d) => { if (alive && d && d.vehicles) setFleet(d); }).catch(() => {});
+    return () => { alive = false; }; }, []);
+  return fleet;
+}
+// one registry event → the same post shape the Road cards use (FeedPost), so it looks exactly like a Page 2 card
+function fleetPost(e, road) {
+  const cats = (road && road.categories) || [], box = FLEET_BOX[e.type], c0 = box && cats.find((c) => c.id === box), pad = cats.find((c) => c.id === "pad") || { id: "pad", color: "#AAB6D6" };
+  const cat = c0 || { ...pad, name: e.type === "build" ? "Production" : "On the move" };
+  const at = Date.parse(e.at) || 0;
+  return { h: { id: e.id, date: e.date, text: e.text, card_text: e.text, src: e.src, url: e.url, at: e.at, publishedAt: e.at, trust: "trusted", kind: "fleet",
+      x_post: e.x_post && (e.x_post.media || []).length ? e.x_post : null /* the picture keeps its own post (credit + link) */, x_posts: (e.sources || []).map((x) => x.post_id) },
+    cat, ci: 98, hi: 0, id: e.id, day: at, at, flight: e.flight, when: at };
+}
+function fleetGroups(fleet, road) {
+  const out = { flights: new Map(), unassigned: [], retired: [] };
+  if (!fleet || !road || !Number.isInteger(road.flight)) return out;
+  for (const v of Object.values(fleet.vehicles || {})) {
+    if (v.type === "pad") continue;
+    if (FLEET_TERMINAL.includes(v.state)) { if (!(Number.isInteger(v.flight) && v.flight <= road.flight)) out.retired.push(v); continue; }
+    if (Number.isInteger(v.flight)) { if (v.flight > road.flight && v.state !== "flight") { if (!out.flights.has(v.flight)) out.flights.set(v.flight, []); out.flights.get(v.flight).push(v); } }
+    else if (v.state !== "flight") out.unassigned.push(v);
+  }
+  const byNum = (a, b) => (a.type === b.type ? 0 : a.type === "booster" ? -1 : 1) || Number(String(a.id).slice(1)) - Number(String(b.id).slice(1));
+  for (const l of out.flights.values()) l.sort(byNum); out.unassigned.sort(byNum); out.retired.sort(byNum);
+  return out;
+}
+const fleetEvents = (vs) => vs.flatMap((v) => (v.events || []).filter((e) => e && e.id && e.text)).sort((a, b) => Date.parse(b.at) - Date.parse(a.at));
+function FleetRow({ v }) {
+  const last = (v.events || []).reduce((a, e) => (!a || Date.parse(e.at) > Date.parse(a.at) ? e : a), null);
+  return (<div className="fv-row" data-vehicle={v.id}><b>{v.name || v.id}</b><span className={"badge fv-state" + (FLEET_TERMINAL.includes(v.state) ? " fv-off" : "")}>{FLEET_STATE[v.state] || v.state}</span>{last && <span className="post-date">{last.date}</span>}</div>);
+}
+function FutureVehicles({ fleet, road, peekN, onPhotoTap, idx }) {
+  const g = React.useMemo(() => fleetGroups(fleet, road), [fleet, road]);
+  const later = [...g.flights.keys()].sort((a, b) => a - b);
+  if (!later.length && !g.unassigned.length && !g.retired.length) return null;
+  const cards = (vs) => fleetEvents(vs).map((e) => { const q = fleetPost(e, road); return <ErrorBoundary key={e.id} where={"fleet:" + e.id}><FeedPost p={q} onPhotoTap={onPhotoTap} idx={idx} st={null} /></ErrorBoundary>; });
+  return (
+    <section className="feed-section fv" id="future-vehicles" aria-label="Future vehicles">
+      <div className="fv-head"><span className="feed-pill-title">Future vehicles</span></div>
+      {later.map((n) => (
+        <div className="fv-group" key={n} data-flight={n}>
+          <div className="fdiv"><span><b>{`Flight ${n}`}</b>{n === peekN && <> <i>·</i> above</>}</span></div>
+          {g.flights.get(n).map((v) => <FleetRow key={v.id} v={v} />)}
+          {n !== peekN && cards(g.flights.get(n))}
+        </div>))}
+      {g.unassigned.length > 0 && (
+        <div className="fv-group" data-flight="none">
+          <div className="fdiv"><span><b>No flight yet</b></span></div>
+          {g.unassigned.map((v) => <FleetRow key={v.id} v={v} />)}
+          {cards(g.unassigned)}
+        </div>)}
+      {g.retired.length > 0 && (
+        <details className="fv-retired"><summary>{`Retired (${g.retired.length})`}</summary>{g.retired.map((v) => <FleetRow key={v.id} v={v} />)}</details>)}
+    </section>
+  );
+}
+
 function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap, peekOpen, onTogglePeek, heroNet, netPending, heroLiftIso }) {
+  const fleet = useFleet();
   const { posts, rows } = React.useMemo(() => rtfRows(road), [road]);
   const idx = React.useMemo(() => entryIndex(road), [road]);
   // Launch date: the section status pill rides on this flight's newest date card.
@@ -4127,9 +4195,12 @@ function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap, peekOpe
   const peekRoad = React.useMemo(() => (peekN && road ? roadForFlight(road, peekN) : null), [road, peekN]);
   const peekCards = React.useMemo(() => {
     if (!peekRoad) return [];
-    const cards = rtfCards(peekRoad).filter((c) => !c.empty);
-    return cards.slice().sort((a, b) => peekCardTime(b) - peekCardTime(a)); // newest first
-  }, [peekRoad]);
+    const fl = fleet ? fleetEvents(Object.values(fleet.vehicles || {}).filter((v) => v.flight === peekN && v.type !== "pad" && v.state !== "flight")).map((e) => fleetPost(e, road)) : [];
+    const urls = new Set(fl.flatMap((q) => [q.h.url, ...((q.h.x_posts || []).map((id) => id))]).filter(Boolean));
+    const xid = (u) => (String(u || "").match(/status\/(\d+)/) || [])[1];
+    const cards = rtfCards(peekRoad).filter((c) => !c.empty && !(c.h && (urls.has(c.h.url) || urls.has(xid(c.h.url)))));
+    return [...cards, ...fl].sort((a, b) => peekCardTime(b) - peekCardTime(a)); // newest first
+  }, [peekRoad, fleet, peekN, road]);
   const curItems = React.useMemo(() => roadCatItems(road, { heroNet, netPending }), [road, heroNet, netPending]);
   const peekItems = React.useMemo(() => peekCatItems(peekRoad), [peekRoad]);
   // 15 Nov (Bernardo, every flight): Page 2 shows ONLY the upcoming flight and the one after (page2Flights: road.flight and
@@ -4169,6 +4240,7 @@ function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap, peekOpe
                 : <p className="rtf-soon">Coming soon</p>}
             </RoadFlightSection>
           )}
+          {peekN && fleet && <FutureVehicles fleet={fleet} road={road} peekN={peekN} onPhotoTap={onPhotoTap} idx={idx} />}
         </div>
       </div>
     </aside>
@@ -5363,6 +5435,18 @@ a.watch-badge-live { background: linear-gradient(135deg, #FF4D4F, #FF6A3D); box-
 .dot { width: 10px; height: 10px; }
 .dot-done, .dot-complete { box-shadow: 0 0 8px var(--c); }
 .past-box { background: #10151F; border-color: rgba(255,255,255,.07); }
+
+/* Page 2 · Future vehicles (fleet registry): same card style as the Road, a plain header and one row per vehicle */
+.feed-section.fv { padding: 14px 14px 6px; background: #161C2C; border: 1px solid rgba(255,255,255,.07); border-radius: 24px; margin-top: 14px; }
+.fv-head { display: flex; align-items: center; min-height: 28px; padding: 0 4px; }
+.fv-row { display: flex; align-items: center; gap: 8px; padding: 6px 4px; font-size: 14px; }
+.fv-row b { font-weight: 700; color: var(--text, #E9EDF7); }
+.fv-row .fv-state { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: rgba(255,106,61,.14); color: #FFB59C; font-weight: 700; }
+.fv-row .fv-off { background: rgba(255,255,255,.06); color: var(--muted); }
+.fv-row .post-date { margin-left: auto; font-size: 12px; }
+.fv-group .post { margin-top: 10px; }
+.fv-retired { margin: 10px 4px 8px; color: var(--muted); font-size: 13px; }
+.fv-retired summary { cursor: pointer; }
 
 /* Page 2 */
 .feed-section.rfs { background: #161C2C; border-color: rgba(255,106,61,.25); border-radius: 24px; }

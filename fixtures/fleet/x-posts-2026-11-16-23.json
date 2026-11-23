@@ -1,0 +1,2009 @@
+{
+ "_note": "REAL X API v2 posts (search, trusted accounts, 16-23 Nov 2026), captured 23 Nov 2026 15:38 UK via read-only X search for the future-vehicles batch. Unedited text/media; used as the B24 replay + backfill input.",
+ "query": "(trusted accounts) (B24 OR \"Booster 24\" OR S44 OR \"Ship 44\" OR B25 OR \"Booster 25\" OR S45 OR \"Ship 45\" OR \"Flight 17\" OR B26 OR S46) -is:retweet -is:reply, start 2026-11-16T15:00Z",
+ "data": [
+  {
+   "attachments": {
+    "media_keys": [
+     "13_2124844269978718209"
+    ]
+   },
+   "author_id": "1771095379494477824",
+   "created_at": "2026-11-23T12:36:34.000Z",
+   "edit_history_tweet_ids": [
+    "2124844557808644231"
+   ],
+   "entities": {
+    "urls": [
+     {
+      "display_url": "pic.x.com/7YS4NcXg02",
+      "end": 128,
+      "expanded_url": "https://x.com/Blobifie/status/2124844557808644231/video/1",
+      "media_key": "13_2124844269978718209",
+      "start": 105,
+      "url": "https://t.co/7YS4NcXg02"
+     },
+     {
+      "display_url": "x.com/Blobifie/statu…",
+      "end": 152,
+      "expanded_url": "https://twitter.com/Blobifie/status/2124725822909219049",
+      "start": 129,
+      "url": "https://t.co/R0xQ1RZEbp"
+     }
+    ]
+   },
+   "id": "2124844557808644231",
+   "text": "Booster 24 has completed its 1st cryo test!!\n\nIf all goes well this will not be the first time a booster https://t.co/7YS4NcXg02 https://t.co/R0xQ1RZEbp",
+   "url": "https://x.com/Blobifie/status/2124844557808644231"
+  },
+  {
+   "attachments": {
+    "media_keys": [
+     "13_2124764895292133376"
+    ]
+   },
+   "author_id": "752724282925412352",
+   "created_at": "2026-11-23T07:22:05.000Z",
+   "edit_history_tweet_ids": [
+    "2124765411627643131"
+   ],
+   "entities": {
+    "urls": [
+     {
+      "display_url": "pic.x.com/4z7FwO13HO",
+      "end": 120,
+      "expanded_url": "https://x.com/RGVaerialphotos/status/2124765411627643131/video/1",
+      "media_key": "13_2124764895292133376",
+      "start": 97,
+      "url": "https://t.co/4z7FwO13HO"
+     }
+    ]
+   },
+   "id": "2124765411627643131",
+   "text": "Booster 24 completed its first round of cryogenic proof testing at the Massey's test site today. https://t.co/4z7FwO13HO",
+   "url": "https://x.com/RGVaerialphotos/status/2124765411627643131"
+  },
+  {
+   "attachments": {
+    "media_keys": [
+     "13_2124653906181435392"
+    ]
+   },
+   "author_id": "21292523",
+   "created_at": "2026-11-22T23:59:10.000Z",
+   "edit_history_tweet_ids": [
+    "2124653947994702178"
+   ],
+   "entities": {
+    "urls": [
+     {
+      "description": "Hot on the heels of Flight 15, SpaceX is prepping the next Starship...",
+      "display_url": "youtu.be/4EmPnjjNKlQ",
+      "end": 228,
+      "expanded_url": "https://youtu.be/4EmPnjjNKlQ",
+      "images": [
+       {
+        "height": 720,
+        "url": "https://pbs.twimg.com/news_img/2124653951354306560/b9WEml_Z?format=jpg&name=orig",
+        "width": 1280
+       },
+       {
+        "height": 150,
+        "url": "https://pbs.twimg.com/news_img/2124653951354306560/b9WEml_Z?format=jpg&name=150x150",
+        "width": 150
+       }
+      ],
+      "start": 205,
+      "status": 200,
+      "title": "SpaceX forges ahead with Starship Flight 17 vehicles - Starbase Summary",
+      "unwound_url": "https://www.youtube.com/watch?v=4EmPnjjNKlQ&feature=youtu.be",
+      "url": "https://t.co/zKjGB6gbI2"
+     },
+     {
+      "display_url": "pic.x.com/lqTlTCuDUd",
+      "end": 252,
+      "expanded_url": "https://x.com/NASASpaceflight/status/2124653947994702178/video/1",
+      "media_key": "13_2124653906181435392",
+      "start": 229,
+      "url": "https://t.co/lqTlTCuDUd"
+     }
+    ]
+   },
+   "id": "2124653947994702178",
+   "text": "Hot on the heels of Flight 15, SpaceX is prepping the next Starship fleet, including Booster 24 and Ship 42 for Flight 17, a mission that could become Starship’s historic debut from Pad 39A in Florida.\n\n➡️https://t.co/zKjGB6gbI2 https://t.co/lqTlTCuDUd",
+   "url": "https://x.com/NASASpaceflight/status/2124653947994702178"
+  },
+  {
+   "attachments": {
+    "media_keys": [
+     "13_2124641662341128193"
+    ]
+   },
+   "author_id": "21292523",
+   "created_at": "2026-11-22T23:10:31.000Z",
+   "edit_history_tweet_ids": [
+    "2124641705303658872"
+   ],
+   "entities": {
+    "urls": [
+     {
+      "description": "Starship is SpaceX's fully reusable launch system which is being de...",
+      "display_url": "nsf.live/starbase",
+      "end": 65,
+      "expanded_url": "https://nsf.live/starbase",
+      "images": [
+       {
+        "height": 720,
+        "url": "https://pbs.twimg.com/news_img/2124558081333895168/KRDYxTCf?format=jpg&name=orig",
+        "width": 1280
+       },
+       {
+        "height": 150,
+        "url": "https://pbs.twimg.com/news_img/2124558081333895168/KRDYxTCf?format=jpg&name=150x150",
+        "width": 150
+       }
+      ],
+      "start": 42,
+      "status": 200,
+      "title": "Starbase Live: 24/7 Starship & Super Heavy Development From SpaceX's Boca Chica Facility",
+      "unwound_url": "https://www.youtube.com/watch?v=mhJRzQsLZGg",
+      "url": "https://t.co/HSumkyMNOs"
+     },
+     {
+      "display_url": "pic.x.com/gWA1F8hCSu",
+      "end": 89,
+      "expanded_url": "https://x.com/NASASpaceflight/status/2124641705303658872/video/1",
+      "media_key": "13_2124641662341128193",
+      "start": 66,
+      "url": "https://t.co/gWA1F8hCSu"
+     }
+    ]
+   },
+   "id": "2124641705303658872",
+   "text": "We get it, Booster 24. You like to vent.\n\nhttps://t.co/HSumkyMNOs https://t.co/gWA1F8hCSu",
+   "url": "https://x.com/NASASpaceflight/status/2124641705303658872"
+  },
+  {
+   "attachments": {
+    "media_keys": [
+     "13_2124637386990596096"
+    ]
+   },
+   "author_id": "21292523",
+   "created_at": "2026-11-22T22:53:32.000Z",
+   "edit_history_tweet_ids": [
+    "2124637434797346916"
+   ],
+   "entities": {
+    "urls": [
+     {
+      "description": "Starship is SpaceX's fully reusable launch system which is being de...",
+      "display_url": "nsf.live/starbase",
+      "end": 78,
+      "expanded_url": "https://nsf.live/starbase",
+      "images": [
+       {
+        "height": 720,
+        "url": "https://pbs.twimg.com/news_img/2124558081333895168/KRDYxTCf?format=jpg&name=orig",
+        "width": 1280
+       },
+       {
+        "height": 150,
+        "url": "https://pbs.twimg.com/news_img/2124558081333895168/KRDYxTCf?format=jpg&name=150x150",
+        "width": 150
+       }
+      ],
+      "start": 55,
+      "status": 200,
+      "title": "Starbase Live: 24/7 Starship & Super Heavy Development From SpaceX's Boca Chica Facility",
+      "unwound_url": "https://www.youtube.com/watch?v=mhJRzQsLZGg",
+      "url": "https://t.co/HSumkyMfYU"
+     },
+     {
+      "display_url": "pic.x.com/ktdPTnaEsN",
+      "end": 102,
+      "expanded_url": "https://x.com/NASASpaceflight/status/2124637434797346916/video/1",
+      "media_key": "13_2124637386990596096",
+      "start": 79,
+      "url": "https://t.co/ktdPTnaEsN"
+     },
+     {
+      "display_url": "x.com/efraser77/stat…",
+      "end": 126,
+      "expanded_url": "https://twitter.com/efraser77/status/2124613486315790767",
+      "start": 103,
+      "url": "https://t.co/JN3OlFNlOg"
+     }
+    ]
+   },
+   "id": "2124637434797346916",
+   "text": "Starship Flight 17: Booster 24 into full cryo testing.\nhttps://t.co/HSumkyMfYU https://t.co/ktdPTnaEsN https://t.co/JN3OlFNlOg",
+   "url": "https://x.com/NASASpaceflight/status/2124637434797346916"
+  },
+  {
+   "attachments": {
+    "media_keys": [
+     "13_2124625027362443265"
+    ]
+   },
+   "author_id": "752724282925412352",
+   "created_at": "2026-11-22T22:04:51.000Z",
+   "edit_history_tweet_ids": [
+    "2124625181880770645"
+   ],
+   "entities": {
+    "urls": [
+     {
+      "description": "Checkout all the previous flyover videos here: https://www.youtube....",
+      "display_url": "youtube.com/live/9WFCrf9H3…",
+      "end": 60,
+      "expanded_url": "https://www.youtube.com/live/9WFCrf9H3IA?si=FCQ0tXHa_kilRWex",
+      "images": [
+       {
+        "height": 720,
+        "url": "https://pbs.twimg.com/news_img/2124625185894785025/Em_5gGcP?format=jpg&name=orig",
+        "width": 1280
+       },
+       {
+        "height": 150,
+        "url": "https://pbs.twimg.com/news_img/2124625185894785025/Em_5gGcP?format=jpg&name=150x150",
+        "width": 150
+       }
+      ],
+      "start": 37,
+      "status": 200,
+      "title": "RGV 24/7 LIVE Camera of Starbase from Rocket Ranch!!",
+      "unwound_url": "https://www.youtube.com/live/9WFCrf9H3IA?si=FCQ0tXHa_kilRWex",
+      "url": "https://t.co/iDScyOi97Q"
+     },
+     {
+      "display_url": "pic.x.com/Cbs9mcBUMB",
+      "end": 84,
+      "expanded_url": "https://x.com/RGVaerialphotos/status/2124625181880770645/video/1",
+      "media_key": "13_2124625027362443265",
+      "start": 61,
+      "url": "https://t.co/Cbs9mcBUMB"
+     }
+    ]
+   },
+   "id": "2124625181880770645",
+   "text": "Frosty booster 24 \n\nLivestream link: https://t.co/iDScyOi97Q https://t.co/Cbs9mcBUMB",
+   "url": "https://x.com/RGVaerialphotos/status/2124625181880770645"
+  },
+  {
+   "attachments": {
+    "media_keys": [
+     "3_2124616426518396929"
+    ]
+   },
+   "author_id": "752724282925412352",
+   "created_at": "2026-11-22T21:30:26.000Z",
+   "edit_history_tweet_ids": [
+    "2124616518667317702"
+   ],
+   "entities": {
+    "urls": [
+     {
+      "description": "Checkout all the previous flyover videos here: https://www.youtube....",
+      "display_url": "youtube.com/live/9WFCrf9H3…",
+      "end": 56,
+      "expanded_url": "https://www.youtube.com/live/9WFCrf9H3IA?si=N97XlOBOdAbhFfk2",
+      "images": [
+       {
+        "height": 720,
+        "url": "https://pbs.twimg.com/news_img/2124616523113250816/xAf-OX7s?format=jpg&name=orig",
+        "width": 1280
+       },
+       {
+        "height": 150,
+        "url": "https://pbs.twimg.com/news_img/2124616523113250816/xAf-OX7s?format=jpg&name=150x150",
+        "width": 150
+       }
+      ],
+      "start": 33,
+      "status": 200,
+      "title": "RGV 24/7 LIVE Camera of Starbase from Rocket Ranch!!",
+      "unwound_url": "https://www.youtube.com/live/9WFCrf9H3IA?si=N97XlOBOdAbhFfk2",
+      "url": "https://t.co/bctGoCLziC"
+     },
+     {
+      "display_url": "pic.x.com/wqBbQqComD",
+      "end": 80,
+      "expanded_url": "https://x.com/RGVaerialphotos/status/2124616518667317702/photo/1",
+      "media_key": "3_2124616426518396929",
+      "start": 57,
+      "url": "https://t.co/wqBbQqComD"
+     }
+    ]
+   },
+   "id": "2124616518667317702",
+   "text": "Booster 24 cryo test livestream: https://t.co/bctGoCLziC https://t.co/wqBbQqComD",
+   "url": "https://x.com/RGVaerialphotos/status/2124616518667317702"
+  },
+  {
+   "attachments": {
+    "media_keys": [
+     "13_2124616410307661825"
+    ]
+   },
+   "author_id": "1771095379494477824",
+   "created_at": "2026-11-22T21:30:22.000Z",
+   "edit_history_tweet_ids": [
+    "2124616503740010820"
+   ],
+   "entities": {
+    "urls": [
+     {
+      "display_url": "pic.x.com/q2DdwMP3y6",
+      "end": 80,
+      "expanded_url": "https://x.com/Blobifie/status/2124616503740010820/video/1",
+      "media_key": "13_2124616410307661825",
+      "start": 57,
+      "url": "https://t.co/q2DdwMP3y6"
+     },
+     {
+      "display_url": "x.com/Blobifie/statu…",
+      "end": 104,
+      "expanded_url": "https://twitter.com/Blobifie/status/2124080565272117476",
+      "start": 81,
+      "url": "https://t.co/Dp5klLVAyU"
+     }
+    ]
+   },
+   "id": "2124616503740010820",
+   "text": "Booster 24 is currently undergoing its first cryo test!! https://t.co/q2DdwMP3y6 https://t.co/Dp5klLVAyU",
+   "url": "https://x.com/Blobifie/status/2124616503740010820"
+  },
+  {
+   "attachments": {
+    "media_keys": [
+     "3_2124613328555417600"
+    ]
+   },
+   "author_id": "1855669627998593024",
+   "created_at": "2026-11-22T21:18:30.000Z",
+   "edit_history_tweet_ids": [
+    "2124613515197731225"
+   ],
+   "entities": {
+    "mentions": [
+     {
+      "end": 137,
+      "id": "21292523",
+      "start": 121,
+      "username": "NASASpaceflight"
+     }
+    ],
+    "urls": [
+     {
+      "description": "Starship is SpaceX's fully reusable launch system which is being de...",
+      "display_url": "nsf.live/starbase",
+      "end": 118,
+      "expanded_url": "https://nsf.live/starbase",
+      "images": [
+       {
+        "height": 720,
+        "url": "https://pbs.twimg.com/news_img/2124558081333895168/KRDYxTCf?format=jpg&name=orig",
+        "width": 1280
+       },
+       {
+        "height": 150,
+        "url": "https://pbs.twimg.com/news_img/2124558081333895168/KRDYxTCf?format=jpg&name=150x150",
+        "width": 150
+       }
+      ],
+      "start": 95,
+      "status": 200,
+      "title": "Starbase Live: 24/7 Starship & Super Heavy Development From SpaceX's Boca Chica Facility",
+      "unwound_url": "https://www.youtube.com/watch?v=mhJRzQsLZGg",
+      "url": "https://t.co/PX4wBcpee0"
+     },
+     {
+      "display_url": "pic.x.com/R9LVwJWF5c",
+      "end": 161,
+      "expanded_url": "https://x.com/TrackingTheSB/status/2124613515197731225/photo/1",
+      "media_key": "3_2124613328555417600",
+      "start": 138,
+      "url": "https://t.co/R9LVwJWF5c"
+     }
+    ]
+   },
+   "id": "2124613515197731225",
+   "text": "Booster 24 is being filled with LOX and LN2 for its first cryogenic proof test at Massey's.\n\n📸 https://t.co/PX4wBcpee0 | @NASASpaceflight https://t.co/R9LVwJWF5c",
+   "url": "https://x.com/TrackingTheSB/status/2124613515197731225"
+  },
+  {
+   "attachments": {
+    "media_keys": [
+     "13_2124613231130169344"
+    ]
+   },
+   "author_id": "16477736",
+   "created_at": "2026-11-22T21:18:23.000Z",
+   "edit_history_tweet_ids": [
+    "2124613486315790767"
+   ],
+   "entities": {
+    "mentions": [
+     {
+      "end": 154,
+      "id": "21292523",
+      "start": 138,
+      "username": "NASASpaceflight"
+     }
+    ],
+    "urls": [
+     {
+      "description": "Starship is SpaceX's fully reusable launch system which is being de...",
+      "display_url": "nsf.live/starbase",
+      "end": 135,
+      "expanded_url": "https://nsf.live/starbase",
+      "images": [
+       {
+        "height": 720,
+        "url": "https://pbs.twimg.com/news_img/2124558081333895168/KRDYxTCf?format=jpg&name=orig",
+        "width": 1280
+       },
+       {
+        "height": 150,
+        "url": "https://pbs.twimg.com/news_img/2124558081333895168/KRDYxTCf?format=jpg&name=150x150",
+        "width": 150
+       }
+      ],
+      "start": 112,
+      "status": 200,
+      "title": "Starbase Live: 24/7 Starship & Super Heavy Development From SpaceX's Boca Chica Facility",
+      "unwound_url": "https://www.youtube.com/watch?v=mhJRzQsLZGg",
+      "url": "https://t.co/U5mmqMAp4x"
+     },
+     {
+      "display_url": "pic.x.com/PGHZ5lfhGo",
+      "end": 178,
+      "expanded_url": "https://x.com/efraser77/status/2124613486315790767/video/1",
+      "media_key": "13_2124613231130169344",
+      "start": 155,
+      "url": "https://t.co/PGHZ5lfhGo"
+     }
+    ]
+   },
+   "id": "2124613486315790767",
+   "text": "Ship 44 has had some cryo testing, now it's Booster 24's turn. And apparently the seagulls are intrigued...\n\n🎥: https://t.co/U5mmqMAp4x | @NASASpaceflight https://t.co/PGHZ5lfhGo",
+   "url": "https://x.com/efraser77/status/2124613486315790767"
+  },
+  {
+   "attachments": {
+    "media_keys": [
+     "3_2124613043451822081"
+    ]
+   },
+   "author_id": "752724282925412352",
+   "created_at": "2026-11-22T21:16:40.000Z",
+   "edit_history_tweet_ids": [
+    "2124613056231817244"
+   ],
+   "entities": {
+    "urls": [
+     {
+      "description": "Checkout all the previous flyover videos here: https://www.youtube....",
+      "display_url": "youtube.com/watch?v=9WFCrf…",
+      "end": 144,
+      "expanded_url": "https://www.youtube.com/watch?v=9WFCrf9H3IA",
+      "images": [
+       {
+        "height": 720,
+        "url": "https://pbs.twimg.com/news_img/2122083428581650432/dAO2zdpi?format=jpg&name=orig",
+        "width": 1280
+       },
+       {
+        "height": 150,
+        "url": "https://pbs.twimg.com/news_img/2122083428581650432/dAO2zdpi?format=jpg&name=150x150",
+        "width": 150
+       }
+      ],
+      "start": 121,
+      "status": 200,
+      "title": "RGV 24/7 LIVE Camera of Starbase from Rocket Ranch!!",
+      "unwound_url": "https://www.youtube.com/watch?v=9WFCrf9H3IA",
+      "url": "https://t.co/dKkcMf32In"
+     },
+     {
+      "display_url": "pic.x.com/EwSMWbSM02",
+      "end": 168,
+      "expanded_url": "https://x.com/RGVaerialphotos/status/2124613056231817244/photo/1",
+      "media_key": "3_2124613043451822081",
+      "start": 145,
+      "url": "https://t.co/EwSMWbSM02"
+     }
+    ]
+   },
+   "id": "2124613056231817244",
+   "text": "Booster 24 is undergoing its first cryogenic proof test at Massey's. Both the LOX and CH4 tanks have frost.\n\nWATCH LIVE: https://t.co/dKkcMf32In https://t.co/EwSMWbSM02",
+   "url": "https://x.com/RGVaerialphotos/status/2124613056231817244"
+  },
+  {
+   "attachments": {
+    "media_keys": [
+     "3_2124608479784497153",
+     "3_2124608479780298753",
+     "3_2124608479797166080"
+    ]
+   },
+   "author_id": "1855669627998593024",
+   "created_at": "2026-11-22T20:58:35.000Z",
+   "edit_history_tweet_ids": [
+    "2124608505844035918"
+   ],
+   "entities": {
+    "mentions": [
+     {
+      "end": 60,
+      "id": "1381798873774047232",
+      "start": 45,
+      "username": "KangasSpaceroo"
+     }
+    ],
+    "urls": [
+     {
+      "display_url": "pic.x.com/LRWnyEQO79",
+      "end": 303,
+      "expanded_url": "https://x.com/TrackingTheSB/status/2124608505844035918/photo/1",
+      "media_key": "3_2124608479784497153",
+      "start": 280,
+      "url": "https://t.co/LRWnyEQO79"
+     },
+     {
+      "display_url": "pic.x.com/LRWnyEQO79",
+      "end": 303,
+      "expanded_url": "https://x.com/TrackingTheSB/status/2124608505844035918/photo/2",
+      "media_key": "3_2124608479780298753",
+      "start": 280,
+      "url": "https://t.co/LRWnyEQO79"
+     },
+     {
+      "display_url": "pic.x.com/LRWnyEQO79",
+      "end": 303,
+      "expanded_url": "https://x.com/TrackingTheSB/status/2124608505844035918/photo/3",
+      "media_key": "3_2124608479797166080",
+      "start": 280,
+      "url": "https://t.co/LRWnyEQO79"
+     }
+    ]
+   },
+   "id": "2124608505844035918",
+   "note_tweet": {
+    "entities": {
+     "hashtags": [
+      {
+       "end": 5351,
+       "start": 5344,
+       "tag": "SpaceX"
+      },
+      {
+       "end": 5361,
+       "start": 5352,
+       "tag": "Starbase"
+      },
+      {
+       "end": 5371,
+       "start": 5362,
+       "tag": "Starship"
+      }
+     ],
+     "mentions": [
+      {
+       "end": 60,
+       "id": "1381798873774047232",
+       "start": 45,
+       "username": "KangasSpaceroo"
+      }
+     ],
+     "urls": [
+      {
+       "display_url": "discord.gg/ZbrSYPzDAq",
+       "end": 5148,
+       "expanded_url": "https://discord.gg/ZbrSYPzDAq",
+       "start": 5125,
+       "url": "https://t.co/hgUICqZQoK"
+      },
+      {
+       "display_url": "figma.com/design/2AvC161…",
+       "end": 5301,
+       "expanded_url": "https://www.figma.com/design/2AvC161FuB1VFNLUpAVAV2/Starship-Tracking---Starbase-Tx?node-id=0-1&p=f&t=4Pt2RTobhmM7jKAk-0",
+       "start": 5278,
+       "url": "https://t.co/Yuwq34mXNQ"
+      },
+      {
+       "display_url": "figma.com/design/lHRSgzU…",
+       "end": 5342,
+       "expanded_url": "https://www.figma.com/design/lHRSgzUwyjDdcsgwbQDgBm/Starship-Tracking--Cape-Canaveral?node-id=0-1&t=89tQk2keDk3A9m9Y-1",
+       "start": 5319,
+       "url": "https://t.co/DW4ww1doVg"
+      }
+     ]
+    },
+    "text": "Starbase This Week (2026-11-22) | Written by @KangasSpaceroo\nWow, what a week it has been. Flight 15 was only a week ago, and SpaceX is showing no signs of slowing down. Of course they had to celebrate catching a Starship for the first time, but this week we’re back to business. Welcome to this week’s Starbase This Week.\n\nFlight 15\nOkay okay, Flight 15 was a week and a bit ago now but we can’t stop talking about how historic catching Ship 42 was for the program. While some of us after looking at the heatshield after the catch may have hoped for Ship 42 to refly, Elon gave us an answer on what Ship 42’s fate could be. In an interview on the 18th, he said that Ship 42 might be displayed.\n\nHowever, he did mention that Ship 42 could be reflown if SpaceX wanted to. In the same interview he mentioned the heat shield looked great. He mentioned that teams would only need a couple weeks of refurbishment, likely due to the tile missing on the body which caused the streak of rust on the heatshield and the roughing up of the ablative sides from the chopsticks. Additionally, he mentioned that the engines looked great as well.\n\nAs for displaying vehicles, this is not uncommon with “First” vehicles for SpaceX. Falcon 9 booster B1019, which flew Orbcomm OG-2 in December 2015, was retired and is on display at SpaceX’s Hawthorne factory after demonstrating an orbital class booster landing for the first time. In the Starship program, Booster 12, which flew on Flight 5 back in October 2024, was retired after its historic booster catch. Ship 42 will be in good company in the Rocket Garden if it joins Booster 12 and Ship 20 following post-flight inspections and removal of its Raptors.\n\nProduction Site\nNow back to business, the booster presumed to fly on Flight 18 continued stacking and the ship presumed for Flight 19 began stacking operations.\n\nIn Megabay 1, Booster 25’s transfer tube and AX:2 were stacked this week. The transfer tube is a Falcon 9 first stage sized tube which flows liquid methane from the methane tank and the AX:2 completes the tank and holds the thrust structure for the 33 Raptor 3s powering booster during flight. Over the next couple of weeks we should see its forward section roll in and be stacked ahead of a cryogenic proof test campaign likely in January 2027.\n\nOver in Megabay 2, Ship 46 would begin its construction with the N:3 section rolling on the 19th, followed by the FX:4 section rolling the next day. Based on previous ships, we should expect to see Ship 46 being completed around mid-December.\n\nBefore we leave the production site, Gigabay continues through its final stages before full scale production can occur within it. On the 19th the last remaining tower crane was taken apart and is being dismantled as Gigabay has reached full height and major construction of the roof has completed. On the ground, one of Gigabay’s road facing doors was installed on the 20th. Our days of being able to see straight through Gigabay are limited.\n\nLastly, at the production site, the ship and booster cryostands rolled back from Masseys ahead of Flight 17’s cryogenic proof campaign.\n\nMasseys\nSpeaking of Flight 17, Ship 44 and Booster 24 both rolled out to Masseys this week ahead of cryogenic proof testing. Both vehicles are currently set to fly on Flight 17 which is likely to occur sometime in Q1 of 2027.\n\nShip 44 was the first one to roll to Masseys, rolling out during the day on the 19th. Booster 24 followed that evening, arriving early on the 20th.\n\nThis week, Ship 44 has been the more active of the two, performing two cryogenic proof tests on the 20th. Additionally, it performed a flap wiggle test while waiting for the first cryogenic proof test. Ship 44 next will roll back to the production site ahead of its static fire campaign, likely to occur in about a month and a half or so.\n\nAs for Booster 24, no visible testing occurred this week.\n\nLaunch Site\nOver at the launch site, an area we don’t talk a whole lot about anymore as its mostly wrapped up in flights. However, this week we have some stuff to talk about!\n\nAt Pad 2, following Ship 42’s safing, lowering, and rollback, the dancefloor was lowered into the OLM as teams now move into preparing the pad for Booster 23. While not likely to occur this next week as the US enters Thanksgiving week, we should see Booster 23 roll to the pad sometime in early December ahead of a static fire. Depending on where Ship 43 is in its own static fire and pre-flight preparations, we could see a fifth Starship flight before the year is out.\n\nOver at Pad 1, construction on its flame trench continues with two major wall sections being lifted this week. It hopefully isn’t too much longer before we see two operational pads at Starbase. Potentially, we may even see two full stacks at the same time, similar to seeing two stacks out at LC-39A during the shuttle days.\n\nWell that’s all for this week. Flight 15 was a resounding success but SpaceX doesn’t look to be slowing down at all. When do you think we’ll see Booster 23 and Ship 43 conduct their static fire tests?\n\nFor real-time updates, join us in the Discord: https://t.co/hgUICqZQoK\n\nTo explore our maps yourself and track every movement, check out our Figma, now at both Starbase and Cape Canaveral:\n\nStarbase: https://t.co/Yuwq34mXNQ\n\nCape Canaveral: https://t.co/DW4ww1doVg\n\n#SpaceX #Starbase #Starship"
+   },
+   "text": "Starbase This Week (2026-11-22) | Written by @KangasSpaceroo\nWow, what a week it has been. Flight 15 was only a week ago, and SpaceX is showing no signs of slowing down. Of course they had to celebrate catching a Starship for the first time, but this week we’re back to business. https://t.co/LRWnyEQO79",
+   "url": "https://x.com/TrackingTheSB/status/2124608505844035918"
+  },
+  {
+   "attachments": {
+    "media_keys": [
+     "13_2124265195992440832"
+    ]
+   },
+   "author_id": "752724282925412352",
+   "created_at": "2026-11-21T22:16:35.000Z",
+   "edit_history_tweet_ids": [
+    "2124265745681117187"
+   ],
+   "entities": {
+    "urls": [
+     {
+      "display_url": "pic.x.com/oGQDVMx8nC",
+      "end": 77,
+      "expanded_url": "https://x.com/RGVaerialphotos/status/2124265745681117187/video/1",
+      "media_key": "13_2124265195992440832",
+      "start": 54,
+      "url": "https://t.co/oGQDVMx8nC"
+     }
+    ]
+   },
+   "id": "2124265745681117187",
+   "text": "Ship 44 had its first cryogenic proof test yesterday. https://t.co/oGQDVMx8nC",
+   "url": "https://x.com/RGVaerialphotos/status/2124265745681117187"
+  },
+  {
+   "attachments": {
+    "media_keys": [
+     "13_2124262488258805760"
+    ]
+   },
+   "author_id": "752724282925412352",
+   "created_at": "2026-11-21T22:04:23.000Z",
+   "edit_history_tweet_ids": [
+    "2124262674834071685"
+   ],
+   "entities": {
+    "urls": [
+     {
+      "display_url": "pic.x.com/Cv2VvDeYB6",
+      "end": 86,
+      "expanded_url": "https://x.com/RGVaerialphotos/status/2124262674834071685/video/1",
+      "media_key": "13_2124262488258805760",
+      "start": 63,
+      "url": "https://t.co/Cv2VvDeYB6"
+     }
+    ]
+   },
+   "id": "2124262674834071685",
+   "text": "Booster 25's LOX landing tank was moved to Megabay 1 yesterday https://t.co/Cv2VvDeYB6",
+   "url": "https://x.com/RGVaerialphotos/status/2124262674834071685"
+  },
+  {
+   "attachments": {
+    "media_keys": [
+     "3_2124201328897593344"
+    ]
+   },
+   "author_id": "1348638512267079683",
+   "created_at": "2026-11-21T18:03:33.000Z",
+   "edit_history_tweet_ids": [
+    "2124202069158674714"
+   ],
+   "entities": {
+    "urls": [
+     {
+      "display_url": "pic.x.com/3tzFOKC3WM",
+      "end": 151,
+      "expanded_url": "https://x.com/StarshipGazer/status/2124202069158674714/photo/1",
+      "media_key": "3_2124201328897593344",
+      "start": 128,
+      "url": "https://t.co/3tzFOKC3WM"
+     }
+    ]
+   },
+   "id": "2124202069158674714",
+   "text": "Starship 44 and Super Heavy Booster 24 (Flight 17 vehicles) at Starbase TX Massey's test site for cryo proof testing.\n\n11/21/26 https://t.co/3tzFOKC3WM",
+   "url": "https://x.com/StarshipGazer/status/2124202069158674714"
+  },
+  {
+   "attachments": {
+    "media_keys": [
+     "3_2124080207518982144",
+     "3_2124080242734317569",
+     "3_2124080281443504128",
+     "3_2124080336615489536",
+     "3_2124080365056974848",
+     "3_2124080387039375360"
+    ]
+   },
+   "author_id": "1771095379494477824",
+   "created_at": "2026-11-21T10:00:44.000Z",
+   "edit_history_tweet_ids": [
+    "2124080565272117476"
+   ],
+   "entities": {
+    "urls": [
+     {
+      "display_url": "pic.x.com/FjWwvHe7xN",
+      "end": 72,
+      "expanded_url": "https://x.com/Blobifie/status/2124080565272117476/photo/1",
+      "media_key": "3_2124080207518982144",
+      "start": 49,
+      "url": "https://t.co/FjWwvHe7xN"
+     },
+     {
+      "display_url": "pic.x.com/FjWwvHe7xN",
+      "end": 72,
+      "expanded_url": "https://x.com/Blobifie/status/2124080565272117476/photo/2",
+      "media_key": "3_2124080242734317569",
+      "start": 49,
+      "url": "https://t.co/FjWwvHe7xN"
+     },
+     {
+      "display_url": "pic.x.com/FjWwvHe7xN",
+      "end": 72,
+      "expanded_url": "https://x.com/Blobifie/status/2124080565272117476/photo/3",
+      "media_key": "3_2124080281443504128",
+      "start": 49,
+      "url": "https://t.co/FjWwvHe7xN"
+     },
+     {
+      "display_url": "pic.x.com/FjWwvHe7xN",
+      "end": 72,
+      "expanded_url": "https://x.com/Blobifie/status/2124080565272117476/photo/4",
+      "media_key": "3_2124080336615489536",
+      "start": 49,
+      "url": "https://t.co/FjWwvHe7xN"
+     },
+     {
+      "display_url": "pic.x.com/FjWwvHe7xN",
+      "end": 72,
+      "expanded_url": "https://x.com/Blobifie/status/2124080565272117476/photo/5",
+      "media_key": "3_2124080365056974848",
+      "start": 49,
+      "url": "https://t.co/FjWwvHe7xN"
+     },
+     {
+      "display_url": "pic.x.com/FjWwvHe7xN",
+      "end": 72,
+      "expanded_url": "https://x.com/Blobifie/status/2124080565272117476/photo/6",
+      "media_key": "3_2124080387039375360",
+      "start": 49,
+      "url": "https://t.co/FjWwvHe7xN"
+     },
+     {
+      "display_url": "x.com/Blobifie/statu…",
+      "end": 96,
+      "expanded_url": "https://twitter.com/Blobifie/status/2124022121466876147",
+      "start": 73,
+      "url": "https://t.co/gUSBIwJ5zb"
+     }
+    ]
+   },
+   "id": "2124080565272117476",
+   "text": "Ship 44 completed 2 cryogenic proof tests today! https://t.co/FjWwvHe7xN https://t.co/gUSBIwJ5zb",
+   "url": "https://x.com/Blobifie/status/2124080565272117476"
+  },
+  {
+   "attachments": {
+    "media_keys": [
+     "3_2124021983210033152",
+     "3_2124022014533115904",
+     "3_2124022031129944064"
+    ]
+   },
+   "author_id": "1771095379494477824",
+   "created_at": "2026-11-21T06:08:30.000Z",
+   "edit_history_tweet_ids": [
+    "2124022121466876147"
+   ],
+   "entities": {
+    "urls": [
+     {
+      "display_url": "pic.x.com/i8Qc3Z1ZS0",
+      "end": 76,
+      "expanded_url": "https://x.com/Blobifie/status/2124022121466876147/photo/1",
+      "media_key": "3_2124021983210033152",
+      "start": 53,
+      "url": "https://t.co/i8Qc3Z1ZS0"
+     },
+     {
+      "display_url": "pic.x.com/i8Qc3Z1ZS0",
+      "end": 76,
+      "expanded_url": "https://x.com/Blobifie/status/2124022121466876147/photo/2",
+      "media_key": "3_2124022014533115904",
+      "start": 53,
+      "url": "https://t.co/i8Qc3Z1ZS0"
+     },
+     {
+      "display_url": "pic.x.com/i8Qc3Z1ZS0",
+      "end": 76,
+      "expanded_url": "https://x.com/Blobifie/status/2124022121466876147/photo/3",
+      "media_key": "3_2124022031129944064",
+      "start": 53,
+      "url": "https://t.co/i8Qc3Z1ZS0"
+     },
+     {
+      "display_url": "x.com/Blobifie/statu…",
+      "end": 100,
+      "expanded_url": "https://twitter.com/Blobifie/status/2123871167119569323",
+      "start": 77,
+      "url": "https://t.co/F8REgIXaRJ"
+     }
+    ]
+   },
+   "id": "2124022121466876147",
+   "text": "Ship 44 is currently undergoing its first cryo test! https://t.co/i8Qc3Z1ZS0 https://t.co/F8REgIXaRJ",
+   "url": "https://x.com/Blobifie/status/2124022121466876147"
+  },
+  {
+   "attachments": {
+    "media_keys": [
+     "3_2123906393530843136"
+    ]
+   },
+   "author_id": "1855669627998593024",
+   "created_at": "2026-11-20T22:29:18.000Z",
+   "edit_history_tweet_ids": [
+    "2123906558115418275"
+   ],
+   "entities": {
+    "hashtags": [
+     {
+      "end": 138,
+      "start": 129,
+      "tag": "Tracking"
+     },
+     {
+      "end": 149,
+      "start": 140,
+      "tag": "Starship"
+     },
+     {
+      "end": 159,
+      "start": 150,
+      "tag": "Starbase"
+     },
+     {
+      "end": 167,
+      "start": 160,
+      "tag": "SpaceX"
+     }
+    ],
+    "urls": [
+     {
+      "description": "Starship Tracking follows SpaceX Starship activity across LC-39A, Starbase Texas, and Starbase Louisiana.",
+      "display_url": "starship-tracking.com",
+      "end": 90,
+      "expanded_url": "https://starship-tracking.com",
+      "images": [
+       {
+        "height": 512,
+        "url": "https://pbs.twimg.com/news_img/2123269739740852224/qvs2jWvA?format=jpg&name=orig",
+        "width": 895
+       },
+       {
+        "height": 150,
+        "url": "https://pbs.twimg.com/news_img/2123269739740852224/qvs2jWvA?format=jpg&name=150x150",
+        "width": 150
+       }
+      ],
+      "start": 67,
+      "status": 200,
+      "title": "Starship Tracking",
+      "unwound_url": "https://starship-tracking.com",
+      "url": "https://t.co/b1ZNQAwhGM"
+     },
+     {
+      "display_url": "pic.x.com/gCtJmSyDhH",
+      "end": 191,
+      "expanded_url": "https://x.com/TrackingTheSB/status/2123906558115418275/photo/1",
+      "media_key": "3_2123906393530843136",
+      "start": 168,
+      "url": "https://t.co/gCtJmSyDhH"
+     }
+    ]
+   },
+   "id": "2123906558115418275",
+   "text": "Ship 44 is undergoing a cryogenic proof test.\n\nFollow Our Journey: https://t.co/b1ZNQAwhGM \n\n📸Casper Harris | Starship Tracking\n\n#Tracking ⁠#Starship #Starbase #SpaceX https://t.co/gCtJmSyDhH",
+   "url": "https://x.com/TrackingTheSB/status/2123906558115418275"
+  },
+  {
+   "attachments": {
+    "media_keys": [
+     "3_2123898253817061376"
+    ]
+   },
+   "author_id": "752724282925412352",
+   "created_at": "2026-11-20T21:56:19.000Z",
+   "edit_history_tweet_ids": [
+    "2123898258842157512"
+   ],
+   "entities": {
+    "urls": [
+     {
+      "description": "Checkout all the previous flyover videos here: https://www.youtube....",
+      "display_url": "youtube.com/live/9WFCrf9H3…",
+      "end": 74,
+      "expanded_url": "https://www.youtube.com/live/9WFCrf9H3IA?is=RAnmKjHXJjZvNNy2",
+      "images": [
+       {
+        "height": 720,
+        "url": "https://pbs.twimg.com/news_img/2123898262461837312/aRtP5BrL?format=jpg&name=orig",
+        "width": 1280
+       },
+       {
+        "height": 150,
+        "url": "https://pbs.twimg.com/news_img/2123898262461837312/aRtP5BrL?format=jpg&name=150x150",
+        "width": 150
+       }
+      ],
+      "start": 51,
+      "status": 200,
+      "title": "RGV 24/7 LIVE Camera of Starbase from Rocket Ranch!!",
+      "unwound_url": "https://www.youtube.com/live/9WFCrf9H3IA?is=RAnmKjHXJjZvNNy2",
+      "url": "https://t.co/6D20cXXcfR"
+     },
+     {
+      "display_url": "pic.x.com/jmhfMRNH1U",
+      "end": 98,
+      "expanded_url": "https://x.com/RGVaerialphotos/status/2123898258842157512/photo/1",
+      "media_key": "3_2123898253817061376",
+      "start": 75,
+      "url": "https://t.co/jmhfMRNH1U"
+     }
+    ]
+   },
+   "id": "2123898258842157512",
+   "text": "Ship 44 cryo testing happening now. Livestream cam https://t.co/6D20cXXcfR https://t.co/jmhfMRNH1U",
+   "url": "https://x.com/RGVaerialphotos/status/2123898258842157512"
+  },
+  {
+   "attachments": {
+    "media_keys": [
+     "13_2123894070829559808"
+    ]
+   },
+   "author_id": "16477736",
+   "created_at": "2026-11-20T21:40:57.000Z",
+   "edit_history_tweet_ids": [
+    "2123894391177949549"
+   ],
+   "entities": {
+    "mentions": [
+     {
+      "end": 236,
+      "id": "21292523",
+      "start": 220,
+      "username": "NASASpaceflight"
+     }
+    ],
+    "urls": [
+     {
+      "description": "Starship is SpaceX's fully reusable launch system which is being de...",
+      "display_url": "nsf.live/starbase",
+      "end": 218,
+      "expanded_url": "https://nsf.live/starbase",
+      "images": [
+       {
+        "height": 720,
+        "url": "https://pbs.twimg.com/news_img/2124558081333895168/KRDYxTCf?format=jpg&name=orig",
+        "width": 1280
+       },
+       {
+        "height": 150,
+        "url": "https://pbs.twimg.com/news_img/2124558081333895168/KRDYxTCf?format=jpg&name=150x150",
+        "width": 150
+       }
+      ],
+      "start": 195,
+      "status": 200,
+      "title": "Starbase Live: 24/7 Starship & Super Heavy Development From SpaceX's Boca Chica Facility",
+      "unwound_url": "https://www.youtube.com/watch?v=mhJRzQsLZGg",
+      "url": "https://t.co/U5mmqMAp4x"
+     },
+     {
+      "display_url": "pic.x.com/dNaVe0zRvi",
+      "end": 260,
+      "expanded_url": "https://x.com/efraser77/status/2123894391177949549/video/1",
+      "media_key": "13_2123894070829559808",
+      "start": 237,
+      "url": "https://t.co/dNaVe0zRvi"
+     }
+    ]
+   },
+   "id": "2123894391177949549",
+   "text": "The Flight 17 pair of Booster 24 and Ship 44 are together at Massey's, and there's frost visible on Ship 44 now. Here you can see it on the methane tank, and levels are rising.\n\nWatch it live at https://t.co/U5mmqMAp4x\n\n@NASASpaceflight https://t.co/dNaVe0zRvi",
+   "url": "https://x.com/efraser77/status/2123894391177949549"
+  },
+  {
+   "attachments": {
+    "media_keys": [
+     "3_2123870437964988416"
+    ]
+   },
+   "author_id": "1771095379494477824",
+   "created_at": "2026-11-20T20:08:40.000Z",
+   "edit_history_tweet_ids": [
+    "2123871167119569323"
+   ],
+   "entities": {
+    "urls": [
+     {
+      "display_url": "pic.x.com/ZzyHvrwrbW",
+      "end": 269,
+      "expanded_url": "https://x.com/Blobifie/status/2123871167119569323/photo/1",
+      "media_key": "3_2123870437964988416",
+      "start": 246,
+      "url": "https://t.co/ZzyHvrwrbW"
+     },
+     {
+      "display_url": "x.com/Blobifie/statu…",
+      "end": 293,
+      "expanded_url": "https://twitter.com/Blobifie/status/2123522565675335767",
+      "start": 270,
+      "url": "https://t.co/Tyn9f3G7zE"
+     }
+    ]
+   },
+   "id": "2123871167119569323",
+   "text": "Booster 24 has left Megabay 1 for the first time following its assembly, joining Ship 44 at masseys for its own cryo test campaign!!\n\nBooster 24 took just 5 weeks to be fully stacked. For reference, it takes ~5 weeks for 5 weeks to have passed!! https://t.co/ZzyHvrwrbW https://t.co/Tyn9f3G7zE",
+   "url": "https://x.com/Blobifie/status/2123871167119569323"
+  },
+  {
+   "attachments": {
+    "media_keys": [
+     "13_2123774530841608192"
+    ]
+   },
+   "author_id": "21292523",
+   "created_at": "2026-11-20T13:44:56.000Z",
+   "edit_history_tweet_ids": [
+    "2123774597967540724"
+   ],
+   "entities": {
+    "urls": [
+     {
+      "description": "Starship is SpaceX's fully reusable launch system which is being de...",
+      "display_url": "nsf.live/starbase",
+      "end": 106,
+      "expanded_url": "https://nsf.live/starbase",
+      "images": [
+       {
+        "height": 720,
+        "url": "https://pbs.twimg.com/news_img/2124558081333895168/KRDYxTCf?format=jpg&name=orig",
+        "width": 1280
+       },
+       {
+        "height": 150,
+        "url": "https://pbs.twimg.com/news_img/2124558081333895168/KRDYxTCf?format=jpg&name=150x150",
+        "width": 150
+       }
+      ],
+      "start": 83,
+      "status": 200,
+      "title": "Starbase Live: 24/7 Starship & Super Heavy Development From SpaceX's Boca Chica Facility",
+      "unwound_url": "https://www.youtube.com/watch?v=mhJRzQsLZGg",
+      "url": "https://t.co/HSumkyMNOs"
+     },
+     {
+      "display_url": "pic.x.com/wEOGYw7rjG",
+      "end": 130,
+      "expanded_url": "https://x.com/NASASpaceflight/status/2123774597967540724/video/1",
+      "media_key": "13_2123774530841608192",
+      "start": 107,
+      "url": "https://t.co/wEOGYw7rjG"
+     }
+    ]
+   },
+   "id": "2123774597967540724",
+   "text": "Starship Flight 17 - Ship 44 and Booster 24 are together at Massey's for testing.\n\nhttps://t.co/HSumkyMNOs https://t.co/wEOGYw7rjG",
+   "url": "https://x.com/NASASpaceflight/status/2123774597967540724"
+  },
+  {
+   "attachments": {
+    "media_keys": [
+     "13_2123662812962750464"
+    ]
+   },
+   "author_id": "752724282925412352",
+   "created_at": "2026-11-20T06:21:51.000Z",
+   "edit_history_tweet_ids": [
+    "2123663091074584938"
+   ],
+   "entities": {
+    "urls": [
+     {
+      "display_url": "pic.x.com/2XJrkgs5Oa",
+      "end": 89,
+      "expanded_url": "https://x.com/RGVaerialphotos/status/2123663091074584938/video/1",
+      "media_key": "13_2123662812962750464",
+      "start": 66,
+      "url": "https://t.co/2XJrkgs5Oa"
+     }
+    ]
+   },
+   "id": "2123663091074584938",
+   "text": "Booster 24 heads to Massey's as Ship 40 hangs out in the gigabay. https://t.co/2XJrkgs5Oa",
+   "url": "https://x.com/RGVaerialphotos/status/2123663091074584938"
+  },
+  {
+   "attachments": {
+    "media_keys": [
+     "3_2123658738427215872"
+    ]
+   },
+   "author_id": "1855669627998593024",
+   "created_at": "2026-11-20T06:05:11.000Z",
+   "edit_history_tweet_ids": [
+    "2123658897949159619"
+   ],
+   "entities": {
+    "hashtags": [
+     {
+      "end": 175,
+      "start": 166,
+      "tag": "Tracking"
+     },
+     {
+      "end": 186,
+      "start": 177,
+      "tag": "Starship"
+     },
+     {
+      "end": 196,
+      "start": 187,
+      "tag": "Starbase"
+     },
+     {
+      "end": 204,
+      "start": 197,
+      "tag": "SpaceX"
+     }
+    ],
+    "mentions": [
+     {
+      "end": 122,
+      "id": "21292523",
+      "start": 106,
+      "username": "NASASpaceflight"
+     }
+    ],
+    "urls": [
+     {
+      "description": "Starship Tracking follows SpaceX Starship activity across LC-39A, Starbase Texas, and Starbase Louisiana.",
+      "display_url": "starship-tracking.com",
+      "end": 103,
+      "expanded_url": "https://starship-tracking.com/",
+      "images": [
+       {
+        "height": 512,
+        "url": "https://pbs.twimg.com/news_img/2123269739740852224/qvs2jWvA?format=jpg&name=orig",
+        "width": 895
+       },
+       {
+        "height": 150,
+        "url": "https://pbs.twimg.com/news_img/2123269739740852224/qvs2jWvA?format=jpg&name=150x150",
+        "width": 150
+       }
+      ],
+      "start": 80,
+      "status": 200,
+      "title": "Starship Tracking",
+      "unwound_url": "https://starship-tracking.com/",
+      "url": "https://t.co/UqJI1NQiUk"
+     },
+     {
+      "description": "Starship is SpaceX's fully reusable launch system which is being de...",
+      "display_url": "nsf.live/starbase",
+      "end": 164,
+      "expanded_url": "https://nsf.live/starbase",
+      "images": [
+       {
+        "height": 720,
+        "url": "https://pbs.twimg.com/news_img/2124558081333895168/KRDYxTCf?format=jpg&name=orig",
+        "width": 1280
+       },
+       {
+        "height": 150,
+        "url": "https://pbs.twimg.com/news_img/2124558081333895168/KRDYxTCf?format=jpg&name=150x150",
+        "width": 150
+       }
+      ],
+      "start": 141,
+      "status": 200,
+      "title": "Starbase Live: 24/7 Starship & Super Heavy Development From SpaceX's Boca Chica Facility",
+      "unwound_url": "https://www.youtube.com/watch?v=mhJRzQsLZGg",
+      "url": "https://t.co/PX4wBcpee0"
+     },
+     {
+      "display_url": "pic.x.com/CB2Ot2puAF",
+      "end": 228,
+      "expanded_url": "https://x.com/TrackingTheSB/status/2123658897949159619/photo/1",
+      "media_key": "3_2123658738427215872",
+      "start": 205,
+      "url": "https://t.co/CB2Ot2puAF"
+     }
+    ]
+   },
+   "id": "2123658897949159619",
+   "text": "Booster 24 has entered Highway 4 and is headed to Massey's\n\nFollow Our Journey: https://t.co/UqJI1NQiUk\n\n📸@NASASpaceflight | Starbase Live | https://t.co/PX4wBcpee0\n\n#Tracking ⁠#Starship #Starbase #SpaceX https://t.co/CB2Ot2puAF",
+   "url": "https://x.com/TrackingTheSB/status/2123658897949159619"
+  },
+  {
+   "attachments": {
+    "media_keys": [
+     "13_2123527663750885376"
+    ]
+   },
+   "author_id": "1110905864578363394",
+   "created_at": "2026-11-19T21:24:10.000Z",
+   "edit_history_tweet_ids": [
+    "2123527777483894958"
+   ],
+   "entities": {
+    "urls": [
+     {
+      "display_url": "pic.x.com/jJfqtUEvpT",
+      "end": 91,
+      "expanded_url": "https://x.com/LabPadre/status/2123527777483894958/video/1",
+      "media_key": "13_2123527663750885376",
+      "start": 68,
+      "url": "https://t.co/jJfqtUEvpT"
+     }
+    ]
+   },
+   "id": "2123527777483894958",
+   "text": "Ship 44 has arrived at the cryo test station at the Massey outpost. https://t.co/jJfqtUEvpT",
+   "url": "https://x.com/LabPadre/status/2123527777483894958"
+  },
+  {
+   "attachments": {
+    "media_keys": [
+     "3_2123522261235953664",
+     "3_2123522311756431360",
+     "3_2123522433630212096",
+     "3_2123522473413255168"
+    ]
+   },
+   "author_id": "1771095379494477824",
+   "created_at": "2026-11-19T21:03:27.000Z",
+   "edit_history_tweet_ids": [
+    "2123522565675335767"
+   ],
+   "entities": {
+    "urls": [
+     {
+      "display_url": "pic.x.com/uzUM3xerrc",
+      "end": 129,
+      "expanded_url": "https://x.com/Blobifie/status/2123522565675335767/photo/1",
+      "media_key": "3_2123522261235953664",
+      "start": 106,
+      "url": "https://t.co/uzUM3xerrc"
+     },
+     {
+      "display_url": "pic.x.com/uzUM3xerrc",
+      "end": 129,
+      "expanded_url": "https://x.com/Blobifie/status/2123522565675335767/photo/2",
+      "media_key": "3_2123522311756431360",
+      "start": 106,
+      "url": "https://t.co/uzUM3xerrc"
+     },
+     {
+      "display_url": "pic.x.com/uzUM3xerrc",
+      "end": 129,
+      "expanded_url": "https://x.com/Blobifie/status/2123522565675335767/photo/3",
+      "media_key": "3_2123522433630212096",
+      "start": 106,
+      "url": "https://t.co/uzUM3xerrc"
+     },
+     {
+      "display_url": "pic.x.com/uzUM3xerrc",
+      "end": 129,
+      "expanded_url": "https://x.com/Blobifie/status/2123522565675335767/photo/4",
+      "media_key": "3_2123522473413255168",
+      "start": 106,
+      "url": "https://t.co/uzUM3xerrc"
+     },
+     {
+      "display_url": "x.com/Blobifie/statu…",
+      "end": 153,
+      "expanded_url": "https://twitter.com/Blobifie/status/2113479843417628748",
+      "start": 130,
+      "url": "https://t.co/Lyk5CmV109"
+     }
+    ]
+   },
+   "id": "2123522565675335767",
+   "text": "Ship 44 has been lifted onto the cryo stand and has been moved to the masseys test site for cryo testing! https://t.co/uzUM3xerrc https://t.co/Lyk5CmV109",
+   "url": "https://x.com/Blobifie/status/2123522565675335767"
+  },
+  {
+   "attachments": {
+    "media_keys": [
+     "13_2123504665597804545"
+    ]
+   },
+   "author_id": "21292523",
+   "created_at": "2026-11-19T19:52:50.000Z",
+   "edit_history_tweet_ids": [
+    "2123504795092975747"
+   ],
+   "entities": {
+    "urls": [
+     {
+      "description": "Starship is SpaceX's fully reusable launch system which is being de...",
+      "display_url": "nsf.live/starbase",
+      "end": 86,
+      "expanded_url": "https://nsf.live/starbase",
+      "images": [
+       {
+        "height": 720,
+        "url": "https://pbs.twimg.com/news_img/2124558081333895168/KRDYxTCf?format=jpg&name=orig",
+        "width": 1280
+       },
+       {
+        "height": 150,
+        "url": "https://pbs.twimg.com/news_img/2124558081333895168/KRDYxTCf?format=jpg&name=150x150",
+        "width": 150
+       }
+      ],
+      "start": 63,
+      "status": 200,
+      "title": "Starbase Live: 24/7 Starship & Super Heavy Development From SpaceX's Boca Chica Facility",
+      "unwound_url": "https://www.youtube.com/watch?v=mhJRzQsLZGg",
+      "url": "https://t.co/HSumkyMNOs"
+     },
+     {
+      "display_url": "pic.x.com/VFkHVRcb3j",
+      "end": 110,
+      "expanded_url": "https://x.com/NASASpaceflight/status/2123504795092975747/video/1",
+      "media_key": "13_2123504665597804545",
+      "start": 87,
+      "url": "https://t.co/VFkHVRcb3j"
+     }
+    ]
+   },
+   "id": "2123504795092975747",
+   "text": "Starship Flight 17: Ship 44 rolling up Highway 4 to Massey's.\n\nhttps://t.co/HSumkyMNOs https://t.co/VFkHVRcb3j",
+   "url": "https://x.com/NASASpaceflight/status/2123504795092975747"
+  },
+  {
+   "attachments": {
+    "media_keys": [
+     "3_2123481179449929728"
+    ]
+   },
+   "author_id": "752724282925412352",
+   "created_at": "2026-11-19T18:19:07.000Z",
+   "edit_history_tweet_ids": [
+    "2123481210752315451"
+   ],
+   "entities": {
+    "urls": [
+     {
+      "display_url": "pic.x.com/tJGU9z384O",
+      "end": 87,
+      "expanded_url": "https://x.com/RGVaerialphotos/status/2123481210752315451/photo/1",
+      "media_key": "3_2123481179449929728",
+      "start": 64,
+      "url": "https://t.co/tJGU9z384O"
+     }
+    ]
+   },
+   "id": "2123481210752315451",
+   "text": "Ship 44 is heading to Massey’s ahead of cryogenic proof testing https://t.co/tJGU9z384O",
+   "url": "https://x.com/RGVaerialphotos/status/2123481210752315451"
+  },
+  {
+   "attachments": {
+    "media_keys": [
+     "3_2123475796413100032"
+    ]
+   },
+   "author_id": "1855669627998593024",
+   "created_at": "2026-11-19T18:14:43.000Z",
+   "edit_history_tweet_ids": [
+    "2123480103191736583"
+   ],
+   "entities": {
+    "hashtags": [
+     {
+      "end": 150,
+      "start": 141,
+      "tag": "Tracking"
+     },
+     {
+      "end": 161,
+      "start": 152,
+      "tag": "Starship"
+     },
+     {
+      "end": 171,
+      "start": 162,
+      "tag": "Starbase"
+     },
+     {
+      "end": 179,
+      "start": 172,
+      "tag": "SpaceX"
+     }
+    ],
+    "urls": [
+     {
+      "description": "Starship Tracking follows SpaceX Starship activity across LC-39A, Starbase Texas, and Starbase Louisiana.",
+      "display_url": "starship-tracking.com",
+      "end": 101,
+      "expanded_url": "https://starship-tracking.com",
+      "images": [
+       {
+        "height": 512,
+        "url": "https://pbs.twimg.com/news_img/2123269739740852224/qvs2jWvA?format=jpg&name=orig",
+        "width": 895
+       },
+       {
+        "height": 150,
+        "url": "https://pbs.twimg.com/news_img/2123269739740852224/qvs2jWvA?format=jpg&name=150x150",
+        "width": 150
+       }
+      ],
+      "start": 78,
+      "status": 200,
+      "title": "Starship Tracking",
+      "unwound_url": "https://starship-tracking.com",
+      "url": "https://t.co/b1ZNQAwPwk"
+     },
+     {
+      "display_url": "pic.x.com/ZyGJ9bVUPF",
+      "end": 203,
+      "expanded_url": "https://x.com/TrackingTheSB/status/2123480103191736583/photo/1",
+      "media_key": "3_2123475796413100032",
+      "start": 180,
+      "url": "https://t.co/ZyGJ9bVUPF"
+     }
+    ]
+   },
+   "id": "2123480103191736583",
+   "text": "Ship 44 is rolling out for its cryogenic proof campaign.\n\nFollow Our Journey: https://t.co/b1ZNQAwPwk \n\n📸Casper Harris | Starship Tracking \n\n#Tracking ⁠#Starship #Starbase #SpaceX https://t.co/ZyGJ9bVUPF",
+   "url": "https://x.com/TrackingTheSB/status/2123480103191736583"
+  },
+  {
+   "attachments": {
+    "media_keys": [
+     "3_2123475080730546176"
+    ]
+   },
+   "author_id": "1110905864578363394",
+   "created_at": "2026-11-19T17:56:12.000Z",
+   "edit_history_tweet_ids": [
+    "2123475444376773003"
+   ],
+   "entities": {
+    "urls": [
+     {
+      "description": "Welcome to LabPadre, an intelligent chat community! We have many 24...",
+      "display_url": "youtube.com/watch?v=inCQ49…",
+      "end": 151,
+      "expanded_url": "https://www.youtube.com/watch?v=inCQ49QGmqQ",
+      "images": [
+       {
+        "height": 720,
+        "url": "https://pbs.twimg.com/news_img/2123475448524849152/MPVZ8xWZ?format=jpg&name=orig",
+        "width": 1280
+       },
+       {
+        "height": 150,
+        "url": "https://pbs.twimg.com/news_img/2123475448524849152/MPVZ8xWZ?format=jpg&name=150x150",
+        "width": 150
+       }
+      ],
+      "start": 128,
+      "status": 200,
+      "title": "Starbase Live Rover Cam - SpaceX Starship Launch Facility",
+      "unwound_url": "https://www.youtube.com/watch?v=inCQ49QGmqQ",
+      "url": "https://t.co/UH3N2Ra4RT"
+     },
+     {
+      "display_url": "pic.x.com/QkXoB3ibBw",
+      "end": 175,
+      "expanded_url": "https://x.com/LabPadre/status/2123475444376773003/photo/1",
+      "media_key": "3_2123475080730546176",
+      "start": 152,
+      "url": "https://t.co/QkXoB3ibBw"
+     }
+    ]
+   },
+   "id": "2123475444376773003",
+   "text": "Ship 44 stands at the edge of Hwy4, and is due to move to the Massey outpost for initial pressure, cryo and thrust sim testing.\nhttps://t.co/UH3N2Ra4RT https://t.co/QkXoB3ibBw",
+   "url": "https://x.com/LabPadre/status/2123475444376773003"
+  },
+  {
+   "author_id": "21292523",
+   "created_at": "2026-11-19T16:56:53.000Z",
+   "edit_history_tweet_ids": [
+    "2123460514080530708"
+   ],
+   "entities": {
+    "urls": [
+     {
+      "display_url": "x.com/SpaceNotices/s…",
+      "end": 253,
+      "expanded_url": "https://twitter.com/SpaceNotices/status/2123459129645973818",
+      "start": 230,
+      "url": "https://t.co/6yq9vzdsWA"
+     }
+    ]
+   },
+   "id": "2123460514080530708",
+   "text": "I would not be surprised if SpaceX opts to fly a repeat of Flight 15 from Starbase (Flight 16), and then Flight 17 from 39A. The latter requires a Booster and a Ship sent on You'll Thank Me Later and a fair amount of 39A testing. https://t.co/6yq9vzdsWA",
+   "url": "https://x.com/NASASpaceflight/status/2123460514080530708"
+  },
+  {
+   "attachments": {
+    "media_keys": [
+     "3_2122855508390580224"
+    ]
+   },
+   "author_id": "752724282925412352",
+   "created_at": "2026-11-18T02:00:00.000Z",
+   "edit_history_tweet_ids": [
+    "2122872418037600574"
+   ],
+   "entities": {
+    "urls": [
+     {
+      "description": "Checkout all the previous flyover videos here: https://www.youtube....",
+      "display_url": "youtube.com/watch?v=9WFCrf…",
+      "end": 145,
+      "expanded_url": "https://www.youtube.com/watch?v=9WFCrf9H3IA",
+      "images": [
+       {
+        "height": 720,
+        "url": "https://pbs.twimg.com/news_img/2122083428581650432/dAO2zdpi?format=jpg&name=orig",
+        "width": 1280
+       },
+       {
+        "height": 150,
+        "url": "https://pbs.twimg.com/news_img/2122083428581650432/dAO2zdpi?format=jpg&name=150x150",
+        "width": 150
+       }
+      ],
+      "start": 122,
+      "status": 200,
+      "title": "RGV 24/7 LIVE Camera of Starbase from Rocket Ranch!!",
+      "unwound_url": "https://www.youtube.com/watch?v=9WFCrf9H3IA",
+      "url": "https://t.co/dKkcMf32In"
+     },
+     {
+      "display_url": "pic.x.com/4IGbeJL7iu",
+      "end": 169,
+      "expanded_url": "https://x.com/RGVaerialphotos/status/2122872418037600574/photo/1",
+      "media_key": "3_2122855508390580224",
+      "start": 146,
+      "url": "https://t.co/4IGbeJL7iu"
+     }
+    ]
+   },
+   "id": "2122872418037600574",
+   "text": "The Ship Thrust Sim should be returning to the production site tonight. About time S44 heads out for cryo.\n\nWatch live at https://t.co/dKkcMf32In https://t.co/4IGbeJL7iu",
+   "url": "https://x.com/RGVaerialphotos/status/2122872418037600574"
+  },
+  {
+   "attachments": {
+    "media_keys": [
+     "13_2122530822523936768"
+    ]
+   },
+   "author_id": "16477736",
+   "created_at": "2026-11-17T03:23:38.000Z",
+   "edit_history_tweet_ids": [
+    "2122531077734764947"
+   ],
+   "entities": {
+    "mentions": [
+     {
+      "end": 156,
+      "id": "21292523",
+      "start": 140,
+      "username": "NASASpaceflight"
+     }
+    ],
+    "urls": [
+     {
+      "description": "Starship is SpaceX's fully reusable launch system which is being de...",
+      "display_url": "nsf.live/starbase",
+      "end": 137,
+      "expanded_url": "https://nsf.live/starbase",
+      "images": [
+       {
+        "height": 720,
+        "url": "https://pbs.twimg.com/news_img/2124558081333895168/KRDYxTCf?format=jpg&name=orig",
+        "width": 1280
+       },
+       {
+        "height": 150,
+        "url": "https://pbs.twimg.com/news_img/2124558081333895168/KRDYxTCf?format=jpg&name=150x150",
+        "width": 150
+       }
+      ],
+      "start": 114,
+      "status": 200,
+      "title": "Starbase Live: 24/7 Starship & Super Heavy Development From SpaceX's Boca Chica Facility",
+      "unwound_url": "https://www.youtube.com/watch?v=mhJRzQsLZGg",
+      "url": "https://t.co/U5mmqMAp4x"
+     },
+     {
+      "display_url": "pic.x.com/XxWjq2HbiO",
+      "end": 180,
+      "expanded_url": "https://x.com/efraser77/status/2122531077734764947/video/1",
+      "media_key": "13_2122530822523936768",
+      "start": 157,
+      "url": "https://t.co/XxWjq2HbiO"
+     }
+    ]
+   },
+   "id": "2122531077734764947",
+   "text": "Shaky video (it's windy at Starbase tonight) but Booster 25's transfer tube was lifted in Mega Bay 1 tonight.\n\n🎥: https://t.co/U5mmqMAp4x | @NASASpaceflight https://t.co/XxWjq2HbiO",
+   "url": "https://x.com/efraser77/status/2122531077734764947"
+  }
+ ],
+ "includes": {
+  "media": [
+   {
+    "height": 1080,
+    "media_key": "13_2124844269978718209",
+    "preview_image_url": "https://pbs.twimg.com/amplify_video_thumb/2124844269978718209/img/Lp-WwuJa454Y_wt4.jpg",
+    "type": "video",
+    "width": 1920
+   },
+   {
+    "height": 2160,
+    "media_key": "13_2124764895292133376",
+    "preview_image_url": "https://pbs.twimg.com/amplify_video_thumb/2124764895292133376/img/OZnACetsr9Q5nFho.jpg",
+    "type": "video",
+    "width": 3840
+   },
+   {
+    "height": 674,
+    "media_key": "13_2124653906181435392",
+    "preview_image_url": "https://pbs.twimg.com/amplify_video_thumb/2124653906181435392/img/Pk8MJnDIedQEHKPm.jpg",
+    "type": "video",
+    "width": 1206
+   },
+   {
+    "height": 588,
+    "media_key": "13_2124641662341128193",
+    "preview_image_url": "https://pbs.twimg.com/amplify_video_thumb/2124641662341128193/img/0iLbdm97M7hgu_ce.jpg",
+    "type": "video",
+    "width": 1048
+   },
+   {
+    "height": 588,
+    "media_key": "13_2124637386990596096",
+    "preview_image_url": "https://pbs.twimg.com/amplify_video_thumb/2124637386990596096/img/15tAxeZWMULG48IM.jpg",
+    "type": "video",
+    "width": 1048
+   },
+   {
+    "height": 900,
+    "media_key": "13_2124625027362443265",
+    "preview_image_url": "https://pbs.twimg.com/amplify_video_thumb/2124625027362443265/img/feQ8gnYJ4UHRlzD-.jpg",
+    "type": "video",
+    "width": 1598
+   },
+   {
+    "height": 922,
+    "media_key": "3_2124616426518396929",
+    "type": "photo",
+    "url": "https://pbs.twimg.com/media/HXwnYhqWwAElXPI.jpg",
+    "width": 1602
+   },
+   {
+    "height": 1116,
+    "media_key": "13_2124616410307661825",
+    "preview_image_url": "https://pbs.twimg.com/amplify_video_thumb/2124616410307661825/img/5LIQobAiVmgl-_R3.jpg",
+    "type": "video",
+    "width": 1984
+   },
+   {
+    "height": 831,
+    "media_key": "3_2124613328555417600",
+    "type": "photo",
+    "url": "https://pbs.twimg.com/media/HXwkkM2bIAATwHw.png",
+    "width": 885
+   },
+   {
+    "height": 1080,
+    "media_key": "13_2124613231130169344",
+    "preview_image_url": "https://pbs.twimg.com/amplify_video_thumb/2124613231130169344/img/i-XfFgrkaKIOloLg.jpg",
+    "type": "video",
+    "width": 1920
+   },
+   {
+    "height": 2160,
+    "media_key": "3_2124613043451822081",
+    "type": "photo",
+    "url": "https://pbs.twimg.com/media/HXwkTmwbgAEj6Xv.jpg",
+    "width": 3840
+   },
+   {
+    "height": 1617,
+    "media_key": "3_2124608479784497153",
+    "type": "photo",
+    "url": "https://pbs.twimg.com/media/HXwgJ9xWcAE_KTK.jpg",
+    "width": 1994
+   },
+   {
+    "height": 2436,
+    "media_key": "3_2124608479780298753",
+    "type": "photo",
+    "url": "https://pbs.twimg.com/media/HXwgJ9wWYAEwHF0.jpg",
+    "width": 3248
+   },
+   {
+    "height": 1235,
+    "media_key": "3_2124608479797166080",
+    "type": "photo",
+    "url": "https://pbs.twimg.com/media/HXwgJ90XwAA0nit.jpg",
+    "width": 4096
+   },
+   {
+    "height": 2160,
+    "media_key": "13_2124265195992440832",
+    "preview_image_url": "https://pbs.twimg.com/amplify_video_thumb/2124265195992440832/img/iKqB-vmKXQVQk3TQ.jpg",
+    "type": "video",
+    "width": 3840
+   },
+   {
+    "height": 2160,
+    "media_key": "13_2124262488258805760",
+    "preview_image_url": "https://pbs.twimg.com/amplify_video_thumb/2124262488258805760/img/5lOEfOOxQggVRbIU.jpg",
+    "type": "video",
+    "width": 3840
+   },
+   {
+    "alt_text": "https://www.gofundme.com/f/starship-gazers-foot-fracture-urgent-financial-assistance",
+    "height": 2732,
+    "media_key": "3_2124201328897593344",
+    "type": "photo",
+    "url": "https://pbs.twimg.com/media/HXqt2qhakAAoZok.jpg",
+    "width": 4096
+   },
+   {
+    "height": 932,
+    "media_key": "3_2124080207518982144",
+    "type": "photo",
+    "url": "https://pbs.twimg.com/media/HXo_seObYAAubHQ.jpg",
+    "width": 1656
+   },
+   {
+    "height": 932,
+    "media_key": "3_2124080242734317569",
+    "type": "photo",
+    "url": "https://pbs.twimg.com/media/HXo_uhaawAE-GOI.jpg",
+    "width": 1656
+   },
+   {
+    "height": 932,
+    "media_key": "3_2124080281443504128",
+    "type": "photo",
+    "url": "https://pbs.twimg.com/media/HXo_wxnaEAA7ch3.jpg",
+    "width": 1656
+   },
+   {
+    "height": 932,
+    "media_key": "3_2124080336615489536",
+    "type": "photo",
+    "url": "https://pbs.twimg.com/media/HXo_z_JbwAAqJsq.jpg",
+    "width": 1656
+   },
+   {
+    "height": 932,
+    "media_key": "3_2124080365056974848",
+    "type": "photo",
+    "url": "https://pbs.twimg.com/media/HXo_1pGaYAARDg7.jpg",
+    "width": 1656
+   },
+   {
+    "height": 932,
+    "media_key": "3_2124080387039375360",
+    "type": "photo",
+    "url": "https://pbs.twimg.com/media/HXo_26_bMAA_eXO.jpg",
+    "width": 1656
+   },
+   {
+    "height": 932,
+    "media_key": "3_2124021983210033152",
+    "type": "photo",
+    "url": "https://pbs.twimg.com/media/HXoKvXxa0AAC8kH.jpg",
+    "width": 1656
+   },
+   {
+    "height": 1119,
+    "media_key": "3_2124022014533115904",
+    "type": "photo",
+    "url": "https://pbs.twimg.com/media/HXoKxMdbIAA87Zj.jpg",
+    "width": 1989
+   },
+   {
+    "height": 1119,
+    "media_key": "3_2124022031129944064",
+    "type": "photo",
+    "url": "https://pbs.twimg.com/media/HXoKyKSaoAAxSu8.jpg",
+    "width": 1989
+   },
+   {
+    "height": 2730,
+    "media_key": "3_2123906393530843136",
+    "type": "photo",
+    "url": "https://pbs.twimg.com/media/HXmhnKqWQAAQlyd.jpg",
+    "width": 4096
+   },
+   {
+    "height": 579,
+    "media_key": "3_2123898253817061376",
+    "type": "photo",
+    "url": "https://pbs.twimg.com/media/HXmaNX3WoAAgVGu.jpg",
+    "width": 834
+   },
+   {
+    "height": 1080,
+    "media_key": "13_2123894070829559808",
+    "preview_image_url": "https://pbs.twimg.com/amplify_video_thumb/2123894070829559808/img/fBDA16Mj6GuEouvs.jpg",
+    "type": "video",
+    "width": 1920
+   },
+   {
+    "height": 1119,
+    "media_key": "3_2123870437964988416",
+    "type": "photo",
+    "url": "https://pbs.twimg.com/media/HXmA6RvbQAARMus.jpg",
+    "width": 1989
+   },
+   {
+    "height": 592,
+    "media_key": "13_2123774530841608192",
+    "preview_image_url": "https://pbs.twimg.com/amplify_video_thumb/2123774530841608192/img/Kbup5Eplln0sr01o.jpg",
+    "type": "video",
+    "width": 1056
+   },
+   {
+    "height": 2160,
+    "media_key": "13_2123662812962750464",
+    "preview_image_url": "https://pbs.twimg.com/amplify_video_thumb/2123662812962750464/img/ovA0QnDhaVHHIPLv.jpg",
+    "type": "video",
+    "width": 3840
+   },
+   {
+    "height": 808,
+    "media_key": "3_2123658738427215872",
+    "type": "photo",
+    "url": "https://pbs.twimg.com/media/HXjAXvgbwAAeNiQ.png",
+    "width": 592
+   },
+   {
+    "height": 720,
+    "media_key": "13_2123527663750885376",
+    "preview_image_url": "https://pbs.twimg.com/amplify_video_thumb/2123527663750885376/img/kDvofQsx95KiYO-K.jpg",
+    "type": "video",
+    "width": 1280
+   },
+   {
+    "height": 932,
+    "media_key": "3_2123522261235953664",
+    "type": "photo",
+    "url": "https://pbs.twimg.com/media/HXhEPuWacAAsQzU.jpg",
+    "width": 1656
+   },
+   {
+    "height": 932,
+    "media_key": "3_2123522311756431360",
+    "type": "photo",
+    "url": "https://pbs.twimg.com/media/HXhESqjbwAAcAlu.jpg",
+    "width": 1656
+   },
+   {
+    "height": 932,
+    "media_key": "3_2123522433630212096",
+    "type": "photo",
+    "url": "https://pbs.twimg.com/media/HXhEZwkaEAAA-Rr.jpg",
+    "width": 1656
+   },
+   {
+    "height": 932,
+    "media_key": "3_2123522473413255168",
+    "type": "photo",
+    "url": "https://pbs.twimg.com/media/HXhEcExbIAAiwrh.jpg",
+    "width": 1656
+   },
+   {
+    "height": 592,
+    "media_key": "13_2123504665597804545",
+    "preview_image_url": "https://pbs.twimg.com/amplify_video_thumb/2123504665597804545/img/cQ8Vf3kSlc_Y8kBj.jpg",
+    "type": "video",
+    "width": 1056
+   },
+   {
+    "height": 2160,
+    "media_key": "3_2123481179449929728",
+    "type": "photo",
+    "url": "https://pbs.twimg.com/media/HXge4cxXMAAUSbz.jpg",
+    "width": 3840
+   },
+   {
+    "height": 2731,
+    "media_key": "3_2123475796413100032",
+    "type": "photo",
+    "url": "https://pbs.twimg.com/media/HXgZ_HZXsAAvNul.jpg",
+    "width": 4096
+   },
+   {
+    "height": 1080,
+    "media_key": "3_2123475080730546176",
+    "type": "photo",
+    "url": "https://pbs.twimg.com/media/HXgZVdRWkAATCrE.jpg",
+    "width": 1920
+   },
+   {
+    "height": 2731,
+    "media_key": "3_2122855508390580224",
+    "type": "photo",
+    "url": "https://pbs.twimg.com/media/HXXl1mcaEAA1NRc.jpg",
+    "width": 4096
+   },
+   {
+    "height": 1080,
+    "media_key": "13_2122530822523936768",
+    "preview_image_url": "https://pbs.twimg.com/amplify_video_thumb/2122530822523936768/img/pMXJX5PZ0FvBHYiK.jpg",
+    "type": "video",
+    "width": 1920
+   }
+  ],
+  "users": [
+   {
+    "id": "1771095379494477824",
+    "name": "Blobifi",
+    "profile_image_url": "https://pbs.twimg.com/profile_images/2091766013562159104/xgHLFjBX_normal.jpg",
+    "username": "Blobifie"
+   },
+   {
+    "id": "752724282925412352",
+    "name": "RGV Aerial Photography",
+    "profile_image_url": "https://pbs.twimg.com/profile_images/2019953617743097856/PJqBBhpU_normal.jpg",
+    "username": "RGVaerialphotos"
+   },
+   {
+    "id": "21292523",
+    "name": "NSF - NASASpaceflight.com",
+    "profile_image_url": "https://pbs.twimg.com/profile_images/1637919260298158080/kRT8BkYf_normal.jpg",
+    "username": "NASASpaceflight"
+   },
+   {
+    "id": "1855669627998593024",
+    "name": "StarshipTracking",
+    "profile_image_url": "https://pbs.twimg.com/profile_images/2122552796767555584/PBxiOqGV_normal.jpg",
+    "username": "TrackingTheSB"
+   },
+   {
+    "id": "16477736",
+    "name": "Erik Fraser",
+    "profile_image_url": "https://pbs.twimg.com/profile_images/1480766056163516418/kpdQxuPR_normal.jpg",
+    "username": "efraser77"
+   },
+   {
+    "id": "1348638512267079683",
+    "name": "Starship Gazer",
+    "profile_image_url": "https://pbs.twimg.com/profile_images/1399199605200502785/Gp68mncc_normal.jpg",
+    "username": "StarshipGazer"
+   },
+   {
+    "id": "1110905864578363394",
+    "name": "Avid Space",
+    "profile_image_url": "https://pbs.twimg.com/profile_images/2018042465932988416/LR5UN4G0_normal.png",
+    "username": "LabPadre"
+   }
+  ]
+ }
+}

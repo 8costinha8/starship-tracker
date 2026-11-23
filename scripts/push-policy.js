@@ -18,7 +18,8 @@ const MILESTONES = [
   ["wdr", /\b(wdr|wet dress)\b.*\b(complet\w*|conduct\w*|perform\w*|done|underway|begins?)\b|\b(complet\w*|conduct\w*)\b.*\b(wdr|wet dress)\b/i, true],
   ["stacking", /\b(full stack|fully stacked|stacked (?:on|atop) (?:booster|b\d+)|(?:ship|s\d+) (?:\w+ )?stacked|stacks? (?:ship|s\d+))\b/i, true],
   ["raptors_installed", /\b(all (?:\d+ )?(?:raptors?|engines?) (?:installed|in)|engines? in\b|raptors? installed|full set of (?:raptors?|engines?))\b/i, true],
-  ["cryo_complete", /\b(complet\w* (?:its |a |the )?(?:further )?cryo|cryo\w* (?:test\w* )?(?:complete\w*|done|finished))\b/i, true],
+  // "completed its first round of cryogenic proof testing", "completed 2 cryogenic proof tests", "has completed its 1st cryo test"
+  ["cryo_complete", /\b(complet\w* (?:its |a |the )?(?:first |second |third |final |further |\d+(?:st|nd|rd|th)? |two |three )?(?:round (?:of )?|set (?:of )?|campaign (?:of )?)?cryo|cryo\w* (?:proof )?(?:test\w* )?(?:campaign )?(?:complete\w*|done|finished))/i, true],
   ["static_fire", /\bstatic[- ]?fir\w*\b/i, "sf"],
   ["rollout", /\b(rolls?|rolled|rolling|heads?|headed|heading|arrives?|arrived|moved|moves) (?:out )?(?:back )?to (?:the )?(?:launch site|pad|launch pad|orbital launch|olm|pad \d|pad-\d)\b|\brolls? out\b|\brolled out\b/i, false],
 ];
@@ -156,6 +157,12 @@ const dedupeRows = (h) => (h || []).filter((r) => r && !r.retracted && (r.verdic
 // big: SpaceX / Elon Flight N milestone or a correction (push-gate.js) → skips the quiet window (dedupe still applies)
 function decide(n, history, { now = Date.now(), vehicles = [], big = false, flight = undefined, live = false } = {}) {
   const cls = classify(n, { vehicles, flight, live, liftoffAt: liftoffFrom(history, now), now });
+  // Fleet milestones (fleet.js, any vehicle / flight): ONE push per vehicle + milestone, ever. Never throttled by the quiet window.
+  if (n.fleet_key) {
+    const dup = (history || []).find((r) => r && !r.retracted && r.fleet_key === n.fleet_key && (r.verdict === "sent" || r.dedupe_only === true || /^shadow/.test(r.verdict || "")));
+    const out = { ...cls, milestone: true, key: n.fleet_key, rank: 100 };
+    return dup ? { push: false, reason: `duplicate ${n.fleet_key} (one push per vehicle + milestone)`, cls: out } : { push: true, reason: `vehicle milestone ${n.fleet_key} (one per vehicle + milestone; no quiet window)`, cls: out };
+  }
   // Three-tier relevance model (push-tiers.js): when on, it alone decides what reaches a phone; the quiet-window promotion
   // and the "big" bypass below are never used. Off by default (PUSH_TIERS=1 or push-tiers.json {"on":true} to switch on).
   const tiers = require("./push-tiers.js");

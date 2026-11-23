@@ -77,15 +77,15 @@ function evaluate(n, { history = [], now = Date.now(), road = {}, vehicles, flig
     const live = sent.some((r) => /lift ?off|in the air/i.test(`${r.title} ${r.body}`) && nowT - Date.parse(r.sent_at || r.at) < 72 * H && (!flightN || !flightsIn(`${r.title} ${r.body}`).length || flightsIn(`${r.title} ${r.body}`).includes(flightN)));
     if (!live) { const r = hit("G3", `"${cls.type}" claim but no Flight ${flightN || "?"} liftoff in the last 72h`); if (r) return r; }
   }
-  // G4 — hardware that is not on the current flight
+  // G4 — hardware that is not on the current flight (fleet milestone pushes are about other flights by design: exempt)
   const vs = [...new Set(vehiclesIn(both))];
-  if (cur.length && vs.length && !vs.some((v) => cur.includes(v)) && !(flightN && flightsIn(both).includes(flightN))) { const r = hit("G4", `${vs.join("/")} is not Flight ${flightN || "?"} hardware (${cur.join(", ")})`); if (r) return r; }
+  if (!n.fleet_key && cur.length && vs.length && !vs.some((v) => cur.includes(v)) && !(flightN && flightsIn(both).includes(flightN))) { const r = hit("G4", `${vs.join("/")} is not Flight ${flightN || "?"} hardware (${cur.join(", ")})`); if (r) return r; }
   // G5 — plan claim the source does not make
   if (src && PLAN.test(t) && !PLAN_SUPPORT.test(src)) { const r = hit("G5", "plan claim not in the source post"); if (r) return r; }
   // G6 — night
   if (cls && !cls.milestone && !inFlight && Number.isFinite(nowT)) { const h = ukHour(nowT); if (h >= 23 || h < 7) { const r = hit("G6", `minor update at ${String(h).padStart(2, "0")}:xx UK (held for the app)`); if (r) return r; } }
   // G7 — non-milestone not about the current flight
-  if (cls && !cls.milestone && isX(n) && cur.length && !inFlight) {
+  if (cls && !cls.milestone && !n.fleet_key && isX(n) && cur.length && !inFlight) {
     const about = vs.some((v) => cur.includes(v)) || (flightN && flightsIn(both).includes(flightN));
     if (!about) { const r = hit("G7", "not a milestone and not about this flight's hardware"); if (r) return r; }
   }

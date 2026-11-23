@@ -78,6 +78,13 @@ async function evaluate(n, { history = [], state = {}, now = Date.now(), seenPos
   const big = isOfficial(n) && (st.cls.milestone || BIG.test(`${n.body || ""} ${n.source_text || ""}`));
   if (n.kind === "notice" || n.where === "mission-scheduled" || isOfficial(n) || !/x\.com\//.test(n.url || "")) return { action: "send", n, reason: isOfficial(n) ? "official source" : "not an X tracker post", big };
   let p = pend.find((x) => x.key === key);
+  // first-of-a-kind TEST milestone (cryo, static fire, engines, stacking, WDR…) from a trusted tracker, no earlier push of this vehicle + event on any day: no one-run wait
+  if (TRUSTED.has(handleOf(n)) && (n.fleet_key || st.cls.milestone) && !p) {
+    const kind = n.fleet_key || `${st.cls.vehicle}|${st.cls.type}`;
+    const before = (history || []).some((r) => r && /^(sent|shadow)/.test(r.verdict || "") && !r.retracted && (r.fleet_key === kind || (!n.fleet_key && String(r.key || "").split("|").slice(0, 2).join("|") === kind)));
+    // location claims (rollout / "heads to the launch site") keep the hold: the 29 Oct "launch site" post was edited to "production site" minutes later
+    if (!before && /^[BS]\d{1,3}\|/.test(kind) && !/\|(?:rollout|transport)/.test(kind)) return { action: "send", n, reason: `first-of-a-kind milestone ${kind} from a trusted source (no hold)`, big };
+  }
   const ok = corroborated(n, seenPosts, { vehicles });
   // a post already older than the hold (e.g. found late after an outage) does not wait again — it is still re-read below
   const waited = p ? now - ms(p.first) >= HOLD_RUNS * RUN_MS : now - ms(n.at) >= 2 * HOLD_RUNS * RUN_MS;
