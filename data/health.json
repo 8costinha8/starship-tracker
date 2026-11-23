@@ -25,16 +25,10 @@
   },
   "committed_at": "2026-11-23T05:45:23.690Z",
   "render_check": {
-    "at": "2026-11-22T06:00:30.484Z",
-    "status": "failed",
-    "failures": 5,
-    "items": [
-      "[render-tense] Feed news-mwehc1so-0b6a15: \"Countdown started at Starbase for a potentially historic Starship mission.\" is a headline fragment (no subject article / auxiliary)",
-      "[render-date] cryo B23: Flight Log shows 15 Oct, Road card shows 18 Oct · 05:51",
-      "[render-crossover] Static fires · Ship 43 shows \"SpaceX may fly Flight 16 with Booster 23 and Ship 43.\" (names B23)",
-      "[render-crossover] Static fires · Booster 23 shows \"SpaceX may fly Flight 16 with Booster 23 and Ship 43.\" (names S43)",
-      "[render-mismatch] Flight Log cryo Booster 23 15 Oct: \"Booster 23 completed a cryo proof test at Massey's.\" ≠ Road card Cryo tests · Booster 23 › 16 Oct · 01:24: \"Booster 23 completed a cryo proof test.\" (same post https://x.com/StarshipGazer/status/2110889490336350574)"
-    ]
+    "at": "2026-11-23T06:00:56.653Z",
+    "status": "ok",
+    "failures": 0,
+    "items": []
   },
   "sources": {
     "ll2": {

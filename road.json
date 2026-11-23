@@ -4,8 +4,8 @@
     "B23",
     "S43"
   ],
-  "updated": "22 Nov",
-  "updatedAt": "2026-11-22T23:30:34.040Z",
+  "updated": "23 Nov",
+  "updatedAt": "2026-11-23T06:00:56.909Z",
   "categories": [
     {
       "id": "cryo",
@@ -1520,7 +1520,8 @@
       "at": "2026-11-22T22:53:32.000Z",
       "date": "22 Nov",
       "flight": 17,
-      "later_flight": true
+      "later_flight": true,
+      "src": "@NASASpaceflight"
     },
     {
       "id": "news-mwqygy1k-5cfda7",
@@ -2054,23 +2055,17 @@
     "https://pbs.twimg.com/media/HXdeREuXIAAswmd.jpg": "images/cache/media_HXdeREuXIAAswmd.jpg"
   },
   "self_check": {
-    "at": "2026-11-22T06:00:30.484Z",
+    "at": "2026-11-23T06:00:56.653Z",
     "fixes": 1,
-    "flags": 5,
+    "flags": 0,
     "counts": {
       "source-badge": 1
     },
     "judge_calls": 0,
-    "flagged": [
-      "[render-tense] Feed news-mwehc1so-0b6a15: \"Countdown started at Starbase for a potentially historic Starship mission.\" is a headline fragment (no subject article / auxiliary)",
-      "[render-date] cryo B23: Flight Log shows 15 Oct, Road card shows 18 Oct · 05:51",
-      "[render-crossover] Static fires · Ship 43 shows \"SpaceX may fly Flight 16 with Booster 23 and Ship 43.\" (names B23)",
-      "[render-crossover] Static fires · Booster 23 shows \"SpaceX may fly Flight 16 with Booster 23 and Ship 43.\" (names S43)",
-      "[render-mismatch] Flight Log cryo Booster 23 15 Oct: \"Booster 23 completed a cryo proof test at Massey's.\" ≠ Road card Cryo tests · Booster 23 › 16 Oct · 01:24: \"Booster 23 completed a cryo proof test.\" (same post https://x.com/StarshipGazer/status/2110889490336350574)"
-    ],
+    "flagged": [],
     "render": {
-      "status": "failed",
-      "failures": 5
+      "status": "ok",
+      "failures": 0
     }
   },
   "mission_updates": {
