@@ -3526,7 +3526,7 @@ function OneMedia({ mo }) {
         <img decoding="async" className={cropClass(mo)} src={localImg(mo.image)} alt="" loading="lazy" referrerPolicy="no-referrer" onError={imgFallback(mo.image, () => setBad(true))} />{mo.type === "video" && PLAY_ICON}</a>
         <SrcBadge author={mo.author} url={mo.post_url} image={mo.image} keep={!!mo.keep_image} /></div>
       {/* credit-only photo: the photo and its badge already open the photo's post; the card keeps one View on X (its own post) */}
-      {mo.credit_only && <div className="xm-foot"><span className="xm-ctx">{`Photo · @${mo.author}`}</span></div>}
+      {(mo.photo_date || mo.credit_only) && <div className="xm-foot"><span className="xm-ctx">{mo.photo_date ? `Photo · ${mo.photo_date}` : `Photo · @${mo.author}`}</span></div>}
     </div>
   );
 }
@@ -3623,7 +3623,7 @@ const SHIP_CRYO_IMAGE = "images/ship-cryo.jpg";
 const isShipCryo = (h, cat) => { const t = `${h.x_text || ""} ${h.text || ""} ${h.log_text || ""}`; return !!cat && cat.id === "cryo" && /\b(ship|s)\s?\d{2}\b/i.test(t) && !/\bbooster\b|\bb\d{2}\b/i.test(t); };
 // 1 Nov: a hand-saved local copy of the card's own source media (images/…, credited) also wins over the standing photo.
 const ownLocalMedia = (mo) => !!mo && /^images\//.test(String(mo.image || "")) && mo.image !== SHIP_CRYO_IMAGE && !!mo.author;
-const roadMediaOf = (h, cat) => (isShipCryo(h, cat) && h.media_override && h.media_override.image && !(h.media_override.keep_image || ownLocalMedia(h.media_override))
+const roadMediaOf = (h, cat) => (isShipCryo(h, cat) && h.media_override && h.media_override.image && !h.media_override.fallback && !(h.media_override.keep_image || ownLocalMedia(h.media_override))
   ? { post_url: urlOf(h), author: (h.media_override && h.media_override.author) || "", type: "photo", image: SHIP_CRYO_IMAGE } : h.media_override);
 // 3 Nov: a combined pill ("Cryo tests · Ship 42") shows as two same-style pills side by side, no dot separator
 const pillParts = (name) => String(name || "").split(/\s+·\s+/).filter(Boolean);
@@ -3654,8 +3654,17 @@ const rtfLinkText = (u) => (rtfIsX(u) ? "View on X" : isYouTube(u) ? "View video
 const rtfWho = (u, hd) => { const w = rtfIsX(u.url) ? (hd ? String(hd).replace(/^@?/, "@") : "") : String(u.src || "").replace(/^@/, "").trim() || hostOf(u.url); return w ? `${w} · ` : ""; };
 // Main post of a two-cards card: same View on X line; a source CreditLine can't link (YouTube) still opens its stored url.
 function RtfCredit({ h }) {
+  const headUrl = h && h.url, photoUrl = urlOf(h);
+  const line = (href, label) => <a href={href} target="_blank" rel="noopener noreferrer" aria-label={label} onClick={(e) => e.stopPropagation()}>{label} {LINK_ICON}</a>;
+  // Fallback photo: one existing .post-credit box (still shares the Earlier updates row) holds
+  // "View on X" for the photo post and "@handle · View on X" for the headline post.
+  if (h && h.media_override && h.media_override.fallback && headUrl && photoUrl && !samePost(headUrl, photoUrl)) {
+    const hd = h.handle || (String(h.src || "").startsWith("@") ? h.src : ((String(headUrl).match(/^https?:\/\/(?:x|twitter)\.com\/(\w+)\//i) || [])[1] ? "@" + String(headUrl).match(/^https?:\/\/(?:x|twitter)\.com\/(\w+)\//i)[1] : null));
+    const headLabel = `${rtfWho({ url: headUrl, src: h.src }, hd)}${rtfLinkText(headUrl)}`;
+    return (<div className="xm-foot post-credit"><span>{line(photoUrl, rtfLinkText(photoUrl))}<br />{line(headUrl, headLabel)}</span></div>);
+  }
   if (urlOf(h) || !h.url) return <CreditLine h={h} />;
-  return (<div className="xm-foot post-credit"><a href={h.url} target="_blank" rel="noopener noreferrer" aria-label={rtfLinkText(h.url)} onClick={(e) => e.stopPropagation()}>{rtfWho(h, null)}{rtfLinkText(h.url)} {LINK_ICON}</a></div>);
+  return (<div className="xm-foot post-credit">{line(h.url, `${rtfWho(h, null)}${rtfLinkText(h.url)}`)}</div>);
 }
 // Two-cards layout: every post of this vehicle + category, newest first, no pictures; date · time + text, the whole pill opens the post.
 function RtfBuildUp({ h }) {
@@ -3753,9 +3762,11 @@ const rtfPad = (h, road) => new RegExp(`\\b${String(road.pad || "Pad 2").replace
 const rtfHandle = (u) => handleOf(u) || (u.src && /^@/.test(u.src) ? u.src : null);
 const rtfIsDone = (h, cid) => isDoneCard(h) && (!RTF_CATS[cid] || RTF_CATS[cid].test(`${h.text || ""} ${h.x_text || ""}`)) && !/ahead|could|expected/i.test(h.text || "");
 // Card face (every Road card, current flight and peek): the photo, credit and "View on X" all
-// belong to the headline event's own post. Pictures from another collapsed event are not used
-// (no-photo, rather than a mixed credit or link). An x_post attached to the headline event is
-// kept only when it is that same post.
+// belong to the same post. Prefer the headline event's own post; if that post has no photo,
+// fall back to the newest earlier event in the same vehicle + section that has a photo, and
+// take credit, View on X and the "Photo · {date}" label from that photo's post (never mix a
+// photo with a different post's link). No earlier photo → text-only. The headline text and
+// timestamp stay on the headline event; the headline post is kept reachable in Earlier updates.
 const samePost = (a, b) => { if (!a || !b) return false; if (a === b) return true; const x = statusIdOf(a), y = statusIdOf(b); return !!(x && x === y); };
 function headlineOwn(h) {
   if (!h) return h;
@@ -3771,6 +3782,38 @@ function cardFacePicture(own, cid, done) {
   const url = own.url || (own.x_post && own.x_post.url);
   if (!pic || !pic.image || (url && pic.post_url && !samePost(pic.post_url, url))) return null;
   return pic;
+}
+function photoDateLabel(h) {
+  const iso = h && h.at && Number.isFinite(Date.parse(h.at)) ? h.at : null;
+  if (iso) return ukStamp(iso, false);
+  const d = String((h && h.date) || "").replace(/\s*·.*/, "").trim();
+  return d || null;
+}
+// A photo that belongs to one of this event's posts, with post_url always the post that has the picture.
+function eventPhoto(h, cid) {
+  if (!h) return null;
+  const tryOwn = (entry) => cardFacePicture(headlineOwn(entry), cid, null);
+  let pic = tryOwn(h);
+  if (pic) return pic;
+  const xp = h.x_post, xurl = xp && xp.url;
+  if (xurl && !samePost(xurl, h.url) && ((xp.media && xp.media.length) || (h.image && h.image.url) || (h.media_override && samePost(h.media_override.post_url, xurl)))) {
+    const alt = { ...h, url: xurl, src: (xp.author && xp.author.username) ? "@" + xp.author.username : h.src, media_override: h.media_override && samePost(h.media_override.post_url, xurl) ? h.media_override : undefined };
+    pic = tryOwn(alt);
+    if (pic && samePost(pic.post_url, xurl)) return pic;
+  }
+  return null;
+}
+function cardFaceOrFallback(own, list, cid, done) {
+  const ownPic = cardFacePicture(own, cid, done);
+  if (ownPic) return { pic: ownPic, fallback: false, ev: own, date: null };
+  const headUrl = own && (own.url || (own.x_post && own.x_post.url)), headAt = Date.parse((own && own.at) || 0) || 0;
+  const earlier = (list || []).filter((e) => e && !samePost(e.url || (e.x_post && e.x_post.url), headUrl) && (!headAt || (Date.parse(e.at || 0) || 0) < headAt))
+    .slice().sort((a, b) => (Date.parse(b.at || 0) || 0) - (Date.parse(a.at || 0) || 0));
+  for (const e of earlier) {
+    const pic = eventPhoto(e, cid);
+    if (pic) return { pic, fallback: true, ev: e, date: photoDateLabel(e) };
+  }
+  return { pic: null, fallback: false, ev: own, date: null };
 }
 function rtfCards(road) {
   const cats = Object.fromEntries((road.categories || []).map((c) => [c.id, c]));
@@ -3849,11 +3892,14 @@ function rtfCards(road) {
     }
     rows.sort(byNew);
     const own = headlineOwn(main);
+    const face = cardFaceOrFallback(own, list, cid, doneOne ? own : null);
+    const pic = face.pic;
     const h = { ...own, id: `rtf-${cid}-${v}`, updates: rows, alt_media: null, complete: !!doneOne, milestone: doneOne ? own.milestone : { phase: "progress" } };
-    // picture, credit and link: only the headline event's own post (never an earlier collapsed event)
-    const pic = cardFacePicture(own, cid, doneOne ? own : null);
-    if (pic) h.media_override = { image: pic.image, type: pic.type, post_url: pic.post_url, author: String(pic.author || "").replace(/^@/, ""), keep_image: !!(pic.manual || (own.media_override && own.media_override.keep_image)), credit_only: false, crop: pic.crop };
-    h.rtf_pic = pic ? pic.from : own; h.media_context = null;
+    // picture, credit and View on X: headline post if it has a photo, else the newest earlier
+    // same-vehicle/section photo (that photo's post only). Headline post stays reachable via RtfCredit.
+    if (pic) h.media_override = { image: pic.image, type: pic.type, post_url: pic.post_url, author: String(pic.author || "").replace(/^@/, ""), keep_image: !!(pic.manual || (own.media_override && own.media_override.keep_image) || (face.ev && face.ev.media_override && face.ev.media_override.keep_image)), credit_only: false, fallback: !!face.fallback, photo_date: face.date || undefined, crop: pic.crop };
+    // Headline post stays on h.url; Earlier updates stay strictly older (no same-time headline row).
+    h.rtf_pic = pic ? (pic.from || face.ev) : own; h.media_context = null;
     out.push({ h, cat: { ...cat, name: `${cat.name} · ${vname(v)}` }, ci: 0, hi: 0, id: h.id, flight: road.flight, done: !!doneOne });
   }
   return relabelPadReturnCards(out);

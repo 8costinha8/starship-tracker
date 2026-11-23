@@ -67,7 +67,7 @@ const checks = appFns(["upcomingFlight", "rtfRows", "roadForFlight", "fleetRoad"
   const f16posts = A.roadPageRows(A.rtfRows(road0).rows, road0.flight, A.pastRoadFlights(road0, A.FLIGHTS)).cur.filter((x) => x.post).map((x) => x.post);
   rep(`current Flight ${road0.flight} (road.json, its Page 2 group)`, f16posts);
 
-  // photo, credit and link come from the same event as the headline (or, if a fallback were used, from one earlier event)
+  // photo, credit and link: same post as the headline, or (fallback) same single earlier event's photo post
   const sid = (u) => (String(u || "").match(/status\/(\d{15,})/) || [])[1] || null;
   const same = (a, b) => !!(a && b && (a === b || (sid(a) && sid(a) === sid(b))));
   const checkFace = (label, posts) => {
@@ -77,12 +77,16 @@ const checks = appFns(["upcomingFlight", "rtfRows", "roadForFlight", "fleetRoad"
       const view = A.urlOf(h);
       const mo = h.media_override;
       const photo = mo && mo.image && !/rtf-placeholder/.test(String(mo.image));
-      o(!mo || !mo.credit_only || same(mo.post_url, h.url), `${name}: a credit_only photo still belongs to the headline post`);
       if (photo) {
-        o(same(mo.post_url, h.url) && same(view, h.url), `${name}: photo, View on X and headline share the same post (photo=${mo.post_url}, view=${view}, headline=${h.url})`);
-        o(!h.x_post || same(h.x_post.url, h.url), `${name}: attached x_post is the headline post, not a different one`);
-        const from = h.rtf_pic;
-        o(!from || same(from.url, h.url) || from.text === h.text, `${name}: photo event is the headline event (from "${from && from.text}")`);
+        o(same(view, mo.post_url), `${name}: View on X matches the shown photo's post (view=${view}, photo=${mo.post_url})`);
+        if (mo.fallback) {
+          o(!!mo.photo_date && !same(view, h.url), `${name}: fallback photo is not the headline post (headline=${h.url}, photo=${mo.post_url}, Photo · ${mo.photo_date})`);
+          o(!!h.url && !same(h.url, view), `${name}: headline post stays on h.url (reachable via the second credit line), distinct from View on X`);
+          o((h.updates || []).every((u) => !u.at || (Date.parse(u.at) || 0) < (Date.parse(h.at) || 0)), `${name}: Earlier updates stay strictly older than the headline`);
+        } else {
+          o(same(mo.post_url, h.url) && same(view, h.url), `${name}: own-photo card — photo, View on X and headline share the same post`);
+          o(!h.x_post || same(h.x_post.url, h.url), `${name}: attached x_post is the headline post, not a different one`);
+        }
       } else {
         o(!view || same(view, h.url), `${name}: text-only card — View on X is the headline post (${view})`);
       }
@@ -93,12 +97,44 @@ const checks = appFns(["upcomingFlight", "rtfRows", "roadForFlight", "fleetRoad"
   const f17live = A.upcomingFlight(road0, 17, live).posts;
   checkFace("live F17", f17live);
   checkFace(`live F${road0.flight}`, f16posts);
-  const b24pad = f17live.find((p) => p.cat.id === "pad" && /Booster 24/.test(p.cat.name));
-  o(b24pad && /left Mega Bay/.test(b24pad.h.text) && !(b24pad.h.media_override && b24pad.h.media_override.image) && /Blobifie/.test(A.urlOf(b24pad.h) || ""), "live F17 B24 pad: headline is 'left Mega Bay 1', no earlier RGV photo, View on X is the Blobifie headline post");
-  const s44c = f17live.find((p) => p.cat.id === "cryo" && /Ship 44/.test(p.cat.name));
-  o(s44c && /Blobifie/.test(A.urlOf(s44c.h) || "") && (!s44c.h.x_post || same(s44c.h.x_post.url, s44c.h.url)), "live F17 S44 cryo: View on X follows the Blobifie headline post, not the attached RGV x_post");
-  const b23 = f16posts.find((p) => p.cat.id === "cryo" && /Booster 23/.test(p.cat.name));
-  o(b23 && /arrived at Massey/.test(b23.h.text) && !(b23.h.media_override && b23.h.media_override.image) && /TrackingTheSB/.test(A.urlOf(b23.h) || ""), "live F16 B23 cryo: same rule — no earlier RGV photo on 'arrived at Massey's'; View on X is the headline post");
+  const pick = (posts, cat, nameRe) => posts.find((p) => p.cat.id === cat && nameRe.test(p.cat.name));
+  const expectFallback = (label, p, textRe, postId, dateLabel, headlineRe) => {
+    const mo = p && p.h && p.h.media_override, view = p && A.urlOf(p.h);
+    o(p && textRe.test(p.h.text) && mo && mo.fallback && sid(mo.post_url) === postId && sid(view) === postId && mo.photo_date === dateLabel && headlineRe.test(p.h.url) && (p.h.updates || []).every((u) => !headlineRe.test(u.url) || (Date.parse(u.at) || 0) < (Date.parse(p.h.at) || 0)),
+      `${label}: headline "${p && p.h.text}", Photo · ${mo && mo.photo_date}, view/photo post ${sid(view)} (want ${postId}), headline url kept`);
+  };
+  expectFallback("live F17 S44 cryo", pick(f17live, "cryo", /Ship 44/), /completed cryo/, "2123906558115418275", "20 Nov", /Blobifie\/status\/2124080565272117476/);
+  expectFallback("live F17 S44 pad", pick(f17live, "pad", /Ship 44/), /is at Massey/, "2123481210752315451", "19 Nov", /NASASpaceflight\/status\/2123774597967540724/);
+  expectFallback("live F17 B24 pad", pick(f17live, "pad", /Booster 24/), /left Mega Bay/, "2123663091074584938", "20 Nov", /Blobifie\/status\/2123871167119569323/);
+  expectFallback("live F16 B23 cryo", pick(f16posts, "cryo", /Booster 23/), /arrived at Massey/, "2115312218590126505", "28 Oct", /TrackingTheSB\/status\/2115353615561064723/);
+  // newest earlier photo wins; no photo at all → text-only
+  { const r1 = { vehicles: { S99: { id: "S99", type: "ship", name: "Ship 99", flight: n, state: "cryo", events: [
+      { id: "fv-old", type: "cryo_start", at: "2026-11-01T10:00:00.000Z", date: "1 Nov", text: "Ship 99 began cryo testing.", url: "https://x.com/RGVaerialphotos/status/9500000000000000011", src: "@RGVaerialphotos", x_post: { url: "https://x.com/RGVaerialphotos/status/9500000000000000011", author: { username: "RGVaerialphotos" }, media: [{ type: "photo", url: "https://example.com/old.jpg" }] } },
+      { id: "fv-mid", type: "move", at: "2026-11-02T10:00:00.000Z", date: "2 Nov", text: "Ship 99 moved at Massey's.", url: "https://x.com/Blobifie/status/9500000000000000012", src: "@Blobifie" },
+      { id: "fv-new", type: "cryo_done", at: "2026-11-03T10:00:00.000Z", date: "3 Nov", text: "Ship 99 completed cryo testing.", url: "https://x.com/Blobifie/status/9500000000000000013", src: "@Blobifie" }
+    ] } } };
+    // mid event is pad, not cryo — only fv-old is earlier in the cryo section
+    const u1 = A.upcomingFlight(road0, n, r1);
+    const c1 = (u1.posts || []).find((p) => p.cat.id === "cryo");
+    o(c1 && /completed cryo/.test(c1.h.text) && c1.h.media_override && c1.h.media_override.fallback && sid(c1.h.media_override.post_url) === "9500000000000000011" && c1.h.media_override.photo_date === "1 Nov" && same(A.urlOf(c1.h), c1.h.media_override.post_url),
+      `fallback picks the newest earlier same-section photo (1 Nov RGV), not a later other-section event; Photo · ${c1 && c1.h.media_override && c1.h.media_override.photo_date}`);
+    const rNew = { vehicles: { S99: { id: "S99", type: "ship", name: "Ship 99", flight: n, state: "cryo", events: [
+      { id: "fv-oldp", type: "cryo_start", at: "2026-11-01T10:00:00.000Z", date: "1 Nov", text: "Ship 99 began cryo testing.", url: "https://x.com/LabPadre/status/9500000000000000031", src: "@LabPadre", x_post: { url: "https://x.com/LabPadre/status/9500000000000000031", author: { username: "LabPadre" }, media: [{ type: "photo", url: "https://example.com/old2.jpg" }] } },
+      { id: "fv-newp", type: "cryo_start", at: "2026-11-02T10:00:00.000Z", date: "2 Nov", text: "Ship 99 resumed cryo testing.", url: "https://x.com/RGVaerialphotos/status/9500000000000000032", src: "@RGVaerialphotos", x_post: { url: "https://x.com/RGVaerialphotos/status/9500000000000000032", author: { username: "RGVaerialphotos" }, media: [{ type: "photo", url: "https://example.com/new2.jpg" }] } },
+      { id: "fv-donep", type: "cryo_done", at: "2026-11-03T10:00:00.000Z", date: "3 Nov", text: "Ship 99 completed cryo testing.", url: "https://x.com/Blobifie/status/9500000000000000033", src: "@Blobifie" }
+    ] } } };
+    const cN = (A.upcomingFlight(road0, n, rNew).posts || []).find((p) => p.cat.id === "cryo");
+    o(cN && sid(cN.h.media_override && cN.h.media_override.post_url) === "9500000000000000032" && cN.h.media_override.photo_date === "2 Nov",
+      `when two earlier same-section events have photos, the newest wins (got ${cN && cN.h.media_override && sid(cN.h.media_override.post_url)} · ${cN && cN.h.media_override && cN.h.media_override.photo_date})`);
+    const r2 = { vehicles: { S99: { id: "S99", type: "ship", name: "Ship 99", flight: n, state: "cryo", events: [
+      { id: "fv-a", type: "cryo_start", at: "2026-11-01T10:00:00.000Z", date: "1 Nov", text: "Ship 99 began cryo testing.", url: "https://x.com/Blobifie/status/9500000000000000021", src: "@Blobifie" },
+      { id: "fv-b", type: "cryo_done", at: "2026-11-03T10:00:00.000Z", date: "3 Nov", text: "Ship 99 completed cryo testing.", url: "https://x.com/Blobifie/status/9500000000000000022", src: "@Blobifie" }
+    ] } } };
+    const c2 = (A.upcomingFlight(road0, n, r2).posts || []).find((p) => p.cat.id === "cryo");
+    o(c2 && /completed cryo/.test(c2.h.text) && !(c2.h.media_override && c2.h.media_override.image) && /9500000000000000022/.test(A.urlOf(c2.h) || ""),
+      "text-only when no earlier same-section event has a photo (View on X stays on the headline post)");
+  }
+  return out;
   return out;
 });
 for (const [c, m] of checks) ok(c, m);
