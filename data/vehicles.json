@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-23T15:55:29.195Z",
+  "updated": "2026-11-23T21:15:29.213Z",
   "vehicles": {
     "B7": {
       "id": "B7",
@@ -802,22 +802,24 @@
           "flight": 17,
           "image": {
             "type": "photo",
-            "url": "https://pbs.twimg.com/media/HXmhnKqWQAAQlyd.jpg?name=orig",
-            "score": 3
+            "url": "https://pbs.twimg.com/media/HX1rvC_aUAA5OEe.jpg?name=orig",
+            "score": 3.1
           },
           "x_post": {
-            "url": "https://x.com/TrackingTheSB/status/2123906558115418275",
+            "url": "https://x.com/Blobifie/status/2124973115566633088",
             "author": {
-              "username": "TrackingTheSB"
+              "username": "Blobifie"
             },
             "media": [
               {
                 "type": "photo",
-                "url": "https://pbs.twimg.com/media/HXmhnKqWQAAQlyd.jpg?name=orig"
+                "url": "https://pbs.twimg.com/media/HX1rvC_aUAA5OEe.jpg?name=orig",
+                "w": 1989,
+                "h": 1119
               }
             ]
           },
-          "image_src": "https://x.com/TrackingTheSB/status/2123906558115418275",
+          "image_src": "https://x.com/Blobifie/status/2124973115566633088",
           "sources": [
             {
               "post_id": "2123894391177949549",
@@ -842,6 +844,12 @@
               "url": "https://x.com/Blobifie/status/2124022121466876147",
               "src": "@Blobifie",
               "at": "2026-11-21T06:08:30.000Z"
+            },
+            {
+              "post_id": "2124973115566633088",
+              "url": "https://x.com/Blobifie/status/2124973115566633088",
+              "src": "@Blobifie",
+              "at": "2026-11-23T21:07:25.000Z"
             }
           ],
           "backfill": true,
@@ -887,9 +895,24 @@
                   "url": "https://pbs.twimg.com/media/HXoKvXxa0AAC8kH.jpg?name=orig"
                 }
               ]
+            },
+            {
+              "type": "photo",
+              "url": "https://pbs.twimg.com/media/HX1rvC_aUAA5OEe.jpg?name=orig",
+              "score": 3.1,
+              "post_url": "https://x.com/Blobifie/status/2124973115566633088",
+              "author": "Blobifie",
+              "at": "2026-11-23T21:07:25.000Z",
+              "media": [
+                {
+                  "type": "photo",
+                  "url": "https://pbs.twimg.com/media/HX1rvC_aUAA5OEe.jpg?name=orig",
+                  "w": 1989,
+                  "h": 1119
+                }
+              ]
             }
-          ],
-          "image_checked": true
+          ]
         },
         {
           "id": "fv-d82809339b",
