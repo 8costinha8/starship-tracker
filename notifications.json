@@ -3432,6 +3432,19 @@
       "gate": "hold passed (1 run)",
       "key": "B24|cryo_progress|22 Nov",
       "guard": "G4 (warn): B24 is not Flight 16 hardware (B23, S43)"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Booster 24 completed its first round of cryogenic proof testing at Massey's today.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mwsxu05k-5598c6",
+      "url": "https://x.com/RGVaerialphotos/status/2124765411627643131",
+      "at": "2026-11-23T07:22:05.000Z",
+      "sent_at": "2026-11-23T08:01:21.826Z",
+      "where": "feed",
+      "verdict": "silent: minor cryo_progress — a push went out 8.5h ago (quiet window 24h)",
+      "gate": "hold passed (1 run)",
+      "key": "B24|cryo_progress|23 Nov",
+      "guard": "G4 (warn): B24 is not Flight 16 hardware (B23, S43)"
     }
   ]
 }
