@@ -40,5 +40,12 @@
     }
   },
   "missed_runs_24h": 0,
-  "alert_reasons": []
+  "alert_reasons": [],
+  "coverage": {
+    "at": "2026-11-23T16:15:26.835Z",
+    "ok": true,
+    "error": null,
+    "gaps": 0,
+    "items": []
+  }
 }

@@ -1366,5 +1366,12 @@
       "why": "backfill (seeded, never pushed)"
     }
   },
-  "coverage": null
+  "coverage": {
+    "at": "2026-11-23T16:15:26.835Z",
+    "ok": true,
+    "calls": 1,
+    "read": 15,
+    "gaps": [],
+    "query_len": 359
+  }
 }
