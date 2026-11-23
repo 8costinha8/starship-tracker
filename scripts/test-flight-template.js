@@ -6,6 +6,7 @@
 const fs = require("fs"), path = require("path");
 const F = require("./fleet.js");
 const { appFns } = require("./app-fns-test-helper.js");
+globalThis.RoadPick = require("./road-pick.js");
 const ROOT = path.join(__dirname, "..");
 let fails = 0; const ok = (c, m) => { console.log((c ? "✅ " : "❌ ") + m); if (!c) fails++; };
 const app = fs.readFileSync(path.join(ROOT, "app.js"), "utf8");
@@ -21,7 +22,7 @@ ok(!/FutureVehicles|fleetGroups|FleetRow|fleetPost|id="future-vehicles"|On the m
 
 // a flight N+1 registry (N = the Road's flight, the fixture is relabelled to it): same vehicles, any number
 const reg = (n) => { const r = clone(fx); for (const v of Object.values(r.vehicles)) if (v.flight != null) v.flight = n; return r; };
-const checks = appFns(["upcomingFlight", "rtfRows", "roadForFlight", "fleetRoad", "peekCatItems", "roadPageRows", "pastRoadFlights", "FLIGHTS"], (A) => {
+const checks = appFns(["upcomingFlight", "rtfRows", "roadForFlight", "fleetRoad", "peekCatItems", "roadPageRows", "pastRoadFlights", "FLIGHTS", "urlOf"], (A) => {
   const out = [], o = (c, m) => out.push([c, m]);
   const rep = (label, posts) => {
     const bad = posts.filter((p) => !SIX.includes(p.cat && p.cat.id));
@@ -63,7 +64,41 @@ const checks = appFns(["upcomingFlight", "rtfRows", "roadForFlight", "fleetRoad"
   // empty flight and the current flight keep the template too
   const e = A.upcomingFlight(road0, road0.flight + 3, { vehicles: {} });
   o(e.posts.length === 0, "a flight with nothing yet renders no cards (no crash, no invented card)");
-  rep(`current Flight ${road0.flight} (road.json, its Page 2 group)`, A.roadPageRows(A.rtfRows(road0).rows, road0.flight, A.pastRoadFlights(road0, A.FLIGHTS)).cur.filter((x) => x.post).map((x) => x.post));
+  const f16posts = A.roadPageRows(A.rtfRows(road0).rows, road0.flight, A.pastRoadFlights(road0, A.FLIGHTS)).cur.filter((x) => x.post).map((x) => x.post);
+  rep(`current Flight ${road0.flight} (road.json, its Page 2 group)`, f16posts);
+
+  // photo, credit and link come from the same event as the headline (or, if a fallback were used, from one earlier event)
+  const sid = (u) => (String(u || "").match(/status\/(\d{15,})/) || [])[1] || null;
+  const same = (a, b) => !!(a && b && (a === b || (sid(a) && sid(a) === sid(b))));
+  const checkFace = (label, posts) => {
+    for (const p of posts) {
+      const h = p.h; if (!h) continue;
+      const name = `${label} ${p.cat.name}`;
+      const view = A.urlOf(h);
+      const mo = h.media_override;
+      const photo = mo && mo.image && !/rtf-placeholder/.test(String(mo.image));
+      o(!mo || !mo.credit_only || same(mo.post_url, h.url), `${name}: a credit_only photo still belongs to the headline post`);
+      if (photo) {
+        o(same(mo.post_url, h.url) && same(view, h.url), `${name}: photo, View on X and headline share the same post (photo=${mo.post_url}, view=${view}, headline=${h.url})`);
+        o(!h.x_post || same(h.x_post.url, h.url), `${name}: attached x_post is the headline post, not a different one`);
+        const from = h.rtf_pic;
+        o(!from || same(from.url, h.url) || from.text === h.text, `${name}: photo event is the headline event (from "${from && from.text}")`);
+      } else {
+        o(!view || same(view, h.url), `${name}: text-only card — View on X is the headline post (${view})`);
+      }
+    }
+  };
+  checkFace(`Flight ${n} fixture`, A.upcomingFlight(road0, n, reg(n)).posts);
+  const live = JSON.parse(fs.readFileSync(path.join(ROOT, "data", "vehicles.json"), "utf8"));
+  const f17live = A.upcomingFlight(road0, 17, live).posts;
+  checkFace("live F17", f17live);
+  checkFace(`live F${road0.flight}`, f16posts);
+  const b24pad = f17live.find((p) => p.cat.id === "pad" && /Booster 24/.test(p.cat.name));
+  o(b24pad && /left Mega Bay/.test(b24pad.h.text) && !(b24pad.h.media_override && b24pad.h.media_override.image) && /Blobifie/.test(A.urlOf(b24pad.h) || ""), "live F17 B24 pad: headline is 'left Mega Bay 1', no earlier RGV photo, View on X is the Blobifie headline post");
+  const s44c = f17live.find((p) => p.cat.id === "cryo" && /Ship 44/.test(p.cat.name));
+  o(s44c && /Blobifie/.test(A.urlOf(s44c.h) || "") && (!s44c.h.x_post || same(s44c.h.x_post.url, s44c.h.url)), "live F17 S44 cryo: View on X follows the Blobifie headline post, not the attached RGV x_post");
+  const b23 = f16posts.find((p) => p.cat.id === "cryo" && /Booster 23/.test(p.cat.name));
+  o(b23 && /arrived at Massey/.test(b23.h.text) && !(b23.h.media_override && b23.h.media_override.image) && /TrackingTheSB/.test(A.urlOf(b23.h) || ""), "live F16 B23 cryo: same rule — no earlier RGV photo on 'arrived at Massey's'; View on X is the headline post");
   return out;
 });
 for (const [c, m] of checks) ok(c, m);

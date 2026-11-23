@@ -38,15 +38,15 @@ check(st.done.static === 2, "the same post seen twice adds 0; a new event days l
 const before = RC.check(snap, { creditLink: true }), has = (t, re) => before.some((f) => f.type === `render-${t}` && re.test(f.msg));
 check(has("punctuation", /ahead of returning to Megabay 1" has no full stop/), "missing full stop caught (Pad · B22 26 Oct)");
 check(has("punctuation", /production site \/ Megabay 2\." uses ' \/ '/), "' / ' in prose caught");
-check(has("badge", /ship-cryo\.jpg has no avatar badge/), "photo without a badge caught (Cryo · S42)");
-check(has("links", /Pad activity · Booster 22: two 'View on X'/), "duplicate View on X caught (credit-only photo)");
+check(!has("badge", /ship-cryo\.jpg has no avatar badge/), "ship-cryo stand-in is not used when the headline post has no photo (no badge-less photo)");
+check(!has("links", /two 'View on X'/), "credit-only mixed photos are no longer rendered (no duplicate View on X)");
 check(!RC.creditLinkInApp(), "app.js: the credit-only footer no longer adds a second View on X");
-// backfill: fixes everything except the unbadgeable standing photo; idempotent; links kept; locks untouched
+// backfill: fixes punctuation; the ship-cryo stand-in is no longer shown when the headline post has no photo; idempotent; links kept; locks untouched
 const fx = clone(snap), nr = { items: [{ type: "journey", msg: "B22: journey cryo count 2 stored vs 3 replayed (kept stored; needs review)" }] };
 BF.apply(fx, nr, { log: () => {} });
 const after = RC.check(fx).filter((f) => !/^render-(fragment|shorthand|mismatch)$/.test(f.type)); // later 1 Nov checks: fixed by backfill-2026-11-01c.js (test-nov01c.js)
 for (const f of after) console.log(`   left: [${f.type}] ${f.msg}`);
-check(after.length === 1 && after[0].type === "render-badge" && /ship-cryo/.test(after[0].msg), "after the backfill only the ship-cryo standing photo (unknown source) is left");
+check(after.length === 0, "after the backfill the fixture has no remaining punctuation/badge/links flags (ship-cryo stand-in not shown without a source)");
 { const C = require("./backfill-2026-11-01c.js"), fc = clone(fx); C.apply(fc, { log: () => {} }); const left = RC.check(fc).filter((f) => /^render-(fragment|shorthand|mismatch)$/.test(f.type)); for (const f of left) console.log(`   left: [${f.type}] ${f.msg}`);
   check(left.length === 0, "the 1 Nov round-3 backfill clears the wording, shorthand and card-vs-feed checks on this fixture too"); }
 check(BF.apply(clone(fx), { items: [] }, { log: () => {} }).length === 0, "backfill is idempotent");

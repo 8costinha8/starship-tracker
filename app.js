@@ -3623,7 +3623,7 @@ const SHIP_CRYO_IMAGE = "images/ship-cryo.jpg";
 const isShipCryo = (h, cat) => { const t = `${h.x_text || ""} ${h.text || ""} ${h.log_text || ""}`; return !!cat && cat.id === "cryo" && /\b(ship|s)\s?\d{2}\b/i.test(t) && !/\bbooster\b|\bb\d{2}\b/i.test(t); };
 // 1 Nov: a hand-saved local copy of the card's own source media (images/…, credited) also wins over the standing photo.
 const ownLocalMedia = (mo) => !!mo && /^images\//.test(String(mo.image || "")) && mo.image !== SHIP_CRYO_IMAGE && !!mo.author;
-const roadMediaOf = (h, cat) => (isShipCryo(h, cat) && !(h.media_override && (h.media_override.keep_image || ownLocalMedia(h.media_override)))
+const roadMediaOf = (h, cat) => (isShipCryo(h, cat) && h.media_override && h.media_override.image && !(h.media_override.keep_image || ownLocalMedia(h.media_override))
   ? { post_url: urlOf(h), author: (h.media_override && h.media_override.author) || "", type: "photo", image: SHIP_CRYO_IMAGE } : h.media_override);
 // 3 Nov: a combined pill ("Cryo tests · Ship 42") shows as two same-style pills side by side, no dot separator
 const pillParts = (name) => String(name || "").split(/\s+·\s+/).filter(Boolean);
@@ -3752,6 +3752,26 @@ const otherVehOnly = (s, road) => { const ids = vehIds(s), mine = roadVehicles(r
 const rtfPad = (h, road) => new RegExp(`\\b${String(road.pad || "Pad 2").replace(/\s+/, "[- ]?")}\\b`, "i").test(`${h.hardware || ""} ${h.text || ""}`);
 const rtfHandle = (u) => handleOf(u) || (u.src && /^@/.test(u.src) ? u.src : null);
 const rtfIsDone = (h, cid) => isDoneCard(h) && (!RTF_CATS[cid] || RTF_CATS[cid].test(`${h.text || ""} ${h.x_text || ""}`)) && !/ahead|could|expected/i.test(h.text || "");
+// Card face (every Road card, current flight and peek): the photo, credit and "View on X" all
+// belong to the headline event's own post. Pictures from another collapsed event are not used
+// (no-photo, rather than a mixed credit or link). An x_post attached to the headline event is
+// kept only when it is that same post.
+const samePost = (a, b) => { if (!a || !b) return false; if (a === b) return true; const x = statusIdOf(a), y = statusIdOf(b); return !!(x && x === y); };
+function headlineOwn(h) {
+  if (!h) return h;
+  const url = h.url || (h.x_post && h.x_post.url) || "";
+  const xp = h.x_post && samePost(h.x_post.url, url) ? h.x_post : undefined;
+  const mo = h.media_override && samePost(h.media_override.post_url || "", url) ? h.media_override : undefined;
+  return { ...h, x_post: xp, media_override: mo };
+}
+function cardFacePicture(own, cid, done) {
+  const pick = (typeof window !== "undefined" && window.RoadPick) || (typeof globalThis !== "undefined" && globalThis.RoadPick);
+  if (!own || !pick) return null;
+  const pic = pick.cardPicture([own], { cid, done: done || null });
+  const url = own.url || (own.x_post && own.x_post.url);
+  if (!pic || !pic.image || (url && pic.post_url && !samePost(pic.post_url, url))) return null;
+  return pic;
+}
 function rtfCards(road) {
   const cats = Object.fromEntries((road.categories || []).map((c) => [c.id, c]));
   const vs = roadVehicles(road);
@@ -3828,12 +3848,12 @@ function rtfCards(road) {
       main = { ...main, text: newer.text, card_text: shown, x_text: shown, log_text: undefined, at: newer.at, completed_at: undefined, time_known: undefined, publishedAt: undefined, date: newer.date, url: newer.url, src: newer.src, handle: newer.handle, x_post: undefined, media_override: undefined };
     }
     rows.sort(byNew);
-    const h = { ...main, id: `rtf-${cid}-${v}`, updates: rows, alt_media: null, complete: !!doneOne, milestone: doneOne ? main.milestone : { phase: "progress" } };
-    // picture: newest event (incomplete) or the completing event (done); best photo among that event's posts (scripts/road-pick.js)
-    const pic = window.RoadPick ? window.RoadPick.cardPicture(list, { cid, done: newer ? null : doneOne || null }) : null;
-    if (pic) h.media_override = { image: pic.image, type: pic.type, post_url: pic.post_url, author: String(pic.author || "").replace(/^@/, ""), keep_image: pic.manual, credit_only: pic.from !== main && !!pic.author, crop: pic.crop };
-    else if (!doneOne) h.media_override = { image: RTF_PLACEHOLDER, type: "photo", post_url: urlOf(main) };
-    h.rtf_pic = pic ? pic.from : null; h.media_context = null;
+    const own = headlineOwn(main);
+    const h = { ...own, id: `rtf-${cid}-${v}`, updates: rows, alt_media: null, complete: !!doneOne, milestone: doneOne ? own.milestone : { phase: "progress" } };
+    // picture, credit and link: only the headline event's own post (never an earlier collapsed event)
+    const pic = cardFacePicture(own, cid, doneOne ? own : null);
+    if (pic) h.media_override = { image: pic.image, type: pic.type, post_url: pic.post_url, author: String(pic.author || "").replace(/^@/, ""), keep_image: !!(pic.manual || (own.media_override && own.media_override.keep_image)), credit_only: false, crop: pic.crop };
+    h.rtf_pic = pic ? pic.from : own; h.media_context = null;
     out.push({ h, cat: { ...cat, name: `${cat.name} · ${vname(v)}` }, ci: 0, hi: 0, id: h.id, flight: road.flight, done: !!doneOne });
   }
   return relabelPadReturnCards(out);
@@ -5414,18 +5434,6 @@ a.watch-badge-live { background: linear-gradient(135deg, #FF4D4F, #FF6A3D); box-
 .dot { width: 10px; height: 10px; }
 .dot-done, .dot-complete { box-shadow: 0 0 8px var(--c); }
 .past-box { background: #10151F; border-color: rgba(255,255,255,.07); }
-
-/* Page 2 · Future vehicles (fleet registry): same card style as the Road, a plain header and one row per vehicle */
-.feed-section.fv { padding: 14px 14px 6px; background: #161C2C; border: 1px solid rgba(255,255,255,.07); border-radius: 24px; margin-top: 14px; }
-.fv-head { display: flex; align-items: center; min-height: 28px; padding: 0 4px; }
-.fv-row { display: flex; align-items: center; gap: 8px; padding: 6px 4px; font-size: 14px; }
-.fv-row b { font-weight: 700; color: var(--text, #E9EDF7); }
-.fv-row .fv-state { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: rgba(255,106,61,.14); color: #FFB59C; font-weight: 700; }
-.fv-row .fv-off { background: rgba(255,255,255,.06); color: var(--muted); }
-.fv-row .post-date { margin-left: auto; font-size: 12px; }
-.fv-group .post { margin-top: 10px; }
-.fv-retired { margin: 10px 4px 8px; color: var(--muted); font-size: 13px; }
-.fv-retired summary { cursor: pointer; }
 
 /* Page 2 */
 .feed-section.rfs { background: #161C2C; border-color: rgba(255,106,61,.25); border-radius: 24px; }
