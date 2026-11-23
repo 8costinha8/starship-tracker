@@ -170,13 +170,21 @@ function creditsOther(post) {
   const m = t.match(/(?:📸|🎥|📷|🎬)[^\n]*?@(\w{1,15})/u);
   return !!(m && m[1].toLowerCase() !== me);
 }
+const origUrl = (u) => { const s = String(u || ""); return /^https:\/\/pbs\.twimg\.com\/media\//.test(s) && !/[?&]name=/.test(s) ? s + (s.includes("?") ? "&" : "?") + "name=orig" : s; };
+const baseUrl = (u) => String(u || "").replace(/[?&]name=orig$/, "");
+let ACCT = null;
+const srcAcct = (p) => { ACCT = ACCT || new Map(require("./sources.js").ACCOUNTS.map((a) => [a.handle.toLowerCase(), a])); return ACCT.get(String((p && p.author && p.author.username) || "").toLowerCase()) || null; };
 function bestImage(post) {
   const media = (post && post.media) || [];
   if (SCREEN.test((post && post.text) || "") || creditsOther(post)) return null;
-  const photo = media.find((m) => m.type === "photo" && m.url && !/\.png(?:$|\?)/i.test(m.url));
-  if (photo) return { type: "photo", url: photo.url, score: 3 };
+  // same source order as the flight story (scripts/flight-story.js): SpaceX > tier-1 outlet > tier-2 tracker; photo > video
+  // still; landscape >= 1600 px first; photos at original resolution (name=orig)
+  const acct = srcAcct(post), bonus = acct ? (acct.official ? 0.6 : acct.tier === 1 ? 0.3 : 0) : 0;
+  const photos = media.filter((m) => m.type === "photo" && m.url && !/\.png(?:$|\?)/i.test(m.url));
+  const photo = photos.find((m) => !(m.w && m.h) || (m.w >= m.h && m.w >= 1600)) || photos[0];
+  if (photo) return { type: "photo", url: origUrl(photo.url), score: 3 + bonus + (photo.w >= 1600 ? 0.1 : 0) };
   const vid = media.find((m) => m.type === "video" && m.poster);
-  return vid ? { type: "video", url: vid.poster, ...(vid.video_url ? { video_url: vid.video_url } : {}), score: 2 } : null;
+  return vid ? { type: "video", url: vid.poster, ...(vid.video_url ? { video_url: vid.video_url } : {}), score: 2 + bonus } : null;
 }
 function textFor(id, ev, sentence, flight) {
   const N = nameOf(id), at = ev.place ? ` at ${ev.place}` : "";
@@ -275,7 +283,19 @@ function ingest(reg, posts, { road = {}, now = Date.now(), backfill = false, log
   return res;
 }
 // the card shows ONE picture: the chosen one, credited to its own post (which may be a later source of the same event)
-function xCard(p, img) { const m = (p.media || []).find((x) => (img.type === "photo" ? x.url === img.url : x.poster === img.url)); return { url: p.url, author: { username: (p.author || {}).username || "" }, media: m ? [m] : [] }; }
+function xCard(p, img) { const m = (p.media || []).find((x) => (img.type === "photo" ? baseUrl(x.url) === baseUrl(img.url) : x.poster === img.url)); return { url: p.url, author: { username: (p.author || {}).username || "" }, media: m ? [img.type === "photo" ? { ...m, url: img.url } : m] : [] }; }
+// existing pictures → original resolution (re-resolved through the same picture check on the next run)
+function upgradeOrig(reg) {
+  let n = 0;
+  for (const v of Object.values(reg.vehicles || {})) for (const e of v.events || []) {
+    const up = (o) => { if (o && o.type === "photo" && o.url && origUrl(o.url) !== o.url) { o.url = origUrl(o.url); return true; } return false; };
+    let hit = up(e.image);
+    for (const c of e.candidates || []) { if (up(c)) { hit = true; (c.media || []).forEach((m) => { if (m.type === "photo") m.url = origUrl(m.url); }); } }
+    if (e.x_post) (e.x_post.media || []).forEach((m) => { if (m.type === "photo" && m.url && origUrl(m.url) !== m.url) { m.url = origUrl(m.url); hit = true; } });
+    if (hit) { delete e.image_checked; n++; }
+  }
+  return n;
+}
 function addCandidate(e, p, img) { e.candidates = [...(e.candidates || []).filter((c) => c.url !== img.url), { ...img, post_url: p.url, author: (p.author || {}).username || "", at: p.created_at, media: xCard(p, img).media }].slice(-6); }
 /* Pixel check of the picked picture (ffmpeg, preinstalled on the runner; one small decode per NEW picture, no API call):
    a livestream lower-third / ticker (a solid red band, or a dark full-width bar under a bright scene) is a screen grab,
@@ -298,6 +318,7 @@ function bannerOf(buf, W = 160, H = 90) {
 }
 async function screenImages(reg, { probe = probeBanner, log = () => {} } = {}) {
   let checked = 0, swapped = 0;
+  const up = upgradeOrig(reg); if (up) log(`fleet image: ${up} picture(s) → original resolution`);
   for (const v of Object.values(reg.vehicles || {})) for (const e of v.events || []) {
     if (!e.candidates || !e.candidates.length || e.image_checked) continue;
     const order = [...e.candidates].sort((a, b) => (b.score || 0) - (a.score || 0) || Date.parse(a.at) - Date.parse(b.at));
@@ -371,4 +392,40 @@ async function runCoverage(reg, { token, fetchFn = fetch, road = {}, postCard, n
   log(`fleet coverage: 1 X call, ${posts.length} post(s) read, ${gaps.length} gap(s)${gaps.length ? " → added to the registry" : ""}`);
   return { posts, gaps, healed };
 }
-module.exports = { screenImages, probeBanner, bannerOf, FILE, STATES, TERMINAL, STATE_LABEL, MILESTONES, PUSH_LABEL, BOX_OF, PADS, load, save, empty, seed, ingest, idsIn, assignmentsIn, eventsIn, sentences, clauses, nameOf, groups, findEvent, visibleFor, flownFlights, newestFlown, coverageDue, coverageQuery, coverageGaps, runCoverage, COVERAGE_H, bestImage };
+/* Registry → Road. ROAD_BOX: which Road box a registry event counts in (Page 2 stage ticks and the rollover move);
+   production ("build") events are shown as cards but are not Road progress. DONE: events that complete their box
+   step for that vehicle (the app's logDone reads milestone.phase / complete). Pad entries are progress only. */
+const ROAD_BOX = { cryo_start: "cryo", cryo_done: "cryo", engines_installed: "raptor", static_fire: "static", stacked: "pad", rollout: "pad", move: "pad" };
+const DONE = new Set(["cryo_done", "engines_installed", "static_fire"]);
+function roadEntry(e, v) {
+  const box = ROAD_BOX[e.type]; if (!box) return null;
+  const done = DONE.has(e.type), handle = String(e.src || "").replace(/^@/, "");
+  return { id: e.id, date: e.date, at: e.at, text: e.text, x_text: e.text, src: e.src, source: handle, trust: "trusted", flight: v.flight, stage: box, hardware: v.id, url: e.url,
+    no_push: true, fleet_id: e.id, ...(e.x_post && (e.x_post.media || []).length ? { x_post: e.x_post } : {}),
+    milestone: { hardware: v.id, event: e.type, phase: done ? "completed" : "started", at: e.at, src: e.url }, ...(done ? { complete: true } : {}) };
+}
+// Move the registry's events for the Road's own flight into the Road (run once per flight, at rollover): no push, no
+// duplicate (same post or same registry event already on the Road), the flight's vehicles added to road.vehicles.
+function intoRoad(reg, road, { log = () => {} } = {}) {
+  const n = road.flight, res = { moved: 0, vehicles: [] };
+  if (!reg || !Number.isInteger(n) || !Array.isArray(road.categories)) return res;
+  const seen = new Set();
+  for (const c of road.categories) for (const h of c.history || []) { if (h.url) seen.add(h.url); if (h.fleet_id) seen.add(h.fleet_id); if (h.x_post && h.x_post.post_id) seen.add(`x:${h.x_post.post_id}`); }
+  for (const v of Object.values(reg.vehicles || {})) {
+    if (v.type === "pad" || v.flight !== n || TERMINAL.has(v.state)) continue;
+    if (!(road.vehicles || []).includes(v.id)) { road.vehicles = [...(road.vehicles || []), v.id]; res.vehicles.push(v.id); }
+    road.hardware_flights = { ...(road.hardware_flights || {}), [v.id]: n };
+    for (const e of [...(v.events || [])].sort((a, b) => Date.parse(b.at) - Date.parse(a.at))) {
+      const h = roadEntry(e, v); if (!h) continue;
+      if (seen.has(h.id) || seen.has(h.url) || (e.sources || []).some((x) => seen.has(`x:${x.post_id}`) || seen.has(x.url))) continue;
+      const c = road.categories.find((x) => x.id === h.stage); if (!c) continue;
+      c.history = [h, ...(c.history || [])].sort((a, b) => Date.parse(b.at || 0) - Date.parse(a.at || 0));
+      c.latest = (c.history[0].x_text || c.history[0].text).slice(0, 160);
+      if (c.status === "none") c.status = "progress";
+      seen.add(h.id); seen.add(h.url); res.moved++;
+    }
+  }
+  if (res.moved || res.vehicles.length) log(`fleet → Road ${n}: ${res.moved} registry event(s) moved in (no push)${res.vehicles.length ? `, vehicles ${res.vehicles.join(", ")}` : ""}`);
+  return res;
+}
+module.exports = { ROAD_BOX, roadEntry, intoRoad, origUrl, upgradeOrig, screenImages, probeBanner, bannerOf, FILE, STATES, TERMINAL, STATE_LABEL, MILESTONES, PUSH_LABEL, BOX_OF, PADS, load, save, empty, seed, ingest, idsIn, assignmentsIn, eventsIn, sentences, clauses, nameOf, groups, findEvent, visibleFor, flownFlights, newestFlown, coverageDue, coverageQuery, coverageGaps, runCoverage, COVERAGE_H, bestImage };

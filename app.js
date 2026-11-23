@@ -4127,6 +4127,25 @@ const FLEET_URL = SIM ? `sim/${SIM}/vehicles.json` : "data/vehicles.json";
 const FLEET_TERMINAL = ["caught", "expended", "retired", "scrapped"];
 const FLEET_STATE = { build: "In build", cryo: "Cryo testing", engines: "Engines installed", static_fire: "Static fire", stacked: "Stacked", rollout: "Rolled out", flight: "Flown", caught: "Caught", expended: "Expended", retired: "Retired", scrapped: "Scrapped" };
 const FLEET_BOX = { cryo_start: "cryo", cryo_done: "cryo", static_fire: "static", engines_installed: "raptor", stacked: "pad", rollout: "pad" };
+// Registry events as Road entries for the stage ticks (same mapping as scripts/fleet.js ROAD_BOX / roadEntry):
+// cryo / engines / static fire / pad moves count; production events are cards only. Pad entries are progress only.
+const FLEET_ROAD_BOX = { cryo_start: "cryo", cryo_done: "cryo", engines_installed: "raptor", static_fire: "static", stacked: "pad", rollout: "pad", move: "pad" };
+const FLEET_DONE = ["cryo_done", "engines_installed", "static_fire"];
+function fleetRoad(r, fleet, n) {
+  if (!r || !fleet || !Number.isInteger(n) || !Array.isArray(r.categories)) return r;
+  const vs = Object.values(fleet.vehicles || {}).filter((v) => v.type !== "pad" && v.flight === n && !FLEET_TERMINAL.includes(v.state) && v.state !== "flight");
+  if (!vs.length) return r;
+  const seen = new Set(r.categories.flatMap((c) => (c.history || []).map((h) => h.url).filter(Boolean)));
+  const add = {};
+  for (const v of vs) for (const e of v.events || []) {
+    const box = FLEET_ROAD_BOX[e.type]; if (!box || seen.has(e.url)) continue;
+    const done = FLEET_DONE.includes(e.type);
+    (add[box] = add[box] || []).push({ id: e.id, date: e.date, at: e.at, text: e.text, url: e.url, trust: "trusted", flight: n, hardware: v.id, kind: "fleet",
+      milestone: { hardware: v.id, event: e.type, phase: done ? "completed" : "started" }, ...(done ? { complete: true } : {}) });
+  }
+  return { ...r, vehicles: [...new Set([...(r.vehicles || []), ...vs.map((v) => v.id)])],
+    categories: r.categories.map((c) => (add[c.id] ? { ...c, history: [...add[c.id], ...(c.history || [])].sort((a, b) => Date.parse(b.at || 0) - Date.parse(a.at || 0)) } : c)) };
+}
 function useFleet() {
   const [fleet, setFleet] = React.useState(null);
   React.useEffect(() => { let alive = true;
@@ -4209,7 +4228,7 @@ function UpdatesFeed({ road, wide, shown, onBack, scrollRef, onPhotoTap, peekOpe
     return [...cards, ...fl].sort((a, b) => peekCardTime(b) - peekCardTime(a)); // newest first
   }, [peekRoad, fleet, peekN, road]);
   const curItems = React.useMemo(() => roadCatItems(road, { heroNet, netPending }), [road, heroNet, netPending]);
-  const peekItems = React.useMemo(() => peekCatItems(peekRoad), [peekRoad]);
+  const peekItems = React.useMemo(() => peekCatItems(fleetRoad(peekRoad, fleet, peekN)), [peekRoad, fleet, peekN]); // stage ticks count the registry's events too
   // 15 Nov (Bernardo, every flight): Page 2 shows ONLY the upcoming flight and the one after (page2Flights: road.flight and
   // road.flight + 1, so it moves at each handover). Past Roads live on Page 1 only (their flight cards, from road.archive);
   // launched flights' leftover rows are not shown here (roadPageRows keeps only the current flight's rows for this page).

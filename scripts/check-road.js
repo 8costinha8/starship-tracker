@@ -224,10 +224,11 @@ function xPostCard(p, mediaByKey, usersById) {
   const u = usersById[p.author_id] || {};
   const media = ((p.attachments && p.attachments.media_keys) || []).map((k) => mediaByKey[k]).filter(Boolean).map((m) => {
     const alt = m.alt_text ? { alt: decode(m.alt_text).slice(0, 300) } : {};
-    if (m.type === "photo") return m.url ? { type: "photo", url: m.url, ...alt } : null;
+    const wh = m.width && m.height ? { w: m.width, h: m.height } : {}; // picture size (flight story / registry: >= 1600 px first)
+    if (m.type === "photo") return m.url ? { type: "photo", url: m.url, ...wh, ...alt } : null;
     const mp4 = (m.variants || []).filter((v) => v.content_type === "video/mp4" && v.url).sort((a, b) => (b.bit_rate || 0) - (a.bit_rate || 0));
     if (!m.preview_image_url && !mp4.length) return null;
-    return { type: "video", ...(m.preview_image_url ? { poster: m.preview_image_url } : {}), ...(mp4.length ? { video_url: mp4[0].url } : {}), ...alt };
+    return { type: "video", ...(m.preview_image_url ? { poster: m.preview_image_url } : {}), ...(mp4.length ? { video_url: mp4[0].url } : {}), ...wh, ...alt };
   }).filter(Boolean);
   const text = decode((p.note_tweet && p.note_tweet.text) || p.text || "").replace(/\s*https:\/\/t\.co\/\w+$/, "");
   // link card (an article the post links to): its title/description go to the classifier, its image is the fallback picture
@@ -1374,6 +1375,12 @@ async function run(opts = {}) {
     log(`"${state.pendingPush.title}" push scheduled for ${state.pendingPush.sendAfter} (09:00 London, morning after the launch day)`);
   }
 
+  // 1f. Registry → Road, once per Road flight (i.e. right after a rollover): the new flight's vehicles and their registry
+  //     events (cryo, engines, static fire, pad moves) become its Road entries. No push; nothing duplicated.
+  if (opts.fleet !== false && road.fleet_synced !== road.flight) {
+    try { const fm = require("./fleet.js"), fp = opts.fleetPath || (opts.roadPath ? path.join(path.dirname(roadPath), "data", "vehicles.json") : fm.FILE);
+      fm.intoRoad(fm.load(fp), road, { log }); road.fleet_synced = road.flight; changed = true; } catch (e) { log(`fleet → Road skipped: ${e.message}`); }
+  }
   // 1b. Entries for a flight that's already in the log (e.g. Flight 14 notes) → that flight's card (no push)
   // 1a. Re-file by purpose (static fire / cryo / Raptors / launch / pad work): same ids, NO push
   { const sc = require("./scope.js").enforce(road); if (sc.length) { for (const x of sc) log(`scope (no push): ${x.why} — "${x.text}" (${x.id})`); changed = true; }

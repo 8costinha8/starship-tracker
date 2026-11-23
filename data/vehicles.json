@@ -582,7 +582,7 @@
           "flight": null,
           "image": {
             "type": "photo",
-            "url": "https://pbs.twimg.com/media/HXge4cxXMAAUSbz.jpg",
+            "url": "https://pbs.twimg.com/media/HXge4cxXMAAUSbz.jpg?name=orig",
             "score": 3
           },
           "x_post": {
@@ -593,7 +593,7 @@
             "media": [
               {
                 "type": "photo",
-                "url": "https://pbs.twimg.com/media/HXge4cxXMAAUSbz.jpg"
+                "url": "https://pbs.twimg.com/media/HXge4cxXMAAUSbz.jpg?name=orig"
               }
             ]
           },
@@ -628,7 +628,7 @@
           "candidates": [
             {
               "type": "photo",
-              "url": "https://pbs.twimg.com/media/HXge4cxXMAAUSbz.jpg",
+              "url": "https://pbs.twimg.com/media/HXge4cxXMAAUSbz.jpg?name=orig",
               "score": 3,
               "post_url": "https://x.com/RGVaerialphotos/status/2123481210752315451",
               "author": "RGVaerialphotos",
@@ -636,7 +636,7 @@
               "media": [
                 {
                   "type": "photo",
-                  "url": "https://pbs.twimg.com/media/HXge4cxXMAAUSbz.jpg"
+                  "url": "https://pbs.twimg.com/media/HXge4cxXMAAUSbz.jpg?name=orig"
                 }
               ]
             },
@@ -656,7 +656,7 @@
             },
             {
               "type": "photo",
-              "url": "https://pbs.twimg.com/media/HXhEPuWacAAsQzU.jpg",
+              "url": "https://pbs.twimg.com/media/HXhEPuWacAAsQzU.jpg?name=orig",
               "score": 3,
               "post_url": "https://x.com/Blobifie/status/2123522565675335767",
               "author": "Blobifie",
@@ -664,7 +664,7 @@
               "media": [
                 {
                   "type": "photo",
-                  "url": "https://pbs.twimg.com/media/HXhEPuWacAAsQzU.jpg"
+                  "url": "https://pbs.twimg.com/media/HXhEPuWacAAsQzU.jpg?name=orig"
                 }
               ]
             },
@@ -756,7 +756,7 @@
             },
             {
               "type": "photo",
-              "url": "https://pbs.twimg.com/media/HXmA6RvbQAARMus.jpg",
+              "url": "https://pbs.twimg.com/media/HXmA6RvbQAARMus.jpg?name=orig",
               "score": 3,
               "post_url": "https://x.com/Blobifie/status/2123871167119569323",
               "author": "Blobifie",
@@ -764,7 +764,7 @@
               "media": [
                 {
                   "type": "photo",
-                  "url": "https://pbs.twimg.com/media/HXmA6RvbQAARMus.jpg"
+                  "url": "https://pbs.twimg.com/media/HXmA6RvbQAARMus.jpg?name=orig"
                 }
               ]
             },
@@ -802,7 +802,7 @@
           "flight": 17,
           "image": {
             "type": "photo",
-            "url": "https://pbs.twimg.com/media/HXmhnKqWQAAQlyd.jpg",
+            "url": "https://pbs.twimg.com/media/HXmhnKqWQAAQlyd.jpg?name=orig",
             "score": 3
           },
           "x_post": {
@@ -813,7 +813,7 @@
             "media": [
               {
                 "type": "photo",
-                "url": "https://pbs.twimg.com/media/HXmhnKqWQAAQlyd.jpg"
+                "url": "https://pbs.twimg.com/media/HXmhnKqWQAAQlyd.jpg?name=orig"
               }
             ]
           },
@@ -862,7 +862,7 @@
             },
             {
               "type": "photo",
-              "url": "https://pbs.twimg.com/media/HXmhnKqWQAAQlyd.jpg",
+              "url": "https://pbs.twimg.com/media/HXmhnKqWQAAQlyd.jpg?name=orig",
               "score": 3,
               "post_url": "https://x.com/TrackingTheSB/status/2123906558115418275",
               "author": "TrackingTheSB",
@@ -870,13 +870,13 @@
               "media": [
                 {
                   "type": "photo",
-                  "url": "https://pbs.twimg.com/media/HXmhnKqWQAAQlyd.jpg"
+                  "url": "https://pbs.twimg.com/media/HXmhnKqWQAAQlyd.jpg?name=orig"
                 }
               ]
             },
             {
               "type": "photo",
-              "url": "https://pbs.twimg.com/media/HXoKvXxa0AAC8kH.jpg",
+              "url": "https://pbs.twimg.com/media/HXoKvXxa0AAC8kH.jpg?name=orig",
               "score": 3,
               "post_url": "https://x.com/Blobifie/status/2124022121466876147",
               "author": "Blobifie",
@@ -884,7 +884,7 @@
               "media": [
                 {
                   "type": "photo",
-                  "url": "https://pbs.twimg.com/media/HXoKvXxa0AAC8kH.jpg"
+                  "url": "https://pbs.twimg.com/media/HXoKvXxa0AAC8kH.jpg?name=orig"
                 }
               ]
             }
@@ -947,7 +947,7 @@
           "candidates": [
             {
               "type": "photo",
-              "url": "https://pbs.twimg.com/media/HXo_seObYAAubHQ.jpg",
+              "url": "https://pbs.twimg.com/media/HXo_seObYAAubHQ.jpg?name=orig",
               "score": 3,
               "post_url": "https://x.com/Blobifie/status/2124080565272117476",
               "author": "Blobifie",
@@ -955,7 +955,7 @@
               "media": [
                 {
                   "type": "photo",
-                  "url": "https://pbs.twimg.com/media/HXo_seObYAAubHQ.jpg"
+                  "url": "https://pbs.twimg.com/media/HXo_seObYAAubHQ.jpg?name=orig"
                 }
               ]
             },
@@ -1129,7 +1129,7 @@
           "candidates": [
             {
               "type": "photo",
-              "url": "https://pbs.twimg.com/media/HXmA6RvbQAARMus.jpg",
+              "url": "https://pbs.twimg.com/media/HXmA6RvbQAARMus.jpg?name=orig",
               "score": 3,
               "post_url": "https://x.com/Blobifie/status/2123871167119569323",
               "author": "Blobifie",
@@ -1137,7 +1137,7 @@
               "media": [
                 {
                   "type": "photo",
-                  "url": "https://pbs.twimg.com/media/HXmA6RvbQAARMus.jpg"
+                  "url": "https://pbs.twimg.com/media/HXmA6RvbQAARMus.jpg?name=orig"
                 }
               ]
             }
