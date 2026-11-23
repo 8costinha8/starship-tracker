@@ -2104,6 +2104,7 @@ function flightOf(h, road) {
   const hwMap = road.hardware_flights || {}, hk = String(h.hardware || "").toUpperCase().replace(/^SHIP\s*/, "S").replace(/^BOOSTER\s*/, "B");
   if (Number.isInteger(hwMap[hk])) return hwMap[hk]; // one hardware → flight map from the data (guards.js): B23/S43 → 16
   if (Number.isInteger(h.flight)) return h.flight; // data-driven: the entry says which flight it belongs to
+  if (h.milestone && Number.isInteger(h.milestone.flight)) return h.milestone.flight; // the checker filed it to this flight (a "Pad 2 work resumed after Flight 15" post is Flight 16 news)
   const txt = `${(h.x_post && h.x_post.text) || ""} ${h.x_text || h.text || ""}`; // the post first: the old entry text may mention past flights
   const vs = [...txt.matchAll(/\b(Ship|Booster|S|B)[\s-]?(\d{1,3})\b/g)].map((m) => (m[1][0].toUpperCase() === "S" ? "S" : "B") + Number(m[2]));
   if (vs.some((v) => (road.vehicles || []).includes(v))) return road.flight;
