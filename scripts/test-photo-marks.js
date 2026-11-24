@@ -33,6 +33,13 @@ check(M.creditOf("Super heavy boosters only do this when they are very happy htt
 const fl = JSON.parse(fs.readFileSync(path.join(ROOT, "data/vehicles.json"), "utf8"));
 const ev = ((fl.vehicles.B24 || {}).events || []).find((e) => e.id === "fv-3fd642c695") || {};
 check(ev.media_override && ev.media_override.image === b24.image && ev.media_override.keep_image && /Bernardo/.test(ev.media_override.picked_by + ev.media_override.note), "registry event fv-3fd642c695 (B24 cryo done) carries the pick");
+// ── S44 cryo: Bernardo's pick (24 Nov 16:27 UK, option 2, NSF Starbase Live still posted by @Blobifie), locked, no NSF mark left
+const s44 = picks.find((p) => p.image === "images/s44-cryo-blobifie-nsf-clean.jpg");
+check(s44 && s44.keep_image && s44.picked_by === "Bernardo" && s44.post_id === "2124080565272117476" && Array.isArray(s44.vehicle_box) && fs.statSync(path.join(ROOT, s44.image)).size < 150e3, "S44 cryo pick recorded: keep_image, picked_by Bernardo, Blobifie 2124080565272117476, vehicle_box stored, web-sized");
+const s44m = M.markOf(s44 && s44.image);
+check(s44m && s44m.handle === "NASASpaceflight" && s44m.box === null && M.creditOf("Ship 44 completed 2 cryogenic proof tests today! https://t.co/x", { poster: "Blobifie", image: s44.image }).handle === "NASASpaceflight" && !M.hideBadge(s44.image), "S44 cryo badge: NSF's logo (Starbase Live still reposted by @Blobifie), shown because no NSF mark is in the crop");
+const ev44 = ((fl.vehicles.S44 || {}).events || []).find((e) => e.id === "fv-d82809339b") || {};
+check(ev44.type === "cryo_done" && ev44.media_override && ev44.media_override.image === s44.image && ev44.media_override.keep_image && ev44.media_override.picked_by === "Bernardo", "registry event fv-d82809339b (S44 cryo done) carries the pick");
 // every lock on a registry event has a recorded Bernardo pick (media-lock rule, registry side)
 const bern = (p) => /bernardo/i.test(String(p.picked_by || "")) || /\bBernardo\b/.test(String(p.note || ""));
 for (const v of Object.values(fl.vehicles)) for (const e of v.events || []) if (e.media_override && e.media_override.keep_image)

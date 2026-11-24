@@ -1029,7 +1029,19 @@
               ]
             }
           ],
-          "image_checked": true
+          "image_checked": true,
+          "media_override": {
+            "image": "images/s44-cryo-blobifie-nsf-clean.jpg",
+            "type": "photo",
+            "post_url": "https://x.com/Blobifie/status/2124080565272117476",
+            "post_id": "2124080565272117476",
+            "author": "Blobifie",
+            "keep_image": true,
+            "crop": "top",
+            "photo_date": "21 Nov",
+            "picked_by": "Bernardo",
+            "note": "Manual (Bernardo, 24 Nov 16:27 UK via Tusk, option 2): Ship 44 at Massey's on the day it completed cryo testing, NSF Starbase Live still posted by @Blobifie (21 Nov 10:00 UK, photo HXo_uhaawAE-GOI); recorded in road-media.json."
+          }
         },
         {
           "id": "fv-70e2d4a17b",

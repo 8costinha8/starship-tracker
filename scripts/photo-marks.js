@@ -12,6 +12,7 @@
      { match: "<part of the image url>", handle, name, w, h, box: [x0, y0, x1, y1] | null } */
   const MARKS = [
     { match: "b24-cryo-blobifie-nsf-clean", handle: "NASASpaceflight", name: "NSF Starbase Live", w: 1280, h: 720, box: null }, // Bernardo's B24 cryo pick (posted by @Blobifie): NSF Starbase Live still; timestamp bar and ticker cut off, so no mark in the saved crop → NSF badge shown
+    { match: "s44-cryo-blobifie-nsf-clean", handle: "NASASpaceflight", name: "NSF Starbase Live", w: 1280, h: 720, box: null }, // Bernardo's S44 cryo pick (24 Nov 16:27 UK, option 2; posted by @Blobifie): NSF still, timestamp bar + ticker cut, no NSF mark left
     { match: "HVWEyTyaQAA-KCA", handle: "NASASpaceflight", name: "NSF Starbase Live", w: 1200, h: 675, box: [0.0, 0.935, 0.11, 0.995] }, // S43 cryo start, posted by @Blobifie
     { match: "HUdSuq2a8AAAfgu", handle: "NASASpaceflight", name: "NSF Starbase Live", w: 1200, h: 675, box: [0.0, 0.935, 0.11, 0.995] }, // B23 on the cryo stand, posted by @Blobifie
     { match: "HVmQW1fbIAA2hgT", handle: "NASASpaceflight", name: "NSF Starbase Live", w: 1200, h: 675, box: [0.0, 0.935, 0.11, 0.995] }, // S43 lifted to the top of the tower, posted by @Blobifie

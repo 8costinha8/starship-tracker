@@ -301,6 +301,24 @@
       "recrop": "24 Nov 14:50 UK: cut from the original (b24cryo-options/opt3, NSF Starbase Live still, 1989x1119) at x 119-1836, y 76-1042, saved 1280x720 (37 KB): Starbase Live timestamp bar (top, y 0-66) and NSF ticker (bottom, from y 1048) cut, whole booster kept and centred; no NSF mark left in the frame",
       "picked_by": "Bernardo",
       "note": "Manual (Bernardo, 24 Nov 14:46 UK via Tusk, option 3): Booster 24 venting during its first cryo test at Massey's, NSF Starbase Live still (23 Nov 04:44 UK) posted by @Blobifie."
+    },
+    {
+      "category": "cryo",
+      "date": "21 Nov",
+      "entry": "Ship 44 completed cryo testing.",
+      "vehicle": "S44",
+      "fleet_event": "fv-d82809339b",
+      "post_id": "2124080565272117476",
+      "post_url": "https://x.com/Blobifie/status/2124080565272117476",
+      "author": "Blobifie",
+      "media_type": "photo",
+      "image": "images/s44-cryo-blobifie-nsf-clean.jpg",
+      "keep_image": true,
+      "crop": "top",
+      "vehicle_box": [0.4257, 0.0417, 0.5224, 0.9718],
+      "recrop": "24 Nov 16:30 UK: cut from the original (s44cryo-options/opt2 = HXo_uhaawAE-GOI, NSF Starbase Live still, 1656x932) at x 0-1136, y 72-816 (main camera only: Starbase Live timestamp bar y 0-56, NSF ticker from y 872 and the three side camera panels from x 1140 cut), scaled to 1099x720 and centred on a 1280x720 frame with dark side bars (#121A2B, 90 px each) so the whole ship fits the 16:9 card; 48 KB; no NSF mark left in the frame",
+      "picked_by": "Bernardo",
+      "note": "Manual (Bernardo, 24 Nov 16:27 UK via Tusk, option 2): Ship 44 at Massey's on the day it completed cryo testing, NSF Starbase Live still posted by @Blobifie (21 Nov 10:00 UK, photo HXo_uhaawAE-GOI)."
     }
   ]
 }
