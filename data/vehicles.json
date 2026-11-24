@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-24T07:00:45.098Z",
+  "updated": "2026-11-24T13:45:37.632Z",
   "vehicles": {
     "B7": {
       "id": "B7",
@@ -1055,6 +1055,72 @@
               "at": "2026-11-24T06:40:04.000Z"
             }
           ]
+        },
+        {
+          "id": "fv-9f41e9129c",
+          "key": "S44|move|Mega Bay 2|24 Nov",
+          "vehicle": "S44",
+          "type": "move",
+          "milestone": false,
+          "at": "2026-11-24T13:36:59.000Z",
+          "date": "24 Nov",
+          "text": "Ship 44 is at Mega Bay 2.",
+          "place": "Mega Bay 2",
+          "url": "https://x.com/Blobifie/status/2125222150252675155",
+          "src": "@Blobifie",
+          "tier": 2,
+          "post_id": "2125222150252675155",
+          "flight": 17,
+          "image": {
+            "type": "video",
+            "url": "https://pbs.twimg.com/amplify_video_thumb/2125221992588816384/img/-O9edRhQ2f3cSP-A.jpg",
+            "video_url": "https://video.twimg.com/amplify_video/2125221992588816384/vid/avc1/1920x1080/CkXZ6m50oHG7jNcq.mp4",
+            "score": 2
+          },
+          "x_post": {
+            "url": "https://x.com/Blobifie/status/2125222150252675155",
+            "author": {
+              "username": "Blobifie"
+            },
+            "media": [
+              {
+                "type": "video",
+                "poster": "https://pbs.twimg.com/amplify_video_thumb/2125221992588816384/img/-O9edRhQ2f3cSP-A.jpg",
+                "video_url": "https://video.twimg.com/amplify_video/2125221992588816384/vid/avc1/1920x1080/CkXZ6m50oHG7jNcq.mp4",
+                "w": 1920,
+                "h": 1080
+              }
+            ]
+          },
+          "image_src": "https://x.com/Blobifie/status/2125222150252675155",
+          "sources": [
+            {
+              "post_id": "2125222150252675155",
+              "url": "https://x.com/Blobifie/status/2125222150252675155",
+              "src": "@Blobifie",
+              "at": "2026-11-24T13:36:59.000Z"
+            }
+          ],
+          "candidates": [
+            {
+              "type": "video",
+              "url": "https://pbs.twimg.com/amplify_video_thumb/2125221992588816384/img/-O9edRhQ2f3cSP-A.jpg",
+              "video_url": "https://video.twimg.com/amplify_video/2125221992588816384/vid/avc1/1920x1080/CkXZ6m50oHG7jNcq.mp4",
+              "score": 2,
+              "post_url": "https://x.com/Blobifie/status/2125222150252675155",
+              "author": "Blobifie",
+              "at": "2026-11-24T13:36:59.000Z",
+              "media": [
+                {
+                  "type": "video",
+                  "poster": "https://pbs.twimg.com/amplify_video_thumb/2125221992588816384/img/-O9edRhQ2f3cSP-A.jpg",
+                  "video_url": "https://video.twimg.com/amplify_video/2125221992588816384/vid/avc1/1920x1080/CkXZ6m50oHG7jNcq.mp4",
+                  "w": 1920,
+                  "h": 1080
+                }
+              ]
+            }
+          ]
         }
       ],
       "state_at": "2026-11-20T21:40:57.000Z"
@@ -1486,6 +1552,72 @@
             "at": "2026-11-24",
             "why": "RGV 05:50 'left the cryo station and moved to the Massey's exit' had been rewritten as a separate 'Booster 24 headed to Massey's' (direction flip); that event is removed and the RGV post kept as a source of this same move. Picture: the Blobifie NSF grab stays gated off (photo_gate); candidates in needs-review, no swap."
           }
+        },
+        {
+          "id": "fv-a312197789",
+          "key": "B24|move|Mega Bay 2|24 Nov",
+          "vehicle": "B24",
+          "type": "move",
+          "milestone": false,
+          "at": "2026-11-24T13:36:59.000Z",
+          "date": "24 Nov",
+          "text": "Booster 24 is at Mega Bay 2.",
+          "place": "Mega Bay 2",
+          "url": "https://x.com/Blobifie/status/2125222150252675155",
+          "src": "@Blobifie",
+          "tier": 2,
+          "post_id": "2125222150252675155",
+          "flight": 17,
+          "image": {
+            "type": "video",
+            "url": "https://pbs.twimg.com/amplify_video_thumb/2125221992588816384/img/-O9edRhQ2f3cSP-A.jpg",
+            "video_url": "https://video.twimg.com/amplify_video/2125221992588816384/vid/avc1/1920x1080/CkXZ6m50oHG7jNcq.mp4",
+            "score": 2
+          },
+          "x_post": {
+            "url": "https://x.com/Blobifie/status/2125222150252675155",
+            "author": {
+              "username": "Blobifie"
+            },
+            "media": [
+              {
+                "type": "video",
+                "poster": "https://pbs.twimg.com/amplify_video_thumb/2125221992588816384/img/-O9edRhQ2f3cSP-A.jpg",
+                "video_url": "https://video.twimg.com/amplify_video/2125221992588816384/vid/avc1/1920x1080/CkXZ6m50oHG7jNcq.mp4",
+                "w": 1920,
+                "h": 1080
+              }
+            ]
+          },
+          "image_src": "https://x.com/Blobifie/status/2125222150252675155",
+          "sources": [
+            {
+              "post_id": "2125222150252675155",
+              "url": "https://x.com/Blobifie/status/2125222150252675155",
+              "src": "@Blobifie",
+              "at": "2026-11-24T13:36:59.000Z"
+            }
+          ],
+          "candidates": [
+            {
+              "type": "video",
+              "url": "https://pbs.twimg.com/amplify_video_thumb/2125221992588816384/img/-O9edRhQ2f3cSP-A.jpg",
+              "video_url": "https://video.twimg.com/amplify_video/2125221992588816384/vid/avc1/1920x1080/CkXZ6m50oHG7jNcq.mp4",
+              "score": 2,
+              "post_url": "https://x.com/Blobifie/status/2125222150252675155",
+              "author": "Blobifie",
+              "at": "2026-11-24T13:36:59.000Z",
+              "media": [
+                {
+                  "type": "video",
+                  "poster": "https://pbs.twimg.com/amplify_video_thumb/2125221992588816384/img/-O9edRhQ2f3cSP-A.jpg",
+                  "video_url": "https://video.twimg.com/amplify_video/2125221992588816384/vid/avc1/1920x1080/CkXZ6m50oHG7jNcq.mp4",
+                  "w": 1920,
+                  "h": 1080
+                }
+              ]
+            }
+          ]
         }
       ],
       "state_at": "2026-11-22T21:16:40.000Z"
