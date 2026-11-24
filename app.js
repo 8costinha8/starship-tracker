@@ -5968,15 +5968,12 @@ html.v-rm .road-list-inner, html.v-rm .next .road-list-inner { transform: none !
 .st .buildup:not(.feed-bu) > ul > li .bu-text { margin-top: 2px; }
 
 
-/* 24 Nov · Raptor stays near-black #0E0F11 (A2, 25 Oct); its progress dot gets a 1px light outline so it shows on navy
-   (outline rgba(255,255,255,.4) is 3.5:1 or more against every dark surface; scripts/test-contrast.js) */
-/* Raptor's near-black #0E0F11 (A2) gets a light ring INSIDE the dot: its own border is the ring, so the dot keeps exactly the
-   same outer size as every other dot (no outer box-shadow); the fill stays #0E0F11 */
-.dot[data-cat="raptor"], .dot-done[data-cat="raptor"], .dot-complete[data-cat="raptor"] { border-color: rgba(255,255,255,.4) !important; }
-/* 24 Nov v6: a complete dot glows in its own colour (0 0 8px var(--c)); Raptor's own colour is near-black, so its glow was
-   invisible. It gets the same soft glow in a light neutral that reads on navy; still a blur-only glow (no ring, so the dot
-   keeps its 10x10 size) and the inset outline stays */
-.dot-done[data-cat="raptor"], .dot-complete[data-cat="raptor"] { box-shadow: 0 0 8px #E2E8F0; } /* same 0 0 8px glow as every other complete dot, light grey, opaque */
+/* 24 Nov 18:28 UK · Raptor C4 (Bernardo: "just push C4"; original raptor-dot-variants/index4.py, not the index5 thin-rim half).
+   Every road-dot size, including the st / st2 shrink. Other categories unchanged. Size stays 10×10 (soft glow only; no hard
+   outer ring, no rgba(255,255,255,.4) inset ring). Glow alpha/colour change vs v6 is intentional. */
+.dot[data-cat="raptor"] { background: transparent; border-color: #000 !important; box-shadow: 0 0 8px rgba(201,206,214,.35); }
+.dot.dot-progress[data-cat="raptor"] { background: linear-gradient(90deg,#0E0F11 50%,transparent 50%); border-color: #000 !important; box-shadow: 0 0 8px rgba(201,206,214,.35); }
+.dot.dot-done[data-cat="raptor"], .dot.dot-complete[data-cat="raptor"] { background: #0E0F11; border-color: #0E0F11 !important; box-shadow: 0 0 3px rgba(226,232,240,.35), 0 0 10px 1px rgba(74,80,89,.9); }
 
 `;
 

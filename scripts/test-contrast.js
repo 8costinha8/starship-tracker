@@ -1,8 +1,10 @@
 // Category colours must be visible on the app's dark surfaces: WCAG contrast ratio of at least 3:1 (non-text UI,
 // WCAG 1.4.11) against the Road card (#10151F), the Page 2 section (#161C2C), the page (#0D111D) and the hero card
 // (#222D46). A category may instead pass through an outline: Raptor engines keeps its near-black #0E0F11 (option A2,
-// 25 Oct) and its progress dot's own border is a light ring (drawn inside the dot, same size as every other dot); the ring
-// (composited on each surface) must reach 3:1. An outer box-shadow is refused: it makes the dot look bigger.
+// 25 Oct) and may use an inside-the-dot outline (same size as every other dot); a ring
+// (composited on each surface) must reach 3:1. A hard outer box-shadow ring (0 0 0) is refused: it makes the dot look bigger.
+// Raptor C4 (24 Nov 18:28 UK): no inset ring; visibility is a soft glow (blur > 0). The glow's alpha and colour are
+// intentional and do not reach 3:1; the 10×10 size is unchanged.
 //   node scripts/test-contrast.js
 const fs = require("fs"), path = require("path");
 const ROOT = path.join(__dirname, "..");
@@ -21,15 +23,21 @@ const OUTLINE = {};
 for (const m of app.matchAll(/\.dot\[data-cat="(\w+)"\][^{]*\{ (?:border-color: |box-shadow: inset 0 0 0 1px )rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)/g)) OUTLINE[m[1]] = { rgb: [+m[2], +m[3], +m[4]], a: +m[5] };
 check(!/\.dot\[data-cat="\w+"\][^{]*\{[^}]*box-shadow: 0 0 0 /.test(app), "no outer outline on any progress dot (it would make that dot look bigger)");
 check(/data-cat=\{m\.id\} style=\{catVars\(m\.id, m\.color\)\}/.test(app), "progress dots carry data-cat so a category outline can apply");
+const c4full = /\.dot\.dot-done\[data-cat="raptor"\][^}]*background: #0E0F11;[^}]*border-color: #0E0F11 !important;[^}]*box-shadow: 0 0 3px rgba\(226,232,240,\.35\), 0 0 10px 1px rgba\(74,80,89,\.9\)/.test(app);
+const c4half = /\.dot\.dot-progress\[data-cat="raptor"\][^}]*background: linear-gradient\(90deg,#0E0F11 50%,transparent 50%\);[^}]*border-color: #000 !important;[^}]*box-shadow: 0 0 8px rgba\(201,206,214,\.35\)/.test(app);
+const c4empty = /\.dot\[data-cat="raptor"\] \{ background: transparent; border-color: #000 !important; box-shadow: 0 0 8px rgba\(201,206,214,\.35\); \}/.test(app);
+const c4 = c4full && c4half && c4empty;
+check(c4, "Raptor C4 CSS (index4.py): full #0E0F11 + 3px/10px halo, half/empty #000 + 8px rgba(201,206,214,.35), no inset ring");
+check(!OUTLINE.raptor && !/data-cat="raptor"[^}]*rgba\(255,\s*255,\s*255,\s*\.4\)/.test(app) && !/data-cat="raptor"[^}]*0 0 8px #E2E8F0/.test(app), "v6 Raptor inset ring and opaque #E2E8F0 glow are gone");
 const sets = [["road.json", Object.fromEntries(road.categories.map((c) => [c.id, c.color]))], ["PAST_COLOR", past],
   ["check-road BOXES", Object.fromEntries([...rc.matchAll(/\{ id: "(\w+)", icon: "[^"]*", name: "[^"]*", color: "(#[0-9A-Fa-f]{6})"/g)].map((m) => [m[1], m[2]]))]];
 for (const [name, cols] of sets) {
   check(Object.keys(cols).length >= 6, `${name}: ${Object.keys(cols).length} category colours found`);
   for (const [id, c] of Object.entries(cols)) {
+    if (id === "raptor") { check(c4, `${name} raptor ${c}: C4 soft glow (no inset ring; glow alpha/colour are intentional, size unchanged)`); continue; }
     const fill = Math.min(...Object.values(BGS).map((b) => ratio(hex(c), hex(b))));
     const ol = OUTLINE[id] ? Math.min(...Object.values(BGS).map((b) => ratio(over(OUTLINE[id].rgb, OUTLINE[id].a, hex(b)), hex(b)))) : 0;
     check(fill >= 3 || ol >= 3, `${name} ${id} ${c}: ${fill >= 3 ? `colour ${fill.toFixed(2)}:1` : `colour ${fill.toFixed(2)}:1, outline ${ol.toFixed(2)}:1`} ≥ 3:1 on every surface`);
   }
 }
-check(!!OUTLINE.raptor && OUTLINE.raptor.a <= 0.5, "Raptor's outline stays subtle (white at 50% or less)");
 console.log(`\n${n - fails}/${n} checks passed`); process.exit(fails ? 1 : 0);

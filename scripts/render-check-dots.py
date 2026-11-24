@@ -4,8 +4,12 @@ Not part of run-tests.js (the runner is node-only and offline; this needs a brow
 Usage: python3 scripts/render-check-dots.py [site_root_or_URL] [shot_prefix]
 Page 1 (hero Road pill) and Page 2 (every flight's pill): for every .road-dots row it measures each dot's RENDERED size:
 the border box plus any hard outer box-shadow ring (spread + offset, blur 0: an outer outline draws outside the box and
-makes a dot look bigger; the soft glow on done dots is not counted). v6: every COMPLETE dot (dot-done / dot-complete) must glow (a soft outer box-shadow or a filter, in a colour reaching 3:1 on navy), Raptor included. Asserts every dot in a row, Raptor included, has the same rendered width and height (+-0.01px), the box is
-square, and Raptor's dot is visible (its ring differs from its fill). Prints the sizes. Exit 1 on any failure."""
+makes a dot look bigger; a soft glow — including Raptor C4's 1px-spread halo, because its blur is > 0 — is not counted).
+Every COMPLETE dot (dot-done / dot-complete) must glow (a soft outer box-shadow or a filter). Other categories: the glow
+colour must reach 3:1 on navy. Raptor C4 (24 Nov 18:28 UK, index4.py): the glow alpha/colour change is intentional and
+does not reach 3:1; FULL is #0E0F11 fill/border + 0 0 3px rgba(226,232,240,.35), 0 0 10px 1px rgba(74,80,89,.9); HALF and
+EMPTY are border #000 + 0 0 8px rgba(201,206,214,.35); no inset ring. Asserts every dot in a row, Raptor included, has
+the same rendered width and height (+-0.01px) and the box is square. Prints the sizes. Exit 1 on any failure."""
 import sys, os, threading, json, re
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from playwright.sync_api import sync_playwright
@@ -28,7 +32,8 @@ MEASURE = """() => [...document.querySelectorAll('.road-dots')].filter(r => r.ge
       const n = (sh.replace(/rgba?\\([^)]*\\)/g, '').match(/-?[\\d.]+px/g) || []).map(parseFloat); const [x = 0, y = 0, blur = 0, spread = 0] = n; if (blur > 0) continue; /* a soft glow (done dots) is not a ring */ out = Math.max(out, spread + Math.max(Math.abs(x), Math.abs(y))); }
     const glows = (cs.boxShadow === 'none' ? [] : cs.boxShadow.split(/,(?![^(]*\\))/)).filter(sh => !/\\binset\\b/.test(sh)).map(sh => { const n = (sh.replace(/rgba?\\([^)]*\\)/g, '').match(/-?[\\d.]+px/g) || []).map(parseFloat); const c = (sh.match(/rgba?\\([^)]*\\)/) || [''])[0]; return { blur: n[2] || 0, color: c }; }).filter(g => g.blur > 0);
     const done = d.classList.contains('dot-done') || d.classList.contains('dot-complete');
-    return { done, glows, filter: cs.filter, cat: d.dataset.cat || null, w: b.width, h: b.height, rw: b.width + 2 * out, rh: b.height + 2 * out, outer: out, ring: cs.borderTopColor, fill: cs.backgroundColor, bw: cs.borderTopWidth }; }) }; })"""
+    const progress = d.classList.contains('dot-progress');
+    return { done, progress, glows, filter: cs.filter, shadow: cs.boxShadow, bg: cs.backgroundImage, cat: d.dataset.cat || null, w: b.width, h: b.height, rw: b.width + 2 * out, rh: b.height + 2 * out, outer: out, ring: cs.borderTopColor, fill: cs.backgroundColor, bw: cs.borderTopWidth }; }) }; })"""
 def _lum(r, g, b):
     f = lambda c: (c / 255) / 12.92 if c / 255 <= 0.04045 else (((c / 255) + 0.055) / 1.055) ** 2.4
     return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b)
@@ -58,10 +63,27 @@ with sync_playwright() as p:
                 report[tag] = {"sizes": sizes, "raptor": [(round(d["rw"], 2), round(d["rh"], 2), d["ring"], d["fill"]) for d in rap], "n": len(ds)}
                 if len(sizes) != 1: fails.append(f"{tag}: dots differ in rendered size {sizes} " + json.dumps([(d['cat'], round(d['rw'], 2), round(d['rh'], 2)) for d in ds]))
                 if any(abs(d["rw"] - d["rh"]) > 0.01 for d in ds): fails.append(f"{tag}: a dot is not round (w != h)")
+                # C4 (24 Nov): Raptor has no inset ring. FULL fill+border are #0E0F11; HALF/EMPTY border is #000.
+                # Visibility is the soft glow. Size stays equal (blur > 0 is not counted as a hard ring).
+                C4_FULL = re.compile(r"rgba\(\s*226,\s*232,\s*240,\s*0\.35\s*\)\s*0px\s+0px\s+3px(?:\s+0px)?\s*,\s*rgba\(\s*74,\s*80,\s*89,\s*0\.9\s*\)\s*0px\s+0px\s+10px\s+1px")
+                C4_SOFT = re.compile(r"rgba\(\s*201,\s*206,\s*214,\s*0\.35\s*\)\s*0px\s+0px\s+8px")
+                def _flat(x): return re.sub(r"\s", "", x or "")
                 for d in rap:
-                    if re.sub(r"\s", "", d["ring"]) == "rgb(14,15,17)" and not d["outer"]: fails.append(f"{tag}: Raptor dot ring {d['ring']} is its near-black colour (invisible)")
-                # v6: every COMPLETE dot glows, Raptor included: a soft (blur > 0) outer box-shadow, or a CSS filter, in a colour
-                # that reads on the dark surfaces (contrast >= 3:1 against the page navy #0B1020 when composited at its alpha)
+                    sh = d.get("shadow") or ""
+                    if "inset" in sh: fails.append(f"{tag}: Raptor C4 must not have an inset ring (box-shadow {sh})")
+                    if d["done"]:
+                        if _flat(d["ring"]) != "rgb(14,15,17)" or _flat(d["fill"]) != "rgb(14,15,17)": fails.append(f"{tag}: Raptor FULL fill/border should be #0E0F11, got ring {d['ring']} fill {d['fill']}")
+                        if not C4_FULL.search(sh): fails.append(f"{tag}: Raptor FULL glow is not C4 (got {sh})")
+                    elif d.get("progress"):
+                        if "linear-gradient" not in (d.get("bg") or ""): fails.append(f"{tag}: Raptor HALF should use a 50% linear-gradient, got {d.get('bg')}")
+                        if _flat(d["ring"]) not in ("rgb(0,0,0)", "rgba(0,0,0,1)"): fails.append(f"{tag}: Raptor HALF border should be #000, got {d['ring']}")
+                        if not C4_SOFT.search(sh): fails.append(f"{tag}: Raptor HALF glow is not C4 (got {sh})")
+                    else:
+                        if not re.search(r"rgba\(\s*0,\s*0,\s*0,\s*0\s*\)", d["fill"] or ""): fails.append(f"{tag}: Raptor EMPTY fill should be transparent, got {d['fill']}")
+                        if _flat(d["ring"]) not in ("rgb(0,0,0)", "rgba(0,0,0,1)"): fails.append(f"{tag}: Raptor EMPTY border should be #000, got {d['ring']}")
+                        if not C4_SOFT.search(sh): fails.append(f"{tag}: Raptor EMPTY glow is not C4 (got {sh})")
+                # every COMPLETE dot glows. Other categories: colour must read at 3:1 on navy. Raptor C4: glow
+                # alpha/colour are intentional (below 3:1); still fail on none / transparent / alpha 0.
                 for d in ds:
                     if not d["done"]: continue
                     gl = [g for g in d["glows"] if glow_reads(g["color"])]
@@ -70,7 +92,10 @@ with sync_playwright() as p:
                     for g in d["glows"]:
                         if g["color"] in ("", "transparent") or re.search(r"rgba\([^)]*,\s*0\)$", g["color"]): fails.append(f"{tag}: complete {d['cat']} dot: glow colour {g['color'] or 'transparent'} has alpha 0")
                     report[tag].setdefault("glow", []).append((d["cat"], d["glows"][0]["color"] if d["glows"] else d["filter"]))
-                    if not gl and not has_filter: fails.append(f"{tag}: complete {d['cat']} dot has no visible glow (box-shadow {d['glows'] or 'none'}, filter {d['filter']})")
+                    if d["cat"] == "raptor":
+                        if not d["glows"] and not has_filter: fails.append(f"{tag}: complete Raptor C4 has no glow (box-shadow {d.get('shadow') or 'none'})")
+                    elif not gl and not has_filter:
+                        fails.append(f"{tag}: complete {d['cat']} dot has no visible glow (box-shadow {d['glows'] or 'none'}, filter {d['filter']})")
                 if OUT and W == 390 and rap:
                     row = pg.locator(".road-dots").nth(r["ri"])
                     try: row.screenshot(path=f"{OUT}-{page}-dots{r['ri']}-390.png")
