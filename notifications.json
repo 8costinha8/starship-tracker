@@ -3477,6 +3477,19 @@
       "gate": "second trusted source agrees",
       "key": "B24|other|24 Nov",
       "guard": "G4 (warn): B24/S44 is not Flight 16 hardware (B23, S43)"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Ship 44 followed Booster 24 in the first double roll.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mwubk320-3f6ab2",
+      "url": "https://x.com/RGVaerialphotos/status/2125115713677594697",
+      "at": "2026-11-24T06:34:03.000Z",
+      "sent_at": "2026-11-24T07:01:01.459Z",
+      "where": "feed",
+      "verdict": "silent: minor transport — a push went out 0.5h ago (quiet window 24h)",
+      "gate": "second trusted source agrees",
+      "key": "S44|transport|24 Nov",
+      "guard": "G4 (warn): S44/B24 is not Flight 16 hardware (B23, S43)"
     }
   ]
 }
