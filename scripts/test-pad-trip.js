@@ -1,7 +1,7 @@
-// Pad trips (scripts/pad-trip.js): a vehicle's trip to the pad, its work there and its return are ONE pad activity.
+// Pad trips (scripts/move-route.js): a vehicle's trip to the pad, its work there and its return are ONE pad activity.
 // Fixture: Ship 43's 26-28 Oct Pad 2 trip (scripts/fixtures/pad-trip-s43.json).   node scripts/test-pad-trip.js
 const fs = require("fs"), path = require("path");
-const P = require("./pad-trip.js");
+const P = require("./move-route.js");
 let fails = 0, n = 0; const check = (ok, m) => { n++; console.log((ok ? "✅ " : "❌ ") + m); if (!ok) fails++; };
 const fx = JSON.parse(fs.readFileSync(path.join(__dirname, "fixtures/pad-trip-s43.json"), "utf8"));
 const clone = (o) => JSON.parse(JSON.stringify(o));
@@ -41,7 +41,7 @@ check(JSON.stringify(P.applyToRoad(r)) === JSON.stringify(r), "idempotent: a fol
 const solo = { categories: [{ id: "cryo", history: [{ id: "x1", hardware: "S50", at: "2026-12-01T10:00:00Z", text: "Ship 50 returned to Megabay 2 after cryo testing.", url: "https://x.com/a/status/1", updates: [{ at: "2026-12-01T08:00:00Z", text: "Ship 50 headed back to the build site.", url: "https://x.com/b/status/2" }] }] }, { id: "pad", history: [] }] };
 check(P.applyToRoad(solo) === solo, "a return with no pad trip before it is left alone");
 // classify
-const K = (t) => { const c = P.classify(t); return c.kind + (c.site ? ":" + c.site : ""); };
+const K = (t) => { const c = P.tripKind(t); return c.kind + (c.site ? ":" + c.site : ""); };
 check(K("Ship 43 rolled to Pad 2 for chopstick tests.") === "to_site:pad" && K("Ship 43 returned to Megabay 2 after cryo testing.") === "from_site" && K("Ship 43 headed back from Massey's.") === "from_site:massey"
   && K("Booster 24 headed to Massey's.") === "to_site:massey" && K("Booster 24 began cryo testing at Massey's.") === "at_site:massey" && K("Booster 23 headed back to Massey's for more cryo testing.") === "to_site:massey"
   && K("Ship 44 followed Booster 24 in the first double roll.") === "move", "classify: to / at / from a test site (pad, Massey's), and a bare move");
@@ -66,7 +66,18 @@ for (const [id, what] of [["2123658897949159619", "20 Nov out (TrackingTheSB)"],
   check(bIds.includes(id), `B24 cryo card covers ${what}`);
 const left = b.updates.find((u) => sid(u.url) === "2125114870563762434");
 check(left && ["2125104765050974276", "2125115713677594697", "2125117229482279118"].every((id) => (left.merged || []).some((m) => sid(m.url) === id)), "same move merges: RGV 'left the stand', the double roll and efraser77 fold into 'left Massey's'");
-check(b.updates.length === 5, `B24 rows: out, left Mega Bay 1, cryo start, left Massey's, at Mega Bay 2 (got ${b.updates.length})`);
+check(b.updates.length === 4, `B24 rows: out, cryo start, left Massey's, back at the bay (got ${b.updates.length})`);
+// 24 Nov v5: the X post ids carry their own post time (snowflake): Blobifie's "left Megabay 1" really was posted at 20:08,
+// 14 h after TrackingTheSB had B24 on Highway 4 (06:05) and 6 h after NSF had it at Massey's (13:44): a late report of the
+// same outbound move → merged into "headed to Massey's", never a row after it
+const snow = (id) => new Date(Number((BigInt(id) >> 22n) + 1288834974657n)).toISOString().slice(0, 19);
+check(snow("2123658897949159619") === "2026-11-20T06:05:11" && snow("2123871167119569323") === "2026-11-20T20:08:40" && snow("2123774597967540724") === "2026-11-20T13:44:56", "post times match the X post ids: 06:05 Highway 4, 13:44 at Massey's, 20:08 'left Megabay 1'");
+const out = b.updates.find((u) => sid(u.url) === "2123658897949159619");
+check(out && (out.merged || []).some((m) => sid(m.url) === "2123871167119569323" && m.late), "late 'left Megabay 1' (20:08) merges into the outbound move 'headed to Massey's' (06:05)");
+// a trip never goes backwards: left the bay → road → site → test → return, on every trip card of both fixtures
+for (const [nm, cards] of [["S43", cat(r, "pad").history.filter((h) => h.test_trip)], ["B24/S44", cat(r3, "cryo").history.filter((h) => h.test_trip)]])
+  for (const c of cards) { const st = c.updates.map((u) => P.stepOf(u)).filter((x) => x != null && x !== 3);
+    check(st.every((x, i) => !i || st[i - 1] <= x), `${nm} ${c.hardware || c.test_trip.vehicle}: steps never go backwards (${st.join(" ")})`); }
 const sIds = [s4, ...s4.updates].flatMap((u) => [sid(u.url), ...(u.merged || []).map((m) => sid(m.url))]);
 check(["2125115713677594697", "2125222150252675155", "2123774597967540724"].every((id) => sIds.includes(id)) && s4.text === "Ship 44 completed cryo testing.", "the combined posts attach to Ship 44's own trip too; S44 leads with its completed cryo test");
 check(JSON.stringify(P.applyToRoad(r3)) === JSON.stringify(r3), "idempotent (Massey's trips)");

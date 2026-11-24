@@ -1,6 +1,6 @@
 // Test-site trips over ALL the live data (road.json + data/vehicles.json): every flight on the Road (current flight and each
 // upcoming flight from the fleet registry), every vehicle. Runs app.js's own rtfCards / fleetRoad (pulled out at run time,
-// scripts/render-check.js appFns) with scripts/pad-trip.js, and checks:
+// scripts/render-check.js appFns) with scripts/move-route.js, and checks:
 //   no standalone move card — no card leads with a move that a test at that site brackets (it belongs to the test's card)
 //   every move of such a trip is still on that test's card (a row, or merged into a row) — nothing is lost
 //   trip cards read oldest first, and their headline is the test (not a move)
@@ -8,8 +8,7 @@
 const fs = require("fs"), path = require("path");
 const ROOT = path.resolve(process.argv[2] || path.join(__dirname, ".."));
 const SC = __dirname;
-globalThis.PadTrip = require(path.join(SC, "pad-trip.js"));
-try { globalThis.RoadMoveRoute = require(path.join(SC, "move-route.js")); } catch {}
+globalThis.RoadMoveRoute = globalThis.PadTrip = require(path.join(SC, "move-route.js")); // one rule module (routing + trips)
 try { globalThis.RoadRules = require(path.join(SC, "road-rules.js")); } catch {}
 const P = globalThis.PadTrip;
 const src = fs.readFileSync(path.join(ROOT, "app.js"), "utf8");
@@ -58,7 +57,12 @@ for (const fl of flights) {
       check(onCard, `the move stays on its test's card: ${what}`);
     }
     const tc = vc.find((c) => c.h.test_trip && c.h.test_trip.start === new Date(t.start).toISOString());
-    if (tc) { check(tc.h.trip_order === "chrono", `F${fl} ${v} trip card reads oldest first`); check(!MOVE.has(P.classify(tc.h.card_text || tc.h.text).kind), `F${fl} ${v} trip card leads with the test, not a move: "${tc.h.text}"`); }
+    if (tc) { const st = (tc.h.updates || []).slice().sort((a, b) => Date.parse(a.at) - Date.parse(b.at)).map((u) => P.stepOf(u)).filter((x) => x != null && x !== 3);
+      check(st.every((x, i) => !i || st[i - 1] <= x), `F${fl} ${v} trip steps never go backwards (left bay → road → site → test → return): ${st.join(" ")}`);
+      const snowT = (u) => { const m = /status\/(\d{15,})/.exec(u.url || ""); return m ? Number((BigInt(m[1]) >> 22n) + 1288834974657n) : null; };
+      const off = [tc.h, ...(tc.h.updates || [])].flatMap((u) => [u, ...(u.merged || [])]).filter((u) => u.at && snowT(u) != null && Math.abs(Date.parse(u.at) - snowT(u)) > 90e3);
+      check(!off.length, `F${fl} ${v} trip rows: post time = the X post id's time (${off.map((u) => u.url.split("/").pop() + " " + u.at).join(", ") || "all match"})`);
+      check(tc.h.trip_order === "chrono", `F${fl} ${v} trip card reads oldest first`); check(!MOVE.has(P.tripKind(tc.h.card_text || tc.h.text).kind), `F${fl} ${v} trip card leads with the test, not a move: "${tc.h.text}"`); }
   }
 }
 // B24 (F17): every post Tusk listed on 24 Nov is on the Booster 24 cryo card; fv-768cebc29b is not its own card

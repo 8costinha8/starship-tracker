@@ -65,6 +65,21 @@ function placesIn(t) {
   return { to, from };
 }
 const LAUNCH_PLACES = new Set(["Pad 1", "Pad 2", "LC-39A", "the launch site"]);
+// 24 Nov (v5): paired places map IN ORDER — "Ship 44 and Booster 24 returned to Megabay 2 and 1" = S44 → Mega Bay 2,
+// B24 → Mega Bay 1 ("respectively" or not). Only when the clause names as many vehicles as places and the places are
+// written as a pair ("X and Y", "X & Y", "X, Y"); one place for several vehicles is still that place for each. Never copies
+// one location to both vehicles of a pair. Returns { id: place } or null.
+function pairPlaces(clause, ids) {
+  if (!ids || ids.length < 2) return null;
+  const t = String(clause || "").replace(/\b(mega ?bay|pad)\s?(\d)\s*(?:,|and|&)\s*(\d)\b/gi, (m, w, a, b) => `${w} ${a} and ${w} ${b}`);
+  const hits = [];
+  for (const [n, re] of PLACES) for (const m of t.matchAll(new RegExp(re.source, re.flags.replace("g", "") + "g"))) if (!hits.some((h) => m.index >= h.i && m.index < h.end)) hits.push({ n, i: m.index, end: m.index + m[0].length });
+  hits.sort((a, b) => a.i - b.i);
+  const names = hits.map((h) => h.n).filter((n, k, a) => a.indexOf(n) === k);
+  if (names.length !== ids.length) return null;
+  const joined = hits.every((h, k) => !k || /^\s*(?:,|and|&|,\s*and)\s*$/i.test(t.slice(hits[k - 1].end, h.i))) || /\brespectively\b/i.test(t);
+  return joined ? Object.fromEntries(ids.map((id, k) => [id, names[k]])) : null;
+}
 
 // vehicle ids in a piece of text (URLs stripped first)
 function idsIn(text) {
@@ -196,7 +211,7 @@ function textFor(id, ev, sentence, flight) {
     case "engines_installed": return `${N} has all its engines installed.`;
     case "stacked": return `${N} was stacked${at}.`;
     case "rollout": return `${N} rolled out to ${ev.place}.`;
-    case "move": if (!ev.place && ev.from) return `${N} left ${ev.from}.`; return /\b(arriv\w*|joining|together at|at (?:the )?massey|stands?)\b/i.test(sentence) ? `${N} is at ${ev.place}.` : `${N} headed to ${ev.place}.`;
+    case "move": if (!ev.place && ev.from) return `${N} left ${ev.from}.`; return /\b(arriv\w*|joining|together at|at (?:the )?massey|stands?|returned to|back (?:in|at|inside))\b/i.test(sentence) ? `${N} is at ${ev.place}.` : `${N} headed to ${ev.place}.`;
     default: { const s = clean(sentence).replace(/\s*(?:yesterday|today|tonight|this morning)\b/gi, "").replace(/[!]+/g, ".").replace(/\s+\./g, ".").trim(); return /[.]$/.test(s) ? s : `${s}.`; }
   }
 }
@@ -238,7 +253,9 @@ function ingest(reg, posts, { road = {}, now = Date.now(), backfill = false, log
       for (const c of clauses(s)) {
         const cids0 = idsIn(c); const cids = cids0.length ? cids0 : (ids.length === 1 ? ids : []);
         if (!cids.length) continue;
-        for (const ev of eventsIn(c, s)) for (const id of cids) {
+        const pair = pairPlaces(c, cids); // "A and B … X and Y": each vehicle gets its own place
+        for (const ev0 of eventsIn(c, s)) for (const id of cids) {
+          const ev = pair && ev0.place && (ev0.type === "move" || ev0.type === "rollout") ? { ...ev0, place: pair[id] } : ev0;
           const v = V[id]; if (!v) continue;
           if (ev.terminal) {
             if (ev.type === "caught" || ev.type === "expended") { if (!(stateIdx(v.state) >= stateIdx("rollout"))) continue; } // only a vehicle that rolled out / flew can be caught or expended
@@ -455,4 +472,4 @@ function unmappedEvents(reg) {
   }
   return out;
 }
-module.exports = { unmappedEvents, LIFECYCLE_TYPES, ROAD_BOX, roadEntry, intoRoad, origUrl, upgradeOrig, screenImages, probeBanner, bannerOf, FILE, STATES, TERMINAL, STATE_LABEL, MILESTONES, PUSH_LABEL, BOX_OF, PADS, load, save, empty, seed, ingest, idsIn, assignmentsIn, eventsIn, sentences, clauses, nameOf, groups, findEvent, visibleFor, flownFlights, newestFlown, coverageDue, coverageQuery, coverageGaps, runCoverage, COVERAGE_H, bestImage };
+module.exports = { pairPlaces, unmappedEvents, LIFECYCLE_TYPES, ROAD_BOX, roadEntry, intoRoad, origUrl, upgradeOrig, screenImages, probeBanner, bannerOf, FILE, STATES, TERMINAL, STATE_LABEL, MILESTONES, PUSH_LABEL, BOX_OF, PADS, load, save, empty, seed, ingest, idsIn, assignmentsIn, eventsIn, sentences, clauses, nameOf, groups, findEvent, visibleFor, flownFlights, newestFlown, coverageDue, coverageQuery, coverageGaps, runCoverage, COVERAGE_H, bestImage };

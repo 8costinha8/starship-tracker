@@ -2538,12 +2538,14 @@ let AVATARS = null; const avatarSubs = new Set();
 fetch("icons/avatars/index.json").then((r) => r.json()).then((j) => { AVATARS = (j && j.avatars) || {}; avatarSubs.forEach((f) => f(AVATARS)); }).catch(() => { AVATARS = {}; avatarSubs.forEach((f) => f(AVATARS)); });
 const badgeHandleOf = (author, url) => String(author || (String(url || "").match(/x\.com\/([A-Za-z0-9_]{1,15})\/status\//) || [])[1] || "").replace(/^@/, "");
 const NO_BADGE_IMAGES = () => [SHIP_CRYO_IMAGE, RTF_PLACEHOLDER];
-function SrcBadge({ author, url, image, keep, date }) {
+// 24 Nov v5: a photo that already shows its source's logo in the crop gets no round badge on top (scripts/photo-marks.js)
+const markHidesBadge = (image, aspect, crop) => { const P = (typeof window !== "undefined" && window.PhotoMarks) || (typeof globalThis !== "undefined" && globalThis.PhotoMarks); return !!(P && image && P.hideBadge(image, aspect, crop)); };
+function SrcBadge({ author, url, image, keep, date, aspect = 16 / 9, crop = "top" }) {
   const [av, setAv] = React.useState(AVATARS);
   const [bad, setBad] = React.useState(false);
   React.useEffect(() => { if (AVATARS) return; avatarSubs.add(setAv); return () => avatarSubs.delete(setAv); }, []);
   const h = badgeHandleOf(author, url);
-  if (!h || (image && NO_BADGE_IMAGES().includes(image) && !keep)) return null;
+  if (!h || (image && NO_BADGE_IMAGES().includes(image) && !keep) || markHidesBadge(image, aspect, crop)) return null;
   const rec = av && av[h.toLowerCase()];
   return (
     <a className="src-badge" href={url || `https://x.com/${h}`} target="_blank" rel="noopener noreferrer" title={`@${h} on X${date ? " · photo " + date : ""}`} aria-label={`Photo by @${h}${date ? ", " + date : ""}: open the post on X`} onClick={(e) => e.stopPropagation()}>
@@ -3514,7 +3516,7 @@ function SplitMedia({ pair, onPhotoTap, alt, road, date }) {
           <a key={i} href={m.image} target="_blank" rel="noopener noreferrer" aria-label={`${alt} \u2014 photo ${i + 1}`}
             onClick={(e) => { e.stopPropagation(); if (onPhotoTap) { e.preventDefault(); onPhotoTap(m.image, `${alt} \u2014 photo ${i + 1}`); } }}>
             <img decoding="async" className={cropClass(m)} src={localImg(m.image)} alt="" loading="lazy" referrerPolicy="no-referrer" onError={imgFallback(m.image, () => setBad((b) => ({ ...b, [i]: true })))} /></a>))}
-        <SrcBadge author={pair[1].author} url={pair[1].post_url} image={pair[1].image} date={road ? date : undefined} />
+        <SrcBadge author={pair[1].author} url={pair[1].post_url} image={pair[1].image} date={road ? date : undefined} aspect={8 / 9} crop={pair[1].crop === "bottom" ? "bottom" : "top"} />
       </div>
     </div>
   );
@@ -3532,7 +3534,7 @@ function OneMedia({ mo }) {
     <div className="xm">
       <div className="xm-grid n1"><a href={mo.post_url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
         <img decoding="async" className={cropClass(mo)} src={localImg(mo.image)} alt="" loading="lazy" referrerPolicy="no-referrer" onError={imgFallback(mo.image, () => setBad(true))} />{mo.type === "video" && PLAY_ICON}</a>
-        <SrcBadge author={mo.author} url={mo.post_url} image={mo.image} keep={!!mo.keep_image} date={mo.road ? mo.photo_date : undefined} /></div>
+        <SrcBadge author={mo.author} url={mo.post_url} image={mo.image} keep={!!mo.keep_image} date={mo.road ? mo.photo_date : undefined} crop={mo.crop === "bottom" ? "bottom" : "top"} /></div>
       {/* credit-only photo: the photo and its badge already open the photo's post; the card keeps one View on X (its own post) */}
       {!mo.road && (mo.photo_date || mo.credit_only) && <div className="xm-foot"><span className="xm-ctx">{mo.photo_date ? `Photo · ${mo.photo_date}` : `Photo · @${mo.author}`}</span></div>}
     </div>
@@ -3863,8 +3865,9 @@ function cardFaceOrFallback(own, list, cid, done) {
   return { pic: null, fallback: false, ev: own, date: null };
 }
 // 24 Nov: a vehicle's trip to a test site (Massey's or a pad), the test there and its return form ONE card on that test's
-// section (scripts/pad-trip.js = PadTrip / TestTrip, pure; display copy only, road.json and the registry are untouched).
-const padTripsOf = (road) => { const P = (typeof window !== "undefined" && window.PadTrip) || (typeof globalThis !== "undefined" && globalThis.PadTrip); return P && P.applyToRoad ? P.applyToRoad(road) : road; };
+// section (scripts/move-route.js applyToRoad, the same rule module as the move routing; display copy only, road.json and
+// the registry are untouched).
+const padTripsOf = (road) => { const P = (typeof window !== "undefined" && window.RoadMoveRoute) || (typeof globalThis !== "undefined" && globalThis.RoadMoveRoute); return P && P.applyToRoad ? P.applyToRoad(road) : road; };
 const tripChrono = (h) => !!(h && h.trip_order === "chrono"); // pad-trip cards: Earlier updates oldest first (the trip's story)
 function rtfCards(road) {
   road = padTripsOf(road);

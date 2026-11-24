@@ -59,9 +59,11 @@ const checks = appFns(["upcomingFlight", "rtfRows", "roadForFlight", "fleetRoad"
   const f16 = A.rtfRows(clone(road0)).rows.filter((r) => r.post && r.post.flight === 16).map((r) => r.post);
   const b23 = f16.find((p) => p.cat.id === "cryo" && /Booster 23/.test(p.cat.name));
   o(b23 && !/arrived at Massey/.test(b23.h.text) && b23.done, `#1 F16 B23 cryo headline is verified and the card stays Complete ("${b23 && b23.h.text}")`);
-  // PENDING: S43 28 Oct Megabay 2 entry stays where it is (Pad), not moved, merged or dropped
+  // Decided (Bernardo via Tusk, 24 Nov 13:11, was PENDING): the S43 Pad trip is ONE Pad card led by the chopstick lift; the
+  // 28 Oct Megabay 2 return (f16-s43-2115315741709001123) stays on that card (merged into the return row), never on Cryo
   const s43pad = f16.find((p) => p.cat.id === "pad" && /Ship 43/.test(p.cat.name));
-  o(s43pad && (s43pad.h.url || "").includes("2115315741709001123"), "PENDING f16-s43-2115315741709001123 stays on the F16 Pad card (Bernardo deciding)");
+  const onCard = (id) => s43pad && [s43pad.h, ...(s43pad.h.updates || [])].some((u) => (u.url || "").includes(id) || (u.merged || []).some((m) => (m.url || "").includes(id)));
+  o(s43pad && /lifted on the chopsticks at Pad 2/.test(s43pad.h.text) && onCard("2115315741709001123") && !f16.some((p) => p.cat.id === "cryo" && JSON.stringify(p.h).includes("2115315741709001123")), "f16-s43-2115315741709001123 stays on the F16 Pad card (one pad trip, led by the chopstick lift), not on Cryo");
   // #5 one mapping: Pad progress in data is In progress on the hero, not "Not yet"
   const m = A.decorateFlogItem({ id: "pad", status: "progress" }, { status: "none", statusText: "Not yet", cards: [] }, clone(road0));
   o(m.status === "progress" && m.flog.statusText === "In progress", `#5 hero Pad: data 'progress' + Flight Log 'none' → In progress (got ${m.status} / ${m.flog && m.flog.statusText})`);

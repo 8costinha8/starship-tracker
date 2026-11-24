@@ -16,6 +16,8 @@
   "scripts/test-colors.js",
   "scripts/test-contrast.js",
   "scripts/test-pad-trip.js",
+  "scripts/test-fleet-pairs.js",
+  "scripts/test-photo-marks.js",
   "scripts/test-trip-live.js",
   "scripts/test-photo-centre.js",
   "scripts/test-compact.js",
