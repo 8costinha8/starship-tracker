@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-24T06:45:30.028Z",
+  "updated": "2026-11-24T07:00:45.098Z",
   "vehicles": {
     "B7": {
       "id": "B7",
@@ -964,6 +964,12 @@
               "url": "https://x.com/efraser77/status/2124613486315790767",
               "src": "@efraser77",
               "at": "2026-11-22T21:18:23.000Z"
+            },
+            {
+              "post_id": "2125122247467663651",
+              "url": "https://x.com/RGVaerialphotos/status/2125122247467663651",
+              "src": "@RGVaerialphotos",
+              "at": "2026-11-24T07:00:01.000Z"
             }
           ],
           "backfill": true,
@@ -993,6 +999,24 @@
                 {
                   "type": "video",
                   "poster": "https://pbs.twimg.com/amplify_video_thumb/2124265195992440832/img/iKqB-vmKXQVQk3TQ.jpg"
+                }
+              ]
+            },
+            {
+              "type": "video",
+              "url": "https://pbs.twimg.com/amplify_video_thumb/2125113384828121088/img/qr4LFYBA47UpHnZp.jpg",
+              "video_url": "https://video.twimg.com/amplify_video/2125113384828121088/vid/avc1/3840x2160/DtYi6FnOFvWTu3S9.mp4",
+              "score": 2,
+              "post_url": "https://x.com/RGVaerialphotos/status/2125122247467663651",
+              "author": "RGVaerialphotos",
+              "at": "2026-11-24T07:00:01.000Z",
+              "media": [
+                {
+                  "type": "video",
+                  "poster": "https://pbs.twimg.com/amplify_video_thumb/2125113384828121088/img/qr4LFYBA47UpHnZp.jpg",
+                  "video_url": "https://video.twimg.com/amplify_video/2125113384828121088/vid/avc1/3840x2160/DtYi6FnOFvWTu3S9.mp4",
+                  "w": 3840,
+                  "h": 2160
                 }
               ]
             }
@@ -1395,6 +1419,12 @@
               "url": "https://x.com/RGVaerialphotos/status/2125104765050974276",
               "src": "@RGVaerialphotos",
               "at": "2026-11-24T05:50:33.000Z"
+            },
+            {
+              "post_id": "2125119272477479129",
+              "url": "https://x.com/TrackingTheSB/status/2125119272477479129",
+              "src": "@TrackingTheSB",
+              "at": "2026-11-24T06:48:12.000Z"
             }
           ],
           "candidates": [
