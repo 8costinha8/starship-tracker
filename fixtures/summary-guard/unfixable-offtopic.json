@@ -1,0 +1,14 @@
+{
+ "ctx": {
+  "flight": 16,
+  "vehicles": [
+   "B23",
+   "S43"
+  ]
+ },
+ "in": "Flight 15 booster caught.",
+ "want": {
+  "ok": false,
+  "reason": "summary_offtopic"
+ }
+}

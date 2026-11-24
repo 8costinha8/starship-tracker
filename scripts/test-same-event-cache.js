@@ -33,7 +33,7 @@ const go = (r, st, posts, now, cache, maxSame) => mw.runMediaWatch(r, st, { toke
   verdict = true; const rA = road([card("s1", "Booster 22 was lifted onto Pad 2.")]), rB = road([card("s1", "Booster 22 was lifted onto Pad 2.")]); const pS = post("9100", "c", "2026-10-24T14:50:00.000Z", "B22 lifted onto Pad 2.");
   const cA = SEC.load(path.join(dir, "none.json")); const fresh = await go(rA, {}, [pS], NOW, cA); sameN = 0;
   const cached = await go(rB, {}, [pS], NOW, cA);
-  check(sameN === 0 && fresh.swapped.length === 1 && cached.swapped.length === 1 && rA.categories[0].history[0].media_override.image === rB.categories[0].history[0].media_override.image, "cached 'same' verdict gives the identical swap as a fresh one");
+  check(sameN === 0 && fresh.candidates.length === 1 && cached.candidates.length === 1 && !fresh.swapped.length && !cached.swapped.length && fresh.candidates[0].image_url === cached.candidates[0].image_url, "cached 'same' verdict gives the identical queued candidate as a fresh one (no swap either way)");
   verdict = false; const cN = SEC.load(path.join(dir, "none2.json")), rN = road([card("n1", "Booster 22 was lifted onto Pad 2.")]); await go(rN, {}, [pS], NOW, cN); const rN2 = road([card("n1", "Booster 22 was lifted onto Pad 2.")]); sameN = 0;
   const cn2 = await go(rN2, {}, [pS], NOW, cN); check(sameN === 0 && cn2.swapped.length === 0 && rN2.categories[0].history[0].media_override.image === media[0].url, "cached 'not same' verdict: no swap, same as fresh");
   // cap: 30 pairs, cap 20 → 20 calls, rest queued; newest Tier 1 first, then Tier 2; the next run asks only the 10 left

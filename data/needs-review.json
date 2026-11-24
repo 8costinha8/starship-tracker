@@ -1,6 +1,75 @@
 {
   "items": [
     {
+      "date": "2026-11-24T13:10:00.000Z",
+      "type": "photo_candidate",
+      "card_id": "fv-768cebc29b",
+      "image_url": "https://pbs.twimg.com/media/HX3jgWpbIAAlCVD.jpg?name=orig",
+      "post_url": "https://x.com/RGVaerialphotos/status/2125104765050974276",
+      "reason": "photo gate: B24 24 Nov 06:30 picture is an NSF Starbase Live four-panel night grab (red ticker band 0.72); same trip 40 min earlier, @RGVaerialphotos photo of B24 leaving the cryo station (mean 67, laplacian 1011)",
+      "confidence": null,
+      "gate": {
+        "ok": true,
+        "reasons": []
+      },
+      "source": "photo-gate 24 Nov",
+      "author": "RGVaerialphotos",
+      "item": "fv-768cebc29b",
+      "values": [
+        "https://pbs.twimg.com/media/HX3jgWpbIAAlCVD.jpg?name=orig"
+      ],
+      "sources": [
+        "https://x.com/RGVaerialphotos/status/2125104765050974276"
+      ],
+      "msg": "photo_candidate fv-768cebc29b: https://pbs.twimg.com/media/HX3jgWpbIAAlCVD.jpg?name=orig"
+    },
+    {
+      "date": "2026-11-24T13:10:00.000Z",
+      "type": "photo_candidate",
+      "card_id": "fv-0ce4b1fb08",
+      "image_url": "https://pbs.twimg.com/media/HXmhnKqWQAAQlyd.jpg?name=orig",
+      "post_url": "https://x.com/TrackingTheSB/status/2123906558115418275",
+      "reason": "photo gate: S44 cryo_start picture failed (livestream ticker band (red bottom band 0.72)); this candidate passes the local checks",
+      "confidence": null,
+      "gate": {
+        "ok": true,
+        "reasons": []
+      },
+      "source": "photo-gate 24 Nov",
+      "author": "TrackingTheSB",
+      "item": "fv-0ce4b1fb08",
+      "values": [
+        "https://pbs.twimg.com/media/HXmhnKqWQAAQlyd.jpg?name=orig"
+      ],
+      "sources": [
+        "https://x.com/TrackingTheSB/status/2123906558115418275"
+      ],
+      "msg": "photo_candidate fv-0ce4b1fb08: https://pbs.twimg.com/media/HXmhnKqWQAAQlyd.jpg?name=orig"
+    },
+    {
+      "date": "2026-11-24T13:10:00.000Z",
+      "type": "photo_candidate",
+      "card_id": "fv-0ce4b1fb08",
+      "image_url": "https://pbs.twimg.com/amplify_video_thumb/2123894070829559808/img/fBDA16Mj6GuEouvs.jpg",
+      "post_url": "https://x.com/efraser77/status/2123894391177949549",
+      "reason": "photo gate: S44 cryo_start picture failed (livestream ticker band (red bottom band 0.72)); this candidate passes the local checks",
+      "confidence": null,
+      "gate": {
+        "ok": true,
+        "reasons": []
+      },
+      "source": "photo-gate 24 Nov",
+      "author": "efraser77",
+      "item": "fv-0ce4b1fb08",
+      "values": [
+        "https://pbs.twimg.com/amplify_video_thumb/2123894070829559808/img/fBDA16Mj6GuEouvs.jpg"
+      ],
+      "sources": [
+        "https://x.com/efraser77/status/2123894391177949549"
+      ],
+      "msg": "photo_candidate fv-0ce4b1fb08: https://pbs.twimg.com/amplify_video_thumb/2123894070829559808/img/fBDA16Mj6GuEouvs.jpg"
+    },
+    {
       "date": "2026-11-21T06:00:27.496Z",
       "type": "render-crossover",
       "item": "rtf-static-B23",

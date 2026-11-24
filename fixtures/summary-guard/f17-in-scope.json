@@ -1,0 +1,15 @@
+{
+ "ctx": {
+  "flight": 17,
+  "vehicles": [
+   "B24",
+   "S44"
+  ]
+ },
+ "in": "Ship 44 completed cryo testing.",
+ "want": {
+  "ok": true,
+  "text": "Ship 44 completed cryo testing.",
+  "changed": false
+ }
+}

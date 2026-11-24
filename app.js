@@ -1880,7 +1880,8 @@ function AboutPanel({ open, onClose, onManageNotifications }) {
     <>
       <div className={`scrim${open ? " show" : ""}`} onClick={onClose} role="button" aria-label="Close menu" />
       <aside className={`about${open ? " show" : ""}`} aria-label="About">
-        <h2>About</h2>
+        {/* 24 Nov: one header row (title left, round close right, vertically centred) below the status bar; the intro sits under it */}
+        <div className="about-head"><h2>About</h2><button type="button" className="v-close" aria-label="Close menu" onClick={onClose}>✕</button></div>
         <p>A personal log of every Starship flight. No ads, no tracking.</p>
         <dl>
           <dt>Photos</dt><dd>Each photo is credited to whoever published it.</dd>
@@ -2341,7 +2342,11 @@ function decorateFlogItem(m, flog, road, heroNet, heroFlight, now) {
   else if (m.id === "faa" && f) f = faaLicenceDisplay(f);
   f = afterLiftoffFlog(f, m.id, road, heroFlight, now);
   if (f) f = filterRoadFlogEvents(f, road);
-  return f ? { ...m, status: f.status, flog: f } : m;
+  if (!f) return m;
+  // 24 Nov #5 (one mapping, hero = Page 2): a test box keeps its own stronger status (Pad "progress" in road.json is In progress,
+  // not the Flight Log's "Not yet"); STICKY COMPLETE: a box that is Complete is never shown lower.
+  const st = (globalThis.RoadRules || null) ? (globalThis.RoadRules || null).mergeStatus(m.status, f.status, m.id) : f.status;
+  return st === f.status ? { ...m, status: st, flog: f } : { ...m, status: st, flog: { ...f, status: st, statusText: (globalThis.RoadRules || null).statusText(st, m.id) } };
 }
 // --- end road-liftoff helpers ---
 // --- road-parity helpers (tested by tests/test-road-parity.js) ---
@@ -2401,7 +2406,10 @@ function RoadCard({ road, onEntryTap, openReq, heroNet, netPending, heroFlight }
   // 13 Nov: an item opens only if its drawer would show something (Flight Log cards with a line, or a history entry this card lists).
   // Decided from the data, never from the item id or flight number. Others render as a plain div: no tap, hover, focus or aria-expanded.
   const hasDrawer = (m) => (parity[m.id] || []).length > 0;
-  const boxLine = (m) => roadBoxLatest(parity[m.id]) || (m.id === "date" && dateNet ? `NET ${dateNet}` : "Nothing reported yet"); // no Page 2 entry yet: the same wording later flights use (Launch date: the hero's NET)
+  // 24 Nov #1: the row's one-line summary is the category summary (road.json categories[].latest, checked by summary-guard);
+  // no summary → the newest Page 2 entry's words; the drawer still lists Page 2's own cards.
+  const catLatest = (m) => { const c = (road.categories || []).find((x) => x.id === m.id); const t = c && String(c.latest || "").trim(); return t && !/^nothing reported yet\.?$/i.test(t) ? t : null; };
+  const boxLine = (m) => catLatest(m) || roadBoxLatest(parity[m.id]) || (m.id === "date" && dateNet ? `NET ${dateNet}` : "Nothing reported yet"); // no Page 2 entry yet: the same wording later flights use (Launch date: the hero's NET)
   const count = (m) => { if (m.flog || !ONE_CARD.includes(m.id) || m.status === "done" || !window.RoadCleanup) return null;
     const vp = window.RoadCleanup.vehicleProgress(m, road); return vp.total && vp.done ? `${vp.done} of ${vp.total}` : null; };
   return (
@@ -3781,9 +3789,24 @@ function cardFacePicture(own, cid, done) {
   const pic = pick.cardPicture([own], { cid, done: done || null });
   const url = own.url || (own.x_post && own.x_post.url);
   if (!pic || !pic.image || (url && pic.post_url && !samePost(pic.post_url, url))) return null;
+  if (!photoGateOk(own, pic)) return null; // 24 Nov photo gate: not confidently good → fallback photo / ship-cryo standing photo / text only
   return pic;
 }
-function photoDateLabel(h) {
+// 24 Nov photo sanity gate (scripts/photo-gate.js): a stored checker verdict (h.photo_gate for that image) or the cheap local
+// checks (live-camera video posters, live-stream credit lines, odd aspect). A manual pick (keep_image) is never gated.
+function photoGateOk(h, pic) {
+  const mo = (h && h.media_override) || {};
+  if (pic.manual || (mo.keep_image && mo.image === pic.image)) return true;
+  const st = h && h.photo_gate;
+  if (st && st.image === pic.image && st.ok === false) return false;
+  const PG = (typeof window !== "undefined" && window.PhotoGate) || (typeof globalThis !== "undefined" && globalThis.PhotoGate);
+  if (!PG) return true;
+  const xp = (h && h.x_post) || {};
+  return PG.localCheck({ image: pic.image, type: pic.type, author: pic.author || (xp.author && xp.author.username), post_text: xp.text || "" }).ok;
+}
+function photoDateLabel(h, pic) {
+  const own = pic && (globalThis.RoadRules || null) ? (globalThis.RoadRules || null).photoIso(pic.post_url) : null; // 24 Nov #2: a photo is dated by its own post
+  if (own) return ukStamp(own, false);
   const iso = h && h.at && Number.isFinite(Date.parse(h.at)) ? h.at : null;
   if (iso) return ukStamp(iso, false);
   const d = String((h && h.date) || "").replace(/\s*·.*/, "").trim();
@@ -3806,12 +3829,16 @@ function eventPhoto(h, cid) {
 function cardFaceOrFallback(own, list, cid, done) {
   const ownPic = cardFacePicture(own, cid, done);
   if (ownPic) return { pic: ownPic, fallback: false, ev: own, date: null };
+  // 24 Nov photo gate: a ship cryo card whose own picture is not confidently good shows Bernardo's standing photo
+  if (cid === "cryo" && own && isShipCryo(own, { id: "cryo" })) { const pick = (typeof window !== "undefined" && window.RoadPick) || (typeof globalThis !== "undefined" && globalThis.RoadPick);
+    const raw = pick && pick.cardPicture([own], { cid, done: done || null });
+    if (raw && raw.image) return { pic: { image: SHIP_CRYO_IMAGE, type: "photo", post_url: own.url || raw.post_url, author: raw.author, standing: true }, fallback: false, ev: own, date: null }; }
   const headUrl = own && (own.url || (own.x_post && own.x_post.url)), headAt = Date.parse((own && own.at) || 0) || 0;
   const earlier = (list || []).filter((e) => e && !samePost(e.url || (e.x_post && e.x_post.url), headUrl) && (!headAt || (Date.parse(e.at || 0) || 0) < headAt))
     .slice().sort((a, b) => (Date.parse(b.at || 0) || 0) - (Date.parse(a.at || 0) || 0));
   for (const e of earlier) {
     const pic = eventPhoto(e, cid);
-    if (pic) return { pic, fallback: true, ev: e, date: photoDateLabel(e) };
+    if (pic) return { pic, fallback: true, ev: e, date: photoDateLabel(e, pic) };
   }
   return { pic: null, fallback: false, ev: own, date: null };
 }
@@ -3823,8 +3850,14 @@ function rtfCards(road) {
   const mine = (h) => isRealEntry(h) && !h.feed_hide && !(h.flight > road.flight) && flightOf(h, road) === road.flight && h.trust !== "unconfirmed";
   const bucket = {}, loose = []; // "cid|veh" -> entries
   const put = (cid, v, h) => { (bucket[cid + "|" + v] = bucket[cid + "|" + v] || []).push(h); };
+  // 24 Nov (scripts/move-route.js): the same vehicle + move + destination within 3 days, nothing in between = one move; a later repost is not a second item
+  const MR = (typeof window !== "undefined" && window.RoadMoveRoute) || (typeof globalThis !== "undefined" && globalThis.RoadMoveRoute) || null;
+  const dupMove = new Set();
+  if (MR) { const byV = {}; for (const cid of ["cryo", "raptor", "static", "pad"]) for (const h of ((cats[cid] && cats[cid].history) || []).filter(mine)) { const hw = logHw(h); if (hw) (byV[hw] = byV[hw] || []).push({ id: h.id, at: h.at, text: h.text, box: cid }); }
+    for (const evs of Object.values(byV)) { const rr = MR.routeEvents(evs); for (const [id, r] of Object.entries(rr)) if (r.dupOf && !(globalThis.RoadRules && globalThis.RoadRules.PENDING.has(id))) dupMove.add(id); /* PENDING: S43 Pad card left as is (Bernardo deciding) */ } }
   for (const cid of ["cryo", "raptor", "static", "pad"]) for (const h of ((cats[cid] && cats[cid].history) || []).filter(mine)) {
     if (typeof isRoadFlightEvent === "function" && isRoadFlightEvent(h, road)) continue;
+    if (dupMove.has(h.id)) continue;
     const padHw = /^\s*pad/i.test(h.hardware || ""), hw = logHw(h), tv = rtfVeh(h.text, road), vv = padHw ? [] : tv.length ? tv : hw && vs.map(String).includes(hw) ? [hw] : [];
     const otherPad = /\bpad[- ]?(\d)\b/i.test(`${h.hardware || ""} ${h.text || ""}`) && !rtfPad(h, road);
     if (vv.length) vv.forEach((v) => put(cid, v, h));
@@ -3876,22 +3909,24 @@ function rtfCards(road) {
     const rows = [], seen = new Set([urlOf(main), main.url].filter(Boolean));
     const add = (u) => { const k = u.url || u.text; if (!u.text || (seen.has(k) && !u.event_row)) return; seen.add(k); rows.push(u); }; // event_row: the completion row (guards.js) shows even when it is the main post
     for (const h of list) {
-      if (h !== main) add({ text: h.text, ...(h.card_text ? { card_text: h.card_text } : {}), at: cardIso(h) || h.at, date: h.date, url: urlOf(h) || h.url, src: h.src, handle: (h.x_post && h.x_post.author && h.x_post.author.username) || (h.media_override && h.media_override.author) || (String(h.src || "").startsWith("@") ? h.src : null) });
-      for (const u of h.updates || []) { if (typeof isRoadFlightEvent === "function" && isRoadFlightEvent(u, road)) continue; const uv = rtfVeh(u.text, road); if (v === "pad" ? !otherVehOnly(u.text, road) : uv.length ? uv.includes(v) : !otherVehOnly(u.text, road)) add({ text: u.text, ...(u.card_text ? { card_text: u.card_text } : {}), at: u.at, date: u.date, url: u.url, src: u.src, event_row: u.event_row, phase: u.phase, handle: u.handle || (String(u.src || "").startsWith("@") ? u.src : null) }); }
+      if (h !== main) add({ id: h.id, text: h.text, ...(h.card_text ? { card_text: h.card_text } : {}), at: cardIso(h) || h.at, date: h.date, url: h.url || urlOf(h), /* 24 Nov: the post that states the text */ unverified: (globalThis.RoadRules || null) ? (globalThis.RoadRules || null).unverified(h) : false, src: h.src, handle: (h.x_post && h.x_post.author && h.x_post.author.username) || (h.media_override && h.media_override.author) || (String(h.src || "").startsWith("@") ? h.src : null) });
+      for (const u of h.updates || []) { if (typeof isRoadFlightEvent === "function" && isRoadFlightEvent(u, road)) continue; const uv = rtfVeh(u.text, road); if (v === "pad" ? !otherVehOnly(u.text, road) : uv.length ? uv.includes(v) : !otherVehOnly(u.text, road)) add({ text: u.text, ...(u.card_text ? { card_text: u.card_text } : {}), at: u.at, date: u.date, url: u.url, src: u.src, event_row: u.event_row, phase: u.phase, unverified: (globalThis.RoadRules || null) ? (globalThis.RoadRules || null).unverified(u) : false, handle: u.handle || (String(u.src || "").startsWith("@") ? u.src : null) }); }
     }
     if (cid === "pad") { for (const u of padPins[v] || []) { if (typeof isRoadFlightEvent === "function" && isRoadFlightEvent(u, road)) continue; add(u); } rows.sort((a, b) => (Date.parse(b.at || "") || 0) - (Date.parse(a.at || "") || 0)); } // Flight Log pins: drawer rows
     // 15 Nov (every flight, every box): the newest post leads the card and Earlier updates are strictly older. A completing
     // post that newer posts followed (Booster 23's 18 Oct cryo return, then 28 Oct back to Massey's) moves into Earlier updates;
     // the card stays complete (doneOne). The picture then follows the leading post's event (road-pick, newest event).
     const rowT = (u) => Date.parse(u.at || "") || 0, byNew = (a, b) => rowT(b) - rowT(a);
+    // 24 Nov (scripts/road-rules.js #6): the same action within 2 h (or the same move within 3 days) is one row, strict time order
+    if ((globalThis.RoadRules || null)) { const mr = (globalThis.RoadRules || null).mergeRows(rows); rows.splice(0, rows.length, ...mr.rows); }
     const mainT = Date.parse(cardIso(main)) || Date.parse(main.at || "") || 0;
-    const newer = main.date && /^Stacked\s/.test(main.text || "") ? null : rows.filter((u) => rowT(u) > mainT).sort(byNew)[0];
+    const newer = main.date && /^Stacked\s/.test(main.text || "") ? null : rows.filter((u) => rowT(u) > mainT && (!(globalThis.RoadRules || null) || (globalThis.RoadRules || null).headlineEligible(u))).sort(byNew)[0]; // 24 Nov #1: an unverified / single-source update never leads the card
     if (newer) {
       rows.splice(rows.indexOf(newer), 1);
       // the demoted post is now a row itself, so its event_row copy (guards.js completion row, same post or same minute) goes
       const mUrl = urlOf(main) || main.url, mText = String(main.card_text || main.text || "");
       for (let i = rows.length - 1; i >= 0; i--) { const u = rows[i]; if (u.event_row && ((mUrl && u.url === mUrl) || rowT(u) === mainT || String(u.card_text || u.text || "") === mText)) rows.splice(i, 1); }
-      rows.push({ ...(main === doneOne ? { done_row: true } : {}), text: main.text, ...(main.card_text ? { card_text: main.card_text } : {}), at: cardIso(main) || main.at, date: main.date, url: urlOf(main) || main.url, src: main.src, handle: (main.x_post && main.x_post.author && main.x_post.author.username) || (main.media_override && main.media_override.author) || (String(main.src || "").startsWith("@") ? main.src : null) });
+      rows.push({ ...(main === doneOne ? { done_row: true } : {}), text: main.text, ...(main.card_text ? { card_text: main.card_text } : {}), at: cardIso(main) || main.at, date: main.date, url: main.url || urlOf(main), src: main.src, handle: (main.x_post && main.x_post.author && main.x_post.author.username) || (main.media_override && main.media_override.author) || (String(main.src || "").startsWith("@") ? main.src : null) });
       const shown = newer.card_text || newer.text;
       main = { ...main, text: newer.text, card_text: shown, x_text: shown, log_text: undefined, at: newer.at, completed_at: undefined, time_known: undefined, publishedAt: undefined, date: newer.date, url: newer.url, src: newer.src, handle: newer.handle, x_post: undefined, media_override: undefined };
     }
@@ -3907,6 +3942,7 @@ function rtfCards(road) {
     // picture, credit and View on X: headline post if it has a photo, else the newest earlier
     // same-vehicle/section photo (that photo's post only). Headline post stays reachable via RtfCredit.
     if (pic) h.media_override = { image: pic.image, type: pic.type, post_url: pic.post_url, author: String(pic.author || "").replace(/^@/, ""), keep_image: !!(pic.manual || (own.media_override && own.media_override.keep_image) || (face.ev && face.ev.media_override && face.ev.media_override.keep_image)), credit_only: false, fallback: !!face.fallback, photo_date: face.date || undefined, crop: pic.crop };
+    if (!pic && h.media_override && h.media_override.image && !h.media_override.credit_only) { h.media_override = undefined; h.x_post = h.x_post ? { ...h.x_post, media: [] } : h.x_post; h.photo_gated = true; } // 24 Nov: a gated picture is not drawn by the card renderer either
     // Headline post stays on h.url; Earlier updates stay strictly older (no same-time headline row).
     h.rtf_pic = pic ? (pic.from || face.ev) : own; h.media_context = null;
     out.push({ h, cat: { ...cat, name: `${cat.name} · ${vname(v)}` }, ci: 0, hi: 0, id: h.id, flight: road.flight, done: !!doneOne });
@@ -4213,13 +4249,18 @@ function fleetRoad(r, fleet, n) {
   if (!vs.length) return r;
   const seen = new Set(r.categories.flatMap((c) => (c.history || []).map((h) => h.url).filter(Boolean)));
   const add = {};
-  for (const v of vs) for (const e of v.events || []) {
-    const box = FLEET_ROAD_BOX[e.type]; if (!box || !e.id || !e.text || seen.has(e.url)) continue;
+  const MR = (typeof window !== "undefined" && window.RoadMoveRoute) || (typeof globalThis !== "undefined" && globalThis.RoadMoveRoute) || null;
+  for (const v of vs) { const route = MR ? MR.routeEvents((v.events || []).map((e) => ({ ...e, box: FLEET_ROAD_BOX[e.type] }))) : {}; for (const e of v.events || []) {
+    // 24 Nov (scripts/move-route.js): a plain move files under the test it belongs to (stated reason, or the vehicle's most
+    // recent test); only moves to/from a launch pad stay on Pad activity; a same-move repost is not a second item.
+    const rr = route[e.id]; if (rr && rr.dupOf) continue;
+    const box = e.type === "move" && rr && rr.box ? rr.box : FLEET_ROAD_BOX[e.type]; if (!box || !e.id || !e.text || seen.has(e.url)) continue;
     const done = FLEET_DONE.includes(e.type);
     (add[box] = add[box] || []).push({ id: e.id, date: e.date, at: e.at, text: e.text, x_text: e.text, src: e.src, url: e.url, trust: "trusted", flight: n, hardware: v.id, kind: "fleet", no_push: true,
-      ...(e.x_post && (e.x_post.media || []).length ? { x_post: e.x_post } : {}), /* the picture keeps its own post (credit + link) */
+      ...(e.x_post && (e.x_post.media || []).length && (!(globalThis.RoadRules || null) || (globalThis.RoadRules || null).photoFits(e, v.events, e.x_post.url)) ? { x_post: e.x_post, photo_date: (globalThis.RoadRules || null) ? (globalThis.RoadRules || null).photoIso(e.x_post.url) : null } : {}), /* the picture keeps its own post (credit + link); 24 Nov #2: only a post within 36 h of the event and before the next milestone, dated by its own post */
+      ...(e.photo_gate ? { photo_gate: e.photo_gate } : {}),
       milestone: { hardware: v.id, event: e.type, phase: done ? "completed" : "started" }, ...(done ? { complete: true } : {}) });
-  }
+  } }
   return { ...r, vehicles: [...new Set([...(r.vehicles || []), ...vs.map((v) => v.id)])], hardware_flights: { ...(r.hardware_flights || {}), ...Object.fromEntries(vs.map((v) => [v.id, n])) },
     categories: r.categories.map((c) => (add[c.id] ? { ...c, history: [...add[c.id], ...(c.history || [])].sort((a, b) => Date.parse(b.at || 0) - Date.parse(a.at || 0)) } : c)) };
 }
@@ -4982,7 +5023,8 @@ section.road .callout-name { grid-row: 1; grid-column: 2; min-width: 0; line-hei
 section.road .callout-head > .badge, section.road .callout-head > .badge-wrap { grid-row: 1; grid-column: 3; justify-self: end; }
 section.road .callout-head .badge { padding: 3px 8px; font-size: 10.5px; }
 section.road .callout-head .badge-wrap { flex-direction: row-reverse; gap: 6px; }
-section.road .callout-latest { grid-row: 2; grid-column: 2 / -1; margin-top: 0; overflow-wrap: anywhere; text-wrap: pretty; } /* summaries wrap in full, no clamp */
+section.road .callout-latest { grid-row: 2; grid-column: 2 / -1; margin-top: 0; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } /* 24 Nov (Bernardo): one line per Road row so all six rows are the same height on every flight; scripts/summary-guard.js keeps summaries to SUMMARY_MAX (38) chars, the ellipsis is only the visual backstop */
+@media (max-width: 340px) { section.road .callout-latest { font-size: 12px; } section.road .callout-name { min-height: 2.4em; display: flex; align-items: center; } } /* 320px phones: a 31-char line still fits; every box name reserves its two-line slot (names wrap there, never ellipsize), so all six rows stay the same height */
 .mini.flog-card { box-sizing: border-box; width: 100%; min-height: 96px; padding: 10px 12px; }
 .callout-name { display: block; font-weight: 700; font-size: 15px; color: var(--t, var(--c)); }
 .callout-latest { display: block; font-size: 13px; color: var(--text); margin-top: 3px; line-height: 1.35; }
@@ -5555,6 +5597,12 @@ html.v-ready [data-v-in] { transition: opacity .3s ease-out, transform .55s cubi
 /* menu: explicit close button (the drawer only closed by tapping the dimmed page) */
 .v-close { position: absolute; top: calc(env(safe-area-inset-top, 0px) + 10px); right: 8px; width: var(--tap); height: var(--tap); border: 0; border-radius: 50%; background: rgba(255,255,255,.07); color: #E8ECF8; font-size: 20px; line-height: 1; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .v-close:active { transform: scale(.9); background: rgba(255,255,255,.14); }
+/* 24 Nov (iPhone standalone PWA): the About panel starts below the status bar / Dynamic Island (viewport-fit=cover is set in
+   index.html, so env(safe-area-inset-top) is real there and 0 elsewhere). Title + close share one centred header row. */
+.about { padding-top: calc(env(safe-area-inset-top, 0px) + 12px); }
+.about .about-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: var(--tap); margin: 0 -8px 10px 0; }
+.about .about-head h2 { margin: 0; min-width: 0; line-height: 1.15; }
+.about .about-head .v-close { position: static; flex: none; display: inline-flex; align-items: center; justify-content: center; }
 
 /* ═════════ v2 · less on screen ═════════ */
 /* cards say "Flight 15", not "Starship Flight 15" 15 times */

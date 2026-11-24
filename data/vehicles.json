@@ -912,7 +912,15 @@
                 }
               ]
             }
-          ]
+          ],
+          "photo_gate": {
+            "image": "https://pbs.twimg.com/media/HX1rvC_aUAA5OEe.jpg?name=orig",
+            "ok": false,
+            "reasons": [
+              "livestream ticker band (red bottom band 0.72)"
+            ],
+            "checked": "2026-11-24"
+          }
         },
         {
           "id": "fv-d82809339b",
@@ -1379,74 +1387,6 @@
           "image_checked": true
         },
         {
-          "id": "fv-3569a77e32",
-          "key": "B24|move|Massey's|24 Nov",
-          "vehicle": "B24",
-          "type": "move",
-          "milestone": false,
-          "at": "2026-11-24T05:50:33.000Z",
-          "date": "24 Nov",
-          "text": "Booster 24 headed to Massey's.",
-          "place": "Massey's",
-          "url": "https://x.com/RGVaerialphotos/status/2125104765050974276",
-          "src": "@RGVaerialphotos",
-          "tier": 2,
-          "post_id": "2125104765050974276",
-          "flight": 17,
-          "image": {
-            "type": "photo",
-            "url": "https://pbs.twimg.com/media/HX3jgWpbIAAlCVD.jpg?name=orig",
-            "score": 3.1
-          },
-          "x_post": {
-            "url": "https://x.com/RGVaerialphotos/status/2125104765050974276",
-            "author": {
-              "username": "RGVaerialphotos"
-            },
-            "media": [
-              {
-                "type": "photo",
-                "url": "https://pbs.twimg.com/media/HX3jgWpbIAAlCVD.jpg?name=orig",
-                "w": 3840,
-                "h": 2160
-              }
-            ]
-          },
-          "image_src": "https://x.com/RGVaerialphotos/status/2125104765050974276",
-          "sources": [
-            {
-              "post_id": "2125104765050974276",
-              "url": "https://x.com/RGVaerialphotos/status/2125104765050974276",
-              "src": "@RGVaerialphotos",
-              "at": "2026-11-24T05:50:33.000Z"
-            },
-            {
-              "post_id": "2125119272477479129",
-              "url": "https://x.com/TrackingTheSB/status/2125119272477479129",
-              "src": "@TrackingTheSB",
-              "at": "2026-11-24T06:48:12.000Z"
-            }
-          ],
-          "candidates": [
-            {
-              "type": "photo",
-              "url": "https://pbs.twimg.com/media/HX3jgWpbIAAlCVD.jpg?name=orig",
-              "score": 3.1,
-              "post_url": "https://x.com/RGVaerialphotos/status/2125104765050974276",
-              "author": "RGVaerialphotos",
-              "at": "2026-11-24T05:50:33.000Z",
-              "media": [
-                {
-                  "type": "photo",
-                  "url": "https://pbs.twimg.com/media/HX3jgWpbIAAlCVD.jpg?name=orig",
-                  "w": 3840,
-                  "h": 2160
-                }
-              ]
-            }
-          ]
-        },
-        {
           "id": "fv-768cebc29b",
           "key": "B24|move|from Massey's|24 Nov",
           "vehicle": "B24",
@@ -1482,6 +1422,12 @@
           "image_src": "https://x.com/Blobifie/status/2125114870563762434",
           "sources": [
             {
+              "post_id": "2125104765050974276",
+              "url": "https://x.com/RGVaerialphotos/status/2125104765050974276",
+              "src": "@RGVaerialphotos",
+              "at": "2026-11-24T05:50:33.000Z"
+            },
+            {
               "post_id": "2125114870563762434",
               "url": "https://x.com/Blobifie/status/2125114870563762434",
               "src": "@Blobifie",
@@ -1495,6 +1441,22 @@
             }
           ],
           "candidates": [
+            {
+              "type": "photo",
+              "url": "https://pbs.twimg.com/media/HX3jgWpbIAAlCVD.jpg?name=orig",
+              "score": 3.1,
+              "post_url": "https://x.com/RGVaerialphotos/status/2125104765050974276",
+              "author": "RGVaerialphotos",
+              "at": "2026-11-24T05:50:33.000Z",
+              "media": [
+                {
+                  "type": "photo",
+                  "url": "https://pbs.twimg.com/media/HX3jgWpbIAAlCVD.jpg?name=orig",
+                  "w": 3840,
+                  "h": 2160
+                }
+              ]
+            },
             {
               "type": "photo",
               "url": "https://pbs.twimg.com/media/HX3sqLlaUAAWG6V.jpg?name=orig",
@@ -1511,7 +1473,19 @@
                 }
               ]
             }
-          ]
+          ],
+          "photo_gate": {
+            "image": "https://pbs.twimg.com/media/HX3sqLlaUAAWG6V.jpg?name=orig",
+            "ok": false,
+            "reasons": [
+              "livestream ticker band (red bottom band 0.72)"
+            ],
+            "checked": "2026-11-24"
+          },
+          "corrected": {
+            "at": "2026-11-24",
+            "why": "RGV 05:50 'left the cryo station and moved to the Massey's exit' had been rewritten as a separate 'Booster 24 headed to Massey's' (direction flip); that event is removed and the RGV post kept as a source of this same move. Picture: the Blobifie NSF grab stays gated off (photo_gate); candidates in needs-review, no swap."
+          }
         }
       ],
       "state_at": "2026-11-22T21:16:40.000Z"

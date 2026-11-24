@@ -1,7 +1,7 @@
 /* ───────────── media upgrade watch ─────────────
    Published Road cards (last 7 days) keep watching X for a better picture of the SAME event:
-   Tier 1/2 accounts + MEDIA_TRACKERS, above an engagement minimum. A card's picture is swapped
-   only when the candidate clearly wins (score ≥ 1.5× the current one AND quality not lower):
+   Tier 1/2 accounts + MEDIA_TRACKERS, above an engagement minimum. A card's picture is NEVER swapped automatically (24 Nov, Bernardo): a candidate is queued in needs-review
+   (photo_candidate) only when the candidate clearly wins (score ≥ 1.5× the current one AND quality not lower):
    never a downgrade, text unchanged, never a push, one image per card (two only for a sure, clearly different angle — see decidePair), original X image (natural
    brightness). Manual picks (road-media.json) and keep_image are never touched; a ship cryo card
    (Bernardo's standing photo) only gets a logged PROPOSAL. Credit: the card links to the
@@ -71,13 +71,14 @@ function watchedCards(road, now) {
 }
 
 const VISION = { type: "object", additionalProperties: false, required: ["shows", "confidence", "quality", "collage", "seen"],
-  properties: { shows: { type: "boolean" }, confidence: { type: "number" }, quality: { type: "integer" }, collage: { type: "boolean" }, seen: { type: "string" } } };
+  properties: { shows: { type: "boolean" }, confidence: { type: "number" }, quality: { type: "integer" }, collage: { type: "boolean" }, seen: { type: "string" }, ...require("./photo-gate.js").VISION_FIELDS } }; // 24 Nov: photo gate fields ride in the same call
 const visionPrompt = (entry, catName, post, m) => `You judge whether a picture is a clean, emblematic photo of a Starship tracker update.
 Update (${catName}): ${entry}
 X post text: ${post.text}
 "shows": true ONLY if it clearly shows the same vehicle (or pad) AND the same event/activity as the update.
 "confidence": 0 to 1. "quality": 1-5 (5 = clean, sharp, emblematic shot of the subject; 1 = dark, blurry, far-off).
 "collage": true for a screengrab, multi-panel collage, livestream frame with ticker/overlays. "seen": a few words.
+${require("./photo-gate.js").VISION_ASK}
 This picture is ${m.type === "video" ? "the poster frame of the post's video" : "a photo from the post"}. Reply with JSON only.`;
 const SAME = { type: "object", additionalProperties: false, required: ["same"], properties: { same: { type: "boolean" }, reason: { type: "string" } } };
 const samePrompt = (entry, post) => `Card: "${entry}"\nX post: "${post.text}"\n"same": true ONLY if the post shows the same event as the card (same vehicle AND same activity, e.g. the same lift or rollout). Reply with JSON only.`;
@@ -145,7 +146,7 @@ function searchQuery(cards) {
 
 async function runMediaWatch(road, state, { token, fetchFn = fetch, ask = null, picks = [], now = Date.now(), log = console.log, sameCache = null, maxSame = SEC.MAX_SAME } = {}) {
   const mw = (state.mediaWatch = state.mediaWatch || {});
-  const res = { ran: false, calls: 0, swapped: [], proposals: [], skipped: [], deferred: 0, sameCalls: 0, sameCached: 0 };
+  const res = { ran: false, calls: 0, swapped: [], proposals: [], candidates: [], skipped: [], deferred: 0, sameCalls: 0, sameCached: 0 }; // swapped stays empty (24 Nov: proposals only)
   if (!token) return res;
   const carried = (mw.pending || []).filter((p) => p && p.post_id && now - Date.parse(p.created_at || 0) < LOOKBACK_MS + WINDOW_MS); // only a post no watched card can use any more leaves the queue
   if (mw.lastAt && now - Date.parse(mw.lastAt) < EVERY_MS && !carried.length) return res; // hourly (sooner when posts were carried over)
@@ -223,10 +224,11 @@ async function runMediaWatch(road, state, { token, fetchFn = fetch, ask = null, 
         if (v == null) { // null: an old failed verdict, judged again
           if (asks >= MAX_ASKS) { partial = true; break; }
           asks++; try { v = await A.vision(visionPrompt(h.x_text || h.text, c.name || c.id, post, m), m.image); } catch { partial = true; continue; }
-          if (v) j.v[m.image] = { shows: !!v.shows, confidence: Number(v.confidence) || 0, quality: Number(v.quality) || 0, collage: !!v.collage }; // a failed/empty verdict is not cached: asked again next watch
+          if (v) j.v[m.image] = { shows: !!v.shows, confidence: Number(v.confidence) || 0, quality: Number(v.quality) || 0, collage: !!v.collage, ...(v.vehicle_type ? { vehicle_type: v.vehicle_type } : {}), ...(v.dark_or_blurry != null ? { dark_or_blurry: !!v.dark_or_blurry } : {}), ...(v.webcam_overlay != null ? { webcam_overlay: !!v.webcam_overlay } : {}) }; // a failed/empty verdict is not cached: asked again next watch
           if (!v) { partial = true; continue; }
         }
         if (!v || !v.shows || v.confidence < MIN_CONF || v.collage) continue;
+        if (!require("./photo-gate.js").visionOk(v, require("./photo-gate.js").wantType(h.text, h.hardware)).ok) continue; // 24 Nov photo gate (same call)
         ok.push({ m, v });
         if (!best || v.quality > best.v.quality) best = { m, v };
       }
@@ -236,16 +238,11 @@ async function runMediaWatch(road, state, { token, fetchFn = fetch, ask = null, 
       if (!isBetter(cand, cur)) { res.skipped.push(`@${post.author}: not better for "${h.text}"`); continue; }
       const label = `[${c.id}] ${h.date} "${h.text}" ← @${post.author} ${best.m.image} (score ${cand.score.toFixed(0)} vs ${cur ? cur.score.toFixed(0) : "none"})`;
       if (lock && /propose/.test(lock)) { res.proposals.push(label); mw.proposals = [...(mw.proposals || []).filter((x) => x.post_url !== post.url), { card: h.id || h.text, post_url: post.url, image: best.m.image, score: Math.round(cand.score), at: mw.lastAt }].slice(-20); log(`media watch PROPOSAL (no swap): ${label}`); continue; }
-      const prevMo = h.media_override && !h.media_override.credit_only ? { post_url: h.media_override.post_url, post_id: h.media_override.post_id, author: h.media_override.author, type: h.media_override.type, image: h.media_override.image } : null;
-      h.media_override = { post_url: post.url, post_id: post.post_id, author: post.author, type: best.m.type, image: best.m.image, auto: true, quality: best.v.quality, media_score: Math.round(cand.score), checked_at: mw.lastAt, crop: require("./road-pick.js").cropOf(c.id, `${h.text || ""} ${h.x_text || ""}`) }; // 3 Nov: cover-crop alignment, never extended
-      // second picture (left): a strong other photo from this post, else the picture it replaces — only if Grok is sure
-      const other = ok.filter((x) => x.m.image !== best.m.image && x.m.type === "photo" && x.v.quality >= 4).sort((a, b) => b.v.quality - a.v.quality)[0];
-      const second = other ? { post_url: post.url, post_id: post.post_id, author: post.author, type: "photo", image: other.m.image } : prevMo;
-      const pr = second && (await decidePair(A, h, c, second, h.media_override));
-      if (pr) { h.alt_media = { ...second, show: true, side: pr.secondSide }; log(`media watch: two-photo split for "${h.text}"`); }
-      else if (second) h.alt_media = { ...second, show: false }; else if (h.alt_media) h.alt_media.show = false;
-      delete h.media_context;
-      res.swapped.push(label); log(`media watch SWAP (no push): ${label}`);
+      // 24 Nov (Bernardo): NO automatic swap, at any confidence. The winner is a photo_candidate for data/needs-review.json
+      // (check-road.js writes it); the card keeps its picture until a manual pick is relayed.
+      const cnd = require("./photo-candidates.js").candidate({ card_id: h.id || h.text, image_url: best.m.image, post_url: post.url, reason: `media watch: better picture of "${h.text}" (score ${cand.score.toFixed(0)} vs ${cur ? cur.score.toFixed(0) : "none"})`,
+        confidence: best.v.confidence, score: Math.round(cand.score), quality: best.v.quality, source: "media-watch", author: post.author, type: best.m.type, post_text: post.text });
+      res.candidates.push(cnd); res.proposals.push(label); log(`media watch CANDIDATE (queued for review, no swap): ${label}${cnd.gate.ok ? "" : " — gate: " + cnd.gate.reasons.join(", ")}`);
     }
   }
   mw.pending = [...pending.values()].map((p) => ({ post_id: p.post_id, url: p.url, author: p.author, created_at: p.created_at, text: p.text, e: p.e, media: p.media }));

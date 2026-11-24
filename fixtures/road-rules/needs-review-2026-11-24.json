@@ -1,0 +1,727 @@
+{
+  "items": [
+    {
+      "date": "2026-11-24T13:10:00.000Z",
+      "type": "photo_candidate",
+      "card_id": "fv-768cebc29b",
+      "image_url": "https://pbs.twimg.com/media/HX3jgWpbIAAlCVD.jpg?name=orig",
+      "post_url": "https://x.com/RGVaerialphotos/status/2125104765050974276",
+      "reason": "photo gate: B24 24 Nov 06:30 picture is an NSF Starbase Live four-panel night grab (red ticker band 0.72); same trip 40 min earlier, @RGVaerialphotos photo of B24 leaving the cryo station (mean 67, laplacian 1011)",
+      "confidence": null,
+      "gate": {
+        "ok": true,
+        "reasons": []
+      },
+      "source": "photo-gate 24 Nov",
+      "author": "RGVaerialphotos",
+      "item": "fv-768cebc29b",
+      "values": [
+        "https://pbs.twimg.com/media/HX3jgWpbIAAlCVD.jpg?name=orig"
+      ],
+      "sources": [
+        "https://x.com/RGVaerialphotos/status/2125104765050974276"
+      ],
+      "msg": "photo_candidate fv-768cebc29b: https://pbs.twimg.com/media/HX3jgWpbIAAlCVD.jpg?name=orig"
+    },
+    {
+      "date": "2026-11-24T13:10:00.000Z",
+      "type": "photo_candidate",
+      "card_id": "fv-0ce4b1fb08",
+      "image_url": "https://pbs.twimg.com/media/HXmhnKqWQAAQlyd.jpg?name=orig",
+      "post_url": "https://x.com/TrackingTheSB/status/2123906558115418275",
+      "reason": "photo gate: S44 cryo_start picture failed (livestream ticker band (red bottom band 0.72)); this candidate passes the local checks",
+      "confidence": null,
+      "gate": {
+        "ok": true,
+        "reasons": []
+      },
+      "source": "photo-gate 24 Nov",
+      "author": "TrackingTheSB",
+      "item": "fv-0ce4b1fb08",
+      "values": [
+        "https://pbs.twimg.com/media/HXmhnKqWQAAQlyd.jpg?name=orig"
+      ],
+      "sources": [
+        "https://x.com/TrackingTheSB/status/2123906558115418275"
+      ],
+      "msg": "photo_candidate fv-0ce4b1fb08: https://pbs.twimg.com/media/HXmhnKqWQAAQlyd.jpg?name=orig"
+    },
+    {
+      "date": "2026-11-24T13:10:00.000Z",
+      "type": "photo_candidate",
+      "card_id": "fv-0ce4b1fb08",
+      "image_url": "https://pbs.twimg.com/amplify_video_thumb/2123894070829559808/img/fBDA16Mj6GuEouvs.jpg",
+      "post_url": "https://x.com/efraser77/status/2123894391177949549",
+      "reason": "photo gate: S44 cryo_start picture failed (livestream ticker band (red bottom band 0.72)); this candidate passes the local checks",
+      "confidence": null,
+      "gate": {
+        "ok": true,
+        "reasons": []
+      },
+      "source": "photo-gate 24 Nov",
+      "author": "efraser77",
+      "item": "fv-0ce4b1fb08",
+      "values": [
+        "https://pbs.twimg.com/amplify_video_thumb/2123894070829559808/img/fBDA16Mj6GuEouvs.jpg"
+      ],
+      "sources": [
+        "https://x.com/efraser77/status/2123894391177949549"
+      ],
+      "msg": "photo_candidate fv-0ce4b1fb08: https://pbs.twimg.com/amplify_video_thumb/2123894070829559808/img/fBDA16Mj6GuEouvs.jpg"
+    },
+    {
+      "date": "2026-11-21T06:00:27.496Z",
+      "type": "render-crossover",
+      "item": "rtf-static-B23",
+      "values": [
+        "SpaceX may fly Flight 16 with Booster 23 and Ship 43."
+      ],
+      "sources": [],
+      "reason": "ship and booster lines never cross over",
+      "kept": null,
+      "msg": "Static fires · Booster 23 shows \"SpaceX may fly Flight 16 with Booster 23 and Ship 43.\" (names S43)"
+    },
+    {
+      "date": "2026-11-21T06:00:27.496Z",
+      "type": "render-crossover",
+      "item": "rtf-static-S43",
+      "values": [
+        "SpaceX may fly Flight 16 with Booster 23 and Ship 43."
+      ],
+      "sources": [],
+      "reason": "ship and booster lines never cross over",
+      "kept": null,
+      "msg": "Static fires · Ship 43 shows \"SpaceX may fly Flight 16 with Booster 23 and Ship 43.\" (names B23)"
+    },
+    {
+      "date": "2026-11-19T06:01:06.518Z",
+      "type": "render-tense",
+      "item": "Flight Log pad Launch pad 19 Nov",
+      "values": [
+        "Pad 2 work resumes after Flight 15."
+      ],
+      "sources": [],
+      "reason": "full past-tense sentences on cards and feed",
+      "kept": null,
+      "msg": "Flight Log pad Launch pad 19 Nov: \"Pad 2 work resumes after Flight 15.\" has no verb (fragment)"
+    },
+    {
+      "date": "2026-11-15T06:00:38.048Z",
+      "type": "render-mismatch",
+      "item": "https://x.com/StarshipGazer/status/2110889490336350574",
+      "values": [
+        "Booster 23 completed a cryo proof test at Massey's.",
+        "Booster 23 completed a cryo proof test."
+      ],
+      "sources": [],
+      "reason": "one wording per event on card and feed",
+      "kept": null,
+      "msg": "Flight Log cryo Booster 23 15 Oct: \"Booster 23 completed a cryo proof test at Massey's.\" ≠ Road card Cryo tests · Booster 23 › 16 Oct · 01:24: \"Booster 23 completed a cryo proof test.\" (same post https://x.com/StarshipGazer/status/2110889490336350574)"
+    },
+    {
+      "date": "2026-11-15T06:00:38.048Z",
+      "type": "render-date",
+      "item": "cryo|B23",
+      "values": [
+        "15 Oct",
+        "18 Oct · 05:51"
+      ],
+      "sources": [],
+      "reason": "one event time on every view",
+      "kept": null,
+      "msg": "cryo B23: Flight Log shows 15 Oct, Road card shows 18 Oct · 05:51"
+    },
+    {
+      "date": "2026-11-15T06:00:38.048Z",
+      "type": "render-tense",
+      "item": "Road card Road to Flight 16",
+      "values": [
+        "Flight 15 is in the log. Now tracking the road to Flight 16."
+      ],
+      "sources": [],
+      "reason": "cards and feed text are past tense (push wording stays present)",
+      "kept": null,
+      "msg": "Road card Road to Flight 16: \"Flight 15 is in the log. Now tracking the road to Flight 16.\" is present tense on screen"
+    },
+    {
+      "date": "2026-11-15T06:00:38.048Z",
+      "type": "render-tense",
+      "item": "Flight Log pad Ship 43 27 Oct",
+      "values": [
+        "Ship 43 airborne on the chopsticks."
+      ],
+      "sources": [],
+      "reason": "full past-tense sentences on cards and feed",
+      "kept": null,
+      "msg": "Flight Log pad Ship 43 27 Oct: \"Ship 43 airborne on the chopsticks.\" has no verb (fragment)"
+    },
+    {
+      "date": "2026-11-15T06:00:38.048Z",
+      "type": "render-tense",
+      "item": "Road card Pad activity · Ship 43 › 27 Oct · 00:22",
+      "values": [
+        "Ship 43 airborne on the chopsticks."
+      ],
+      "sources": [],
+      "reason": "full past-tense sentences on cards and feed",
+      "kept": null,
+      "msg": "Road card Pad activity · Ship 43 › 27 Oct · 00:22: \"Ship 43 airborne on the chopsticks.\" has no verb (fragment)"
+    },
+    {
+      "date": "2026-11-15T06:00:38.048Z",
+      "type": "render-tense",
+      "item": "Road card Cryo tests · Ship 43 › 26 Oct · 04:01",
+      "values": [
+        "Ship 43 returning from Massey's."
+      ],
+      "sources": [],
+      "reason": "full past-tense sentences on cards and feed",
+      "kept": null,
+      "msg": "Road card Cryo tests · Ship 43 › 26 Oct · 04:01: \"Ship 43 returning from Massey's.\" has no verb (fragment)"
+    },
+    {
+      "date": "2026-11-14T06:01:33.969Z",
+      "type": "render-mismatch",
+      "item": "https://x.com/NASASpaceflight/status/2121317448477728883",
+      "values": [
+        "FAA approval has arrived for Starship Flight 15.",
+        "FAA approval arrived for Starship Flight 15."
+      ],
+      "sources": [],
+      "reason": "one wording per event on card and feed",
+      "kept": null,
+      "msg": "Flight Log faa FAA licence 13 Nov: \"FAA approval has arrived for Starship Flight 15.\" ≠ Road card FAA licence: \"FAA approval arrived for Starship Flight 15.\" (same post https://x.com/NASASpaceflight/status/2121317448477728883)"
+    },
+    {
+      "date": "2026-11-14T06:01:33.969Z",
+      "type": "render-mismatch",
+      "item": "https://x.com/NASASpaceflight/status/2121317448477728883",
+      "values": [
+        "FAA licence issued for Flight 15.",
+        "FAA approval arrived for Starship Flight 15."
+      ],
+      "sources": [],
+      "reason": "one wording per event on card and feed",
+      "kept": null,
+      "msg": "Flight Log faa FAA licence 13 Nov · 19:01: \"FAA licence issued for Flight 15.\" ≠ Road card FAA licence: \"FAA approval arrived for Starship Flight 15.\" (same post https://x.com/NASASpaceflight/status/2121317448477728883)"
+    },
+    {
+      "date": "2026-11-14T06:01:33.969Z",
+      "type": "render-mismatch",
+      "item": "https://x.com/TrackingTheSB/status/2121050758389154027",
+      "values": [
+        "Pad activity: In progress (13 Nov)",
+        "The SQD was connected to Ship 42."
+      ],
+      "sources": [],
+      "reason": "one wording per event on card and feed",
+      "kept": null,
+      "msg": "Flight Log pad Launch pad 13 Nov: \"Pad activity: In progress (13 Nov)\" ≠ Road card Pad activity · Ship 42 › 13 Nov · 01:21: \"The SQD was connected to Ship 42.\" (same post https://x.com/TrackingTheSB/status/2121050758389154027)"
+    },
+    {
+      "date": "2026-11-14T06:01:33.969Z",
+      "type": "render-mismatch",
+      "item": "https://x.com/Blobifie/status/2121138587878248780",
+      "values": [
+        "Ship transport stand leaves the launch complex.",
+        "Ship transport stand left the launch complex."
+      ],
+      "sources": [],
+      "reason": "one wording per event on card and feed",
+      "kept": null,
+      "msg": "Flight Log pad Launch pad 13 Nov: \"Ship transport stand leaves the launch complex.\" ≠ Road card Pad activity · Launch pad › 13 Nov · 07:10: \"Ship transport stand left the launch complex.\" (same post https://x.com/Blobifie/status/2121138587878248780)"
+    },
+    {
+      "date": "2026-11-14T06:01:33.969Z",
+      "type": "render-fragment",
+      "item": "Road card Pad activity · Launch pad › 13 Nov · 01:21",
+      "values": [
+        "Pad activity: In progress (13 Nov)"
+      ],
+      "sources": [],
+      "reason": "write a full sentence",
+      "kept": null,
+      "msg": "Road card Pad activity · Launch pad › 13 Nov · 01:21: \"Pad activity: In progress (13 Nov)\" starts with a colon-led fragment ('Pad activity:')"
+    },
+    {
+      "date": "2026-11-14T06:01:33.969Z",
+      "type": "render-punctuation",
+      "item": "Road card Liftoff!",
+      "values": [
+        "Flight 15 is in the air · Watch now"
+      ],
+      "sources": [],
+      "reason": "card and feed lines are full sentences",
+      "kept": null,
+      "msg": "Road card Liftoff!: \"Flight 15 is in the air · Watch now\" has no full stop"
+    },
+    {
+      "date": "2026-11-14T06:01:33.969Z",
+      "type": "render-tense",
+      "item": "Flight Log faa FAA licence 13 Nov",
+      "values": [
+        "FAA approval has arrived for Starship Flight 15."
+      ],
+      "sources": [],
+      "reason": "cards and feed text are past tense (push wording stays present)",
+      "kept": null,
+      "msg": "Flight Log faa FAA licence 13 Nov: \"FAA approval has arrived for Starship Flight 15.\" is present tense on screen"
+    },
+    {
+      "date": "2026-11-14T06:01:33.969Z",
+      "type": "render-tense",
+      "item": "Road card Liftoff!",
+      "values": [
+        "Flight 15 is in the air · Watch now"
+      ],
+      "sources": [],
+      "reason": "cards and feed text are past tense (push wording stays present)",
+      "kept": null,
+      "msg": "Road card Liftoff!: \"Flight 15 is in the air · Watch now\" is present tense on screen"
+    },
+    {
+      "date": "2026-11-14T06:01:33.969Z",
+      "type": "render-tense",
+      "item": "Flight Log pad Launch pad 13 Nov",
+      "values": [
+        "Ship transport stand leaves the launch complex."
+      ],
+      "sources": [],
+      "reason": "full past-tense sentences on cards and feed",
+      "kept": null,
+      "msg": "Flight Log pad Launch pad 13 Nov: \"Ship transport stand leaves the launch complex.\" has no verb (fragment)"
+    },
+    {
+      "date": "2026-11-14T06:01:33.969Z",
+      "type": "render-tense",
+      "item": "Flight Log pad Launch pad 13 Nov",
+      "values": [
+        "Pad 2 chopsticks opening for launch and catch."
+      ],
+      "sources": [],
+      "reason": "full past-tense sentences on cards and feed",
+      "kept": null,
+      "msg": "Flight Log pad Launch pad 13 Nov: \"Pad 2 chopsticks opening for launch and catch.\" has no verb (fragment)"
+    },
+    {
+      "date": "2026-11-14T06:01:33.969Z",
+      "type": "render-tense",
+      "item": "Road card Pad activity · Launch pad › 13 Nov · 01:21",
+      "values": [
+        "Pad activity: In progress (13 Nov)"
+      ],
+      "sources": [],
+      "reason": "full past-tense sentences on cards and feed",
+      "kept": null,
+      "msg": "Road card Pad activity · Launch pad › 13 Nov · 01:21: \"Pad activity: In progress (13 Nov)\" has no verb (fragment)"
+    },
+    {
+      "date": "2026-11-14T06:01:33.969Z",
+      "type": "render-tense",
+      "item": "Road card Pad activity · Launch pad",
+      "values": [
+        "Pad 2 chopsticks opening for launch and catch."
+      ],
+      "sources": [],
+      "reason": "full past-tense sentences on cards and feed",
+      "kept": null,
+      "msg": "Road card Pad activity · Launch pad: \"Pad 2 chopsticks opening for launch and catch.\" has no verb (fragment)"
+    },
+    {
+      "date": "2026-11-13T06:01:07.306Z",
+      "type": "render-fragment",
+      "item": "Flight Log pad Launch pad 13 Nov",
+      "values": [
+        "Pad activity: In progress (13 Nov)"
+      ],
+      "sources": [],
+      "reason": "write a full sentence",
+      "kept": null,
+      "msg": "Flight Log pad Launch pad 13 Nov: \"Pad activity: In progress (13 Nov)\" starts with a colon-led fragment ('Pad activity:')"
+    },
+    {
+      "date": "2026-11-13T06:01:07.306Z",
+      "type": "render-shorthand",
+      "item": "Flight Log pad Ship 42 13 Nov",
+      "values": [
+        "Ship 42 has the SQD connected at the pad."
+      ],
+      "sources": [],
+      "reason": "spell it out (orbital launch mount, ship quick disconnect, Pad 2, Flight 15, Ship 42 …)",
+      "kept": null,
+      "msg": "Flight Log pad Ship 42 13 Nov: \"Ship 42 has the SQD connected at the pad.\" uses shorthand 'SQD'"
+    },
+    {
+      "date": "2026-11-13T06:01:07.306Z",
+      "type": "render-shorthand",
+      "item": "Feed news-mweajln4-cff1cb",
+      "values": [
+        "The SQD was connected to Ship 42."
+      ],
+      "sources": [],
+      "reason": "spell it out (orbital launch mount, ship quick disconnect, Pad 2, Flight 15, Ship 42 …)",
+      "kept": null,
+      "msg": "Feed news-mweajln4-cff1cb: \"The SQD was connected to Ship 42.\" uses shorthand 'SQD'"
+    },
+    {
+      "date": "2026-11-13T06:01:07.306Z",
+      "type": "render-fragment",
+      "item": "Road card Pad activity · Launch pad › 10 Nov · 09:03",
+      "values": [
+        "Pad activity: In progress (10 Nov)"
+      ],
+      "sources": [],
+      "reason": "write a full sentence",
+      "kept": null,
+      "msg": "Road card Pad activity · Launch pad › 10 Nov · 09:03: \"Pad activity: In progress (10 Nov)\" starts with a colon-led fragment ('Pad activity:')"
+    },
+    {
+      "date": "2026-11-13T06:01:07.306Z",
+      "type": "render-fragment",
+      "item": "Road card Pad activity · Launch pad",
+      "values": [
+        "Pad activity: In progress (13 Nov)"
+      ],
+      "sources": [],
+      "reason": "write a full sentence",
+      "kept": null,
+      "msg": "Road card Pad activity · Launch pad: \"Pad activity: In progress (13 Nov)\" starts with a colon-led fragment ('Pad activity:')"
+    },
+    {
+      "date": "2026-11-13T06:01:07.306Z",
+      "type": "render-shorthand",
+      "item": "Road card Pad activity · Ship 42 › 13 Nov · 01:21",
+      "values": [
+        "The SQD was connected to Ship 42."
+      ],
+      "sources": [],
+      "reason": "spell it out (orbital launch mount, ship quick disconnect, Pad 2, Flight 15, Ship 42 …)",
+      "kept": null,
+      "msg": "Road card Pad activity · Ship 42 › 13 Nov · 01:21: \"The SQD was connected to Ship 42.\" uses shorthand 'SQD'"
+    },
+    {
+      "date": "2026-11-13T06:01:07.306Z",
+      "type": "render-shorthand",
+      "item": "Road card Pad activity · Ship 42 › 13 Nov · 01:32",
+      "values": [
+        "Ship 42 has the SQD connected at the pad."
+      ],
+      "sources": [],
+      "reason": "spell it out (orbital launch mount, ship quick disconnect, Pad 2, Flight 15, Ship 42 …)",
+      "kept": null,
+      "msg": "Road card Pad activity · Ship 42 › 13 Nov · 01:32: \"Ship 42 has the SQD connected at the pad.\" uses shorthand 'SQD'"
+    },
+    {
+      "date": "2026-11-13T06:01:07.306Z",
+      "type": "render-crossover",
+      "item": "rtf-pad-B22",
+      "values": [
+        "Ship 42 was stacked on Booster 22 ahead of launch."
+      ],
+      "sources": [],
+      "reason": "ship and booster lines never cross over",
+      "kept": null,
+      "msg": "Pad activity · Booster 22 shows \"Ship 42 was stacked on Booster 22 ahead of launch.\" (names S42)"
+    },
+    {
+      "date": "2026-11-13T06:01:07.306Z",
+      "type": "render-crossover",
+      "item": "rtf-pad-S42",
+      "values": [
+        "Ship 42 rolled to Pad 2 ahead of stacking on Booster 22."
+      ],
+      "sources": [],
+      "reason": "ship and booster lines never cross over",
+      "kept": null,
+      "msg": "Pad activity · Ship 42 shows \"Ship 42 rolled to Pad 2 ahead of stacking on Booster 22.\" (names B22)"
+    },
+    {
+      "date": "2026-11-13T06:01:07.306Z",
+      "type": "render-crossover",
+      "item": "rtf-pad-S42",
+      "values": [
+        "Ship 42 was stacked on Booster 22 ahead of launch."
+      ],
+      "sources": [],
+      "reason": "ship and booster lines never cross over",
+      "kept": null,
+      "msg": "Pad activity · Ship 42 shows \"Ship 42 was stacked on Booster 22 ahead of launch.\" (names B22)"
+    },
+    {
+      "date": "2026-11-13T06:01:07.306Z",
+      "type": "render-tense",
+      "item": "Road card Pad activity · Ship 42 › 12 Nov · 21:52",
+      "values": [
+        "Ship 42 heads to Pad 2."
+      ],
+      "sources": [],
+      "reason": "cards and feed text are past tense (push wording stays present)",
+      "kept": null,
+      "msg": "Road card Pad activity · Ship 42 › 12 Nov · 21:52: \"Ship 42 heads to Pad 2.\" is present tense on screen"
+    },
+    {
+      "date": "2026-11-13T06:01:07.306Z",
+      "type": "render-tense",
+      "item": "Feed news-mwehc1so-0b6a15",
+      "values": [
+        "Countdown started at Starbase for a potentially historic Starship mission."
+      ],
+      "sources": [],
+      "reason": "full past-tense sentences on cards and feed",
+      "kept": null,
+      "msg": "Feed news-mwehc1so-0b6a15: \"Countdown started at Starbase for a potentially historic Starship mission.\" is a headline fragment (no subject article / auxiliary)"
+    },
+    {
+      "date": "2026-11-13T06:01:07.306Z",
+      "type": "render-tense",
+      "item": "Flight Log pad Launch pad 13 Nov",
+      "values": [
+        "Pad activity: In progress (13 Nov)"
+      ],
+      "sources": [],
+      "reason": "full past-tense sentences on cards and feed",
+      "kept": null,
+      "msg": "Flight Log pad Launch pad 13 Nov: \"Pad activity: In progress (13 Nov)\" has no verb (fragment)"
+    },
+    {
+      "date": "2026-11-13T06:01:07.306Z",
+      "type": "render-tense",
+      "item": "Road card Pad activity · Launch pad › 10 Nov · 09:03",
+      "values": [
+        "Pad activity: In progress (10 Nov)"
+      ],
+      "sources": [],
+      "reason": "full past-tense sentences on cards and feed",
+      "kept": null,
+      "msg": "Road card Pad activity · Launch pad › 10 Nov · 09:03: \"Pad activity: In progress (10 Nov)\" has no verb (fragment)"
+    },
+    {
+      "date": "2026-11-13T06:01:07.306Z",
+      "type": "render-tense",
+      "item": "Road card Pad activity · Launch pad",
+      "values": [
+        "Pad activity: In progress (13 Nov)"
+      ],
+      "sources": [],
+      "reason": "full past-tense sentences on cards and feed",
+      "kept": null,
+      "msg": "Road card Pad activity · Launch pad: \"Pad activity: In progress (13 Nov)\" has no verb (fragment)"
+    },
+    {
+      "date": "2026-11-13T06:01:07.306Z",
+      "type": "render-tense",
+      "item": "Road card Pad activity · Ship 42 › 12 Nov · 21:52",
+      "values": [
+        "Ship 42 heads to Pad 2."
+      ],
+      "sources": [],
+      "reason": "full past-tense sentences on cards and feed",
+      "kept": null,
+      "msg": "Road card Pad activity · Ship 42 › 12 Nov · 21:52: \"Ship 42 heads to Pad 2.\" has no verb (fragment)"
+    },
+    {
+      "date": "2026-11-12T06:01:43.508Z",
+      "type": "missing-row",
+      "item": null,
+      "values": [],
+      "sources": [],
+      "reason": "feed news-mwcygodc-9eb18d \"Ship 42 was moved back inside Megabay 2 to have its Starlink V3s installed.\" (S42) is on no card and no same-vehicle card follows within 12 h",
+      "kept": null,
+      "msg": "feed news-mwcygodc-9eb18d \"Ship 42 was moved back inside Megabay 2 to have its Starlink V3s installed.\" (S42) is on no card and no same-vehicle card follows within 12 h"
+    },
+    {
+      "date": "2026-11-11T06:00:47.547Z",
+      "type": "render-fragment",
+      "item": "Flight Log pad Launch pad 10 Nov",
+      "values": [
+        "Pad activity: In progress (10 Nov)"
+      ],
+      "sources": [],
+      "reason": "write a full sentence",
+      "kept": null,
+      "msg": "Flight Log pad Launch pad 10 Nov: \"Pad activity: In progress (10 Nov)\" starts with a colon-led fragment ('Pad activity:')"
+    },
+    {
+      "date": "2026-11-11T06:00:47.547Z",
+      "type": "render-fragment",
+      "item": "Road card Pad activity · Launch pad",
+      "values": [
+        "Pad activity: In progress (10 Nov)"
+      ],
+      "sources": [],
+      "reason": "write a full sentence",
+      "kept": null,
+      "msg": "Road card Pad activity · Launch pad: \"Pad activity: In progress (10 Nov)\" starts with a colon-led fragment ('Pad activity:')"
+    },
+    {
+      "date": "2026-11-11T06:00:47.547Z",
+      "type": "render-tense",
+      "item": "Flight Log pad Launch pad 10 Nov",
+      "values": [
+        "Pad activity: In progress (10 Nov)"
+      ],
+      "sources": [],
+      "reason": "full past-tense sentences on cards and feed",
+      "kept": null,
+      "msg": "Flight Log pad Launch pad 10 Nov: \"Pad activity: In progress (10 Nov)\" has no verb (fragment)"
+    },
+    {
+      "date": "2026-11-11T06:00:47.547Z",
+      "type": "render-tense",
+      "item": "Road card Pad activity · Launch pad",
+      "values": [
+        "Pad activity: In progress (10 Nov)"
+      ],
+      "sources": [],
+      "reason": "full past-tense sentences on cards and feed",
+      "kept": null,
+      "msg": "Road card Pad activity · Launch pad: \"Pad activity: In progress (10 Nov)\" has no verb (fragment)"
+    },
+    {
+      "date": "2026-11-10T06:00:47.892Z",
+      "type": "render-tense",
+      "item": "Road card Pad activity · Booster 22 › 9 Nov · 21:07",
+      "values": [
+        "Booster 22 heads to Pad 2 for potential launch prep."
+      ],
+      "sources": [],
+      "reason": "cards and feed text are past tense (push wording stays present)",
+      "kept": null,
+      "msg": "Road card Pad activity · Booster 22 › 9 Nov · 21:07: \"Booster 22 heads to Pad 2 for potential launch prep.\" is present tense on screen"
+    },
+    {
+      "date": "2026-11-10T06:00:47.892Z",
+      "type": "render-tense",
+      "item": "Road card Pad activity · Booster 22 › 9 Nov · 21:07",
+      "values": [
+        "Booster 22 heads to Pad 2 for potential launch prep."
+      ],
+      "sources": [],
+      "reason": "full past-tense sentences on cards and feed",
+      "kept": null,
+      "msg": "Road card Pad activity · Booster 22 › 9 Nov · 21:07: \"Booster 22 heads to Pad 2 for potential launch prep.\" has no verb (fragment)"
+    },
+    {
+      "date": "2026-11-08T06:01:26.433Z",
+      "type": "render-date",
+      "item": "pad|S42",
+      "values": [
+        "12 Sep · 16:39",
+        "7 Nov · 16:11"
+      ],
+      "sources": [],
+      "reason": "one event time on every view",
+      "kept": null,
+      "msg": "pad S42: Flight Log shows 12 Sep · 16:39 (\"Ship 42 was lifted to catch height by the Pad 2 chopsticks.\"), no Road card line at that time (card 7 Nov · 16:11)"
+    },
+    {
+      "date": "2026-11-08T06:01:26.433Z",
+      "type": "render-tense",
+      "item": "Feed news-mw72afio-c6e295",
+      "values": [
+        "Starbase prepared for a Flight 15 double catch."
+      ],
+      "sources": [],
+      "reason": "full past-tense sentences on cards and feed",
+      "kept": null,
+      "msg": "Feed news-mw72afio-c6e295: \"Starbase prepared for a Flight 15 double catch.\" is a headline fragment (no subject article / auxiliary)"
+    },
+    {
+      "date": "2026-11-06T06:01:31.968Z",
+      "type": "render-mismatch",
+      "item": "https://x.com/efraser77/status/2118553539345883303",
+      "values": [
+        "Starbase tower completed deluge test.",
+        "Starbase tower completed deluge system test."
+      ],
+      "sources": [],
+      "reason": "one wording per event on card and feed",
+      "kept": null,
+      "msg": "Flight Log pad Launch pad 6 Nov: \"Starbase tower completed deluge test.\" ≠ Road card Pad activity · Launch pad › 6 Nov · 03:58: \"Starbase tower completed deluge system test.\" (same post https://x.com/efraser77/status/2118553539345883303)"
+    },
+    {
+      "date": "2026-11-06T06:01:31.968Z",
+      "type": "render-punctuation",
+      "item": "Feed news-mw43922g-ea7dc1",
+      "values": [
+        "Starship flight 15 has a tentative target date of Friday 13 November"
+      ],
+      "sources": [],
+      "reason": "card and feed lines are full sentences",
+      "kept": null,
+      "msg": "Feed news-mw43922g-ea7dc1: \"Starship flight 15 has a tentative target date of Friday 13 November\" has no full stop"
+    },
+    {
+      "date": "2026-11-06T06:01:31.968Z",
+      "type": "render-punctuation",
+      "item": "Feed news-mw44pp4o-5bca28",
+      "values": [
+        "Starship pad 39a undergoes full water deluge test"
+      ],
+      "sources": [],
+      "reason": "card and feed lines are full sentences",
+      "kept": null,
+      "msg": "Feed news-mw44pp4o-5bca28: \"Starship pad 39a undergoes full water deluge test\" has no full stop"
+    },
+    {
+      "date": "2026-11-06T06:01:31.968Z",
+      "type": "render-tense",
+      "item": "Feed news-mw44pp4o-5bca28",
+      "values": [
+        "Starship pad 39a undergoes full water deluge test"
+      ],
+      "sources": [],
+      "reason": "full past-tense sentences on cards and feed",
+      "kept": null,
+      "msg": "Feed news-mw44pp4o-5bca28: \"Starship pad 39a undergoes full water deluge test\" has no verb (fragment)"
+    },
+    {
+      "date": "2026-10-31T16:36:12.228Z",
+      "type": "event-time",
+      "item": "cryo S42 9 Oct",
+      "values": [
+        "2026-10-09T14:36:44.000Z",
+        "2026-10-09T20:30:41.000Z"
+      ],
+      "sources": [
+        "https://x.com/LabPadre/status/2108486994401825101",
+        "https://x.com/TrackingTheSB/status/2108656416366202950"
+      ],
+      "reason": "both tier 2; the 21:30 frost post reads as a later observation. Completion time kept on the Flight Log and Road card; the frost post stays as an Earlier update.",
+      "kept": "9 Oct 15:36 UK (completion post, LabPadre)",
+      "msg": "S42 cryo 9 Oct: completion 15:36 UK kept over the 21:30 frost post (tiers equal, unclear) — Flight Log and Road card now agree"
+    },
+    {
+      "date": "2026-10-31T16:14:48.578Z",
+      "type": "event-time",
+      "item": "Ship 42 completed further cryo tests.",
+      "values": [
+        "2026-10-09T14:36:44.000Z",
+        "2026-10-09T20:30:41.000Z"
+      ],
+      "sources": [
+        "https://x.com/LabPadre/status/2108486994401825101",
+        "https://x.com/TrackingTheSB/status/2108656416366202950"
+      ],
+      "reason": "completion time precedes an in-test observation on the same card",
+      "kept": "card time 2026-10-09T14:36:44.000Z (higher-tier/first source)",
+      "msg": "Ship 42 completed further cryo tests. \"Ship 42 completed further cryo tests.\" 9 Oct 15:xx UK precedes in-test row \"Frost on both tanks: Ship 42 likely in another cryo test.\" 2026-10-09T20:30:41.000Z on the same card"
+    },
+    {
+      "date": "2026-10-31T16:14:48.578Z",
+      "type": "launch-date",
+      "item": "flight-mvsjfivy-8b129a",
+      "values": [
+        "NET Nov 2026",
+        "NET 12 Nov"
+      ],
+      "sources": [
+        "FAA planning slide · NSF"
+      ],
+      "reason": "feed item is history (not rewritten); hero/card use the higher-tier day",
+      "kept": "hero NET 12 Nov",
+      "msg": "feed \"NET Nov 2026\" (flight-mvsjfivy-8b129a) is a month-only Launch Library date; hero day NET 12 Nov is the higher-tier value"
+    }
+  ],
+  "_about": "Self-check (scripts/self-check.js) clashes it could not settle by rule: the higher-tier value was kept; a human decides."
+}

@@ -32,7 +32,7 @@ const run = async (r, posts, opts = {}) => { const x = fakeX(posts); const st = 
 (async () => {
   // Colleen fixture → swap to photo 2
   { const h = card(), r = road(h); const { res, calls } = await run(r, [colleen]);
-    check(res.swapped.length === 1 && h.media_override.image === media[2].url && h.media_override.post_url === "https://x.com/colleenadastra/status/2114005088653963704" && h.media_override.author === "colleenadastra" && h.media_override.auto === true, "Colleen's lift post replaces the Blobifie collage with her photo 2 (wide B22 on Pad 2)");
+    check(!res.swapped.length && res.candidates.length === 1 && res.candidates[0].type === "photo_candidate" && res.candidates[0].image_url === media[2].url && res.candidates[0].post_url === "https://x.com/colleenadastra/status/2114005088653963704" && h.media_override.author === "Blobifie", "24 Nov: Colleen's (high-confidence) photo 2 is QUEUED as a photo_candidate; the Blobifie collage stays until Bernardo picks");
     check(h.text === "Booster 22 is being lifted onto Pad-2." && h.x_text === h.text, "card text unchanged");
     check(calls.length === 2 && /\/2\/tweets\?/.test(calls[0]) && /search\/recent/.test(calls[1]) && calls.every((u) => /api\.x\.com\/2\//.test(u)), "at most 2 X calls per watch (metrics refresh + one search)");
     const q = new URL(calls[1]).searchParams.get("query");
@@ -83,8 +83,8 @@ const run = async (r, posts, opts = {}) => { const x = fakeX(posts); const st = 
     const st3 = {}, h3 = card(), r3 = road(h3); let fail = true;
     const flaky = { same: async () => ({ same: true }), vision: async (_p, url) => (fail ? null : { ...VQ[url] }) };
     const go = (now) => mw.runMediaWatch(r3, st3, { token: "t", fetchFn: fakeX([colleen]).fetchFn, ask: flaky, picks: [], now, log: () => {} });
-    await go(NOW); const keep = h3.media_override.author; fail = false; await go(NOW + 15 * 60000);
-    check(keep === "Blobifie" && h3.media_override.author === "colleenadastra", "a failed vision verdict is not cached: the post is carried over and judged next run"); }
+    const g1 = await go(NOW); const keep = h3.media_override.author; fail = false; const g2 = await go(NOW + 15 * 60000);
+    check(keep === "Blobifie" && !g1.candidates.length && g2.candidates.length === 1 && h3.media_override.author === "Blobifie", "a failed vision verdict is not cached: the post is carried over and judged next run (then queued, not applied)"); }
   // sources, gates, window
   { const h = card(), r = road(h); const { res } = await run(r, [{ ...colleen, author_id: "z" }]); check(!res.swapped.length && res.skipped.some((s) => /not a watched source/.test(s)), "untrusted author rejected"); }
   { const h = card(), r = road(h); const { res } = await run(r, [{ ...colleen, public_metrics: { like_count: 29, impression_count: 1499 } }]); check(!res.swapped.length && res.skipped.some((s) => /engagement/.test(s)), "tracker below 30 likes / 1.5k views rejected"); }

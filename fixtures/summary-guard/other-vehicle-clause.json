@@ -1,0 +1,14 @@
+{
+ "ctx": {
+  "flight": 16,
+  "vehicles": [
+   "B23",
+   "S43"
+  ]
+ },
+ "in": "Booster 23 rolled to Massey's, while Booster 22 waits.",
+ "want": {
+  "ok": true,
+  "text": "Booster 23 rolled to Massey's."
+ }
+}

@@ -1,0 +1,14 @@
+{
+ "ctx": {
+  "flight": 16,
+  "vehicles": [
+   "B23",
+   "S43"
+  ]
+ },
+ "in": "Pad 2 work has resumed now that Flight 15 has flown.",
+ "want": {
+  "ok": true,
+  "text": "Pad 2 work has resumed."
+ }
+}

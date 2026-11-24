@@ -94,7 +94,7 @@ const xReply = (posts, newest) => ({ ok: true, status: 200, json: async () => ({
   sent.length = 0; xPage = xReply([P("4001", "4", 1, "B18 #4001", "photo"), P("4002", "4", 1, "S19 #4002", "photo"), P("4003", "1", 1, "NET 30 Oct #4003", "photo"), P("4004", "4", 1, "licence #4004", "photo")], "4004");
   res = await road.run({ ...base, askXFirst: ask });
   check(st("static").status === "progress" && sent.some((n) => /Static fires: In progress/.test(n.title) && /entry=x-4001$/.test(n.link)), "status: in progress applies, push names the box and new status (existing push)");
-  check(st("cryo").status === "progress", "a finished stage can be re-opened by a trusted account (both directions)");
+  check(st("cryo").status === "complete", "STICKY COMPLETE (Bernardo, 24 Nov): a later extra cryo run never re-opens a Complete stage (recorded in Updates only)");
   check(st("date").status === "pending" && !/Launch date: Confirmed/.test(sent.map((n) => n.title).join()), "Launch date: only SpaceX/FAA can confirm (LabPadre blocked)");
   check(st("faa").status === "complete" && st("faa").history[0].complete === true && st("faa").latest === "Confirmed", "done → stage complete (Done, green entry)");
   Object.assign(cls, { "4005": { kind: "road", stage: "date", hardware: null, text: "SpaceX set Flight 15 for 30 Oct.", status: "confirmed" }, "4006": { kind: "road", stage: "static", hardware: "B18", text: "Booster 18 finished its static fire.", status: "done" } });

@@ -57,7 +57,10 @@
   "tests/test-live-complete.js",
   "tests/test-notrunc.js",
   "tests/test-past-road.js",
-  "tests/test-road-parity.js"
+  "tests/test-road-parity.js",
+  "scripts/test-summary-guard.js",
+  "scripts/test-road-rules.js",
+  "scripts/test-photo-lock.js"
  ],
  "frozen": {
   "scripts/test-cleanup.js": "2e85ec2",

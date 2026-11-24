@@ -119,11 +119,11 @@ const checks = appFns(["upcomingFlight", "rtfRows", "roadForFlight", "fleetRoad"
     const mo = p && p.h && p.h.media_override, view = p && A.urlOf(p.h);
     o(!!(p && mo && mo.image === image && mo.keep_image && sid(mo.post_url) === postId && sid(view) === postId && headRe.test(p.h.url)), `${label}: manual pick ${mo && mo.image} · View on X ${sid(view)} (want ${image}, ${postId}) · headline ${p && p.h.url}`);
   };
-  expectManual("live F16 S43 cryo", pick(f16posts, "cryo", /Ship 43/), "images/s43-cryo-wai.jpg", "2114533727514640403", /LabPadre\/status\/2114757145245671915/);
+  expectManual("live F16 S43 cryo", pick(f16posts, "cryo", /Ship 43/), "images/s43-cryo-wai-clean.jpg", "2114533727514640403", /LabPadre\/status\/2114757145245671915/);
   expectManual("live F16 B23 cryo", pick(f16posts, "cryo", /Booster 23/), "images/b23-cryo-starshipgazer-clean.jpg", "2110889490336350574", /TrackingTheSB\/status\/2115353615561064723/);
   { const r = JSON.parse(JSON.stringify(road0)); const c = r.categories.find((x) => x.id === "cryo"); const e = c.history.find((h) => h.id === "f16-s43-2114757145245671915"); e.media_override = { ...e.media_override, note: "auto pick" };
     const p = pick(A.roadPageRows(A.rtfRows(r).rows, r.flight, A.pastRoadFlights(r, A.FLIGHTS)).cur.filter((x) => x.post).map((x) => x.post), "cryo", /Ship 43/);
-    o(!(p && p.h.media_override && p.h.media_override.image === "images/s43-cryo-wai.jpg" && sid(A.urlOf(p.h)) === "2114533727514640403"), "a keep_image picture with no Bernardo note does not hijack the card face (another post's photo needs a recorded manual pick)"); }
+    o(!(p && p.h.media_override && p.h.media_override.image === "images/s43-cryo-wai-clean.jpg" && sid(A.urlOf(p.h)) === "2114533727514640403"), "a keep_image picture with no Bernardo note does not hijack the card face (another post's photo needs a recorded manual pick)"); }
   // newest earlier photo wins; no photo at all → text-only
   { const r1 = { vehicles: { S99: { id: "S99", type: "ship", name: "Ship 99", flight: n, state: "cryo", events: [
       { id: "fv-old", type: "cryo_start", at: "2026-11-01T10:00:00.000Z", date: "1 Nov", text: "Ship 99 began cryo testing.", url: "https://x.com/RGVaerialphotos/status/9500000000000000011", src: "@RGVaerialphotos", x_post: { url: "https://x.com/RGVaerialphotos/status/9500000000000000011", author: { username: "RGVaerialphotos" }, media: [{ type: "photo", url: "https://example.com/old.jpg" }] } },

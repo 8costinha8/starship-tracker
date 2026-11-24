@@ -60,6 +60,7 @@ function placesIn(t) {
   let to = null, from = null;
   for (const h of hits) { const before = String(t).slice(Math.max(0, h.i - 30), h.i);
     if (/\b(left|leav\w*|from|out of|departed|departing)\b[^,]*$/i.test(before) && !/\b(to|at|into|onto)\s+(?:the\s+)?$/i.test(before)) { from = from || h.n; continue; }
+    if (/^[A-Za-z' ]{0,20}?\b(?:exit|gate)\b/i.test(String(t).slice(h.i, h.i + 32))) { from = from || h.n; continue; } // 24 Nov: "moved to the Massey's exit" is LEAVING Massey's
     if (!to) to = h.n; }
   return { to, from };
 }
@@ -252,9 +253,18 @@ function ingest(reg, posts, { road = {}, now = Date.now(), backfill = false, log
           const img = bestImage(p);
           let e = v.events.find((x) => x.key === key);
           if (e) {
+            { // 24 Nov: group only posts within the event's window (36 h after / 12 h before) and before this vehicle's next milestone
+              const RRf = require("./road-rules.js"), pt = Date.parse(p.created_at), et = Date.parse(e.at);
+              const nextMs = (v.events || []).filter((x) => x.milestone && x !== e && Date.parse(x.at) > et).map((x) => Date.parse(x.at)).sort((a, b) => a - b)[0];
+              if (Number.isFinite(pt) && Number.isFinite(et) && (pt > et + RRf.PHOTO_WIN || pt < et - RRf.PHOTO_LEAD || (nextMs && pt > nextMs))) { log(`fleet: ${id} ${ev.type} — @${handle} ${p.post_id} is outside the event's window; not grouped`); continue; }
+            }
             if (!e.sources.some((x) => x.post_id === p.post_id)) { e.sources.push({ post_id: p.post_id, url: p.url, src: `@${handle}`, at: p.created_at }); if (img) { addCandidate(e, p, img); if (!e.image || (img.score || 0) > (e.image.score || 0)) { e.image = img; e.x_post = xCard(p, img); e.image_src = p.url; delete e.image_checked; } } res.updated.push(e); }
             continue;
           }
+          // 24 Nov: the rewrite must keep the source's direction (towards vs away from a place); a flip is held for needs-review
+          if ((ev.type === "move" || ev.type === "rollout") && require("./road-rules.js").directionFlip(s, textFor(id, ev, c, v.flight))) {
+            (res.review = res.review || []).push({ type: "move_direction", vehicle: id, post: p.url, source: clean(s).slice(0, 200), rewrite: textFor(id, ev, c, v.flight), at: p.created_at });
+            log(`fleet: ${id} move held for review — rewrite "${textFor(id, ev, c, v.flight)}" flips the source's direction`); continue; }
           e = { id: evId(key), key, vehicle: id, type: ev.type, milestone, at: p.created_at, date: ukDay(p.created_at), text: textFor(id, ev, c, v.flight), ...(ev.place ? { place: ev.place } : {}),
             url: p.url, src: `@${handle}`, tier, post_id: p.post_id, flight: Number.isInteger(v.flight) ? v.flight : null, image: img, x_post: img ? xCard(p, img) : null, ...(img ? { image_src: p.url } : {}),
             sources: [{ post_id: p.post_id, url: p.url, src: `@${handle}`, at: p.created_at }], ...(backfill ? { backfill: true } : {}) };
@@ -317,20 +327,25 @@ function bannerOf(buf, W = 160, H = 90) {
   return { banner: false };
 }
 async function screenImages(reg, { probe = probeBanner, log = () => {} } = {}) {
-  let checked = 0, swapped = 0;
+  // 24 Nov (Bernardo): NO automatic picture swaps. The event's own picked picture is screened; a screen grab is removed (the card
+  // shows the same-vehicle fallback or no photo), a verdict is kept on the event (photo_gate, read by the app), and every other
+  // candidate that passes the same check is returned as a photo_candidate for data/needs-review.json (Bernardo picks).
+  let checked = 0, swapped = 0; const candidates = [];
   const up = upgradeOrig(reg); if (up) log(`fleet image: ${up} picture(s) → original resolution`);
   for (const v of Object.values(reg.vehicles || {})) for (const e of v.events || []) {
     if (!e.candidates || !e.candidates.length || e.image_checked) continue;
-    const order = [...e.candidates].sort((a, b) => (b.score || 0) - (a.score || 0) || Date.parse(a.at) - Date.parse(b.at));
-    let pick = null, unknown = false;
-    for (const c of order) { const r = probe(c.url); checked++; if (r === null) { unknown = true; break; } if (!r.banner) { pick = c; break; } log(`fleet image: ${e.vehicle} ${e.type} — ${c.url} rejected (${r.why})`); }
-    if (unknown) continue; // try again next run
-    const before = e.image && e.image.url;
-    if (pick) { e.image = { type: pick.type, url: pick.url, score: pick.score, ...(pick.video_url ? { video_url: pick.video_url } : {}) }; e.x_post = { url: pick.post_url, author: { username: pick.author }, media: pick.media }; e.image_src = pick.post_url; }
-    else { e.image = null; e.x_post = null; delete e.image_src; }
-    e.image_checked = true; if ((e.image && e.image.url) !== before) swapped++;
+    const curUrl = e.image && e.image.url;
+    if (!curUrl) { e.image_checked = true; continue; }
+    const r = probe(curUrl); checked++;
+    if (r === null) continue; // unknown: try again next run
+    if (!r.banner) { delete e.photo_gate; e.image_checked = true; continue; }
+    log(`fleet image: ${e.vehicle} ${e.type} — ${curUrl} removed (${r.why}); other candidates go to needs-review, no swap`);
+    e.photo_gate = { image: curUrl, ok: false, reasons: [r.why], checked: new Date().toISOString().slice(0, 10) };
+    for (const c of e.candidates) { if (c.url === curUrl) continue; const rc = probe(c.url); checked++; if (rc && !rc.banner)
+      candidates.push({ type: "photo_candidate", card_id: e.id, image_url: c.url, post_url: c.post_url, author: c.author, reason: `fleet image check: ${e.vehicle} ${e.type} picture removed (${r.why}); this candidate has no ticker/banner`, gate: { ok: true, reasons: [] }, source: "fleet screenImages" }); }
+    e.image = null; e.x_post = null; delete e.image_src; e.image_checked = true; swapped++;
   }
-  return { checked, swapped };
+  return { checked, swapped, candidates };
 }
 function findEvent(reg, id) { for (const v of Object.values((reg && reg.vehicles) || {})) { const e = (v.events || []).find((x) => x.id === id); if (e) return e; } return null; }
 // sendPush's "is it visible in the app" check for a fleet push

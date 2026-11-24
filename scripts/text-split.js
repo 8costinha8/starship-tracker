@@ -75,4 +75,7 @@ function pairFrom(cls, { confirmed = true } = {}) {
 const PROMPT_RULES = `push_text: the live push notification line, PRESENT tense, as it is happening ("Frost on both tanks: Ship 42 likely in another cryo test.").
 card_text: the card / Earlier updates line, a FULL PAST-tense sentence with a finite verb ("Ship 43 was returning from Massey's.", never "Ship 43 returning from Massey's."). Confirmed: "Ship 42 completed another cryo test." Not confirmed (inferred, hedged, frost only, rumour): "Ship 42 likely ran another cryo test." / "Booster 22 likely had a launch rehearsal.".
 Both: satellites/payloads are "deployed", never "released"; never a "Test flight mission" line; nothing unconfirmed says "completed"; unconfirmed card_text uses "likely ran" or "likely had".`;
-module.exports = { pushText, cardText, isConfirmed, toCard, lint, pairFrom, fix, isMissionLine, isFragment, wholeSentence, PROMPT_RULES };
+// 24 Nov (Bernardo): this flight only, one short line. Same rule the pre-publish validator (summary-guard.js) enforces.
+const SCOPE_RULE = (() => { try { return require("./summary-guard.js").PROMPT_RULE; } catch { return ""; } })();
+const PROMPT_RULES_ALL = SCOPE_RULE ? `${PROMPT_RULES}\nScope + length (card_text, push_text, status lines): ${SCOPE_RULE}` : PROMPT_RULES;
+module.exports = { pushText, cardText, isConfirmed, toCard, lint, pairFrom, fix, isMissionLine, isFragment, wholeSentence, PROMPT_RULES: PROMPT_RULES_ALL, PROMPT_RULES_BASE: PROMPT_RULES };

@@ -125,7 +125,7 @@ function step(st0, text0, { v, at = null, id = null, road = null, url = null } =
   let ev = evidence(st, s), card = null, likely = false, out = null, confirms = null, moveToTest = null;
   const moved = s.rollout || s.return;
   const afterTest = /\bafter\b[^.]*?\b(cryo|static[- ]?fire)/i.exec(text);
-  if (s.pad_work && !s.static && !s.cryo) { ev = null; card = "pad"; }
+  if (s.pad_work && !s.static && !s.cryo) { ev = null; card = "pad"; st.last_pad = at || st.at || null; } // 24 Nov: pad tests count as the vehicle's latest activity for a reasonless return
   else if (s.return && afterTest) {                                        // "returned to Megabay 2 after static fire": follows that test, closes it
     card = /cryo/i.test(afterTest[1]) ? "cryo" : "static"; ev = null; st.open_test = null; st.pending = [];
   } else if (ev === "wdr" || ev === "pad") { card = "pad"; likely = !s.doneReal; if (s.frost) { out = plainWords(st, s, v, ev, "frost"); st.likely = { test: ev, id }; } ev = null; }
@@ -143,7 +143,10 @@ function step(st0, text0, { v, at = null, id = null, road = null, url = null } =
   } else if (s.raptor && !s.cryo && !s.static && require("./purpose.js").isEnginePrep(text)) return { card: null, why: "engine prep (journey context, not a Raptor milestone)", state: st }; // 1 Nov
   else if (s.raptor && !s.cryo && !s.static) card = "raptor";            // engine work (incl. "returned to Megabay 1 for its engines")
   else if (s.return || (s.stand && !s.rollout) || (s.at_place && s.locs.length && !s.rollout)) {  // follows the open / just-finished test, else Pad
-    const f = st.open_test || just;
+    // 24 Nov: a return/move with no stated reason inherits the vehicle's most recent test (open, or finished within
+    // JUST_MS); pad tests after that test win ("Ship 43 entered Megabay 2" after its Pad 2 chopstick tests → Pad).
+    const padNewer = st.last_pad && (!st.last_test || (Date.parse(st.last_pad) || 0) > (Date.parse(st.last_test.at) || 0));
+    const f = padNewer && !st.open_test ? "pad" : st.open_test || just;
     card = f || "pad";
     if (/mega ?bay|production|build site|the bay/i.test(text)) { st.open_test = null; st.pending = []; }
   } else if (moved && s.locs.length) {                                     // ambiguous move: Pad card, likely, until a test is evidenced

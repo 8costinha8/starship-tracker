@@ -151,7 +151,7 @@
             "post_id": "2114533727514640403",
             "author": "FelixSchlang",
             "type": "photo",
-            "image": "images/s43-cryo-wai.jpg",
+            "image": "images/s43-cryo-wai-clean.jpg",
             "keep_image": true,
             "crop": "top",
             "note": "Manual (Bernardo, 24 Nov): Ship 43 on the Massey cryo stand, photo 23 Oct by Jordan Guidry / WAI Media, posted by @FelixSchlang."
@@ -222,8 +222,15 @@
             "author": "Blobifie",
             "type": "photo",
             "image": "https://pbs.twimg.com/media/HVWEyTyaQAA-KCA.jpg",
-            "keep_image": true,
             "crop": "top"
+          },
+          "photo_gate": {
+            "image": "https://pbs.twimg.com/media/HVWEyTyaQAA-KCA.jpg",
+            "ok": false,
+            "reasons": [
+              "livestream ticker band (red bottom band 0.68)"
+            ],
+            "checked": "2026-11-24"
           }
         },
         {
@@ -281,7 +288,6 @@
             "author": "Bettybronxton",
             "type": "video",
             "image": "https://pbs.twimg.com/amplify_video_thumb/2113350470194302976/img/ikUTmqE7ByY6tWFo.jpg",
-            "keep_image": true,
             "crop": "top"
           },
           "unverified": true,
@@ -467,7 +473,6 @@
             "author": "StarshipGazer",
             "type": "photo",
             "image": "https://pbs.twimg.com/media/HUf3gx6acAAlglM.jpg",
-            "keep_image": true,
             "crop": "top"
           },
           "cascade": {
@@ -540,8 +545,15 @@
             "author": "Blobifie",
             "type": "photo",
             "image": "https://pbs.twimg.com/media/HUdSuq2a8AAAfgu.jpg",
-            "keep_image": true,
             "crop": "top"
+          },
+          "photo_gate": {
+            "image": "https://pbs.twimg.com/media/HUdSuq2a8AAAfgu.jpg",
+            "ok": false,
+            "reasons": [
+              "livestream ticker band (red bottom band 0.72)"
+            ],
+            "checked": "2026-11-24"
           }
         }
       ],

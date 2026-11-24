@@ -446,11 +446,12 @@ Reply with JSON: {"same": true|false, "line": "..."}`;
 /* ───────────── image precision (vision check) ─────────────
    An entry only keeps an X photo / video (poster frame) that CLEARLY shows the entry's subject:
    the same vehicle (ship / booster number, or the pad) AND the same kind of event (cryo test,
-   static fire, rollout, lift, engine work…). Grok vision (grok-4.3) looks at
+   static fire, rollout, lift, engine work…), and passes the photo gate (photo-gate.js: vehicle type, not dark/blurry,
+   not a webcam frame — asked in this SAME call, 24 Nov). Grok vision (grok-4.3) looks at
    each candidate image with the entry text, the post text and the alt text; it must say
    shows=true with confidence ≥ 0.8. Otherwise the entry is text only (still linking to its post). */
 const VISION_SCHEMA = { type: "object", additionalProperties: false, required: ["shows", "confidence", "seen", "reason"],
-  properties: { shows: { type: "boolean" }, confidence: { type: "number" }, seen: { type: "string" }, reason: { type: "string" } } };
+  properties: { shows: { type: "boolean" }, confidence: { type: "number" }, seen: { type: "string" }, reason: { type: "string" }, ...require("./photo-gate.js").VISION_FIELDS } };
 const IMAGE_MIN_CONF = 0.8;
 const imageOf = (m) => (m.type === "photo" ? m.url : m.poster) || null;
 async function askVision(prompt, url) {
@@ -471,10 +472,13 @@ X post text: ${post.text}
 ${m.alt ? `Alt text: ${m.alt}\n` : ""}This picture is ${m.type === "video" ? "the poster frame of the post's video" : "a photo from the post"}.
 "shows": true ONLY if the picture clearly and recognisably shows the update's subject: the same vehicle (ship or booster, readable or unambiguous from context) or the same pad structure, AND the same kind of event or activity (e.g. a cryo test on the test stand, a static fire, a rollout on the transporter, a lift by the chopsticks, engine work). A generic factory interior, a dark or blurry frame, a far-off view where the subject can't be made out, a different vehicle, or an unrelated scene is false.
 "confidence": 0 to 1. "seen": what is actually visible, in a few words. "reason": max 15 words.
+${require("./photo-gate.js").VISION_ASK}
 Reply with JSON only.`;
     try {
       const v = await ask(prompt, url);
       tried.push(`${m.type} ${v.shows ? "✓" : "✗"} ${Number(v.confidence).toFixed(2)} (${v.seen})`);
+      const PG = require("./photo-gate.js"), gate = [PG.visionOk(v, PG.wantType(entryText)), PG.localCheck({ image: url, type: m.type, author: post.author && (post.author.username || post.author), post_text: post.text, width: m.width, height: m.height })];
+      if (gate.some((g) => !g.ok)) { tried.push(`gate ✗ ${gate.flatMap((g) => g.reasons).join(", ")}`); continue; } // 24 Nov photo gate
       if (v.shows && v.confidence >= IMAGE_MIN_CONF && (!best || v.confidence > best.v.confidence)) best = { m, v };
     } catch (e) { tried.push(`${m.type} check failed (${String(e.message).slice(0, 80)})`); }
   }
@@ -510,16 +514,16 @@ async function verifyImages(road, opts = {}) {
    links to that post and credits @author. If the pick's post differs from the post the Grok text
    was written from, the original entry text is shown instead (no mismatched rewrite). */
 function loadMediaPicks(file = path.join(__dirname, "..", "road-media.json")) {
-  try { return (JSON.parse(fs.readFileSync(file, "utf8")).picks || []).filter((p) => p.category && p.date && p.post_url && p.image); } catch { return []; }
+  try { return require("./media-lock.js").sanitizePicks((JSON.parse(fs.readFileSync(file, "utf8")).picks || []).filter((p) => p.category && p.date && p.post_url && p.image)).picks; } catch { return []; } // 24 Nov: keep_image / locked only on Bernardo's recorded picks
 }
 function applyMediaPicks(road, picks) {
   let n = 0;
   for (const c of road.categories) for (const h of c.history || []) {
     const p = picks.find((x) => !x.context_only && x.category === c.id && x.date === h.date && (!x.entry || x.entry === h.text)); // same day, same card
     if (!p) continue;
-    const mo = { post_url: p.post_url, post_id: p.post_id || xIdOf(p.post_url), author: p.author, type: p.media_type === "video" ? "video" : "photo", image: p.image, ...(p.credit_only ? { credit_only: true } : {}), ...(p.keep_image ? { keep_image: true } : {}), ...(p.locked ? { locked: true } : {}) }; // locked: SpaceX media, kept for good (29 Oct rule) // credit_only: picture only, credited "Photo · @author"; the fact stays with the entry's own source
+    const mo = { post_url: p.post_url, post_id: p.post_id || xIdOf(p.post_url), author: p.author, type: p.media_type === "video" ? "video" : "photo", image: p.image, ...(p.credit_only ? { credit_only: true } : {}), ...(p.keep_image && require("./media-lock.js").bernardoPick(p) ? { keep_image: true } : {}), ...(p.locked && require("./media-lock.js").bernardoPick(p) ? { locked: true } : {}), ...(p.crop ? { crop: p.crop } : {}), ...(p.note && require("./media-lock.js").bernardoPick(p) ? { note: p.note } : {}) }; // 24 Nov: a manual pick keeps its crop and its Bernardo note (the app's provenance check) // locked: SpaceX media, kept for good (29 Oct rule) // credit_only: picture only, credited "Photo · @author"; the fact stays with the entry's own source
     if (JSON.stringify(h.media_override) !== JSON.stringify(mo)) { h.media_override = mo; n++; }
-    if (!mo.credit_only && h.x_text && (!h.x_post || h.x_post.post_id !== mo.post_id)) { delete h.x_text; n++; }
+    if (!mo.credit_only && !require("./media-lock.js").bernardoPick(p) && h.x_text && (!h.x_post || h.x_post.post_id !== mo.post_id)) { delete h.x_text; n++; } // a Bernardo photo pick from another post keeps the headline's text (two-link credit)
     h.imageChecked2 = true; // the pick wins: no automatic check for this entry
   }
   return n;
@@ -1310,6 +1314,7 @@ function pushGateFor(state, road, xf, { token, fetchFn = fetch, ask = null, log 
   return gate;
 }
 async function run(opts = {}) {
+  let fleetNRDirty = false; // 24 Nov: fleet photo candidates / direction holds written to data/needs-review.json this run
   const mode = opts.mode || (process.env.ROAD_MODE === "preview" || process.env.TEST_MODE === "true" ? "preview" : "live");
   const roadPath = opts.roadPath || path.join(ROOT, "road.json");
   const appJsPath = opts.appJsPath || path.join(ROOT, "app.js");
@@ -1432,7 +1437,13 @@ async function run(opts = {}) {
         const fr = fleetMod.ingest(fleetReg, xf.posts, { road, now: clock(), log });
         fleetPushes = fr.pushes.filter((d) => d.push).map((d) => d.n);
         for (const d of fr.pushes.filter((x) => !x.push)) log(`fleet: no push ${d.key} — ${d.reason}`);
-        if (opts.fleetProbe !== false) { try { await fleetMod.screenImages(fleetReg, { log, ...(opts.fleetProbe ? { probe: opts.fleetProbe } : {}) }); } catch (e) { log(`fleet image check skipped: ${e.message}`); } }
+        let fleetCands = [];
+        if (opts.fleetProbe !== false) { try { fleetCands = (await fleetMod.screenImages(fleetReg, { log, ...(opts.fleetProbe ? { probe: opts.fleetProbe } : {}) })).candidates || []; } catch (e) { log(`fleet image check skipped: ${e.message}`); } }
+        try { // 24 Nov: fleet photo candidates (no swap) and direction-flip holds → data/needs-review.json
+          const nr = path.join(path.dirname(fleetPath), "needs-review.json");
+          if (save && fleetCands.length) { const n = require("./photo-candidates.js").writeCandidates(nr, fleetCands, clock()); if (n) { fleetNRDirty = true; log(`fleet: ${n} photo candidate(s) queued for review`); } }
+          if (save && (fr.review || []).length) { const n = require("./self-check.js").writeReview(fr.review.map((r) => ({ type: r.type, item: `${r.vehicle} ${r.post}`, values: [r.rewrite], sources: [r.post], reason: `rewrite flips the source's direction ("${r.source}")`, msg: `move_direction ${r.vehicle}: "${r.rewrite}" vs source "${r.source}"` })), nr, clock()); if (n) fleetNRDirty = true; }
+        } catch (e) { log(`fleet review queue skipped: ${e.message}`); }
         const cur = new Set((road.vehicles || []).map(String)), owned = new Set();
         for (const e of [...fr.events, ...fr.updated]) if (e && e.vehicle && !cur.has(e.vehicle)) for (const s0 of e.sources || []) owned.add(`x:${s0.post_id}`);
         if (owned.size) { const n0 = xf.news.length; xf.news = xf.news.filter((it) => !owned.has(it.key)); if (n0 !== xf.news.length) log(`fleet: ${n0 - xf.news.length} later-flight news item(s) handled by the registry (no second push)`); }
@@ -1639,8 +1650,12 @@ async function run(opts = {}) {
   }
   // 4a-pick. Hand-picked pictures win over the automatic check
   if (!opts.sources || opts.mediaPicks) { const np = applyMediaPicks(road, opts.mediaPicks || loadMediaPicks()); if (np) { log(`media picks: ${np} change(s) from road-media.json`); changed = true; } }
-  // 4a-mw. Media upgrade watch (hourly, ≤ 2 X calls): a clearly better picture of the same event replaces a card's
-  // picture; text unchanged, never a push (it never touches `changes`/notifications); ship cryo = proposal only
+  // 4a-mw. Media upgrade watch (hourly, ≤ 2 X calls): a clearly better picture of the same event is QUEUED as a
+  // photo_candidate in data/needs-review.json (24 Nov, Bernardo: no automatic swaps); text unchanged, never a push
+  const photoCands = []; // media-watch / media-cascade / best-frame candidates → needs-review (photo_candidate), never applied
+  const queueCands = (list, from) => { if (!list || !list.length) return; photoCands.push(...list);
+    try { if (save) { const added = require("./photo-candidates.js").writeCandidates(path.join(opts.roadPath ? path.dirname(roadPath) : ROOT, "data", "needs-review.json"), list, clock());
+      if (added) { changed = true; log(`${from}: ${added} photo candidate(s) queued in needs-review (no swap)`); } } } catch (e) { log(`photo candidates not written: ${e.message}`); } };
   if ((!opts.sources && mode === "live") || opts.mediaWatch) {
     try {
       const SEC = require("./same-event-cache.js"), seFile = opts.sameEventCacheFile || SEC.FILE, sameCache = SEC.load(seFile); SEC.prune(sameCache, clock());
@@ -1648,7 +1663,7 @@ async function run(opts = {}) {
       if (mw.ran) log(`media watch: same_event ${mw.sameCalls} Grok call(s), ${mw.sameCached} cached verdict(s)`);
       if (sameCache.dirty && save && (mode === "live" || opts.sameEventCacheFile)) { SEC.save(sameCache, seFile); try { commit(path.relative(ROOT, seFile), `Auto: same-event cache — ${Object.keys(sameCache.entries).length} verdict(s)`); } catch (e) { log(`same-event cache commit failed: ${e.message}`); } }
       if (mw.ran) log(`media watch: ${mw.calls} X call(s), ${mw.swapped.length} swap(s), ${mw.proposals.length} proposal(s)${mw.deferred ? `, ${mw.deferred} deferred to next watch` : ""}`);
-      if (mw.swapped.length) changed = true;
+      queueCands(mw.candidates, "media watch");
     } catch (e) { log(`media watch failed (${e.message}) — tried again next hour`); }
   }
   // 4a-mc. Milestone media cascade: the posts X-first already fetched this run (no extra X call, no writer):
@@ -1658,7 +1673,8 @@ async function run(opts = {}) {
     try {
       const mc = await require("./media-cascade.js").runCascade(road, xf.posts, { picks: opts.mediaPicks || loadMediaPicks(), ...(opts.cascade || {}), log });
       cascadeFiles = mc.files;
-      if (mc.swapped.length || mc.confirmed.length) { changed = true; log(`media cascade: ${mc.swapped.length} swap(s), ${mc.confirmed.length} confirmed (no push)`); }
+      queueCands(mc.candidates, "media cascade");
+      if (mc.confirmed.length) { changed = true; log(`media cascade: ${mc.confirmed.length} confirmed, ${(mc.candidates || []).length} candidate(s) (no swap, no push)`); }
     } catch (e) { log(`media cascade failed (${e.message}) — tried again next run`); }
   }
   // 4a-img. New entries with an X post: keep only a picture that clearly shows the update
@@ -1702,10 +1718,11 @@ async function run(opts = {}) {
   for (const ch of changes) { if (!ch.entry.id) ch.entry.id = `e-${ch.box.id}-${Date.parse(ch.entry.at || clock()).toString(36)}`; const n = notificationFor(road, ch); notifications.push(pushSync.stampRoadEntry(ch.box, ch.entry, { ...n, link: `${FEED_LINK}&entry=${encodeURIComponent(ch.entry.id)}` })); }
   if (typeof missionPushes !== "undefined") notifications.push(...missionPushes); // same caps (X-first run cap) and the same save-then-push step
   // 4a-frame. Best frame / photo for the new cards (scripts/best-frame.js): runs AFTER the pushes are built, so an
-  // image swap never adds or changes a push; only an upgrade Grok picks with confidence >= 0.7 is swapped in.
+  // picture is never swapped (24 Nov): a frame / photo Grok picks with confidence >= 0.7 is queued as a photo_candidate.
   let frameFiles = [];
+  if (fleetNRDirty) frameFiles.push("data/needs-review.json");
   if (changes.length && (!opts.sources || opts.bestFrame)) {
-    try { frameFiles = await bestFrame.upgradeCards(road, changes.filter((ch) => !ch.merge).map((ch) => ({ box: ch.box, entry: ch.entry })), { root: ROOT, log, ...(opts.bestFrame || {}) }); if (frameFiles.length) log(`best frame: ${frameFiles.length} picture(s) upgraded (no push)`); }
+    try { const bfC = []; frameFiles = await bestFrame.upgradeCards(road, changes.filter((ch) => !ch.merge).map((ch) => ({ box: ch.box, entry: ch.entry })), { root: ROOT, log, candidates: bfC, ...(opts.bestFrame || {}) }); queueCands(bfC, "best frame"); if (frameFiles.length) { frameFiles.push("data/needs-review.json"); log(`best frame: ${frameFiles.length - 1} candidate frame(s) saved for review (no swap, no push)`); } }
     catch (e) { log(`best frame failed (${e.message}) — thumbnails kept`); }
   }
   if (changes.length) changed = true;
@@ -1797,6 +1814,26 @@ async function run(opts = {}) {
       for (const c of road.categories || []) for (const h of c.history || []) { if (!h.milestone) continue;
         const alt = RP.alternativesOf(c.history, c.id, h); if (alt.length) h.photo_alternatives = alt; else delete h.photo_alternatives; }
     } catch (e) { log(`photo alternatives skipped: ${e.message}`); }
+    try { // 24 Nov pre-publish guards (scripts/summary-guard.js, scripts/media-lock.js); never break a checker run
+      const gRoot = opts.roadPath ? path.dirname(roadPath) : ROOT;
+      let fleetReg = null; try { fleetReg = JSON.parse(fs.readFileSync(path.join(gRoot, "data", "vehicles.json"), "utf8")); } catch {}
+      const SG = require("./summary-guard.js"), sg = SG.guardRoad(road, { fleet: fleetReg, now: new Date(clock()).toISOString() });
+      for (const x of sg.changed) log(`summary guard: ${x.cat}${x.id ? " " + x.id : ""} ${x.field}: "${x.from}" → "${x.to}"`);
+      for (const x of sg.held) log(`summary guard HOLD (not published, needs-review): ${x.cat} ${x.id} ${x.field}: "${x.text}" — ${x.issues.join(", ")}`);
+      if (sg.review.length && save) {
+        const added = require("./self-check.js").writeReview(sg.review.map((r) => ({ type: r.type, item: r.id || `${r.cat}.${r.field}`, values: [r.text], sources: r.url ? [r.url] : [],
+          reason: r.type === "summary_offtopic" ? `card summary names ${r.issues.join(", ")}; not published` : `card summary is ${r.chars} chars (one-line limit ${r.max}); shown clamped`,
+          msg: `${r.type} F${r.flight} ${r.cat} ${r.id || r.field}: ${r.text}` })), path.join(gRoot, "data", "needs-review.json"), clock());
+        if (added) { frameFiles.push("data/needs-review.json"); log(`summary guard: ${added} item(s) listed in needs-review`); }
+      }
+      // STICKY COMPLETE (Bernardo) + arrivals are never completions (scripts/road-rules.js)
+      const RRm = require("./road-rules.js");
+      let prevRoad = null; try { prevRoad = JSON.parse(fs.readFileSync(roadPath, "utf8")); } catch {}
+      for (const k of RRm.stickyRoad(prevRoad, road)) log(`sticky complete: ${k.cat} stays ${k.to} (new run said ${k.from}; extra runs go to Updates only)`);
+      for (const c of road.categories || []) for (const h of c.history || []) { if (RRm.PENDING.has(h.id)) continue; if (RRm.fixMovePhase(h)) log(`phase: ${h.id} is a move/arrival, not a completion`); for (const u of h.updates || []) if (RRm.fixMovePhase(u)) log(`phase: ${h.id} update "${u.text}" is a move/arrival, not a completion`); }
+      const unlocked = require("./media-lock.js").sanitizeRoad(road, (() => { try { return JSON.parse(fs.readFileSync(path.join(gRoot, "road-media.json"), "utf8")).picks || []; } catch { return []; } })());
+      for (const u of unlocked) log(`media lock removed (no recorded Bernardo pick): ${u.where} ${u.id} ${u.flags.join("+")}`);
+    } catch (e) { log(`pre-publish guards skipped: ${e.message}`); }
     validateRoad(road);
     mission.validateMission(road);
     predict.validatePredicted(road);
@@ -1835,7 +1872,7 @@ async function run(opts = {}) {
     const fleetWritable = save && (!opts.deps || !!opts.roadPath || !!opts.fleetPath); // an injected-deps test run never writes the repo's own registry
     if (fleetChanged && fleetWritable) {
       fleetMod.save(fleetReg, fleetPath);
-      if (mode === "live" && !opts.roadPath) { try { commit("data/vehicles.json" + (fleetReg.coverage && fleetBefore.indexOf(fleetReg.coverage.at) < 0 ? " data/health.json" : ""), `Auto: fleet registry — ${fleetPushes.length} milestone push(es)`); } catch (e) { log(`fleet registry commit failed: ${e.message}`); fleetPushes = []; } }
+      if (mode === "live" && !opts.roadPath) { try { commit("data/vehicles.json" + (fleetNRDirty ? " data/needs-review.json" : "") + (fleetReg.coverage && fleetBefore.indexOf(fleetReg.coverage.at) < 0 ? " data/health.json" : ""), `Auto: fleet registry — ${fleetPushes.length} milestone push(es)`); } catch (e) { log(`fleet registry commit failed: ${e.message}`); fleetPushes = []; } }
     } else if (fleetChanged) console.log("(not committed) data/vehicles.json would change");
     // Event types the Road template has no box for ("unmapped"): never shown on the page; listed once each in needs-review + health.json
     try {

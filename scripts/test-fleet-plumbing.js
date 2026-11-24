@@ -50,9 +50,13 @@ const fcm = require("./fcm-send.js"), gate = require("./push-gate.js"), pp = req
   ok(F.bannerOf(img((x, y) => (y >= 86 ? [200, 20, 30] : [120, 130, 140]))).banner, "pixels: red ticker band = screen grab");
   ok(F.bannerOf(img((x, y) => (y >= 84 ? [15, 15, 15] : [150, 150, 160]))).banner, "pixels: dark lower-third under a bright scene = screen grab");
   ok(!F.bannerOf(img((x, y) => [100 + (x % 30), 110, 120 - (y % 20)])).banner, "pixels: an ordinary scene is kept");
-  const e = { candidates: [{ url: "grab", score: 3, type: "photo", post_url: "p1", author: "a", at: "2026-01-01" }, { url: "clean", score: 2, type: "video", post_url: "p2", author: "b", at: "2026-01-02" }] };
+  const e = { id: "fv-x", image: { url: "grab", type: "photo", score: 3 }, x_post: { url: "p1" }, image_src: "p1", candidates: [{ url: "grab", score: 3, type: "photo", post_url: "p1", author: "a", at: "2026-01-01" }, { url: "clean", score: 2, type: "video", post_url: "p2", author: "b", at: "2026-01-02" }] };
   const reg2 = { vehicles: { X: { events: [e] } } };
-  await F.screenImages(reg2, { probe: (u) => ({ banner: u === "grab", why: "t" }) });
-  ok(e.image && e.image.url === "clean" && e.image_src === "p2" && e.image_checked, "a rejected grab falls back to the next candidate of the same event");
+  const sc = await F.screenImages(reg2, { probe: (u) => ({ banner: u === "grab", why: "t" }) });
+  // 24 Nov (Bernardo): no automatic swap: the grab is removed (placeholder / fallback), the clean one is QUEUED, not applied
+  ok(!e.image && !e.x_post && e.image_checked && e.photo_gate && e.photo_gate.ok === false && sc.candidates.length === 1 && sc.candidates[0].type === "photo_candidate" && sc.candidates[0].image_url === "clean" && sc.candidates[0].post_url === "p2", "a rejected grab is removed and the next clean candidate is queued for review, never swapped in");
+  const e2 = { id: "fv-y", image: { url: "good", type: "photo" }, candidates: [{ url: "good", post_url: "q1" }, { url: "other", post_url: "q2" }] };
+  const sc2 = await F.screenImages({ vehicles: { Y: { events: [e2] } } }, { probe: () => ({ banner: false }) });
+  ok(e2.image.url === "good" && !sc2.candidates.length, "a clean picked picture is kept (no candidate churn)");
   done();
 })().catch((e) => { console.log("❌ crashed: " + e.stack); process.exit(1); });

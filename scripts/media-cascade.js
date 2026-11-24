@@ -81,7 +81,7 @@ function locked(h, cat, pickIds) {
   return null;
 }
 async function runCascade(road, posts, { now = Date.now(), picks = [], frameFor = null, log = () => {} } = {}) {
-  const res = { swapped: [], confirmed: [], skipped: [], files: [] };
+  const res = { swapped: [], candidates: [], confirmed: [], skipped: [], files: [] }; // swapped stays empty (24 Nov: proposals only)
   if (!posts || !posts.length) return res;
   const ff = frameFor || defaultFrameFor();
   if (!Array.isArray(picks)) picks = (picks && picks.picks) || [];
@@ -118,15 +118,12 @@ async function runCascade(road, posts, { now = Date.now(), picks = [], frameFor 
         if (!med) { res.skipped.push(`${h.id}: @${handleOf(p)} has no usable${litEvent(ev) ? " engine-lit" : ""} picture`); continue; }
         const q = quality(t, med);
         if (ct === curTier && q <= cur) { res.skipped.push(`${h.id}: @${handleOf(p)} not better`); continue; }
-        // swap image AND link AND source post; text stays (locked); no caption, no label, no push
-        h.url = p.url; h.src = `@${handleOf(p)}`; h.tier = Math.min(t, 2);
-        h.x_post = { post_id: p.post_id, url: p.url, created_at: p.created_at, text: p.text, author: p.author, media: p.media || [] };
-        h.media_override = { post_url: p.url, post_id: p.post_id, author: handleOf(p), type: med.type, image: med.image, ...(med.thumb ? { thumb: med.thumb } : {}), ...(med.frame ? { frame: med.frame } : {}), auto: true, cascade: true, quality: q, checked_at: new Date(now).toISOString(), crop: require("./road-pick.js").cropOf(cat.id, `${h.text || ""} ${h.x_text || ""}`) };
-        delete h.media_context; delete h.alt_media; delete h.caption;
-        cs.best_q = cur = q; curTier = ct;
-        if (ct === 1) { h.media_locked = true; h.text_locked = true; res.locked = [...(res.locked || []), h.id]; log(`cascade LOCK: ${h.id} — SpaceX's own post, no more media or wording changes`); }
-        if (/^images\//.test(med.image)) res.files.push(med.image);
-        res.swapped.push(`${h.id} ← @${handleOf(p)} ${p.post_id}`); log(`cascade SWAP (no push): ${h.id} ← @${handleOf(p)} ${p.url}`);
+        // 24 Nov (Bernardo): NO automatic swap of image, link or source post, at any tier or confidence. The better picture
+        // is a photo_candidate for data/needs-review.json; the card keeps its picture until a manual pick is relayed.
+        const cnd = require("./photo-candidates.js").candidate({ card_id: h.id, image_url: med.image, post_url: p.url, reason: `media cascade: tier ${t} @${handleOf(p)} picture of "${h.text}" (quality ${q} vs ${cur})`,
+          quality: q, source: "media-cascade", author: handleOf(p), type: med.type, post_text: p.text, ...(med.frame ? { frame: med.frame } : {}) });
+        res.candidates.push(cnd); cs.best_q = cur = q; curTier = ct;
+        log(`cascade CANDIDATE (queued for review, no swap): ${h.id} ← @${handleOf(p)} ${p.url}${cnd.gate.ok ? "" : " — gate: " + cnd.gate.reasons.join(", ")}`);
       }
     }
   }

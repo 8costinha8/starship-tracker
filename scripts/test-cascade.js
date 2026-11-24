@@ -22,7 +22,7 @@ const SF = "Ship 42 conducts a six-engine static fire test.";
 
   // tier 2 confirms, swaps image AND link AND source post, keeps the text, no caption
   let h = card(), r = await mc.runCascade(road(h), [post(10, "NASASpaceflight", SF)], opts());
-  check(r.swapped.length === 1 && h.url === "https://x.com/NASASpaceflight/status/10" && h.x_post.post_id === "10" && h.media_override.post_id === "10" && h.media_override.image === "images/10-frame.jpg", "tier 2 swap: image + link + source post");
+  check(!r.swapped.length && r.candidates.length === 1 && r.candidates[0].type === "photo_candidate" && r.candidates[0].post_url === "https://x.com/NASASpaceflight/status/10" && r.candidates[0].image_url === "images/10-frame.jpg" && h.url !== "https://x.com/NASASpaceflight/status/10" && (h.media_override || {}).post_id !== "10", "24 Nov: a tier 2 picture is QUEUED as a photo_candidate, never applied (image, link and source post unchanged)");
   check(h.text === "Ship 42 completed a six-engine static fire test." && h.text_locked === true, "wording kept and locked on confirmation");
   check(!("caption" in h) && !h.media_context && !Object.keys(h.media_override).some((k) => /caption|label/.test(k)), "no caption or label on the image");
   check(h.at === new Date(T0).toISOString(), "earliest trusted time kept (later post does not move it)");
@@ -44,9 +44,9 @@ const SF = "Ship 42 conducts a six-engine static fire test.";
   // cascade follows quality: tier 2 then tier 1 (SpaceX, outside the window too)
   h = card(); await mc.runCascade(road(h), [post(20, "NASASpaceflight", SF)], opts());
   r = await mc.runCascade(road(h), [post(21, "LabPadre", SF, 3)], opts());
-  check(!r.swapped.length && h.x_post.post_id === "20", "same-tier same-quality candidate: no swap");
+  check(!r.swapped.length && r.candidates.every((c) => c.card_id === h.id) && h.x_post.post_id !== "21", "a second same-tier picture is at most another candidate for Bernardo (card unchanged)");
   r = await mc.runCascade(road(h), [post(22, "SpaceX", SF, 30)], opts({ now: T0 + 3 * 86400000 }));
-  check(r.swapped.length === 1 && h.x_post.post_id === "22" && h.src === "@SpaceX", "SpaceX swaps in immediately, even after the window");
+  check(!r.swapped.length && r.candidates.length === 1 && h.src !== "@SpaceX" && !h.media_locked, "24 Nov: even SpaceX's own (highest-confidence) picture is queued for review, not applied, and does not lock the card");
   h = card(); await mc.runCascade(road(h), [post(23, "NASASpaceflight", SF)], opts());
   r = await mc.runCascade(road(h), [post(24, "LabPadre", SF, 30)], opts({ now: T0 + 3 * 86400000, frameFor: async (p) => ({ image: "x.jpg", lit: true, score: 5 }) }));
   check(!r.swapped.length && /window|lower tier/.test(r.skipped.join()), "tracker after NSF (lower tier, and after the 2-day window): no swap");
@@ -66,7 +66,7 @@ const SF = "Ship 42 conducts a six-engine static fire test.";
   h = card(); let calls = 0; const realFetch = global.fetch; global.fetch = async () => { calls++; throw new Error("no network"); };
   const rd = road(h); r = await mc.runCascade(rd, [post(50, "NASASpaceflight", SF)], opts());
   global.fetch = realFetch;
-  check(calls === 0 && !("notifications" in r) && !("pushes" in r) && r.swapped.length === 1, "a swap makes no network/X call and returns no push");
+  check(calls === 0 && !("notifications" in r) && !("pushes" in r) && r.candidates.length === 1 && !r.swapped.length, "a queued candidate makes no network/X call and returns no push");
   const src = require("fs").readFileSync(__dirname + "/media-cascade.js", "utf8");
   check(!/sendPush|notifications\.push|api\.x\.com|askJson/.test(src), "cascade code has no push, no X API, no writer");
   const cr = require("fs").readFileSync(__dirname + "/check-road.js", "utf8");

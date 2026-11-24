@@ -2,7 +2,7 @@
    are built, and callable later by the media-watch job).
    Video post → ffmpeg frames (~2 fps) → heuristic score (event-specific: plume brightness/size under
    the vehicle for static fire / launch, frost for cryo, plus sharpness = Laplacian variance) →
-   Grok picks among [current thumbnail + top frames] → a frame is swapped in ONLY when Grok picks a
+   Grok picks among [current thumbnail + top frames] → NEVER swapped in (24 Nov): queued as a photo_candidate when Grok picks a
    frame (not the thumbnail) with confidence >= 0.7. Photo posts: same, among the post's photos.
    Never changes text, never adds a push. ffmpeg: preinstalled on ubuntu-latest (no workflow change). */
 const fs = require("fs");
@@ -114,17 +114,21 @@ async function upgradeEntry(h, box, { root = path.join(__dirname, ".."), ask = a
     const idx = v.best - 1 - off;
     if (!(v.confidence >= MIN_CONF) || idx < 0 || idx >= cands.length) return { swapped: false, why: `kept thumbnail (best ${v.best}, conf ${v.confidence})` };
     const c = cands[idx];
-    if (kind === "photo") { mo.image = c.url; }
+    // 24 Nov (Bernardo): NO automatic swap. The better photo / frame becomes a photo_candidate (needs-review); a video frame
+    // is saved under images/candidates/ so the reviewer can see it. The card's picture is unchanged.
+    let image = null;
+    if (kind === "photo") image = c.url;
     else {
-      const rel = `images/${mo.post_id || h.id}-frame.jpg`;
-      fs.mkdirSync(path.join(root, "images"), { recursive: true });
+      const rel = `images/candidates/${mo.post_id || h.id}-frame.jpg`;
+      fs.mkdirSync(path.join(root, "images", "candidates"), { recursive: true });
       const r = spawnSync("ffmpeg", ["-v", "error", "-y", "-i", c.file, "-vf", "scale='min(1280,iw)':-2", "-q:v", "3", path.join(root, rel)]);
       if (r.status !== 0) return { swapped: false, why: "frame save failed" };
-      if (!mo.thumb) mo.thumb = mo.image; // original thumbnail kept (push images use it)
-      mo.image = rel; mo.frame = { t: c.t, by: "grok", confidence: v.confidence };
+      image = rel;
     }
-    log(`best frame [${box.id}] ${h.id}: ${kind} swapped in (${v.seen}, ${v.confidence})`);
-    return { swapped: true, why: v.seen, image: mo.image };
+    const candidate = require("./photo-candidates.js").candidate({ card_id: h.id, image_url: image, post_url: mo.post_url || h.url, reason: `best frame: ${kind} "${v.seen}" for ${event}`, confidence: v.confidence, source: "best-frame", author: mo.author, type: "photo",
+      ...(kind !== "photo" ? { frame: { t: c.t, by: "grok", confidence: v.confidence } } : {}) });
+    log(`best frame [${box.id}] ${h.id}: ${kind} queued as a photo candidate, no swap (${v.seen}, ${v.confidence})`);
+    return { swapped: false, queued: true, candidate, why: v.seen, image };
   } finally { fs.rmSync(work, { recursive: true, force: true }); }
 }
 // Run over entries (new cards first); capped Grok calls per run. Returns the files written (to commit). No pushes.
@@ -134,7 +138,7 @@ async function upgradeCards(road, entries, opts = {}) {
     if (calls >= max) break;
     if (!entry.media_override || entry.media_override.keep_image || entry.frameChecked) continue;
     calls++;
-    try { const r = await upgradeEntry(entry, box, opts); if (r.swapped && /^images\//.test(r.image)) files.push(r.image); if (!r.swapped) log(`best frame [${box.id}] ${entry.id}: ${r.why}`); }
+    try { const r = await upgradeEntry(entry, box, opts); if (r.queued) { (opts.candidates || []).push(r.candidate); if (/^images\//.test(r.image)) files.push(r.image); } else log(`best frame [${box.id}] ${entry.id}: ${r.why}`); }
     catch (e) { log(`best frame failed (${e.message}) — thumbnail kept`); }
   }
   return files;

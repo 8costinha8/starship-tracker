@@ -72,14 +72,15 @@ const sent = (body, at, key) => ({ title: "x", body, at, sent_at: at, verdict: "
   const rd = { categories: [{ id: "static", name: "Static fires", history: [card] }] };
   const post = (id, user, dt) => ({ post_id: String(id), url: `https://x.com/${user}/status/${id}`, created_at: new Date(T0 + dt * H).toISOString(), author: { username: user }, text: "Ship 42 conducts a six-engine static fire test.", media: [{ type: "video", video_url: `v${id}.mp4`, poster: `p${id}.jpg` }] });
   const opts = { now: T0 + 3 * H, frameFor: async (p) => ({ image: `images/${p.post_id}-frame.jpg`, lit: true, score: 0.9 }) };
-  await mc.runCascade(rd, [post(2, "NASASpaceflight", 1)], opts);
-  ok(card.media_override.author === "NASASpaceflight" && !card.media_locked && rd.categories[0].history.length === 1, "tier climb: NSF swaps the tracker image on the SAME card (no new card)");
-  await mc.runCascade(rd, [post(3, "LabPadre", 1.5)], opts);
-  ok(card.media_override.author === "NASASpaceflight", "one-way: a tracker never replaces NSF's media");
-  await mc.runCascade(rd, [post(4, "SpaceX", 2)], opts);
-  ok(card.media_override.author === "SpaceX" && card.media_locked && card.text_locked, "SpaceX's own post does the final swap and LOCKS the card");
-  await mc.runCascade(rd, [post(5, "NASASpaceflight", 2.5), post(6, "SpaceX", 2.6)], opts);
-  ok(card.media_override.post_id === "4", "after the lock: no more media changes (NSF or SpaceX)");
+  // 24 Nov (Bernardo): no automatic media swaps at any tier: NSF and SpaceX pictures are queued as photo_candidates, the card is untouched
+  let cr = await mc.runCascade(rd, [post(2, "NASASpaceflight", 1)], opts);
+  ok(card.media_override.author === "RGVaerialphotos" && cr.candidates.length === 1 && !cr.swapped.length && !card.media_locked && rd.categories[0].history.length === 1, "tier climb: NSF picture queued as a candidate on the SAME card, image not swapped (no new card)");
+  cr = await mc.runCascade(rd, [post(3, "LabPadre", 1.5)], opts);
+  ok(card.media_override.author === "RGVaerialphotos" && !cr.swapped.length, "a tracker post never changes the card's media");
+  cr = await mc.runCascade(rd, [post(4, "SpaceX", 2)], opts);
+  ok(card.media_override.author === "RGVaerialphotos" && !card.media_locked && cr.candidates.length === 1 && cr.candidates[0].post_url === "https://x.com/SpaceX/status/4", "SpaceX's own post is queued for Bernardo (no swap, no lock)");
+  cr = await mc.runCascade(rd, [post(5, "NASASpaceflight", 2.5), post(6, "SpaceX", 2.6)], opts);
+  ok(card.media_override.post_id === "1" && !cr.swapped.length, "later posts: still no media changes");
   // replay: all 4 cases + no correct push lost
   const { rows: rp, alarms } = await require("./replay-push.js").replay();
   const row = (re) => rp.find((x) => re.test(x.body));
