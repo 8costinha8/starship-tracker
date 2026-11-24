@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-24T06:34:14.549Z",
+  "updated": "2026-11-24T06:45:30.028Z",
   "vehicles": {
     "B7": {
       "id": "B7",
@@ -998,6 +998,31 @@
             }
           ],
           "image_checked": true
+        },
+        {
+          "id": "fv-70e2d4a17b",
+          "key": "S44|move|from Massey's|24 Nov",
+          "vehicle": "S44",
+          "type": "move",
+          "milestone": false,
+          "at": "2026-11-24T06:40:04.000Z",
+          "date": "24 Nov",
+          "text": "Ship 44 left Massey's.",
+          "url": "https://x.com/efraser77/status/2125117229482279118",
+          "src": "@efraser77",
+          "tier": 2,
+          "post_id": "2125117229482279118",
+          "flight": 17,
+          "image": null,
+          "x_post": null,
+          "sources": [
+            {
+              "post_id": "2125117229482279118",
+              "url": "https://x.com/efraser77/status/2125117229482279118",
+              "src": "@efraser77",
+              "at": "2026-11-24T06:40:04.000Z"
+            }
+          ]
         }
       ],
       "state_at": "2026-11-20T21:40:57.000Z"
@@ -1431,6 +1456,12 @@
               "url": "https://x.com/Blobifie/status/2125114870563762434",
               "src": "@Blobifie",
               "at": "2026-11-24T06:30:42.000Z"
+            },
+            {
+              "post_id": "2125117229482279118",
+              "url": "https://x.com/efraser77/status/2125117229482279118",
+              "src": "@efraser77",
+              "at": "2026-11-24T06:40:04.000Z"
             }
           ],
           "candidates": [
