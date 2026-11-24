@@ -523,6 +523,26 @@
      "beats": [
       "rollout"
      ]
+    },
+    "2125222150252675155": {
+     "id": "2125222150252675155",
+     "url": "https://x.com/Blobifie/status/2125222150252675155",
+     "author": "Blobifie",
+     "at": "2026-11-24T13:36:59.000Z",
+     "text": "Ship 44 and Booster 24 have both returned to Megabay 2 & 1 respectively marking the first time a flight pair of vehicles have rolled out together at the same time !!! https://t.co/SqttPQpFEQ",
+     "media": [
+      {
+       "type": "video",
+       "poster": "https://pbs.twimg.com/amplify_video_thumb/2125221992588816384/img/-O9edRhQ2f3cSP-A.jpg",
+       "video_url": "https://video.twimg.com/amplify_video/2125221992588816384/vid/avc1/1920x1080/CkXZ6m50oHG7jNcq.mp4",
+       "w": 1920,
+       "h": 1080
+      }
+     ],
+     "beats": [
+      "rollout",
+      "aftermath"
+     ]
     }
    }
   }
