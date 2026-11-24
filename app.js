@@ -5338,8 +5338,9 @@ button.feed-pill:focus-visible { outline: 2px solid #A9BDF0; outline-offset: 4px
     -webkit-transform: translate3d(calc(var(--fp) * -24px), 0, 0); transform: translate3d(calc(var(--fp) * -24px), 0, 0);
     transition: opacity var(--slide), transform var(--slide); }
   .hdr-ic { position: absolute; inset: 0; display: grid; place-items: center; transition: opacity var(--slide); }
-  .hdr-ic-a { opacity: calc(1 - var(--fp) * 2); }
-  .hdr-ic-b { opacity: calc(var(--fp) * 2 - 1); }
+  /* crossfade overlaps (each icon at .5 when --fp = .5) so mid-swipe the button never shows an empty circle */
+  .hdr-ic-a { opacity: calc(1.5 - var(--fp) * 2); }
+  .hdr-ic-b { opacity: calc(var(--fp) * 2 - .5); }
   .hdr-feed .hdr-right { pointer-events: none; }
   /* pills: --act 1 = active page. Width T of the pair is linear in --fp, so the pair stays centred */
   .hdr-p { position: absolute; left: 0; top: 10px; display: block; width: max-content; white-space: nowrap; text-align: center;
@@ -5449,7 +5450,10 @@ const VARIANT_CSS = `
   .hdr-pill { background: linear-gradient(135deg, #FF6A3D 0%, #F04E6A 100%); border: 0; box-shadow: 0 8px 22px -8px rgba(255,106,61,.7); border-radius: 16px; }
   .hdr-p b { font-size: 15px; font-weight: 800; letter-spacing: -.01em; }
   .hdr-p span { font-size: 11px; font-weight: 700; color: #fff; opacity: calc(.55 + .45 * var(--act)); }
-  .hdr-p:active, .round-btn:active { transform: scale(.9) !important; transition: transform .08s !important; }
+  .round-btn:active { transform: scale(.9) !important; transition: transform .08s !important; }
+  /* 24 Nov: the header titles are positioned BY their transform (translate3d(...) scale(var(--s))); a press must never replace it
+     (scale(.9) alone sent the tapped title to x=0 over the menu button, then slid it back). Press feedback goes on the label lines. */
+  .hdr-p:active > b, .hdr-p:active > span { transform: scale(.92); transition: transform .08s, opacity var(--hdr-ease); }
 }
 .round-btn { background: rgba(255,255,255,.05); border-color: rgba(255,255,255,.1); color: #D5DBEA; transition: var(--press); }
 
@@ -5838,7 +5842,8 @@ html.v-browser, html.v-standalone, html.v-browser body, html.v-standalone body {
 /* Instant press (is-pressed is set on pointerdown so iOS doesn't wait on :active). */
 .card-head.is-pressed { transform: scale(.965); }
 .road-head.is-pressed, .past-toggle.is-pressed { transform: scale(.97); }
-.round-btn.is-pressed, .hdr-p.is-pressed { transform: scale(.9); }
+.round-btn.is-pressed { transform: scale(.9); }
+.hdr-p.is-pressed > b, .hdr-p.is-pressed > span { transform: scale(.92); } /* never on .hdr-p itself: its transform is its position */
 .highlights-link.is-pressed { transform: scale(.96); }
 .post.is-pressed { transform: scale(.985); }
 .callout-head.is-pressed { transform: scale(.99); }
