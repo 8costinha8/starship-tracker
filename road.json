@@ -5,7 +5,7 @@
     "S43"
   ],
   "updated": "24 Nov",
-  "updatedAt": "2026-11-24T06:34:36.365Z",
+  "updatedAt": "2026-11-24T06:45:46.644Z",
   "categories": [
     {
       "id": "cryo",
@@ -1635,6 +1635,15 @@
   },
   "feed_items": [
     {
+      "id": "news-mwubrtls-a0fff6",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Booster 24 and Ship 44 headed back to Production from Massey's tonight.",
+      "url": "https://x.com/efraser77/status/2125117229482279118",
+      "at": "2026-11-24T06:40:04.000Z",
+      "date": "24 Nov"
+    },
+    {
       "id": "news-mwubk320-3f6ab2",
       "kind": "news",
       "title": "🚀 Starship",
@@ -2076,20 +2085,6 @@
       "src": "@LabPadre",
       "hidden": true,
       "why": "C1 cap"
-    },
-    {
-      "id": "news-mwdtbrlk-dc662f",
-      "kind": "news",
-      "title": "🚀 Starship",
-      "body": "Ship 42 left Megabay 2 after its starlinks were installed.",
-      "url": "https://x.com/Blobifie/status/2120929463701787055",
-      "at": "2026-11-12T17:19:23.000Z",
-      "date": "12 Nov",
-      "flight": 15,
-      "src": "@Blobifie",
-      "later_flight": true,
-      "hidden": true,
-      "why": "C1 cap"
     }
   ],
   "hardware_flights": {
@@ -2218,6 +2213,20 @@
     }
   ],
   "feed_archive": [
+    {
+      "id": "news-mwdtbrlk-dc662f",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Ship 42 left Megabay 2 after its starlinks were installed.",
+      "url": "https://x.com/Blobifie/status/2120929463701787055",
+      "at": "2026-11-12T17:19:23.000Z",
+      "date": "12 Nov",
+      "flight": 15,
+      "src": "@Blobifie",
+      "later_flight": true,
+      "hidden": true,
+      "why": "C1 cap"
+    },
     {
       "id": "news-mwcygodc-9eb18d",
       "kind": "news",
