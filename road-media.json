@@ -1,5 +1,5 @@
 {
-  "_about": "Hand-picked pictures for Road entries (matched by category + date). These win over the automatic picture check; new entries without a pick keep the automatic check. Fix 16 Oct: picks must be within ~2 days of the event and show the same event; #5, #7, #9, #10 are text only.",
+  "_about": "Hand-picked pictures for Road entries (matched by category + date). These win over the automatic picture check; new entries without a pick keep the automatic check. Fix 16 Oct: picks must be within ~2 days of the event and show the same event; #5, #7, #9, #10 are text only. No flat bars (24 Nov, Bernardo): a pick that cannot fill the 16:9 card without cutting the vehicle is never padded with flat-colour bars; flag it needs-fill (scripts/photo-fill.js flagNeedsFill → data/needs-review.json) and Tusk makes a Grok fill for Bernardo to approve; no auto-swap (scripts/test-photo-bars.js).",
   "picks": [
     {
       "category": "cryo",
