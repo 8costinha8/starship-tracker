@@ -4,8 +4,8 @@
     "B23",
     "S43"
   ],
-  "updated": "23 Nov",
-  "updatedAt": "2026-11-23T16:45:27.380Z",
+  "updated": "24 Nov",
+  "updatedAt": "2026-11-24T06:01:17.875Z",
   "categories": [
     {
       "id": "cryo",
@@ -1635,13 +1635,24 @@
   },
   "feed_items": [
     {
+      "id": "news-mwua0560-202fa6",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Booster 24 left the cryo station and moved to the Massey's exit.",
+      "url": "https://x.com/RGVaerialphotos/status/2125104765050974276",
+      "at": "2026-11-24T05:50:33.000Z",
+      "date": "24 Nov",
+      "src": "@RGVaerialphotos"
+    },
+    {
       "id": "news-mwsxu05k-5598c6",
       "kind": "news",
       "title": "🚀 Starship",
       "body": "Booster 24 completed its first round of cryogenic proof testing at Massey's today.",
       "url": "https://x.com/RGVaerialphotos/status/2124765411627643131",
       "at": "2026-11-23T07:22:05.000Z",
-      "date": "23 Nov"
+      "date": "23 Nov",
+      "src": "@RGVaerialphotos"
     },
     {
       "id": "news-mwsfo068-909740",
@@ -2084,18 +2095,6 @@
       "later_flight": true,
       "hidden": true,
       "why": "C1 cap"
-    },
-    {
-      "id": "news-mwctll4o-24a390",
-      "kind": "news",
-      "title": "🚀 Starship",
-      "body": "Starship Flight 15 aims were detailed.",
-      "url": "https://www.youtube.com/watch?v=sUT812Icv7Y",
-      "at": "2026-11-12T00:39:15.000Z",
-      "date": "12 Nov",
-      "flight": 15,
-      "hidden": true,
-      "why": "C1 cap"
     }
   ],
   "hardware_flights": {
@@ -2174,11 +2173,11 @@
     "https://pbs.twimg.com/media/HXdeREuXIAAswmd.jpg": "images/cache/media_HXdeREuXIAAswmd.jpg"
   },
   "self_check": {
-    "at": "2026-11-23T06:00:56.653Z",
-    "fixes": 1,
+    "at": "2026-11-24T06:01:17.462Z",
+    "fixes": 2,
     "flags": 0,
     "counts": {
-      "source-badge": 1
+      "source-badge": 2
     },
     "judge_calls": 0,
     "flagged": [],
@@ -2224,6 +2223,18 @@
     }
   ],
   "feed_archive": [
+    {
+      "id": "news-mwctll4o-24a390",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Starship Flight 15 aims were detailed.",
+      "url": "https://www.youtube.com/watch?v=sUT812Icv7Y",
+      "at": "2026-11-12T00:39:15.000Z",
+      "date": "12 Nov",
+      "flight": 15,
+      "hidden": true,
+      "why": "C1 cap"
+    },
     {
       "id": "news-mwctkn6g-276b89",
       "kind": "news",
