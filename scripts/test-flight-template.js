@@ -80,7 +80,7 @@ const checks = appFns(["upcomingFlight", "rtfRows", "roadForFlight", "fleetRoad"
       if (photo) {
         o(same(view, mo.post_url), `${name}: View on X matches the shown photo's post (view=${view}, photo=${mo.post_url})`);
         if (mo.fallback) {
-          o(!!mo.photo_date && !same(view, h.url), `${name}: fallback photo is not the headline post (headline=${h.url}, photo=${mo.post_url}, Photo · ${mo.photo_date})`);
+          o((!!mo.photo_date || !!mo.keep_image) && !same(view, h.url), `${name}: fallback / manual-pick photo is not the headline post (headline=${h.url}, photo=${mo.post_url}, ${mo.keep_image ? "manual pick" : "Photo · " + mo.photo_date})`);
           o(!!h.url && !same(h.url, view), `${name}: headline post stays on h.url (reachable via the second credit line), distinct from View on X`);
           o((h.updates || []).every((u) => !u.at || (Date.parse(u.at) || 0) < (Date.parse(h.at) || 0)), `${name}: Earlier updates stay strictly older than the headline`);
         } else {
@@ -93,20 +93,37 @@ const checks = appFns(["upcomingFlight", "rtfRows", "roadForFlight", "fleetRoad"
     }
   };
   checkFace(`Flight ${n} fixture`, A.upcomingFlight(road0, n, reg(n)).posts);
-  const live = JSON.parse(fs.readFileSync(path.join(ROOT, "data", "vehicles.json"), "utf8"));
-  const f17live = A.upcomingFlight(road0, 17, live).posts;
-  checkFace("live F17", f17live);
+  // 24 Nov: the card-fallback photo picks are pinned to a FROZEN copy of the data they were written against (road.json +
+  // data/vehicles.json at 5766d68, 23 Nov), not live data: later registry posts legitimately change the picks (the
+  // registry attaches a newer post's photo to the same event; still one post for photo + credit + link).
+  const frozenRoad = JSON.parse(fs.readFileSync(path.join(ROOT, "fixtures", "fleet", "road-2026-11-23-card-fallback.json"), "utf8"));
+  const live = JSON.parse(fs.readFileSync(path.join(ROOT, "fixtures", "fleet", "vehicles-2026-11-23-card-fallback.json"), "utf8"));
+  const f17live = A.upcomingFlight(frozenRoad, 17, live).posts;
+  checkFace("frozen 23 Nov F17", f17live);
   checkFace(`live F${road0.flight}`, f16posts);
+  const f16frozen = A.roadPageRows(A.rtfRows(frozenRoad).rows, frozenRoad.flight, A.pastRoadFlights(frozenRoad, A.FLIGHTS)).cur.filter((x) => x.post).map((x) => x.post);
+  checkFace(`frozen 23 Nov F${frozenRoad.flight}`, f16frozen);
   const pick = (posts, cat, nameRe) => posts.find((p) => p.cat.id === cat && nameRe.test(p.cat.name));
   const expectFallback = (label, p, textRe, postId, dateLabel, headlineRe) => {
     const mo = p && p.h && p.h.media_override, view = p && A.urlOf(p.h);
     o(p && textRe.test(p.h.text) && mo && mo.fallback && sid(mo.post_url) === postId && sid(view) === postId && mo.photo_date === dateLabel && headlineRe.test(p.h.url) && (p.h.updates || []).every((u) => !headlineRe.test(u.url) || (Date.parse(u.at) || 0) < (Date.parse(p.h.at) || 0)),
       `${label}: headline "${p && p.h.text}", Photo · ${mo && mo.photo_date}, view/photo post ${sid(view)} (want ${postId}), headline url kept`);
   };
-  expectFallback("live F17 S44 cryo", pick(f17live, "cryo", /Ship 44/), /completed cryo/, "2123906558115418275", "20 Nov", /Blobifie\/status\/2124080565272117476/);
-  expectFallback("live F17 S44 pad", pick(f17live, "pad", /Ship 44/), /is at Massey/, "2123481210752315451", "19 Nov", /NASASpaceflight\/status\/2123774597967540724/);
-  expectFallback("live F17 B24 pad", pick(f17live, "pad", /Booster 24/), /left Mega Bay/, "2123663091074584938", "20 Nov", /Blobifie\/status\/2123871167119569323/);
-  expectFallback("live F16 B23 cryo", pick(f16posts, "cryo", /Booster 23/), /arrived at Massey/, "2115312218590126505", "28 Oct", /TrackingTheSB\/status\/2115353615561064723/);
+  expectFallback("frozen 23 Nov F17 S44 cryo", pick(f17live, "cryo", /Ship 44/), /completed cryo/, "2123906558115418275", "20 Nov", /Blobifie\/status\/2124080565272117476/);
+  expectFallback("frozen 23 Nov F17 S44 pad", pick(f17live, "pad", /Ship 44/), /is at Massey/, "2123481210752315451", "19 Nov", /NASASpaceflight\/status\/2123774597967540724/);
+  expectFallback("frozen 23 Nov F17 B24 pad", pick(f17live, "pad", /Booster 24/), /left Mega Bay/, "2123663091074584938", "20 Nov", /Blobifie\/status\/2123871167119569323/);
+  expectFallback("frozen 23 Nov F16 B23 cryo", pick(f16frozen, "cryo", /Booster 23/), /arrived at Massey/, "2115312218590126505", "28 Oct", /TrackingTheSB\/status\/2115353615561064723/);
+  // 24 Nov: Bernardo's manual picks (keep_image + a note naming him) lead their live card: photo, credit and View on X from
+  // the photo's own post, the headline post on the second credit line; never replaced by a fallback or a placeholder.
+  const expectManual = (label, p, image, postId, headRe) => {
+    const mo = p && p.h && p.h.media_override, view = p && A.urlOf(p.h);
+    o(!!(p && mo && mo.image === image && mo.keep_image && sid(mo.post_url) === postId && sid(view) === postId && headRe.test(p.h.url)), `${label}: manual pick ${mo && mo.image} · View on X ${sid(view)} (want ${image}, ${postId}) · headline ${p && p.h.url}`);
+  };
+  expectManual("live F16 S43 cryo", pick(f16posts, "cryo", /Ship 43/), "images/s43-cryo-wai.jpg", "2114533727514640403", /LabPadre\/status\/2114757145245671915/);
+  expectManual("live F16 B23 cryo", pick(f16posts, "cryo", /Booster 23/), "images/b23-cryo-starshipgazer-clean.jpg", "2110889490336350574", /TrackingTheSB\/status\/2115353615561064723/);
+  { const r = JSON.parse(JSON.stringify(road0)); const c = r.categories.find((x) => x.id === "cryo"); const e = c.history.find((h) => h.id === "f16-s43-2114757145245671915"); e.media_override = { ...e.media_override, note: "auto pick" };
+    const p = pick(A.roadPageRows(A.rtfRows(r).rows, r.flight, A.pastRoadFlights(r, A.FLIGHTS)).cur.filter((x) => x.post).map((x) => x.post), "cryo", /Ship 43/);
+    o(!(p && p.h.media_override && p.h.media_override.image === "images/s43-cryo-wai.jpg" && sid(A.urlOf(p.h)) === "2114533727514640403"), "a keep_image picture with no Bernardo note does not hijack the card face (another post's photo needs a recorded manual pick)"); }
   // newest earlier photo wins; no photo at all → text-only
   { const r1 = { vehicles: { S99: { id: "S99", type: "ship", name: "Ship 99", flight: n, state: "cryo", events: [
       { id: "fv-old", type: "cryo_start", at: "2026-11-01T10:00:00.000Z", date: "1 Nov", text: "Ship 99 began cryo testing.", url: "https://x.com/RGVaerialphotos/status/9500000000000000011", src: "@RGVaerialphotos", x_post: { url: "https://x.com/RGVaerialphotos/status/9500000000000000011", author: { username: "RGVaerialphotos" }, media: [{ type: "photo", url: "https://example.com/old.jpg" }] } },

@@ -87,13 +87,13 @@
             }
           ],
           "media_override": {
-            "post_url": "https://x.com/RGVaerialphotos/status/2115312218590126505",
-            "post_id": "2115312218590126505",
-            "author": "RGVaerialphotos",
-            "type": "video",
-            "image": "https://pbs.twimg.com/amplify_video_thumb/2115312114298654720/img/45WwvTRmJ8YoB0Fq.jpg",
+            "post_url": "https://x.com/StarshipGazer/status/2110889490336350574",
+            "post_id": "2110889490336350574",
+            "author": "StarshipGazer",
+            "type": "photo",
+            "image": "images/b23-cryo-starshipgazer-clean.jpg",
             "keep_image": true,
-            "crop": "top"
+            "note": "Manual (Bernardo, 24 Nov): B23 frosting mid-cryo, photo by @StarshipGazer; same source photo as the 15 Oct card."
           }
         },
         {
@@ -147,13 +147,14 @@
             }
           ],
           "media_override": {
-            "post_url": "https://x.com/LabPadre/status/2114757145245671915",
-            "post_id": "2114757145245671915",
-            "author": "LabPadre",
-            "type": "video",
-            "image": "https://pbs.twimg.com/amplify_video_thumb/2114755310996901888/img/xXXdVirUtQa3phNk.jpg",
+            "post_url": "https://x.com/FelixSchlang/status/2114533727514640403",
+            "post_id": "2114533727514640403",
+            "author": "FelixSchlang",
+            "type": "photo",
+            "image": "images/s43-cryo-wai.jpg",
             "keep_image": true,
-            "crop": "top"
+            "crop": "top",
+            "note": "Manual (Bernardo, 24 Nov): Ship 43 on the Massey cryo stand, photo 23 Oct by Jordan Guidry / WAI Media, posted by @FelixSchlang."
           }
         },
         {
@@ -573,18 +574,18 @@
       "name": "Pad activity",
       "color": "#A88BFF",
       "status": "progress",
-      "latest": "Pad 2 work has resumed now that Flight 15 has flown.",
+      "latest": "Pad 2 work has resumed.",
       "history": [
         {
           "id": "x-2123269690457780726",
           "date": "19 Nov",
           "log_date": "19 Nov",
           "at": "2026-11-19T04:18:37.000Z",
-          "text": "Pad 2 work has resumed now that Flight 15 has flown.",
-          "x_text": "Pad 2 work has resumed now that Flight 15 has flown.",
-          "push_text": "Pad 2 work has resumed now that Flight 15 has flown.",
-          "card_text": "Pad 2 work has resumed now that Flight 15 has flown.",
-          "log_text": "Pad 2 work has resumed now that Flight 15 has flown.",
+          "text": "Pad 2 work has resumed.",
+          "x_text": "Pad 2 work has resumed.",
+          "push_text": "Pad 2 work has resumed.",
+          "card_text": "Pad 2 work has resumed.",
+          "log_text": "Pad 2 work has resumed.",
           "status_line": "Pad 2 repairs underway.",
           "url": "https://x.com/TrackingTheSB/status/2123269690457780726",
           "src": "@TrackingTheSB",
@@ -928,7 +929,7 @@
           }
         }
       ],
-      "log_latest": "Pad 2 work has resumed now that Flight 15 has flown."
+      "log_latest": "Pad 2 work has resumed."
     },
     {
       "id": "faa",

@@ -3867,6 +3867,11 @@ function rtfCards(road) {
       if (stacked) main = { ...(main || {}), text: stacked, card_text: stacked, date: stacked.replace(/^Stacked\s+/, "") };
     }
     if (!main) { out.push({ empty: true, cat, v, name: vname(v) }); continue; }
+    // 24 Nov: Bernardo's recorded manual pick (keep_image + a note naming him) on any entry of this card (vehicle + box) is the
+    // card's picture, whichever post leads the card; the newest such pick wins.
+    const isPin = (h) => !!(h && h.media_override && h.media_override.keep_image && h.media_override.image && /\bBernardo\b/.test(String(h.media_override.note || "")));
+    const pinnedEv = [main, ...list].filter(isPin).sort((a, b) => (Date.parse(b.at || "") || 0) - (Date.parse(a.at || "") || 0))[0] || null;
+    const pinned = pinnedEv ? pinnedEv.media_override : null;
     // every post for this vehicle + category except the milestone's own, newest first; text + time + credit only
     const rows = [], seen = new Set([urlOf(main), main.url].filter(Boolean));
     const add = (u) => { const k = u.url || u.text; if (!u.text || (seen.has(k) && !u.event_row)) return; seen.add(k); rows.push(u); }; // event_row: the completion row (guards.js) shows even when it is the main post
@@ -3892,7 +3897,11 @@ function rtfCards(road) {
     }
     rows.sort(byNew);
     const own = headlineOwn(main);
-    const face = cardFaceOrFallback(own, list, cid, doneOne ? own : null);
+    // 24 Nov: Bernardo's manual pick is the card's picture even when the photo is from another post: photo, credit and
+    // View on X stay on that photo's post; the headline post stays on the second credit line (two-link layout). Never a placeholder.
+    const man = pinned;
+    const face = man ? { pic: { image: man.image, type: man.type || "photo", post_url: man.post_url || own.url, author: man.author, crop: man.crop, manual: true }, fallback: !samePost(man.post_url || own.url, own.url), ev: pinnedEv, date: man.photo_date || null }
+      : cardFaceOrFallback(own, list, cid, doneOne ? own : null);
     const pic = face.pic;
     const h = { ...own, id: `rtf-${cid}-${v}`, updates: rows, alt_media: null, complete: !!doneOne, milestone: doneOne ? own.milestone : { phase: "progress" } };
     // picture, credit and View on X: headline post if it has a photo, else the newest earlier
