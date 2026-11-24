@@ -1314,6 +1314,7 @@ function pushGateFor(state, road, xf, { token, fetchFn = fetch, ask = null, log 
   return gate;
 }
 async function run(opts = {}) {
+  let creditsDirty = false; // 24 Nov (road-footer v6): data/photo-credits.json got new photo post texts this run
   let fleetNRDirty = false; // 24 Nov: fleet photo candidates / direction holds written to data/needs-review.json this run
   const mode = opts.mode || (process.env.ROAD_MODE === "preview" || process.env.TEST_MODE === "true" ? "preview" : "live");
   const roadPath = opts.roadPath || path.join(ROOT, "road.json");
@@ -1666,6 +1667,9 @@ async function run(opts = {}) {
       queueCands(mw.candidates, "media watch");
     } catch (e) { log(`media watch failed (${e.message}) — tried again next hour`); }
   }
+  // 4a-pc. Photo badge credits (scripts/photo-credits.js): the text + handle of each new post whose photo the Road or the
+  // fleet registry uses → data/photo-credits.json (the badge credits the photo's original source from it). Never fails the run.
+  if (save && (!opts.deps || !!opts.roadPath) && xf && (xf.posts || []).length) creditsDirty = require("./photo-credits.js").update({ file: path.join(path.dirname(roadPath), "data", "photo-credits.json"), posts: (xf && xf.posts) || [], trees: [road, fleetReg], log }) > 0;
   // 4a-mc. Milestone media cascade: the posts X-first already fetched this run (no extra X call, no writer):
   // a confirmed milestone card follows its best source (image + link + source post). Never a push (no `changes`).
   let cascadeFiles = [];
@@ -1841,6 +1845,7 @@ async function run(opts = {}) {
     const json = JSON.stringify(road, null, 2) + "\n";
     if (save) {
       fs.writeFileSync(roadPath, json);
+      if (creditsDirty) { frameFiles.push("data/photo-credits.json"); creditsDirty = false; } // photo badge credits: committed with the Road
       // photo badge: save the X avatar of any new photo source (icons/avatars/); live runs on the real repo only
       if (mode === "live" && !opts.roadPath) frameFiles.push(...await require("./avatars.js").ensureAll(road, (() => { try { return JSON.parse(fs.readFileSync(path.join(ROOT, "road-media.json"), "utf8")); } catch { return null; } })(), { log }));
       const what = [rolledOver ? "new Road" : "", notifications.length ? `${notifications.length} update(s)` : "", refreshed.length ? `no-news lines tidied (${road.updated})` : "", predChanged ? `predicted date ${road.predicted ? `NET ${road.predicted.net}` : "cleared"}` : ""].filter(Boolean).join(", ") || "card details updated (no push)";
@@ -1872,7 +1877,7 @@ async function run(opts = {}) {
     const fleetWritable = save && (!opts.deps || !!opts.roadPath || !!opts.fleetPath); // an injected-deps test run never writes the repo's own registry
     if (fleetChanged && fleetWritable) {
       fleetMod.save(fleetReg, fleetPath);
-      if (mode === "live" && !opts.roadPath) { try { commit("data/vehicles.json" + (fleetNRDirty ? " data/needs-review.json" : "") + (fleetReg.coverage && fleetBefore.indexOf(fleetReg.coverage.at) < 0 ? " data/health.json" : ""), `Auto: fleet registry — ${fleetPushes.length} milestone push(es)`); } catch (e) { log(`fleet registry commit failed: ${e.message}`); fleetPushes = []; } }
+      if (mode === "live" && !opts.roadPath) { try { commit(["data/vehicles.json", ...(creditsDirty ? ["data/photo-credits.json"] : [])].join(" ") + (fleetNRDirty ? " data/needs-review.json" : "") + (fleetReg.coverage && fleetBefore.indexOf(fleetReg.coverage.at) < 0 ? " data/health.json" : ""), `Auto: fleet registry — ${fleetPushes.length} milestone push(es)`); } catch (e) { log(`fleet registry commit failed: ${e.message}`); fleetPushes = []; } }
     } else if (fleetChanged) console.log("(not committed) data/vehicles.json would change");
     // Event types the Road template has no box for ("unmapped"): never shown on the page; listed once each in needs-review + health.json
     try {
