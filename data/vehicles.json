@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-24T06:00:52.457Z",
+  "updated": "2026-11-24T06:34:14.549Z",
   "vehicles": {
     "B7": {
       "id": "B7",
@@ -1386,6 +1386,67 @@
                   "url": "https://pbs.twimg.com/media/HX3jgWpbIAAlCVD.jpg?name=orig",
                   "w": 3840,
                   "h": 2160
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fv-768cebc29b",
+          "key": "B24|move|from Massey's|24 Nov",
+          "vehicle": "B24",
+          "type": "move",
+          "milestone": false,
+          "at": "2026-11-24T06:30:42.000Z",
+          "date": "24 Nov",
+          "text": "Booster 24 left Massey's.",
+          "url": "https://x.com/Blobifie/status/2125114870563762434",
+          "src": "@Blobifie",
+          "tier": 2,
+          "post_id": "2125114870563762434",
+          "flight": 17,
+          "image": {
+            "type": "photo",
+            "url": "https://pbs.twimg.com/media/HX3sqLlaUAAWG6V.jpg?name=orig",
+            "score": 3.1
+          },
+          "x_post": {
+            "url": "https://x.com/Blobifie/status/2125114870563762434",
+            "author": {
+              "username": "Blobifie"
+            },
+            "media": [
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HX3sqLlaUAAWG6V.jpg?name=orig",
+                "w": 1989,
+                "h": 1119
+              }
+            ]
+          },
+          "image_src": "https://x.com/Blobifie/status/2125114870563762434",
+          "sources": [
+            {
+              "post_id": "2125114870563762434",
+              "url": "https://x.com/Blobifie/status/2125114870563762434",
+              "src": "@Blobifie",
+              "at": "2026-11-24T06:30:42.000Z"
+            }
+          ],
+          "candidates": [
+            {
+              "type": "photo",
+              "url": "https://pbs.twimg.com/media/HX3sqLlaUAAWG6V.jpg?name=orig",
+              "score": 3.1,
+              "post_url": "https://x.com/Blobifie/status/2125114870563762434",
+              "author": "Blobifie",
+              "at": "2026-11-24T06:30:42.000Z",
+              "media": [
+                {
+                  "type": "photo",
+                  "url": "https://pbs.twimg.com/media/HX3sqLlaUAAWG6V.jpg?name=orig",
+                  "w": 1989,
+                  "h": 1119
                 }
               ]
             }
