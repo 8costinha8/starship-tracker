@@ -312,11 +312,12 @@
       "post_url": "https://x.com/Blobifie/status/2124080565272117476",
       "author": "Blobifie",
       "media_type": "photo",
-      "image": "images/s44-cryo-blobifie-nsf-clean.jpg",
+      "image": "images/s44-cryo-nsf-grok-fill.jpg",
       "keep_image": true,
       "crop": "top",
-      "vehicle_box": [0.4257, 0.0417, 0.5224, 0.9718],
-      "recrop": "24 Nov 16:30 UK: cut from the original (s44cryo-options/opt2 = HXo_uhaawAE-GOI, NSF Starbase Live still, 1656x932) at x 0-1136, y 72-816 (main camera only: Starbase Live timestamp bar y 0-56, NSF ticker from y 872 and the three side camera panels from x 1140 cut), scaled to 1099x720 and centred on a 1280x720 frame with dark side bars (#121A2B, 90 px each) so the whole ship fits the 16:9 card; 48 KB; no NSF mark left in the frame",
+      "vehicle_box": [0.4352, 0.0389, 0.5312, 0.8889],
+      "recrop": "24 Nov 17:46 UK: Grok fill (outpaint) of option 2 (s44cryo-options/opt2 = HXo_uhaawAE-GOI, NSF Starbase Live still, main camera only: timestamp bar, ticker and side camera panels cut), approved by Bernardo 24 Nov 17:44 UK (\"Yes use the grok fill\"); replaces the 16:43 padded version; 1280x720, re-encoded q80 progressive (53 KB); whole ship and its base in frame, centred (vehicle_box re-measured on this image); no NSF mark in the frame",
+      "fill": "grok-outpaint (Bernardo approved 24 Nov 17:44 UK; the sky, ground and side tanks beyond the original main-camera frame are generated)",
       "picked_by": "Bernardo",
       "note": "Manual (Bernardo, 24 Nov 16:27 UK via Tusk, option 2): Ship 44 at Massey's on the day it completed cryo testing, NSF Starbase Live still posted by @Blobifie (21 Nov 10:00 UK, photo HXo_uhaawAE-GOI)."
     }
