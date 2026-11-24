@@ -1387,6 +1387,18 @@
           "tier": 2,
           "post_id": "2124765411627643131",
           "flight": 17,
+          "media_override": {
+            "image": "images/b24-cryo-blobifie-nsf-clean.jpg",
+            "type": "photo",
+            "post_url": "https://x.com/Blobifie/status/2124725822909219049",
+            "post_id": "2124725822909219049",
+            "author": "Blobifie",
+            "keep_image": true,
+            "crop": "top",
+            "photo_date": "23 Nov",
+            "picked_by": "Bernardo",
+            "note": "Manual (Bernardo, 24 Nov 14:46 UK, option 3): NSF Starbase Live still posted by @Blobifie; recorded in road-media.json."
+          },
           "image": {
             "type": "video",
             "url": "https://pbs.twimg.com/amplify_video_thumb/2124764895292133376/img/OZnACetsr9Q5nFho.jpg",

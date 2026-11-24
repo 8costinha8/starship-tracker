@@ -30,7 +30,9 @@ const PUSH_ICON = { cryo_start: "❄️", cryo_done: "❄️", static_fire: "�
 const BOX_OF = { cryo_start: "cryo", cryo_done: "cryo", static_fire: "static", engines_installed: "raptor", stacked: "pad", rollout: "pad", move: "pad", build: "pad" };
 
 // ── text helpers ─────────────────────────────────────────────
-const clean = (t) => String(t || "").replace(/https?:\/\/\S+/g, " ").replace(/(?:📸|🎥|📷)[^\n]*$/gmu, " ").replace(/\bFollow Our Journey:?/gi, " ").replace(/#\w+/g, " ").replace(/@\w+/g, " ").replace(/[\u2060\u200b]/g, "").replace(/[ \t]+/g, " ").trim();
+// 24 Nov v6: X returns post text HTML-escaped ("Megabay 2 &amp; 1"); the ";" of an entity must not split a clause
+const unescapeX = (t) => String(t || "").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, "\"").replace(/&#39;/g, "'");
+const clean = (t) => unescapeX(t).replace(/https?:\/\/\S+/g, " ").replace(/(?:📸|🎥|📷)[^\n]*$/gmu, " ").replace(/\bFollow Our Journey:?/gi, " ").replace(/#\w+/g, " ").replace(/@\w+/g, " ").replace(/[\u2060\u200b]/g, "").replace(/[ \t]+/g, " ").trim();
 const sentences = (t) => clean(t).split(/(?<=[.!?])\s+|\n+/).map((s) => s.trim()).filter(Boolean);
 // clauses: a comma / semicolon / " but " / " now " split, so "Ship 44 had cryo testing, now it's Booster 24's turn" gives S44 the test, not B24
 const clauses = (s) => String(s).split(/[,;]\s+|\s+(?:but|while|whereas)\s+|\s+now it'?s\s+/i).map((x) => x.trim()).filter(Boolean);
@@ -71,7 +73,8 @@ const LAUNCH_PLACES = new Set(["Pad 1", "Pad 2", "LC-39A", "the launch site"]);
 // one location to both vehicles of a pair. Returns { id: place } or null.
 function pairPlaces(clause, ids) {
   if (!ids || ids.length < 2) return null;
-  const t = String(clause || "").replace(/\b(mega ?bay|pad)\s?(\d)\s*(?:,|and|&)\s*(\d)\b/gi, (m, w, a, b) => `${w} ${a} and ${w} ${b}`);
+  // X returns text HTML-escaped ("Megabay 2 &amp; 1"): read the entities as characters first
+  const t = String(clause || "").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/\b(mega ?bay|pad)\s?(\d)\s*(?:,|and|&)\s*(\d)\b/gi, (m, w, a, b) => `${w} ${a} and ${w} ${b}`);
   const hits = [];
   for (const [n, re] of PLACES) for (const m of t.matchAll(new RegExp(re.source, re.flags.replace("g", "") + "g"))) if (!hits.some((h) => m.index >= h.i && m.index < h.end)) hits.push({ n, i: m.index, end: m.index + m[0].length });
   hits.sort((a, b) => a.i - b.i);

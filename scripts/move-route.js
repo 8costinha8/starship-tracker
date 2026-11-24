@@ -79,7 +79,7 @@
      a launch pad → Pad activity (chopstick lifts, pusher / load tests, mounting)
    The outbound move(s), the test posts and the return move(s) fold into one entry; the headline is the test (a pad
    chopstick lift reads "Ship 43 lifted on the chopsticks at Pad 2."; a Massey trip leads with its test, the completed
-   one first), every other post sits under Earlier updates OLDEST FIRST (trip_order: "chrono"). Same-move duplicates
+   one first), every other post sits under Earlier updates (shown NEWEST first, like every card: v6). Same-move duplicates
    merge (same vehicle, same move — out / back —, same phase — set off / arrived —, within MERGE_H hours): the earliest
    post is the row, the others go in its merged list. A post naming two vehicles ("Ship 44 and Booster 24 returned …",
    road.feed_items news) attaches to EACH vehicle's own trip. A move is only folded when the trip has a test at that
@@ -242,7 +242,7 @@
         const lock = [he, ...fold].map((e) => e.media_override).find((m) => m && m.keep_image) || null;
         const folded = { ...he, ...(head.own ? {} : { at: head.post.at, date: head.post.date, url: head.post.url, src: head.post.src, x_post: undefined, media_override: undefined }),
           ...(lock ? { media_override: lock } : {}),
-          text: headText, card_text: headText, x_text: headText, updates, trip_order: "chrono",
+          text: headText, card_text: headText, x_text: headText, updates,
           test_trip: { vehicle: v, site: trip.site, box, pad: pad || null, start: new Date(trip.start).toISOString(), end: new Date(trip.end).toISOString(), returned: trip.returned, members: fold.map((e) => e.id), news: news.map((n) => sid(n.url)) } };
         if (trip.site === "pad") folded.pad_trip = folded.test_trip;
         const drop = new Set(fold);

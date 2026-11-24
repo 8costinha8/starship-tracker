@@ -283,6 +283,24 @@
       "vehicle_box": [0.4641, 0.05, 0.584, 1.0],
       "picked_by": "Bernardo",
       "note": "Manual (Bernardo, 24 Nov 13:56 UK, option 5): Ship 43 on the Pad 2 chopsticks, photo by Amy Doehring / WAI Media, posted by @mymatrixplug; WAI watermark cropped out (bottom 166 px of 926, vehicle untouched)."
+    },
+    {
+      "category": "cryo",
+      "date": "23 Nov",
+      "entry": "Booster 24 completed its first round of cryo testing at Massey's.",
+      "vehicle": "B24",
+      "fleet_event": "fv-3fd642c695",
+      "post_id": "2124725822909219049",
+      "post_url": "https://x.com/Blobifie/status/2124725822909219049",
+      "author": "Blobifie",
+      "media_type": "photo",
+      "image": "images/b24-cryo-blobifie-nsf-clean.jpg",
+      "keep_image": true,
+      "crop": "top",
+      "vehicle_box": [0.4525, 0.0559, 0.5469, 0.9565],
+      "recrop": "24 Nov 14:50 UK: cut from the original (b24cryo-options/opt3, NSF Starbase Live still, 1989x1119) at x 119-1836, y 76-1042, saved 1280x720 (37 KB): Starbase Live timestamp bar (top, y 0-66) and NSF ticker (bottom, from y 1048) cut, whole booster kept and centred; no NSF mark left in the frame",
+      "picked_by": "Bernardo",
+      "note": "Manual (Bernardo, 24 Nov 14:46 UK via Tusk, option 3): Booster 24 venting during its first cryo test at Massey's, NSF Starbase Live still (23 Nov 04:44 UK) posted by @Blobifie."
     }
   ]
 }

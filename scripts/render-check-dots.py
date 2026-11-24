@@ -4,7 +4,7 @@ Not part of run-tests.js (the runner is node-only and offline; this needs a brow
 Usage: python3 scripts/render-check-dots.py [site_root_or_URL] [shot_prefix]
 Page 1 (hero Road pill) and Page 2 (every flight's pill): for every .road-dots row it measures each dot's RENDERED size:
 the border box plus any hard outer box-shadow ring (spread + offset, blur 0: an outer outline draws outside the box and
-makes a dot look bigger; the soft glow on done dots is not counted). Asserts every dot in a row, Raptor included, has the same rendered width and height (+-0.01px), the box is
+makes a dot look bigger; the soft glow on done dots is not counted). v6: every COMPLETE dot (dot-done / dot-complete) must glow (a soft outer box-shadow or a filter, in a colour reaching 3:1 on navy), Raptor included. Asserts every dot in a row, Raptor included, has the same rendered width and height (+-0.01px), the box is
 square, and Raptor's dot is visible (its ring differs from its fill). Prints the sizes. Exit 1 on any failure."""
 import sys, os, threading, json, re
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -26,7 +26,20 @@ MEASURE = """() => [...document.querySelectorAll('.road-dots')].filter(r => r.ge
     let out = 0; // outer box-shadow extent (spread + blur + |offset|), inset shadows draw inside
     for (const sh of (cs.boxShadow === 'none' ? [] : cs.boxShadow.split(/,(?![^(]*\\))/))) { if (/\\binset\\b/.test(sh)) continue;
       const n = (sh.replace(/rgba?\\([^)]*\\)/g, '').match(/-?[\\d.]+px/g) || []).map(parseFloat); const [x = 0, y = 0, blur = 0, spread = 0] = n; if (blur > 0) continue; /* a soft glow (done dots) is not a ring */ out = Math.max(out, spread + Math.max(Math.abs(x), Math.abs(y))); }
-    return { cat: d.dataset.cat || null, w: b.width, h: b.height, rw: b.width + 2 * out, rh: b.height + 2 * out, outer: out, ring: cs.borderTopColor, fill: cs.backgroundColor, bw: cs.borderTopWidth }; }) }; })"""
+    const glows = (cs.boxShadow === 'none' ? [] : cs.boxShadow.split(/,(?![^(]*\\))/)).filter(sh => !/\\binset\\b/.test(sh)).map(sh => { const n = (sh.replace(/rgba?\\([^)]*\\)/g, '').match(/-?[\\d.]+px/g) || []).map(parseFloat); const c = (sh.match(/rgba?\\([^)]*\\)/) || [''])[0]; return { blur: n[2] || 0, color: c }; }).filter(g => g.blur > 0);
+    const done = d.classList.contains('dot-done') || d.classList.contains('dot-complete');
+    return { done, glows, filter: cs.filter, cat: d.dataset.cat || null, w: b.width, h: b.height, rw: b.width + 2 * out, rh: b.height + 2 * out, outer: out, ring: cs.borderTopColor, fill: cs.backgroundColor, bw: cs.borderTopWidth }; }) }; })"""
+def _lum(r, g, b):
+    f = lambda c: (c / 255) / 12.92 if c / 255 <= 0.04045 else (((c / 255) + 0.055) / 1.055) ** 2.4
+    return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b)
+BG = (11, 16, 32)
+def glow_reads(color):
+    m = re.match(r"rgba?\(([\d.]+),\s*([\d.]+),\s*([\d.]+)(?:,\s*([\d.]+))?\)", color or "")
+    if not m: return False
+    r, g, b = (float(m.group(i)) for i in (1, 2, 3)); a = float(m.group(4)) if m.group(4) else 1.0
+    if a <= 0: return False
+    c = tuple(a * x + (1 - a) * y for x, y in zip((r, g, b), BG)); l1, l2 = sorted((_lum(*c), _lum(*BG)), reverse=True)
+    return (l1 + 0.05) / (l2 + 0.05) >= 3.0
 fails = []; report = {}
 with sync_playwright() as p:
     br = p.chromium.launch(executable_path="/usr/bin/google-chrome", args=["--no-sandbox"])
@@ -47,6 +60,17 @@ with sync_playwright() as p:
                 if any(abs(d["rw"] - d["rh"]) > 0.01 for d in ds): fails.append(f"{tag}: a dot is not round (w != h)")
                 for d in rap:
                     if re.sub(r"\s", "", d["ring"]) == "rgb(14,15,17)" and not d["outer"]: fails.append(f"{tag}: Raptor dot ring {d['ring']} is its near-black colour (invisible)")
+                # v6: every COMPLETE dot glows, Raptor included: a soft (blur > 0) outer box-shadow, or a CSS filter, in a colour
+                # that reads on the dark surfaces (contrast >= 3:1 against the page navy #0B1020 when composited at its alpha)
+                for d in ds:
+                    if not d["done"]: continue
+                    gl = [g for g in d["glows"] if glow_reads(g["color"])]
+                    has_filter = d["filter"] not in ("none", "", None) and "transparent" not in d["filter"] and not re.search(r"rgba\([^)]*,\s*0\)", d["filter"])
+                    if not d["glows"] and not has_filter: fails.append(f"{tag}: complete {d['cat']} dot: box-shadow and filter are none (no glow)")
+                    for g in d["glows"]:
+                        if g["color"] in ("", "transparent") or re.search(r"rgba\([^)]*,\s*0\)$", g["color"]): fails.append(f"{tag}: complete {d['cat']} dot: glow colour {g['color'] or 'transparent'} has alpha 0")
+                    report[tag].setdefault("glow", []).append((d["cat"], d["glows"][0]["color"] if d["glows"] else d["filter"]))
+                    if not gl and not has_filter: fails.append(f"{tag}: complete {d['cat']} dot has no visible glow (box-shadow {d['glows'] or 'none'}, filter {d['filter']})")
                 if OUT and W == 390 and rap:
                     row = pg.locator(".road-dots").nth(r["ri"])
                     try: row.screenshot(path=f"{OUT}-{page}-dots{r['ri']}-390.png")
@@ -54,7 +78,7 @@ with sync_playwright() as p:
             if errs: fails.append(f"{W} {page}: JS errors {errs[:2]}")
             ctx.close()
     br.close()
-for k, v in report.items(): print(f"{k}: {v['n']} dots, rendered {v['sizes']}" + (f", raptor {v['raptor']}" if v['raptor'] else ""))
+for k, v in report.items(): print(f"{k}: {v['n']} dots, rendered {v['sizes']}" + (f", raptor {v['raptor']}" if v['raptor'] else "") + (f", complete glows {v['glow']}" if v.get('glow') else ""))
 print("dots render-check:", "PASS" if not fails else "FAIL")
 for f in fails: print("  FAIL", f)
 sys.exit(1 if fails else 0)

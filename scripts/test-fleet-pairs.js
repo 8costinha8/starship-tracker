@@ -9,13 +9,14 @@ const F = require("./fleet.js");
 let fails = 0, n = 0; const check = (ok, m) => { n++; console.log((ok ? "✅ " : "❌ ") + m); if (!ok) fails++; };
 const P = (s) => JSON.stringify(F.pairPlaces(s, F.idsIn(s)));
 check(P("Ship 44 and Booster 24 returned to Megabay 2 and 1.") === JSON.stringify({ S44: "Mega Bay 2", B24: "Mega Bay 1" }), "\"Ship 44 and Booster 24 returned to Megabay 2 and 1\" → S44 Mega Bay 2, B24 Mega Bay 1");
+check(P("Ship 44 and Booster 24 have both returned to Megabay 2 &amp; 1 respectively marking the first time a flight pair of vehicles have rolled out together at the same time !!!") === JSON.stringify({ S44: "Mega Bay 2", B24: "Mega Bay 1" }), "the live post's own text as X returns it (Blobifie 2125222150252675155, \"Megabay 2 &amp; 1 respectively\") → S44 Mega Bay 2, B24 Mega Bay 1");
 check(P("Booster 24 and Ship 44 moved to Mega Bay 1 and Mega Bay 2 respectively.") === JSON.stringify({ B24: "Mega Bay 1", S44: "Mega Bay 2" }), "full names + respectively map in order");
 check(P("Ship 44 and Booster 24 are together at Massey's for testing.") === "null", "one place for both vehicles is not a pair (both are at Massey's)");
 check(P("Booster 24 has left Megabay 1 for the first time following its assembly, joining Ship 44 at masseys") === "null", "a from-place and a to-place that are not written as a pair are not mapped");
 // the registry path (ingest) gives each vehicle its own place
 const reg = F.empty();
 for (const [id, type] of [["B24", "booster"], ["S44", "ship"]]) reg.vehicles[id] = { id, type, name: id, state: "cryo", flight: 17, flight_history: [{ flight: 17, at: "2026-11-20T00:00:00Z" }], events: [] };
-F.ingest(reg, [{ post_id: "2125222150252675155", url: "https://x.com/Blobifie/status/2125222150252675155", created_at: "2026-11-24T13:36:59.000Z", text: "Ship 44 and Booster 24 returned to Megabay 2 and 1 respectively tonight.", author: { username: "Blobifie" }, media: [] }], { road: { flight: 16, vehicles: ["B23", "S43"], categories: [] }, now: Date.parse("2026-11-24T13:50:00Z") });
+F.ingest(reg, [{ post_id: "2125222150252675155", url: "https://x.com/Blobifie/status/2125222150252675155", created_at: "2026-11-24T13:36:59.000Z", text: "Ship 44 and Booster 24 have both returned to Megabay 2 &amp; 1 respectively marking the first time a flight pair of vehicles have rolled out together at the same time !!! https://t.co/SqttPQpFEQ" /* the live post as X returns it */, author: { username: "Blobifie" }, media: [] }], { road: { flight: 16, vehicles: ["B23", "S43"], categories: [] }, now: Date.parse("2026-11-24T13:50:00Z") });
 const mv = (id) => (reg.vehicles[id].events || []).find((e) => e.type === "move") || {};
 check(mv("S44").place === "Mega Bay 2" && /^Ship 44 is at Mega Bay 2\.$/.test(mv("S44").text || ""), `ingest: S44 → Mega Bay 2 ("${mv("S44").text}")`);
 check(mv("B24").place === "Mega Bay 1" && /^Booster 24 is at Mega Bay 1\.$/.test(mv("B24").text || ""), `ingest: B24 → Mega Bay 1 ("${mv("B24").text}")`);

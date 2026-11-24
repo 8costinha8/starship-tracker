@@ -15,7 +15,7 @@ const trip = cat(r, "pad").history.filter((h) => h.pad_trip);
 check(trip.length === 1, "one Pad card for the whole trip (roll out + chopstick lifts + return)");
 const t = trip[0] || { updates: [] };
 check(t.text === "Ship 43 lifted on the chopsticks at Pad 2." && sid(t.url) === "2114880263264346277", "headline: the chopstick lift at Pad 2 (Blobifie 27 Oct 00:42, its own post)");
-check(t.trip_order === "chrono" && t.updates.every((u, i, a) => !i || T(a[i - 1]) <= T(u)), "Earlier updates in chronological order");
+check(!("trip_order" in t), "no trip-only order flag: the card's Earlier updates use the one shared order (newest first, app.js earlierNewestFirst; scripts/test-earlier-order.js)");
 const ids = t.updates.flatMap((u) => [sid(u.url), ...(u.merged || []).map((m) => sid(m.url))]);
 for (const [id, what] of [["2114798577293635905", "26 Oct roll to Pad 2 (NSF)"], ["2114804150693429509", "26 Oct headed to Pad 2 (LabPadre)"], ["2114869747624112210", "27 Oct lifted above the stand (Blobifie)"],
   ["2114875305244369184", "27 Oct airborne on the chopsticks (RGV)"], ["2115280953019080989", "28 Oct headed back (Blobifie)"], ["2115300604247671193", "28 Oct arrived back (RGV)"], ["2115315741709001123", "28 Oct returned to Megabay 2 (TrackingTheSB)"]])
@@ -59,7 +59,7 @@ const b = card("B24")[0] || { updates: [] }, s4 = card("S44")[0] || { updates: [
 check(card("B24").length === 1 && card("S44").length === 1, "Massey's: one cryo trip card each for Booster 24 and Ship 44");
 check(!cat(r3, "pad").history.some((h) => h.hardware === "B24") && !cat(r3, "cryo").history.some((h) => h.hardware === "B24" && !h.test_trip), "fv-768cebc29b (B24 left Massey's) is not its own card: no other B24 entry is left");
 check(b.text === "Booster 24 completed its first round of cryo testing at Massey's." && b.test_trip.box === "cryo", "B24 headline is the test (first round of cryo done, 23 Nov), on Cryo tests");
-check(b.trip_order === "chrono" && b.updates.every((u, i, a) => !i || T(a[i - 1]) <= T(u)), "B24 Earlier updates oldest first");
+check(!("trip_order" in b), "B24: no trip-only order flag (Earlier updates shown newest first like every card)");
 const bIds = [b, ...b.updates].flatMap((u) => [sid(u.url), ...(u.merged || []).map((m) => sid(m.url)), ...((u.sources || []).map((m) => sid(m.url)))]);
 for (const [id, what] of [["2123658897949159619", "20 Nov out (TrackingTheSB)"], ["2123774597967540724", "NSF 20 Nov at Massey's (combined S44 + B24)"], ["2124637434797346916", "NSF cryo start (F17)"], ["2124765411627643131", "RGV first round done"],
   ["2125104765050974276", "RGV leaves the stand"], ["2125115713677594697", "RGV double roll (combined)"], ["2125117229482279118", "efraser77 back to Production (combined)"], ["2125222150252675155", "Blobifie back in Megabay (combined)"]])

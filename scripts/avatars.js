@@ -24,6 +24,11 @@ function sourcesOf(road, picks) {
     Object.values(o).forEach(walk);
   })(road);
   for (const p of (picks && picks.picks) || []) if (p.author) add(p.author);
+  // 24 Nov v6: a photo badge shows the CREDITED source when the post names one (scripts/photo-marks.js creditOf), so the
+  // credited accounts need their avatar too (data/photo-credits.json post texts)
+  try { const M = require("./photo-marks.js"); const cr = JSON.parse(require("fs").readFileSync(require("path").join(__dirname, "..", "data", "photo-credits.json"), "utf8")).posts || {};
+    for (const r of Object.values(cr)) { const c = M.creditOf(r.text, { poster: r.poster }); if (c.via === "credit") add(c.handle); }
+    for (const m of M.MARKS) add(m.handle); } catch {}
   return [...out.values()];
 }
 function readIndex(file = INDEX) { try { return JSON.parse(fs.readFileSync(file, "utf8")); } catch { return { avatars: {} }; } }

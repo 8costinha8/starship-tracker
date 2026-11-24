@@ -2359,7 +2359,7 @@ const ROAD_BOX_IDS = ["cryo", "raptor", "static", "pad", "faa", "date"];
 const parityText = (h) => scrub(String((h && (h.card_text || h.x_text || h.text)) || ""));
 function parityEarlier(h) {
   if (String(h.id || "").startsWith("rtf-")) // RtfBuildUp
-    return (h.updates || []).slice().sort((a, b) => (tripChrono(h) ? -1 : 1) * ((Date.parse(upIso(b)) || 0) - (Date.parse(upIso(a)) || 0)))
+    return earlierNewestFirst(h.updates)
       .map((u) => { const iso = upIso(u); return { date: iso ? `${ukStamp(iso, false)} · ${feedTime(iso)}` : fmtDay(u.date), text: scrub(cardT(u)).replace(/^\d{1,2}(?:[–-]\d{1,2})? [A-Z][a-z]{2}:\s*/, "") }; });
   return roadUpdates(h).map(({ u, when }) => ({ date: when || entryDate(u), text: scrub(cardT(u)) })); // FeedBuildUp
 }
@@ -2482,7 +2482,7 @@ function CatIcon({ c }) {
   return isRaptorCat(c) ? <img decoding="async" className="cat-img" src="icons/raptor-icon.png" alt="" aria-hidden="true" /> : (c && c.icon) || null;
 }
 function FlogCard({ c }) {
-  const [top, ...rest] = c.lines;
+  const [top, ...rest0] = c.lines; const rest = earlierNewestFirst(rest0);
   if (!top) return null;
   return (
     <div className="mini flog-card" data-vehicle={c.vehicle}>
@@ -2510,7 +2510,7 @@ function TierTag({ t, src, rep, hedged }) {
 // tap area that opens the Road to Flight page on this card (same jump as tapping the card); other lines do nothing.
 const buLinked = (u) => !!(u && ((u.url && !isYouTube(u.url)) || u.handle));
 function BuildUp({ h, log, onTap }) {
-  const ups = Array.isArray(h.updates) ? h.updates.filter((u) => u && u.text) : [];
+  const ups = earlierNewestFirst(Array.isArray(h.updates) ? h.updates.filter((u) => u && u.text) : []);
   if (!ups.length) return null;
   const stop = (e) => e.stopPropagation();
   const tapProps = (u) => (log && onTap && buLinked(u) ? { className: "bu-plain bu-tap", role: "link", tabIndex: 0, "aria-label": `${logDay(u)}: ${logLine(u)}. Show in Road to Flight`,
@@ -2540,15 +2540,32 @@ const badgeHandleOf = (author, url) => String(author || (String(url || "").match
 const NO_BADGE_IMAGES = () => [SHIP_CRYO_IMAGE, RTF_PLACEHOLDER];
 // 24 Nov v5: a photo that already shows its source's logo in the crop gets no round badge on top (scripts/photo-marks.js)
 const markHidesBadge = (image, aspect, crop) => { const P = (typeof window !== "undefined" && window.PhotoMarks) || (typeof globalThis !== "undefined" && globalThis.PhotoMarks); return !!(P && image && P.hideBadge(image, aspect, crop)); };
+// 24 Nov v6: the badge credits the photo's ORIGINAL source when the post names one ("For WAI Media @FelixSchlang",
+// "📷NSF | Starbase Live", "via @LabPadre", a recorded burned-in mark), else the posting account (scripts/photo-marks.js
+// creditOf, post text from data/photo-credits.json). The badge still opens the post the photo came from.
+let CREDITS = null; const creditSubs = new Set();
+fetch("data/photo-credits.json").then((r) => r.json()).then((j) => { CREDITS = (j && j.posts) || {}; creditSubs.forEach((f) => f(CREDITS)); }).catch(() => { CREDITS = {}; creditSubs.forEach((f) => f(CREDITS)); });
+const badgeCreditOf = (author, url, image, aspect, crop, credits) => {
+  const poster = badgeHandleOf(author, url); const P = (typeof window !== "undefined" && window.PhotoMarks) || (typeof globalThis !== "undefined" && globalThis.PhotoMarks);
+  const id = (String(url || "").match(/status\/(\d{15,})/) || [])[1]; const rec = id && credits ? credits[id] : null;
+  if (!P || !P.creditOf) return { handle: poster, via: "poster" };
+  const c = P.creditOf(rec ? rec.text : "", { poster: poster || (rec && rec.poster) || "", image, aspect, crop });
+  return { ...c, poster: poster || (rec && rec.poster) || "" };
+};
 function SrcBadge({ author, url, image, keep, date, aspect = 16 / 9, crop = "top" }) {
   const [av, setAv] = React.useState(AVATARS);
+  const [cr, setCr] = React.useState(CREDITS);
   const [bad, setBad] = React.useState(false);
   React.useEffect(() => { if (AVATARS) return; avatarSubs.add(setAv); return () => avatarSubs.delete(setAv); }, []);
-  const h = badgeHandleOf(author, url);
+  React.useEffect(() => { if (CREDITS) return; creditSubs.add(setCr); return () => creditSubs.delete(setCr); }, []);
+  const cred = badgeCreditOf(author, url, image, aspect, crop, cr);
+  const h = cred.handle;
   if (!h || (image && NO_BADGE_IMAGES().includes(image) && !keep) || markHidesBadge(image, aspect, crop)) return null;
   const rec = av && av[h.toLowerCase()];
   return (
-    <a className="src-badge" href={url || `https://x.com/${h}`} target="_blank" rel="noopener noreferrer" title={`@${h} on X${date ? " · photo " + date : ""}`} aria-label={`Photo by @${h}${date ? ", " + date : ""}: open the post on X`} onClick={(e) => e.stopPropagation()}>
+    <a className="src-badge" href={url || `https://x.com/${h}`} target="_blank" rel="noopener noreferrer" data-credit={cred.via} data-poster={cred.poster || undefined}
+      title={`@${h}${cred.name && cred.name.toLowerCase() !== h.toLowerCase() ? ` (${cred.name})` : ""} on X${cred.via !== "poster" && cred.poster && cred.poster.toLowerCase() !== h.toLowerCase() ? ` · posted by @${cred.poster}` : ""}${date ? " · photo " + date : ""}`}
+      aria-label={`Photo by @${h}${cred.via !== "poster" && cred.poster && cred.poster.toLowerCase() !== h.toLowerCase() ? `, posted by @${cred.poster}` : ""}${date ? ", " + date : ""}: open the post on X`} onClick={(e) => e.stopPropagation()}>
       {rec && !bad ? <img decoding="async" src={rec.file} alt="" loading="lazy" onError={() => setBad(true)} /> : <span aria-hidden="true">{h[0].toUpperCase()}</span>}
     </a>
   );
@@ -3587,6 +3604,12 @@ const handleOf = (u) => u && (u.handle ? String(u.handle).replace(/^@?/, "@") : 
 // Road page "Earlier updates": repeat completion lines (the card's main line already says it) are folded,
 // newest first; when 2+ lines share a day each shows its post time ("25 Oct · 11:42", 24h Europe/London, no "UK").
 const upIso = (u) => (u && u.at && Number.isFinite(Date.parse(u.at)) ? u.at : (String((u && u.url) || "").match(/(?:x|twitter)\.com\/\w+\/status\/(\d{15,})/) || [])[1] ? sfIso(String(u.url).match(/status\/(\d+)/)[1]) : "");
+// 24 Nov v6 (Bernardo 14:47 UK): ONE order for every "Earlier updates" list on every road and every card, Page 1 and Page 2,
+// test-site trips included: NEWEST first. The stored time (at), else the X post id's own time, else the day; ties keep data order.
+// Which row a post belongs to is decided before this (move-route.js trip steps, late-report merges); this only orders rows.
+const earlierMs = (u) => { const t = Date.parse(upIso(u) || (u && u.at) || ""); if (Number.isFinite(t)) return t;
+  const m = String((u && (u.log_date || u.date || u.day)) || "").match(/(\d{1,2})(?:[–-]\d{1,2})? ([A-Z][a-z]{2})/); return m ? Date.UTC(new Date().getUTCFullYear(), MON3.indexOf(m[2]), Number(m[1]), 23, 59) : 0; };
+const earlierNewestFirst = (rows, ms = earlierMs) => (rows || []).map((u, i) => ({ u, i, t: ms(u) })).sort((a, b) => b.t - a.t || a.i - b.i).map((x) => x.u);
 // Completed cards: the header shows when it happened ("25 Oct · 13:24", 24h Europe/London, no "UK"):
 // completed_at (earliest trusted post showing the event itself), else the completing post's time.
 const isDoneCard = (h) => !!(h && (h.complete || (h.milestone && h.milestone.phase === "completed")));
@@ -3615,7 +3638,7 @@ function roadUpdates(h) {
   const dayMs = (u) => { const m = String(u.log_date || u.date || "").match(/(\d{1,2})(?:[–-]\d{1,2})? ([A-Z][a-z]{2})/); return m ? Date.UTC(yr, MON3.indexOf(m[2]), Number(m[1]), 23, 59) : 0; };
   const ups = (typeof window !== "undefined" && window.RoadCleanup && window.RoadCleanup.latestEstimateUpdates ? window.RoadCleanup.latestEstimateUpdates(h) : Array.isArray(h.updates) ? h.updates : []).filter((u) => u && u.text && (u.event_row || !(done && (u.phase === "completed" || u.reported === "completed")))); // the event_record's own completion row always shows (guards.js event-row) // 3 Nov: only the latest estimate
   const ms = (u) => Date.parse(upIso(u)) || dayMs(u);
-  const sorted = ups.map((u, i) => ({ u, i })).sort((a, b) => ms(b.u) - ms(a.u) || a.i - b.i).map((x) => x.u);
+  const sorted = earlierNewestFirst(ups, ms);
   const day = (u) => { const iso = upIso(u); return iso ? ukStamp(iso, false) : fmtDay(u.log_date || u.date); };
   const n = {}; sorted.forEach((u) => { n[day(u)] = (n[day(u)] || 0) + 1; });
   return sorted.map((u) => { const iso = upIso(u); return { u, when: n[day(u)] > 1 && iso ? `${day(u)} · ${feedTime(iso)}` : null }; });
@@ -3697,8 +3720,7 @@ function RtfCredit({ h }) {
 }
 // Two-cards layout: every post of this vehicle + category, newest first, no pictures; date · time + text, the whole pill opens the post.
 function RtfBuildUp({ h }) {
-  const rows = (h.updates || []).slice().sort((a, b) => (Date.parse(upIso(b)) || 0) - (Date.parse(upIso(a)) || 0));
-  if (tripChrono(h)) rows.reverse();
+  const rows = earlierNewestFirst(h.updates);
   if (!rows.length) return null;
   const stop = (e) => e.stopPropagation();
   return (
@@ -3868,7 +3890,6 @@ function cardFaceOrFallback(own, list, cid, done) {
 // section (scripts/move-route.js applyToRoad, the same rule module as the move routing; display copy only, road.json and
 // the registry are untouched).
 const padTripsOf = (road) => { const P = (typeof window !== "undefined" && window.RoadMoveRoute) || (typeof globalThis !== "undefined" && globalThis.RoadMoveRoute); return P && P.applyToRoad ? P.applyToRoad(road) : road; };
-const tripChrono = (h) => !!(h && h.trip_order === "chrono"); // pad-trip cards: Earlier updates oldest first (the trip's story)
 function rtfCards(road) {
   road = padTripsOf(road);
   const cats = Object.fromEntries((road.categories || []).map((c) => [c.id, c]));
@@ -3958,7 +3979,7 @@ function rtfCards(road) {
       for (let i = rows.length - 1; i >= 0; i--) { const u = rows[i]; if (u.event_row && ((mUrl && u.url === mUrl) || rowT(u) === mainT || String(u.card_text || u.text || "") === mText)) rows.splice(i, 1); }
       rows.push({ ...(main === doneOne ? { done_row: true } : {}), text: main.text, ...(main.card_text ? { card_text: main.card_text } : {}), at: cardIso(main) || main.at, date: main.date, url: main.url || urlOf(main), src: main.src, handle: (main.x_post && main.x_post.author && main.x_post.author.username) || (main.media_override && main.media_override.author) || (String(main.src || "").startsWith("@") ? main.src : null) });
       const shown = newer.card_text || newer.text;
-      main = { ...main, text: newer.text, card_text: shown, x_text: shown, log_text: undefined, trip_order: undefined, test_trip: undefined, pad_trip: undefined, at: newer.at, completed_at: undefined, time_known: undefined, publishedAt: undefined, date: newer.date, url: newer.url, src: newer.src, handle: newer.handle, x_post: undefined, media_override: undefined };
+      main = { ...main, text: newer.text, card_text: shown, x_text: shown, log_text: undefined, test_trip: undefined, pad_trip: undefined, at: newer.at, completed_at: undefined, time_known: undefined, publishedAt: undefined, date: newer.date, url: newer.url, src: newer.src, handle: newer.handle, x_post: undefined, media_override: undefined };
     }
     rows.sort(byNew);
     const own = headlineOwn(main);
@@ -4289,6 +4310,7 @@ function fleetRoad(r, fleet, n) {
     (add[box] = add[box] || []).push({ id: e.id, date: e.date, at: e.at, text: e.text, x_text: e.text, src: e.src, url: e.url, trust: "trusted", ...(Array.isArray(e.sources) && e.sources.length ? { sources: e.sources } : {}), /* same-event posts: merged rows in a test-site trip */ flight: n, hardware: v.id, kind: "fleet", no_push: true,
       ...(e.x_post && (e.x_post.media || []).length && (!(globalThis.RoadRules || null) || (globalThis.RoadRules || null).photoFits(e, v.events, e.x_post.url)) ? { x_post: e.x_post, photo_date: (globalThis.RoadRules || null) ? (globalThis.RoadRules || null).photoIso(e.x_post.url) : null } : {}), /* the picture keeps its own post (credit + link); 24 Nov #2: only a post within 36 h of the event and before the next milestone, dated by its own post */
       ...(e.photo_gate ? { photo_gate: e.photo_gate } : {}),
+      ...(e.media_override && e.media_override.image && e.media_override.keep_image && /\bBernardo\b/.test(String(e.media_override.picked_by || "") + " " + String(e.media_override.note || "")) ? { media_override: e.media_override } : {}), /* 24 Nov v6: Bernardo's recorded pick on a registry event (road-media.json) is that card's picture */
       milestone: { hardware: v.id, event: e.type, phase: done ? "completed" : "started" }, ...(done ? { complete: true } : {}) });
   } }
   return { ...r, vehicles: [...new Set([...(r.vehicles || []), ...vs.map((v) => v.id)])], hardware_flights: { ...(r.hardware_flights || {}), ...Object.fromEntries(vs.map((v) => [v.id, n])) },
@@ -5951,6 +5973,10 @@ html.v-rm .road-list-inner, html.v-rm .next .road-list-inner { transform: none !
 /* Raptor's near-black #0E0F11 (A2) gets a light ring INSIDE the dot: its own border is the ring, so the dot keeps exactly the
    same outer size as every other dot (no outer box-shadow); the fill stays #0E0F11 */
 .dot[data-cat="raptor"], .dot-done[data-cat="raptor"], .dot-complete[data-cat="raptor"] { border-color: rgba(255,255,255,.4) !important; }
+/* 24 Nov v6: a complete dot glows in its own colour (0 0 8px var(--c)); Raptor's own colour is near-black, so its glow was
+   invisible. It gets the same soft glow in a light neutral that reads on navy; still a blur-only glow (no ring, so the dot
+   keeps its 10x10 size) and the inset outline stays */
+.dot-done[data-cat="raptor"], .dot-complete[data-cat="raptor"] { box-shadow: 0 0 8px #E2E8F0; } /* same 0 0 8px glow as every other complete dot, light grey, opaque */
 
 `;
 

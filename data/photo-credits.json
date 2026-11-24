@@ -1,0 +1,177 @@
+{
+  "_about": "Post text of every X post whose photo is on a Road card (read from X 24 Nov 2026 14:50 UK). The app reads it for the photo source badge credit (scripts/photo-marks.js creditOf: the credited original source, else the poster). Keyed by post id. Text as X returns it.",
+  "posts": {
+    "2095620292823462214": {
+      "poster": "LabPadre",
+      "text": "Ship 42's 1st cryo test is underway! https://t.co/AWF8R7j4ej"
+    },
+    "2097784884957778276": {
+      "poster": "RGVaerialphotos",
+      "text": "Aerial view of Booster 22 and Ship 42 at Masseys taken today. https://t.co/eujeSP9V5q"
+    },
+    "2098045579234259249": {
+      "poster": "LabPadre",
+      "text": "Last night, at the Massey outpost, Booster 22 underwent a seemingly successful round of cryogenic testing, being filled and held at pressure before detanking. https://t.co/XS5n0tmO9a"
+    },
+    "2098104487428694216": {
+      "poster": "NASASpaceflight",
+      "text": "Starship Flight 15: Ship 42 heading back for its six Raptors. https://t.co/FfN8F8d6Bt https://t.co/LuilYFWEHv"
+    },
+    "2099008859134374365": {
+      "poster": "RGVaerialphotos",
+      "text": "Also here is a timelapse we captured of Ship 42 and the Pad 2 chopsticks earlier today. https://t.co/FrEMGJWEzp"
+    },
+    "2103953927624356245": {
+      "poster": "NASASpaceflight",
+      "text": "Starship Flight 14 has its launch license! All go for Monday!\n\nhttps://t.co/lRC3NXhsMZ https://t.co/AMndKjmq69"
+    },
+    "2104953832895615155": {
+      "poster": "LabPadre",
+      "text": "New OLM work platform is being installed in the Pad 2 Mount https://t.co/ZpdGxXxGx1"
+    },
+    "2105350891859501311": {
+      "poster": "LabPadre",
+      "text": "Earlier this morning, 2 raptor 3's (1 RVAC and 1 SL) were rolled out of Megabay 2, likely removed from Ship 42. https://t.co/w06csuunKv"
+    },
+    "2106591567930925423": {
+      "poster": "RGVaerialphotos",
+      "text": "Pad 2 after facing 33 Raptor engines just a few days ago.\n\nFeaturing the new OLM work platform! https://t.co/gFLYQwqD1Z"
+    },
+    "2107896796424835482": {
+      "poster": "LabPadre",
+      "text": "SpaceX is performing full speed actuation testing on the Pad 2 chopsticks https://t.co/RQ1GzhV9GT"
+    },
+    "2108486994401825101": {
+      "poster": "LabPadre",
+      "text": "Ship 42 has been transported back to the cryo test stand at the Massey outpost for more testing. https://t.co/aWG6GyYo2d"
+    },
+    "2109745968048668966": {
+      "poster": "Blobifie",
+      "text": "Booster 23 has been lifted onto the cryo stand! https://t.co/wLPp9cu2Mg https://t.co/XCnlnxpN4v"
+    },
+    "2109929503925625050": {
+      "poster": "StarshipGazer",
+      "text": "Super heavy booster 23 rolled out to Starbase TX Massey's test site for initial cryogenic proof testing.\n\n10/13/26 https://t.co/vJxWKEidCF"
+    },
+    "2110045816983290227": {
+      "poster": "Flight2Starship",
+      "text": "Two Raptor engines were moved to Megabay 2 for installation onto Ship 42!!\n\n📸Avidspace https://t.co/53eNSjwpzG https://t.co/ekWQusbZiY"
+    },
+    "2110889490336350574": {
+      "poster": "StarshipGazer",
+      "text": "Super heavy booster 23 during cryogenic proof testing at Starbase, TX Massey's test site today. \n\n10/15/26 https://t.co/1jxzsIqWsc"
+    },
+    "2111681468724601021": {
+      "poster": "TrackingTheSB",
+      "text": "Booster 23 has entered HWY 4 and is headed back to the production site\n\nTrack Starbase Here: https://t.co/1mhe9Lqyzv \nJoin Our Discord Here: https://t.co/TRiUzEzgm9\n\n📸@NASASpaceflight | Starbase Live | https://t.co/PX4wBcpee0\n\n#Tracking ⁠#Starship #Starbase #SpaceX https://t.co/3GB1sGevYc"
+    },
+    "2112035558994419901": {
+      "poster": "efraser77",
+      "text": "The \"Dancefloor 2.0\" service structure has been removed from the Pad 2 OLM this evening. There is a road delay scheduled for 10am-2pm CDT Monday. Will we get a booster rollout?\n\n🎥: https://t.co/U5mmqMAp4x | @NASASpaceflight https://t.co/kg2lKYhHwU"
+    },
+    "2113350505065836569": {
+      "poster": "Bettybronxton",
+      "text": "Ship 43 has departed Production and is on the way to the Massey outpost for initial cryo testing.\n\nvia @LabPadre https://t.co/9BLp1JFu0D"
+    },
+    "2113741703119253806": {
+      "poster": "Blobifie",
+      "text": "Ship 43 ihas started its first cryo test! https://t.co/5dBXeKzumr https://t.co/DBwmctZEV2"
+    },
+    "2113955770337550391": {
+      "poster": "Blobifie",
+      "text": "Booster 22 has arrived at the launch site ahead of its static fire campaign!!\n\nA source within spaceX has confirmed they do not currently plan on blowing up the booster during the static fire https://t.co/HuuE4MCmzB https://t.co/iZ5WiXLH7e"
+    },
+    "2114063568735768864": {
+      "poster": "LabPadre",
+      "text": "Following an overnight move to the Pad, Booster 22 has been lifted onto the launch mount. There is a Mayor's Order in place for a testing closure tomorrow, with a back-up for Monday. https://t.co/vumHXD29GH"
+    },
+    "2114444137067844004": {
+      "poster": "SpaceX",
+      "text": "Full duration 33-engine static fire for the Super Heavy booster preparing for Flight 15 https://t.co/7eqbC4h0Fh"
+    },
+    "2114533727514640403": {
+      "poster": "FelixSchlang",
+      "text": "👀 SHIP 43 AT MASSEY'S\n\nCryo rounds Friday. Road delays both ways tonight.\n\n📷 Oct 23. @Jordanguidry6 - WAI Media https://t.co/ONN4t6S9Ew"
+    },
+    "2114757145245671915": {
+      "poster": "LabPadre",
+      "text": "It was a busy night last night. B22 was lifted from the pad, S42 left Megabay-2, S43 returned to the bay, following cryo testing. S42 then departed for the Massey outpost, for static fire testing, along with a barrel section and B22 returned.\n@SpaceX logistics at its best. https://t.co/j1gE923DRO"
+    },
+    "2114798577293635905": {
+      "poster": "NASASpaceflight",
+      "text": "Starship Flight 16: Ship 43's going to Pad 2, likely for some catch tests with the chopsticks.\n\nhttps://t.co/HSumkyMfYU https://t.co/RYM1gUQhxw"
+    },
+    "2114815133700731141": {
+      "poster": "mymatrixplug",
+      "text": "After a quick stop at Production, Starship 43 was back on the move this morning and has made its way down to the launch site. The work here never stops! 🚀\n\nFor WAI Media @FelixSchlang https://t.co/BQ2ek2jjLb"
+    },
+    "2114880263264346277": {
+      "poster": "Blobifie",
+      "text": "Ship 43 has been lifted to the top of the tower! https://t.co/K7EGJGdN95 https://t.co/dt5HQyFpDh"
+    },
+    "2115205843880992791": {
+      "poster": "Blobifie",
+      "text": "SpaceX completed post catch pusher testing with S43 with this test going much smoother than when it was done with S42! https://t.co/V1cEQFgYyr https://t.co/IJW6ci41Rx"
+    },
+    "2115312218590126505": {
+      "poster": "RGVaerialphotos",
+      "text": "Booster 23 is headed to Massey's once again. https://t.co/sg3BiV4C8C"
+    },
+    "2115315741709001123": {
+      "poster": "TrackingTheSB",
+      "text": "Ship 43 has entered Megabay 2. Booster 23 left on its way to Massey's shortly after.\n\nFollow Our Journey: https://t.co/UqJI1NQiUk \n\n📷NSF | Starbase Live | https://t.co/PX4wBcpee0  \n\n#Tracking ⁠#Starship #Starbase #SpaceX https://t.co/V7yd5XDEWy"
+    },
+    "2115476295169814978": {
+      "poster": "SpaceX",
+      "text": "Ship 42 static fires complete. The Starship preparing for Flight 15 performed a full duration, six-engine static fire, and fired a single Raptor engine to simulate a deorbit burn https://t.co/I7Ip89Bmey"
+    },
+    "2121044579470233638": {
+      "poster": "SpaceX",
+      "text": "Ship 42 moves to the Starbase pad ahead of launch https://t.co/pMUFTHneJQ"
+    },
+    "2123269690457780726": {
+      "poster": "TrackingTheSB",
+      "text": "Crews are quickly back at work on Pad 2 following Starship Flight 15.\n\nFollow Our Journey: https://t.co/b1ZNQAwhGM \n\n📸Casper Harris | Starship Tracking  \n\n#Tracking ⁠#Starship #Starbase #SpaceX https://t.co/jLoTTI2H4v"
+    },
+    "2123481210752315451": {
+      "poster": "RGVaerialphotos",
+      "text": "Ship 44 is heading to Massey’s ahead of cryogenic proof testing https://t.co/tJGU9z384O"
+    },
+    "2123663091074584938": {
+      "poster": "RGVaerialphotos",
+      "text": "Booster 24 heads to Massey's as Ship 40 hangs out in the gigabay. https://t.co/2XJrkgs5Oa"
+    },
+    "2123894391177949549": {
+      "poster": "efraser77",
+      "text": "The Flight 17 pair of Booster 24 and Ship 44 are together at Massey's, and there's frost visible on Ship 44 now. Here you can see it on the methane tank, and levels are rising.\n\nWatch it live at https://t.co/U5mmqMAp4x\n\n@NASASpaceflight https://t.co/dNaVe0zRvi"
+    },
+    "2124262674834071685": {
+      "poster": "RGVaerialphotos",
+      "text": "Booster 25's LOX landing tank was moved to Megabay 1 yesterday https://t.co/Cv2VvDeYB6"
+    },
+    "2124265745681117187": {
+      "poster": "RGVaerialphotos",
+      "text": "Ship 44 had its first cryogenic proof test yesterday. https://t.co/oGQDVMx8nC"
+    },
+    "2124725822909219049": {
+      "poster": "Blobifie",
+      "text": "Super heavy boosters only do this when they are very happy https://t.co/tDndbAnpRP https://t.co/zNsy4DK00S"
+    },
+    "2124765411627643131": {
+      "poster": "RGVaerialphotos",
+      "text": "Booster 24 completed its first round of cryogenic proof testing at the Massey's test site today. https://t.co/4z7FwO13HO"
+    },
+    "2124973115566633088": {
+      "poster": "Blobifie",
+      "text": "Ship 44 looks to be starting its 3rd cryo test! https://t.co/pCT5ZSj6Qz https://t.co/wYYs7Y9NKr"
+    },
+    "2125114870563762434": {
+      "poster": "Blobifie",
+      "text": "Booster 24 is now leaving masseys https://t.co/F1RHnNEidY https://t.co/J0z0GGpywv"
+    },
+    "2125222150252675155": {
+      "poster": "Blobifie",
+      "text": "Ship 44 and Booster 24 have both returned to Megabay 2 &amp; 1 respectively marking the first time a flight pair of vehicles have rolled out together at the same time !!! https://t.co/SqttPQpFEQ https://t.co/SUf3fcdiZo"
+    }
+  }
+}

@@ -3,7 +3,7 @@
 // scripts/render-check.js appFns) with scripts/move-route.js, and checks:
 //   no standalone move card — no card leads with a move that a test at that site brackets (it belongs to the test's card)
 //   every move of such a trip is still on that test's card (a row, or merged into a row) — nothing is lost
-//   trip cards read oldest first, and their headline is the test (not a move)
+//   trip cards use the shared Earlier updates order (newest first, v6), and their headline is the test (not a move)
 // Usage: node scripts/test-trip-live.js [tree]
 const fs = require("fs"), path = require("path");
 const ROOT = path.resolve(process.argv[2] || path.join(__dirname, ".."));
@@ -62,7 +62,7 @@ for (const fl of flights) {
       const snowT = (u) => { const m = /status\/(\d{15,})/.exec(u.url || ""); return m ? Number((BigInt(m[1]) >> 22n) + 1288834974657n) : null; };
       const off = [tc.h, ...(tc.h.updates || [])].flatMap((u) => [u, ...(u.merged || [])]).filter((u) => u.at && snowT(u) != null && Math.abs(Date.parse(u.at) - snowT(u)) > 90e3);
       check(!off.length, `F${fl} ${v} trip rows: post time = the X post id's time (${off.map((u) => u.url.split("/").pop() + " " + u.at).join(", ") || "all match"})`);
-      check(tc.h.trip_order === "chrono", `F${fl} ${v} trip card reads oldest first`); check(!MOVE.has(P.tripKind(tc.h.card_text || tc.h.text).kind), `F${fl} ${v} trip card leads with the test, not a move: "${tc.h.text}"`); }
+      check(!("trip_order" in tc.h), `F${fl} ${v} trip card has no trip-only order (Earlier updates newest first, as every card)`); check(!MOVE.has(P.tripKind(tc.h.card_text || tc.h.text).kind), `F${fl} ${v} trip card leads with the test, not a move: "${tc.h.text}"`); }
   }
 }
 // B24 (F17): every post Tusk listed on 24 Nov is on the Booster 24 cryo card; fv-768cebc29b is not its own card
