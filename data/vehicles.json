@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-24T13:45:37.632Z",
+  "updated": "2026-11-24T16:30:36.780Z",
   "vehicles": {
     "B7": {
       "id": "B7",
@@ -1045,16 +1045,62 @@
           "tier": 2,
           "post_id": "2125117229482279118",
           "flight": 17,
-          "image": null,
-          "x_post": null,
+          "image": {
+            "type": "video",
+            "url": "https://pbs.twimg.com/amplify_video_thumb/2125262869587722240/img/uangdYp18zlAiL9j.jpg",
+            "video_url": "https://video.twimg.com/amplify_video/2125262869587722240/vid/avc1/3840x2160/mqJHLu9plPrn9KWf.mp4",
+            "score": 2
+          },
+          "x_post": {
+            "url": "https://x.com/RGVaerialphotos/status/2125263549853483483",
+            "author": {
+              "username": "RGVaerialphotos"
+            },
+            "media": [
+              {
+                "type": "video",
+                "poster": "https://pbs.twimg.com/amplify_video_thumb/2125262869587722240/img/uangdYp18zlAiL9j.jpg",
+                "video_url": "https://video.twimg.com/amplify_video/2125262869587722240/vid/avc1/3840x2160/mqJHLu9plPrn9KWf.mp4",
+                "w": 3840,
+                "h": 2160
+              }
+            ]
+          },
           "sources": [
             {
               "post_id": "2125117229482279118",
               "url": "https://x.com/efraser77/status/2125117229482279118",
               "src": "@efraser77",
               "at": "2026-11-24T06:40:04.000Z"
+            },
+            {
+              "post_id": "2125263549853483483",
+              "url": "https://x.com/RGVaerialphotos/status/2125263549853483483",
+              "src": "@RGVaerialphotos",
+              "at": "2026-11-24T16:21:30.000Z"
             }
-          ]
+          ],
+          "candidates": [
+            {
+              "type": "video",
+              "url": "https://pbs.twimg.com/amplify_video_thumb/2125262869587722240/img/uangdYp18zlAiL9j.jpg",
+              "video_url": "https://video.twimg.com/amplify_video/2125262869587722240/vid/avc1/3840x2160/mqJHLu9plPrn9KWf.mp4",
+              "score": 2,
+              "post_url": "https://x.com/RGVaerialphotos/status/2125263549853483483",
+              "author": "RGVaerialphotos",
+              "at": "2026-11-24T16:21:30.000Z",
+              "media": [
+                {
+                  "type": "video",
+                  "poster": "https://pbs.twimg.com/amplify_video_thumb/2125262869587722240/img/uangdYp18zlAiL9j.jpg",
+                  "video_url": "https://video.twimg.com/amplify_video/2125262869587722240/vid/avc1/3840x2160/mqJHLu9plPrn9KWf.mp4",
+                  "w": 3840,
+                  "h": 2160
+                }
+              ]
+            }
+          ],
+          "image_src": "https://x.com/RGVaerialphotos/status/2125263549853483483"
         },
         {
           "id": "fv-9f41e9129c",
@@ -1516,6 +1562,12 @@
               "url": "https://x.com/efraser77/status/2125117229482279118",
               "src": "@efraser77",
               "at": "2026-11-24T06:40:04.000Z"
+            },
+            {
+              "post_id": "2125263549853483483",
+              "url": "https://x.com/RGVaerialphotos/status/2125263549853483483",
+              "src": "@RGVaerialphotos",
+              "at": "2026-11-24T16:21:30.000Z"
             }
           ],
           "candidates": [
@@ -1548,6 +1600,24 @@
                   "url": "https://pbs.twimg.com/media/HX3sqLlaUAAWG6V.jpg?name=orig",
                   "w": 1989,
                   "h": 1119
+                }
+              ]
+            },
+            {
+              "type": "video",
+              "url": "https://pbs.twimg.com/amplify_video_thumb/2125262869587722240/img/uangdYp18zlAiL9j.jpg",
+              "video_url": "https://video.twimg.com/amplify_video/2125262869587722240/vid/avc1/3840x2160/mqJHLu9plPrn9KWf.mp4",
+              "score": 2,
+              "post_url": "https://x.com/RGVaerialphotos/status/2125263549853483483",
+              "author": "RGVaerialphotos",
+              "at": "2026-11-24T16:21:30.000Z",
+              "media": [
+                {
+                  "type": "video",
+                  "poster": "https://pbs.twimg.com/amplify_video_thumb/2125262869587722240/img/uangdYp18zlAiL9j.jpg",
+                  "video_url": "https://video.twimg.com/amplify_video/2125262869587722240/vid/avc1/3840x2160/mqJHLu9plPrn9KWf.mp4",
+                  "w": 3840,
+                  "h": 2160
                 }
               ]
             }
@@ -1692,10 +1762,10 @@
     }
   },
   "coverage": {
-    "at": "2026-11-24T10:30:32.925Z",
+    "at": "2026-11-24T16:30:36.813Z",
     "ok": true,
     "calls": 1,
-    "read": 17,
+    "read": 19,
     "gaps": [],
     "query_len": 359
   }
