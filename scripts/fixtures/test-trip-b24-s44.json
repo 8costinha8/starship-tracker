@@ -1,0 +1,436 @@
+{
+ "_note": "24 Nov fixture (live main 3fbc17b): Booster 24 and Ship 44 registry events (data/vehicles.json, with their same-event sources) and the Starship news posts about them (road.json feed_items). Used by scripts/test-pad-trip.js (test-site trips: Massey's).",
+ "vehicles": {
+  "B24": [
+   {
+    "id": "fv-edb506bfcb",
+    "type": "move",
+    "at": "2026-11-20T06:05:11.000Z",
+    "date": "20 Nov",
+    "text": "Booster 24 headed to Massey's.",
+    "url": "https://x.com/TrackingTheSB/status/2123658897949159619",
+    "src": "@TrackingTheSB",
+    "sources": [
+     {
+      "post_id": "2123658897949159619",
+      "url": "https://x.com/TrackingTheSB/status/2123658897949159619",
+      "src": "@TrackingTheSB",
+      "at": "2026-11-20T06:05:11.000Z"
+     },
+     {
+      "post_id": "2123663091074584938",
+      "url": "https://x.com/RGVaerialphotos/status/2123663091074584938",
+      "src": "@RGVaerialphotos",
+      "at": "2026-11-20T06:21:51.000Z"
+     },
+     {
+      "post_id": "2123774597967540724",
+      "url": "https://x.com/NASASpaceflight/status/2123774597967540724",
+      "src": "@NASASpaceflight",
+      "at": "2026-11-20T13:44:56.000Z"
+     },
+     {
+      "post_id": "2123894391177949549",
+      "url": "https://x.com/efraser77/status/2123894391177949549",
+      "src": "@efraser77",
+      "at": "2026-11-20T21:40:57.000Z"
+     }
+    ]
+   },
+   {
+    "id": "fv-58425c64c0",
+    "type": "move",
+    "at": "2026-11-20T20:08:40.000Z",
+    "date": "20 Nov",
+    "text": "Booster 24 left Mega Bay 1.",
+    "url": "https://x.com/Blobifie/status/2123871167119569323",
+    "src": "@Blobifie",
+    "sources": [
+     {
+      "post_id": "2123871167119569323",
+      "url": "https://x.com/Blobifie/status/2123871167119569323",
+      "src": "@Blobifie",
+      "at": "2026-11-20T20:08:40.000Z"
+     }
+    ]
+   },
+   {
+    "id": "fv-9a5287fc82",
+    "type": "cryo_start",
+    "at": "2026-11-22T21:16:40.000Z",
+    "date": "22 Nov",
+    "text": "Booster 24 began cryo testing at Massey's.",
+    "url": "https://x.com/RGVaerialphotos/status/2124613056231817244",
+    "src": "@RGVaerialphotos",
+    "sources": [
+     {
+      "post_id": "2124613056231817244",
+      "url": "https://x.com/RGVaerialphotos/status/2124613056231817244",
+      "src": "@RGVaerialphotos",
+      "at": "2026-11-22T21:16:40.000Z"
+     },
+     {
+      "post_id": "2124613515197731225",
+      "url": "https://x.com/TrackingTheSB/status/2124613515197731225",
+      "src": "@TrackingTheSB",
+      "at": "2026-11-22T21:18:30.000Z"
+     },
+     {
+      "post_id": "2124616503740010820",
+      "url": "https://x.com/Blobifie/status/2124616503740010820",
+      "src": "@Blobifie",
+      "at": "2026-11-22T21:30:22.000Z"
+     },
+     {
+      "post_id": "2124625181880770645",
+      "url": "https://x.com/RGVaerialphotos/status/2124625181880770645",
+      "src": "@RGVaerialphotos",
+      "at": "2026-11-22T22:04:51.000Z"
+     },
+     {
+      "post_id": "2124637434797346916",
+      "url": "https://x.com/NASASpaceflight/status/2124637434797346916",
+      "src": "@NASASpaceflight",
+      "at": "2026-11-22T22:53:32.000Z"
+     }
+    ]
+   },
+   {
+    "id": "fv-3fd642c695",
+    "type": "cryo_done",
+    "at": "2026-11-23T07:22:05.000Z",
+    "date": "23 Nov",
+    "text": "Booster 24 completed its first round of cryo testing at Massey's.",
+    "url": "https://x.com/RGVaerialphotos/status/2124765411627643131",
+    "src": "@RGVaerialphotos",
+    "sources": [
+     {
+      "post_id": "2124765411627643131",
+      "url": "https://x.com/RGVaerialphotos/status/2124765411627643131",
+      "src": "@RGVaerialphotos",
+      "at": "2026-11-23T07:22:05.000Z"
+     },
+     {
+      "post_id": "2124844557808644231",
+      "url": "https://x.com/Blobifie/status/2124844557808644231",
+      "src": "@Blobifie",
+      "at": "2026-11-23T12:36:34.000Z"
+     }
+    ]
+   },
+   {
+    "id": "fv-768cebc29b",
+    "type": "move",
+    "at": "2026-11-24T06:30:42.000Z",
+    "date": "24 Nov",
+    "text": "Booster 24 left Massey's.",
+    "url": "https://x.com/Blobifie/status/2125114870563762434",
+    "src": "@Blobifie",
+    "sources": [
+     {
+      "post_id": "2125104765050974276",
+      "url": "https://x.com/RGVaerialphotos/status/2125104765050974276",
+      "src": "@RGVaerialphotos",
+      "at": "2026-11-24T05:50:33.000Z"
+     },
+     {
+      "post_id": "2125114870563762434",
+      "url": "https://x.com/Blobifie/status/2125114870563762434",
+      "src": "@Blobifie",
+      "at": "2026-11-24T06:30:42.000Z"
+     },
+     {
+      "post_id": "2125117229482279118",
+      "url": "https://x.com/efraser77/status/2125117229482279118",
+      "src": "@efraser77",
+      "at": "2026-11-24T06:40:04.000Z"
+     }
+    ]
+   },
+   {
+    "id": "fv-a312197789",
+    "type": "move",
+    "at": "2026-11-24T13:36:59.000Z",
+    "date": "24 Nov",
+    "text": "Booster 24 is at Mega Bay 2.",
+    "url": "https://x.com/Blobifie/status/2125222150252675155",
+    "src": "@Blobifie",
+    "sources": [
+     {
+      "post_id": "2125222150252675155",
+      "url": "https://x.com/Blobifie/status/2125222150252675155",
+      "src": "@Blobifie",
+      "at": "2026-11-24T13:36:59.000Z"
+     }
+    ]
+   }
+  ],
+  "S44": [
+   {
+    "id": "fv-28207b57d7",
+    "type": "move",
+    "at": "2026-11-19T18:19:07.000Z",
+    "date": "19 Nov",
+    "text": "Ship 44 headed to Massey's.",
+    "url": "https://x.com/RGVaerialphotos/status/2123481210752315451",
+    "src": "@RGVaerialphotos",
+    "sources": [
+     {
+      "post_id": "2123481210752315451",
+      "url": "https://x.com/RGVaerialphotos/status/2123481210752315451",
+      "src": "@RGVaerialphotos",
+      "at": "2026-11-19T18:19:07.000Z"
+     },
+     {
+      "post_id": "2123504795092975747",
+      "url": "https://x.com/NASASpaceflight/status/2123504795092975747",
+      "src": "@NASASpaceflight",
+      "at": "2026-11-19T19:52:50.000Z"
+     },
+     {
+      "post_id": "2123522565675335767",
+      "url": "https://x.com/Blobifie/status/2123522565675335767",
+      "src": "@Blobifie",
+      "at": "2026-11-19T21:03:27.000Z"
+     },
+     {
+      "post_id": "2123527777483894958",
+      "url": "https://x.com/LabPadre/status/2123527777483894958",
+      "src": "@LabPadre",
+      "at": "2026-11-19T21:24:10.000Z"
+     }
+    ]
+   },
+   {
+    "id": "fv-d82c1de2a5",
+    "type": "move",
+    "at": "2026-11-20T13:44:56.000Z",
+    "date": "20 Nov",
+    "text": "Ship 44 is at Massey's.",
+    "url": "https://x.com/NASASpaceflight/status/2123774597967540724",
+    "src": "@NASASpaceflight",
+    "sources": [
+     {
+      "post_id": "2123774597967540724",
+      "url": "https://x.com/NASASpaceflight/status/2123774597967540724",
+      "src": "@NASASpaceflight",
+      "at": "2026-11-20T13:44:56.000Z"
+     },
+     {
+      "post_id": "2123871167119569323",
+      "url": "https://x.com/Blobifie/status/2123871167119569323",
+      "src": "@Blobifie",
+      "at": "2026-11-20T20:08:40.000Z"
+     },
+     {
+      "post_id": "2123894391177949549",
+      "url": "https://x.com/efraser77/status/2123894391177949549",
+      "src": "@efraser77",
+      "at": "2026-11-20T21:40:57.000Z"
+     }
+    ]
+   },
+   {
+    "id": "fv-0ce4b1fb08",
+    "type": "cryo_start",
+    "at": "2026-11-20T21:40:57.000Z",
+    "date": "20 Nov",
+    "text": "Ship 44 began cryo testing at Massey's.",
+    "url": "https://x.com/efraser77/status/2123894391177949549",
+    "src": "@efraser77",
+    "sources": [
+     {
+      "post_id": "2123894391177949549",
+      "url": "https://x.com/efraser77/status/2123894391177949549",
+      "src": "@efraser77",
+      "at": "2026-11-20T21:40:57.000Z"
+     },
+     {
+      "post_id": "2123898258842157512",
+      "url": "https://x.com/RGVaerialphotos/status/2123898258842157512",
+      "src": "@RGVaerialphotos",
+      "at": "2026-11-20T21:56:19.000Z"
+     },
+     {
+      "post_id": "2123906558115418275",
+      "url": "https://x.com/TrackingTheSB/status/2123906558115418275",
+      "src": "@TrackingTheSB",
+      "at": "2026-11-20T22:29:18.000Z"
+     },
+     {
+      "post_id": "2124022121466876147",
+      "url": "https://x.com/Blobifie/status/2124022121466876147",
+      "src": "@Blobifie",
+      "at": "2026-11-21T06:08:30.000Z"
+     },
+     {
+      "post_id": "2124973115566633088",
+      "url": "https://x.com/Blobifie/status/2124973115566633088",
+      "src": "@Blobifie",
+      "at": "2026-11-23T21:07:25.000Z"
+     }
+    ]
+   },
+   {
+    "id": "fv-d82809339b",
+    "type": "cryo_done",
+    "at": "2026-11-21T10:00:44.000Z",
+    "date": "21 Nov",
+    "text": "Ship 44 completed cryo testing.",
+    "url": "https://x.com/Blobifie/status/2124080565272117476",
+    "src": "@Blobifie",
+    "sources": [
+     {
+      "post_id": "2124080565272117476",
+      "url": "https://x.com/Blobifie/status/2124080565272117476",
+      "src": "@Blobifie",
+      "at": "2026-11-21T10:00:44.000Z"
+     },
+     {
+      "post_id": "2124265745681117187",
+      "url": "https://x.com/RGVaerialphotos/status/2124265745681117187",
+      "src": "@RGVaerialphotos",
+      "at": "2026-11-21T22:16:35.000Z"
+     },
+     {
+      "post_id": "2124613486315790767",
+      "url": "https://x.com/efraser77/status/2124613486315790767",
+      "src": "@efraser77",
+      "at": "2026-11-22T21:18:23.000Z"
+     },
+     {
+      "post_id": "2125122247467663651",
+      "url": "https://x.com/RGVaerialphotos/status/2125122247467663651",
+      "src": "@RGVaerialphotos",
+      "at": "2026-11-24T07:00:01.000Z"
+     }
+    ]
+   },
+   {
+    "id": "fv-70e2d4a17b",
+    "type": "move",
+    "at": "2026-11-24T06:40:04.000Z",
+    "date": "24 Nov",
+    "text": "Ship 44 left Massey's.",
+    "url": "https://x.com/efraser77/status/2125117229482279118",
+    "src": "@efraser77",
+    "sources": [
+     {
+      "post_id": "2125117229482279118",
+      "url": "https://x.com/efraser77/status/2125117229482279118",
+      "src": "@efraser77",
+      "at": "2026-11-24T06:40:04.000Z"
+     }
+    ]
+   },
+   {
+    "id": "fv-9f41e9129c",
+    "type": "move",
+    "at": "2026-11-24T13:36:59.000Z",
+    "date": "24 Nov",
+    "text": "Ship 44 is at Mega Bay 2.",
+    "url": "https://x.com/Blobifie/status/2125222150252675155",
+    "src": "@Blobifie",
+    "sources": [
+     {
+      "post_id": "2125222150252675155",
+      "url": "https://x.com/Blobifie/status/2125222150252675155",
+      "src": "@Blobifie",
+      "at": "2026-11-24T13:36:59.000Z"
+     }
+    ]
+   }
+  ]
+ },
+ "feed_items": [
+  {
+   "id": "news-mwuqnzaw-f71937",
+   "kind": "news",
+   "at": "2026-11-24T13:36:59.000Z",
+   "date": "24 Nov",
+   "body": "Ship 44 and Booster 24 returned to Megabay 2 and 1.",
+   "url": "https://x.com/Blobifie/status/2125222150252675155"
+  },
+  {
+   "id": "news-mwubrtls-a0fff6",
+   "kind": "news",
+   "at": "2026-11-24T06:40:04.000Z",
+   "date": "24 Nov",
+   "body": "Booster 24 and Ship 44 headed back to Production from Massey's tonight.",
+   "url": "https://x.com/efraser77/status/2125117229482279118"
+  },
+  {
+   "id": "news-mwubk320-3f6ab2",
+   "kind": "news",
+   "at": "2026-11-24T06:34:03.000Z",
+   "date": "24 Nov",
+   "body": "Ship 44 followed Booster 24 in the first double roll.",
+   "url": "https://x.com/RGVaerialphotos/status/2125115713677594697"
+  },
+  {
+   "id": "news-mwua0560-202fa6",
+   "kind": "news",
+   "at": "2026-11-24T05:50:33.000Z",
+   "date": "24 Nov",
+   "body": "Booster 24 left the cryo station and moved to the Massey's exit.",
+   "url": "https://x.com/RGVaerialphotos/status/2125104765050974276"
+  },
+  {
+   "id": "news-mwsxu05k-5598c6",
+   "kind": "news",
+   "at": "2026-11-23T07:22:05.000Z",
+   "date": "23 Nov",
+   "body": "Booster 24 completed its first round of cryogenic proof testing at Massey's today.",
+   "url": "https://x.com/RGVaerialphotos/status/2124765411627643131"
+  },
+  {
+   "id": "news-mwsfo068-909740",
+   "kind": "news",
+   "flight": 17,
+   "at": "2026-11-22T22:53:32.000Z",
+   "date": "22 Nov",
+   "body": "Booster 24 entered full cryo testing for Flight 17.",
+   "url": "https://x.com/NASASpaceflight/status/2124637434797346916"
+  },
+  {
+   "id": "news-mwpi6yi0-998e69",
+   "kind": "news",
+   "at": "2026-11-20T21:40:57.000Z",
+   "date": "20 Nov",
+   "body": "Frost was visible on Ship 44's methane tank at Massey's.",
+   "url": "https://x.com/efraser77/status/2123894391177949549"
+  },
+  {
+   "id": "news-mwp16sow-322d70",
+   "kind": "news",
+   "at": "2026-11-20T13:44:56.000Z",
+   "date": "20 Nov",
+   "body": "Ship 44 and Booster 24 were together at Massey's for testing.",
+   "url": "https://x.com/NASASpaceflight/status/2123774597967540724"
+  },
+  {
+   "id": "news-mwokrjyw-87ace3",
+   "kind": "news",
+   "at": "2026-11-20T06:05:11.000Z",
+   "date": "20 Nov",
+   "body": "Booster 24 entered Highway 4 and headed to Massey's.",
+   "url": "https://x.com/TrackingTheSB/status/2123658897949159619"
+  },
+  {
+   "id": "news-mwnvdvzs-cfb68e",
+   "kind": "news",
+   "at": "2026-11-19T18:14:43.000Z",
+   "date": "19 Nov",
+   "body": "Ship 44 rolled out for its cryogenic proof campaign.",
+   "url": "https://x.com/TrackingTheSB/status/2123480103191736583"
+  },
+  {
+   "id": "news-mwnuq2qo-6ef1e6",
+   "kind": "news",
+   "at": "2026-11-19T17:56:12.000Z",
+   "date": "19 Nov",
+   "body": "Ship 44 stood at the edge of Hwy4 before Massey testing.",
+   "url": "https://x.com/LabPadre/status/2123475444376773003"
+  }
+ ]
+}

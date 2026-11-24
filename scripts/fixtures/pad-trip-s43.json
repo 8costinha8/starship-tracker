@@ -1,0 +1,289 @@
+{
+ "_note": "24 Nov fixture (from road.json at main 4228233): Ship 43's cryo entries and its 26-28 Oct Pad 2 trip (roll out, chopstick lifts, return to the build site). Used by scripts/test-pad-trip.js.",
+ "flight": 16,
+ "categories": [
+  {
+   "id": "cryo",
+   "name": "Cryo tests",
+   "history": [
+    {
+     "id": "f16-s43-2114757145245671915",
+     "date": "26 Oct",
+     "at": "2026-10-26T16:32:48.000Z",
+     "text": "Ship 43 returned to Megabay 2 after cryo testing.",
+     "src": "@LabPadre",
+     "trust": "trusted",
+     "flight": 16,
+     "hardware": "S43",
+     "url": "https://x.com/LabPadre/status/2114757145245671915",
+     "updates": [
+      {
+       "date": "26 Oct",
+       "at": "2026-10-26T04:01:52.000Z",
+       "text": "Ship 43 returning from Massey's.",
+       "card_text": "Ship 43 headed back from Massey's.",
+       "url": "https://x.com/NASASpaceflight/status/2114568166651428965",
+       "src": "@NASASpaceflight",
+       "handle": "NASASpaceflight",
+       "phase": "completed",
+       "tier": 1
+      }
+     ],
+     "media_override": {
+      "post_url": "https://x.com/FelixSchlang/status/2114533727514640403",
+      "post_id": "2114533727514640403",
+      "author": "FelixSchlang",
+      "type": "photo",
+      "image": "images/s43-cryo-wai.jpg",
+      "keep_image": true,
+      "crop": "top",
+      "note": "Manual (Bernardo, 24 Nov): Ship 43 on the Massey cryo stand, photo 23 Oct by Jordan Guidry / WAI Media, posted by @FelixSchlang."
+     }
+    },
+    {
+     "id": "f16-s43-2113741703119253806",
+     "date": "23 Oct",
+     "at": "2026-10-23T21:17:48.000Z",
+     "text": "Ship 43 began its first cryo proof test.",
+     "src": "@Blobifie",
+     "trust": "trusted",
+     "flight": 16,
+     "hardware": "S43",
+     "url": "https://x.com/Blobifie/status/2113741703119253806",
+     "updates": [
+      {
+       "date": "23 Oct",
+       "at": "2026-10-23T20:51:07.000Z",
+       "text": "Ship 43's first cryo proof test is under way.",
+       "url": "https://x.com/Flight2Starship/status/2113734988831277242",
+       "src": "@Flight2Starship",
+       "handle": "Flight2Starship",
+       "phase": "progress",
+       "tier": 2,
+       "card_text": "Ship 43's first cryo proof test was under way."
+      },
+      {
+       "date": "24 Oct",
+       "at": "2026-10-24T15:53:57.000Z",
+       "text": "Ship 43 completed two cryo proof tests.",
+       "url": "https://x.com/Blobifie/status/2114022592189493492",
+       "src": "@Blobifie",
+       "handle": "Blobifie",
+       "phase": "completed",
+       "tier": 2
+      }
+     ],
+     "media_override": {
+      "post_url": "https://x.com/Blobifie/status/2113741703119253806",
+      "post_id": "2113741703119253806",
+      "author": "Blobifie",
+      "type": "photo",
+      "image": "https://pbs.twimg.com/media/HVWEyTyaQAA-KCA.jpg",
+      "keep_image": true,
+      "crop": "top"
+     }
+    },
+    {
+     "id": "f16-s43-2113350505065836569",
+     "date": "22 Oct",
+     "at": "2026-10-22T19:23:19.000Z",
+     "text": "Ship 43 left production for cryo testing at Massey's.",
+     "src": "@Bettybronxton",
+     "trust": "unconfirmed",
+     "flight": 16,
+     "hardware": "S43",
+     "url": "https://x.com/Bettybronxton/status/2113350505065836569",
+     "updates": [
+      {
+       "date": "23 Oct",
+       "at": "2026-10-23T14:01:17.000Z",
+       "text": "Ship 43 rolled to Massey's overnight for initial cryo testing.",
+       "url": "https://x.com/FelixSchlang/status/2113631852309135433",
+       "src": "@FelixSchlang",
+       "handle": "FelixSchlang",
+       "phase": "progress",
+       "tier": 2
+      }
+     ],
+     "media_override": {
+      "post_url": "https://x.com/Bettybronxton/status/2113350505065836569",
+      "post_id": "2113350505065836569",
+      "author": "Bettybronxton",
+      "type": "video",
+      "image": "https://pbs.twimg.com/amplify_video_thumb/2113350470194302976/img/ikUTmqE7ByY6tWFo.jpg",
+      "keep_image": true,
+      "crop": "top"
+     },
+     "unverified": true
+    }
+   ]
+  },
+  {
+   "id": "pad",
+   "name": "Pad activity",
+   "history": [
+    {
+     "id": "f16-s43-2115315741709001123",
+     "date": "28 Oct",
+     "at": "2026-10-28T05:32:28.000Z",
+     "text": "Ship 43 returned to Megabay 2.",
+     "src": "@TrackingTheSB",
+     "trust": "trusted",
+     "flight": 16,
+     "hardware": "S43",
+     "url": "https://x.com/TrackingTheSB/status/2115315741709001123",
+     "updates": [
+      {
+       "date": "28 Oct",
+       "at": "2026-10-28T03:14:13.000Z",
+       "text": "Ship 43 headed back to the build site.",
+       "url": "https://x.com/Blobifie/status/2115280953019080989",
+       "src": "@Blobifie",
+       "handle": "Blobifie",
+       "phase": "progress",
+       "tier": 2
+      },
+      {
+       "date": "28 Oct",
+       "at": "2026-10-28T04:32:19.000Z",
+       "text": "Ship 43 arrived back at the production site.",
+       "url": "https://x.com/RGVaerialphotos/status/2115300604247671193",
+       "src": "@RGVaerialphotos",
+       "handle": "RGVaerialphotos",
+       "phase": "completed",
+       "tier": 2
+      }
+     ],
+     "media_override": {
+      "post_url": "https://x.com/TrackingTheSB/status/2115315741709001123",
+      "post_id": "2115315741709001123",
+      "author": "TrackingTheSB",
+      "type": "photo",
+      "image": "https://pbs.twimg.com/media/HVsYHvSaQAAzZ3c.jpg",
+      "keep_image": true,
+      "crop": "top"
+     }
+    },
+    {
+     "id": "f16-s43-2115205843880992791",
+     "date": "27 Oct",
+     "at": "2026-10-27T22:15:46.000Z",
+     "text": "Ship 43 completed post-catch pusher tests.",
+     "src": "@Blobifie",
+     "trust": "unconfirmed",
+     "flight": 16,
+     "hardware": "S43",
+     "url": "https://x.com/Blobifie/status/2115205843880992791",
+     "updates": [
+      {
+       "date": "27 Oct",
+       "at": "2026-10-27T16:31:59.000Z",
+       "text": "Ship 43 moved to the middle of the chopsticks and lifted.",
+       "url": "https://x.com/Blobifie/status/2115119326319771766",
+       "src": "@Blobifie",
+       "handle": "Blobifie",
+       "phase": "progress",
+       "tier": 2
+      }
+     ],
+     "media_override": {
+      "post_url": "https://x.com/Blobifie/status/2115205843880992791",
+      "post_id": "2115205843880992791",
+      "author": "Blobifie",
+      "type": "video",
+      "image": "https://pbs.twimg.com/amplify_video_thumb/2115205652226445312/img/waES-njaUObm4rp_.jpg",
+      "keep_image": true,
+      "crop": "top"
+     },
+     "unverified": true,
+     "card_text": "Ship 43 likely ran post-catch pusher tests."
+    },
+    {
+     "id": "f16-s43-2114880263264346277",
+     "date": "27 Oct",
+     "at": "2026-10-27T00:42:01.000Z",
+     "text": "The chopsticks lifted Ship 43 to the top of the tower.",
+     "src": "@Blobifie",
+     "trust": "trusted",
+     "flight": 16,
+     "hardware": "S43",
+     "url": "https://x.com/Blobifie/status/2114880263264346277",
+     "updates": [
+      {
+       "date": "27 Oct",
+       "at": "2026-10-27T00:00:14.000Z",
+       "text": "Ship 43 lifted above its transport stand.",
+       "url": "https://x.com/Blobifie/status/2114869747624112210",
+       "src": "@Blobifie",
+       "handle": "Blobifie",
+       "phase": "progress",
+       "tier": 2
+      },
+      {
+       "date": "27 Oct",
+       "at": "2026-10-27T00:22:19.000Z",
+       "text": "Ship 43 airborne on the chopsticks.",
+       "card_text": "Ship 43 hung from the chopsticks.",
+       "url": "https://x.com/RGVaerialphotos/status/2114875305244369184",
+       "src": "@RGVaerialphotos",
+       "handle": "RGVaerialphotos",
+       "phase": "progress",
+       "tier": 2
+      }
+     ],
+     "media_override": {
+      "post_url": "https://x.com/Blobifie/status/2114880263264346277",
+      "post_id": "2114880263264346277",
+      "author": "Blobifie",
+      "type": "photo",
+      "image": "https://pbs.twimg.com/media/HVmQW1fbIAA2hgT.jpg",
+      "keep_image": true,
+      "crop": "top"
+     }
+    },
+    {
+     "id": "f16-s43-2114798577293635905",
+     "date": "26 Oct",
+     "at": "2026-10-26T19:17:26.000Z",
+     "text": "Ship 43 rolled to Pad 2 for chopstick tests.",
+     "src": "@NASASpaceflight",
+     "trust": "trusted",
+     "flight": 16,
+     "hardware": "S43",
+     "url": "https://x.com/NASASpaceflight/status/2114798577293635905",
+     "updates": [
+      {
+       "date": "26 Oct",
+       "at": "2026-10-26T19:39:35.000Z",
+       "text": "Ship 43 headed to Pad 2.",
+       "url": "https://x.com/LabPadre/status/2114804150693429509",
+       "src": "@LabPadre",
+       "handle": "LabPadre",
+       "phase": "progress",
+       "tier": 2
+      },
+      {
+       "date": "26 Oct",
+       "at": "2026-10-26T21:01:05.000Z",
+       "text": "Ship 43 arrived at the pad.",
+       "url": "https://x.com/colleenadastra/status/2114824660571537495",
+       "src": "@colleenadastra",
+       "handle": "colleenadastra",
+       "phase": "completed",
+       "tier": 2
+      }
+     ],
+     "media_override": {
+      "post_url": "https://x.com/NASASpaceflight/status/2114798577293635905",
+      "post_id": "2114798577293635905",
+      "author": "NASASpaceflight",
+      "type": "video",
+      "image": "https://pbs.twimg.com/amplify_video_thumb/2114798512785215489/img/LstBkhCTiy2Xrbok.jpg",
+      "keep_image": true,
+      "crop": "top"
+     }
+    }
+   ]
+  }
+ ]
+}

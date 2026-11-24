@@ -1,7 +1,8 @@
 // Category colours must be visible on the app's dark surfaces: WCAG contrast ratio of at least 3:1 (non-text UI,
 // WCAG 1.4.11) against the Road card (#10151F), the Page 2 section (#161C2C), the page (#0D111D) and the hero card
 // (#222D46). A category may instead pass through an outline: Raptor engines keeps its near-black #0E0F11 (option A2,
-// 25 Oct) and its progress dot carries a 1px light outline; the outline (composited on each surface) must reach 3:1.
+// 25 Oct) and its progress dot's own border is a light ring (drawn inside the dot, same size as every other dot); the ring
+// (composited on each surface) must reach 3:1. An outer box-shadow is refused: it makes the dot look bigger.
 //   node scripts/test-contrast.js
 const fs = require("fs"), path = require("path");
 const ROOT = path.join(__dirname, "..");
@@ -15,9 +16,10 @@ const app = fs.readFileSync(path.join(ROOT, "app.js"), "utf8");
 const rc = fs.readFileSync(path.join(ROOT, "scripts/check-road.js"), "utf8");
 const road = JSON.parse(fs.readFileSync(path.join(ROOT, "road.json"), "utf8"));
 const past = JSON.parse((app.match(/const PAST_COLOR = (\{[^\n]*\});/) || [])[1].replace(/(\w+):/g, '"$1":'));
-// outlines: .dot[data-cat="<id>"] ... { box-shadow: 0 0 0 1px rgba(r,g,b,a) }
+// outlines: .dot[data-cat="<id>"] ... { border-color: rgba(r,g,b,a) } (inside the dot) or an inset box-shadow
 const OUTLINE = {};
-for (const m of app.matchAll(/\.dot\[data-cat="(\w+)"\][^{]*\{ box-shadow: 0 0 0 1px rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)/g)) OUTLINE[m[1]] = { rgb: [+m[2], +m[3], +m[4]], a: +m[5] };
+for (const m of app.matchAll(/\.dot\[data-cat="(\w+)"\][^{]*\{ (?:border-color: |box-shadow: inset 0 0 0 1px )rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)/g)) OUTLINE[m[1]] = { rgb: [+m[2], +m[3], +m[4]], a: +m[5] };
+check(!/\.dot\[data-cat="\w+"\][^{]*\{[^}]*box-shadow: 0 0 0 /.test(app), "no outer outline on any progress dot (it would make that dot look bigger)");
 check(/data-cat=\{m\.id\} style=\{catVars\(m\.id, m\.color\)\}/.test(app), "progress dots carry data-cat so a category outline can apply");
 const sets = [["road.json", Object.fromEntries(road.categories.map((c) => [c.id, c.color]))], ["PAST_COLOR", past],
   ["check-road BOXES", Object.fromEntries([...rc.matchAll(/\{ id: "(\w+)", icon: "[^"]*", name: "[^"]*", color: "(#[0-9A-Fa-f]{6})"/g)].map((m) => [m[1], m[2]]))]];

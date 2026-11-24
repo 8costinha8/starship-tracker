@@ -851,13 +851,14 @@
             }
           ],
           "media_override": {
-            "post_url": "https://x.com/Blobifie/status/2114880263264346277",
-            "post_id": "2114880263264346277",
-            "author": "Blobifie",
+            "post_url": "https://x.com/mymatrixplug/status/2114815133700731141",
+            "post_id": "2114815133700731141",
+            "author": "mymatrixplug",
             "type": "photo",
-            "image": "https://pbs.twimg.com/media/HVmQW1fbIAA2hgT.jpg",
+            "image": "images/s43-pad-mymatrixplug-clean.jpg",
             "keep_image": true,
-            "crop": "top"
+            "picked_by": "Bernardo",
+            "note": "Manual (Bernardo, 24 Nov 13:56 UK, option 5): Ship 43 on the Pad 2 chopsticks, photo by Amy Doehring / WAI Media, posted by @mymatrixplug; WAI watermark cropped out (bottom 166 px of 926, vehicle untouched)."
           }
         },
         {

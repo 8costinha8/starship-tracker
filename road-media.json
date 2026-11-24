@@ -250,6 +250,8 @@
       "image": "images/s43-cryo-wai-clean.jpg",
       "keep_image": true,
       "crop": "top",
+      "vehicle_box": [0.4521, 0.1605, 0.5479, 1.0],
+      "recrop": "24 Nov 14:10 UK: re-cut from the original (s43-options/opt3, 2048x1365) at x 311-1751, y 315-1125 so Ship 43 is centred (it sat 13% right of centre); same zoom, WAI watermark still outside the frame",
       "picked_by": "Bernardo",
       "note": "Manual (Bernardo, 24 Nov): Ship 43 on the Massey cryo stand, photo 23 Oct by Jordan Guidry / WAI Media, posted by @FelixSchlang."
     },
@@ -263,8 +265,24 @@
       "media_type": "photo",
       "image": "images/b23-cryo-starshipgazer-clean.jpg",
       "keep_image": true,
+      "vehicle_box": [0.3074, 0.0314, 0.6926, 1.0],
+      "recrop": "24 Nov 14:10 UK: re-cut from the original (b23-options/opt3, 2172x3257) at x 345-1760, y 30-826 so Booster 23 is centred (it sat 11% left of centre); full booster width kept, StarshipGazer watermark (top left) outside the frame",
       "picked_by": "Bernardo",
       "note": "Manual (Bernardo, 24 Nov): B23 frosting mid-cryo, photo by @StarshipGazer; same source photo as the 15 Oct card."
+    },
+    {
+      "category": "pad",
+      "date": "27 Oct",
+      "entry": "Ship 43 lifted on the chopsticks at Pad 2.",
+      "post_id": "2114815133700731141",
+      "post_url": "https://x.com/mymatrixplug/status/2114815133700731141",
+      "author": "mymatrixplug",
+      "media_type": "photo",
+      "image": "images/s43-pad-mymatrixplug-clean.jpg",
+      "keep_image": true,
+      "vehicle_box": [0.4641, 0.05, 0.584, 1.0],
+      "picked_by": "Bernardo",
+      "note": "Manual (Bernardo, 24 Nov 13:56 UK, option 5): Ship 43 on the Pad 2 chopsticks, photo by Amy Doehring / WAI Media, posted by @mymatrixplug; WAI watermark cropped out (bottom 166 px of 926, vehicle untouched)."
     }
   ]
 }
