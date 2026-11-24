@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-23T21:15:29.213Z",
+  "updated": "2026-11-24T06:00:52.457Z",
   "vehicles": {
     "B7": {
       "id": "B7",
@@ -1328,6 +1328,68 @@
             }
           ],
           "image_checked": true
+        },
+        {
+          "id": "fv-3569a77e32",
+          "key": "B24|move|Massey's|24 Nov",
+          "vehicle": "B24",
+          "type": "move",
+          "milestone": false,
+          "at": "2026-11-24T05:50:33.000Z",
+          "date": "24 Nov",
+          "text": "Booster 24 headed to Massey's.",
+          "place": "Massey's",
+          "url": "https://x.com/RGVaerialphotos/status/2125104765050974276",
+          "src": "@RGVaerialphotos",
+          "tier": 2,
+          "post_id": "2125104765050974276",
+          "flight": 17,
+          "image": {
+            "type": "photo",
+            "url": "https://pbs.twimg.com/media/HX3jgWpbIAAlCVD.jpg?name=orig",
+            "score": 3.1
+          },
+          "x_post": {
+            "url": "https://x.com/RGVaerialphotos/status/2125104765050974276",
+            "author": {
+              "username": "RGVaerialphotos"
+            },
+            "media": [
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HX3jgWpbIAAlCVD.jpg?name=orig",
+                "w": 3840,
+                "h": 2160
+              }
+            ]
+          },
+          "image_src": "https://x.com/RGVaerialphotos/status/2125104765050974276",
+          "sources": [
+            {
+              "post_id": "2125104765050974276",
+              "url": "https://x.com/RGVaerialphotos/status/2125104765050974276",
+              "src": "@RGVaerialphotos",
+              "at": "2026-11-24T05:50:33.000Z"
+            }
+          ],
+          "candidates": [
+            {
+              "type": "photo",
+              "url": "https://pbs.twimg.com/media/HX3jgWpbIAAlCVD.jpg?name=orig",
+              "score": 3.1,
+              "post_url": "https://x.com/RGVaerialphotos/status/2125104765050974276",
+              "author": "RGVaerialphotos",
+              "at": "2026-11-24T05:50:33.000Z",
+              "media": [
+                {
+                  "type": "photo",
+                  "url": "https://pbs.twimg.com/media/HX3jgWpbIAAlCVD.jpg?name=orig",
+                  "w": 3840,
+                  "h": 2160
+                }
+              ]
+            }
+          ]
         }
       ],
       "state_at": "2026-11-22T21:16:40.000Z"
