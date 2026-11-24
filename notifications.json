@@ -3490,6 +3490,19 @@
       "gate": "second trusted source agrees",
       "key": "S44|transport|24 Nov",
       "guard": "G4 (warn): S44/B24 is not Flight 16 hardware (B23, S43)"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Ship 44 and Booster 24 returned to Megabay 2 and 1.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mwuqnzaw-f71937",
+      "url": "https://x.com/Blobifie/status/2125222150252675155",
+      "at": "2026-11-24T13:36:59.000Z",
+      "sent_at": "2026-11-24T14:01:35.133Z",
+      "where": "feed",
+      "verdict": "silent: minor other — a push went out 7.5h ago (quiet window 24h)",
+      "gate": "hold passed (1 run)",
+      "key": "S44|other|24 Nov",
+      "guard": "G4 (warn): S44/B24 is not Flight 16 hardware (B23, S43)"
     }
   ]
 }
