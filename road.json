@@ -5,7 +5,7 @@
     "S43"
   ],
   "updated": "24 Nov",
-  "updatedAt": "2026-11-24T06:30:24.320Z",
+  "updatedAt": "2026-11-24T06:34:36.365Z",
   "categories": [
     {
       "id": "cryo",
@@ -1635,6 +1635,15 @@
   },
   "feed_items": [
     {
+      "id": "news-mwubk320-3f6ab2",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Ship 44 followed Booster 24 in the first double roll.",
+      "url": "https://x.com/RGVaerialphotos/status/2125115713677594697",
+      "at": "2026-11-24T06:34:03.000Z",
+      "date": "24 Nov"
+    },
+    {
       "id": "news-mwua0560-202fa6",
       "kind": "news",
       "title": "🚀 Starship",
@@ -2081,20 +2090,6 @@
       "later_flight": true,
       "hidden": true,
       "why": "C1 cap"
-    },
-    {
-      "id": "news-mwcygodc-9eb18d",
-      "kind": "news",
-      "title": "🚀 Starship",
-      "body": "Ship 42 was moved back inside Megabay 2 to have its Starlink V3s installed.",
-      "url": "https://x.com/Blobifie/status/2120712033742291274",
-      "at": "2026-11-12T02:55:24.000Z",
-      "date": "12 Nov",
-      "flight": 15,
-      "src": "@Blobifie",
-      "later_flight": true,
-      "hidden": true,
-      "why": "C1 cap"
     }
   ],
   "hardware_flights": {
@@ -2223,6 +2218,20 @@
     }
   ],
   "feed_archive": [
+    {
+      "id": "news-mwcygodc-9eb18d",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Ship 42 was moved back inside Megabay 2 to have its Starlink V3s installed.",
+      "url": "https://x.com/Blobifie/status/2120712033742291274",
+      "at": "2026-11-12T02:55:24.000Z",
+      "date": "12 Nov",
+      "flight": 15,
+      "src": "@Blobifie",
+      "later_flight": true,
+      "hidden": true,
+      "why": "C1 cap"
+    },
     {
       "id": "news-mwctll4o-24a390",
       "kind": "news",
