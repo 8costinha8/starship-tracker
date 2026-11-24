@@ -14,6 +14,7 @@
   "scripts/test-checker-hardening.js",
   "scripts/test-chips.js",
   "scripts/test-colors.js",
+  "scripts/test-contrast.js",
   "scripts/test-compact.js",
   "scripts/test-date-newest.js",
   "scripts/test-date-slip.js",
