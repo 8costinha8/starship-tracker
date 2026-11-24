@@ -3445,6 +3445,25 @@
       "gate": "hold passed (1 run)",
       "key": "B24|cryo_progress|23 Nov",
       "guard": "G4 (warn): B24 is not Flight 16 hardware (B23, S43)"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Booster 24 left the cryo station and moved to the Massey's exit.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mwua0560-202fa6",
+      "url": "https://x.com/RGVaerialphotos/status/2125104765050974276",
+      "at": "2026-11-24T05:50:33.000Z",
+      "sent_at": "2026-11-24T06:30:26.274Z",
+      "where": "feed",
+      "verdict": "sent",
+      "gate": "hold passed (1 run)",
+      "key": "B24|cryo_progress|24 Nov",
+      "guard": "G4 (warn): B24 is not Flight 16 hardware (B23, S43)",
+      "delivery": {
+        "tokens": 8,
+        "success": 8,
+        "failure": 0,
+        "removed": 0
+      }
     }
   ]
 }
