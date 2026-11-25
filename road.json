@@ -4,8 +4,8 @@
     "B23",
     "S43"
   ],
-  "updated": "24 Nov",
-  "updatedAt": "2026-11-24T14:01:32.311Z",
+  "updated": "25 Nov",
+  "updatedAt": "2026-11-25T06:00:31.955Z",
   "categories": [
     {
       "id": "cryo",
@@ -1655,7 +1655,8 @@
       "body": "Ship 44 and Booster 24 returned to Megabay 2 and 1.",
       "url": "https://x.com/Blobifie/status/2125222150252675155",
       "at": "2026-11-24T13:36:59.000Z",
-      "date": "24 Nov"
+      "date": "24 Nov",
+      "src": "@Blobifie"
     },
     {
       "id": "news-mwubrtls-a0fff6",
@@ -1664,7 +1665,8 @@
       "body": "Booster 24 and Ship 44 headed back to Production from Massey's tonight.",
       "url": "https://x.com/efraser77/status/2125117229482279118",
       "at": "2026-11-24T06:40:04.000Z",
-      "date": "24 Nov"
+      "date": "24 Nov",
+      "src": "@efraser77"
     },
     {
       "id": "news-mwubk320-3f6ab2",
@@ -1673,7 +1675,8 @@
       "body": "Ship 44 followed Booster 24 in the first double roll.",
       "url": "https://x.com/RGVaerialphotos/status/2125115713677594697",
       "at": "2026-11-24T06:34:03.000Z",
-      "date": "24 Nov"
+      "date": "24 Nov",
+      "src": "@RGVaerialphotos"
     },
     {
       "id": "news-mwua0560-202fa6",
@@ -2173,11 +2176,11 @@
     "https://pbs.twimg.com/media/HXdeREuXIAAswmd.jpg": "images/cache/media_HXdeREuXIAAswmd.jpg"
   },
   "self_check": {
-    "at": "2026-11-24T06:01:17.462Z",
-    "fixes": 2,
+    "at": "2026-11-25T06:00:31.690Z",
+    "fixes": 3,
     "flags": 0,
     "counts": {
-      "source-badge": 2
+      "source-badge": 3
     },
     "judge_calls": 0,
     "flagged": [],

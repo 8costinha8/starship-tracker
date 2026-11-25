@@ -96,6 +96,12 @@
    "file": "icons/avatars/spacenews_inc.jpg",
    "from": "https://unavatar.io/x/SpaceNews_Inc",
    "saved": "2026-11-14"
+  },
+  "mymatrixplug": {
+   "handle": "mymatrixplug",
+   "file": "icons/avatars/mymatrixplug.jpg",
+   "from": "https://unavatar.io/x/mymatrixplug",
+   "saved": "2026-11-25"
   }
  }
 }
