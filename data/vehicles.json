@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-24T16:30:36.780Z",
+  "updated": "2026-11-26T04:00:56.799Z",
   "vehicles": {
     "B7": {
       "id": "B7",
@@ -1708,6 +1708,68 @@
                   "video_url": "https://video.twimg.com/amplify_video/2125221992588816384/vid/avc1/1920x1080/CkXZ6m50oHG7jNcq.mp4",
                   "w": 1920,
                   "h": 1080
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "fv-03ef1c0db1",
+          "key": "B24|move|Mega Bay 1|26 Nov",
+          "vehicle": "B24",
+          "type": "move",
+          "milestone": false,
+          "at": "2026-11-26T03:46:35.000Z",
+          "date": "26 Nov",
+          "text": "Booster 24 is at Mega Bay 1.",
+          "place": "Mega Bay 1",
+          "url": "https://x.com/RGVaerialphotos/status/2125798344182075667",
+          "src": "@RGVaerialphotos",
+          "tier": 2,
+          "post_id": "2125798344182075667",
+          "flight": 17,
+          "image": {
+            "type": "photo",
+            "url": "https://pbs.twimg.com/media/HYBZR8RXcAAaFs6.jpg?name=orig",
+            "score": 3.1
+          },
+          "x_post": {
+            "url": "https://x.com/RGVaerialphotos/status/2125798344182075667",
+            "author": {
+              "username": "RGVaerialphotos"
+            },
+            "media": [
+              {
+                "type": "photo",
+                "url": "https://pbs.twimg.com/media/HYBZR8RXcAAaFs6.jpg?name=orig",
+                "w": 4096,
+                "h": 2729
+              }
+            ]
+          },
+          "image_src": "https://x.com/RGVaerialphotos/status/2125798344182075667",
+          "sources": [
+            {
+              "post_id": "2125798344182075667",
+              "url": "https://x.com/RGVaerialphotos/status/2125798344182075667",
+              "src": "@RGVaerialphotos",
+              "at": "2026-11-26T03:46:35.000Z"
+            }
+          ],
+          "candidates": [
+            {
+              "type": "photo",
+              "url": "https://pbs.twimg.com/media/HYBZR8RXcAAaFs6.jpg?name=orig",
+              "score": 3.1,
+              "post_url": "https://x.com/RGVaerialphotos/status/2125798344182075667",
+              "author": "RGVaerialphotos",
+              "at": "2026-11-26T03:46:35.000Z",
+              "media": [
+                {
+                  "type": "photo",
+                  "url": "https://pbs.twimg.com/media/HYBZR8RXcAAaFs6.jpg?name=orig",
+                  "w": 4096,
+                  "h": 2729
                 }
               ]
             }
