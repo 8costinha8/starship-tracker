@@ -3503,6 +3503,25 @@
       "gate": "hold passed (1 run)",
       "key": "S44|other|24 Nov",
       "guard": "G4 (warn): S44/B24 is not Flight 16 hardware (B23, S43)"
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Booster LOX landing tank test article was scrapped at Massey's.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mwwwnefk-9cc4c1",
+      "url": "https://x.com/RGVaerialphotos/status/2125771529749184892",
+      "at": "2026-11-26T02:00:02.000Z",
+      "sent_at": "2026-11-26T02:30:27.450Z",
+      "where": "feed",
+      "verdict": "sent",
+      "gate": "hold passed (1 run)",
+      "key": "B23|other|26 Nov",
+      "guard": "G6 (warn): minor update at 02:xx UK (held for the app)",
+      "delivery": {
+        "tokens": 9,
+        "success": 9,
+        "failure": 0,
+        "removed": 0
+      }
     }
   ]
 }
