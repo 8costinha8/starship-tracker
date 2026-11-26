@@ -3533,6 +3533,19 @@
       "where": "road",
       "verdict": "silent: stale — stale: recap (summary of earlier news)",
       "stale": true
+    },
+    {
+      "title": "🚀 Starship",
+      "body": "Ship 46's common dome section was moved into Megabay 2.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&item=news-mwx0z800-ab6139",
+      "url": "https://x.com/RGVaerialphotos/status/2125802021290996169",
+      "at": "2026-11-26T04:01:12.000Z",
+      "sent_at": "2026-11-26T04:30:56.688Z",
+      "where": "feed",
+      "verdict": "silent: minor transport — a push went out 2.0h ago (quiet window 24h)",
+      "gate": "hold passed (1 run)",
+      "key": "S46|transport|26 Nov",
+      "guard": "G4 (warn): S46 is not Flight 16 hardware (B23, S43)"
     }
   ]
 }
