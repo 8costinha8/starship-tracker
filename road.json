@@ -5,7 +5,7 @@
     "S43"
   ],
   "updated": "26 Nov",
-  "updatedAt": "2026-11-26T04:30:54.583Z",
+  "updatedAt": "2026-11-26T06:00:46.057Z",
   "categories": [
     {
       "id": "cryo",
@@ -586,7 +586,7 @@
           "text": "Booster 23 preparing for static fire testing ahead of Flight 16.",
           "x_text": "Booster 23 preparing for static fire testing ahead of Flight 16.",
           "push_text": "Booster 23 preparing for static fire at Megabay.",
-          "card_text": "Booster 23 preparing for static fire testing ahead of Flight 16.",
+          "card_text": "Booster 23 was preparing for static fire testing ahead of Flight 16.",
           "log_text": "Booster 23 preparing for static fire testing ahead of Flight 16.",
           "status_line": "Booster 23 static fire prep under way.",
           "url": "https://x.com/RGVaerialphotos/status/2125798344182075667",
@@ -1705,7 +1705,8 @@
       "body": "Ship 46's common dome section was moved into Megabay 2.",
       "url": "https://x.com/RGVaerialphotos/status/2125802021290996169",
       "at": "2026-11-26T04:01:12.000Z",
-      "date": "26 Nov"
+      "date": "26 Nov",
+      "src": "@RGVaerialphotos"
     },
     {
       "id": "news-mwwwnefk-9cc4c1",
@@ -1716,7 +1717,8 @@
       "at": "2026-11-26T02:00:02.000Z",
       "date": "26 Nov",
       "flight": 16,
-      "box": "cryo"
+      "box": "cryo",
+      "src": "@RGVaerialphotos"
     },
     {
       "id": "news-mwuqnzaw-f71937",
@@ -2220,17 +2222,20 @@
     "https://pbs.twimg.com/media/HXdeREuXIAAswmd.jpg": "images/cache/media_HXdeREuXIAAswmd.jpg"
   },
   "self_check": {
-    "at": "2026-11-25T06:00:31.690Z",
+    "at": "2026-11-26T06:00:45.772Z",
     "fixes": 3,
-    "flags": 0,
+    "flags": 1,
     "counts": {
-      "source-badge": 3
+      "past-tense": 1,
+      "source-badge": 2
     },
     "judge_calls": 0,
-    "flagged": [],
+    "flagged": [
+      "[render-tense] Flight Log raptor Booster 23 26 Nov: \"Booster 23 ready with all 33 Raptors.\" has no verb (fragment)"
+    ],
     "render": {
-      "status": "ok",
-      "failures": 0
+      "status": "failed",
+      "failures": 1
     }
   },
   "mission_updates": {

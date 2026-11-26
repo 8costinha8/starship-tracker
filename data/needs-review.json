@@ -1,6 +1,32 @@
 {
   "items": [
     {
+      "date": "2026-11-26T06:00:46.063Z",
+      "type": "summary_long",
+      "item": "x-2125798344182075667",
+      "values": [
+        "Booster 23 was preparing for static fire testing ahead of Flight 16."
+      ],
+      "sources": [
+        "https://x.com/RGVaerialphotos/status/2125798344182075667"
+      ],
+      "reason": "card summary is 68 chars (one-line limit 38); shown clamped",
+      "kept": null,
+      "msg": "summary_long F16 static x-2125798344182075667: Booster 23 was preparing for static fire testing ahead of Flight 16."
+    },
+    {
+      "date": "2026-11-26T06:00:46.055Z",
+      "type": "render-tense",
+      "item": "Flight Log raptor Booster 23 26 Nov",
+      "values": [
+        "Booster 23 ready with all 33 Raptors."
+      ],
+      "sources": [],
+      "reason": "full past-tense sentences on cards and feed",
+      "kept": null,
+      "msg": "Flight Log raptor Booster 23 26 Nov: \"Booster 23 ready with all 33 Raptors.\" has no verb (fragment)"
+    },
+    {
       "date": "2026-11-26T04:01:00.750Z",
       "type": "summary_long",
       "item": "x-2125798344182075667",

@@ -25,10 +25,12 @@
   },
   "committed_at": "2026-11-26T05:30:24.828Z",
   "render_check": {
-    "at": "2026-11-25T06:00:31.690Z",
-    "status": "ok",
-    "failures": 0,
-    "items": []
+    "at": "2026-11-26T06:00:45.772Z",
+    "status": "failed",
+    "failures": 1,
+    "items": [
+      "[render-tense] Flight Log raptor Booster 23 26 Nov: \"Booster 23 ready with all 33 Raptors.\" has no verb (fragment)"
+    ]
   },
   "sources": {
     "ll2": {
