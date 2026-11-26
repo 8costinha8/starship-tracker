@@ -3522,6 +3522,17 @@
         "failure": 0,
         "removed": 0
       }
+    },
+    {
+      "title": "💥 Static fires: In progress",
+      "body": "Booster 23 preparing for static fire at Megabay.",
+      "link": "https://8costinha8.github.io/starship-tracker/?feed=1&entry=x-2125798344182075667",
+      "url": "https://x.com/RGVaerialphotos/status/2125798344182075667",
+      "at": "2026-11-26T03:46:35.000Z",
+      "sent_at": "2026-11-26T04:01:02.975Z",
+      "where": "road",
+      "verdict": "silent: stale — stale: recap (summary of earlier news)",
+      "stale": true
     }
   ]
 }
