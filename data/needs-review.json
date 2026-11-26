@@ -1,6 +1,20 @@
 {
   "items": [
     {
+      "date": "2026-11-26T04:01:00.750Z",
+      "type": "summary_long",
+      "item": "x-2125798344182075667",
+      "values": [
+        "Booster 23 preparing for static fire testing ahead of Flight 16."
+      ],
+      "sources": [
+        "https://x.com/RGVaerialphotos/status/2125798344182075667"
+      ],
+      "reason": "card summary is 64 chars (one-line limit 38); shown clamped",
+      "kept": null,
+      "msg": "summary_long F16 static x-2125798344182075667: Booster 23 preparing for static fire testing ahead of Flight 16."
+    },
+    {
       "date": "2026-11-24T13:10:00.000Z",
       "type": "photo_candidate",
       "card_id": "fv-0ce4b1fb08",
