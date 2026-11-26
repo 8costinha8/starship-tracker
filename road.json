@@ -5,7 +5,7 @@
     "S43"
   ],
   "updated": "26 Nov",
-  "updatedAt": "2026-11-26T04:01:00.741Z",
+  "updatedAt": "2026-11-26T04:15:37.946Z",
   "categories": [
     {
       "id": "cryo",
@@ -564,7 +564,7 @@
       "icon": "🔥",
       "name": "Raptor engines",
       "color": "#0E0F11",
-      "status": "none",
+      "status": "progress",
       "latest": "Nothing reported yet",
       "history": [],
       "log_latest": "Nothing reported yet"
@@ -1699,6 +1699,15 @@
   },
   "feed_items": [
     {
+      "id": "news-mwx0z800-ab6139",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "Ship 46's common dome section was moved into Megabay 2.",
+      "url": "https://x.com/RGVaerialphotos/status/2125802021290996169",
+      "at": "2026-11-26T04:01:12.000Z",
+      "date": "26 Nov"
+    },
+    {
       "id": "news-mwwwnefk-9cc4c1",
       "kind": "news",
       "title": "🚀 Starship",
@@ -1887,7 +1896,9 @@
       "url": "https://x.com/efraser77/status/2122531077734764947",
       "at": "2026-11-17T03:23:38.000Z",
       "date": "17 Nov",
-      "src": "@efraser77"
+      "src": "@efraser77",
+      "hidden": true,
+      "why": "C1 cap"
     },
     {
       "id": "news-mwijrvag-873941",
@@ -2131,20 +2142,6 @@
       "later_flight": true,
       "hidden": true,
       "why": "C1 cap"
-    },
-    {
-      "id": "news-mweajln4-cff1cb",
-      "kind": "news",
-      "title": "🚀 Starship",
-      "body": "The SQD was connected to Ship 42.",
-      "url": "https://x.com/TrackingTheSB/status/2121050758389154027",
-      "at": "2026-11-13T01:21:22.000Z",
-      "date": "13 Nov",
-      "flight": 15,
-      "src": "@TrackingTheSB",
-      "later_flight": true,
-      "hidden": true,
-      "why": "C1 cap"
     }
   ],
   "hardware_flights": {
@@ -2274,6 +2271,20 @@
   ],
   "feed_archive": [
     {
+      "id": "news-mweajln4-cff1cb",
+      "kind": "news",
+      "title": "🚀 Starship",
+      "body": "The SQD was connected to Ship 42.",
+      "url": "https://x.com/TrackingTheSB/status/2121050758389154027",
+      "at": "2026-11-13T01:21:22.000Z",
+      "date": "13 Nov",
+      "flight": 15,
+      "src": "@TrackingTheSB",
+      "later_flight": true,
+      "hidden": true,
+      "why": "C1 cap"
+    },
+    {
       "id": "news-mwe9iewo-e9b8c0",
       "kind": "news",
       "title": "🚀 Starship",
@@ -2367,5 +2378,14 @@
       "why": "22 Nov reliability-b1 data fix: old Flight 15 countdown headline fragment (13 Nov), shown in the feed as current news"
     }
   ],
-  "fleet_synced": 16
+  "fleet_synced": 16,
+  "inferred": {
+    "B23": {
+      "raptor": {
+        "date": "26 Nov",
+        "by": "static fire",
+        "why": "Booster 23 is in static fire testing, so all 33 Raptors are installed."
+      }
+    }
+  }
 }
