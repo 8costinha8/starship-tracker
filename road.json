@@ -4,8 +4,8 @@
     "B23",
     "S43"
   ],
-  "updated": "26 Nov",
-  "updatedAt": "2026-11-26T06:00:46.057Z",
+  "updated": "27 Nov",
+  "updatedAt": "2026-11-27T06:01:05.036Z",
   "categories": [
     {
       "id": "cryo",
@@ -2222,13 +2222,10 @@
     "https://pbs.twimg.com/media/HXdeREuXIAAswmd.jpg": "images/cache/media_HXdeREuXIAAswmd.jpg"
   },
   "self_check": {
-    "at": "2026-11-26T06:00:45.772Z",
-    "fixes": 3,
+    "at": "2026-11-27T06:01:04.662Z",
+    "fixes": 0,
     "flags": 1,
-    "counts": {
-      "past-tense": 1,
-      "source-badge": 2
-    },
+    "counts": {},
     "judge_calls": 0,
     "flagged": [
       "[render-tense] Flight Log raptor Booster 23 26 Nov: \"Booster 23 ready with all 33 Raptors.\" has no verb (fragment)"
