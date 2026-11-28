@@ -1,6 +1,34 @@
 {
   "items": [
     {
+      "date": "2026-11-28T18:15:29.465Z",
+      "type": "summary_long",
+      "item": "review-2114673311045353935",
+      "values": [
+        "Due to receive all six Raptor 3 engines at Mega Bay 2."
+      ],
+      "sources": [
+        "https://x.com/Blobifie/status/2114673311045353935"
+      ],
+      "reason": "card summary is 54 chars (one-line limit 38); shown clamped",
+      "kept": null,
+      "msg": "summary_long F16 raptor review-2114673311045353935: Due to receive all six Raptor 3 engines at Mega Bay 2."
+    },
+    {
+      "date": "2026-11-28T18:15:29.465Z",
+      "type": "summary_long",
+      "item": "review-2116198873345544505",
+      "values": [
+        "Left Massey's for Mega Bay 1. No visible testing during the 28–30 Oct visit; an ambient pressure test is unconfirmed."
+      ],
+      "sources": [
+        "https://x.com/YouTubeify/status/2116198873345544505"
+      ],
+      "reason": "card summary is 117 chars (one-line limit 38); shown clamped",
+      "kept": null,
+      "msg": "summary_long F16 cryo review-2116198873345544505: Left Massey's for Mega Bay 1. No visible testing during the 28–30 Oct visit; an ambient pressure test is unconfirmed."
+    },
+    {
       "date": "2026-11-26T06:00:46.063Z",
       "type": "summary_long",
       "item": "x-2125798344182075667",
@@ -738,6 +766,22 @@
       "reason": "feed item is history (not rewritten); hero/card use the higher-tier day",
       "kept": "hero NET 12 Nov",
       "msg": "feed \"NET Nov 2026\" (flight-mvsjfivy-8b129a) is a month-only Launch Library date; hero day NET 12 Nov is the higher-tier value"
+    },
+    {
+      "date": "2026-11-28T18:15:29.444Z",
+      "type": "needs-fill",
+      "image": "https://pbs.twimg.com/media/HYBZR8RXcAAaFs6.jpg",
+      "card_id": "x-2125798344182075667",
+      "post_url": "https://x.com/RGVaerialphotos/status/2125798344182075667",
+      "reason": "No 16:9 crop keeps both RGV watermarks fully in frame. Tusk makes a Grok fill for Bernardo to approve; no auto-swap, no flat bars.",
+      "item": "x-2125798344182075667",
+      "values": [
+        "https://pbs.twimg.com/media/HYBZR8RXcAAaFs6.jpg"
+      ],
+      "sources": [
+        "https://x.com/RGVaerialphotos/status/2125798344182075667"
+      ],
+      "msg": "needs-fill x-2125798344182075667: https://pbs.twimg.com/media/HYBZR8RXcAAaFs6.jpg"
     }
   ],
   "_about": "Self-check (scripts/self-check.js) clashes it could not settle by rule: the higher-tier value was kept; a human decides."

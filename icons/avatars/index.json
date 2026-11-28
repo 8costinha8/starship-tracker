@@ -102,6 +102,54 @@
    "file": "icons/avatars/mymatrixplug.jpg",
    "from": "https://unavatar.io/x/mymatrixplug",
    "saved": "2026-11-25"
+  },
+  "youtubeify": {
+   "handle": "YouTubeify",
+   "file": "icons/avatars/youtubeify.jpg",
+   "from": "https://unavatar.io/x/YouTubeify",
+   "saved": "2026-11-28"
+  },
+  "enneps": {
+   "handle": "ENNEPS",
+   "file": "icons/avatars/enneps.jpg",
+   "from": "https://unavatar.io/x/ENNEPS",
+   "saved": "2026-11-28"
+  },
+  "_testflight_": {
+   "handle": "_Testflight_",
+   "file": "icons/avatars/_testflight_.jpg",
+   "from": "https://unavatar.io/x/_Testflight_",
+   "saved": "2026-11-28"
+  },
+  "roughridersshow": {
+   "handle": "RoughRidersShow",
+   "file": "icons/avatars/roughridersshow.jpg",
+   "from": "https://unavatar.io/x/RoughRidersShow",
+   "saved": "2026-11-28"
+  },
+  "arealrocketman": {
+   "handle": "ARealRocketMan",
+   "file": "icons/avatars/arealrocketman.jpg",
+   "from": "https://unavatar.io/x/ARealRocketMan",
+   "saved": "2026-11-28"
+  },
+  "rc_horseman": {
+   "handle": "RC_horseman",
+   "file": "icons/avatars/rc_horseman.jpg",
+   "from": "https://unavatar.io/x/RC_horseman",
+   "saved": "2026-11-28"
+  },
+  "raptorroosttx": {
+   "handle": "RaptorRoostTX",
+   "file": "icons/avatars/raptorroosttx.jpg",
+   "from": "https://unavatar.io/x/RaptorRoostTX",
+   "saved": "2026-11-28"
+  },
+  "vickicocks15": {
+   "handle": "VickiCocks15",
+   "file": "icons/avatars/vickicocks15.jpg",
+   "from": "https://unavatar.io/x/VickiCocks15",
+   "saved": "2026-11-28"
   }
  }
 }
