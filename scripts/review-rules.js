@@ -990,9 +990,25 @@
     if (h.photo) out.photo = typeof structuredClone === "function" ? structuredClone(h.photo) : JSON.parse(JSON.stringify(h.photo));
     return out;
   }
+  function isBernardoPick(mo) {
+    return !!(mo && mo.image && /Bernardo/i.test(String(mo.note || "")) && (mo.keep_image || mo.note));
+  }
   function attachPhotos(entry, photos) {
     if (!entry || !photos) return;
-    if (photos.media_override && !entry.media_override) entry.media_override = photos.media_override;
+    // A keep_image pick with a Bernardo note is the card's picture; never replace or drop it.
+    if (isBernardoPick(entry.media_override)) {
+      entry.media_override.keep_image = true;
+      return;
+    }
+    if (isBernardoPick(photos.media_override)) {
+      entry.media_override = typeof structuredClone === "function" ? structuredClone(photos.media_override) : JSON.parse(JSON.stringify(photos.media_override));
+      entry.media_override.keep_image = true;
+      return;
+    }
+    if (photos.media_override) {
+      if (!entry.media_override) entry.media_override = photos.media_override;
+      else if (photos.media_override.keep_image && !entry.media_override.keep_image) entry.media_override.keep_image = photos.media_override.keep_image;
+    }
     if (photos.x_post && (!entry.x_post || !(entry.x_post.media && entry.x_post.media.length))) entry.x_post = photos.x_post;
     if (photos.image && !entry.image) entry.image = photos.image;
     if (photos.image_src && !entry.image_src) entry.image_src = photos.image_src;
@@ -1010,6 +1026,11 @@
       if (hw && h.date) byVehDate.push({ hw, date: h.date, iso: (h.at && ukDate(h.at) && ukDate(h.at).iso) || "", h, box });
     };
     for (const c of road.categories || []) for (const h of c.history || []) add(h, c.id);
+    // A later apply in the same checker run may have had a recap-guard drop the
+    // live history row; keep photos already written onto review beats.
+    for (const b of (road.review && road.review.beats) || []) {
+      add({ ...b, hardware: b.vehicleId, date: b.date, at: b.at }, b.box);
+    }
     return { byId, byUrl, byVehDate };
   }
   function bestPhotoFromGroup(group, livePhotos, vehicle, date, box) {
@@ -1060,7 +1081,15 @@
       if (hasPhoto(b)) continue;
       const earlier = beats.filter((o) => o !== b && o.vehicleId === b.vehicleId && o.box === b.box && hasPhoto(o) && o.at && b.at && Date.parse(String(o.at).slice(0, 10)) <= Date.parse(String(b.at).slice(0, 10)) && Date.parse(String(b.at).slice(0, 10)) - Date.parse(String(o.at).slice(0, 10)) <= 3 * 864e5);
       const pin = earlier.find((o) => o.media_override && o.media_override.keep_image) || earlier[0];
-      if (pin) Object.assign(b, photoFields(pin));
+      if (pin) { Object.assign(b, photoFields(pin)); continue; }
+      // Same-day live history photo (e.g. S43 22 Oct Bettybronxton) when no earlier beat has one.
+      // Raptor beats use the stock default, not a leftover same-day cryo/move photo.
+      if (b.box === "raptor") continue;
+      if (livePhotos && b.vehicleId && (b.date || b.at)) {
+        const day = b.date, iso = (b.at && String(b.at).slice(0, 10)) || "";
+        const cands = (livePhotos.byVehDate || []).filter((x) => x.hw === b.vehicleId && (!b.box || x.box === b.box) && ((day && x.date === day) || (iso && (x.iso === iso || (x.h.at && String(x.h.at).slice(0, 10) === iso)))));
+        if (cands[0]) Object.assign(b, photoFields(cands[0].h));
+      }
     }
     for (const b of beats) applyRaptorDefaultPhoto(b);
   }
@@ -1540,7 +1569,7 @@
         const tm = beatTimeMeta(g, link, date);
         const photos = bestPhotoFromGroup(g, livePhotos, veh, date, ["return_engines", "engines", "engines_ahead"].includes(kind) ? "raptor" : "cryo");
         beats.push({
-          id: "beat-" + (link && (link.id || (link.url || "").split("/").pop()) || g[0].id),
+          id: "beat-" + String((link && ((link.url || "").split("/").pop() || link.id)) || g[0].id || "").replace(/^review-/, ""),
           box: ["return_engines", "engines", "engines_ahead"].includes(kind) ? "raptor" : "cryo",
           vehicle: vName(veh), vehicleId: veh, flight,
           date: fmtDay(date), at: tm.at, time_known: tm.time_known,
@@ -1556,6 +1585,20 @@
       }
     }
     fillRoundPhotos(beats, livePhotos);
+    for (const b of beats) {
+      const mo = b.media_override;
+      if (isBernardoPick(mo)) mo.keep_image = true;
+      if (mo && mo.image && !mo.default_photo) {
+        const id = (u) => ((String(u || "").match(/status\/(\d+)/) || [])[1] || String(u || "").split("?")[0]);
+        if (mo.post_url && b.url && id(mo.post_url) !== id(b.url)) {
+          if (b.box === "raptor" && !isBernardoPick(mo)) {
+            delete b.media_override; delete b.x_post; delete b.image; delete b.image_src; delete b.keep_image; delete b.photo;
+          } else {
+            mo.fallback = true;
+          }
+        }
+      }
+    }
     for (const b of beats) {
       const kept = b.media_override && b.media_override.keep_image;
       if (b.box === "raptor" && !kept && !photoAgreesWithLink(b, b.url)) {
@@ -1685,31 +1728,48 @@
       let entry;
       if (live && live.liveEntry) {
         entry = live.liveEntry;
-        if (entry.text !== text) { entry.text = text; entry.x_text = text; changed = true; }
-        if (date && entry.date !== fmtDay(date)) { entry.date = fmtDay(date); changed = true; }
-        if (tm.time_known === false) {
-          entry.time_known = false;
-          if (date && entry.at && ukDate(entry.at) && ukDate(entry.at).iso !== date.iso) { entry.at = date.iso; changed = true; }
-        } else if (date && entry.at && ukDate(entry.at) && ukDate(entry.at).iso !== date.iso) {
-          entry.at = tm.at || date.iso;
-          changed = true;
+        const reviewOwned = !!(entry.no_push && (String(entry.id || "").startsWith("review-") || entry.review_source));
+        if (!reviewOwned) {
+          if (entry.text !== text) { entry.text = text; entry.x_text = text; changed = true; }
+          if (date && entry.date !== fmtDay(date)) { entry.date = fmtDay(date); changed = true; }
+          if (tm.time_known === false) {
+            entry.time_known = false;
+            if (date && entry.at && ukDate(entry.at) && ukDate(entry.at).iso !== date.iso) { entry.at = date.iso; changed = true; }
+          } else if (date && entry.at && ukDate(entry.at) && ukDate(entry.at).iso !== date.iso) {
+            entry.at = tm.at || date.iso;
+            changed = true;
+          }
         }
         if (link && link.url) entry.url = entry.url || link.url;
         if (kind === "cryo_complete") entry.complete = true;
         entry.hardware = entry.hardware || veh;
       } else {
-        entry = {
-          id: "review-" + (link && ((link.url || "").split("/").pop() || link.id) || g[0].id),
-          date: fmtDay(date),
-          at: tm.time_known && link && link.publishedMs ? new Date(link.publishedMs).toISOString() : (date ? date.iso : undefined),
-          time_known: tm.time_known,
-          text, x_text: text, src: link ? ("@" + (link.handle || "").replace(/^@/, "")) : undefined,
-          source: link ? displaySource(link) : undefined, review_source: link ? displaySource(link) : undefined, url: link && link.url, trust: "trusted",
-          no_push: true, tier: link && link.tier === 1 ? 1 : 2, hardware: veh, stage: box,
-          complete: kind === "cryo_complete" || undefined
-        };
-        changed = true;
-        log(`review: new ${box} ${veh} ${entry.date}: ${text.slice(0, 90)}`);
+        const wantId = "review-" + (link && ((link.url || "").split("/").pop() || link.id) || g[0].id);
+        const cat = (road.categories || []).find((c) => c.id === box);
+        const existing = ((cat && cat.history) || []).find((h) => h && (h.id === wantId || (link && link.url && h.url === link.url && String(h.hardware || "").replace(/^Booster\s*/i, "B").replace(/^Ship\s*/i, "S") === veh)));
+        if (existing) {
+          entry = existing;
+          // Keep a review-authored line stable; a later pass can re-extract a weaker wording from the same x_post.
+          if (!entry.text) { entry.text = text; entry.x_text = text; changed = true; }
+          if (!entry.id) entry.id = wantId;
+          if (link && link.url) entry.url = entry.url || link.url;
+          if (kind === "cryo_complete") entry.complete = true;
+          entry.hardware = entry.hardware || veh;
+          entry.no_push = true;
+        } else {
+          entry = {
+            id: wantId,
+            date: fmtDay(date),
+            at: tm.time_known && link && link.publishedMs ? new Date(link.publishedMs).toISOString() : (date ? date.iso : undefined),
+            time_known: tm.time_known,
+            text, x_text: text, src: link ? ("@" + (link.handle || "").replace(/^@/, "")) : undefined,
+            source: link ? displaySource(link) : undefined, review_source: link ? displaySource(link) : undefined, url: link && link.url, trust: "trusted",
+            no_push: true, tier: link && link.tier === 1 ? 1 : 2, hardware: veh, stage: box,
+            complete: kind === "cryo_complete" || undefined
+          };
+          changed = true;
+          log(`review: new ${box} ${veh} ${entry.date}: ${text.slice(0, 90)}`);
+        }
       }
       attachPhotos(entry, photos);
       if (box === "raptor") applyRaptorDefaultPhoto(entry);

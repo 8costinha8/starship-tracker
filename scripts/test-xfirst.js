@@ -18,7 +18,7 @@ const xReply = (posts, newest) => ({ ok: true, status: 200, json: async () => ({
   const roadPath = path.join(tmp, "road.json"), appJsPath = path.join(tmp, "app.js");
   fs.copyFileSync(path.join(ROOT, "road.json"), roadPath); fs.copyFileSync(path.join(ROOT, "app.js"), appJsPath);
   { // this scenario is "S43 with no cryo done yet": drop the real Flight 16 audit cards (Road page only) from the fixture copy
-    const rj = JSON.parse(fs.readFileSync(roadPath, "utf8")); for (const c of rj.categories) c.history = (c.history || []).filter((h) => !(h.audit && h.flight === 16) && !(h.at && Date.parse(h.at) > NOW)); /* 9 Nov: rows dated after the test clock (16 Oct) dropped — history is now date-sorted (history-cap.js), so live November rows would sit above the test posts */ fs.writeFileSync(roadPath, JSON.stringify(rj, null, 2) + "\n"); }
+    const rj = JSON.parse(fs.readFileSync(roadPath, "utf8")); delete rj.review; for (const c of rj.categories) c.history = (c.history || []).filter((h) => !(h.audit && h.flight === 16) && !(h.at && Date.parse(h.at) > NOW)); /* 9 Nov: rows dated after the test clock (16 Oct) dropped — history is now date-sorted (history-cap.js), so live November rows would sit above the test posts */ fs.writeFileSync(roadPath, JSON.stringify(rj, null, 2) + "\n"); }
   const before = JSON.parse(fs.readFileSync(roadPath, "utf8"));
   const oldCards = before.categories.flatMap((c) => (c.history || []).filter((h) => h.kind !== "check").map((h) => `${c.id}|${h.date}|${h.text}`));
   const mediaBefore = fs.readFileSync(path.join(ROOT, "road-media.json"), "utf8");
@@ -27,7 +27,7 @@ const xReply = (posts, newest) => ({ ok: true, status: 200, json: async () => ({
   const deps = { loadState: async () => JSON.parse(JSON.stringify(stored)), saveState: async (s) => { stored = JSON.parse(JSON.stringify(s)); }, push: async (n) => sent.push(n) };
   const article = { name: "NSF (article)", fetch: async () => [{ key: "rss:nsf-1", title: "Ship 42 rolls to Massey's for cryo", text: "Ship 42 rolled to Massey's for cryo testing.", url: "https://www.nasaspaceflight.com/x", publishedAt: ago(2), src: "NSF", source: "NASASpaceflight", tier: "trusted" }] };
   let xPage = xReply([P("900", "1", 3, "hello")], "900");
-  const base = { xFirst: true, mode: "dry-run", roadPath, appJsPath, deps, sources: [article], commit: (f, m) => commits.push(m), now: () => NOW, next: null, xToken: "fake",
+  const base = { xFirst: true, mode: "dry-run", review: false, roadPath, appJsPath, deps, sources: [article], commit: (f, m) => commits.push(m), now: () => NOW, next: null, xToken: "fake",
     askClaude: async () => { throw new Error("article path must not run"); }, askNews: async () => [], askDates: async () => [],
     xFetch: async (u) => { urls.push(new URL(u)); return xPage; } };
   // Massey's posts use Ship 43 (cryo not yet done in live road.json): Ship 42 finished cryo, so its Massey's trips now file under Static fires (test-massey.js).

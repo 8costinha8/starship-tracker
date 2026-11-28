@@ -97,6 +97,8 @@ function refile(road) {
     if (c.id === "faa" || c.id === "date") continue;
     for (const h of [...(c.history || [])]) {
       if (h.kind === "check" || h.refiled_pin || h.journey_pin) continue;
+      // Review-layer rows (id review-*, no_push) are owned by applyToRoad; moving them to another box makes the next checker run invent extra pills and duplicate history.
+      if (h.no_push && (String(h.id || "").startsWith("review-") || h.review_source)) continue;
       const to = purposeOf(road, { ...h, text: lineOf(h), box: c.id }, st).box;
       if (to === c.id || !cat(to)) continue;
       const stay = (h.updates || []).filter((u) => purposeOf(road, { ...u, text: u.text, box: c.id }, st).box === c.id); // e.g. pure pad work, or a ship fit check on the tower

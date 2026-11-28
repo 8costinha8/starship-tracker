@@ -1313,6 +1313,42 @@ function pushGateFor(state, road, xf, { token, fetchFn = fetch, ask = null, log 
   };
   return gate;
 }
+
+// Review layer (default ON). Kill switch: REVIEW=off (or 0/false/no) in the env,
+// or opts.review === false. Regenerates road.review from data/review-sources.json
+// plus trusted posts/articles already read this run. No extra X/API fetches.
+function isTrustedReviewSource(s) {
+  const t = s && s.url ? trustForUrl(s.url) : null;
+  if (t && isTrusted(t.tier)) return true;
+  const tier = String((s && s.tier) || "").toLowerCase();
+  if (tier === "official" || tier === "trusted" || tier === "1") return true;
+  const handle = String((s && s.handle_or_outlet) || "").replace(/^@/, "").toLowerCase();
+  if (handle && Object.keys(X_ACCOUNTS).some((h) => h.toLowerCase() === handle)) return true;
+  return false;
+}
+function applyReviewLayer(road, opts, { xf, items, log, clock, save, frameFiles, root } = {}) {
+  const RS = require("./review-sources.js");
+  if (!RS.reviewWanted(opts)) return { changed: false, wanted: false };
+  const file = opts.reviewSourcesPath || RS.sourcesPath(root || (opts.roadPath ? path.dirname(opts.roadPath) : ROOT));
+  const store = RS.load(file);
+  const nowIso = new Date(clock ? clock() : Date.now()).toISOString();
+  const incoming = RS.collectAlreadyRead(xf, items, { nowIso, flight: road.flight }, { isTrustedItem: isTrustedReviewSource });
+  const pack = RS.appendAndPrune(store, incoming, { road, nowIso });
+  if (save && pack.changed) {
+    RS.save(file, pack.store);
+    if (frameFiles) {
+      const rel = path.isAbsolute(file) ? (path.relative(root || ROOT, file) || file) : file;
+      frameFiles.push(rel);
+    }
+    log(`review sources: +${pack.added} appended, ${pack.pruned} pruned, ${pack.store.sources.length} kept (no extra X/API fetch)`);
+  }
+  const RR = require("./review-rules.js");
+  const before = JSON.stringify(road);
+  const out = RR.applyToRoad(road, { sources: pack.store.sources, extraFeedItems: opts.extraFeedItems || [], log });
+  const mutated = before !== JSON.stringify(road);
+  return { changed: !!(mutated || (save && pack.changed)), wanted: true, pack, pills: out.pills, beats: out.beats };
+}
+
 async function run(opts = {}) {
   let creditsDirty = false; // 24 Nov (road-footer v6): data/photo-credits.json got new photo post texts this run
   let fleetNRDirty = false; // 24 Nov: fleet photo candidates / direction holds written to data/needs-review.json this run
@@ -1799,12 +1835,13 @@ async function run(opts = {}) {
     } catch (e) { log(`self-check failed (carrying on): ${e.message}`); }
   }
 
+  // 4z-review. Default-on review layer (kill switch: REVIEW=off or opts.review === false).
+  // Probe first so a quiet run that needs to persist road.review still enters the write path.
+  // Applied again after guards (below) so the written road.review cannot be dropped.
+  { const rv = applyReviewLayer(road, opts, { xf, items, log, clock, save: false, frameFiles, root: opts.roadPath ? path.dirname(roadPath) : ROOT }); if (rv.changed) changed = true; }
+
   // 5. Save, commit, then notify (so the app already has the new card when the push lands)
   if (changed || predChanged) {
-    if (changed) {
-      road.updated = fmtDay();
-      road.updatedAt = new Date().toISOString();
-    }
     { // guards: block / auto-fix known bug classes before road.json is written (logged as GUARD)
       let prevRoad = null; try { prevRoad = JSON.parse(fs.readFileSync(roadPath, "utf8")); } catch {}
       const g = require("./guards.js").run(road, { prev: prevRoad, log, review: xf ? (xf.review = xf.review || []) : null, now: clock(), slipPush: predict.slipPush, addFeedItem: pushSync.addFeedItem });
@@ -1838,15 +1875,24 @@ async function run(opts = {}) {
       const unlocked = require("./media-lock.js").sanitizeRoad(road, (() => { try { return JSON.parse(fs.readFileSync(path.join(gRoot, "road-media.json"), "utf8")).picks || []; } catch { return []; } })());
       for (const u of unlocked) log(`media lock removed (no recorded Bernardo pick): ${u.where} ${u.id} ${u.flags.join("+")}`);
     } catch (e) { log(`pre-publish guards skipped: ${e.message}`); }
-    if (opts.review === true || opts.reviewSources) {
-      const RR = require("./review-rules.js");
-      const out = RR.applyToRoad(road, { sources: opts.reviewSources || [], extraFeedItems: opts.extraFeedItems || [], log });
-      if (out.changed) changed = true;
-    }
+    // Regenerate road.review last so earlier guards cannot drop it. Default on; REVIEW=off skips.
+    { const rv = applyReviewLayer(road, opts, { xf, items, log, clock, save, frameFiles, root: opts.roadPath ? path.dirname(roadPath) : ROOT }); if (rv.changed) changed = true; }
     validateRoad(road);
     mission.validateMission(road);
     predict.validatePredicted(road);
     if (process.env.COMPACT_FEED !== "off") { try { const ch = require("./compact.js").compactFeed(road); if (ch.length) log(`compact: ${ch.length} older feed item(s) flagged hidden (superseded / capped); data kept`); } catch (e) { log(`compact skipped: ${e.message}`); } } // flags only; the app ignores them until its filter ships
+    // Stamp "Updated" only when the card body actually changed, so a quiet re-run
+    // (review already present, no new posts) writes a byte-identical road.json.
+    { let prevWritten = null; try { prevWritten = JSON.parse(fs.readFileSync(roadPath, "utf8")); } catch {}
+      const bodyOf = (r) => { const x = JSON.parse(JSON.stringify(r)); delete x.updated; delete x.updatedAt; return JSON.stringify(x); };
+      if (prevWritten && bodyOf(prevWritten) === bodyOf(road)) {
+        road.updated = prevWritten.updated;
+        road.updatedAt = prevWritten.updatedAt;
+      } else if (changed) {
+        road.updated = fmtDay();
+        road.updatedAt = new Date().toISOString();
+      }
+    }
     const json = JSON.stringify(road, null, 2) + "\n";
     if (save) {
       fs.writeFileSync(roadPath, json);

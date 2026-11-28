@@ -34,6 +34,7 @@
   "scripts/test-f16-p1-drawers.js",
   "scripts/test-f16-r3.js",
   "scripts/test-f16-prod-newer.js",
+  "scripts/test-f16-review-default.js",
   "scripts/test-grok-savers.js",
   "scripts/test-hedged.js",
   "scripts/test-images.js",

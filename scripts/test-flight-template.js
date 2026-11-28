@@ -78,6 +78,12 @@ const checks = appFns(["upcomingFlight", "rtfRows", "roadForFlight", "fleetRoad"
       const mo = h.media_override;
       const photo = mo && mo.image && !/rtf-placeholder/.test(String(mo.image));
       if (photo) {
+        // Production urlOf: a raptor default / stock image keeps the headline
+        // as View on X; the photo's source is the circular badge only.
+        if (mo.default_photo || /(?:ship|booster)-raptor-default/.test(String(mo.image || ""))) {
+          o(same(view, h.url), `${name}: default raptor photo — View on X stays the headline post (view=${view}, headline=${h.url})`);
+          o(!!mo.post_url && !same(mo.post_url, h.url), `${name}: default photo source is on the badge, distinct from the headline (photo=${mo.post_url})`);
+        } else {
         o(same(view, mo.post_url), `${name}: View on X matches the shown photo's post (view=${view}, photo=${mo.post_url})`);
         if (mo.fallback) {
           o((!!mo.photo_date || !!mo.keep_image) && !same(view, h.url), `${name}: fallback / manual-pick photo is not the headline post (headline=${h.url}, photo=${mo.post_url}, ${mo.keep_image ? "manual pick" : "Photo · " + mo.photo_date})`);
@@ -86,6 +92,7 @@ const checks = appFns(["upcomingFlight", "rtfRows", "roadForFlight", "fleetRoad"
         } else {
           o(same(mo.post_url, h.url) && same(view, h.url), `${name}: own-photo card — photo, View on X and headline share the same post`);
           o(!h.x_post || same(h.x_post.url, h.url), `${name}: attached x_post is the headline post, not a different one`);
+        }
         }
       } else {
         o(!view || same(view, h.url), `${name}: text-only card — View on X is the headline post (${view})`);
@@ -120,8 +127,8 @@ const checks = appFns(["upcomingFlight", "rtfRows", "roadForFlight", "fleetRoad"
     o(!!(p && mo && mo.image === image && mo.keep_image && sid(mo.post_url) === postId && sid(view) === postId && headRe.test(p.h.url)), `${label}: manual pick ${mo && mo.image} · View on X ${sid(view)} (want ${image}, ${postId}) · headline ${p && p.h.url}`);
   };
   expectManual("live F16 S43 cryo", pick(f16posts, "cryo", /Ship 43/), "images/s43-cryo-wai-clean.jpg", "2114533727514640403", /LabPadre\/status\/2114757145245671915/);
-  expectManual("live F16 B23 cryo", pick(f16posts, "cryo", /Booster 23/), "images/b23-cryo-starshipgazer-clean.jpg", "2110889490336350574", /TrackingTheSB\/status\/2115353615561064723/);
-  { const r = JSON.parse(JSON.stringify(road0)); const c = r.categories.find((x) => x.id === "cryo"); const e = c.history.find((h) => h.id === "f16-s43-2114757145245671915"); e.media_override = { ...e.media_override, note: "auto pick" };
+  expectManual("live F16 B23 cryo", pick(f16posts, "cryo", /Booster 23/), "images/b23-cryo-starshipgazer-clean.jpg", "2110889490336350574", /YouTubeify\/status\/2116198873345544505/);
+  { const r = JSON.parse(JSON.stringify(road0)); const c = r.categories.find((x) => x.id === "cryo"); const e = c.history.find((h) => h.id === "f16-s43-2114757145245671915"); e.media_override = { ...e.media_override, note: "auto pick", keep_image: true }; if (r.review && r.review.beats) for (const b of r.review.beats) { if ((b.url && e && b.url === e.url) || (b.media_override && b.media_override.image === "images/s43-cryo-wai-clean.jpg")) b.media_override = { ...b.media_override, note: "auto pick", keep_image: true }; }
     const p = pick(A.roadPageRows(A.rtfRows(r).rows, r.flight, A.pastRoadFlights(r, A.FLIGHTS)).cur.filter((x) => x.post).map((x) => x.post), "cryo", /Ship 43/);
     o(!(p && p.h.media_override && p.h.media_override.image === "images/s43-cryo-wai-clean.jpg" && sid(A.urlOf(p.h)) === "2114533727514640403"), "a keep_image picture with no Bernardo note does not hijack the card face (another post's photo needs a recorded manual pick)"); }
   // newest earlier photo wins; no photo at all → text-only

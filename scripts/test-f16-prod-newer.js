@@ -14,7 +14,9 @@ const lox = JSON.parse(fs.readFileSync(path.join(ROOT, "tests/fixtures/f16-revie
 const snap = JSON.parse(fs.readFileSync(path.join(ROOT, "tests/fixtures/f16-review/preview-snapshot.json"), "utf8"));
 const extra = lox.feed_item ? [lox.feed_item] : [lox];
 const logs = [];
-const { road, pills, beats } = RR.applyToRoad(structuredClone(live), {
+const liveForApply = structuredClone(live);
+for (const f of liveForApply.feed_items || []) delete f.card_hide;
+const { road, pills, beats } = RR.applyToRoad(liveForApply, {
   sources, extraFeedItems: extra, log: (s) => logs.push(String(s))
 });
 const fails = [];

@@ -3947,7 +3947,12 @@ function cardFaceOrFallback(own, list, cid, done) {
   if (ownPic) return { pic: ownPic, fallback: false, ev: own, date: null };
   if (own && own.media_override && own.media_override.fallback && own.media_override.image) {
     const mo = own.media_override;
-    return { pic: { image: mo.image, type: mo.type || "photo", post_url: mo.post_url, author: mo.author, crop: mo.crop }, fallback: true, ev: own, date: null };
+    const pin = !!(mo.keep_image && /Bernardo/i.test(String(mo.note || "")));
+    const other = mo.post_url && !samePost(mo.post_url, own.url || (own.x_post && own.x_post.url) || "");
+    // A keep_image from another post needs Bernardo's recorded note; otherwise it does not hijack the face.
+    if (!(other && mo.keep_image && !pin)) {
+      return { pic: { image: mo.image, type: mo.type || "photo", post_url: mo.post_url, author: mo.author, crop: mo.crop, manual: pin }, fallback: true, ev: own, date: mo.photo_date || null };
+    }
   }
   // 24 Nov photo gate: a ship cryo card whose own picture is not confidently good shows Bernardo's standing photo
   if (cid === "cryo" && own && isShipCryo(own, { id: "cryo" })) { const pick = (typeof window !== "undefined" && window.RoadPick) || (typeof globalThis !== "undefined" && globalThis.RoadPick);
@@ -4027,16 +4032,17 @@ function rtfCards(road) {
   const cols = [ship, boo].filter(isVehId);
   for (const cid of ["cryo", "raptor", "static", "pad"]) for (const v of rtfCategoryVehicles(cid, cols)) {
     const cat = cats[cid]; let list = (bucket[cid + "|" + v] || []).slice().sort((a, b) => (Date.parse(cardIso(b)) || 0) - (Date.parse(cardIso(a)) || 0));
+    let usedReviewBeats = false;
     if (road.review && (cid === "cryo" || cid === "raptor")) {
-      const bs = (road.review.beats || []).filter((b) => b.box === cid && (b.vehicleId === v || b.vehicle === vname(v)));
-      if (bs.length) list = bs.map((b) => ({
+      const bs = (road.review.beats || []).filter((b) => b.box === cid && (b.vehicleId === v || b.vehicle === vname(v)) && (b.flight == null || b.flight === road.flight));
+      if (bs.length) { usedReviewBeats = true; list = bs.map((b) => ({
         id: b.id, date: b.date,
         at: b.time_known === false ? undefined : (b.at && String(b.at).length > 10 ? b.at : undefined),
         time_known: b.time_known,
         text: b.text, card_text: b.text, url: b.url, src: b.source ? b.source : "",
         hardware: v, review_source: b.source, no_push: true,
         media_override: b.media_override, x_post: b.x_post, image: b.image, image_src: b.image_src, keep_image: b.keep_image, photo: b.photo
-      }));
+      })); }
     }
     const wdrOrDone = cid === "pad" ? list.find((h) => isDoneCard(h) && /wet dress/i.test(h.text || "")) : list.find((h) => rtfIsDone(h, cid));
     const ovBox = typeof boxOverrides === "function" ? boxOverrides(road, road.flight) : null;
@@ -4053,7 +4059,7 @@ function rtfCards(road) {
     // 24 Nov: Bernardo's recorded manual pick (keep_image + a note naming him) on any entry of this card (vehicle + box) is the
     // card's picture, whichever post leads the card; the newest such pick wins.
     const isPin = (h) => !!(h && h.media_override && h.media_override.keep_image && h.media_override.image && /\bBernardo\b/.test(String(h.media_override.note || "")));
-    const pinnedEv = [main, ...list].filter(isPin).sort((a, b) => (Date.parse(b.at || "") || 0) - (Date.parse(a.at || "") || 0))[0] || null;
+    const pinnedEv = [main, ...list, ...(bucket[cid + "|" + v] || [])].filter(isPin).sort((a, b) => (Date.parse(b.at || "") || 0) - (Date.parse(a.at || "") || 0))[0] || null;
     const pinned = pinnedEv ? pinnedEv.media_override : null;
     // every post for this vehicle + category except the milestone's own, newest first; text + time + credit only
     const rows = [], seen = new Set([urlOf(main), main.url].filter(Boolean));
@@ -4089,6 +4095,29 @@ function rtfCards(road) {
       add({ id: h.id, text: h.text, ...(h.card_text ? { card_text: h.card_text } : {}), at: cardIso(h) || h.at, date: h.date, url: h.url || urlOf(h), src: h.src, review_source: "Single source", single_source: true, trust: "unconfirmed", handle: (h.x_post && h.x_post.author && h.x_post.author.username) || (h.media_override && h.media_override.author) || (String(h.src || "").startsWith("@") ? h.src : null) });
     }
     rows.sort(byNew);
+    // Review beats lead cryo/raptor; leftover production history (test-site trips,
+    // moves) stays as Earlier updates so nothing is lost and a move never leads.
+    // Only attach extras that are strictly older than the headline (date-only
+    // headlines cannot carry timed rows — Page 2 ordering treats missing cardIso as 0).
+    if (usedReviewBeats) {
+      const headT = Date.parse(cardIso(main) || "") || 0;
+      const headUrl = main.url || urlOf(main);
+      if (headT) {
+        for (const h of (bucket[cid + "|" + v] || [])) {
+          const at = cardIso(h) || h.at;
+          const t = Date.parse(at || "") || 0;
+          const url = h.url || urlOf(h);
+          if ((!url || url !== headUrl) && t && t < headT) add({ id: h.id, text: h.text, ...(h.card_text ? { card_text: h.card_text } : {}), at, date: h.date, url, src: h.src, handle: (h.x_post && h.x_post.author && h.x_post.author.username) || (h.media_override && h.media_override.author) || (String(h.src || "").startsWith("@") ? h.src : null), test_trip: h.test_trip });
+          for (const u of h.updates || []) {
+            if (typeof isRoadFlightEvent === "function" && isRoadFlightEvent(u, road)) continue;
+            const ut = Date.parse(u.at || "") || 0;
+            const uv = rtfVeh(u.text, road);
+            if (ut && ut < headT && (v === "pad" ? !otherVehOnly(u.text, road) : uv.length ? uv.includes(v) : !otherVehOnly(u.text, road))) add({ text: u.text, ...(u.card_text ? { card_text: u.card_text } : {}), at: u.at, date: u.date, url: u.url, src: u.src, event_row: u.event_row, ...(u.merged ? { merged: u.merged } : {}), phase: u.phase, handle: u.handle || (String(u.src || "").startsWith("@") ? u.src : null) });
+          }
+        }
+        rows.sort(byNew);
+      }
+    }
     const own = headlineOwn(main);
     // 24 Nov: Bernardo's manual pick is the card's picture even when the photo is from another post: photo, credit and
     // View on X stay on that photo's post; the headline post stays on the second credit line (two-link layout). Never a placeholder.

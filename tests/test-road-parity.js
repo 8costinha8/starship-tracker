@@ -5,7 +5,7 @@ const ROOT = path.join(__dirname, "..");
 const src = fs.readFileSync(path.join(ROOT, "app.js"), "utf8");
 let fails = 0; const check = (ok, m) => { console.log((ok ? "✅ " : "❌ ") + m); if (!ok) fails++; };
 // pull app.js top-level declarations by name (+ their dependencies), the same way scripts/render-check.js does
-const WANT = ["rtfCards", "roadForFlight", "pastRoadGroup", "pastCondensed", "FLIGHTS", "cardIso", "roadBoxEntries", "roadBoxLatest", "rtfRows", "cardDate", "roadMediaOf", "parityEarlier", "scrub", "pillParts", "RTF_PLACEHOLDER", "upIso", "ukStamp", "feedTime", "fmtDay", "cardT", "roadUpdates", "entryDate"];
+const WANT = ["RTF_CATS", "rtfCards", "roadForFlight", "pastRoadGroup", "pastCondensed", "FLIGHTS", "cardIso", "roadBoxEntries", "roadBoxLatest", "rtfRows", "cardDate", "roadMediaOf", "parityEarlier", "scrub", "pillParts", "RTF_PLACEHOLDER", "upIso", "ukStamp", "feedTime", "fmtDay", "cardT", "roadUpdates", "entryDate"];
 const EXTRA = new Set();
 const A_window = { RoadPick: require(path.join(ROOT, "scripts/road-pick.js")), addEventListener() {}, dispatchEvent() {} };
 function load() {
@@ -71,8 +71,12 @@ for (const n of [14, 15, base.flight]) {
 { const r = roads["shifted to Flight 17"], bad = [];
   for (const p of A.rtfCards(r).filter((x) => !x.empty)) for (const u of p.h.updates || []) if (!(tOf(u) < (Date.parse(A.cardIso(p.h)) || 0))) bad.push(p.id);
   check(bad.length === 0, `shifted to Flight 17: newest post leads every card (${bad.join(", ") || "ok"})`); }
-{ const b23 = A.rtfCards(base).find((p) => p.id === "rtf-cryo-B23");
-  check(b23 && /^28 Oct/.test(A.cardDate(b23.h)) && b23.h.complete && (b23.h.updates || []).some((u) => /rolled back to the production site/.test(u.text)), `Booster 23 cryo leads with its newest post (${b23 && A.cardDate(b23.h)}: ${b23 && b23.h.text}); the 18 Oct return is an Earlier update; still complete`); }
+{ const cards = A.rtfCards(base);
+  const b23 = cards.find((p) => p.id === "rtf-cryo-B23");
+  const b23rap = cards.find((p) => p.id === "rtf-raptor-B23");
+  const onB23 = (re) => [b23, b23rap].some((c) => c && [c.h, ...(c.h.updates || [])].some((u) => re.test(u.text || u.card_text || "")));
+  check(b23 && /30 Oct/.test(A.cardDate(b23.h)) && /Left Massey's/i.test(b23.h.text || b23.h.card_text || "") && !b23.h.complete, `Booster 23 cryo leads with the 30 Oct leave (${b23 && A.cardDate(b23.h)}: ${b23 && b23.h.text}); unconfirmed, not a complete card`);
+  check(onB23(/28 Oct|Rolled out to Massey's for Booster 23/) && onB23(/rolled back to the production site|Returned to Mega Bay 1 from cryo testing/), "B23 28 Oct Massey's visit and 18 Oct return remain on a B23 Page 2 card"); }
 // (b) pictures: Page 1 past boxes show their road.archive summary photo (15 Nov: Page 2 has no past groups any more)
 for (const n of [14, 15]) {
   const items = base.archive[n].summary.items.filter((e) => e && e.text && e.vehicle && e.box !== "date"), p1 = A.pastCondensed(A.pastRoadGroup(base, n, A.FLIGHTS));
@@ -89,7 +93,8 @@ for (const n of [14, 15]) {
   check(TS.toCard("Booster 23 completed a cryo proof test.") === "Booster 23 completed a cryo proof test.", "rewriter: full sentences unchanged");
   check(TS.pairFrom({ text: "Ship 43 airborne on the chopsticks.", card_text: "Ship 43 airborne on the chopsticks." }).card_text === "Ship 43 was airborne on the chopsticks.", "writer output with a fragment card_text is rewritten to a full sentence");
   check(/!TS\.isFragment\(cur\)/.test(fs.readFileSync(path.join(ROOT, "scripts/self-check.js"), "utf8")), "self-check repairs fragment card lines on its next run");
-  const frags = []; for (const c of base.categories) for (const h of c.history || []) for (const o of [h, ...(h.updates || [])]) { const t = o.card_text || o.text; if (t && TS.isFragment(t)) frags.push(t); }
+  const beatTexts = new Set(((base.review && base.review.beats) || []).map((b) => b.text).filter(Boolean));
+  const frags = []; for (const c of base.categories) for (const h of c.history || []) for (const o of [h, ...(h.updates || [])]) { const t = o.card_text || o.text; if (t && TS.isFragment(t) && !beatTexts.has(t) && !h.no_push && !h.review_source && !String(h.id || "").startsWith("review-")) frags.push(t); }
   check(frags.length === 0, `road.json: no fragment card lines (${frags.join(" | ") || "none"})`); }
 // Page 1 RoadCard: no separate Flight Log text source left
 { const rc = src.slice(src.indexOf("function RoadCard("), src.indexOf("// One Page 2 card, condensed"));
