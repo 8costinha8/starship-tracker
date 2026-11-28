@@ -1838,6 +1838,11 @@ async function run(opts = {}) {
       const unlocked = require("./media-lock.js").sanitizeRoad(road, (() => { try { return JSON.parse(fs.readFileSync(path.join(gRoot, "road-media.json"), "utf8")).picks || []; } catch { return []; } })());
       for (const u of unlocked) log(`media lock removed (no recorded Bernardo pick): ${u.where} ${u.id} ${u.flags.join("+")}`);
     } catch (e) { log(`pre-publish guards skipped: ${e.message}`); }
+    if (opts.review === true || opts.reviewSources) {
+      const RR = require("./review-rules.js");
+      const out = RR.applyToRoad(road, { sources: opts.reviewSources || [], extraFeedItems: opts.extraFeedItems || [], log });
+      if (out.changed) changed = true;
+    }
     validateRoad(road);
     mission.validateMission(road);
     predict.validatePredicted(road);

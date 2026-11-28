@@ -1,0 +1,34 @@
+{
+  "_about": "Fixture 7 input: exact feed_items entry copied from origin/main road.json via git show. Not hand-written.",
+  "_git_ref": "9b179ebd23fc59cc05107988657a6e0972779018",
+  "_path": "road.json feed_items",
+  "feed_item": {
+    "id": "news-mwwwnefk-9cc4c1",
+    "kind": "news",
+    "title": "\ud83d\ude80 Starship",
+    "body": "Booster LOX landing tank test article was scrapped at Massey's.",
+    "url": "https://x.com/RGVaerialphotos/status/2125771529749184892",
+    "at": "2026-11-26T02:00:02.000Z",
+    "date": "26 Nov",
+    "flight": 16,
+    "box": "cryo",
+    "src": "@RGVaerialphotos"
+  },
+  "git_occurrences": [
+    {
+      "path": "/feed_items[1]",
+      "obj": {
+        "id": "news-mwwwnefk-9cc4c1",
+        "kind": "news",
+        "title": "\ud83d\ude80 Starship",
+        "body": "Booster LOX landing tank test article was scrapped at Massey's.",
+        "url": "https://x.com/RGVaerialphotos/status/2125771529749184892",
+        "at": "2026-11-26T02:00:02.000Z",
+        "date": "26 Nov",
+        "flight": 16,
+        "box": "cryo",
+        "src": "@RGVaerialphotos"
+      }
+    }
+  ]
+}

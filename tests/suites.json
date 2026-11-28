@@ -29,6 +29,11 @@
   "scripts/test-flights.js",
   "scripts/test-footage.js",
   "scripts/test-freshness.js",
+  "scripts/test-f16-review.js",
+  "scripts/test-f16-review-photos.js",
+  "scripts/test-f16-p1-drawers.js",
+  "scripts/test-f16-r3.js",
+  "scripts/test-f16-prod-newer.js",
   "scripts/test-grok-savers.js",
   "scripts/test-hedged.js",
   "scripts/test-images.js",
@@ -70,7 +75,7 @@
   "scripts/test-summary-guard.js",
   "scripts/test-road-rules.js",
   "scripts/test-photo-lock.js",
-    "scripts/test-header-press.js"
+  "scripts/test-header-press.js"
  ],
  "frozen": {
   "scripts/test-cleanup.js": "2e85ec2",

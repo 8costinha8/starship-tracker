@@ -13,6 +13,7 @@
    6. Nothing matched: the model's box when its confidence ≥ 0.7, else the campaign-window default, never Pad
       activity when a vehicle is named. */
 const C = require("./cleanup.js");
+const RETURN_FOR_ENGINES = /\b(?:return(?:ed|s|ing)?|roll(?:ed|s|ing)?(?:\s*back)?|trip back|headed back|back to)\b[^.]{0,120}\bfor engine (?:install|installation|integration)\b/i;
 const ENGINE = /\b(?:raptors?|engines?|rvacs?|rsls?)\b[^.]{0,40}\b(?:install|reinstall|remov|swap|deliver|spotted|fitted|fitting)\w*|\b(?:install|reinstall|remov|swap|deliver|fitt?)\w*\b[^.]{0,15}\b(?:raptors?|engines?)\b|ready with all \d+ (?:raptors?|engines?)|(?:raptors?|engines?) (?:were|are) all in/i;
 // 1 Nov: engine PREP (a lifting jig raised, a bay readied "for engine testing") is journey context, not a Raptor milestone.
 const ENGINE_PREP = /lifting jig|\bjig\b|\bfor (?:its |the )?(?:engine|raptor) (?:testing|work|install\w*)/i;
@@ -65,6 +66,7 @@ function purposeOf(road, step, st = states(road)) {
   const day = C.dayNum(step);
   const fired = (v) => st[v] && st[v].static != null && day > st[v].static;
   const anyOpen = vs.length ? vs.some((v) => !fired(v)) : Object.values(st).some((s) => s.static == null);
+  if (has("raptor") && RETURN_FOR_ENGINES.test(t)) return { box: "raptor", why: "return for engine installation" };
   if (has("raptor") && ENGINE.test(t) && !isEnginePrep(t)) return { box: "raptor", why: "engine install / removal / swap" };
   if (has("cryo") && CRYO.test(t) && !/static[- ]?fire/i.test(t) && !(ROLLBACK.test(t) && vs.length && vs.every(fired))) return { box: "cryo", why: "cryo campaign" }; // leaving Massey's after static fires is not cryo
   if (STATIC_SIG.test(t) && (/static[- ]?fire/i.test(t) || anyOpen || (vs.length && ROLLBACK.test(t))))

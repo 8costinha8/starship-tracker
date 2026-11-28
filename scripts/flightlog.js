@@ -45,6 +45,12 @@
   };
   const vehicleOf = (l, vs) => { const n = C.named(l.text).filter((v) => vs.includes(v)); const other = C.named(l.text).filter((v) => !vs.includes(v)); if (other.length && !n.length) return null; return n.length === 1 ? n[0] : !n.length ? l.hw : null; };
   const isDone = (l, sec) => ENGINE_EVENT[sec].test(l.text) && /\b(complet\w*|conduct\w*|perform\w*|finish\w*|fired)\b/i.test(l.text) && !FORECAST.test(l.text) && !/\bboth\b/i.test(l.text);
+  // Preview review: "Installed" only when a source says engines are in for that vehicle — not "due to receive" / "ahead of installation".
+  const saysEnginesInstalled = (t) => {
+    const s = String(t || "");
+    if (/due to receive|ahead of engine|for engine installation|being reinstalled|headed back for|removed from|will now receive/i.test(s)) return false;
+    return /ready with all\s*\d+\s*raptors|raptors were all in|all (?:six|6|33) raptors\b[\s\S]*\b(?:in|installed)|engines are installed|installed (?:all )?(?:its |the )?(?:six |6 |33 )?raptors/i.test(s);
+  };
   function collapse(lines) { // one completion per day per engine count (several posts about the same test)
     const out = [];
     for (const l of lines) {
@@ -63,11 +69,16 @@
     if (id === "cryo" || id === "static") {
       for (const l of allLines(road, id)) { const v = vehicleOf(l, vs); if (v && by[v] && isDone(l, id)) by[v].push(l); }
     } else if (id === "raptor") {
-      for (const v of vs) {
-        const inf = road.inferred && road.inferred[v] && road.inferred[v].raptor;
-        const sf = allLines(road, "static").filter((l) => vehicleOf(l, vs) === v && /roll(?:s|ed)? (?:out )?to|heads? to|headed to|rolled out/i.test(l.text)).sort((a, b) => sortKey(a) - sortKey(b))[0];
-        const day = sf ? sf.day.split("–").pop() : inf && inf.date;
-        if (day) by[v].push({ day, time: "", text: `${vName(v)} ready with all ${v[0] === "S" ? 6 : 33} Raptors.`, at: sf ? sf.at : "" });
+      if (road.review) {
+        // Preview review: only lines actually filed under Raptor engines — never invent "ready with all N".
+        for (const l of allLines(road, id)) { const v = vehicleOf(l, vs); if (v && by[v]) by[v].push(l); }
+      } else {
+        for (const v of vs) {
+          const inf = road.inferred && road.inferred[v] && road.inferred[v].raptor;
+          const sf = allLines(road, "static").filter((l) => vehicleOf(l, vs) === v && /roll(?:s|ed)? (?:out )?to|heads? to|headed to|rolled out/i.test(l.text)).sort((a, b) => sortKey(a) - sortKey(b))[0];
+          const day = sf ? sf.day.split("–").pop() : inf && inf.date;
+          if (day) by[v].push({ day, time: "", text: `${vName(v)} ready with all ${v[0] === "S" ? 6 : 33} Raptors.`, at: sf ? sf.at : "" });
+        }
       }
     } else if (id === "pad") {
       const pad = String(road.pad || "Pad 2");
@@ -154,11 +165,21 @@ function boxes(road, today = ukDay(new Date(typeof globalThis !== "undefined" &&
           status = wdr ? "done" : tested ? "progress" : "none"; statusText = wdr ? DONE_LABEL[id] : tested ? "In progress" : "Not yet";
           latest = wdr ? `Wet dress rehearsal done.` : tested ? `${road.pad || "Pad"} tests in progress.` : cards.length ? `No ${road.pad || "pad"} tests yet.` : "Nothing reported yet"; // headline matches the "Not yet" pill // short: box heads stay one size
         } else {
-          const done = vs.filter((v) => cards.some((k) => k.vehicle === v));
-          status = vs.length && done.length === vs.length ? "done" : done.length ? "progress" : "none";
+          const vehicleDone = (v) => {
+            if (id === "raptor" && road.review) {
+              const lines = ((cards.find((k) => k.vehicle === v) || {}).lines) || [];
+              return lines.some((l) => saysEnginesInstalled(l && l.text));
+            }
+            return cards.some((k) => k.vehicle === v);
+          };
+          const done = vs.filter(vehicleDone);
+          const hasLines = vs.filter((v) => cards.some((k) => k.vehicle === v));
+          status = vs.length && done.length === vs.length ? "done" : hasLines.length ? "progress" : "none";
           statusText = status === "done" ? DONE_LABEL[id] : status === "progress" ? "In progress" : "Not yet";
           const what = { cryo: "cryo tests", raptor: "Raptors installed", static: "static fires" }[id] || c.name;
-          latest = status === "done" ? (vs.length > 1 ? "Both vehicles done." : `${vName(vs[0])} done.`) : done.length ? `${done.map(vName).join(" and ")} done.` : "Nothing reported yet"; void what;
+          latest = (id === "raptor" && road.review && status !== "done")
+            ? (hasLines.length ? "Engine installation under way." : "Nothing reported yet")
+            : status === "done" ? (vs.length > 1 ? "Both vehicles done." : `${vName(vs[0])} done.`) : done.length ? `${done.map(vName).join(" and ")} done.` : "Nothing reported yet"; void what;
         }
       }
       out[id] = { id, status, statusText, latest, cards };

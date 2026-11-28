@@ -1,0 +1,5 @@
+{
+  "note": "Preview started from production main cdaf517 (same road.json as this batch's base, before review). History and feed_items with at >= cutoff_at are production data at or after the edge of the recorded fixture window and must not be lost or silently hidden by the review layer.",
+  "production_base": "cdaf517075038ef74691f22a52360098465c3d50",
+  "cutoff_at": "2026-11-18T00:00:00.000Z"
+}
